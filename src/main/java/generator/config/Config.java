@@ -4,6 +4,9 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.Reader;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.google.gson.JsonIOException;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
@@ -22,6 +25,8 @@ import com.google.gson.JsonSyntaxException;
  */
 public class Config {
 
+	final Logger logger = LoggerFactory.getLogger(Config.class);
+	
 	public enum TLevel {
 		EASY,
 		MEDIUM,
@@ -40,8 +45,7 @@ public class Config {
 		try {
 			readConfig(fetchProfileAsFile(profile));
 		} catch (MissingConfigurationException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			logger.error("Couldn't load the configuration file");
 		}
 		/*
 		 * TODO: FIX THIS THING! Is the mystic Game just a dynamic setting? If
@@ -183,15 +187,10 @@ public class Config {
 		JsonParser parser = new JsonParser();
 		try {
 			config = (JsonObject) parser.parse(configReader);
-		} catch (JsonIOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+		} catch (JsonIOException | NullPointerException e) {
+			logger.error("Couldn't load the configuration file:\n" + e.getMessage());
 		} catch (JsonSyntaxException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (NullPointerException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			logger.error("Couldn't parse the configuration file. Is it valid?\n" + e.getMessage());
 		}
 	}
 
