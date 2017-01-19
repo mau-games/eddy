@@ -9,6 +9,17 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.google.gson.JsonSyntaxException;
 
+/**
+ * Config represents a configuration to be used  by the generator. It is
+ * game-specific, meaning that each game type should have its own dedicated
+ * configuration file.
+ * 
+ * Even though it is possible to use non file-based configurations (e.g. by
+ * calling a remote resource), the default behaviour is to look for
+ * configurations in the resources/profiles directory.
+ * 
+ * @author Johan Holmberg, Malmö University
+ */
 public class Config {
 
 	public enum TLevel {
