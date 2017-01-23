@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.canvas.Canvas?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.SplitPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Text?>
+
+<SplitPane dividerPositions="0.5" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="600.0" prefWidth="800.0" stylesheets="@styling.css" xmlns="http://javafx.com/javafx/8.0.111" xmlns:fx="http://javafx.com/fxml/1" fx:controller="gui.GUIController">
+  <items>
+      <HBox id="canvasPane">
+         <children>
+            <Canvas id="mapCanvas" fx:id="mapCanvas" height="400.0" width="400.0" />
+         </children>
+      </HBox>
+      <VBox id="messagePane" maxWidth="-Infinity" minWidth="-Infinity" prefHeight="598.0" prefWidth="300.0">
+         <children>
+            <Button id="runButton" fx:id="runButton" maxWidth="-Infinity" mnemonicParsing="false" onAction="#runButtonPressed" prefWidth="200.0" text="Run!" />
+            <Text id="messageDisplayer" fx:id="messageDisplayer" wrappingWidth="250.0" />
+         </children>
+      </VBox>
+  </items>
+</SplitPane>
