@@ -1,0 +1,14 @@
+#canvasPane {
+	-fx-alignment: center;
+}
+
+#messagePane {
+	-fx-alignment: top-center;
+	-fx-spacing: 10px;
+	-fx-fill-height: true;
+	-fx-padding: 10px;
+}
+
+#runButton {
+	-fx-text-alignment: center;
+}
