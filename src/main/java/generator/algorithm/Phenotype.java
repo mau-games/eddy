@@ -36,7 +36,7 @@ public class Phenotype {
 				map.add(decimalNumber);
 			}
 			
-			//TODO: UH, no idea if this will come anyhere close to working			
+			//TODO: UH, no idea if this will come anywhere close to working			
 			TileTypes[] types = (TileTypes[])map.stream().map(x -> TileTypes.values()[x]).toArray();
 			
 			//TODO: Some debug crap we can ignore for now
@@ -53,7 +53,7 @@ public class Phenotype {
                 File.WriteAllText("lastmap.txt", s);
 			}*/
 			
-			nMap = new Map(types, Game.sizeN, game.sizeM, Game.sizeDoors);
+			nMap = new Map(types, Game.sizeN, game.sizeM, Game.sizeDoors, true);
 		}
 		return mMap;
 	}
