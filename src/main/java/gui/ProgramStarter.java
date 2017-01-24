@@ -3,6 +3,7 @@ package gui;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import generator.algorithm.Ranges;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -37,7 +38,8 @@ public class ProgramStarter extends Application {
 	    
 	        stage.setTitle("Eddy - Evolutionary Dungeon Designer");
 	        stage.setScene(scene);
-	        stage.show();
+	        stage.show(); 
+	        
 		} catch (Exception e) {
 			logger.error("Couldn't load GUI: " + e.getMessage(), e);
 			System.exit(0);

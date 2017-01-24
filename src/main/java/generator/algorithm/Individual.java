@@ -35,20 +35,21 @@ public class Individual {
 		if(mPhenotype == null){
 			mPhenotype = new Phenotype(mGenotype);
 		}
+		return mPhenotype;
 	}
 	
 	//Multi-point crossover????
 	public Individual[] reproduce(Individual other){
 		Individual[] sons = new Individual[2];
 		sons[0] = new Individual(new Genotype(mGenotype.getChromosome()));
-		sons[1] = new Individual(new Genotype(other.getGetotype().getChromosome()));
+		sons[1] = new Individual(new Genotype(other.getGenotype().getChromosome()));
 		
 		if(mGenotype.getSizeChromosome() == other.getGenotype().getSizeChromosome()){
 			int bitsCountToExchange = Game.getRanges().getNextInt(2,mGenotype.getSizeChromosome());
 			
 			for(int i = 0; i < bitsCountToExchange; i++){
 				int bitIndexToExchange = Game.getRanges().getNextInt(0,mGenotype.getSizeChromosome());
-				int bitIndividualOne = mGeotype.getChromosome()[bitIndexToExchange];
+				int bitIndividualOne = mGenotype.getChromosome()[bitIndexToExchange];
 				int bitIndividualTwo = other.getGenotype().getChromosome()[bitIndexToExchange];
 				
 				//exchange
@@ -85,11 +86,12 @@ public class Individual {
 		mFitness = fitness;
 	}
 	
-	public boolean isEvaluate() {
+	// Returns true if the fitness of this individual has already been evaluated
+	public boolean isEvaluated() {
 		return mEvaluate;
 	}
 	
-	public void setEvaluate(bool evaluate){
+	public void setEvaluate(boolean evaluate){
 		mEvaluate = evaluate;
 	}
 	

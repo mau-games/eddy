@@ -1,5 +1,6 @@
 package generator.algorithm;
 
+import game.Game;
 import game.TileTypes;
 import junit.framework.Assert;
 
