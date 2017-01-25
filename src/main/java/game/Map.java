@@ -9,7 +9,6 @@ import javafx.geometry.Point2D;
 
 // TODO: Make sure that m represents the rows and n the columns
 // TODO: Choose between x + y & Point2D
-// TODO: Document the remaining methods
 /**
  * This class represents a dungeon room map.
  * 
@@ -29,7 +28,6 @@ public class Map {
 	private int failedPathsToAnotherDoor;
 	private Dictionary<Point2D, Double> treasureSafety;
 	private Point2D entrance;
-	private boolean isVisualInit = false; // TODO: Change this name when we know what the hell this is
 	private double entranceSafetyFitness;
 	
 	/**
@@ -58,7 +56,7 @@ public class Map {
 		this(types, m, n, doorCount, true);
 	}
 	
-	// TODO: What to do with types and isDoors?
+	// TODO: What to do with isDoors?
 	/**
 	 * Creates an instance of map.
 	 * 
@@ -232,50 +230,106 @@ public class Map {
 		return treasures;
 	}
 
+	/**
+	 * Increases the number of failed path searches for treasures by one.
+	 */
     public void addFailedPathToTreasures() {
         failedPathsToTreasures++;
     }
 	
+    /**
+     * Increases the number of failed path searches for enemies by one.
+     */
 	public void addFailedPathToEnemies() {
         failedPathsToEnemies++;
     }
 
+	/**
+	 * Increases the number of failed path searches for doors by one.
+	 */
     public void addFailedPathToDoors() {
         failedPathsToAnotherDoor++;
     }
 
+    /**
+     * Gets the number of failed path searches for doors.
+     * 
+     * @return The number of failed path searches.
+     */
     public int getFailedPathsToAnotherDoor() {
         return failedPathsToAnotherDoor;
     }
 
+    /**
+     * Gets the number of failed path searches for treasures.
+     * 
+     * @return The number of failed path searches.
+     */
     public int getFailedPathsToTreasures() {
         return failedPathsToTreasures;
     }
 
+    /**
+     * Gets the number of failed path searches for enemies.
+     * 
+     * @return The number of failed path searches.
+     */
     public int getFailedPathsToEnemies() {
         return failedPathsToEnemies;
     }
     
+    /**
+     * Sets the safety value for a treasure.
+     * 
+     * @param treasure The position of the treasure.
+     * @param safety The safety value.
+     */
     public void setTreasureSafety(Point2D treasure, double safety) {
     	treasureSafety.put(treasure, safety);
     }
     
+    /**
+     * Gets the safety value for at treasure.
+     * 
+     * @param treasure The position of the treasure.
+     * @return The safety value.
+     */
     public double getTreasureSafety(Point2D treasure) {
     	return (double) treasureSafety.get(treasure);
     }
     
+    /**
+     * Gets the complete list of treasure safety values.
+     * 
+     * @return A dictionary containing all treasures and their safety values.
+     */
     public Dictionary<Point2D, Double> getTreasureSafety() {
     	return treasureSafety;
     }
     
+    /**
+     * Gets a list of all enemies in a map.
+     * 
+     * @return A list of enemies.
+     */
     public List<Point2D> getEnemies() {
     	return enemies;
     }
     
+    /**
+     * Sets the safety fitness value for the map's entry point.
+     * 
+     * @param fitness A safety fitness value.
+     */
     public void setEntrySafetyFitness(double fitness) {
     	entranceSafetyFitness = fitness;
     }
     
+    /**
+     * Gets the safety fitness value for the map's entry point.
+     * 
+     * @return The safety fitness value.
+     */
     public double getEntrySafetyFitness() {
     	return entranceSafetyFitness;
     }
