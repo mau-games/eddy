@@ -6,6 +6,10 @@
 	<version>0.0.1-SNAPSHOT</version>
 	<name>Evolutionary Dungeon Designer</name>
 	<description>This project was developed as part of a Master's thesis. It aims to provide a mixed-initiative procedural dungeon generator.</description>
+	<organization>
+		<url>https://www.mah.se/</url>
+		<name>Malmö University</name>
+	</organization>
 	<dependencies>
 		<dependency>
 			<groupId>com.google.code.gson</groupId>
@@ -29,10 +33,9 @@
 			<version>1.7.22</version>
 		</dependency>
 	</dependencies>
-	<organization>
-		<url>https://www.mah.se/</url>
-		<name>Malmö University</name>
-	</organization>
+	<properties>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+	</properties>
 	<build>
 		<plugins>
 			<plugin>
