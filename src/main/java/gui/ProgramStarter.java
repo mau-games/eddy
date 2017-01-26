@@ -1,5 +1,6 @@
 package gui;
 
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -38,7 +39,7 @@ public class ProgramStarter extends Application {
 	        stage.setTitle("Eddy - Evolutionary Dungeon Designer");
 	        stage.setScene(scene);
 	        stage.show(); 
-	        
+ 
 		} catch (Exception e) {
 			logger.error("Couldn't load GUI: " + e.getMessage(), e);
 			System.exit(0);

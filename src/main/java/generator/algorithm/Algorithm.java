@@ -7,8 +7,10 @@ import java.util.List;
 import game.Game;
 import game.Map;
 import generator.config.Config;
+import generator.config.MissingConfigurationException;
 import javafx.geometry.Point2D;
 import util.algorithms.BFS;
+import util.algorithms.Node;
 import util.algorithms.Pathfinder;
 
 public class Algorithm extends Thread {
@@ -60,21 +62,54 @@ public class Algorithm extends Thread {
 		}
 	}
 	
+	
+	
 	//Return true if individual is valid, otherwise return false
     /*
         An individual is invalid if there does not exist a path between the entry door and the other doors
         and if there do not exist paths between the entry door and all enemies and treasures
     */
 	private boolean checkIndividual(Individual ind){
-		// TODO: Implement this when Map is done
-		
-		//Get the individual's phenotype
-		//Check if there's a path between the entry door and all other doors
-		//Check if there's a path between the entry door and all enemies
-		//Check if there's a path between the entry door and all treasure
-		
-		//For now, just return true:
-		return true;
+		Map map = ind.getPhenotype().getMap();
+        Pathfinder pathfinder = new Pathfinder(map);
+
+        //Point to enter door
+        Point2D enterDoor = map.getEntrance();
+
+        //Check if exists conxion btween all doors
+        for (Point2D door : map.getDoors())
+        {
+            Node[] path = pathfinder.find(enterDoor,door);
+
+            if (path.length == 0)
+                map.addFailedPathToDoors();
+        }
+
+        //Check if exisit conexion between enter door and enemies and treasures
+        //enemies
+        for (Point2D enemy : map.getEnemies())
+        {
+            Node[] path = pathfinder.find(enterDoor,enemy);
+
+            if (path.length == 0)
+                map.addFailedPathToEnemies();
+        }
+
+        //treasures
+        for (Point2D treasure : map.getTreasures())
+        {
+            Node[] path = pathfinder.find(enterDoor,treasure);
+
+            if (path.length == 0)
+                map.addFailedPathToTreasures();
+        }
+
+        // TODO: Think about why it is a requirement that the room contains enemies and treasure.
+        return (map.getFailedPathsToAnotherDoor() == 0) &&
+                (map.getFailedPathsToEnemies() == 0) &&
+                (map.getFailedPathsToTreasures() == 0) &&
+                (map.getEnemyCount() > 0) &&
+                (map.getTreasureCount() > 0);
 	}
 	
 	
@@ -86,7 +121,7 @@ public class Algorithm extends Thread {
     {
         Map map = ind.getPhenotype().getMap();
         Point2D startDoor = map.getEntrance();
-        int countWalls = map.getWallCount();
+        //int countWalls = map.getWallCount();
         //int totalAreas = 0;
         int minArea = 0;
 
@@ -151,10 +186,10 @@ public class Algorithm extends Thread {
 	                //din = Distance in nodes
 	
 	                //Distance in nodes from treasure i to enemy j
-	                int dinTreasureToEnemy = pathfinder.find(treasure, enemy).size();
+	                int dinTreasureToEnemy = pathfinder.find(treasure, enemy).length;
 	
 	                //Distance in nodes from treasure i to enter door
-	                int dinTreasureToStartDoor = pathfinder.find(treasure, doorEnter).size();
+	                int dinTreasureToStartDoor = pathfinder.find(treasure, doorEnter).length;
 	
 	                //Formule result
 	                /*
@@ -171,25 +206,22 @@ public class Algorithm extends Thread {
 	                }
 	
 	                //Calculate and store max
-	                double max = Math.max(0.0, result);
-	                
+	                maxs.add(Math.max(0.0, result));
+	            }
 	
-	                maxs.Add(max);
-//	            }
-//	
-//	            //The safety is the min of maxs result
-//	            if(maxs.Count() > 0)
-//	            {
-//	                double min = maxs.ToArray().Min();
-//	                if (double.IsNaN(min))
-//	                {
-//	                    Debug.Log("Is nan!");
-//	                }
-//	                map.putSafetyTreasure(treasure, min);
-//	            }
-//	            
-//	        }
-//	    }
+	            //The safety is the min of maxs result
+	            if(maxs.size() > 0)
+	            {
+	                Double min = maxs.stream().min((a,b) -> Double.compare(a, b)).get();
+	                if (Double.isNaN(min))
+	                {
+	                    System.out.println("In evaluateSafetyTreasuresWithDoorsForIndividualsValid... Is nan!");
+	                }
+	                map.setTreasureSafety(treasure, min);
+	            }
+	            
+	        }
+	    }
 	}
 	
 	
@@ -197,71 +229,100 @@ public class Algorithm extends Thread {
 	// TODO: Implement this when Map is done.
     public void evaluateValidIndividual(Individual ind)
     {
-//        double fitness = 0.0f;
-//        
-//        
-//        Map map = ind.getPhenotype().getMap();
-//        
-//        int tilesPassables = map.getCountPassables();
-//
-//        //security area (1)
-//        double fitness_security_area = (((evaluateSafetyEnterDoor(ind) * 100) / tilesPassables) * 0.01);
-//        map.setFitnessSafetyEnterDoor(fitness_security_area);
-//        fitness_security_area -= mConfig.getSecurityArea();
-//
-//        //# enemies (2)
-//        double[] expectedEnemiesRange = mConfig.getEnemiesQuantity();
-//        double fitness_enemies_proportion = 0.0;
-//        
-//        if(map.getPercentEnemies() > expectedEnemiesRange[0])
-//        {
-//            fitness_enemies_proportion = map.getPercentEnemies() - expectedEnemiesRange[1];
-//        }
-//        else
-//        {
-//            fitness_enemies_proportion = map.getPercentEnemies() - expectedEnemiesRange[0];
-//        }
-//
-//        //avg seg tesoros (3)
-//        evaluateSafetyTreasuresWithDoorsForIndividualsValid(ind);
-//        double[] safeties = map.getAllSafetyTreasures();
-//        double safeties_average = calcAverage(safeties);
-//        double fitness_avg_treasures_security = safeties_average - mConfig.getAvgTreasuresSecurity();
-//
-//
-//        //# treasures (4)
-//        double[] expectedTreasuresRange = mConfig.getTreasuresQuantity();
-//        double fitness_treasures_proportion = 0.0;
-//
-//        if(map.getPercentTreasures() > expectedTreasuresRange[0])
-//        {
-//            fitness_treasures_proportion = map.getPercentTreasures() - expectedTreasuresRange[1];
-//        }
-//        else
-//        {
-//            fitness_treasures_proportion = map.getPercentTreasures() - expectedTreasuresRange[0];
-//        }
-//
-//        //variance treasures security
-//        double safeties_variance = calcVariance(safeties, safeties_average);
-//        double expectedSafetyVariance = mConfig.getTreasuresSecurityVariance();
-//
-//        double fitness_treasures_security_variance = safeties_variance - expectedSafetyVariance;
-//
-//        //Check objects locked
-//        double objectsLocked = map.countCloseWalls();
-//
-//        fitness =
-//            (System.Math.Abs(fitness_security_area) * 0.1) +
-//            (System.Math.Abs(fitness_enemies_proportion) * 0.2) +
-//            (System.Math.Abs(fitness_avg_treasures_security) * 0.1) +
-//            (System.Math.Abs(fitness_treasures_proportion) * 0.2) +
-//            (System.Math.Abs(fitness_treasures_security_variance) * 0.2) +
-//            (objectsLocked * 0.2);
-//
-//        //set final fitness
-//        ind.setFitness(fitness);
-//        ind.setEvaluate(true);
+        double fitness = 0.0;
+        
+        
+        Map map = ind.getPhenotype().getMap();
+        
+        int tilesPassables = map.getNonWallTileCount();
+
+        //security area (1)
+        double fitness_security_area = (((evaluateSafetyEnterDoor(ind) * 100) / tilesPassables) * 0.01); // TODO: Fix this
+        map.setEntrySafetyFitness(fitness_security_area);
+        try {
+			fitness_security_area -= mConfig.getSecurityAreaVariance();
+		} catch (MissingConfigurationException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+        //# enemies (2)
+        double[] expectedEnemiesRange = null;
+		try {
+			expectedEnemiesRange = mConfig.getEnemyQuantityRange();
+		} catch (MissingConfigurationException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+        double fitness_enemies_proportion = 0.0;
+        double enemyPercent = map.getEnemyPercentage();
+        if(enemyPercent > expectedEnemiesRange[0])
+        {
+            fitness_enemies_proportion = enemyPercent - expectedEnemiesRange[1];
+        }
+        else
+        { 
+            fitness_enemies_proportion = enemyPercent - expectedEnemiesRange[0];
+        }
+
+        //avg seg tesoros (3)
+        evaluateSafetyTreasuresWithDoorsForIndividualsValid(ind);
+        Double[] safeties = map.getAllTreasureSafeties();
+        double safeties_average = calcAverage(safeties);
+        double fitness_avg_treasures_security = 0.0;
+        try {
+			fitness_avg_treasures_security = safeties_average - mConfig.getAverageTreasureSecurity();
+		} catch (MissingConfigurationException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+
+        //# treasures (4)
+        double[] expectedTreasuresRange = null;
+		try {
+			expectedTreasuresRange = mConfig.getTreasureQuantityRange();
+		} catch (MissingConfigurationException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+        double fitness_treasures_proportion = 0.0;
+        double treasurePercent = map.getTreasurePercentage();
+        if(treasurePercent > expectedTreasuresRange[0])
+        {
+            fitness_treasures_proportion = treasurePercent - expectedTreasuresRange[1];
+        }
+        else
+        {
+            fitness_treasures_proportion = treasurePercent - expectedTreasuresRange[0];
+        }
+
+        //variance treasures security
+        double safeties_variance = calcVariance(safeties, safeties_average);
+        double expectedSafetyVariance = 0.0;
+		try {
+			expectedSafetyVariance = mConfig.getTreasureSecurityVariance();
+		} catch (MissingConfigurationException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+        double fitness_treasures_security_variance = safeties_variance - expectedSafetyVariance;
+
+        //Check objects locked
+        double objectsLocked = map.countCloseWalls();
+
+        fitness =
+            (Math.abs(fitness_security_area) * 0.1) +
+            (Math.abs(fitness_enemies_proportion) * 0.2) +
+            (Math.abs(fitness_avg_treasures_security) * 0.1) +
+            (Math.abs(fitness_treasures_proportion) * 0.2) +
+            (Math.abs(fitness_treasures_security_variance) * 0.2) +
+            (objectsLocked * 0.2);
+
+        //set final fitness
+        ind.setFitness(fitness);
+        ind.setEvaluate(true);
     }
     
     // Evaluate the fitness of an invalid individual
@@ -277,7 +338,7 @@ public class Algorithm extends Thread {
     }
 
     // TODO: Surely this and the following method should be moved to another class (Utilities or somesuch)
-    private double calcAverage(double[] numbers)
+    private double calcAverage(Double[] numbers)
     {
         double sum = 0;
         for(double n : numbers)
@@ -288,7 +349,7 @@ public class Algorithm extends Thread {
         return sum / numbers.length;
     }
 
-    private double calcVariance(double[] numbers, double average)
+    private double calcVariance(Double[] numbers, double average)
     {
         double result = 0;
         for(double n : numbers)
@@ -314,32 +375,30 @@ public class Algorithm extends Thread {
 	*/
 	public double evaluateTheWorstItIsAIndividual(Individual ind)
 	{
-//	    Map map = ind.getPhenotype().getMap();
-//	
-//	    double enemies = (map.getCountPathToEnemiesFail() / (double)map.getCountEnemies());
-//	    if (Double.isNaN(enemies)) 
-//	    	enemies = 1.0;
-//	    
-//	    double treasures = (map.getCountPathToTreasuresFail() / (double)map.getCountTreasures());
-//	    if (Double.isNaN(treasures)) 
-//	    	treasures = 1.0;
-//	    
-//	    double doors = (map.getCountPathToDoorsFail() / (double)map.getCountDoors());
-//	    
-//	    if (Double.isNaN(doors)) 
-//	    	doors = 1.0;
-//	
-//	    double weighing = (1.0f / 3.0f);
-//	
-//	    double result = 1 -
-//	        ((weighing * enemies) +
-//	        (weighing * treasures) +
-//	        (weighing * doors));
-//	
-//	    return (result < 0)? 0 : result;
+	    Map map = ind.getPhenotype().getMap();
+	
+	    double enemies = (map.getFailedPathsToEnemies() / (double)map.getEnemyCount());
+	    if (Double.isNaN(enemies)) 
+	    	enemies = 1.0;
+	    
+	    double treasures = (map.getFailedPathsToTreasures() / (double)map.getTreasureCount());
+	    if (Double.isNaN(treasures)) 
+	    	treasures = 1.0;
+	    
+	    double doors = (map.getFailedPathsToAnotherDoor() / (double)map.getDoorCount());
+	    
+	    if (Double.isNaN(doors)) 
+	    	doors = 1.0;
+	
+	    double weighing = (1.0f / 3.0f);
+	
+	    double result = 1 -
+	        ((weighing * enemies) +
+	        (weighing * treasures) +
+	        (weighing * doors));
+	
+	    return (result < 0)? 0 : result;
 		
-		//For now:
-		return 0;
 	}
 	
 	//Evaluate the entire generation

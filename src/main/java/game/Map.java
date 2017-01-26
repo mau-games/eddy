@@ -1,9 +1,11 @@
 package game;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Dictionary;
 import java.util.Hashtable;
 import java.util.List;
+import java.util.stream.Stream;
 
 import javafx.geometry.Point2D;
 
@@ -258,6 +260,57 @@ public class Map {
 	}
 	
 	/**
+	 * Returns the number of non-wall tiles in a map.
+	 * 
+	 * @return The number of non-wall tiles.
+	 */
+	public int getNonWallTileCount()
+    {
+        return (Game.sizeN * Game.sizeM) - wallCount;
+    }
+	
+	// TODO: Document
+	public double getEnemyPercentage()
+    {
+        int allMap = getNonWallTileCount();
+        return getEnemyCount()/(double)allMap;
+    }
+	
+	// TODO: Document
+	public double getTreasurePercentage()
+    {
+        int allMap = getNonWallTileCount();
+        return getTreasureCount()/(double)allMap;
+    }
+	
+	// TODO: Document, rename... What on earth does this do? I have a feeling it doesn't actually work.
+	public int countCloseWalls()
+    {
+        int locked = 0;
+
+        for(int i = 0; i < n; i++)
+        {
+            for (int j = 0; i < m; i++)
+            {
+                List<Point2D> moves = getAvailableCoords(new Point2D(n,m)); // TODO: Check if right order n,m?
+
+                int movesToWalls = 0;
+                for (Point2D v : moves)
+                {
+                    if (matrix[(int)v.getX()][(int)v.getY()] == TileTypes.WALL.getValue())
+                    {
+                        movesToWalls++;
+                    }
+                }
+
+                if (movesToWalls > 3) locked++;
+            }
+        }
+
+        return locked;
+    }
+	
+	/**
 	 * Returns the number of treasures.
 	 * 
 	 * @return The number of treasures.
@@ -342,6 +395,17 @@ public class Map {
     public Dictionary<Point2D, Double> getTreasureSafety() {
     	return treasureSafety;
     }
+    
+    /**
+     * Gets the complete array of treasure safety values.
+     * 
+     * @return An array of Doubles containing all treasures safety values.
+     */
+    public Double[] getAllTreasureSafeties()
+    {
+    	return (Double[]) Collections.list(treasureSafety.elements()).toArray();
+    }
+    
     
     /**
      * Gets a list of all enemies in a map.
