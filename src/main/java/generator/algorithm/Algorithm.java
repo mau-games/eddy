@@ -5,7 +5,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 import game.Game;
+import game.Map;
 import generator.config.Config;
+import javafx.geometry.Point2D;
+import util.algorithms.BFS;
+import util.algorithms.Pathfinder;
 
 public class Algorithm extends Thread {
 	public static int POPULATION_SIZE = 100;
@@ -80,29 +84,29 @@ public class Algorithm extends Thread {
 	*/
 	public float evaluateSafetyEnterDoor(Individual ind)
     {
-		// TODO: Implement this when Map is done
-//        Map map = ind.getPhenotype().getMap();
-//        Map.Point2D startDoor = map.getEnterDoor();
-//        int countWalls = map.getCountWalls();
-//        //int totalAreas = 0;
+        Map map = ind.getPhenotype().getMap();
+        Point2D startDoor = map.getEntrance();
+        int countWalls = map.getWallCount();
+        //int totalAreas = 0;
         int minArea = 0;
 
-//        IBFS bfs = new BFS(map);
-//
-//        foreach(Map.Point2D enemy in map.getEnemies())
-//        {
-//            //totalAreas += bfs.find(Map.Point2D.toUnityVector2(startDoor), Map.Point2D.toUnityVector2(enemy)).Length;
-//            int area = bfs.find(Map.Point2D.toUnityVector2(startDoor), Map.Point2D.toUnityVector2(enemy)).Length;
-//            if (minArea == 0 || minArea < area)
-//                minArea = area;
-//        }
-//
-//        //Formula
-//        //float safetyFitness = 1.0f / ((Game.sizeN * Game.sizeM) - countWalls);
-//
-//        //Prod with totalAreas
-//        //safetyFitness *= totalAreas;
-//        //safetyFitness *= minArea;
+        BFS bfs = new BFS(map);
+
+        for(Point2D enemy : map.getEnemies())
+        {
+            //totalAreas += bfs.find(Map.Point2D.toUnityVector2(startDoor), Map.Point2D.toUnityVector2(enemy)).Length;
+            int area = bfs.find(startDoor, enemy).length;
+            if (minArea == 0 || minArea < area)
+                minArea = area;
+        }
+
+        // Note: These comments were in the original source.
+        //Formula
+        //float safetyFitness = 1.0f / ((Game.sizeN * Game.sizeM) - countWalls);
+
+        //Prod with totalAreas
+        //safetyFitness *= totalAreas;
+        //safetyFitness *= minArea;
 
         return minArea;
     }
@@ -117,65 +121,60 @@ public class Algorithm extends Thread {
         }
     }
     Where -> 1 <= j <= Nm and j != i
-    
-    
-	 */
+
+	*/
 	public void evaluateSafetyTreasuresWithDoorsForIndividualsValid(Individual ind)
 	{
 		//TODO: Figure out what the hell this method does. (When Map is done!)
 		
-//	    Map map = ind.getPhenotype().getMap();
-//	
-//	    if(map.getCountEnemies() > 0)
-//	    {
-//	        int treasuresSize = map.getCountTreasures();
-//	        int enemiesSize = map.getCountEnemies();
-//	        Map.Point2D doorEnter = map.getEnterDoor();
-//	        List<double> maxs = new List<double>();
-//	
-//	        //Pathfinder
-//	        IPathFinder pathfinder = new PathFinder(map);
-//	
-//	        for (int i = 0; i < treasuresSize; i++)
-//	        {
-//	            Map.Point2D treasure = map.getTreasures()[i];
-//	            //enemiesSize = 0;
-//	            for(int j = 0; j < enemiesSize; j++)
-//	            {
-//	                Map.Point2D enemy = map.getEnemies()[j];
-//	
-//	                //To Calculate
-//	                //din = Distance in nodes
-//	
-//	                //Distance in nodes from treasure i to enemy j
-//	                int dinTreasureToEnemy = pathfinder
-//	                    .find(new Vector2(treasure.x, treasure.y), new Vector2(enemy.x, enemy.y))
-//	                    .Count();
-//	
-//	                //Distance in nodes from treasure i to enter door
-//	                int dinTreasureToStartDoor = pathfinder
-//	                    .find(new Vector2(treasure.x, treasure.y), new Vector2(doorEnter.x, doorEnter.y))
-//	                    .Count();
-//	
-//	                //Formule result
-//	                /*
-//	                    (dti,mj - dti,i) /
-//	                    (dti,mj - dti,i)
-//	                */
-//	                double result = (double)
-//	                    (dinTreasureToEnemy - dinTreasureToStartDoor) / 
-//	                    (dinTreasureToEnemy + dinTreasureToStartDoor);
-//	
-//	                if (double.IsNaN(result))
-//	                {
-//	                    result = 0.0f;
-//	                }
-//	
-//	                //Calculate and store max
-//	                double max = System.Math.Max(0.0, result);
-//	                
-//	
-//	                maxs.Add(max);
+	    Map map = ind.getPhenotype().getMap();
+	
+	    if(map.getEnemyCount() > 0)
+	    {
+	        int treasuresSize = map.getTreasureCount();
+	        int enemiesSize = map.getEnemyCount();
+	        Point2D doorEnter = map.getEntrance();
+	        List<Double> maxs = new ArrayList<Double>();
+	        
+	        //Pathfinder
+	        Pathfinder pathfinder = new Pathfinder(map);
+	
+	        for (int i = 0; i < treasuresSize; i++)
+	        {
+	            Point2D treasure = map.getTreasures().get(i);
+	            //enemiesSize = 0;
+	            for(int j = 0; j < enemiesSize; j++)
+	            {
+	                Point2D enemy = map.getEnemies().get(j);
+	
+	                //To Calculate
+	                //din = Distance in nodes
+	
+	                //Distance in nodes from treasure i to enemy j
+	                int dinTreasureToEnemy = pathfinder.find(treasure, enemy).size();
+	
+	                //Distance in nodes from treasure i to enter door
+	                int dinTreasureToStartDoor = pathfinder.find(treasure, doorEnter).size();
+	
+	                //Formule result
+	                /*
+	                    (dti,mj - dti,i) /
+	                    (dti,mj - dti,i)
+	                */
+	                double result = (double)
+	                    (dinTreasureToEnemy - dinTreasureToStartDoor) / 
+	                    (dinTreasureToEnemy + dinTreasureToStartDoor);
+	
+	                if (Double.isNaN(result))
+	                {
+	                    result = 0.0f;
+	                }
+	
+	                //Calculate and store max
+	                double max = Math.max(0.0, result);
+	                
+	
+	                maxs.Add(max);
 //	            }
 //	
 //	            //The safety is the min of maxs result

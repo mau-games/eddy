@@ -79,6 +79,29 @@ public class Map {
 		// TODO: Figure out WTH the isDoors argument does.
 	}
 	
+	//TODO: Check that this is working properly. Rewritten quite a bit.
+	/**
+	 * Gets a list of positions of tiles adjacent to a given position
+	 * 
+	 * @param position The position of a tile
+     * @return A list of points 
+	 */
+	public List<Point2D> getAvailableCoords(Point2D position){
+		List<Point2D> availableCoords = new ArrayList<Point2D>();
+		
+		if(position.getX() > 0 && getTile((int)position.getX() - 1, (int)position.getY()) != TileTypes.WALL)
+			availableCoords.add(new Point2D(position.getX()-1,position.getY()));
+		if(position.getX() < m - 1 && getTile((int)position.getX() + 1, (int)position.getY()) != TileTypes.WALL)
+			availableCoords.add(new Point2D(position.getX()+1,position.getY()));
+		if(position.getY() > 0 && getTile((int)position.getX(), (int)position.getY() - 1) != TileTypes.WALL)
+			availableCoords.add(new Point2D(position.getX(),position.getY() - 1));
+		if(position.getY() < n - 1 && getTile((int)position.getX(), (int)position.getY() + 1) != TileTypes.WALL)
+			availableCoords.add(new Point2D(position.getX(),position.getY() + 1));
+		
+		return availableCoords;
+			
+	}
+	
 	// TODO: This might be off...
 	/**
 	 * Sets a specific tile to a value.
@@ -93,7 +116,7 @@ public class Map {
 	
 	// TODO: This might be off...
 	/**
-	 * Gets a specific tile.
+	 * Gets the type of a specific tile.
 	 * 
 	 * @param x The X coordinate.
 	 * @param y The Y coordinate.
@@ -103,6 +126,18 @@ public class Map {
 		return TileTypes.toTileType(matrix[x][y]);
 	}
 	
+	// TODO: This might be off...
+	/**
+	 * Gets the type of a specific tile.
+	 * 
+	 * @param point The position.
+	 * @return A tile.
+	 */
+	public TileTypes getTile(Point2D point){
+		return TileTypes.toTileType(matrix[(int)point.getX()][(int)point.getY()]);
+	}
+	
+	// TODO: Check this...
 	/**
 	 * Returns the number of columns in a map. 
 	 * 
@@ -112,6 +147,7 @@ public class Map {
 		return n;
 	}
 	
+	// TODO: Check this...
 	/**
 	 * Returns the number of rows in a map.
 	 * 
@@ -280,6 +316,7 @@ public class Map {
     	return entranceSafetyFitness;
     }
 
+    
 	/**
 	 * Initialises a map.
 	 * 
@@ -294,15 +331,18 @@ public class Map {
 					wallCount++;
 					break;
 				case ENEMY:
+				case ENEMY2:
 					enemies.add(new Point2D(m, n));
 					break;
+				case COIN:
+				case COIN2:
 				case COFFER:
+				case COFFER2:
 					treasures.add(new Point2D(m, n));
 					break;
 				default:
 					break;
 				}
-				
 				matrix[m][n] = tiles[tile++].getValue();
 			}
 		}

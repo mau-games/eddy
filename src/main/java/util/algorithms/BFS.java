@@ -3,19 +3,23 @@ package util.algorithms;
 import java.util.ArrayList;
 import java.util.List;
 
+import game.Map;
+import javafx.geometry.Point2D;
+
 
 // TODO: This seems a bit inefficient, can this be improved? NO WAY SHOULD THIS BE RECURSIVE
+// TODO: Rewrite this.
 public class BFS {
 
-	//private Map mMap;
-    private Point goal;
+	private Map mMap;
+    private Point2D goal;
 
     public BFS(Map map)
     {
         mMap = map;
     }
 
-    public Node[] find(Point start, Point goal)
+    public Node[] find(Point2D start, Point2D goal)
     {
         List<Node> openList = new ArrayList<Node>();
         List<Node> closeList = new ArrayList<Node>();
@@ -39,9 +43,9 @@ public class BFS {
         if (current.position == goal) 
         	return (Node[]) closed.toArray();
 
-        List<Point> children = mMap.getAvailableCoords(current.position);
+        List<Point2D> children = mMap.getAvailableCoords(current.position);
 
-        for(Point child : children)
+        for(Point2D child : children)
         {
             if (existsPointInArrayNodes(closed, child)) continue;
             if (existsPointInArrayNodes(opened, child)) continue;
@@ -64,7 +68,7 @@ public class BFS {
         return nodes.remove(0);
     }
 
-    private boolean existsPointInArrayNodes(List<Node> list, Point point)
+    private boolean existsPointInArrayNodes(List<Node> list, Point2D point)
     {
         for (Node n : list)
         {

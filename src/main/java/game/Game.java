@@ -6,6 +6,7 @@ import generator.algorithm.Algorithm;
 import generator.algorithm.Individual;
 import generator.algorithm.Ranges;
 import generator.config.Config;
+import javafx.geometry.Point2D;
 
 
 
@@ -26,7 +27,7 @@ public class Game {
     //public static String dataPath; //TODO: ???
     public boolean run = true; //TODO: ???
     public static Ranges ranges; 
-    //public static List<Map.Point2D> doorsPositions = null; //TODO: ???
+    public static List<Point2D> doorsPositions = null; //TODO: ???
     public static Config.TLevel level; //Difficulty level?
     //private GameObject tileMap = null;
 
