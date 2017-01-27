@@ -7,6 +7,7 @@ import generator.algorithm.Individual;
 import generator.algorithm.Ranges;
 import generator.config.Config;
 import javafx.geometry.Point2D;
+import util.eventrouting.EventRouter;
 import util.eventrouting.Listener;
 import util.eventrouting.PCGEvent;
 import util.eventrouting.events.Start;
@@ -46,6 +47,8 @@ public class Game implements Listener{
         sizeDoors = doors;
         this.level = level;
         //tileManager = new CTileManager(new ColorPaint());
+        
+        EventRouter.getInstance().registerListener(this, new Start());
     }
 
 	// Kicks the algorithm into action. Not yet sure where this is called?
@@ -62,6 +65,7 @@ public class Game implements Listener{
 	@Override
 	public synchronized void ping(PCGEvent e) {
 		if(e instanceof Start)
+			System.out.println(e);
 			startAll();		
 	}
 
