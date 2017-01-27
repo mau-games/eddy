@@ -3,6 +3,7 @@ package gui;
 import java.net.URL;
 import java.util.ResourceBundle;
 
+import game.Map;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -11,16 +12,24 @@ import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.Button;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Text;
+import util.eventrouting.EventRouter;
+import util.eventrouting.Listener;
+import util.eventrouting.PCGEvent;
+import util.eventrouting.events.MapUpdate;
+import util.eventrouting.events.Start;
+import util.eventrouting.events.StatusMessage;
 
 /**
  * This class controls our fantastic GUI.
  * 
  * @author Johan Holmberg, Malmö University
  */
-public class GUIController implements Initializable {
+public class GUIController implements Initializable, Listener {
 	@FXML private Text messageDisplayer;
 	@FXML private Canvas mapCanvas;
 	@FXML private Button runButton;
+	
+	private static EventRouter router = EventRouter.getInstance();
 	
 	/**
 	 * Handles the run button's action events.
@@ -29,8 +38,10 @@ public class GUIController implements Initializable {
 	 */
 	@FXML
 	protected void runButtonPressed(ActionEvent ev) {
-		// TODO: Do something else with this later on...
-		addMessage("New message");
+		router.postEvent(new Start());
+		
+		// TODO: Remove this when the porting is done
+		router.postEvent(new StatusMessage("New message"));
 		int[][] matrix = new int[3][3];
 		matrix[0][0] = 0;
 		matrix[0][1] = 1;
@@ -55,6 +66,8 @@ public class GUIController implements Initializable {
 
 	@Override
 	public void initialize(URL location, ResourceBundle resources) {
+		router.registerListener(this, new MapUpdate(null));
+		router.registerListener(this, new StatusMessage(null));
 		messageDisplayer.setText("Awaiting commands");
 	}
 	
@@ -64,7 +77,7 @@ public class GUIController implements Initializable {
 	 * @param matrix A quadratic matrix of integers. Each integer corresponds
 	 * 		to some predefined colour.
 	 */
-	public void drawMatrix(int[][] matrix) {
+	public synchronized void drawMatrix(int[][] matrix) {
 		int m = matrix.length;
 		int n = matrix[0].length;
 		int pWidth = (int) Math.floor(mapCanvas.getWidth() / Math.max(m, n));
@@ -74,6 +87,21 @@ public class GUIController implements Initializable {
 			for (int j = 0; j < n; j++) {
 				gc.setFill(getColour(matrix[i][j]));
 				gc.fillRect(i * pWidth, j * pWidth, pWidth, pWidth);
+			}
+		}
+	}
+
+	@Override
+	public synchronized void ping(PCGEvent e) {
+		if (e instanceof MapUpdate) {
+			Map map = (Map) e.getPayload();
+			if (map != null) {
+				drawMatrix(map.toMatrix());
+			}
+		} else if (e instanceof StatusMessage) {
+			String message = (String) e.getPayload();
+			if (message != null) {
+				addMessage(message);
 			}
 		}
 	}
