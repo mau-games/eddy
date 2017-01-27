@@ -12,6 +12,8 @@ import javafx.geometry.Point2D;
 import util.algorithms.BFS;
 import util.algorithms.Node;
 import util.algorithms.Pathfinder;
+import util.eventrouting.EventRouter;
+import util.eventrouting.events.StatusMessage;
 
 public class Algorithm extends Thread {
 	public static int POPULATION_SIZE = 100;
@@ -31,74 +33,134 @@ public class Algorithm extends Thread {
 	public Algorithm(int size, Config config){
 		this.size = size;
 		mConfig = config;
-		init();		
+		initPopulations();		
 	}
 	
-	private void init(){
+	private void broadcastStatusUpdate(String status){
+		StatusMessage e = new StatusMessage();
+		e.setPayload(status);
+		EventRouter.getInstance().postEvent(e);
+	}
+	
+	// TODO: Figure out what the difference between readyToValid and populationValid is
+	/**
+	 * Creates lists for the valid and invalid populations and populates them with individuals
+	 */
+	private void initPopulations(){
+		broadcastStatusUpdate("Initialising...");
+		
 		readyToValid = new ArrayList<Individual>();
 		readyToInvalid = new ArrayList<Individual>();
-		
-		try{
-			populationValid = new ArrayList<Individual>();
-			populationInvalid = new ArrayList<Individual>();
-			int i = 0;
-			int j = 0;
-			while((i + j) < size){
-				Individual ind = new Individual(Game.sizeN * Game.sizeM);
-				ind.initialize();
-				
-				if(checkIndividual(ind)){
-					populationValid.add(ind);
-					i++;
-				}
-				else {
-					populationInvalid.add(ind);
-					j++;
-				}
-			}
+
+		populationValid = new ArrayList<Individual>();
+		populationInvalid = new ArrayList<Individual>();
+		int i = 0;
+		int j = 0;
+		while((i + j) < size){
+			Individual ind = new Individual(Game.sizeN * Game.sizeM);
+			ind.initialize();
 			
-		} catch (Exception ex){
-			ex.printStackTrace();
+			if(checkIndividual(ind)){
+				populationValid.add(ind);
+				i++;
+			}
+			else {
+				populationInvalid.add(ind);
+				j++;
+			}
 		}
+		
+		broadcastStatusUpdate("Population generated.");
 	}
 	
+	/**
+	 * Starts the algorithm. Called when the thread starts.
+	 */
+	public void run(){
+		
+		broadcastStatusUpdate("Evolving...");
+
+        int generationCount = 1;
+        int generations = 10; // Why? TODO: investigate
+
+        // TODO: Should there be a fixed number of generations, or should it go until a desired fitness is reached?
+        while (generationCount <= generations)
+        {
+        	broadcastStatusUpdate("Generation " + generationCount);
+
+            evaluateGeneration();
+            insertReadyToValidAndEvaluate();
+            insertReadyToInvalidAndEvaluate();
+
+            // TODO: Sort out fancy output messages later
+//                //info population valid
+//                double[] dataValid = infoGenerational(populationValid, true);
+//                avgFitness = dataValid[0];
+//                //info population invalid
+//                double[] dataInvalid = infoGenerational(populationInvalid);
+//
+//                messageGeneration += "Generation " + generationCount + "\n";
+//                messageGeneration += "Avg valid fitness: " + dataValid[0] + "\n";
+//                messageGeneration += "Min valid fitness: " + dataValid[1] + "\n";
+//                messageGeneration += "Max valid fitness: " + dataValid[2] + "\n\n";
+//
+//                messageGeneration += "Avg invalid fitness: " + dataInvalid[0] + "\n";
+//                messageGeneration += "Min invalid fitness: " + dataInvalid[1] + "\n";
+//                messageGeneration += "Max invalid fitness: " + dataInvalid[2] + "\n\n";
+//                messageGeneration += "Valids: " + populationValid.Count() + "\n";
+//                messageGeneration += "Invalids: " + populationInvalid.Count() + "\n";
+//                messageGeneration += "Ready to valids: " + readyToValid.Count() + "\n";
+//                messageGeneration += "Ready to invalid: " + readyToInvalid.Count() + "\n";
+//                messageGeneration += "BEST: " + best.getFitness();
+//
+//                MessagesPool.add(messageGeneration);
+//                MessagesPool.addObject(best);
+
+            produceNextValidGeneration();
+            produceNextInvalidGeneration();
+            generationCount++;
+        }
+	}
 	
-	
-	//Return true if individual is valid, otherwise return false
-    /*
-        An individual is invalid if there does not exist a path between the entry door and the other doors
-        and if there do not exist paths between the entry door and all enemies and treasures
+	/**
+	 * Checks if an individual is valid, that is:
+	 * 1. There exist paths between the entrance and all other doors
+	 * 2. There exist paths between the entrance and all enemies
+	 * 3. There exist paths between the entrance and all treasures
+	 * 4. There is at least one enemy TODO: Why?
+	 * 5. There is at least one treasure TODO: Why?
+	 * 
+	 * @param ind The individual to check
+	 * @return Return true if individual is valid, otherwise return false
     */
 	private boolean checkIndividual(Individual ind){
 		Map map = ind.getPhenotype().getMap();
         Pathfinder pathfinder = new Pathfinder(map);
+        Point2D entrance = map.getEntrance();
 
-        //Point to enter door
-        Point2D enterDoor = map.getEntrance();
-
-        //Check if exists conxion btween all doors
+        //Check if there is a path between the entrance and all other doors
         for (Point2D door : map.getDoors())
         {
-            Node[] path = pathfinder.find(enterDoor,door);
+            Node[] path = pathfinder.find(entrance,door);
 
             if (path.length == 0)
                 map.addFailedPathToDoors();
         }
 
-        //Check if exisit conexion between enter door and enemies and treasures
+        //Check if there is a path between the entrance and all enemies
         //enemies
         for (Point2D enemy : map.getEnemies())
         {
-            Node[] path = pathfinder.find(enterDoor,enemy);
+            Node[] path = pathfinder.find(entrance,enemy);
 
             if (path.length == 0)
                 map.addFailedPathToEnemies();
         }
 
-        //treasures
+        //Check if there is a path between the entrance and all treasures
         for (Point2D treasure : map.getTreasures())
         {
-            Node[] path = pathfinder.find(enterDoor,treasure);
+            Node[] path = pathfinder.find(entrance,treasure);
 
             if (path.length == 0)
                 map.addFailedPathToTreasures();
@@ -112,11 +174,17 @@ public class Algorithm extends Thread {
                 (map.getTreasureCount() > 0);
 	}
 	
-	
-	//Uses Breadth First Search to calculate a score for the safety of the rooms entry door.
-	/*
-    f = 1 / [ (width * height) - Numero_muros ] * SUM for all areas for each enemy TODO: THIS DOES NOT SEEM ACCURATE, INVESTIGATE!
-	*/
+	/**
+	 * Uses Breadth First Search to calculate a score for the safety of the room's entrance.
+	 * According to the old source, the formula should be:
+	 * 
+	 * 	f = 1 / [ (width * height) - Numero_muros ] * SUM for all areas for each enemy
+	 * 
+	 * ...but this is not currently the case. TODO: Look into this.
+	 * 
+	 * @param ind The individual to evaluate.
+	 * @return The safety value for the room's entrance.
+	 */
 	public float evaluateSafetyEnterDoor(Individual ind)
     {
         Map map = ind.getPhenotype().getMap();
@@ -158,9 +226,14 @@ public class Algorithm extends Thread {
     Where -> 1 <= j <= Nm and j != i
 
 	*/
+	/**
+	 * Evaluates the treasure safety of a valid individual TODO: Look into this one more deeply.
+	 * 
+	 * @param ind The individual to evaluate
+	 */
 	public void evaluateSafetyTreasuresWithDoorsForIndividualsValid(Individual ind)
 	{
-		//TODO: Figure out what the hell this method does. (When Map is done!)
+		//TODO: Figure out what the hell this method does.
 		
 	    Map map = ind.getPhenotype().getMap();
 	
@@ -401,7 +474,9 @@ public class Algorithm extends Thread {
 		
 	}
 	
-	//Evaluate the entire generation
+	/**
+	 * Evaluate the entire generation
+	 */
 	public void evaluateGeneration()
     {
         //Evaluate valid individuals
@@ -467,7 +542,9 @@ public class Algorithm extends Thread {
         }
     }
 
-    
+    /**
+     * Produces a new valid generation by some arcane means TODO: Document this better
+     */
     private void produceNextValidGeneration()
     {
         //Select progenitors for crossover
@@ -478,7 +555,9 @@ public class Algorithm extends Thread {
         replaceSonsInPopulationValid(sons);
     }
 
-    
+    /**
+     * Produces a new invalid generation by some arcane means TODO: Document this better
+     */
     private void produceNextInvalidGeneration()
     {
         //Select progenitors for crossover
@@ -509,7 +588,15 @@ public class Algorithm extends Thread {
         return sons;
     }
 
-	//Seleccion de progenitores por TORNEO Alex: ???????????????????????????????????? TODO: Investigate this
+    
+    /**
+     * Selects progenitors from a population using tournament selection
+     * (see https://en.wikipedia.org/wiki/Tournament_selection).
+     * TODO: Make sure this is properly implemented.
+     * 
+     * @param population A whole population of individuals
+     * @return A list of chosen progenitors
+     */
     private List<Individual> selectProgenitors(List<Individual> population)
     {
         int countProgenitors = (int)(SON_SIZE * population.size()) / 2;
@@ -604,63 +691,7 @@ public class Algorithm extends Thread {
     	return -1;
     }
 	
-	public void run(){
-		
-		//MessagesPool.add("Evolucionando...");
-
-        int generationCount = 1;
-        int generations = 10; // Why? TODO: investigate
-
-        double avgFitness = Double.POSITIVE_INFINITY;
-        double avgFitnessTarget = 0.09f; //?? Why? TODO: investigate
-
-        try
-        {
-            while (generationCount <= generations)
-            //while(avgFitness >= avgFitnessTarget)
-            {
-                String messageGeneration = "";
-
-                evaluateGeneration();
-                insertReadyToValidAndEvaluate();
-                insertReadyToInvalidAndEvaluate();
-                //break;
-
-                // TODO: Sort out output messages later
-//                //info population valid
-//                double[] dataValid = infoGenerational(populationValid, true);
-//                avgFitness = dataValid[0];
-//                //info population invalid
-//                double[] dataInvalid = infoGenerational(populationInvalid);
-//
-//                messageGeneration += "Generation " + generationCount + "\n";
-//                messageGeneration += "Avg valid fitness: " + dataValid[0] + "\n";
-//                messageGeneration += "Min valid fitness: " + dataValid[1] + "\n";
-//                messageGeneration += "Max valid fitness: " + dataValid[2] + "\n\n";
-//
-//                messageGeneration += "Avg invalid fitness: " + dataInvalid[0] + "\n";
-//                messageGeneration += "Min invalid fitness: " + dataInvalid[1] + "\n";
-//                messageGeneration += "Max invalid fitness: " + dataInvalid[2] + "\n\n";
-//                messageGeneration += "Valids: " + populationValid.Count() + "\n";
-//                messageGeneration += "Invalids: " + populationInvalid.Count() + "\n";
-//                messageGeneration += "Ready to valids: " + readyToValid.Count() + "\n";
-//                messageGeneration += "Ready to invalid: " + readyToInvalid.Count() + "\n";
-//                messageGeneration += "BEST: " + best.getFitness();
-//
-//                MessagesPool.add(messageGeneration);
-//                MessagesPool.addObject(best);
-
-                produceNextValidGeneration();
-                produceNextInvalidGeneration();
-                generationCount++;
-            }
-        }
-        catch(Exception ex)
-        {
-            //MessagesPool.add(ex.Message + "\n" + ex.Source + "\n" + ex.StackTrace);
-        	ex.printStackTrace();
-        }
-	}
+    
 	
 	private double[] infoGenerational(List<Individual> population, boolean saveBest) //default for saveBest was false
     {
