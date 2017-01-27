@@ -9,6 +9,7 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
+import util.Util;
 
 /**
  * This class is simply a program launcher.
@@ -39,7 +40,7 @@ public class ProgramStarter extends Application {
 	        stage.setTitle("Eddy - Evolutionary Dungeon Designer");
 	        stage.setScene(scene);
 	        stage.show(); 
- 
+	        
 		} catch (Exception e) {
 			logger.error("Couldn't load GUI: " + e.getMessage(), e);
 			System.exit(0);

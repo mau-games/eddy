@@ -9,6 +9,7 @@ import game.Map;
 import generator.config.Config;
 import generator.config.MissingConfigurationException;
 import javafx.geometry.Point2D;
+import util.Util;
 import util.algorithms.BFS;
 import util.algorithms.Node;
 import util.algorithms.Pathfinder;
@@ -36,9 +37,13 @@ public class Algorithm extends Thread {
 		initPopulations();		
 	}
 	
+	/**
+	 * Broadcast a string describing the algorithm's status
+	 * 
+	 * @param status Message to display.
+	 */
 	private void broadcastStatusUpdate(String status){
-		StatusMessage e = new StatusMessage(status);
-		EventRouter.getInstance().postEvent(e);
+		EventRouter.getInstance().postEvent(new StatusMessage(status));
 	}
 	
 	// TODO: Figure out what the difference between readyToValid and populationValid is
@@ -296,16 +301,15 @@ public class Algorithm extends Thread {
 	    }
 	}
 	
-	
-	// Evaluate the fitness of an individual
-	// TODO: Implement this when Map is done.
+	/**
+	 * Evaluates the fitness of a valid individual
+	 * 
+	 * @param ind The valid individual to evaluate
+	 */
     public void evaluateValidIndividual(Individual ind)
     {
         double fitness = 0.0;
-        
-        
         Map map = ind.getPhenotype().getMap();
-        
         int tilesPassables = map.getNonWallTileCount();
 
         //security area (1)
@@ -340,7 +344,7 @@ public class Algorithm extends Thread {
         //avg seg tesoros (3)
         evaluateSafetyTreasuresWithDoorsForIndividualsValid(ind);
         Double[] safeties = map.getAllTreasureSafeties();
-        double safeties_average = calcAverage(safeties);
+        double safeties_average = Util.calcAverage(safeties);
         double fitness_avg_treasures_security = 0.0;
         try {
 			fitness_avg_treasures_security = safeties_average - mConfig.getAverageTreasureSecurity();
@@ -370,7 +374,7 @@ public class Algorithm extends Thread {
         }
 
         //variance treasures security
-        double safeties_variance = calcVariance(safeties, safeties_average);
+        double safeties_variance = Util.calcVariance(safeties);
         double expectedSafetyVariance = 0.0;
 		try {
 			expectedSafetyVariance = mConfig.getTreasureSecurityVariance();
@@ -384,6 +388,7 @@ public class Algorithm extends Thread {
         //Check objects locked
         double objectsLocked = map.countCloseWalls();
 
+        // TODO: Witness the fitness. (Investigate why these values are used)
         fitness =
             (Math.abs(fitness_security_area) * 0.1) +
             (Math.abs(fitness_enemies_proportion) * 0.2) +
@@ -396,10 +401,13 @@ public class Algorithm extends Thread {
         ind.setFitness(fitness);
         ind.setEvaluate(true);
     }
-    
-    // Evaluate the fitness of an invalid individual
-    // Note: should this really be done differently from a valid individual?
-    // TODO: Make the treatment of valid and invalid individuals more consistent?
+
+    /**
+	 * Evaluates the fitness of an invalid individual
+	 * TODO: Make the treatment of valid and invalid individuals more consistent?
+	 * 
+	 * @param ind The invalid individual to evaluate
+	 */
     public void evaluateInvalidIndividual(Individual ind)
     {
         double fitness = evaluateTheWorstItIsAIndividual(ind);
@@ -409,28 +417,9 @@ public class Algorithm extends Thread {
         ind.setEvaluate(true);
     }
 
-    // TODO: Surely this and the following method should be moved to another class (Utilities or somesuch)
-    private double calcAverage(Double[] numbers)
-    {
-        double sum = 0;
-        for(double n : numbers)
-        {
-            sum += n;
-        }
+    
+    
 
-        return sum / numbers.length;
-    }
-
-    private double calcVariance(Double[] numbers, double average)
-    {
-        double result = 0;
-        for(double n : numbers)
-        {
-            result += (n - average) * (n - average);
-        }
-
-        return result / numbers.length;
-    }
     
     
     // TODO: Implement this when Map is done
