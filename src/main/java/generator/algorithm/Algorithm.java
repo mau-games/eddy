@@ -37,8 +37,7 @@ public class Algorithm extends Thread {
 	}
 	
 	private void broadcastStatusUpdate(String status){
-		StatusMessage e = new StatusMessage();
-		e.setPayload(status);
+		StatusMessage e = new StatusMessage(status);
 		EventRouter.getInstance().postEvent(e);
 	}
 	
