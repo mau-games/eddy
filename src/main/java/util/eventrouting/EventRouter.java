@@ -45,7 +45,7 @@ public class EventRouter {
 	 * @param e The event to be sent.
 	 */
 	public synchronized void postEvent(PCGEvent e) {
-		List<Listener> listeners = roster.get(e.getClass());
+		List<Listener> listeners = roster.get(e.getClass().getName());
 		if (listeners != null) {
 			for (Listener listener : listeners) {
 				listener.ping(e);
