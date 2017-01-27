@@ -18,13 +18,13 @@ import java.util.List;
 public class EventRouter {
 	private static EventRouter instance = null;
 	
-	Dictionary<Class<PCGEvent>, List<Listener>> roster;
+	Dictionary<String, List<Listener>> roster;
 	
 	/**
 	 * This constructor is only to be called by the getInstance() method.
 	 */
 	protected EventRouter() {
-		roster = new Hashtable<Class<PCGEvent>, List<Listener>>();
+		roster = new Hashtable<String, List<Listener>>();
 	}
 	
 	/**
@@ -60,11 +60,11 @@ public class EventRouter {
 	 * @param eventType The type of events to listen for.
 	 */
 	public synchronized void registerListener(Listener listener,
-			Class<PCGEvent> eventType) {
+			Object eventType) {
 		List<Listener> listeners = roster.get(eventType);
 		if (listeners == null) {
 			listeners = new ArrayList<Listener>();
-			roster.put(eventType, listeners);
+			roster.put(eventType.getClass().getName(), listeners);
 		}
 		
 		listeners.add(listener);
