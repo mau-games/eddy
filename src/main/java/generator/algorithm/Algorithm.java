@@ -217,7 +217,7 @@ public class Algorithm extends Thread {
         for(Point2D enemy : map.getEnemies())
         {
             //totalAreas += bfs.find(Map.Point2D.toUnityVector2(startDoor), Map.Point2D.toUnityVector2(enemy)).Length;
-            int area = bfs.find(startDoor, enemy).length;
+            int area = bfs.getTraversedNodesBetween(startDoor, enemy).length;
             if (minArea == 0 || minArea < area)
                 minArea = area;
         }

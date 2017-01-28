@@ -4,6 +4,7 @@ import java.net.URL;
 import java.util.ResourceBundle;
 
 import game.Map;
+import game.TileTypes;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -115,33 +116,31 @@ public class GUIController implements Initializable, Listener {
 		Color color = null;
 		
 		// TODO: Choose appropriate colours and stuff
-		switch (pixel) {
-		case 0:
-			color = Color.ALICEBLUE;
+		switch (TileTypes.toTileType(pixel)) {
+		case DOOR:
+			color = Color.BLACK;
 			break;
-		case 1:
-			color = Color.ANTIQUEWHITE;
+		case COIN:
+		case COIN2:
+		case COFFER:
+		case COFFER2:
+			color = Color.YELLOW;
 			break;
-		case 2:
-			color = Color.AQUA;
+		case ENEMY:
+		case ENEMY2:
+			color = Color.RED;
 			break;
-		case 3:
-			color = Color.AQUAMARINE;
+		case WALL:
+			color = Color.DARKSLATEGRAY;
 			break;
-		case 4:
-			color = Color.AZURE;
+		case FLOOR:
+			color = Color.LIGHTGRAY;
 			break;
-		case 5:
-			color = Color.BEIGE;
-			break;
-		case 6:
-			color = Color.BISQUE;
-			break;
-		case 7:
-			color = Color.BLANCHEDALMOND;
+		case DOORENTER:
+			color = Color.MAGENTA;
 			break;
 		default:
-			color = Color.BLACK;
+			color = Color.WHITE;
 		}
 		
 		return color;
