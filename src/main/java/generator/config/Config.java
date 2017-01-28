@@ -12,6 +12,8 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.google.gson.JsonSyntaxException;
 
+import game.Game;
+
 /**
  * Config represents a configuration to be used  by the generator. It is
  * game-specific, meaning that each game type should have its own dedicated
@@ -51,8 +53,9 @@ public class Config {
 		 * TODO: FIX THIS THING! Is the mystic Game just a dynamic setting? If
 		 * so, where do we find it? And most importantly, why don't we set it
 		 * dynamically? This code smells.
+		 * ALEX - I put this back in temporarily
 		 */
-		// level = Game.getLevel();
+		level = Game.getLevel();
 	}
 
 	/**
@@ -228,14 +231,14 @@ public class Config {
 	 */
 	private String getDifficultyString(TLevel level) {
 		switch (level) {
-		case EASY:
-			return "easy";
-		case MEDIUM:
-			return "medium";
-		case HARD:
-			return "hard";
-		default:
-			return "easy";
+			case EASY:
+				return "easy";
+			case MEDIUM:
+				return "medium";
+			case HARD:
+				return "hard";
+			default:
+				return "easy";
 		}
 	}
 }

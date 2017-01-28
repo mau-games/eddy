@@ -14,6 +14,7 @@ import util.algorithms.BFS;
 import util.algorithms.Node;
 import util.algorithms.Pathfinder;
 import util.eventrouting.EventRouter;
+import util.eventrouting.events.MapUpdate;
 import util.eventrouting.events.StatusMessage;
 
 public class Algorithm extends Thread {
@@ -38,7 +39,7 @@ public class Algorithm extends Thread {
 	}
 	
 	/**
-	 * Broadcast a string describing the algorithm's status
+	 * Broadcasts a string describing the algorithm's status.
 	 * 
 	 * @param status Message to display.
 	 */
@@ -46,9 +47,18 @@ public class Algorithm extends Thread {
 		EventRouter.getInstance().postEvent(new StatusMessage(status));
 	}
 	
-	// TODO: Figure out what the difference between readyToValid and populationValid is
 	/**
-	 * Creates lists for the valid and invalid populations and populates them with individuals
+	 * Broadcasts the best map from the current generation.
+	 * 
+	 * @param best The best map from the current generation.
+	 */
+	private void broadcastMapUpdate(Map best){
+		EventRouter.getInstance().postEvent(new MapUpdate(best));
+	}
+	
+	/**
+	 * Creates lists for the valid and invalid populations and populates them with individuals.
+	 * TODO: Figure out what the difference between readyToValid and populationValid is
 	 */
 	private void initPopulations(){
 		broadcastStatusUpdate("Initialising...");
@@ -97,11 +107,11 @@ public class Algorithm extends Thread {
             insertReadyToInvalidAndEvaluate();
 
             // TODO: Sort out fancy output messages later
-//                //info population valid
-//                double[] dataValid = infoGenerational(populationValid, true);
+                //info population valid
+                double[] dataValid = infoGenerational(populationValid, true);
 //                avgFitness = dataValid[0];
-//                //info population invalid
-//                double[] dataInvalid = infoGenerational(populationInvalid);
+                //info population invalid
+                double[] dataInvalid = infoGenerational(populationInvalid, false);
 //
 //                messageGeneration += "Generation " + generationCount + "\n";
 //                messageGeneration += "Avg valid fitness: " + dataValid[0] + "\n";
@@ -120,6 +130,11 @@ public class Algorithm extends Thread {
 //                MessagesPool.add(messageGeneration);
 //                MessagesPool.addObject(best);
 
+            
+            broadcastStatusUpdate("Generation " + generationCount + " finished.");
+            broadcastMapUpdate(best.getPhenotype().getMap());
+            
+            
             produceNextValidGeneration();
             produceNextInvalidGeneration();
             generationCount++;

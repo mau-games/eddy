@@ -41,7 +41,6 @@ public class GUIController implements Initializable, Listener {
 		router.postEvent(new Start());
 		
 		// TODO: Remove this when the porting is done
-		router.postEvent(new StatusMessage("New message"));
 		int[][] matrix = new int[3][3];
 		matrix[0][0] = 0;
 		matrix[0][1] = 1;

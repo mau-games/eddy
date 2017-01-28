@@ -22,7 +22,7 @@ public class Game implements Listener{
     public static int sizeM; //Vertical room size in tiles
     public static int sizeDoors; //TODO: ???
 	public static String randomRangesFileName = "rangesSupervised"; //File containing probability ranges for generating particular tile types
-    public static String gameConfigFileName = "gameConfig"; //TODO: ???
+    public static String gameConfigFileName = "zelda"; //TODO: ???
     public static Ranges ranges; 
     public static List<Point2D> doorsPositions = null; //TODO: ???
     public static Config.TLevel level; //Difficulty level
@@ -45,7 +45,7 @@ public class Game implements Listener{
         sizeN = n;
         sizeM = m;
         sizeDoors = doors;
-        this.level = level;
+        Game.level = level;
         //tileManager = new CTileManager(new ColorPaint());
         
         EventRouter.getInstance().registerListener(this, new Start());
@@ -53,7 +53,7 @@ public class Game implements Listener{
 
 	// Kicks the algorithm into action. Not yet sure where this is called?
     // 
-    public void startAll()
+    private void startAll()
     {
     	Algorithm geneticAlgorithm = new Algorithm(Algorithm.POPULATION_SIZE, new Config(gameConfigFileName));
     	
@@ -64,9 +64,10 @@ public class Game implements Listener{
 
 	@Override
 	public synchronized void ping(PCGEvent e) {
-		if(e instanceof Start)
+		if(e instanceof Start){
 			System.out.println(e);
 			startAll();		
+		}
 	}
 
 	

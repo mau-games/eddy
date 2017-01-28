@@ -3,12 +3,13 @@ package util.algorithms;
 import javafx.geometry.Point2D;
 
 public class Node {
-    public float f;
+    public double f;
+    public double g;
     public Point2D position;
     
     public Node parent;
 
-    public Node(float f, Point2D position, Node parent)
+    public Node(double f, Point2D position, Node parent)
     {
         this.f = f;
         this.position = position;
@@ -18,5 +19,9 @@ public class Node {
     public boolean equals(Node n)
     {
         return position == n.position;
+    }
+    
+    public boolean equals(Point2D p){
+    	return position.getX() == p.getX() && position.getY() == p.getY();
     }
 }
