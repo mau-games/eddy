@@ -16,8 +16,6 @@ import game.TileTypes;
 import generator.config.MissingConfigurationException;
 import util.Util;
 
-//TODO: This class needs quite a bit of attention to get it working.
-//TODO: I don't see why this class is handling the provision of random number generation? Break out this functionality
 //TODO: Consider merging this with Config.java
 public class Ranges {
 

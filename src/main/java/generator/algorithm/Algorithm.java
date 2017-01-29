@@ -1,7 +1,7 @@
 package generator.algorithm;
 
-import java.io.Console;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import game.Game;
@@ -18,7 +18,9 @@ import util.eventrouting.events.MapUpdate;
 import util.eventrouting.events.StatusMessage;
 
 public class Algorithm extends Thread {
-	public static int POPULATION_SIZE = 100;
+	// TODO: Is it weird that the starting population is 100 split between both valid and invalid, 
+	// but later invalid and valid are allowed 100 EACH? Look into this.
+	public static int POPULATION_SIZE = 100; 
 	public static float MUTATION_PROB = 0.9f;
 	public static float SON_SIZE = 0.7f;
 	
@@ -26,7 +28,6 @@ public class Algorithm extends Thread {
 	private List<Individual> populationInvalid;
 	private Individual best;
 	private Config mConfig;
-	private int indexWorst = 0;
 	private List<Individual> readyToValid;
 	private List<Individual> readyToInvalid;
 	private int size;
@@ -111,7 +112,7 @@ public class Algorithm extends Thread {
                 double[] dataValid = infoGenerational(populationValid, true);
 //                avgFitness = dataValid[0];
                 //info population invalid
-                double[] dataInvalid = infoGenerational(populationInvalid, false);
+//                double[] dataInvalid = infoGenerational(populationInvalid, false);
 //
 //                messageGeneration += "Generation " + generationCount + "\n";
 //                messageGeneration += "Avg valid fitness: " + dataValid[0] + "\n";
@@ -131,7 +132,12 @@ public class Algorithm extends Thread {
 //                MessagesPool.addObject(best);
 
             
-            broadcastStatusUpdate("Generation " + generationCount + " finished.");
+            //broadcastStatusUpdate("Generation " + generationCount + " finished.");
+            broadcastStatusUpdate("Average fitness: " + dataValid[0]);
+            broadcastStatusUpdate("Max fitness: " + dataValid[2]);
+            broadcastStatusUpdate("BEST fitness: " + best.getFitness());
+            broadcastStatusUpdate("Valids: " + populationValid.size());
+            broadcastStatusUpdate("Invalids: " + populationInvalid.size());
             broadcastMapUpdate(best.getPhenotype().getMap());
             
             
@@ -142,7 +148,7 @@ public class Algorithm extends Thread {
 	}
 	
 	/**
-	 * Checks if an individual is valid, that is:
+	 * Checks if an individual is valid (feasible), that is:
 	 * 1. There exist paths between the entrance and all other doors
 	 * 2. There exist paths between the entrance and all enemies
 	 * 3. There exist paths between the entrance and all treasures
@@ -233,27 +239,15 @@ public class Algorithm extends Thread {
         return minArea;
     }
 	
-	
-	// TODO: Uhhh... what?
-	/*
-    s(t,i) = min {
-        max {
-            0,
-            d(t,j) - d(t,i) / d(t,j) + d(t,i)
-        }
-    }
-    Where -> 1 <= j <= Nm and j != i
-
-	*/
 	/**
-	 * Evaluates the treasure safety of a valid individual TODO: Look into this one more deeply.
+	 * Evaluates the treasure safety of a valid individual 
+	 * TODO: Look into this one more deeply.
+	 * TODO: Rename!
 	 * 
 	 * @param ind The individual to evaluate
 	 */
 	public void evaluateSafetyTreasuresWithDoorsForIndividualsValid(Individual ind)
 	{
-		//TODO: Figure out what the hell this method does.
-		
 	    Map map = ind.getPhenotype().getMap();
 	
 	    if(map.getEnemyCount() > 0)
@@ -263,7 +257,6 @@ public class Algorithm extends Thread {
 	        Point2D doorEnter = map.getEntrance();
 	        List<Double> maxs = new ArrayList<Double>();
 	        
-	        //Pathfinder
 	        Pathfinder pathfinder = new Pathfinder(map);
 	
 	        for (int i = 0; i < treasuresSize; i++)
@@ -305,10 +298,6 @@ public class Algorithm extends Thread {
 	            if(maxs.size() > 0)
 	            {
 	                Double min = maxs.stream().min((a,b) -> Double.compare(a, b)).get();
-	                if (Double.isNaN(min))
-	                {
-	                    System.out.println("In evaluateSafetyTreasuresWithDoorsForIndividualsValid... Is nan!");
-	                }
 	                map.setTreasureSafety(treasure, min);
 	            }
 	            
@@ -318,6 +307,7 @@ public class Algorithm extends Thread {
 	
 	/**
 	 * Evaluates the fitness of a valid individual
+	 * TODO: Explain how this is done
 	 * 
 	 * @param ind The valid individual to evaluate
 	 */
@@ -328,7 +318,7 @@ public class Algorithm extends Thread {
         int tilesPassables = map.getNonWallTileCount();
 
         //security area (1)
-        double fitness_security_area = (((evaluateSafetyEnterDoor(ind) * 100) / tilesPassables) * 0.01); // TODO: Fix this
+        double fitness_security_area = evaluateSafetyEnterDoor(ind) / (double)tilesPassables;
         map.setEntrySafetyFitness(fitness_security_area);
         try {
 			fitness_security_area -= mConfig.getSecurityAreaVariance();
@@ -418,39 +408,20 @@ public class Algorithm extends Thread {
     }
 
     /**
-	 * Evaluates the fitness of an invalid individual
-	 * TODO: Make the treatment of valid and invalid individuals more consistent?
-	 * 
-	 * @param ind The invalid individual to evaluate
-	 */
-    public void evaluateInvalidIndividual(Individual ind)
-    {
-        double fitness = evaluateTheWorstItIsAIndividual(ind);
-        
-        //set final fitness
-        ind.setFitness(fitness);
-        ind.setEvaluate(true);
-    }
-
-    
-    
-
-    
-    
-    // TODO: Implement this when Map is done
-    /*
-    Evaluate a invalid individual
-    Return the fitness for that individual
-
-    1 - { 
-            [ (1/3) * (pathToEnemiesFail/enemiesCount) ] +
-            [ (1/3) * (pathToTreasuresFail/treasuresCount) ] +
-            [ (1/3) * (pathToDoorsFail/doorsCount) ]
-        }
-    values between 0 and 1 (include both)
-	*/
-	public double evaluateTheWorstItIsAIndividual(Individual ind)
+     * Evaluates an invalid individual's fitness according the following formula:
+     * 
+     * fitness = 1 - ((1/3) * (pathToEnemiesFail/enemiesCount) +
+     *				  (1/3) * (pathToTreasuresFail/treasuresCount) +
+     *                (1/3) * (pathToDoorsFail/doorsCount))
+     *                
+     * TODO: This only takes into account how far from being valid the individual is.
+     * 		 Should it also take into account other fitness factors?
+     * 
+     * @param ind The invalid individual to evaluate
+     */
+	public void evaluateInvalidIndividual(Individual ind)
 	{
+		double fitness = 0.0;
 	    Map map = ind.getPhenotype().getMap();
 	
 	    double enemies = (map.getFailedPathsToEnemies() / (double)map.getEnemyCount());
@@ -462,19 +433,17 @@ public class Algorithm extends Thread {
 	    	treasures = 1.0;
 	    
 	    double doors = (map.getFailedPathsToAnotherDoor() / (double)map.getDoorCount());
-	    
 	    if (Double.isNaN(doors)) 
 	    	doors = 1.0;
 	
-	    double weighing = (1.0f / 3.0f);
+	    double weight = 1.0/3.0;
+	    fitness = 1 - ((weight * enemies) + (weight * treasures) + (weight * doors));
 	
-	    double result = 1 -
-	        ((weighing * enemies) +
-	        (weighing * treasures) +
-	        (weighing * doors));
-	
-	    return (result < 0)? 0 : result;
-		
+	    fitness = (fitness < 0)? 0 : fitness;
+	    
+	    //set final fitness
+	    ind.setFitness(fitness);
+        ind.setEvaluate(true);
 	}
 	
 	/**
@@ -497,9 +466,13 @@ public class Algorithm extends Thread {
         }
     }
 
-	// TODO: Figure out what this is for
+	/**
+	 * Honestly, this method doesn't make much sense.
+	 * TODO: Investigate what this method is REALLY supposed to do
+	 */
     public void insertReadyToValidAndEvaluate()
     {
+    	//Sort valid population in descending order
         sortPopulation(populationValid, false);
 
         int i = 0;
@@ -508,8 +481,8 @@ public class Algorithm extends Thread {
         {
             if (i != populationValid.size() - 1 && !flag)
             {
-                evaluateValidIndividual(valid);
-                populationValid.add(i, valid); // TODO: not sure about this. Investigate.
+                evaluateValidIndividual(valid); // TODO: Check if this is necessary. Hasn't it already been evaluated?
+                populationValid.add(i, valid);
                 i++;
             }
             else
@@ -521,7 +494,10 @@ public class Algorithm extends Thread {
         }
     }
 
-    // TODO: Figure out what this is for
+    /**
+	 * Honestly, this method doesn't make much sense.
+	 * TODO: Investigate what this method is REALLY supposed to do
+	 */
     public void insertReadyToInvalidAndEvaluate()
     {
         sortPopulation(populationInvalid, true);
@@ -546,7 +522,10 @@ public class Algorithm extends Thread {
     }
 
     /**
-     * Produces a new valid generation by some arcane means TODO: Document this better
+     * Produces a new valid generation according to the following procedure:
+     *  1. Select individuals from the valid population to breed
+     *  2. Crossover these individuals
+     *  3. Add them back into the population
      */
     private void produceNextValidGeneration()
     {
@@ -571,6 +550,12 @@ public class Algorithm extends Thread {
         replaceSonsInPopulationInvalid(sons);
     }
 			
+    /**
+     * Crossover 
+     * 
+     * @param progenitors A List of Individuals to be reproduced
+     * @return A List of Individuals
+     */
     private List<Individual> crossOverBetweenProgenitors(List<Individual> progenitors)
     {
         List<Individual> sons = new ArrayList<Individual>();
@@ -580,11 +565,8 @@ public class Algorithm extends Thread {
 
         while (countSons < sonSize)
         {
-            Individual[] offspring;
-            // TODO: I think getNextInt has an exclusive upper bound, so surely this should be changed?
-            offspring = progenitors.get(Util.getNextInt(0, sizeProgenitors - 1)).reproduce(progenitors.get(Util.getNextInt(0, sizeProgenitors - 1)));
-            sons.add(offspring[0]);
-            sons.add(offspring[1]);
+            Individual[] offspring = progenitors.get(Util.getNextInt(0, sizeProgenitors)).reproduce(progenitors.get(Util.getNextInt(0, sizeProgenitors)));
+            sons.addAll(Arrays.asList(offspring));
             countSons += 2;
         }
 
@@ -629,6 +611,11 @@ public class Algorithm extends Thread {
         return progenitors;
     }
 
+    /**
+     * Add individuals to either the valid population or readyToInvalid depending on whether or not they are valid.
+     * 
+     * @param sons Individuals to add
+     */
     private void replaceSonsInPopulationValid(List<Individual> sons)
     {
         sortPopulation(populationValid, false);
@@ -652,10 +639,13 @@ public class Algorithm extends Thread {
             i++;
         }
 
-        indexWorst = i;
-
     }
 
+    /**
+     * Add individuals to either the invalid population or readyToValid depending on whether or not they are valid.
+     * 
+     * @param sons Individuals to add
+     */
     private void replaceSonsInPopulationInvalid(List<Individual> sons)
     {
         sortPopulation(populationInvalid, false);
@@ -679,23 +669,25 @@ public class Algorithm extends Thread {
         }
     }
 
-    //sorting population in ascending or descending order
-    // TODO: Double-check I haven't fucked this up. Consider neatening this up by making Individual implement Comparable.
+    /**
+     * Sorts a population according to fitness
+     * 
+     * @param population A List of Individuals to sort
+     * @param ascending true for ascending order, false for descending
+     */
     private void sortPopulation(List<Individual> population, boolean ascending)
     {
-        population.sort((x, y) -> (ascending ? 1 : -1) * compareFitness(x.getFitness(),y.getFitness()));
+        population.sort((x, y) -> (ascending ? 1 : -1) * Double.compare(x.getFitness(),y.getFitness()));
     }
-    
-    private int compareFitness(double a, double b){
-    	if( a == b)
-    		return 0;
-    	if( a > b)
-    		return 1;
-    	return -1;
-    }
-	
-    
-	
+ 	
+    /**
+     * Calculates some statistics about a population and (optionally) saves the "best" individual.
+     * TODO: This seems like a clunky way of doing things - rework?
+     * 
+     * @param population The population to analyse
+     * @param saveBest Should the best individual be saved? True should only be used for the valid population
+     * @return An array of doubles. Index 0 contain the average fitness. Index 1 contains the minimum fitness. Index 2 contains the maximum fitness.
+     */
 	private double[] infoGenerational(List<Individual> population, boolean saveBest) //default for saveBest was false
     {
         //avg, min, max
@@ -715,6 +707,7 @@ public class Algorithm extends Thread {
             {
                 minFitness = currFitness;
                 worstIndividual = population.get(i);
+                // TODO: Investigate - surely it can't simultaneously be worst AND best!?!?
                 if (saveBest)
                     best = population.get(i);
             }
@@ -742,21 +735,10 @@ public class Algorithm extends Thread {
         return data;
     }
 
-    public List<Individual> getPopulationInvalid()
-    {
-        return populationInvalid;
-    }
-
-    public List<Individual> getPopulationValid()
-    {
-        return populationValid;
-    }
-
-    public Individual getBest()
-    {
-        return best;
-    }
-
+	/**
+	 * Add an individual to the valid population if the population size is less than POPULATION_SIZE
+	 * @param valid A valid individual
+	 */
     private void addValidIndividual(Individual valid)
     {
         if (populationValid.size() < POPULATION_SIZE)
@@ -765,6 +747,10 @@ public class Algorithm extends Thread {
         }
     }
 
+	/**
+	 * Add an individual to the invalid population if the population size is less than POPULATION_SIZE
+	 * @param invalid An invalid individual
+	 */
     private void addInvalidIndividual(Individual invalid)
     {
         if (populationInvalid.size() < POPULATION_SIZE)
