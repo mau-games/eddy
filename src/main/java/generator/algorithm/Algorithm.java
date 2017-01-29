@@ -582,7 +582,7 @@ public class Algorithm extends Thread {
         {
             Individual[] offspring;
             // TODO: I think getNextInt has an exclusive upper bound, so surely this should be changed?
-            offspring = progenitors.get(Game.getRanges().getNextInt(0, sizeProgenitors - 1)).reproduce(progenitors.get(Game.getRanges().getNextInt(0, sizeProgenitors - 1)));
+            offspring = progenitors.get(Util.getNextInt(0, sizeProgenitors - 1)).reproduce(progenitors.get(Util.getNextInt(0, sizeProgenitors - 1)));
             sons.add(offspring[0]);
             sons.add(offspring[1]);
             countSons += 2;
@@ -607,12 +607,12 @@ public class Algorithm extends Thread {
 
         while(countProgenitors > 0)
         {
-            int individuals_to_select = Game.getRanges().getNextInt(1, population.size());
+            int individuals_to_select = Util.getNextInt(1, population.size());
 
             Individual bestProgenitor = null;
             for(int i = 0; i < individuals_to_select; i++)
             {
-                int progenitorIndex = Game.getRanges().getNextInt(0, population.size() - 1);
+                int progenitorIndex = Util.getNextInt(0, population.size() - 1);
                 Individual progenitor = population.get(progenitorIndex);
 
                 //select the progenitor with the lowest fitness

@@ -14,6 +14,7 @@ import com.google.gson.JsonSyntaxException;
 import game.Game;
 import game.TileTypes;
 import generator.config.MissingConfigurationException;
+import util.Util;
 
 //TODO: This class needs quite a bit of attention to get it working.
 //TODO: I don't see why this class is handling the provision of random number generation? Break out this functionality
@@ -21,29 +22,20 @@ import generator.config.MissingConfigurationException;
 public class Ranges {
 
 	private JsonArray ranges;
-	private Random random;
 	
 	public Ranges(){
 		readRanges(fetchRangesAsFile(Game.randomRangesFileName));
-		random = new Random();
+		
 	}
-	
-	public float getNextFloat(float min, float max){
-		return min + (float)random.nextDouble()*(max - min);
-	}
-	
-	public int getNextInt(int min, int max){
-		return min + random.nextInt(max - min);
-	}
-	
+
 	//Seems to get a random TileTypes weighted according to rangesSupervised.json
 	public TileTypes getSupervisedRandomType(){
-		float value = getNextFloat(0.0f,1.0f);
+		float value = Util.getNextFloat(0.0f,1.0f);
 		int ranges_size = ranges.size();
 		
 		for(int i = 0; i < ranges_size; i++){
 			if(value >= ranges.get(i).getAsJsonObject().get("from").getAsFloat() && value < ranges.get(i).getAsJsonObject().get("to").getAsFloat()){
-				int index = getNextInt(0, ranges.get(i).getAsJsonObject().get("elements").getAsJsonArray().size());
+				int index = Util.getNextInt(0, ranges.get(i).getAsJsonObject().get("elements").getAsJsonArray().size());
 				return Enum.valueOf(TileTypes.class, ranges.get(i).getAsJsonObject().get("elements").getAsJsonArray().get(index).getAsString());
 			}
 		}

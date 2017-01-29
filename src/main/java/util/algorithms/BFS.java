@@ -19,7 +19,7 @@ public class BFS {
 
     /**
      * Get an array of nodes traversed by a BFS when searching from start to goal.
-     * TODO: Wouldn't it really be fine to just return a number here - I don't think the nodes are ever used?
+     * TODO: Wouldn't it really be fine to just return a number here? I don't think the returned nodes are ever used
      * 
      * @param start Start position.
      * @param goal Goal position.

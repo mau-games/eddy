@@ -7,6 +7,7 @@ import java.util.Hashtable;
 import java.util.List;
 
 import javafx.geometry.Point2D;
+import util.Util;
 
 // TODO: Make sure that m represents the rows and n the columns
 // TODO: Choose between x + y & Point2D
@@ -83,7 +84,7 @@ public class Map {
 	
 	private void markDoors(){
 		List<Point2D> positionsValid = new ArrayList<Point2D>();
-		int enterDoorPosition = Game.getRanges().getNextInt(0, doorCount);
+		int enterDoorPosition = Util.getNextInt(0, doorCount);
 		
 		// TODO: Rewrite this to be less insanely inefficient
 		// Get valid door positions (non-corner tiles on the room border)
@@ -104,7 +105,7 @@ public class Map {
 
             if (Game.doorsPositions.size() < doorCount)
             {
-                int randomDoorTile = Game.getRanges().getNextInt(0, positionsValid.size());
+                int randomDoorTile = Util.getNextInt(0, positionsValid.size());
                 pointWithDoor = positionsValid.get(randomDoorTile);
                 Game.doorsPositions.add(pointWithDoor);
             }

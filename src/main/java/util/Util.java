@@ -1,11 +1,15 @@
 package util;
 
 import java.util.Arrays;
+import java.util.Random;
 
 import javafx.geometry.Point2D;
 
 public class Util {
 
+	
+	private static Random random;
+	
 	/**
 	 * Calculates the Manhattan (taxicab) distance between two Point2Ds
 	 * 
@@ -52,5 +56,30 @@ public class Util {
     	double avg = calcAverage(numbers);
     	return Arrays.asList(numbers).stream().reduce(0.0,(a,b)-> a + (b - avg)*(b - avg)) / (numbers.length);
     }
+    /**
+     * Get a random float between min (inclusive) and max (exclusive)
+     * 
+     * @param min The lower bound (inclusive)
+     * @param max The upper bound (exclusive)
+     * @return A random float between min (inclusive) and max (exclusive)
+     */
+	public static float getNextFloat(float min, float max){
+		if(random == null)
+			random = new Random();
+		return min + (float)random.nextDouble()*(max - min);
+	}
+	
+	/**
+	 * Get a random int between min (inclusive) and max (exclusive)
+	 * 
+	 * @param min The lower bound (inclusive)
+	 * @param max The upper bound (exclusive)
+	 * @return A random int between min (inclusive) and max (exclusive)
+	 */
+	public static int getNextInt(int min, int max){
+		if(random == null)
+			random = new Random();
+		return min + random.nextInt(max - min);
+	}
 	
 }

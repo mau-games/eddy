@@ -1,6 +1,7 @@
 package generator.algorithm;
 
 import game.Game;
+import util.Util;
 
 public class Individual {
 	private double mFitness;
@@ -45,10 +46,10 @@ public class Individual {
 		sons[1] = new Individual(new Genotype(other.getGenotype().getChromosome()));
 		
 		if(mGenotype.getSizeChromosome() == other.getGenotype().getSizeChromosome()){
-			int bitsCountToExchange = Game.getRanges().getNextInt(2,mGenotype.getSizeChromosome());
+			int bitsCountToExchange = Util.getNextInt(2,mGenotype.getSizeChromosome());
 			
 			for(int i = 0; i < bitsCountToExchange; i++){
-				int bitIndexToExchange = Game.getRanges().getNextInt(0,mGenotype.getSizeChromosome());
+				int bitIndexToExchange = Util.getNextInt(0,mGenotype.getSizeChromosome());
 				int bitIndividualOne = mGenotype.getChromosome()[bitIndexToExchange];
 				int bitIndividualTwo = other.getGenotype().getChromosome()[bitIndexToExchange];
 				
@@ -59,7 +60,7 @@ public class Individual {
 			
 			//mutate
 			for(int i = 0; i < 2; i++){
-				if(Game.getRanges().getNextFloat(0.0f,1.0f) <= Algorithm.MUTATION_PROB)
+				if(Util.getNextFloat(0.0f,1.0f) <= Algorithm.MUTATION_PROB)
 					sons[i].mutate();
 			}
 			
@@ -73,7 +74,7 @@ public class Individual {
 	//Uniform mutation?
 	//TODO: CHECK THAT THIS WORKS IN A REASONABLE WAY
 	public void mutate() {
-		int indexToMutate = Game.getRanges().getNextInt(0,mGenotype.getSizeChromosome());
+		int indexToMutate = Util.getNextInt(0,mGenotype.getSizeChromosome());
 		boolean bit = mGenotype.getChromosome()[indexToMutate] == 0;
 		mGenotype.getChromosome()[indexToMutate] = bit ? 1 : 0;
 	}
