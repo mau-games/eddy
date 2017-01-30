@@ -39,8 +39,7 @@ public class Phenotype {
 				map.add(decimalNumber);
 			}
 			
-			//TODO: UH, no idea if this will come anywhere close to working			
-			TileTypes[] types = (TileTypes[])map.stream().map(x -> TileTypes.values()[x]).toArray();
+			TileTypes[] types = map.stream().map(x -> TileTypes.values()[x]).toArray(TileTypes[]::new);
 			
 			//TODO: Some debug crap we can ignore for now
 			/*if(Game.debug){

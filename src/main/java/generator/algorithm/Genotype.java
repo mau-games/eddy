@@ -5,10 +5,9 @@ import game.TileTypes;
 import junit.framework.Assert;
 
 public class Genotype {
-	private int[] mChromosome;
-	private int mSizeChromosome;
-	private int mSizeItem;
-	private int mBits = 3; //TODO: investigate this a bit
+	private int[] mChromosome; // TODO: Couldn't this more compactly be stored as an array of bytes?
+	private int mSizeChromosome; // (Number of bits) * (bits per gene)
+	private int mBits = 3; //The number of bits in a gene
 	
 	public Genotype(int[] mChromosome){
 		setChromosome(mChromosome);
@@ -37,6 +36,9 @@ public class Genotype {
 		return mBits;
 	}
 	
+	/**
+	 * Generates a random chromosome where genes are chosen based on Ranges.getSupervisedRandomType()
+	 */
 	public void randomSupervisedChromosome() {
 		int i = 0;
 		while(i < mSizeChromosome){
@@ -44,21 +46,21 @@ public class Genotype {
 			
 			String type_binary = toBinary(type);
 			
-			for (char c : type_binary.toCharArray()){ //TODO: Make sure this works
-				mChromosome[i] = Character.getNumericValue(c); //TODO: And this! (rewritten a bit)
+			for (char c : type_binary.toCharArray()){
+				mChromosome[i] = Character.getNumericValue(c);
 				i++;
 			}
 		}
 	}
 	
-	public void testZeroToLeft()
-	{
-		String str = "1";
-		String str_with_zero = addZeroToLeft(str,2);
-		
-		//Assert.assertEquals("001", str_with_zero);
-		System.out.println("Test: " + str_with_zero);
-	}
+//	public void testZeroToLeft()
+//	{
+//		String str = "1";
+//		String str_with_zero = addZeroToLeft(str,2);
+//		
+//		//Assert.assertEquals("001", str_with_zero);
+//		System.out.println("Test: " + str_with_zero);
+//	}
 	
 	private String addZeroToLeft(String str, int zeros)
 	{
@@ -72,7 +74,6 @@ public class Genotype {
 		return addZeroToLeft(type_binary, mBits - type_binary.length());
 	}
 	
-	//TODO: figure out what is REALLY being printed here
 	public void print(){
 		String strOut = "|";
 		for(int i = 0; i < mSizeChromosome; i++){

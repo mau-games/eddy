@@ -4,6 +4,7 @@ import java.net.URL;
 import java.util.ResourceBundle;
 
 import game.Map;
+import game.TileTypes;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -15,6 +16,7 @@ import javafx.scene.text.Text;
 import util.eventrouting.EventRouter;
 import util.eventrouting.Listener;
 import util.eventrouting.PCGEvent;
+import util.eventrouting.events.AlgorithmDone;
 import util.eventrouting.events.MapUpdate;
 import util.eventrouting.events.Start;
 import util.eventrouting.events.StatusMessage;
@@ -39,20 +41,7 @@ public class GUIController implements Initializable, Listener {
 	@FXML
 	protected void runButtonPressed(ActionEvent ev) {
 		router.postEvent(new Start());
-		
-		// TODO: Remove this when the porting is done
-		router.postEvent(new StatusMessage("New message"));
-		int[][] matrix = new int[3][3];
-		matrix[0][0] = 0;
-		matrix[0][1] = 1;
-		matrix[0][2] = 2;
-		matrix[1][0] = 3;
-		matrix[1][1] = 4;
-		matrix[1][2] = 5;
-		matrix[2][0] = 6;
-		matrix[2][1] = 7;
-		matrix[2][2] = 8;
-		drawMatrix(matrix);
+		runButton.setDisable(true);
 	}
 	
 	/**
@@ -61,13 +50,18 @@ public class GUIController implements Initializable, Listener {
 	 * @param message The message to display
 	 */
 	private void addMessage(String message) {
-		messageDisplayer.setText(messageDisplayer.getText() + "\n" + message);
+		try {
+			messageDisplayer.setText(messageDisplayer.getText() + "\n" + message);
+		} catch (NegativeArraySizeException | NullPointerException e) {
+			// Gracefully ignore this, it doesn't really have any real effects
+		}
 	}
 
 	@Override
 	public void initialize(URL location, ResourceBundle resources) {
 		router.registerListener(this, new MapUpdate(null));
 		router.registerListener(this, new StatusMessage(null));
+		router.registerListener(this, new AlgorithmDone());
 		messageDisplayer.setText("Awaiting commands");
 	}
 	
@@ -103,6 +97,8 @@ public class GUIController implements Initializable, Listener {
 			if (message != null) {
 				addMessage(message);
 			}
+		} else if (e instanceof AlgorithmDone) {
+			runButton.setDisable(false);
 		}
 	}
 	
@@ -116,33 +112,31 @@ public class GUIController implements Initializable, Listener {
 		Color color = null;
 		
 		// TODO: Choose appropriate colours and stuff
-		switch (pixel) {
-		case 0:
-			color = Color.ALICEBLUE;
+		switch (TileTypes.toTileType(pixel)) {
+		case DOOR:
+			color = Color.BLACK;
 			break;
-		case 1:
-			color = Color.ANTIQUEWHITE;
+		case COIN:
+		case COIN2:
+		case COFFER:
+		case COFFER2:
+			color = Color.YELLOW;
 			break;
-		case 2:
-			color = Color.AQUA;
+		case ENEMY:
+		case ENEMY2:
+			color = Color.RED;
 			break;
-		case 3:
-			color = Color.AQUAMARINE;
+		case WALL:
+			color = Color.DARKSLATEGRAY;
 			break;
-		case 4:
-			color = Color.AZURE;
+		case FLOOR:
+			color = Color.LIGHTGRAY;
 			break;
-		case 5:
-			color = Color.BEIGE;
-			break;
-		case 6:
-			color = Color.BISQUE;
-			break;
-		case 7:
-			color = Color.BLANCHEDALMOND;
+		case DOORENTER:
+			color = Color.MAGENTA;
 			break;
 		default:
-			color = Color.BLACK;
+			color = Color.WHITE;
 		}
 		
 		return color;

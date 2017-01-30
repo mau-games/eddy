@@ -6,7 +6,8 @@ import java.util.Dictionary;
 import java.util.Hashtable;
 import java.util.List;
 
-import javafx.geometry.Point2D;
+import util.Point;
+import util.Util;
 
 // TODO: Make sure that m represents the rows and n the columns
 // TODO: Choose between x + y & Point2D
@@ -21,28 +22,16 @@ public class Map {
 	private int n;			// The number of columns in a map
 	private int doorCount;	// The number of doors in a map
 	private int wallCount;	// The number of wall tiles in a map
-	private List<Point2D> doors;		// A list of doors
-	private List<Point2D> treasures;	// A list of treasures
-	private List<Point2D> enemies;		// A list of enemies
+	private List<Point> doors;		// A list of doors
+	private List<Point> treasures;	// A list of treasures
+	private List<Point> enemies;		// A list of enemies
 	private int failedPathsToTreasures;
 	private int failedPathsToEnemies;
 	private int failedPathsToAnotherDoor;
-	private Dictionary<Point2D, Double> treasureSafety;
-	private Point2D entrance;
+	private Dictionary<Point, Double> treasureSafety;
+	private Point entrance;
 	private double entranceSafetyFitness;
 	
-	/**
-	 * Creates an instance of Map
-	 */
-	public Map() {
-		m = n = 0;
-		doorCount = wallCount = 0;
-		doors = new ArrayList<Point2D>();
-		treasures = new ArrayList<Point2D>();
-		enemies = new ArrayList<Point2D>();
-		treasureSafety = new Hashtable<Point2D, Double>();
-		int[][] matrix = new int[m][n];
-	}
 	
 	// TODO: What to do with types?
 	/**
@@ -68,16 +57,120 @@ public class Map {
 	 * @param isDoors
 	 */
 	public Map(TileTypes[] types, int n, int m, int doorCount, boolean isDoors) {
-		this();
+		doors = new ArrayList<Point>();
+		treasures = new ArrayList<Point>();
+		enemies = new ArrayList<Point>();
+		treasureSafety = new Hashtable<Point, Double>();
 		this.m = m;
 		this.n = n;
-		this.doorCount = doorCount;
+		wallCount = 0;
+		
+		
+		if(Game.doorsPositions != null){
+			this.doorCount = Game.doorsPositions.size();
+		} else {
+			Game.doorsPositions = new ArrayList<Point>();
+			this.doorCount = doorCount;
+		}
+		
+		matrix = new int[m][n];
 		
 		initMapFromTypes(types);
 		
-		// TODO: Figure out WTH the isDoors argument does.
+		if(isDoors)
+			markDoors();
+		
 	}
 	
+	private void markDoors(){
+		List<Point> positionsValid = new ArrayList<Point>();
+		int enterDoorPosition = Util.getNextInt(0, doorCount);
+		
+		// TODO: Rewrite this to be less insanely inefficient
+		// Get valid door positions (non-corner tiles on the room border)
+        for (int i = 0; i < n; i++)
+        {
+            for (int j = 0; j < m; j++)
+            {
+                if (countNeighbors(new Point(i,j)) == 3) 
+                	positionsValid.add(new Point(i, j));
+            }
+        }
+
+        // TODO: This placement approach seems very wonky - revisit
+        // Place doors randomly
+        for(int i = 0; i < doorCount; i++)
+        {
+            Point pointWithDoor;
+
+            if (Game.doorsPositions.size() < doorCount)
+            {
+                int randomDoorTile = Util.getNextInt(0, positionsValid.size());
+                pointWithDoor = positionsValid.get(randomDoorTile);
+                Game.doorsPositions.add(pointWithDoor);
+            }
+            else
+            {
+                pointWithDoor = Game.doorsPositions.get(i);
+            }
+            
+            // Check if door overrides an enemy
+            if (matrix[(int)pointWithDoor.getX()][(int)pointWithDoor.getY()] == TileTypes.ENEMY.getValue()
+            		|| matrix[(int)pointWithDoor.getX()][(int)pointWithDoor.getY()] == TileTypes.ENEMY2.getValue())
+            {
+                enemies.remove(pointWithDoor); // TODO: I don't think this will work
+            }
+
+            // Check if door overrides a treasure
+            if(matrix[(int)pointWithDoor.getX()][(int)pointWithDoor.getY()] == TileTypes.COIN.getValue()
+            		|| matrix[(int)pointWithDoor.getX()][(int)pointWithDoor.getY()] == TileTypes.COIN2.getValue()
+            		|| matrix[(int)pointWithDoor.getX()][(int)pointWithDoor.getY()] == TileTypes.COFFER.getValue()
+            		|| matrix[(int)pointWithDoor.getX()][(int)pointWithDoor.getY()] == TileTypes.COFFER2.getValue())
+            {
+                treasures.remove(pointWithDoor); // TODO: I don't think this will work
+            }
+
+            // Check if door overrides a wall
+            if (matrix[(int)pointWithDoor.getX()][(int)pointWithDoor.getY()] == TileTypes.WALL.getValue())
+            {
+                wallCount--;
+            } 
+            
+            if(enterDoorPosition == i)
+            {
+                this.entrance = pointWithDoor;
+                //Set new tile in matrix
+                matrix[(int)pointWithDoor.getX()][(int)pointWithDoor.getY()] = TileTypes.DOORENTER.getValue();
+            }
+            else
+            {
+                this.doors.add(pointWithDoor);
+                //Set new tile in matrix
+                matrix[(int)pointWithDoor.getX()][(int)pointWithDoor.getY()] = TileTypes.DOOR.getValue();
+            }
+
+            //Don't pick the same point twice
+            positionsValid.remove(pointWithDoor);
+        }
+	}
+	
+	private int countNeighbors(Point position) {
+		int count = 0;
+
+        //X
+        if ((position.getX() + 1) < n)
+            count++;
+        if ((position.getX() - 1) >= 0)
+            count++;
+        //Y
+        if ((position.getY() - 1) >= 0)
+            count++;
+        if ((position.getY() + 1) < m)
+            count++;
+
+        return count;
+	}
+
 	//TODO: Check that this is working properly. Rewritten quite a bit.
 	/**
 	 * Gets a list of positions of tiles adjacent to a given position
@@ -85,17 +178,17 @@ public class Map {
 	 * @param position The position of a tile
      * @return A list of points 
 	 */
-	public List<Point2D> getAvailableCoords(Point2D position){
-		List<Point2D> availableCoords = new ArrayList<Point2D>();
+	public List<Point> getAvailableCoords(Point position){
+		List<Point> availableCoords = new ArrayList<Point>();
 		
 		if(position.getX() > 0 && getTile((int)position.getX() - 1, (int)position.getY()) != TileTypes.WALL)
-			availableCoords.add(new Point2D(position.getX()-1,position.getY()));
+			availableCoords.add(new Point(position.getX()-1,position.getY()));
 		if(position.getX() < m - 1 && getTile((int)position.getX() + 1, (int)position.getY()) != TileTypes.WALL)
-			availableCoords.add(new Point2D(position.getX()+1,position.getY()));
+			availableCoords.add(new Point(position.getX()+1,position.getY()));
 		if(position.getY() > 0 && getTile((int)position.getX(), (int)position.getY() - 1) != TileTypes.WALL)
-			availableCoords.add(new Point2D(position.getX(),position.getY() - 1));
+			availableCoords.add(new Point(position.getX(),position.getY() - 1));
 		if(position.getY() < n - 1 && getTile((int)position.getX(), (int)position.getY() + 1) != TileTypes.WALL)
-			availableCoords.add(new Point2D(position.getX(),position.getY() + 1));
+			availableCoords.add(new Point(position.getX(),position.getY() + 1));
 		
 		return availableCoords;
 			
@@ -132,7 +225,7 @@ public class Map {
 	 * @param point The position.
 	 * @return A tile.
 	 */
-	public TileTypes getTile(Point2D point){
+	public TileTypes getTile(Point point){
 		return TileTypes.toTileType(matrix[(int)point.getX()][(int)point.getY()]);
 	}
 	
@@ -170,7 +263,7 @@ public class Map {
 	 * 
 	 * @return The entry door's position.
 	 */
-	public Point2D getEntrance() {
+	public Point getEntrance() {
 		return entrance;
 	}
 	
@@ -179,7 +272,7 @@ public class Map {
 	 * 
 	 * @param door The position of the new door.
 	 */
-	public void setEntrance(Point2D door) {
+	public void setEntrance(Point door) {
 		entrance = door;
 	}
 	
@@ -188,7 +281,7 @@ public class Map {
 	 * 
 	 * @param door The position of a new door.
 	 */
-	public void addDoor(Point2D door) {
+	public void addDoor(Point door) {
 		doors.add(door);
 		doorCount++;
 	}
@@ -198,7 +291,7 @@ public class Map {
 	 * 
 	 * @return The doors.
 	 */
-	public List<Point2D> getDoors() {
+	public List<Point> getDoors() {
 		return doors;
 	}
 	
@@ -291,10 +384,10 @@ public class Map {
         {
             for (int j = 0; i < m; i++)
             {
-                List<Point2D> moves = getAvailableCoords(new Point2D(n,m)); // TODO: Check if right order n,m?
+                List<Point> moves = getAvailableCoords(new Point(i,j)); // TODO: Check if right order n,m?
 
                 int movesToWalls = 0;
-                for (Point2D v : moves)
+                for (Point v : moves)
                 {
                     if (matrix[(int)v.getX()][(int)v.getY()] == TileTypes.WALL.getValue())
                     {
@@ -314,7 +407,7 @@ public class Map {
 	 * 
 	 * @return The number of treasures.
 	 */
-	public List<Point2D> getTreasures() {
+	public List<Point> getTreasures() {
 		return treasures;
 	}
 
@@ -372,7 +465,7 @@ public class Map {
      * @param treasure The position of the treasure.
      * @param safety The safety value.
      */
-    public void setTreasureSafety(Point2D treasure, double safety) {
+    public void setTreasureSafety(Point treasure, double safety) {
     	treasureSafety.put(treasure, safety);
     }
     
@@ -382,7 +475,7 @@ public class Map {
      * @param treasure The position of the treasure.
      * @return The safety value.
      */
-    public double getTreasureSafety(Point2D treasure) {
+    public double getTreasureSafety(Point treasure) {
     	return (double) treasureSafety.get(treasure);
     }
     
@@ -391,7 +484,7 @@ public class Map {
      * 
      * @return A dictionary containing all treasures and their safety values.
      */
-    public Dictionary<Point2D, Double> getTreasureSafety() {
+    public Dictionary<Point, Double> getTreasureSafety() {
     	return treasureSafety;
     }
     
@@ -402,7 +495,7 @@ public class Map {
      */
     public Double[] getAllTreasureSafeties()
     {
-    	return (Double[]) Collections.list(treasureSafety.elements()).toArray();
+    	return Collections.list(treasureSafety.elements()).stream().toArray(Double[]::new);
     }
     
     
@@ -411,7 +504,7 @@ public class Map {
      * 
      * @return A list of enemies.
      */
-    public List<Point2D> getEnemies() {
+    public List<Point> getEnemies() {
     	return enemies;
     }
     
@@ -449,18 +542,18 @@ public class Map {
 					break;
 				case ENEMY:
 				case ENEMY2:
-					enemies.add(new Point2D(m, n));
+					enemies.add(new Point(i, j));
 					break;
 				case COIN:
 				case COIN2:
 				case COFFER:
 				case COFFER2:
-					treasures.add(new Point2D(m, n));
+					treasures.add(new Point(i, j));
 					break;
 				default:
 					break;
 				}
-				matrix[m][n] = tiles[tile++].getValue();
+				matrix[i][j] = tiles[tile++].getValue();
 			}
 		}
 	}

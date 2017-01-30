@@ -1,9 +1,13 @@
 package util.algorithms;
 
 import java.util.List;
+import java.util.Optional;
+
+import javax.swing.event.ListSelectionEvent;
+
 import java.util.ArrayList;
 import game.Map;
-import javafx.geometry.Point2D;
+import util.Point;
 import util.Util;
 
 
@@ -17,15 +21,17 @@ public class Pathfinder {
         this.map = map;
     }
 
-	//A Start algorithm 
-    public Node[] find(Point2D start, Point2D goal)
+	//A* algorithm 
+    public Node[] find(Point start, Point goal)
     {
         List<Node> openList = new ArrayList<Node>();
         List<Node> closedList = new ArrayList<Node>();
         //this.goal = goal;
 
         //init open list and init
-        openList.add(new Node(Util.manhattanDistance(start, goal), start, null));
+        Node nStart = new Node(Util.manhattanDistance(start, goal), start, null);
+        nStart.g = 0;
+        openList.add(nStart);
 
         while (openList.size() > 0)
         {
@@ -37,27 +43,35 @@ public class Pathfinder {
             closedList.add(current);
 
             //Get all children for current node
-            List<Point2D> children = map.getAvailableCoords(current.position);
+            List<Point> children = map.getAvailableCoords(current.position);
 
-            for (Point2D child : children)
+            for (Point child : children)
             {
                 if (existsPointInArrayNodes(closedList, child)) continue;
 
-                //Calculate F's child
-                Node n = new Node(closedList.size() + Util.manhattanDistance(child, goal), child, current);
-
-                if ((n.f < current.f) || !existsPointInArrayNodes(openList, child))
-                {
-                    openList.add(n);
+                double g = current.g + 1;
+                Node n = findNodeAtPoint(openList,child);
+                if(n == null){
+                	n = new Node(g + Util.manhattanDistance(child, goal), child, current);
+                	n.g = g;
+                	openList.add(n);
+                } else if (g >= n.g){
+                	continue;
                 }
+                
+                n.parent = current;
+                n.g = g;
+                n.f = g + Util.manhattanDistance(child, goal);
+                
             }
 
             //Sort openList by its f
             //openList = qSortOpenList(openList);
-            openList.sort((a,b) -> Float.compare(a.f, b.f));
+            openList.sort((a,b) -> Double.compare(a.f, b.f));
         }
 
-        return (Node[]) openList.toArray();
+        // Didn't find a path. Oops.
+        return new Node[0];
     }
 
     private Node[] expandTreeFromLast(Node last)
@@ -71,7 +85,7 @@ public class Pathfinder {
             nodes.add(last);
         }
 
-        return (Node[]) nodes.toArray();
+        return nodes.stream().toArray(Node[]::new);
     }
 
     // TODO: Horrible. Worst implementation of quicksort ever.
@@ -96,13 +110,21 @@ public class Pathfinder {
 //        return qSortOpenList(left);
 //    }
 
-    private boolean existsPointInArrayNodes(List<Node> closed_list, Point2D point)
+    private boolean existsPointInArrayNodes(List<Node> closed_list, Point point)
     {
         for(Node n : closed_list)
         {
-            if (n.position == point) return true;
+            if (n.equals(point)) 
+            	return true;
         }
         return false;
+    }
+    
+    private Node findNodeAtPoint(List<Node> nodes, Point point){
+    	Optional<Node> n = nodes.stream().filter(x -> x.equals(point)).findFirst();
+    	if(n.isPresent())
+    		return n.get();
+    	return null;
     }
 
     private Node popNode(List<Node> nodes)

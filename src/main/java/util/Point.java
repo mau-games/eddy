@@ -1,6 +1,10 @@
-package util.algorithms;
+package util;
 
-// New, courtesy of Alex
+/**
+ * This class represents a basic point in a map.
+ * 
+ * @author Alexander Baldwin, Malmö University
+ */
 public class Point {
 
 	private int x;
@@ -25,7 +29,7 @@ public class Point {
 		return y;
 	}
 	
-	public boolean Equals(Point p){
+	public boolean equals(Point p){
 		return x == p.x && y == p.y;
 	}
 	
