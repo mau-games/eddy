@@ -96,7 +96,7 @@ public class Algorithm extends Thread {
 		broadcastStatusUpdate("Evolving...");
 
         int generationCount = 1;
-        int generations = 10; // Why? TODO: investigate
+        int generations = 100; // Why? TODO: investigate
 
         // TODO: Should there be a fixed number of generations, or should it go until a desired fitness is reached?
         while (generationCount <= generations)

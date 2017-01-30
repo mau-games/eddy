@@ -44,7 +44,7 @@ public class ProgramStarter extends Application {
 	        stage.setScene(scene);
 	        stage.show();
 	        
-	        game = new Game(10, 10, 3, TLevel.HARD);
+	        game = new Game(10, 10, 3, TLevel.EASY);
 	        
 		} catch (Exception e) {
 			logger.error("Couldn't load GUI: " + e.getMessage(), e);

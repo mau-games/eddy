@@ -42,8 +42,9 @@ public class Individual {
 	//Multi-point crossover????
 	public Individual[] reproduce(Individual other){
 		Individual[] sons = new Individual[2];
-		sons[0] = new Individual(new Genotype(mGenotype.getChromosome()));
-		sons[1] = new Individual(new Genotype(other.getGenotype().getChromosome()));
+		//Fixed a VERY major problem here where the chromosomes weren't cloned properly.
+		sons[0] = new Individual(new Genotype(mGenotype.getChromosome().clone()));
+		sons[1] = new Individual(new Genotype(other.getGenotype().getChromosome().clone()));
 		
 		if(mGenotype.getSizeChromosome() == other.getGenotype().getSizeChromosome()){
 			int bitsCountToExchange = Util.getNextInt(2,mGenotype.getSizeChromosome());
