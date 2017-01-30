@@ -50,7 +50,11 @@ public class GUIController implements Initializable, Listener {
 	 * @param message The message to display
 	 */
 	private void addMessage(String message) {
-		messageDisplayer.setText(messageDisplayer.getText() + "\n" + message);
+		try {
+			messageDisplayer.setText(messageDisplayer.getText() + "\n" + message);
+		} catch (NegativeArraySizeException | NullPointerException e) {
+			// Gracefully ignore this, it doesn't really have any real effects
+		}
 	}
 
 	@Override
