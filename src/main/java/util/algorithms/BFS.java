@@ -6,7 +6,7 @@ import java.util.List;
 import java.util.Queue;
 
 import game.Map;
-import util.algorithms.Point2D;
+import util.Point;
 
 public class BFS {
 
@@ -25,7 +25,7 @@ public class BFS {
      * @param goal Goal position.
      * @return Array of nodes traversed by BFS when searching from start to goal.
      */
-    public Node[] getTraversedNodesBetween(Point2D start, Point2D goal){
+    public Node[] getTraversedNodesBetween(Point start, Point goal){
     	List<Node> visited = new ArrayList<Node>();
     	Queue<Node> queue = new LinkedList<Node>();
     	
@@ -39,8 +39,8 @@ public class BFS {
     		if(current.equals(goal))
     			return visited.stream().toArray(Node[]::new);
     		
-    		List<Point2D> children = mMap.getAvailableCoords(current.position);
-            for(Point2D child : children)
+    		List<Point> children = mMap.getAvailableCoords(current.position);
+            for(Point child : children)
             {
                 if (visited.stream().filter(x->x.equals(child)).findFirst().isPresent() 
                 		|| queue.stream().filter(x->x.equals(child)).findFirst().isPresent()) 

@@ -7,7 +7,7 @@ import javax.swing.event.ListSelectionEvent;
 
 import java.util.ArrayList;
 import game.Map;
-import util.algorithms.Point2D;
+import util.Point;
 import util.Util;
 
 
@@ -22,7 +22,7 @@ public class Pathfinder {
     }
 
 	//A* algorithm 
-    public Node[] find(Point2D start, Point2D goal)
+    public Node[] find(Point start, Point goal)
     {
         List<Node> openList = new ArrayList<Node>();
         List<Node> closedList = new ArrayList<Node>();
@@ -43,9 +43,9 @@ public class Pathfinder {
             closedList.add(current);
 
             //Get all children for current node
-            List<Point2D> children = map.getAvailableCoords(current.position);
+            List<Point> children = map.getAvailableCoords(current.position);
 
-            for (Point2D child : children)
+            for (Point child : children)
             {
                 if (existsPointInArrayNodes(closedList, child)) continue;
 
@@ -110,7 +110,7 @@ public class Pathfinder {
 //        return qSortOpenList(left);
 //    }
 
-    private boolean existsPointInArrayNodes(List<Node> closed_list, Point2D point)
+    private boolean existsPointInArrayNodes(List<Node> closed_list, Point point)
     {
         for(Node n : closed_list)
         {
@@ -120,7 +120,7 @@ public class Pathfinder {
         return false;
     }
     
-    private Node findNodeAtPoint(List<Node> nodes, Point2D point){
+    private Node findNodeAtPoint(List<Node> nodes, Point point){
     	Optional<Node> n = nodes.stream().filter(x -> x.equals(point)).findFirst();
     	if(n.isPresent())
     		return n.get();

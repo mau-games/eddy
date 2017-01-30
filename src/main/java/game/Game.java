@@ -5,7 +5,7 @@ import java.util.List;
 import generator.algorithm.Algorithm;
 import generator.algorithm.Ranges;
 import generator.config.Config;
-import util.algorithms.Point2D;
+import util.Point;
 import util.eventrouting.EventRouter;
 import util.eventrouting.Listener;
 import util.eventrouting.PCGEvent;
@@ -19,7 +19,7 @@ public class Game implements Listener{
 	public static String randomRangesFileName = "rangesSupervised"; //File containing probability ranges for generating particular tile types
     public static String gameConfigFileName = "zelda"; //TODO: ???
     public static Ranges ranges; 
-    public static List<Point2D> doorsPositions = null; //For fixed door positions - set them here. TODO: Rethink this?
+    public static List<Point> doorsPositions = null; //For fixed door positions - set them here. TODO: Rethink this?
     public static Config.TLevel level; //Difficulty level
 
     public static Config.TLevel getLevel()
@@ -57,7 +57,6 @@ public class Game implements Listener{
 	@Override
 	public synchronized void ping(PCGEvent e) {
 		if(e instanceof Start){
-			System.out.println(e);
 			startAll();		
 		}
 	}
