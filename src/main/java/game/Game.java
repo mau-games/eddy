@@ -3,10 +3,9 @@ package game;
 import java.util.List;
 
 import generator.algorithm.Algorithm;
-import generator.algorithm.Individual;
 import generator.algorithm.Ranges;
 import generator.config.Config;
-import javafx.geometry.Point2D;
+import util.algorithms.Point2D;
 import util.eventrouting.EventRouter;
 import util.eventrouting.Listener;
 import util.eventrouting.PCGEvent;

@@ -8,7 +8,7 @@ import game.Game;
 import game.Map;
 import generator.config.Config;
 import generator.config.MissingConfigurationException;
-import javafx.geometry.Point2D;
+import util.algorithms.Point2D;
 import util.Util;
 import util.algorithms.BFS;
 import util.algorithms.Node;
@@ -133,11 +133,11 @@ public class Algorithm extends Thread {
 
             
             //broadcastStatusUpdate("Generation " + generationCount + " finished.");
-            broadcastStatusUpdate("Average fitness: " + dataValid[0]);
-            broadcastStatusUpdate("Max fitness: " + dataValid[2]);
-            broadcastStatusUpdate("BEST fitness: " + best.getFitness());
-            broadcastStatusUpdate("Valids: " + populationValid.size());
-            broadcastStatusUpdate("Invalids: " + populationInvalid.size());
+//            broadcastStatusUpdate("Average fitness: " + dataValid[0]);
+//            broadcastStatusUpdate("Max fitness: " + dataValid[2]);
+//            broadcastStatusUpdate("BEST fitness: " + best.getFitness());
+//            broadcastStatusUpdate("Valids: " + populationValid.size());
+//            broadcastStatusUpdate("Invalids: " + populationInvalid.size());
             broadcastMapUpdate(best.getPhenotype().getMap());
             
             

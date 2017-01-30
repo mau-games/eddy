@@ -1,6 +1,6 @@
 package util.algorithms;
 
-import javafx.geometry.Point2D;
+import util.algorithms.Point2D;
 
 public class Node {
     public double f;

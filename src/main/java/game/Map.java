@@ -6,7 +6,7 @@ import java.util.Dictionary;
 import java.util.Hashtable;
 import java.util.List;
 
-import javafx.geometry.Point2D;
+import util.algorithms.Point2D;
 import util.Util;
 
 // TODO: Make sure that m represents the rows and n the columns

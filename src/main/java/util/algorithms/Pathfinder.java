@@ -7,7 +7,7 @@ import javax.swing.event.ListSelectionEvent;
 
 import java.util.ArrayList;
 import game.Map;
-import javafx.geometry.Point2D;
+import util.algorithms.Point2D;
 import util.Util;
 
 

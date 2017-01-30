@@ -6,7 +6,7 @@ import java.util.List;
 import java.util.Queue;
 
 import game.Map;
-import javafx.geometry.Point2D;
+import util.algorithms.Point2D;
 
 public class BFS {
 

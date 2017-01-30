@@ -3,7 +3,7 @@ package util;
 import java.util.Arrays;
 import java.util.Random;
 
-import javafx.geometry.Point2D;
+import util.algorithms.Point2D;
 
 public class Util {
 
@@ -29,7 +29,7 @@ public class Util {
 	 * @return The Euclidean distance between start and end.
 	 */
 	public static double euclideanDistance(Point2D start, Point2D end){
-		return start.distance(end);
+		return Math.sqrt(Math.pow(start.getX() - end.getX(),2) + Math.pow(start.getY() - end.getY(),2));
 	}
 	
 	/**
