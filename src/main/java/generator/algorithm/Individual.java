@@ -1,5 +1,7 @@
 package generator.algorithm;
 
+import java.util.Random;
+
 import game.Game;
 import util.Util;
 
@@ -78,6 +80,20 @@ public class Individual {
 		int indexToMutate = Util.getNextInt(0,mGenotype.getSizeChromosome());
 		boolean bit = mGenotype.getChromosome()[indexToMutate] == 0;
 		mGenotype.getChromosome()[indexToMutate] = bit ? 1 : 0;
+	}
+	
+	
+	double tempMutationProb = 0.05;
+	/**
+	 * Another attempt at mutation?
+	 */
+	public void bitStringMutation(){
+		for(int i = 0; i < mGenotype.getSizeChromosome(); i++){
+			if(Math.random() < tempMutationProb){
+				int bit = mGenotype.getChromosome()[i];
+				mGenotype.getChromosome()[i] = bit == 0 ? 1 : 0;
+			}
+		}
 	}
 	
 	public double getFitness(){

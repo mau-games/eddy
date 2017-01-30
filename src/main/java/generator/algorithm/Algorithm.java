@@ -133,11 +133,11 @@ public class Algorithm extends Thread {
 
             
             //broadcastStatusUpdate("Generation " + generationCount + " finished.");
-//            broadcastStatusUpdate("Average fitness: " + dataValid[0]);
-//            broadcastStatusUpdate("Max fitness: " + dataValid[2]);
-//            broadcastStatusUpdate("BEST fitness: " + best.getFitness());
-//            broadcastStatusUpdate("Valids: " + populationValid.size());
-//            broadcastStatusUpdate("Invalids: " + populationInvalid.size());
+            broadcastStatusUpdate("Average fitness: " + dataValid[0]);
+            broadcastStatusUpdate("Max fitness: " + dataValid[2]);
+            broadcastStatusUpdate("BEST fitness: " + best.getFitness());
+            broadcastStatusUpdate("Valids: " + populationValid.size());
+            broadcastStatusUpdate("Invalids: " + populationInvalid.size());
             broadcastMapUpdate(best.getPhenotype().getMap());
             
             
