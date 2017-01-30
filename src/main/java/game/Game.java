@@ -57,7 +57,6 @@ public class Game implements Listener{
 	@Override
 	public synchronized void ping(PCGEvent e) {
 		if(e instanceof Start){
-			System.out.println(e);
 			startAll();		
 		}
 	}
