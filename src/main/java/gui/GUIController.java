@@ -16,6 +16,7 @@ import javafx.scene.text.Text;
 import util.eventrouting.EventRouter;
 import util.eventrouting.Listener;
 import util.eventrouting.PCGEvent;
+import util.eventrouting.events.AlgorithmDone;
 import util.eventrouting.events.MapUpdate;
 import util.eventrouting.events.Start;
 import util.eventrouting.events.StatusMessage;
@@ -40,19 +41,7 @@ public class GUIController implements Initializable, Listener {
 	@FXML
 	protected void runButtonPressed(ActionEvent ev) {
 		router.postEvent(new Start());
-		
-		// TODO: Remove this when the porting is done
-		int[][] matrix = new int[3][3];
-		matrix[0][0] = 0;
-		matrix[0][1] = 1;
-		matrix[0][2] = 2;
-		matrix[1][0] = 3;
-		matrix[1][1] = 4;
-		matrix[1][2] = 5;
-		matrix[2][0] = 6;
-		matrix[2][1] = 7;
-		matrix[2][2] = 8;
-		drawMatrix(matrix);
+		runButton.setDisable(true);
 	}
 	
 	/**
@@ -68,6 +57,7 @@ public class GUIController implements Initializable, Listener {
 	public void initialize(URL location, ResourceBundle resources) {
 		router.registerListener(this, new MapUpdate(null));
 		router.registerListener(this, new StatusMessage(null));
+		router.registerListener(this, new AlgorithmDone());
 		messageDisplayer.setText("Awaiting commands");
 	}
 	
@@ -103,6 +93,8 @@ public class GUIController implements Initializable, Listener {
 			if (message != null) {
 				addMessage(message);
 			}
+		} else if (e instanceof AlgorithmDone) {
+			runButton.setDisable(false);
 		}
 	}
 	

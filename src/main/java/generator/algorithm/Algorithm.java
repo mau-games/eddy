@@ -14,6 +14,7 @@ import util.algorithms.BFS;
 import util.algorithms.Node;
 import util.algorithms.Pathfinder;
 import util.eventrouting.EventRouter;
+import util.eventrouting.events.AlgorithmDone;
 import util.eventrouting.events.MapUpdate;
 import util.eventrouting.events.StatusMessage;
 
@@ -99,8 +100,7 @@ public class Algorithm extends Thread {
         int generations = 100; // Why? TODO: investigate
 
         // TODO: Should there be a fixed number of generations, or should it go until a desired fitness is reached?
-        while (generationCount <= generations)
-        {
+        while (generationCount <= generations) {
         	broadcastStatusUpdate("Generation " + generationCount);
 
             evaluateGeneration();
@@ -145,6 +145,7 @@ public class Algorithm extends Thread {
             produceNextInvalidGeneration();
             generationCount++;
         }
+        EventRouter.getInstance().postEvent(new AlgorithmDone());
 	}
 	
 	/**
