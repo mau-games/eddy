@@ -1,15 +1,15 @@
 package util.algorithms;
 
-import util.algorithms.Point2D;
+import util.Point;
 
 public class Node {
     public double f;
     public double g;
-    public Point2D position;
+    public Point position;
     
     public Node parent;
 
-    public Node(double f, Point2D position, Node parent)
+    public Node(double f, Point position, Node parent)
     {
         this.f = f;
         this.position = position;
@@ -21,7 +21,7 @@ public class Node {
         return position == n.position;
     }
     
-    public boolean equals(Point2D p){
+    public boolean equals(Point p){
     	return position.getX() == p.getX() && position.getY() == p.getY();
     }
 }

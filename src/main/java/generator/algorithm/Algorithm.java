@@ -8,7 +8,7 @@ import game.Game;
 import game.Map;
 import generator.config.Config;
 import generator.config.MissingConfigurationException;
-import util.algorithms.Point2D;
+import util.Point;
 import util.Util;
 import util.algorithms.BFS;
 import util.algorithms.Node;
@@ -162,10 +162,10 @@ public class Algorithm extends Thread {
 	private boolean checkIndividual(Individual ind){
 		Map map = ind.getPhenotype().getMap();
         Pathfinder pathfinder = new Pathfinder(map);
-        Point2D entrance = map.getEntrance();
+        Point entrance = map.getEntrance();
 
         //Check if there is a path between the entrance and all other doors
-        for (Point2D door : map.getDoors())
+        for (Point door : map.getDoors())
         {
             Node[] path = pathfinder.find(entrance,door);
 
@@ -175,7 +175,7 @@ public class Algorithm extends Thread {
 
         //Check if there is a path between the entrance and all enemies
         //enemies
-        for (Point2D enemy : map.getEnemies())
+        for (Point enemy : map.getEnemies())
         {
             Node[] path = pathfinder.find(entrance,enemy);
 
@@ -184,7 +184,7 @@ public class Algorithm extends Thread {
         }
 
         //Check if there is a path between the entrance and all treasures
-        for (Point2D treasure : map.getTreasures())
+        for (Point treasure : map.getTreasures())
         {
             Node[] path = pathfinder.find(entrance,treasure);
 
@@ -214,14 +214,14 @@ public class Algorithm extends Thread {
 	public float evaluateSafetyEnterDoor(Individual ind)
     {
         Map map = ind.getPhenotype().getMap();
-        Point2D startDoor = map.getEntrance();
+        Point startDoor = map.getEntrance();
         //int countWalls = map.getWallCount();
         //int totalAreas = 0;
         int minArea = 0;
 
         BFS bfs = new BFS(map);
 
-        for(Point2D enemy : map.getEnemies())
+        for(Point enemy : map.getEnemies())
         {
             //totalAreas += bfs.find(Map.Point2D.toUnityVector2(startDoor), Map.Point2D.toUnityVector2(enemy)).Length;
             int area = bfs.getTraversedNodesBetween(startDoor, enemy).length;
@@ -255,18 +255,18 @@ public class Algorithm extends Thread {
 	    {
 	        int treasuresSize = map.getTreasureCount();
 	        int enemiesSize = map.getEnemyCount();
-	        Point2D doorEnter = map.getEntrance();
+	        Point doorEnter = map.getEntrance();
 	        List<Double> maxs = new ArrayList<Double>();
 	        
 	        Pathfinder pathfinder = new Pathfinder(map);
 	
 	        for (int i = 0; i < treasuresSize; i++)
 	        {
-	            Point2D treasure = map.getTreasures().get(i);
+	            Point treasure = map.getTreasures().get(i);
 	            //enemiesSize = 0;
 	            for(int j = 0; j < enemiesSize; j++)
 	            {
-	                Point2D enemy = map.getEnemies().get(j);
+	                Point enemy = map.getEnemies().get(j);
 	
 	                //To Calculate
 	                //din = Distance in nodes

@@ -1,21 +1,21 @@
-package util.algorithms;
+package util;
 
 /**
  * This class represents a basic point in a map.
  * 
  * @author Alexander Baldwin, Malmö University
  */
-public class Point2D {
+public class Point {
 
 	private int x;
 	private int y;
 	
-	public Point2D(){
+	public Point(){
 		x = 0;
 		y = 0;
 	}
 	
-	public Point2D(int x, int y)
+	public Point(int x, int y)
 	{
 		this.x = x;
 		this.y = y;
@@ -29,7 +29,7 @@ public class Point2D {
 		return y;
 	}
 	
-	public boolean equals(Point2D p){
+	public boolean equals(Point p){
 		return x == p.x && y == p.y;
 	}
 	
