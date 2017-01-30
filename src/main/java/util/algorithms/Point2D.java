@@ -1,6 +1,10 @@
 package util.algorithms;
 
-// New, courtesy of Alex
+/**
+ * This class represents a basic point in a map.
+ * 
+ * @author Alexander Baldwin, Malmö University
+ */
 public class Point2D {
 
 	private int x;
