@@ -32,12 +32,17 @@ public class Algorithm extends Thread {
 	private List<Individual> readyToValid;
 	private List<Individual> readyToInvalid;
 	private int size;
+	private boolean stop = false;
 	
 
 	public Algorithm(int size, Config config){
 		this.size = size;
 		mConfig = config;
 		initPopulations();		
+	}
+	
+	public void terminate(){
+		stop = true;
 	}
 	
 	/**
@@ -101,6 +106,9 @@ public class Algorithm extends Thread {
 
         // TODO: Should there be a fixed number of generations, or should it go until a desired fitness is reached?
         while (generationCount <= generations) {
+        	if(stop)
+        		return;
+        	
         	broadcastStatusUpdate("Generation " + generationCount);
 
             evaluateGeneration();

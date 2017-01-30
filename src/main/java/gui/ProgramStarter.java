@@ -51,5 +51,10 @@ public class ProgramStarter extends Application {
 			System.exit(0);
 		}
 	}
+	
+	@Override
+	public void stop(){
+		game.stop();
+	}
 
 }

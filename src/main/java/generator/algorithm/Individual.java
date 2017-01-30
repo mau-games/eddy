@@ -65,6 +65,8 @@ public class Individual {
 			for(int i = 0; i < 2; i++){
 				if(Util.getNextFloat(0.0f,1.0f) <= Algorithm.MUTATION_PROB)
 					sons[i].mutate();
+//				if(Math.random() < tempMutationProb)
+//					sons[i].bitStringMutation();
 			}
 			
 			return sons;
@@ -83,7 +85,7 @@ public class Individual {
 	}
 	
 	
-	double tempMutationProb = 0.05;
+	double tempMutationProb = 0.5;
 	/**
 	 * Another attempt at mutation?
 	 */

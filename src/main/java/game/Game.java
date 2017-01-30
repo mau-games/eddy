@@ -21,7 +21,8 @@ public class Game implements Listener{
     public static Ranges ranges; 
     public static List<Point> doorsPositions = null; //For fixed door positions - set them here. TODO: Rethink this?
     public static Config.TLevel level; //Difficulty level
-
+    private Algorithm geneticAlgorithm;
+    
     public static Config.TLevel getLevel()
     {
         return level;
@@ -34,7 +35,6 @@ public class Game implements Listener{
 
     public Game(int n, int m, int doors, Config.TLevel level)
     {
-		//Init properties
         ranges = new Ranges();
         sizeN = n;
         sizeM = m;
@@ -49,9 +49,23 @@ public class Game implements Listener{
 	 */
     private void startAll()
     {
-    	Algorithm geneticAlgorithm = new Algorithm(Algorithm.POPULATION_SIZE, new Config(gameConfigFileName));
+    	reinit();
+    	geneticAlgorithm = new Algorithm(Algorithm.POPULATION_SIZE, new Config(gameConfigFileName));
     	//Start the algorithm on a new thread.
     	geneticAlgorithm.start();
+    }
+    
+    /**
+     * Set everything back to its initial state before running the genetic algorithm
+     */
+    private void reinit(){
+    	doorsPositions = null;
+    }
+    
+    public void stop(){
+    	if(geneticAlgorithm != null && geneticAlgorithm.isAlive()){
+    		geneticAlgorithm.terminate();
+    	}
     }
 
 	@Override

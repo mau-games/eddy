@@ -41,8 +41,10 @@ public class GUIController implements Initializable, Listener {
 	 */
 	@FXML
 	protected void runButtonPressed(ActionEvent ev) {
+		messageDisplayer.setText("");
 		router.postEvent(new Start());
 		runButton.setDisable(true);
+		
 	}
 	
 	/**
