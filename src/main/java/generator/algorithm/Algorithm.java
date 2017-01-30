@@ -45,7 +45,7 @@ public class Algorithm extends Thread {
 	 * 
 	 * @param status Message to display.
 	 */
-	private void broadcastStatusUpdate(String status){
+	private synchronized void broadcastStatusUpdate(String status){
 		EventRouter.getInstance().postEvent(new StatusMessage(status));
 	}
 	
@@ -54,7 +54,7 @@ public class Algorithm extends Thread {
 	 * 
 	 * @param best The best map from the current generation.
 	 */
-	private void broadcastMapUpdate(Map best){
+	private synchronized void broadcastMapUpdate(Map best){
 		EventRouter.getInstance().postEvent(new MapUpdate(best));
 	}
 	
@@ -138,6 +138,7 @@ public class Algorithm extends Thread {
             broadcastStatusUpdate("BEST fitness: " + best.getFitness());
             broadcastStatusUpdate("Valids: " + populationValid.size());
             broadcastStatusUpdate("Invalids: " + populationInvalid.size());
+
             broadcastMapUpdate(best.getPhenotype().getMap());
             
             

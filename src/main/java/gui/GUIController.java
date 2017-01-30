@@ -5,6 +5,7 @@ import java.util.ResourceBundle;
 
 import game.Map;
 import game.TileTypes;
+import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -49,12 +50,14 @@ public class GUIController implements Initializable, Listener {
 	 * 
 	 * @param message The message to display
 	 */
-	private void addMessage(String message) {
-		try {
+	private synchronized void addMessage(String message) {
 			messageDisplayer.setText(messageDisplayer.getText() + "\n" + message);
-		} catch (NegativeArraySizeException | NullPointerException e) {
-			// Gracefully ignore this, it doesn't really have any real effects
-		}
+//		try {
+//			messageDisplayer.setText(messageDisplayer.getText() + "\n" + message);
+//		} catch (NegativeArraySizeException | NullPointerException e) {
+//			// Gracefully ignore this, it doesn't really have any real effects
+//			System.out.println("OOPS");
+//		}
 	}
 
 	@Override
@@ -90,12 +93,16 @@ public class GUIController implements Initializable, Listener {
 		if (e instanceof MapUpdate) {
 			Map map = (Map) e.getPayload();
 			if (map != null) {
-				drawMatrix(map.toMatrix());
+				Platform.runLater(() -> {
+					drawMatrix(map.toMatrix());
+			    });
 			}
 		} else if (e instanceof StatusMessage) {
 			String message = (String) e.getPayload();
 			if (message != null) {
-				addMessage(message);
+				Platform.runLater(() -> {
+					addMessage(message);
+				});
 			}
 		} else if (e instanceof AlgorithmDone) {
 			runButton.setDisable(false);
