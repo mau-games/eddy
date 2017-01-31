@@ -61,7 +61,7 @@ public class EventRouter {
 	 */
 	public synchronized void registerListener(Listener listener,
 			Object eventType) {
-		List<Listener> listeners = roster.get(eventType);
+		List<Listener> listeners = roster.get(eventType.getClass().getName());
 		if (listeners == null) {
 			listeners = new ArrayList<Listener>();
 			roster.put(eventType.getClass().getName(), listeners);
