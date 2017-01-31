@@ -213,7 +213,7 @@ public class Config {
 	 * 		 read and applied.
 	 */
 	private Reader fetchProfileAsFile(String profile) throws MissingConfigurationException {
-		String fileName = "profiles/" + profile + ".json";
+		String fileName = "config/profiles/" + profile + ".json";
 		FileReader file = null;
 		ClassLoader loader = getClass().getClassLoader();
 		try {

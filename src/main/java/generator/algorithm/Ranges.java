@@ -5,6 +5,9 @@ import java.io.FileReader;
 import java.io.Reader;
 import java.util.Random;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.google.gson.JsonArray;
 import com.google.gson.JsonIOException;
 import com.google.gson.JsonObject;
@@ -13,17 +16,25 @@ import com.google.gson.JsonSyntaxException;
 
 import game.Game;
 import game.TileTypes;
+import generator.config.Config;
 import util.Util;
+import util.config.ConfigurationReader;
 import util.config.MissingConfigurationException;
 
 //TODO: Consider merging this with Config.java
 public class Ranges {
-
+	private final Logger logger = LoggerFactory.getLogger(Config.class);
+	private ConfigurationReader config;
 	private JsonArray ranges;
 	
 	public Ranges(){
-		readRanges(fetchRangesAsFile(Game.randomRangesFileName));
+		try {
+			config = ConfigurationReader.getInstance();
+		} catch (MissingConfigurationException e) {
+			logger.error("Couldn't read configuration file:\n" + e.getMessage());
+		}
 		
+		readRanges(fetchRangesAsFile(config.getString("game.ranges.default")));
 	}
 
 	//Seems to get a random TileTypes weighted according to rangesSupervised.json
@@ -66,7 +77,7 @@ public class Ranges {
 	 * @return A Reader object, allowing the contents to be pulled from the file.
 	 */
 	private Reader fetchRangesAsFile(String ranges) {
-		String fileName = "ranges/" + ranges + ".json";
+		String fileName = config.getString("game.ranges.location") + ranges + ".json";
 		FileReader file = null;
 		ClassLoader loader = getClass().getClassLoader();
 		try {

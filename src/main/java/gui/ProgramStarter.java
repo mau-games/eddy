@@ -55,7 +55,7 @@ public class ProgramStarter extends Application {
 	        		config.getInt("game.dimensions.n"),
 	        		config.getInt("game.doors"),
 	        		Game.parseDifficulty(config.getString("game.difficulty")),
-	        		config.getString("game.profile")
+	        		config.getString("game.profiles.default")
 	        		);
 	        
 	        // Set up a new map collector

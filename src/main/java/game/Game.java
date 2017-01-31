@@ -17,7 +17,6 @@ public class Game implements Listener{
     public static int sizeN; //Horizontal room size in tiles
     public static int sizeM; //Vertical room size in tiles
     public static int sizeDoors; //TODO: ???
-	public static String randomRangesFileName = "rangesSupervised"; //File containing probability ranges for generating particular tile types
     public static String gameConfigFileName;
     public static Ranges ranges; 
     public static List<Point> doorsPositions = null; //For fixed door positions - set them here. TODO: Rethink this?
@@ -34,14 +33,13 @@ public class Game implements Listener{
         return ranges;
     }
 
-    public Game(int n, int m, int doors, Config.TLevel level, String profile)
-    {
-        ranges = new Ranges();
+    public Game(int n, int m, int doors, Config.TLevel level, String profile) {
         sizeN = n;
         sizeM = m;
         sizeDoors = doors;
         Game.level = level;
         gameConfigFileName = profile;
+        ranges = new Ranges();
         
         EventRouter.getInstance().registerListener(this, new Start());
     }

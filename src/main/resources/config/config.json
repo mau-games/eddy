@@ -7,12 +7,19 @@
         }
     },
     "game": {
-        "profile": "zelda",
+        "difficulty": "easy",
         "dimensions": {
             "m": 10,
             "n": 10
         },
         "doors": 3,
-        "difficulty": "easy"
+        "profiles": {
+            "location": "config/location/",
+            "default": "zelda"
+        },
+        "ranges": {
+            "location": "config/ranges/",
+            "default": "rangesSupervised"
+        }
     }
 }
