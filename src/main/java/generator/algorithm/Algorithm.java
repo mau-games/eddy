@@ -4,6 +4,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import game.Game;
 import game.Map;
 import generator.config.Config;
@@ -12,6 +15,7 @@ import util.Util;
 import util.algorithms.BFS;
 import util.algorithms.Node;
 import util.algorithms.Pathfinder;
+import util.config.ConfigurationReader;
 import util.config.MissingConfigurationException;
 import util.eventrouting.EventRouter;
 import util.eventrouting.events.AlgorithmDone;
@@ -19,26 +23,39 @@ import util.eventrouting.events.MapUpdate;
 import util.eventrouting.events.StatusMessage;
 
 public class Algorithm extends Thread {
+	private final Logger logger = LoggerFactory.getLogger(Config.class);
+	private ConfigurationReader config;
+	
 	// TODO: Is it weird that the starting population is 100 split between both valid and invalid, 
 	// but later invalid and valid are allowed 100 EACH? Look into this.
-	public static int POPULATION_SIZE = 100; 
-	public static float MUTATION_PROB = 0.9f;
-	public static float SON_SIZE = 0.7f;
+	private int populationSize; 
+	private float mutationProbability;
+	private float offspringSize;
 	
 	private List<Individual> populationValid;
 	private List<Individual> populationInvalid;
 	private Individual best;
-	private Config mConfig;
+	private Config generatorConfig;
 	private List<Individual> readyToValid;
 	private List<Individual> readyToInvalid;
 	private int size;
 	private boolean stop = false;
 	
 
-	public Algorithm(int size, Config config){
+	public Algorithm(int size, Config gConfig){
+		try {
+			config = ConfigurationReader.getInstance();
+		} catch (MissingConfigurationException e) {
+			logger.error("Couldn't read configuration file:\n" + e.getMessage());
+		}
+		
 		this.size = size;
-		mConfig = config;
-		initPopulations();		
+		generatorConfig = gConfig;
+		populationSize = config.getInt("generator.population_size");
+		mutationProbability = (float) config.getDouble("generator.mutation_probability");
+		offspringSize = (float) config.getDouble("generator.offspring_size");
+
+		initPopulations();
 	}
 	
 	public void terminate(){
@@ -78,7 +95,7 @@ public class Algorithm extends Thread {
 		int i = 0;
 		int j = 0;
 		while((i + j) < size){
-			Individual ind = new Individual(Game.sizeN * Game.sizeM);
+			Individual ind = new Individual(Game.sizeN * Game.sizeM, mutationProbability);
 			ind.initialize();
 			
 			if(checkIndividual(ind)){
@@ -331,7 +348,7 @@ public class Algorithm extends Thread {
         double fitness_security_area = evaluateSafetyEnterDoor(ind) / (double)tilesPassables;
         map.setEntrySafetyFitness(fitness_security_area);
         try {
-			fitness_security_area -= mConfig.getSecurityAreaVariance();
+			fitness_security_area -= generatorConfig.getSecurityAreaVariance();
 		} catch (MissingConfigurationException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -340,7 +357,7 @@ public class Algorithm extends Thread {
         //# enemies (2)
         double[] expectedEnemiesRange = null;
 		try {
-			expectedEnemiesRange = mConfig.getEnemyQuantityRange();
+			expectedEnemiesRange = generatorConfig.getEnemyQuantityRange();
 		} catch (MissingConfigurationException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -362,7 +379,7 @@ public class Algorithm extends Thread {
         double safeties_average = Util.calcAverage(safeties);
         double fitness_avg_treasures_security = 0.0;
         try {
-			fitness_avg_treasures_security = safeties_average - mConfig.getAverageTreasureSecurity();
+			fitness_avg_treasures_security = safeties_average - generatorConfig.getAverageTreasureSecurity();
 		} catch (MissingConfigurationException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -372,7 +389,7 @@ public class Algorithm extends Thread {
         //# treasures (4)
         double[] expectedTreasuresRange = null;
 		try {
-			expectedTreasuresRange = mConfig.getTreasureQuantityRange();
+			expectedTreasuresRange = generatorConfig.getTreasureQuantityRange();
 		} catch (MissingConfigurationException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -392,7 +409,7 @@ public class Algorithm extends Thread {
         double safeties_variance = Util.calcVariance(safeties);
         double expectedSafetyVariance = 0.0;
 		try {
-			expectedSafetyVariance = mConfig.getTreasureSecurityVariance();
+			expectedSafetyVariance = generatorConfig.getTreasureSecurityVariance();
 		} catch (MissingConfigurationException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -594,7 +611,7 @@ public class Algorithm extends Thread {
      */
     private List<Individual> selectProgenitors(List<Individual> population)
     {
-        int countProgenitors = (int)(SON_SIZE * population.size()) / 2;
+        int countProgenitors = (int)(offspringSize * population.size()) / 2;
         List<Individual> progenitors = new ArrayList<Individual>();
 
         while(countProgenitors > 0)
@@ -751,7 +768,7 @@ public class Algorithm extends Thread {
 	 */
     private void addValidIndividual(Individual valid)
     {
-        if (populationValid.size() < POPULATION_SIZE)
+        if (populationValid.size() < populationSize)
         {
             populationValid.add(valid);
         }
@@ -763,7 +780,7 @@ public class Algorithm extends Thread {
 	 */
     private void addInvalidIndividual(Individual invalid)
     {
-        if (populationInvalid.size() < POPULATION_SIZE)
+        if (populationInvalid.size() < populationSize)
         {
             populationInvalid.add(invalid);
         }

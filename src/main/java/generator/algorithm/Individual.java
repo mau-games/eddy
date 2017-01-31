@@ -1,8 +1,5 @@
 package generator.algorithm;
 
-import java.util.Random;
-
-import game.Game;
 import util.Util;
 
 public class Individual {
@@ -10,19 +7,22 @@ public class Individual {
 	private Genotype mGenotype;
 	private Phenotype mPhenotype;
 	private boolean mEvaluate;
+	private float mutationProbability;
 	
-	public Individual(int size) {
+	public Individual(int size, float mutationProbability) {
 		mGenotype = new Genotype(size);
 		mPhenotype = null;
 		mFitness = 0.0;
 		mEvaluate = false;
+		this.mutationProbability = mutationProbability;
 	}
 	
-	public Individual(Genotype genotype){
+	public Individual(Genotype genotype, float mutationProbability){
 		mGenotype = genotype;
 		mPhenotype = null;
 		mFitness = 0.0;
 		mEvaluate = false;
+		this.mutationProbability = mutationProbability;
 	}
 	
 	public Individual initialize() {
@@ -45,8 +45,8 @@ public class Individual {
 	public Individual[] reproduce(Individual other){
 		Individual[] sons = new Individual[2];
 		//Fixed a VERY major problem here where the chromosomes weren't cloned properly.
-		sons[0] = new Individual(new Genotype(mGenotype.getChromosome().clone()));
-		sons[1] = new Individual(new Genotype(other.getGenotype().getChromosome().clone()));
+		sons[0] = new Individual(new Genotype(mGenotype.getChromosome().clone()), mutationProbability);
+		sons[1] = new Individual(new Genotype(other.getGenotype().getChromosome().clone()), mutationProbability);
 		
 		if(mGenotype.getSizeChromosome() == other.getGenotype().getSizeChromosome()){
 			int bitsCountToExchange = Util.getNextInt(2,mGenotype.getSizeChromosome());
@@ -63,7 +63,7 @@ public class Individual {
 			
 			//mutate
 			for(int i = 0; i < 2; i++){
-				if(Util.getNextFloat(0.0f,1.0f) <= Algorithm.MUTATION_PROB)
+				if(Util.getNextFloat(0.0f,1.0f) <= mutationProbability)
 					sons[i].mutate();
 //				if(Math.random() < tempMutationProb)
 //					sons[i].bitStringMutation();

@@ -2,17 +2,24 @@ package game;
 
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import generator.algorithm.Algorithm;
 import generator.algorithm.Ranges;
 import generator.config.Config;
 import generator.config.Config.TLevel;
 import util.Point;
+import util.config.ConfigurationReader;
+import util.config.MissingConfigurationException;
 import util.eventrouting.EventRouter;
 import util.eventrouting.Listener;
 import util.eventrouting.PCGEvent;
 import util.eventrouting.events.Start;
 
 public class Game implements Listener{
+	private final Logger logger = LoggerFactory.getLogger(Game.class);
+	private ConfigurationReader config;
 
     public static int sizeN; //Horizontal room size in tiles
     public static int sizeM; //Vertical room size in tiles
@@ -34,6 +41,12 @@ public class Game implements Listener{
     }
 
     public Game(int n, int m, int doors, Config.TLevel level, String profile) {
+		try {
+			config = ConfigurationReader.getInstance();
+		} catch (MissingConfigurationException e) {
+			logger.error("Couldn't read configuration file:\n" + e.getMessage());
+		}
+		
         sizeN = n;
         sizeM = m;
         sizeDoors = doors;
@@ -50,7 +63,8 @@ public class Game implements Listener{
     private void startAll()
     {
     	reinit();
-    	geneticAlgorithm = new Algorithm(Algorithm.POPULATION_SIZE, new Config(gameConfigFileName));
+    	geneticAlgorithm = new Algorithm(config.getInt("generator.population_size"), 
+    			new Config(gameConfigFileName));
     	//Start the algorithm on a new thread.
     	geneticAlgorithm.start();
     }
