@@ -13,9 +13,11 @@ import com.google.gson.JsonParser;
 import com.google.gson.JsonSyntaxException;
 
 import game.Game;
+import util.config.MissingConfigurationException;
 
+// TODO: Maybe merge this with the common merge object?
 /**
- * Config represents a configuration to be used  by the generator. It is
+ * Config represents a configuration to be used by the generator. It is
  * game-specific, meaning that each game type should have its own dedicated
  * configuration file.
  * 

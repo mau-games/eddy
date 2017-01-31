@@ -1,0 +1,8 @@
+{
+    "map": {
+        "collector": {
+            "_comment": "~/ denotes the home directory. Slashes will be converted to backslashes on Windows.",
+            "path": "~/eddy/maps/"
+        }
+    }
+}
