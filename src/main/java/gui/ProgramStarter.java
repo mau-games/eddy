@@ -45,7 +45,7 @@ public class ProgramStarter extends Application {
 	        stage.setScene(scene);
 	        stage.show();
 	        
-	        game = new Game(10, 10, 3, TLevel.EASY);
+	        game = new Game(10, 10, 3, TLevel.EASY, "zelda");
 	        mapCollector = new MapCollector();
 	        
 		} catch (Exception e) {
