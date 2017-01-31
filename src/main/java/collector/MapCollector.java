@@ -1,7 +1,6 @@
 package collector;
 
 import java.io.File;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -30,7 +29,8 @@ public class MapCollector implements Listener {
 	private final Logger logger = LoggerFactory.getLogger(Config.class);
 	private ConfigurationReader config;
 	private String path;
-	
+	private boolean active;
+
 	/**
 	 * Creates an instance of MapCollector.
 	 */
@@ -42,22 +42,27 @@ public class MapCollector implements Listener {
 		}
 		EventRouter.getInstance().registerListener(this, new MapUpdate(null));
 		path = normalisePath(config.getString("map.collector.path"));
+		active = config.getBoolean("map.collector.active");
 	}
-	
+
 	@Override
 	public synchronized void ping(PCGEvent e) {
 		if (e instanceof MapUpdate) {
-			Map map = (Map) e.getPayload();
-			DateTimeFormatter format = DateTimeFormatter.ofPattern("yyyy-mm-dd_H-m-s-n");
-			String name = "map_" + LocalDateTime.now().format(format) + ".txt";
-			File file = new File(path + name);
-			logger.debug("Writing map to " + path + name);
-			
-			try {
-				FileUtils.writeStringToFile(file, map.toString());
-			} catch (IOException e1) {
-				logger.error("Couldn't write map to " + path + name + ":\n" +
-						e1.getMessage());
+			if (active) {
+				Map map = (Map) e.getPayload();
+				DateTimeFormatter format =
+						DateTimeFormatter.ofPattern("yyyy-mm-dd_H-m-s-n");
+				String name = "map_" +
+						LocalDateTime.now().format(format) + ".txt";
+				File file = new File(path + name);
+				logger.debug("Writing map to " + path + name);
+
+				try {
+					FileUtils.writeStringToFile(file, map.toString());
+				} catch (IOException e1) {
+					logger.error("Couldn't write map to " + path + name +
+							":\n" + e1.getMessage());
+				}
 			}
 		}
 	}
@@ -77,7 +82,7 @@ public class MapCollector implements Listener {
 		if (File.separator.equals("\\")) {
 			path = path.replace("/", "\\");
 		}
-		
+
 		return path;
 	}
 }
