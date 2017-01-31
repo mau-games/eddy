@@ -13,8 +13,8 @@ import com.google.gson.JsonSyntaxException;
 
 import game.Game;
 import game.TileTypes;
-import generator.config.MissingConfigurationException;
 import util.Util;
+import util.config.MissingConfigurationException;
 
 //TODO: Consider merging this with Config.java
 public class Ranges {

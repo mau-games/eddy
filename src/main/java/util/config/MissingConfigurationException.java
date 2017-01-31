@@ -1,4 +1,4 @@
-package generator.config;
+package util.config;
 
 public class MissingConfigurationException extends Exception {
 	

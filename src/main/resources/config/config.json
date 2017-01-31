@@ -1,5 +1,7 @@
 {
-    "MapCollector": {
-        "path": ""
+    "map": {
+        "collector": {
+            "path": "~/";
+        }
     }
 }
