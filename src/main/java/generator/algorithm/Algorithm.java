@@ -492,7 +492,7 @@ public class Algorithm extends Thread {
             if (i != populationValid.size() - 1 && !flag)
             {
                 evaluateValidIndividual(valid); // TODO: Check if this is necessary. Hasn't it already been evaluated?
-                populationValid.add(i, valid);
+                populationValid.set(i, valid);
                 i++;
             }
             else
