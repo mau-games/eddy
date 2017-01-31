@@ -6,12 +6,13 @@ import org.slf4j.LoggerFactory;
 
 import collector.MapCollector;
 import game.Game;
-import generator.config.Config.TLevel;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
+import util.config.ConfigurationReader;
+import util.config.MissingConfigurationException;
 
 /**
  * This class is simply a program launcher.
@@ -21,6 +22,7 @@ import javafx.stage.Stage;
 public class ProgramStarter extends Application {
 	
 	final static Logger logger = LoggerFactory.getLogger(ProgramStarter.class);
+	private static ConfigurationReader config;
 	private Game game;
 	private MapCollector mapCollector;
 
@@ -38,6 +40,7 @@ public class ProgramStarter extends Application {
 	public void start(Stage stage) {
 		Parent root;
 		try {
+			config = ConfigurationReader.getInstance();
 			root = FXMLLoader.load(getClass().getResource("/gui/MainScene.fxml"));
 	        Scene scene = new Scene(root, 800, 600);
 	    
@@ -45,15 +48,27 @@ public class ProgramStarter extends Application {
 	        stage.setScene(scene);
 	        stage.show();
 	        
-	        game = new Game(10, 10, 3, TLevel.EASY, "zelda");
+	        // Set up a new game
+	        // TODO: Bad code smell. This class knows too much about Game's inner workings. Fix Game.
+	        game = new Game(
+	        		config.getInt("game.dimensions.m"),
+	        		config.getInt("game.dimensions.n"),
+	        		config.getInt("game.doors"),
+	        		Game.parseDifficulty(config.getString("game.difficulty")),
+	        		config.getString("game.profile")
+	        		);
+	        
+	        // Set up a new map collector
 	        mapCollector = new MapCollector();
 	        
+		} catch (MissingConfigurationException e) {
+			logger.error("Couldn't read configuration file:\n" + e.getMessage());
 		} catch (Exception e) {
 			logger.error("Couldn't load GUI: " + e.getMessage(), e);
 			System.exit(0);
 		}
 	}
-	
+
 	@Override
 	public void stop(){
 		game.stop();

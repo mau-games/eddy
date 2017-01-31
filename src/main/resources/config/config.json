@@ -5,5 +5,14 @@
             "path": "~/eddy/maps/",
             "active": true
         }
+    },
+    "game": {
+        "profile": "zelda",
+        "dimensions": {
+            "m": 10,
+            "n": 10
+        },
+        "doors": 3,
+        "difficulty": "easy"
     }
 }

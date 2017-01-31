@@ -5,6 +5,7 @@ import java.util.List;
 import generator.algorithm.Algorithm;
 import generator.algorithm.Ranges;
 import generator.config.Config;
+import generator.config.Config.TLevel;
 import util.Point;
 import util.eventrouting.EventRouter;
 import util.eventrouting.Listener;
@@ -74,6 +75,21 @@ public class Game implements Listener{
 		if(e instanceof Start){
 			startAll();		
 		}
+	}
+
+	// TODO: Bad code smell. This feels really out of place.
+	public static TLevel parseDifficulty(String difficulty) {
+		TLevel level;
+		
+		if (difficulty.equals("medium")) {
+			level = TLevel.MEDIUM;
+		} else if (difficulty.equals("hard")) {
+			level = TLevel.HARD;
+		} else {
+			level = TLevel.EASY;
+		}
+			
+		return level;
 	}
 
 	
