@@ -7,7 +7,6 @@ import game.Game;
 import game.Map;
 import game.TileTypes;
 
-//I have currently removed all references to Map, TODO: connect this to Map
 public class Phenotype {
 	Genotype mGenotype;
 	Map mMap;
@@ -28,7 +27,7 @@ public class Phenotype {
 			List<Integer> map = new ArrayList<Integer>(size);
 			for(int i = 0; i < size; i++){
 				
-				//TODO: This is heavily rewritten - make sure it works. 
+				// TODO: This is heavily rewritten - make sure it works. 
 				//This whole piece of code seems very wonky. I think this can be much improved.
 				String binaryNumber = "";
 				for(int j = 0; j < mGenotype.getChromosomeItemBits(); j++){

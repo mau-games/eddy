@@ -46,7 +46,7 @@ public class Map {
 		this(types, m, n, doorCount, true);
 	}
 	
-	// TODO: What to do with isDoors?
+	// TODO: What to do with isDoors? (Alex: Remove it??)
 	/**
 	 * Creates an instance of map.
 	 * 
@@ -118,7 +118,7 @@ public class Map {
             if (matrix[(int)pointWithDoor.getX()][(int)pointWithDoor.getY()] == TileTypes.ENEMY.getValue()
             		|| matrix[(int)pointWithDoor.getX()][(int)pointWithDoor.getY()] == TileTypes.ENEMY2.getValue())
             {
-                enemies.remove(pointWithDoor); // TODO: I don't think this will work
+            	enemies.removeIf((x)->x.equals(pointWithDoor));
             }
 
             // Check if door overrides a treasure
@@ -127,7 +127,7 @@ public class Map {
             		|| matrix[(int)pointWithDoor.getX()][(int)pointWithDoor.getY()] == TileTypes.COFFER.getValue()
             		|| matrix[(int)pointWithDoor.getX()][(int)pointWithDoor.getY()] == TileTypes.COFFER2.getValue())
             {
-                treasures.remove(pointWithDoor); // TODO: I don't think this will work
+            	treasures.removeIf((x)->x.equals(pointWithDoor));
             }
 
             // Check if door overrides a wall
