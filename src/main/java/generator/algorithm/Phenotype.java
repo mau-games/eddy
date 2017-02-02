@@ -27,8 +27,6 @@ public class Phenotype {
 			List<Integer> map = new ArrayList<Integer>(size);
 			for(int i = 0; i < size; i++){
 				
-				// TODO: This is heavily rewritten - make sure it works. 
-				//This whole piece of code seems very wonky. I think this can be much improved.
 				String binaryNumber = "";
 				for(int j = 0; j < mGenotype.getChromosomeItemBits(); j++){
 					binaryNumber += Integer.toString(mGenotype.getChromosome()[i*3 + j]);

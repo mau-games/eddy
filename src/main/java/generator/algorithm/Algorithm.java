@@ -276,7 +276,8 @@ public class Algorithm extends Thread {
     	for(int i = enemies; i < map.getEnemyCount();i++)
     		map.addFailedPathToTreasures();
     	
-    	return (treasure + doors + enemies == map.getTreasureCount() + map.getDoorCount() + map.getEnemyCount())
+    	return /*visited.size() == map.getNonWallTileCount() 
+    			&&*/ (treasure + doors + enemies == map.getTreasureCount() + map.getDoorCount() + map.getEnemyCount())
     			&& map.getTreasureCount() > 0 && map.getEnemyCount() > 0;
 	}
 	
@@ -317,13 +318,99 @@ public class Algorithm extends Thread {
         //safetyFitness *= totalAreas;
         //safetyFitness *= minArea;
 
-        return minArea;
+        return (float)minArea/map.getNonWallTileCount();
+    }
+	
+//	/**
+//	 * NEW VERSION! TODO: Document this new implementation
+//	 * TODO: Not happy with this - take a look at sentient sketchbook stuff and see what really should be happening here
+//	 * Uses Breadth First Search to calculate a score for the safety of the room's entrance.
+//	 * According to the old source, the formula should be:
+//	 * 
+//	 * 	f = 1 / [ (width * height) - Numero_muros ] * SUM for all areas for each enemy
+//	 * 
+//	 * ...but this is not currently the case. TODO: Look into this.
+//	 * 
+//	 * @param ind The individual to evaluate.
+//	 * @return The safety value for the room's entrance.
+//	 */
+//	public float evaluateSafetyEnterDoor(Individual ind)
+//    {
+//        Map map = ind.getPhenotype().getMap();
+//
+//        List<Node> visited = new ArrayList<Node>();
+//    	Queue<Node> queue = new LinkedList<Node>();
+//    	
+//    	Node root = new Node(0.0f, map.getEntrance(), null);
+//    	queue.add(root);
+//    	
+//    	while(!queue.isEmpty()){
+//    		Node current = queue.remove();
+//    		visited.add(current);
+//    		
+//    		List<Point> children = map.getAvailableCoords(current.position);
+//            for(Point child : children)
+//            {
+//                if (visited.stream().filter(x->x.equals(child)).findFirst().isPresent() 
+//                		|| queue.stream().filter(x->x.equals(child)).findFirst().isPresent()) 
+//                	continue;
+//
+//                //Create child node
+//                Node n = new Node(0.0f, child, current);
+//                queue.add(n);
+//            }
+//            if(map.getTile(current.position).isEnemy())
+//    			break;
+//    	}
+//    	if(queue.isEmpty())
+//    	{
+//    		return 0;
+//    	}
+//    	return 1 - (float)visited.size()/map.getNonWallTileCount();  
+//    }
+	
+	/**
+	 * This version is just a more efficient version of the original Unity code
+	 */
+	public float evaluateSafetyEnterDoor3(Individual ind)
+    {
+        Map map = ind.getPhenotype().getMap();
+
+        List<Node> visited = new ArrayList<Node>();
+    	Queue<Node> queue = new LinkedList<Node>();
+    	
+    	Node root = new Node(0.0f, map.getEntrance(), null);
+    	queue.add(root);
+    	
+    	float area = 0;
+    	
+    	while(!queue.isEmpty()){
+    		Node current = queue.remove();
+    		visited.add(current);
+    		if(map.getTile(current.position).isEnemy())
+    			area = visited.size();
+    		
+    		List<Point> children = map.getAvailableCoords(current.position);
+            for(Point child : children)
+            {
+                if (visited.stream().filter(x->x.equals(child)).findFirst().isPresent() 
+                		|| queue.stream().filter(x->x.equals(child)).findFirst().isPresent()) 
+                	continue;
+
+                //Create child node
+                Node n = new Node(0.0f, child, current);
+                queue.add(n);
+            }
+            
+    	}
+    	return (float)area/map.getNonWallTileCount();  
     }
 	
 	/**
 	 * Evaluates the treasure safety of a valid individual 
 	 * TODO: Look into this one more deeply.
 	 * TODO: Rename!
+	 * TODO: Switch pathfinders to BFS and don't loop over all enemies
 	 * 
 	 * @param ind The individual to evaluate
 	 */
@@ -336,16 +423,18 @@ public class Algorithm extends Thread {
 	        int treasuresSize = map.getTreasureCount();
 	        int enemiesSize = map.getEnemyCount();
 	        Point doorEnter = map.getEntrance();
-	        List<Double> maxs = new ArrayList<Double>();
+	        
 	        
 	        Pathfinder pathfinder = new Pathfinder(map);
 	
 	        for (int i = 0; i < treasuresSize; i++)
 	        {
+	        	List<Double> maxs = new ArrayList<Double>(); //NOTE: This was placed wrongly before, making this method invalid
 	            Point treasure = map.getTreasures().get(i);
 	            //enemiesSize = 0;
 	            for(int j = 0; j < enemiesSize; j++)
 	            {
+	            	
 	                Point enemy = map.getEnemies().get(j);
 	
 	                //To Calculate
@@ -353,9 +442,98 @@ public class Algorithm extends Thread {
 	
 	                //Distance in nodes from treasure i to enemy j
 	                int dinTreasureToEnemy = pathfinder.find(treasure, enemy).length;
-	
+                	//System.out.println("treasure to enemy " + dinTreasureToEnemy);
+	                
 	                //Distance in nodes from treasure i to enter door
 	                int dinTreasureToStartDoor = pathfinder.find(treasure, doorEnter).length;
+	
+	                //Formule result
+	                /*
+	                    (dti,mj - dti,i) /
+	                    (dti,mj - dti,i)
+	                */
+	                double result = (double)(dinTreasureToEnemy - dinTreasureToStartDoor) / 
+	                    (dinTreasureToEnemy + dinTreasureToStartDoor);
+	                
+	                //System.out.println("res: " + result);
+	
+	                if (Double.isNaN(result))
+	                {
+	                    result = 0.0f;
+	                }
+	                
+	                //System.out.println("treasure to enemy " + dinTreasureToEnemy + ", " + result);
+	
+	                //Calculate and store max
+	                maxs.add(Math.max(0.0, result));
+	            }
+	
+	            //The safety is the min of maxs result
+	            if(maxs.size() > 0)
+	            {
+	                Double min = maxs.stream().min((a,b) -> Double.compare(a, b)).get();
+	                map.setTreasureSafety(treasure, min);
+	            }
+	            
+	        }
+	    }
+	}
+	
+	/**
+	 * Evaluates the treasure safety of a valid individual 
+	 * TODO: Look into this one more deeply.
+	 * TODO: Rename!
+	 * TODO: Switch pathfinders to BFS and don't loop over all enemies
+	 * 
+	 * @param ind The individual to evaluate
+	 */
+	public void evaluateSafetyTreasuresWithDoorsForIndividualsValid2(Individual ind)
+	{
+	    Map map = ind.getPhenotype().getMap();
+	
+	    if(map.getEnemyCount() > 0)
+	    {
+
+	        Point doorEnter = map.getEntrance();
+	        
+	        Pathfinder pathfinder = new Pathfinder(map);
+	
+	        for (Point treasure: map.getTreasures())
+	        {
+	        	//Find the closest enemy
+	            List<Node> visited = new ArrayList<Node>();
+	        	Queue<Node> queue = new LinkedList<Node>();
+	        	
+	        	Node root = new Node(0.0f, treasure, null);
+	        	queue.add(root);
+	        	Point closestEnemy = null;
+	        	
+	        	while(!queue.isEmpty()){
+	        		Node current = queue.remove();
+	        		visited.add(current);
+	        		if(map.getTile(current.position).isEnemy()){
+	        			closestEnemy = current.position;
+	        			break;
+	        		}
+	        		
+	        		List<Point> children = map.getAvailableCoords(current.position);
+	                for(Point child : children)
+	                {
+	                    if (visited.stream().filter(x->x.equals(child)).findFirst().isPresent() 
+	                    		|| queue.stream().filter(x->x.equals(child)).findFirst().isPresent()) 
+	                    	continue;
+
+	                    //Create child node
+	                    Node n = new Node(0.0f, child, current);
+	                    queue.add(n);
+	                }
+	        	}
+	        	
+	            int dinTreasureToEnemy = pathfinder.find(treasure, closestEnemy).length;
+	            
+	
+                //Distance in nodes from treasure to entrance
+                int dinTreasureToStartDoor = pathfinder.find(treasure, doorEnter).length;
 	
 	                //Formule result
 	                /*
@@ -370,17 +548,10 @@ public class Algorithm extends Thread {
 	                {
 	                    result = 0.0f;
 	                }
-	
-	                //Calculate and store max
-	                maxs.add(Math.max(0.0, result));
-	            }
-	
-	            //The safety is the min of maxs result
-	            if(maxs.size() > 0)
-	            {
-	                Double min = maxs.stream().min((a,b) -> Double.compare(a, b)).get();
-	                map.setTreasureSafety(treasure, min);
-	            }
+	                
+	                //System.out.println("treasure to enemy 2 " + dinTreasureToEnemy + ", " + result);
+
+	                map.setTreasureSafety(treasure, Math.max(0.0, result));
 	            
 	        }
 	    }
@@ -399,7 +570,8 @@ public class Algorithm extends Thread {
         int tilesPassables = map.getNonWallTileCount();
 
         //security area (1)
-        double fitness_security_area = evaluateSafetyEnterDoor(ind) / (double)tilesPassables;
+        //System.out.println("" + evaluateSafetyEnterDoor(ind) + " " + evaluateSafetyEnterDoor3(ind));
+        double fitness_security_area = evaluateSafetyEnterDoor3(ind); //Note - this has been changed from the Unity version
         map.setEntrySafetyFitness(fitness_security_area);
         try {
 			fitness_security_area -= generatorConfig.getSecurityAreaVariance();
@@ -428,9 +600,10 @@ public class Algorithm extends Thread {
         }
 
         //avg seg tesoros (3)
-        evaluateSafetyTreasuresWithDoorsForIndividualsValid(ind);
+        evaluateSafetyTreasuresWithDoorsForIndividualsValid2(ind);
         Double[] safeties = map.getAllTreasureSafeties();
         double safeties_average = Util.calcAverage(safeties);
+       
         double fitness_avg_treasures_security = 0.0;
         try {
 			fitness_avg_treasures_security = safeties_average - generatorConfig.getAverageTreasureSecurity();
