@@ -73,7 +73,7 @@ public class GUIController implements Initializable, Listener {
 	/**
 	 * Draws a matrix on the canvas.
 	 * 
-	 * @param matrix A quadratic matrix of integers. Each integer corresponds
+	 * @param matrix A rectangular matrix of integers. Each integer corresponds
 	 * 		to some predefined colour.
 	 */
 	public synchronized void drawMatrix(int[][] matrix) {
@@ -85,7 +85,7 @@ public class GUIController implements Initializable, Listener {
 		for (int i = 0; i < m; i++) {
 			for (int j = 0; j < n; j++) {
 				gc.setFill(getColour(matrix[i][j]));
-				gc.fillRect(i * pWidth, j * pWidth, pWidth, pWidth);
+				gc.fillRect(j * pWidth, i * pWidth, pWidth, pWidth);
 			}
 		}
 	}
