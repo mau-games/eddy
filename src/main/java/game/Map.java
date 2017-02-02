@@ -51,8 +51,8 @@ public class Map {
 	 * Creates an instance of map.
 	 * 
 	 * @param types
-	 * @param m The number of rows in a map.
-	 * @param n The number of columns in a map.
+	 * @param m The number of columns in a map.
+	 * @param n The number of rows in a map.
 	 * @param doorCount The number of doors to be seeded in a map.
 	 * @param isDoors
 	 */
@@ -88,9 +88,9 @@ public class Map {
 		
 		// TODO: Rewrite this to be less insanely inefficient
 		// Get valid door positions (non-corner tiles on the room border)
-        for (int i = 0; i < n; i++)
+        for (int i = 0; i < m; i++)
         {
-            for (int j = 0; j < m; j++)
+            for (int j = 0; j < n; j++)
             {
                 if (countNeighbors(new Point(i,j)) == 3) 
                 	positionsValid.add(new Point(i, j));
@@ -158,14 +158,14 @@ public class Map {
 		int count = 0;
 
         //X
-        if ((position.getX() + 1) < n)
+        if ((position.getX() + 1) < m)
             count++;
         if ((position.getX() - 1) >= 0)
             count++;
         //Y
         if ((position.getY() - 1) >= 0)
             count++;
-        if ((position.getY() + 1) < m)
+        if ((position.getY() + 1) < n)
             count++;
 
         return count;
@@ -236,7 +236,7 @@ public class Map {
 	 * @return The number of columns.
 	 */
 	public int getColCount() {
-		return n;
+		return m;
 	}
 	
 	// TODO: Check this...
@@ -246,7 +246,7 @@ public class Map {
 	 * @return The number of rows.
 	 */
 	public int getRowCount() {
-		return m;
+		return n;
 	}
 	
 	/**
@@ -358,7 +358,7 @@ public class Map {
 	 */
 	public int getNonWallTileCount()
     {
-        return (Game.sizeN * Game.sizeM) - wallCount;
+        return (Game.sizeM * Game.sizeN) - wallCount;
     }
 	
 	// TODO: Document
@@ -380,9 +380,9 @@ public class Map {
     {
         int locked = 0;
 
-        for(int i = 0; i < n; i++)
+        for(int i = 0; i < m; i++)
         {
-            for (int j = 0; i < m; i++)
+            for (int j = 0; j < n; j++)
             {
                 List<Point> moves = getAvailableCoords(new Point(i,j)); // TODO: Check if right order n,m?
 
