@@ -13,6 +13,7 @@ import com.google.gson.JsonParser;
 import com.google.gson.JsonSyntaxException;
 
 import game.Game;
+import util.config.ConfigurationReader;
 import util.config.MissingConfigurationException;
 
 // TODO: Maybe merge this with the common merge object?
@@ -30,6 +31,7 @@ import util.config.MissingConfigurationException;
 public class Config {
 
 	final Logger logger = LoggerFactory.getLogger(Config.class);
+	private ConfigurationReader config;
 	
 	public enum TLevel {
 		EASY,
@@ -37,7 +39,7 @@ public class Config {
 		HARD
 	}
 
-	private JsonObject config;
+	private JsonObject configJson;
 	private TLevel level;
 
 	/**
@@ -47,6 +49,7 @@ public class Config {
 	 */
 	public Config(String profile) {
 		try {
+			config = ConfigurationReader.getInstance();
 			readConfig(fetchProfileAsFile(profile));
 		} catch (MissingConfigurationException e) {
 			logger.error("Couldn't load the configuration file");
@@ -68,11 +71,11 @@ public class Config {
 	 * 		 read and applied.
 	 */
 	public String getProfileName() throws MissingConfigurationException {
-		if (config == null) {
+		if (configJson == null) {
 			throw new MissingConfigurationException();
 		}
 
-		return config.get("game_name").getAsString();
+		return configJson.get("game_name").getAsString();
 	}
 
 	/**
@@ -85,11 +88,11 @@ public class Config {
 	 * 		 read and applied.
 	 */
 	public double getSecurityAreaVariance() throws MissingConfigurationException {
-		if (config == null) {
+		if (configJson == null) {
 			throw new MissingConfigurationException();
 		}
 
-		return config.get("security_area").getAsJsonObject()
+		return configJson.get("security_area").getAsJsonObject()
 				.get(getDifficultyString(level)).getAsDouble();
 	}
 
@@ -103,16 +106,16 @@ public class Config {
 	 * 		 read and applied.
 	 */
 	public double[] getEnemyQuantityRange() throws MissingConfigurationException {
-		if (config == null) {
+		if (configJson == null) {
 			throw new MissingConfigurationException();
 		}
 
 		double[] range = new double[2];
 
-		range[0] = config.get("enemies_quantity").getAsJsonObject()
+		range[0] = configJson.get("enemies_quantity").getAsJsonObject()
 				.get(getDifficultyString(level)).getAsJsonObject()
 				.get("min").getAsDouble();
-		range[1] = config.get("enemies_quantity").getAsJsonObject()
+		range[1] = configJson.get("enemies_quantity").getAsJsonObject()
 				.get(getDifficultyString(level)).getAsJsonObject()
 				.get("max").getAsDouble();
 
@@ -129,11 +132,11 @@ public class Config {
 	 * 		 read and applied.
 	 */
 	public double getAverageTreasureSecurity() throws MissingConfigurationException {
-		if (config == null) {
+		if (configJson == null) {
 			throw new MissingConfigurationException();
 		}
 
-		return config.get("avg_treasures_security").getAsJsonObject()
+		return configJson.get("avg_treasures_security").getAsJsonObject()
 				.get(getDifficultyString(level)).getAsDouble();
 	}
 
@@ -147,16 +150,16 @@ public class Config {
 	 * 		 read and applied.
 	 */
 	public double[] getTreasureQuantityRange() throws MissingConfigurationException {
-		if (config == null) {
+		if (configJson == null) {
 			throw new MissingConfigurationException();
 		}
 		
 		double[] range = new double[2];
 		
-		range[0] = config.get("treasures_quantity").getAsJsonObject()
+		range[0] = configJson.get("treasures_quantity").getAsJsonObject()
 				.get(getDifficultyString(level)).getAsJsonObject()
 				.get("min").getAsDouble();
-		range[1] = config.get("treasures_quantity").getAsJsonObject()
+		range[1] = configJson.get("treasures_quantity").getAsJsonObject()
 				.get(getDifficultyString(level)).getAsJsonObject()
 				.get("max").getAsDouble();
 
@@ -173,11 +176,11 @@ public class Config {
 	 * 		 read and applied.
 	 */
 	public double getTreasureSecurityVariance() throws MissingConfigurationException {
-		if (config == null) {
+		if (configJson == null) {
 			throw new MissingConfigurationException();
 		}
 
-		return config.get("treasures_security_variance").getAsJsonObject()
+		return configJson.get("treasures_security_variance").getAsJsonObject()
 				.get(getDifficultyString(level)).getAsDouble();
 	}
 
@@ -191,7 +194,7 @@ public class Config {
 	private void readConfig(Reader configReader) {
 		JsonParser parser = new JsonParser();
 		try {
-			config = (JsonObject) parser.parse(configReader);
+			configJson = (JsonObject) parser.parse(configReader);
 		} catch (JsonIOException | NullPointerException e) {
 			logger.error("Couldn't load the configuration file:\n" + e.getMessage());
 		} catch (JsonSyntaxException e) {
@@ -213,7 +216,7 @@ public class Config {
 	 * 		 read and applied.
 	 */
 	private Reader fetchProfileAsFile(String profile) throws MissingConfigurationException {
-		String fileName = "config/profiles/" + profile + ".json";
+		String fileName = config.getString("game.profiles.location") + profile + ".json";
 		FileReader file = null;
 		ClassLoader loader = getClass().getClassLoader();
 		try {

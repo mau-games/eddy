@@ -14,7 +14,7 @@
         },
         "doors": 3,
         "profiles": {
-            "location": "config/location/",
+            "location": "config/profiles/",
             "default": "zelda"
         },
         "ranges": {
