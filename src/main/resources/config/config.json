@@ -9,12 +9,12 @@
     "game": {
         "difficulty": "easy",
         "dimensions": {
-            "m": 10,
-            "n": 10
+            "m": 15,
+            "n":15
         },
         "doors": 3,
         "profiles": {
-            "location": "config/location/",
+            "location": "config/profiles/",
             "default": "zelda"
         },
         "ranges": {

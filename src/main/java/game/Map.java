@@ -226,7 +226,7 @@ public class Map {
 	 * @return A tile.
 	 */
 	public TileTypes getTile(Point point){
-		return TileTypes.toTileType(matrix[(int)point.getX()][(int)point.getY()]);
+		return TileTypes.toTileType(matrix[point.getX()][point.getY()]);
 	}
 	
 	// TODO: Check this...

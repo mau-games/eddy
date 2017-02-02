@@ -2,13 +2,16 @@ package generator.algorithm;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Queue;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import game.Game;
 import game.Map;
+import game.TileTypes;
 import generator.config.Config;
 import util.Point;
 import util.Util;
@@ -174,56 +177,107 @@ public class Algorithm extends Thread {
         EventRouter.getInstance().postEvent(new AlgorithmDone());
 	}
 	
+//	/**
+//	 * Checks if an individual is valid (feasible), that is:
+//	 * 1. There exist paths between the entrance and all other doors
+//	 * 2. There exist paths between the entrance and all enemies
+//	 * 3. There exist paths between the entrance and all treasures
+//	 * 4. There is at least one enemy TODO: Why?
+//	 * 5. There is at least one treasure TODO: Why?
+//	 * 
+//	 * @param ind The individual to check
+//	 * @return Return true if individual is valid, otherwise return false
+//    */
+//	private boolean checkIndividual(Individual ind){
+//		Map map = ind.getPhenotype().getMap();
+//        Pathfinder pathfinder = new Pathfinder(map);
+//        Point entrance = map.getEntrance();
+//
+//        //Check if there is a path between the entrance and all other doors
+//        for (Point door : map.getDoors())
+//        {
+//            Node[] path = pathfinder.find(entrance,door);
+//
+//            if (path.length == 0)
+//                map.addFailedPathToDoors();
+//        }
+//
+//        //Check if there is a path between the entrance and all enemies
+//        //enemies
+//        for (Point enemy : map.getEnemies())
+//        {
+//            Node[] path = pathfinder.find(entrance,enemy);
+//
+//            if (path.length == 0)
+//                map.addFailedPathToEnemies();
+//        }
+//
+//        //Check if there is a path between the entrance and all treasures
+//        for (Point treasure : map.getTreasures())
+//        {
+//            Node[] path = pathfinder.find(entrance,treasure);
+//
+//            if (path.length == 0)
+//                map.addFailedPathToTreasures();
+//        }
+//
+//        // TODO: Think about why it is a requirement that the room contains enemies and treasure.
+//        return (map.getFailedPathsToAnotherDoor() == 0) &&
+//                (map.getFailedPathsToEnemies() == 0) &&
+//                (map.getFailedPathsToTreasures() == 0) &&
+//                (map.getEnemyCount() > 0) &&
+//                (map.getTreasureCount() > 0);
+//	}
+	
 	/**
-	 * Checks if an individual is valid (feasible), that is:
-	 * 1. There exist paths between the entrance and all other doors
-	 * 2. There exist paths between the entrance and all enemies
-	 * 3. There exist paths between the entrance and all treasures
-	 * 4. There is at least one enemy TODO: Why?
-	 * 5. There is at least one treasure TODO: Why?
+	 * TODO: Document!
 	 * 
-	 * @param ind The individual to check
-	 * @return Return true if individual is valid, otherwise return false
-    */
+	 * @param ind
+	 * @return
+	 */
 	private boolean checkIndividual(Individual ind){
 		Map map = ind.getPhenotype().getMap();
-        Pathfinder pathfinder = new Pathfinder(map);
-        Point entrance = map.getEntrance();
+		List<Node> visited = new ArrayList<Node>();
+    	Queue<Node> queue = new LinkedList<Node>();
+    	int treasure = 0;
+    	int enemies = 0;
+    	int doors = 0;
+    	
+    	Node root = new Node(0.0f, map.getEntrance(), null);
+    	queue.add(root);
+    	
+    	while(!queue.isEmpty()){
+    		Node current = queue.remove();
+    		visited.add(current);
+    		if(map.getTile(current.position) == TileTypes.DOOR)
+    			doors++;
+    		else if (map.getTile(current.position).isEnemy())
+    			enemies++;
+    		else if (map.getTile(current.position).isTreasure())
+    			treasure++;
+    		
+    		List<Point> children = map.getAvailableCoords(current.position);
+            for(Point child : children)
+            {
+                if (visited.stream().filter(x->x.equals(child)).findFirst().isPresent() 
+                		|| queue.stream().filter(x->x.equals(child)).findFirst().isPresent()) 
+                	continue;
 
-        //Check if there is a path between the entrance and all other doors
-        for (Point door : map.getDoors())
-        {
-            Node[] path = pathfinder.find(entrance,door);
-
-            if (path.length == 0)
-                map.addFailedPathToDoors();
-        }
-
-        //Check if there is a path between the entrance and all enemies
-        //enemies
-        for (Point enemy : map.getEnemies())
-        {
-            Node[] path = pathfinder.find(entrance,enemy);
-
-            if (path.length == 0)
-                map.addFailedPathToEnemies();
-        }
-
-        //Check if there is a path between the entrance and all treasures
-        for (Point treasure : map.getTreasures())
-        {
-            Node[] path = pathfinder.find(entrance,treasure);
-
-            if (path.length == 0)
-                map.addFailedPathToTreasures();
-        }
-
-        // TODO: Think about why it is a requirement that the room contains enemies and treasure.
-        return (map.getFailedPathsToAnotherDoor() == 0) &&
-                (map.getFailedPathsToEnemies() == 0) &&
-                (map.getFailedPathsToTreasures() == 0) &&
-                (map.getEnemyCount() > 0) &&
-                (map.getTreasureCount() > 0);
+                //Create child node
+                Node n = new Node(0.0f, child, current);
+                queue.add(n);
+            }
+    	}
+    	
+    	for(int i = treasure; i < map.getTreasureCount();i++)
+    		map.addFailedPathToTreasures();
+    	for(int i = doors; i < map.getDoorCount();i++)
+    		map.addFailedPathToTreasures();
+    	for(int i = enemies; i < map.getEnemyCount();i++)
+    		map.addFailedPathToTreasures();
+    	
+    	return (treasure + doors + enemies == map.getTreasureCount() + map.getDoorCount() + map.getEnemyCount())
+    			&& map.getTreasureCount() > 0 && map.getEnemyCount() > 0;
 	}
 	
 	/**

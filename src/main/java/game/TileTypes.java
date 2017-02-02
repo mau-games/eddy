@@ -35,6 +35,14 @@ public enum TileTypes {
 		return value;
 	}
 	
+	public boolean isTreasure(){
+		return value == COIN.getValue() || value == COIN2.getValue() || value == COFFER.getValue() || value == COFFER2.getValue();
+	}
+	
+	public boolean isEnemy(){
+		return value == ENEMY.getValue() || value == ENEMY2.getValue();
+	}
+	
 	/**
 	 * Creates a TileType out of an integer value.
 	 * 
