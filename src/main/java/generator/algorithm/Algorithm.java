@@ -29,8 +29,6 @@ public class Algorithm extends Thread {
 	private final Logger logger = LoggerFactory.getLogger(Config.class);
 	private ConfigurationReader config;
 	
-	// TODO: Is it weird that the starting population is 100 split between both valid and invalid, 
-	// but later invalid and valid are allowed 100 EACH? Look into this.
 	private int populationSize; 
 	private float mutationProbability;
 	private float offspringSize;
@@ -85,7 +83,6 @@ public class Algorithm extends Thread {
 	
 	/**
 	 * Creates lists for the valid and invalid populations and populates them with individuals.
-	 * TODO: Figure out what the difference between readyToValid and populationValid is
 	 */
 	private void initPopulations(){
 		broadcastStatusUpdate("Initialising...");
@@ -177,64 +174,17 @@ public class Algorithm extends Thread {
         EventRouter.getInstance().postEvent(new AlgorithmDone());
 	}
 	
-//	/**
-//	 * Checks if an individual is valid (feasible), that is:
-//	 * 1. There exist paths between the entrance and all other doors
-//	 * 2. There exist paths between the entrance and all enemies
-//	 * 3. There exist paths between the entrance and all treasures
-//	 * 4. There is at least one enemy TODO: Why?
-//	 * 5. There is at least one treasure TODO: Why?
-//	 * 
-//	 * @param ind The individual to check
-//	 * @return Return true if individual is valid, otherwise return false
-//    */
-//	private boolean checkIndividual(Individual ind){
-//		Map map = ind.getPhenotype().getMap();
-//        Pathfinder pathfinder = new Pathfinder(map);
-//        Point entrance = map.getEntrance();
-//
-//        //Check if there is a path between the entrance and all other doors
-//        for (Point door : map.getDoors())
-//        {
-//            Node[] path = pathfinder.find(entrance,door);
-//
-//            if (path.length == 0)
-//                map.addFailedPathToDoors();
-//        }
-//
-//        //Check if there is a path between the entrance and all enemies
-//        //enemies
-//        for (Point enemy : map.getEnemies())
-//        {
-//            Node[] path = pathfinder.find(entrance,enemy);
-//
-//            if (path.length == 0)
-//                map.addFailedPathToEnemies();
-//        }
-//
-//        //Check if there is a path between the entrance and all treasures
-//        for (Point treasure : map.getTreasures())
-//        {
-//            Node[] path = pathfinder.find(entrance,treasure);
-//
-//            if (path.length == 0)
-//                map.addFailedPathToTreasures();
-//        }
-//
-//        // TODO: Think about why it is a requirement that the room contains enemies and treasure.
-//        return (map.getFailedPathsToAnotherDoor() == 0) &&
-//                (map.getFailedPathsToEnemies() == 0) &&
-//                (map.getFailedPathsToTreasures() == 0) &&
-//                (map.getEnemyCount() > 0) &&
-//                (map.getTreasureCount() > 0);
-//	}
-	
 	/**
-	 * TODO: Document!
+	 * Checks if an individual is valid (feasible), that is:
+	 * 1. There exist paths between the entrance and all other doors
+	 * 2. There exist paths between the entrance and all enemies
+	 * 3. There exist paths between the entrance and all treasures
+	 * 4. There is at least one enemy
+	 * 5. There is at least one treasure
 	 * 
-	 * @param ind
-	 * @return
-	 */
+	 * @param ind The individual to check
+	 * @return Return true if individual is valid, otherwise return false
+    */
 	private boolean checkIndividual(Individual ind){
 		Map map = ind.getPhenotype().getMap();
 		List<Node> visited = new ArrayList<Node>();
@@ -276,8 +226,8 @@ public class Algorithm extends Thread {
     	for(int i = enemies; i < map.getEnemyCount();i++)
     		map.addFailedPathToTreasures();
     	
-    	return /*visited.size() == map.getNonWallTileCount() 
-    			&&*/ (treasure + doors + enemies == map.getTreasureCount() + map.getDoorCount() + map.getEnemyCount())
+    	return visited.size() == map.getNonWallTileCount() 
+    			&& (treasure + doors + enemies == map.getTreasureCount() + map.getDoorCount() + map.getEnemyCount())
     			&& map.getTreasureCount() > 0 && map.getEnemyCount() > 0;
 	}
 	
@@ -296,27 +246,16 @@ public class Algorithm extends Thread {
     {
         Map map = ind.getPhenotype().getMap();
         Point startDoor = map.getEntrance();
-        //int countWalls = map.getWallCount();
-        //int totalAreas = 0;
         int minArea = 0;
 
         BFS bfs = new BFS(map);
 
         for(Point enemy : map.getEnemies())
         {
-            //totalAreas += bfs.find(Map.Point2D.toUnityVector2(startDoor), Map.Point2D.toUnityVector2(enemy)).Length;
             int area = bfs.getTraversedNodesBetween(startDoor, enemy).length;
             if (minArea == 0 || minArea < area)
                 minArea = area;
         }
-
-        // Note: These comments were in the original source.
-        //Formula
-        //float safetyFitness = 1.0f / ((Game.sizeN * Game.sizeM) - countWalls);
-
-        //Prod with totalAreas
-        //safetyFitness *= totalAreas;
-        //safetyFitness *= minArea;
 
         return (float)minArea/map.getNonWallTileCount();
     }
@@ -567,7 +506,7 @@ public class Algorithm extends Thread {
     {
         double fitness = 0.0;
         Map map = ind.getPhenotype().getMap();
-        int tilesPassables = map.getNonWallTileCount();
+
 
         //security area (1)
         //System.out.println("" + evaluateSafetyEnterDoor(ind) + " " + evaluateSafetyEnterDoor3(ind));
@@ -644,17 +583,16 @@ public class Algorithm extends Thread {
 
         double fitness_treasures_security_variance = safeties_variance - expectedSafetyVariance;
 
-        //Check objects locked
-        double objectsLocked = map.countCloseWalls();
+        //Removed countCloseWalls method because it ALWAYS returns 0 and the intended function is unclear
+        //Consequently, weights have been adjusted
 
-        // TODO: Witness the fitness. (Investigate why these values are used)
+        // TODO: Move these weights to config
         fitness =
-            (Math.abs(fitness_security_area) * 0.1) +
-            (Math.abs(fitness_enemies_proportion) * 0.2) +
+            (Math.abs(fitness_security_area) * 0.2) +
+            (Math.abs(fitness_enemies_proportion) * 0.3) +
             (Math.abs(fitness_avg_treasures_security) * 0.1) +
             (Math.abs(fitness_treasures_proportion) * 0.2) +
-            (Math.abs(fitness_treasures_security_variance) * 0.2) +
-            (objectsLocked * 0.2);
+            (Math.abs(fitness_treasures_security_variance) * 0.2);
 
         //set final fitness
         ind.setFitness(fitness);
@@ -667,9 +605,6 @@ public class Algorithm extends Thread {
      * fitness = 1 - ((1/3) * (pathToEnemiesFail/enemiesCount) +
      *				  (1/3) * (pathToTreasuresFail/treasuresCount) +
      *                (1/3) * (pathToDoorsFail/doorsCount))
-     *                
-     * TODO: This only takes into account how far from being valid the individual is.
-     * 		 Should it also take into account other fitness factors?
      * 
      * @param ind The invalid individual to evaluate
      */
@@ -819,7 +754,7 @@ public class Algorithm extends Thread {
 
         while (countSons < sonSize)
         {
-            Individual[] offspring = progenitors.get(Util.getNextInt(0, sizeProgenitors)).reproduce(progenitors.get(Util.getNextInt(0, sizeProgenitors)));
+            Individual[] offspring = progenitors.get(Util.getNextInt(0, sizeProgenitors)).twoPointCrossover(progenitors.get(Util.getNextInt(0, sizeProgenitors)));
             sons.addAll(Arrays.asList(offspring));
             countSons += 2;
         }
@@ -950,8 +885,6 @@ public class Algorithm extends Thread {
         double avgFitness = 0.0;
         double minFitness = Double.POSITIVE_INFINITY;
         double maxFitness = Double.NEGATIVE_INFINITY;
-        Individual worstIndividual = null;
-
 
         for (int i = 0; i < population.size(); i++)
         {
@@ -960,8 +893,6 @@ public class Algorithm extends Thread {
             if (currFitness < minFitness)
             {
                 minFitness = currFitness;
-                worstIndividual = population.get(i);
-                // TODO: Investigate - surely it can't simultaneously be worst AND best!?!?
                 if (saveBest)
                     best = population.get(i);
             }
@@ -990,8 +921,9 @@ public class Algorithm extends Thread {
     }
 
 	/**
-	 * Add an individual to the valid population if the population size is less than POPULATION_SIZE
-	 * @param valid A valid individual
+	 * Add an individual to the valid population if the population size is less than POPULATION_SIZE.
+	 * 
+	 * @param valid A valid individual.
 	 */
     private void addValidIndividual(Individual valid)
     {
@@ -1002,8 +934,9 @@ public class Algorithm extends Thread {
     }
 
 	/**
-	 * Add an individual to the invalid population if the population size is less than POPULATION_SIZE
-	 * @param invalid An invalid individual
+	 * Add an individual to the invalid population if the population size is less than POPULATION_SIZE.
+	 * 
+	 * @param invalid An invalid individual.
 	 */
     private void addInvalidIndividual(Individual invalid)
     {

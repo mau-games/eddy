@@ -38,21 +38,7 @@ public class Phenotype {
 			
 			TileTypes[] types = map.stream().map(x -> TileTypes.values()[x]).toArray(TileTypes[]::new);
 			
-			//TODO: Some debug crap we can ignore for now
-			/*if(Game.debug){
-				string s = "";
-                int map_types_size = types.Count();
-
-                for (int i = 0; i < map_types_size; i++)
-                {
-                    //s += types[i].ToString() + ",";
-                    s += "types[" + i + "] = TYPES." + types[i].ToString() + ";" + Environment.NewLine;
-                }
-
-                File.WriteAllText("lastmap.txt", s);
-			}*/
-			
-			mMap = new Map(types, Game.sizeN, Game.sizeM, Game.sizeDoors, true);
+			mMap = new Map(types, Game.sizeN, Game.sizeM, Game.sizeDoors);
 		}
 		return mMap;
 	}

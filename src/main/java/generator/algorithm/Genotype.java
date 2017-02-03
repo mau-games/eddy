@@ -2,10 +2,9 @@ package generator.algorithm;
 
 import game.Game;
 import game.TileTypes;
-import junit.framework.Assert;
 
 public class Genotype {
-	private int[] mChromosome; // TODO: Couldn't this more compactly be stored as an array of bytes?
+	private int[] mChromosome;
 	private int mSizeChromosome; // (Number of bits) * (bits per gene)
 	private int mBits = 3; //The number of bits in a gene
 	

@@ -9,8 +9,8 @@
     "game": {
         "difficulty": "easy",
         "dimensions": {
-            "m": 20,
-            "n": 20
+            "m": 16,
+            "n": 16
         },
         "doors": 3,
         "profiles": {

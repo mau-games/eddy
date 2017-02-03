@@ -7,10 +7,7 @@ import java.util.Hashtable;
 import java.util.List;
 
 import util.Point;
-import util.Util;
 
-// TODO: Make sure that m represents the rows and n the columns
-// TODO: Choose between x + y & Point2D
 /**
  * This class represents a dungeon room map.
  * 
@@ -32,31 +29,16 @@ public class Map {
 	private Point entrance;
 	private double entranceSafetyFitness;
 	
-	
-	// TODO: What to do with types?
 	/**
 	 * Creates an instance of map.
 	 * 
-	 * @param types
-	 * @param m The number of rows in a map.
-	 * @param n The number of columns in a map.
-	 * @param doorCount The number of doors to be seeded in a map.
-	 */
-	public Map(TileTypes[] types, int m, int n, int doorCount) {
-		this(types, m, n, doorCount, true);
-	}
-	
-	// TODO: What to do with isDoors? (Alex: Remove it??)
-	/**
-	 * Creates an instance of map.
-	 * 
-	 * @param types
+	 * @param types A chromosome transformed into an array of TileTypes
 	 * @param m The number of columns in a map.
 	 * @param n The number of rows in a map.
 	 * @param doorCount The number of doors to be seeded in a map.
 	 * @param isDoors
 	 */
-	public Map(TileTypes[] types, int n, int m, int doorCount, boolean isDoors) {
+	public Map(TileTypes[] types, int n, int m, int doorCount) {
 		doors = new ArrayList<Point>();
 		treasures = new ArrayList<Point>();
 		enemies = new ArrayList<Point>();
@@ -66,112 +48,55 @@ public class Map {
 		wallCount = 0;
 		
 		
-		if(Game.doorsPositions != null){
-			this.doorCount = Game.doorsPositions.size();
-		} else {
-			Game.doorsPositions = new ArrayList<Point>();
-			this.doorCount = doorCount;
-		}
+		this.doorCount = Game.doorsPositions.size();
 		
 		matrix = new int[m][n];
 		
 		initMapFromTypes(types);
 		
-		if(isDoors)
-			markDoors();
+		markDoors();
 		
 	}
 	
 	private void markDoors(){
-		List<Point> positionsValid = new ArrayList<Point>();
-		int enterDoorPosition = Util.getNextInt(0, doorCount);
-		
-		// TODO: Rewrite this to be less insanely inefficient
-		// Get valid door positions (non-corner tiles on the room border)
-        for (int i = 0; i < m; i++)
+		entrance = Game.doorsPositions.get(0);
+		for(int i = 0; i < doorCount; i++)
         {
-            for (int j = 0; j < n; j++)
-            {
-                if (countNeighbors(new Point(i,j)) == 3) 
-                	positionsValid.add(new Point(i, j));
-            }
-        }
-
-        // TODO: This placement approach seems very wonky - revisit
-        // Place doors randomly
-        for(int i = 0; i < doorCount; i++)
-        {
-            Point pointWithDoor;
-
-            if (Game.doorsPositions.size() < doorCount)
-            {
-                int randomDoorTile = Util.getNextInt(0, positionsValid.size());
-                pointWithDoor = positionsValid.get(randomDoorTile);
-                Game.doorsPositions.add(pointWithDoor);
-            }
-            else
-            {
-                pointWithDoor = Game.doorsPositions.get(i);
-            }
-            
+			
             // Check if door overrides an enemy
-            if (matrix[(int)pointWithDoor.getX()][(int)pointWithDoor.getY()] == TileTypes.ENEMY.getValue()
-            		|| matrix[(int)pointWithDoor.getX()][(int)pointWithDoor.getY()] == TileTypes.ENEMY2.getValue())
+            if (TileTypes.toTileType(matrix[Game.doorsPositions.get(i).getX()][Game.doorsPositions.get(i).getY()]).isEnemy())
             {
-            	enemies.removeIf((x)->x.equals(pointWithDoor));
+            	int ii = i;
+            	enemies.removeIf((x)->x.equals(Game.doorsPositions.get(ii)));
             }
 
             // Check if door overrides a treasure
-            if(matrix[(int)pointWithDoor.getX()][(int)pointWithDoor.getY()] == TileTypes.COIN.getValue()
-            		|| matrix[(int)pointWithDoor.getX()][(int)pointWithDoor.getY()] == TileTypes.COIN2.getValue()
-            		|| matrix[(int)pointWithDoor.getX()][(int)pointWithDoor.getY()] == TileTypes.COFFER.getValue()
-            		|| matrix[(int)pointWithDoor.getX()][(int)pointWithDoor.getY()] == TileTypes.COFFER2.getValue())
+            if (TileTypes.toTileType(matrix[Game.doorsPositions.get(i).getX()][Game.doorsPositions.get(i).getY()]).isTreasure())
             {
-            	treasures.removeIf((x)->x.equals(pointWithDoor));
+            	int ii = i;
+            	treasures.removeIf((x)->x.equals(Game.doorsPositions.get(ii)));
             }
 
             // Check if door overrides a wall
-            if (matrix[(int)pointWithDoor.getX()][(int)pointWithDoor.getY()] == TileTypes.WALL.getValue())
+            if (matrix[Game.doorsPositions.get(i).getX()][Game.doorsPositions.get(i).getY()] == TileTypes.WALL.getValue())
             {
                 wallCount--;
             } 
             
-            if(enterDoorPosition == i)
+            if(i == 0)
             {
-                this.entrance = pointWithDoor;
-                //Set new tile in matrix
-                matrix[(int)pointWithDoor.getX()][(int)pointWithDoor.getY()] = TileTypes.DOORENTER.getValue();
+                matrix[Game.doorsPositions.get(i).getX()][Game.doorsPositions.get(i).getY()] = TileTypes.DOORENTER.getValue();
             }
             else
             {
-                this.doors.add(pointWithDoor);
-                //Set new tile in matrix
-                matrix[(int)pointWithDoor.getX()][(int)pointWithDoor.getY()] = TileTypes.DOOR.getValue();
+            	doors.add(Game.doorsPositions.get(i));
+            	matrix[Game.doorsPositions.get(i).getX()][Game.doorsPositions.get(i).getY()] = TileTypes.DOOR.getValue();
             }
 
-            //Don't pick the same point twice
-            positionsValid.remove(pointWithDoor);
+
         }
 	}
-	
-	private int countNeighbors(Point position) {
-		int count = 0;
 
-        //X
-        if ((position.getX() + 1) < m)
-            count++;
-        if ((position.getX() - 1) >= 0)
-            count++;
-        //Y
-        if ((position.getY() - 1) >= 0)
-            count++;
-        if ((position.getY() + 1) < n)
-            count++;
-
-        return count;
-	}
-
-	//TODO: Check that this is working properly. Rewritten quite a bit.
 	/**
 	 * Gets a list of positions of tiles adjacent to a given position
 	 * 
@@ -194,7 +119,6 @@ public class Map {
 			
 	}
 	
-	// TODO: This might be off...
 	/**
 	 * Sets a specific tile to a value.
 	 * 
@@ -206,7 +130,6 @@ public class Map {
 		matrix[x][y] = tile.getValue();
 	}
 	
-	// TODO: This might be off...
 	/**
 	 * Gets the type of a specific tile.
 	 * 
@@ -218,7 +141,6 @@ public class Map {
 		return TileTypes.toTileType(matrix[x][y]);
 	}
 	
-	// TODO: This might be off...
 	/**
 	 * Gets the type of a specific tile.
 	 * 
@@ -229,7 +151,6 @@ public class Map {
 		return TileTypes.toTileType(matrix[point.getX()][point.getY()]);
 	}
 	
-	// TODO: Check this...
 	/**
 	 * Returns the number of columns in a map. 
 	 * 
@@ -239,7 +160,6 @@ public class Map {
 		return m;
 	}
 	
-	// TODO: Check this...
 	/**
 	 * Returns the number of rows in a map.
 	 * 
@@ -361,47 +281,28 @@ public class Map {
         return (Game.sizeM * Game.sizeN) - wallCount;
     }
 	
-	// TODO: Document
+	/**
+	 * Get the ratio of enemy tiles to non-wall tiles.
+	 * 
+	 * @return The ratio of enemy tiles to non-wall tiles.
+	 */
 	public double getEnemyPercentage()
     {
         int allMap = getNonWallTileCount();
         return getEnemyCount()/(double)allMap;
     }
 	
-	// TODO: Document
+	/**
+	 * Get the ratio of treasure tiles to non-wall tiles.
+	 * 
+	 * @return The ratio of treasure tiles to non-wall tiles.
+	 */
 	public double getTreasurePercentage()
     {
         int allMap = getNonWallTileCount();
         return getTreasureCount()/(double)allMap;
     }
-	
-	// TODO: Document, rename... What on earth does this do? I have a feeling it doesn't actually work.
-	public int countCloseWalls()
-    {
-        int locked = 0;
 
-        for(int i = 0; i < m; i++)
-        {
-            for (int j = 0; j < n; j++)
-            {
-                List<Point> moves = getAvailableCoords(new Point(i,j)); // TODO: Check if right order n,m?
-
-                int movesToWalls = 0;
-                for (Point v : moves)
-                {
-                    if (matrix[(int)v.getX()][(int)v.getY()] == TileTypes.WALL.getValue())
-                    {
-                        movesToWalls++;
-                    }
-                }
-
-                if (movesToWalls > 3) locked++;
-            }
-        }
-
-        return locked;
-    }
-	
 	/**
 	 * Returns the number of treasures.
 	 * 
@@ -561,11 +462,9 @@ public class Map {
 	/**
 	 * Exports this map as a 2D matrix of integers
 	 * 
-	 * @return A quadratic integer matrix.
+	 * @return A matrix of integers.
 	 */
 	public int[][] toMatrix() {
-		// TODO: Does this cut it, with all the new doors?
-		
 		return matrix;
 	}
 	

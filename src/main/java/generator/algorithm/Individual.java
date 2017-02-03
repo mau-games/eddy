@@ -2,6 +2,13 @@ package generator.algorithm;
 
 import util.Util;
 
+/**
+ * Represents a member of Eddy's dungeon level population
+ * TODO: Not so sold on how mutationProbability is passed around here
+ * 
+ * @author Alexander Baldwin, Malmö Högskola
+ *
+ */
 public class Individual {
 	private double mFitness;
 	private Genotype mGenotype;
@@ -10,11 +17,7 @@ public class Individual {
 	private float mutationProbability;
 	
 	public Individual(int size, float mutationProbability) {
-		mGenotype = new Genotype(size);
-		mPhenotype = null;
-		mFitness = 0.0;
-		mEvaluate = false;
-		this.mutationProbability = mutationProbability;
+		this(new Genotype(size), mutationProbability);
 	}
 	
 	public Individual(Genotype genotype, float mutationProbability){
@@ -30,54 +33,67 @@ public class Individual {
 		return this;
 	}
 	
-	public Genotype getGenotype(){
-		return mGenotype;
-	}
-	
-	public Phenotype getPhenotype(){
-		if(mPhenotype == null){
-			mPhenotype = new Phenotype(mGenotype);
-		}
-		return mPhenotype;
-	}
-	
-	//Multi-point crossover????
-	public Individual[] reproduce(Individual other){
-		Individual[] sons = new Individual[2];
-		//Fixed a VERY major problem here where the chromosomes weren't cloned properly.
-		sons[0] = new Individual(new Genotype(mGenotype.getChromosome().clone()), mutationProbability);
-		sons[1] = new Individual(new Genotype(other.getGenotype().getChromosome().clone()), mutationProbability);
+	/**
+	 * Two point crossover between two individuals.
+	 * 
+	 * @param other An Individual to reproduce with.
+	 * @return An array of offspring resulting from the crossover.
+	 */
+	public Individual[] twoPointCrossover(Individual other){
+		Individual[] children = new Individual[2];
+		children[0] = new Individual(new Genotype(mGenotype.getChromosome().clone()), mutationProbability);
+		children[1] = new Individual(new Genotype(other.getGenotype().getChromosome().clone()), mutationProbability);
 		
-		if(mGenotype.getSizeChromosome() == other.getGenotype().getSizeChromosome()){
-			int bitsCountToExchange = Util.getNextInt(2,mGenotype.getSizeChromosome());
-			
-			for(int i = 0; i < bitsCountToExchange; i++){
-				int bitIndexToExchange = Util.getNextInt(0,mGenotype.getSizeChromosome());
-				int bitIndividualOne = mGenotype.getChromosome()[bitIndexToExchange];
-				int bitIndividualTwo = other.getGenotype().getChromosome()[bitIndexToExchange];
-				
-				//exchange
-				sons[0].getGenotype().getChromosome()[bitIndexToExchange] = bitIndividualTwo;
-				sons[1].getGenotype().getChromosome()[bitIndexToExchange] = bitIndividualOne;
-			}
-			
-			//mutate
-			for(int i = 0; i < 2; i++){
-				if(Util.getNextFloat(0.0f,1.0f) <= mutationProbability)
-					sons[i].mutate();
-//				if(Math.random() < tempMutationProb)
-//					sons[i].bitStringMutation();
-			}
-			
-			return sons;
+		int lowerBound = Util.getNextInt(0, mGenotype.getSizeChromosome());
+		int upperBound = Util.getNextInt(lowerBound, mGenotype.getSizeChromosome());
+		
+		for(int i = lowerBound; i <= upperBound; i++){
+			//exchange
+			children[0].getGenotype().getChromosome()[i] = other.getGenotype().getChromosome()[i];
+			children[1].getGenotype().getChromosome()[i] = mGenotype.getChromosome()[i];
 		}
 		
-		return null;
+		//mutate
+		for(int i = 0; i < 2; i++){
+			if(Util.getNextFloat(0.0f,1.0f) <= mutationProbability)
+				children[i].mutate();
+		}
+		
+		return children;
 	}
+	
+//	public Individual[] reproduce(Individual other){
+//		Individual[] children = new Individual[2];
+//		children[0] = new Individual(new Genotype(mGenotype.getChromosome().clone()), mutationProbability);
+//		children[1] = new Individual(new Genotype(other.getGenotype().getChromosome().clone()), mutationProbability);
+//		
+//		if(mGenotype.getSizeChromosome() == other.getGenotype().getSizeChromosome()){
+//			int bitsCountToExchange = Util.getNextInt(2,mGenotype.getSizeChromosome());
+//			
+//			for(int i = 0; i < bitsCountToExchange; i++){
+//				int bitIndexToExchange = Util.getNextInt(0,mGenotype.getSizeChromosome());
+//				int bitIndividualOne = mGenotype.getChromosome()[bitIndexToExchange];
+//				int bitIndividualTwo = other.getGenotype().getChromosome()[bitIndexToExchange];
+//				
+//				//exchange
+//				children[0].getGenotype().getChromosome()[bitIndexToExchange] = bitIndividualTwo;
+//				children[1].getGenotype().getChromosome()[bitIndexToExchange] = bitIndividualOne;
+//			}
+//			
+//			//mutate
+//			for(int i = 0; i < 2; i++){
+//				if(Util.getNextFloat(0.0f,1.0f) <= mutationProbability)
+//					children[i].mutate();
+//			}
+//			
+//			return children;
+//		}
+//		
+//		return null;
+//	}
 	
 	
 	//Uniform mutation?
-	//TODO: CHECK THAT THIS WORKS IN A REASONABLE WAY
 	public void mutate() {
 		int indexToMutate = Util.getNextInt(0,mGenotype.getSizeChromosome());
 		boolean bit = mGenotype.getChromosome()[indexToMutate] == 0;
@@ -85,13 +101,12 @@ public class Individual {
 	}
 	
 	
-	double tempMutationProb = 0.5;
 	/**
 	 * Another attempt at mutation?
 	 */
 	public void bitStringMutation(){
 		for(int i = 0; i < mGenotype.getSizeChromosome(); i++){
-			if(Math.random() < tempMutationProb){
+			if(Math.random() < 0.5){
 				int bit = mGenotype.getChromosome()[i];
 				mGenotype.getChromosome()[i] = bit == 0 ? 1 : 0;
 			}
@@ -113,6 +128,17 @@ public class Individual {
 	
 	public void setEvaluate(boolean evaluate){
 		mEvaluate = evaluate;
+	}
+	
+	public Genotype getGenotype(){
+		return mGenotype;
+	}
+	
+	public Phenotype getPhenotype(){
+		if(mPhenotype == null){
+			mPhenotype = new Phenotype(mGenotype);
+		}
+		return mPhenotype;
 	}
 	
 	public void setPhenotype(Phenotype phenotype){
