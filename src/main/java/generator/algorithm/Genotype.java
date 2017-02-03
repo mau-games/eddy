@@ -4,35 +4,51 @@ import game.Game;
 import game.TileTypes;
 
 public class Genotype {
-	private int[] mChromosome;
-	private int mSizeChromosome; // (Number of bits) * (bits per gene)
-	private int mBits = 3; //The number of bits in a gene
+	private int[] chromosome;
+	private final int BITS_PER_GENE = 3;
 	
-	public Genotype(int[] mChromosome){
-		setChromosome(mChromosome);
-		mSizeChromosome = mChromosome.length;
+	public Genotype(int[] chromosome){
+		setChromosome(chromosome);
 	}
 	
-	//Size passed: n x n
-	public Genotype(int sizeTileMap){
-		mSizeChromosome = sizeTileMap * mBits;
-		mChromosome = new int[mSizeChromosome];
+	public Genotype(int size){
+		chromosome = new int[size * BITS_PER_GENE];
 	}
 	
+	/**
+	 * Get chromosome
+	 * 
+	 * @return Chromosome
+	 */
 	public int[] getChromosome(){
-		return mChromosome;
+		return chromosome;
 	}
 	
+	/**
+	 * Set chromosome
+	 * 
+	 * @param chromosome Chromosome
+	 */
 	public void setChromosome(int[] chromosome){
-		mChromosome = chromosome;
+		this.chromosome = chromosome;
 	}
 	
+	/**
+	 * Get the number of bits in the chromosome
+	 * 
+	 * @return Number of bits
+	 */
 	public int getSizeChromosome(){
-		return mSizeChromosome;
+		return chromosome.length;
 	}
 	
+	/**
+	 * Get the number of bits per gene
+	 * 
+	 * @return Bits per gene
+	 */
 	public int getChromosomeItemBits(){
-		return mBits;
+		return BITS_PER_GENE;
 	}
 	
 	/**
@@ -40,27 +56,25 @@ public class Genotype {
 	 */
 	public void randomSupervisedChromosome() {
 		int i = 0;
-		while(i < mSizeChromosome){
+		while(i < chromosome.length){
 			TileTypes type = Game.getRanges().getSupervisedRandomType();
 			
 			String type_binary = toBinary(type);
 			
 			for (char c : type_binary.toCharArray()){
-				mChromosome[i] = Character.getNumericValue(c);
+				chromosome[i] = Character.getNumericValue(c);
 				i++;
 			}
 		}
 	}
 	
-//	public void testZeroToLeft()
-//	{
-//		String str = "1";
-//		String str_with_zero = addZeroToLeft(str,2);
-//		
-//		//Assert.assertEquals("001", str_with_zero);
-//		System.out.println("Test: " + str_with_zero);
-//	}
-	
+	/**
+	 * Add the given number of zeroes to the left of a string
+	 * 
+	 * @param str Starting string
+	 * @param zeros Number of zeroes to add
+	 * @return The string with added zeroes
+	 */
 	private String addZeroToLeft(String str, int zeros)
 	{
 		for(int i = zeros; i > 0; i--)
@@ -68,19 +82,14 @@ public class Genotype {
 		return str;
 	}
 	
+	/**
+	 * Convert a TileTypes to a binary string
+	 * 
+	 * @param type TileTypes to convert
+	 * @return Converted binary string.
+	 */
 	private String toBinary(TileTypes type){
 		String type_binary = Integer.toBinaryString(type.ordinal());
-		return addZeroToLeft(type_binary, mBits - type_binary.length());
-	}
-	
-	public void print(){
-		String strOut = "|";
-		for(int i = 0; i < mSizeChromosome; i++){
-			strOut += Integer.toString(mChromosome[i]);
-			if(((i+1) % 3) == 0)
-				strOut += "|";
-		}
-		
-		System.out.println(strOut);
+		return addZeroToLeft(type_binary, BITS_PER_GENE - type_binary.length());
 	}
 }

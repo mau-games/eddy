@@ -15,7 +15,6 @@ import game.TileTypes;
 import generator.config.Config;
 import util.Point;
 import util.Util;
-import util.algorithms.BFS;
 import util.algorithms.Node;
 import util.algorithms.Pathfinder;
 import util.config.ConfigurationReader;
@@ -119,9 +118,8 @@ public class Algorithm extends Thread {
 		broadcastStatusUpdate("Evolving...");
 
         int generationCount = 1;
-        int generations = 100; // Why? TODO: investigate
+        int generations = 100;
 
-        // TODO: Should there be a fixed number of generations, or should it go until a desired fitness is reached?
         while (generationCount <= generations) {
         	if(stop)
         		return;
@@ -132,7 +130,6 @@ public class Algorithm extends Thread {
             insertReadyToValidAndEvaluate();
             insertReadyToInvalidAndEvaluate();
 
-            // TODO: Sort out fancy output messages later
                 //info population valid
                 double[] dataValid = infoGenerational(populationValid, true);
 //                avgFitness = dataValid[0];
@@ -230,45 +227,11 @@ public class Algorithm extends Thread {
     			&& (treasure + doors + enemies == map.getTreasureCount() + map.getDoorCount() + map.getEnemyCount())
     			&& map.getTreasureCount() > 0 && map.getEnemyCount() > 0;
 	}
-	
-	/**
-	 * Uses Breadth First Search to calculate a score for the safety of the room's entrance.
-	 * According to the old source, the formula should be:
-	 * 
-	 * 	f = 1 / [ (width * height) - Numero_muros ] * SUM for all areas for each enemy
-	 * 
-	 * ...but this is not currently the case. TODO: Look into this.
-	 * 
-	 * @param ind The individual to evaluate.
-	 * @return The safety value for the room's entrance.
-	 */
-	public float evaluateSafetyEnterDoor(Individual ind)
-    {
-        Map map = ind.getPhenotype().getMap();
-        Point startDoor = map.getEntrance();
-        int minArea = 0;
 
-        BFS bfs = new BFS(map);
-
-        for(Point enemy : map.getEnemies())
-        {
-            int area = bfs.getTraversedNodesBetween(startDoor, enemy).length;
-            if (minArea == 0 || minArea < area)
-                minArea = area;
-        }
-
-        return (float)minArea/map.getNonWallTileCount();
-    }
 	
 //	/**
-//	 * NEW VERSION! TODO: Document this new implementation
-//	 * TODO: Not happy with this - take a look at sentient sketchbook stuff and see what really should be happening here
-//	 * Uses Breadth First Search to calculate a score for the safety of the room's entrance.
-//	 * According to the old source, the formula should be:
-//	 * 
-//	 * 	f = 1 / [ (width * height) - Numero_muros ] * SUM for all areas for each enemy
-//	 * 
-//	 * ...but this is not currently the case. TODO: Look into this.
+//	 * NEW VERSION!
+//	 * Uses Flood Fill to calculate a score for the safety of the room's entrance.
 //	 * 
 //	 * @param ind The individual to evaluate.
 //	 * @return The safety value for the room's entrance.
@@ -309,9 +272,12 @@ public class Algorithm extends Thread {
 //    }
 	
 	/**
-	 * This version is just a more efficient version of the original Unity code
+	 * Uses flood fill to calculate a score for the safety of the room's entrance
+	 * 
+	 * @param ind The individual to evaluate.
+	 * @return The safety value for the room's entrance.
 	 */
-	public float evaluateSafetyEnterDoor3(Individual ind)
+	public float evaluateEntranceSafety(Individual ind)
     {
         Map map = ind.getPhenotype().getMap();
 
@@ -347,86 +313,11 @@ public class Algorithm extends Thread {
 	
 	/**
 	 * Evaluates the treasure safety of a valid individual 
-	 * TODO: Look into this one more deeply.
-	 * TODO: Rename!
-	 * TODO: Switch pathfinders to BFS and don't loop over all enemies
+	 * See Sentient Sketchbook for a description of the method
 	 * 
 	 * @param ind The individual to evaluate
 	 */
-	public void evaluateSafetyTreasuresWithDoorsForIndividualsValid(Individual ind)
-	{
-	    Map map = ind.getPhenotype().getMap();
-	
-	    if(map.getEnemyCount() > 0)
-	    {
-	        int treasuresSize = map.getTreasureCount();
-	        int enemiesSize = map.getEnemyCount();
-	        Point doorEnter = map.getEntrance();
-	        
-	        
-	        Pathfinder pathfinder = new Pathfinder(map);
-	
-	        for (int i = 0; i < treasuresSize; i++)
-	        {
-	        	List<Double> maxs = new ArrayList<Double>(); //NOTE: This was placed wrongly before, making this method invalid
-	            Point treasure = map.getTreasures().get(i);
-	            //enemiesSize = 0;
-	            for(int j = 0; j < enemiesSize; j++)
-	            {
-	            	
-	                Point enemy = map.getEnemies().get(j);
-	
-	                //To Calculate
-	                //din = Distance in nodes
-	
-	                //Distance in nodes from treasure i to enemy j
-	                int dinTreasureToEnemy = pathfinder.find(treasure, enemy).length;
-                	//System.out.println("treasure to enemy " + dinTreasureToEnemy);
-	                
-	                //Distance in nodes from treasure i to enter door
-	                int dinTreasureToStartDoor = pathfinder.find(treasure, doorEnter).length;
-	
-	                //Formule result
-	                /*
-	                    (dti,mj - dti,i) /
-	                    (dti,mj - dti,i)
-	                */
-	                double result = (double)(dinTreasureToEnemy - dinTreasureToStartDoor) / 
-	                    (dinTreasureToEnemy + dinTreasureToStartDoor);
-	                
-	                //System.out.println("res: " + result);
-	
-	                if (Double.isNaN(result))
-	                {
-	                    result = 0.0f;
-	                }
-	                
-	                //System.out.println("treasure to enemy " + dinTreasureToEnemy + ", " + result);
-	
-	                //Calculate and store max
-	                maxs.add(Math.max(0.0, result));
-	            }
-	
-	            //The safety is the min of maxs result
-	            if(maxs.size() > 0)
-	            {
-	                Double min = maxs.stream().min((a,b) -> Double.compare(a, b)).get();
-	                map.setTreasureSafety(treasure, min);
-	            }
-	            
-	        }
-	    }
-	}
-	
-	/**
-	 * Evaluates the treasure safety of a valid individual 
-	 * TODO: Look into this one more deeply.
-	 * TODO: Rename!
-	 * TODO: Switch pathfinders to BFS and don't loop over all enemies
-	 * 
-	 * @param ind The individual to evaluate
-	 */
-	public void evaluateSafetyTreasuresWithDoorsForIndividualsValid2(Individual ind)
+	public void evaluateTreasureSafeties(Individual ind)
 	{
 	    Map map = ind.getPhenotype().getMap();
 	
@@ -497,8 +388,12 @@ public class Algorithm extends Thread {
 	}
 	
 	/**
-	 * Evaluates the fitness of a valid individual
-	 * TODO: Explain how this is done
+	 * Evaluates the fitness of a valid individual using the following factors:
+	 *  1. Entrance safety (how close are enemies to the entrance)
+	 *  2. Proportion of tiles that are enemies
+	 *  3. Average treasure safety (Are treasures closer to the door or enemies?)
+	 *  4. Proportion of tiles that are treasure
+	 *  5. Treasure safety variance (whatever this is!)
 	 * 
 	 * @param ind The valid individual to evaluate
 	 */
@@ -510,12 +405,11 @@ public class Algorithm extends Thread {
 
         //security area (1)
         //System.out.println("" + evaluateSafetyEnterDoor(ind) + " " + evaluateSafetyEnterDoor3(ind));
-        double fitness_security_area = evaluateSafetyEnterDoor3(ind); //Note - this has been changed from the Unity version
+        double fitness_security_area = evaluateEntranceSafety(ind); //Note - this has been changed from the Unity version
         map.setEntrySafetyFitness(fitness_security_area);
         try {
 			fitness_security_area -= generatorConfig.getSecurityAreaVariance();
 		} catch (MissingConfigurationException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 
@@ -524,7 +418,6 @@ public class Algorithm extends Thread {
 		try {
 			expectedEnemiesRange = generatorConfig.getEnemyQuantityRange();
 		} catch (MissingConfigurationException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
         double fitness_enemies_proportion = 0.0;
@@ -539,7 +432,7 @@ public class Algorithm extends Thread {
         }
 
         //avg seg tesoros (3)
-        evaluateSafetyTreasuresWithDoorsForIndividualsValid2(ind);
+        evaluateTreasureSafeties(ind);
         Double[] safeties = map.getAllTreasureSafeties();
         double safeties_average = Util.calcAverage(safeties);
        
@@ -547,7 +440,6 @@ public class Algorithm extends Thread {
         try {
 			fitness_avg_treasures_security = safeties_average - generatorConfig.getAverageTreasureSecurity();
 		} catch (MissingConfigurationException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 
@@ -557,7 +449,6 @@ public class Algorithm extends Thread {
 		try {
 			expectedTreasuresRange = generatorConfig.getTreasureQuantityRange();
 		} catch (MissingConfigurationException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
         double fitness_treasures_proportion = 0.0;
@@ -577,7 +468,6 @@ public class Algorithm extends Thread {
 		try {
 			expectedSafetyVariance = generatorConfig.getTreasureSecurityVariance();
 		} catch (MissingConfigurationException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 
@@ -586,7 +476,6 @@ public class Algorithm extends Thread {
         //Removed countCloseWalls method because it ALWAYS returns 0 and the intended function is unclear
         //Consequently, weights have been adjusted
 
-        // TODO: Move these weights to config
         fitness =
             (Math.abs(fitness_security_area) * 0.2) +
             (Math.abs(fitness_enemies_proportion) * 0.3) +
@@ -656,10 +545,10 @@ public class Algorithm extends Thread {
     }
 
 	/**
-	 * Honestly, this method doesn't make much sense.
-	 * TODO: Investigate what this method is REALLY supposed to do
+	 * Add new valid individuals to the valid population
+	 * TODO: Check if this and the next method are really well implemented
 	 */
-    public void insertReadyToValidAndEvaluate()
+    private void insertReadyToValidAndEvaluate()
     {
     	//Sort valid population in descending order
         sortPopulation(populationValid, false);
@@ -684,10 +573,9 @@ public class Algorithm extends Thread {
     }
 
     /**
-	 * Honestly, this method doesn't make much sense.
-	 * TODO: Investigate what this method is REALLY supposed to do
+	 * Add new invalid individuals to the invalid population
 	 */
-    public void insertReadyToInvalidAndEvaluate()
+    private void insertReadyToInvalidAndEvaluate()
     {
         sortPopulation(populationInvalid, true);
 
@@ -727,16 +615,19 @@ public class Algorithm extends Thread {
     }
 
     /**
-     * Produces a new invalid generation by some arcane means TODO: Document this better
+     * Produces a new invalid generation according to the following procedure:
+     *  1. Select individuals from the invalid population to breed
+     *  2. Crossover these individuals
+     *  3. Add them back into the population
      */
     private void produceNextInvalidGeneration()
     {
-        //Select progenitors for crossover
-        List<Individual> progenitors = selectProgenitors(populationInvalid);
-        //Crossover progenitors
-        List<Individual> sons = crossOverBetweenProgenitors(progenitors);
+        //Select parents for crossover
+        List<Individual> parents = selectProgenitors(populationInvalid);
+        //Crossover parents
+        List<Individual> children = crossOverBetweenProgenitors(parents);
         //Re-insert to population invalid (Replace worst for sons)
-        replaceSonsInPopulationInvalid(sons);
+        replaceSonsInPopulationInvalid(children);
     }
 			
     /**
@@ -871,7 +762,6 @@ public class Algorithm extends Thread {
  	
     /**
      * Calculates some statistics about a population and (optionally) saves the "best" individual.
-     * TODO: This seems like a clunky way of doing things - rework?
      * 
      * @param population The population to analyse
      * @param saveBest Should the best individual be saved? True should only be used for the valid population

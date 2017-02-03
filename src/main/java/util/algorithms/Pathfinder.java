@@ -3,8 +3,6 @@ package util.algorithms;
 import java.util.List;
 import java.util.Optional;
 
-import javax.swing.event.ListSelectionEvent;
-
 import java.util.ArrayList;
 import game.Map;
 import util.Point;

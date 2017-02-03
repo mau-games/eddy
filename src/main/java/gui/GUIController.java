@@ -120,7 +120,6 @@ public class GUIController implements Initializable, Listener {
 	private Color getColour(int pixel) {
 		Color color = null;
 		
-		// TODO: Choose appropriate colours and stuff
 		switch (TileTypes.toTileType(pixel)) {
 		case DOOR:
 			color = Color.BLACK;

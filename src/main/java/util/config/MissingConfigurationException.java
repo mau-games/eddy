@@ -2,6 +2,8 @@ package util.config;
 
 public class MissingConfigurationException extends Exception {
 	
+	private static final long serialVersionUID = 1L;
+
 	/**
 	 * Creates an exception denoting that there is currently no valid
 	 * configuration being in use.

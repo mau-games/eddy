@@ -34,7 +34,11 @@ public class Ranges {
 		readRanges(fetchRangesAsFile(config.getString("game.ranges.default")));
 	}
 
-	//Seems to get a random TileTypes weighted according to rangesSupervised.json
+	/**
+	 * Get a random TileTypes weighted according to config ranges
+	 * 
+	 * @return A weighted random TileType
+	 */
 	public TileTypes getSupervisedRandomType(){
 		float value = Util.getNextFloat(0.0f,1.0f);
 		int ranges_size = ranges.size();

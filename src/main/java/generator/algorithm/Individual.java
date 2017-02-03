@@ -10,10 +10,10 @@ import util.Util;
  *
  */
 public class Individual {
-	private double mFitness;
-	private Genotype mGenotype;
-	private Phenotype mPhenotype;
-	private boolean mEvaluate;
+	private double fitness;
+	private Genotype genotype;
+	private Phenotype phenotype;
+	private boolean evaluate;
 	private float mutationProbability;
 	
 	public Individual(int size, float mutationProbability) {
@@ -21,16 +21,19 @@ public class Individual {
 	}
 	
 	public Individual(Genotype genotype, float mutationProbability){
-		mGenotype = genotype;
-		mPhenotype = null;
-		mFitness = 0.0;
-		mEvaluate = false;
+		this.genotype = genotype;
+		this.phenotype = null;
+		this.fitness = 0.0;
+		this.evaluate = false;
 		this.mutationProbability = mutationProbability;
 	}
 	
-	public Individual initialize() {
-		mGenotype.randomSupervisedChromosome();
-		return this;
+	/**
+	 * Generate a genotype
+	 * 
+	 */
+	public void initialize() {
+		genotype.randomSupervisedChromosome();
 	}
 	
 	/**
@@ -41,16 +44,16 @@ public class Individual {
 	 */
 	public Individual[] twoPointCrossover(Individual other){
 		Individual[] children = new Individual[2];
-		children[0] = new Individual(new Genotype(mGenotype.getChromosome().clone()), mutationProbability);
+		children[0] = new Individual(new Genotype(genotype.getChromosome().clone()), mutationProbability);
 		children[1] = new Individual(new Genotype(other.getGenotype().getChromosome().clone()), mutationProbability);
 		
-		int lowerBound = Util.getNextInt(0, mGenotype.getSizeChromosome());
-		int upperBound = Util.getNextInt(lowerBound, mGenotype.getSizeChromosome());
+		int lowerBound = Util.getNextInt(0, genotype.getSizeChromosome());
+		int upperBound = Util.getNextInt(lowerBound, genotype.getSizeChromosome());
 		
 		for(int i = lowerBound; i <= upperBound; i++){
 			//exchange
 			children[0].getGenotype().getChromosome()[i] = other.getGenotype().getChromosome()[i];
-			children[1].getGenotype().getChromosome()[i] = mGenotype.getChromosome()[i];
+			children[1].getGenotype().getChromosome()[i] = genotype.getChromosome()[i];
 		}
 		
 		//mutate
@@ -62,90 +65,84 @@ public class Individual {
 		return children;
 	}
 	
-//	public Individual[] reproduce(Individual other){
-//		Individual[] children = new Individual[2];
-//		children[0] = new Individual(new Genotype(mGenotype.getChromosome().clone()), mutationProbability);
-//		children[1] = new Individual(new Genotype(other.getGenotype().getChromosome().clone()), mutationProbability);
-//		
-//		if(mGenotype.getSizeChromosome() == other.getGenotype().getSizeChromosome()){
-//			int bitsCountToExchange = Util.getNextInt(2,mGenotype.getSizeChromosome());
-//			
-//			for(int i = 0; i < bitsCountToExchange; i++){
-//				int bitIndexToExchange = Util.getNextInt(0,mGenotype.getSizeChromosome());
-//				int bitIndividualOne = mGenotype.getChromosome()[bitIndexToExchange];
-//				int bitIndividualTwo = other.getGenotype().getChromosome()[bitIndexToExchange];
-//				
-//				//exchange
-//				children[0].getGenotype().getChromosome()[bitIndexToExchange] = bitIndividualTwo;
-//				children[1].getGenotype().getChromosome()[bitIndexToExchange] = bitIndividualOne;
-//			}
-//			
-//			//mutate
-//			for(int i = 0; i < 2; i++){
-//				if(Util.getNextFloat(0.0f,1.0f) <= mutationProbability)
-//					children[i].mutate();
-//			}
-//			
-//			return children;
-//		}
-//		
-//		return null;
-//	}
 	
-	
-	//Uniform mutation?
+	/**
+	 * Mutate ONE bit of the chromosome
+	 */
 	public void mutate() {
-		int indexToMutate = Util.getNextInt(0,mGenotype.getSizeChromosome());
-		boolean bit = mGenotype.getChromosome()[indexToMutate] == 0;
-		mGenotype.getChromosome()[indexToMutate] = bit ? 1 : 0;
+		int indexToMutate = Util.getNextInt(0,genotype.getSizeChromosome());
+		boolean bit = genotype.getChromosome()[indexToMutate] == 0;
+		genotype.getChromosome()[indexToMutate] = bit ? 1 : 0;
 	}
 	
 	
 	/**
-	 * Another attempt at mutation?
+	 * Mutate each bit of the chromosome with a small probability
 	 */
 	public void bitStringMutation(){
-		for(int i = 0; i < mGenotype.getSizeChromosome(); i++){
+		for(int i = 0; i < genotype.getSizeChromosome(); i++){
 			if(Math.random() < 0.5){
-				int bit = mGenotype.getChromosome()[i];
-				mGenotype.getChromosome()[i] = bit == 0 ? 1 : 0;
+				int bit = genotype.getChromosome()[i];
+				genotype.getChromosome()[i] = bit == 0 ? 1 : 0;
 			}
 		}
 	}
 	
+	/**
+	 * Get this individual's calculated fitness
+	 * 
+	 * @return Fitness
+	 */
 	public double getFitness(){
-		return mFitness;
+		return fitness;
 	}
 	
+	/**
+	 * Set this individual's fitness
+	 * 
+	 * @param fitness Fitness
+	 */
 	public void setFitness(double fitness){
-		mFitness = fitness;
+		this.fitness = fitness;
 	}
 	
-	// Returns true if the fitness of this individual has already been evaluated
+	/**
+	 * Has the fitness of this Individual been evaluated yet?
+	 * 
+	 * @return true if the fitness of this individual has already been evaluated
+	 */
 	public boolean isEvaluated() {
-		return mEvaluate;
+		return evaluate;
 	}
 	
+	/**
+	 * Set that this Individual has been evaluated.
+	 * 
+	 * @param evaluate true if the fitness of this Individual has been evaluated
+	 */
 	public void setEvaluate(boolean evaluate){
-		mEvaluate = evaluate;
+		this.evaluate = evaluate;
 	}
 	
+	/**
+	 * Get genotype
+	 * 
+	 * @return Genotype
+	 */
 	public Genotype getGenotype(){
-		return mGenotype;
+		return genotype;
 	}
 	
+	/**
+	 * Get phenotype
+	 * 
+	 * @return Phenotype
+	 */
 	public Phenotype getPhenotype(){
-		if(mPhenotype == null){
-			mPhenotype = new Phenotype(mGenotype);
+		if(phenotype == null){
+			phenotype = new Phenotype(genotype);
 		}
-		return mPhenotype;
+		return phenotype;
 	}
 	
-	public void setPhenotype(Phenotype phenotype){
-		mPhenotype = phenotype;
-	}
-	
-	public void printGenotype() {
-		mGenotype.print();
-	}
 }

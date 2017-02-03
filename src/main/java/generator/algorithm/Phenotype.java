@@ -8,38 +8,43 @@ import game.Map;
 import game.TileTypes;
 
 public class Phenotype {
-	Genotype mGenotype;
-	Map mMap;
+	Genotype genotype;
+	Map map;
 	
 	public Phenotype(Genotype genotype){
-		mGenotype = genotype;
-		mMap = null;
+		this.genotype = genotype;
+		map = null;
 	}
 	
 	public Phenotype(Map map){
-		mGenotype = null;
-		mMap = map;
+		genotype = null;
+		this.map = map;
 	}
 	
+	/**
+	 * Generates a Map from the Genotype
+	 * 
+	 * @return The Map for this Genotype
+	 */
 	public Map getMap() {
-		if(mMap == null){
-			int size = mGenotype.getSizeChromosome() / mGenotype.getChromosomeItemBits();
-			List<Integer> map = new ArrayList<Integer>(size);
+		if(map == null){
+			int size = genotype.getSizeChromosome() / genotype.getChromosomeItemBits();
+			List<Integer> genes = new ArrayList<Integer>(size);
 			for(int i = 0; i < size; i++){
 				
 				String binaryNumber = "";
-				for(int j = 0; j < mGenotype.getChromosomeItemBits(); j++){
-					binaryNumber += Integer.toString(mGenotype.getChromosome()[i*3 + j]);
+				for(int j = 0; j < genotype.getChromosomeItemBits(); j++){
+					binaryNumber += Integer.toString(genotype.getChromosome()[i*3 + j]);
 				}
 				int decimalNumber = Integer.parseInt(binaryNumber,2);
 				
-				map.add(decimalNumber);
+				genes.add(decimalNumber);
 			}
 			
-			TileTypes[] types = map.stream().map(x -> TileTypes.values()[x]).toArray(TileTypes[]::new);
+			TileTypes[] types = genes.stream().map(x -> TileTypes.values()[x]).toArray(TileTypes[]::new);
 			
-			mMap = new Map(types, Game.sizeN, Game.sizeM, Game.sizeDoors);
+			map = new Map(types, Game.sizeN, Game.sizeM, Game.sizeDoors);
 		}
-		return mMap;
+		return map;
 	}
 }
