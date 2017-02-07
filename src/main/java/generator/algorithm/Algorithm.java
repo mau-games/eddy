@@ -118,7 +118,7 @@ public class Algorithm extends Thread {
 		broadcastStatusUpdate("Evolving...");
 
         int generationCount = 1;
-        int generations = 100;
+        int generations = config.getInt("generator.generations");
 
         while (generationCount <= generations) {
         	if(stop)
