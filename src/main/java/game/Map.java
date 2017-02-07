@@ -32,30 +32,48 @@ public class Map {
 	/**
 	 * Creates an instance of map.
 	 * 
-	 * @param types A chromosome transformed into an array of TileTypes
-	 * @param m The number of columns in a map.
-	 * @param n The number of rows in a map.
+	 * @param types A chromosome transformed into an array of TileTypes.
+	 * @param rows The number of rows in a map.
+	 * @param cols The number of columns in a map.
 	 * @param doorCount The number of doors to be seeded in a map.
-	 * @param isDoors
 	 */
-	public Map(TileTypes[] types, int n, int m, int doorCount) {
+	public Map(TileTypes[] types, int rows, int cols, int doorCount) {
 		doors = new ArrayList<Point>();
 		treasures = new ArrayList<Point>();
 		enemies = new ArrayList<Point>();
 		treasureSafety = new Hashtable<Point, Double>();
-		this.m = m;
-		this.n = n;
+		this.m = cols;
+		this.n = rows;
 		wallCount = 0;
 		
 		
 		this.doorCount = Game.doorsPositions.size();
 		
-		matrix = new int[m][n];
+		matrix = new int[n][m];
 		
 		initMapFromTypes(types);
 		
 		markDoors();
 		
+	}
+	
+	/**
+	 * Creates an instance of map.
+	 * 
+	 * @param rows The number of rows in a map.
+	 * @param cols The number of columns in a map.
+	 */
+	private Map(int rows, int cols) {
+		doors = new ArrayList<Point>();
+		treasures = new ArrayList<Point>();
+		enemies = new ArrayList<Point>();
+		treasureSafety = new Hashtable<Point, Double>();
+		this.m = cols;
+		this.n = rows;
+		wallCount = 0;
+		this.doorCount = 0;
+		
+		matrix = new int[n][m];
 	}
 	
 	private void markDoors(){
@@ -457,6 +475,53 @@ public class Map {
 				matrix[i][j] = tiles[tile++].getValue();
 			}
 		}
+	}
+	
+	/**
+	 * Builds a map from a string representing a rectangular room. Each row in
+	 * the string, separated by a newline (\n), represents a row in the
+	 * resulting map's matrix.
+	 * 
+	 * @param string A string
+	 */
+	public static Map fromString(String string) {
+		String[] rows = string.split("[\\r\\n]+");
+		int rowCount = rows.length;
+		int colCount = rows[0].length();
+		TileTypes type = null;
+		
+		Map map = new Map(rowCount, colCount);
+		
+		for (int i = 0; i < rowCount; i++) {
+			for (int j = 0; j < colCount; j++) {
+				type = TileTypes.toTileType(Integer.parseInt("" + rows[i].charAt(j), 16));
+				map.setTile(i, j, type);
+				switch (type) {
+				case WALL:
+					map.wallCount++;
+					break;
+				case ENEMY:
+				case ENEMY2:
+					map.enemies.add(new Point(i, j));
+					break;
+				case COIN:
+				case COIN2:
+				case COFFER:
+				case COFFER2:
+					map.treasures.add(new Point(i, j));
+					break;
+				case DOOR:
+					map.addDoor(new Point(i, j));
+					break;
+				case DOORENTER:
+					map.setEntrance(new Point(i, j));
+					break;
+				default:
+				}
+			}
+		}
+		
+		return map;
 	}
 
 	/**
