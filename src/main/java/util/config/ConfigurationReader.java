@@ -159,6 +159,13 @@ public class ConfigurationReader {
 		config = (JsonObject) parser.parse(file);
 	}
 	
+	/**
+	 * Finds a JSON element based on a path by looking for the composite
+	 * keys.
+	 * 
+	 * @param path A path, e.g. "game.profiles.default".
+	 * @return A raw JSON element, which can then be accessed by this class.
+	 */
 	private JsonElement traverse(String path) {
 		String[] elems = path.split("\\.");
 		JsonObject o = config;
