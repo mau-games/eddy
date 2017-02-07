@@ -474,7 +474,7 @@ public class Map {
 		
 		for (int i = 0; i < m; i++) {
 			for (int j = 0; j < n; j++) {
-				map.append(matrix[i][j]);
+				map.append(Integer.toHexString(matrix[i][j]));
 			}
 			map.append("\n");
 		}
