@@ -110,6 +110,15 @@ public class ConfigurationReader {
 	}
 	
 	/**
+	 * Returns the entire config tree as a JSON object.
+	 * 
+	 * @return The config tree.
+	 */
+	public JsonObject getTree() {
+		return config;
+	}
+	
+	/**
 	 * Reads a configuration value and tries to parse it as a double.
 	 * 
 	 * @param path The configuration path, e.g. map.collector.path.

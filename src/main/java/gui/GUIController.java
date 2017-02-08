@@ -3,6 +3,9 @@ package gui;
 import java.net.URL;
 import java.util.ResourceBundle;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import game.Map;
 import game.TileTypes;
 import javafx.application.Platform;
@@ -12,8 +15,11 @@ import javafx.fxml.Initializable;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.Button;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Text;
+import util.config.ConfigurationReader;
+import util.config.MissingConfigurationException;
 import util.eventrouting.EventRouter;
 import util.eventrouting.Listener;
 import util.eventrouting.PCGEvent;
@@ -32,7 +38,21 @@ public class GUIController implements Initializable, Listener {
 	@FXML private Canvas mapCanvas;
 	@FXML private Button runButton;
 	
+	final static Logger logger = LoggerFactory.getLogger(GUIController.class);
 	private static EventRouter router = EventRouter.getInstance();
+	private ConfigurationReader config;
+	
+	/**
+	 * Creates an instance of GUIController. This method is implicitly called
+	 * when the GUI is created.
+	 */
+	public GUIController() {
+		try {
+			config = ConfigurationReader.getInstance();
+		} catch (MissingConfigurationException e) {
+			logger.error("Couldn't read config: " + e.getMessage());
+		}
+	}
 	
 	/**
 	 * Handles the run button's action events.
@@ -44,7 +64,11 @@ public class GUIController implements Initializable, Listener {
 		messageDisplayer.setText("");
 		router.postEvent(new Start());
 		runButton.setDisable(true);
-		
+	}
+	
+	@FXML
+	protected void configSlabPressed(MouseEvent ev) {
+		// TODO: Read and set up the config in here
 	}
 	
 	/**
