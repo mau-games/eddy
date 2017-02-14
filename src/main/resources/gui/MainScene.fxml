@@ -7,23 +7,22 @@
 <?import javafx.scene.control.SplitPane?>
 <?import javafx.scene.control.TitledPane?>
 <?import javafx.scene.layout.HBox?>
-<?import javafx.scene.layout.Pane?>
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Text?>
 
-<SplitPane dividerPositions="0.5" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="600.0" prefWidth="800.0" stylesheets="@styling.css" xmlns="http://javafx.com/javafx/8.0.111" xmlns:fx="http://javafx.com/fxml/1" fx:controller="gui.GUIController">
+<SplitPane dividerPositions="0.5" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="768.0" prefWidth="1024.0" stylesheets="@styling.css" xmlns="http://javafx.com/javafx/8.0.111" xmlns:fx="http://javafx.com/fxml/1" fx:controller="gui.GUIController">
   <items>
       <HBox id="canvasPane">
          <children>
             <Canvas id="mapCanvas" fx:id="mapCanvas" height="400.0" width="400.0" />
          </children>
       </HBox>
-      <VBox id="controlPane" fx:id="controlPane" maxWidth="-Infinity" minWidth="-Infinity" prefHeight="598.0" prefWidth="300.0">
+      <VBox id="controlPane" fx:id="controlPane" maxWidth="-Infinity" minWidth="-Infinity" prefHeight="598.0" prefWidth="340.0">
          <children>
             <Button id="runButton" fx:id="runButton" maxWidth="-Infinity" mnemonicParsing="false" onAction="#runButtonPressed" prefWidth="200.0" text="Run!" />
             <Accordion>
               <panes>
-                <TitledPane animated="false" minWidth="-Infinity" prefHeight="572.0" prefWidth="300.0" text="Output">
+                <TitledPane id="messageSlab" fx:id="messageSlab" animated="false" maxHeight="1.7976931348623157E308" minWidth="-Infinity" prefHeight="1012.0" prefWidth="340.0" text="Output">
                      <content>
                         <ScrollPane id="messagePane" fx:id="messagePane">
                           <content>
@@ -33,13 +32,6 @@
                      </content>
                 </TitledPane>
                 <TitledPane fx:id="configSlab" animated="false" onMouseClicked="#configSlabPressed" text="Configure">
-                     <content>
-                        <Pane>
-                           <children>
-                              <Accordion />
-                           </children>
-                        </Pane>
-                     </content>
                 </TitledPane>
               </panes>
             </Accordion>
