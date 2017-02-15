@@ -159,6 +159,40 @@ public class ConfigurationUtility {
 	}
 	
 	/**
+	 * Updates a configuration value.
+	 * 
+	 * @param path The path of the configuration value.
+	 * @param value The new value
+	 */
+	public void updateValue(String path, String value) {
+		JsonObject parent = traverse(getParentOf(path)).getAsJsonObject();
+		parent.remove(getPropertyName(path));
+		parent.addProperty(getPropertyName(path), value);
+	}
+	
+	/**
+	 * Updates a configuration value.
+	 * 
+	 * @param path The path of the configuration value.
+	 * @param value The new value
+	 */
+	public void updateValue(String path, Number value) {
+		JsonObject parent = traverse(getParentOf(path)).getAsJsonObject();
+		parent.addProperty(getPropertyName(path), value);
+	}
+	
+	/**
+	 * Updates a configuration value.
+	 * 
+	 * @param path The path of the configuration value.
+	 * @param value The new value
+	 */
+	public void updateValue(String path, Boolean value) {
+		JsonObject parent = traverse(getParentOf(path)).getAsJsonObject();
+		parent.addProperty(getPropertyName(path), value);
+	}
+	
+	/**
 	 * Reads a configuration file.
 	 * 
 	 * @param file The configuration file.
@@ -186,5 +220,29 @@ public class ConfigurationUtility {
 		}
 		
 		return o.get(elems[elems.length - 1]);
+	}
+	
+	/**
+	 * Returns the first parent of a JSON node.
+	 * 
+	 * @param path The path of the JSON node.
+	 * @return The JSON node's parent's path.
+	 */
+	private String getParentOf(String path) {
+		int i = path.lastIndexOf('.');
+		
+		return path.substring(0, i);
+	}
+	
+	/**
+	 * Returns the property name of a JSON node.
+	 * 
+	 * @param path The path of the JSON node.
+	 * @return The JSON node's property name.
+	 */
+	private String getPropertyName(String path) {
+		int i = path.lastIndexOf('.');
+		
+		return path.substring(i + 1);
 	}
 }

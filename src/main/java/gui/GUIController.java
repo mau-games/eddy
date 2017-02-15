@@ -15,6 +15,8 @@ import com.google.gson.JsonPrimitive;
 import game.Map;
 import game.TileTypes;
 import javafx.application.Platform;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -28,11 +30,10 @@ import javafx.scene.control.TextField;
 import javafx.scene.control.TitledPane;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Text;
-import util.config.ConfigurationReader;
+import util.config.ConfigurationUtility;
 import util.config.MissingConfigurationException;
 import util.eventrouting.EventRouter;
 import util.eventrouting.Listener;
@@ -48,6 +49,10 @@ import util.eventrouting.events.StatusMessage;
  * @author Johan Holmberg, Malmö University
  */
 public class GUIController implements Initializable, Listener {
+	public enum Type {
+		STRING, NUMBER, BOOLEAN;
+	};
+	
 	@FXML private Text messageDisplayer;
 	@FXML private Canvas mapCanvas;
 	@FXML private Button runButton;
@@ -56,7 +61,7 @@ public class GUIController implements Initializable, Listener {
 
 	final static Logger logger = LoggerFactory.getLogger(GUIController.class);
 	private static EventRouter router = EventRouter.getInstance();
-	private ConfigurationReader config;
+	private ConfigurationUtility config;
 
 	/**
 	 * Creates an instance of GUIController. This method is implicitly called
@@ -64,7 +69,7 @@ public class GUIController implements Initializable, Listener {
 	 */
 	public GUIController() {
 		try {
-			config = ConfigurationReader.getInstance();
+			config = ConfigurationUtility.getInstance();
 		} catch (MissingConfigurationException e) {
 			logger.error("Couldn't read config: " + e.getMessage());
 		}
@@ -231,11 +236,12 @@ public class GUIController implements Initializable, Listener {
 				// TODO: Do stuff
 			} else if (e.getValue() instanceof JsonPrimitive) {
 				JsonPrimitive p = e.getValue().getAsJsonPrimitive();
-				System.out.println(path + e.getKey());
+				// TODO: Connect this value to the corresponding JSON value
 
 				if (p.isBoolean()) {
 					CheckBox cb = new CheckBox(e.getKey());
 					cb.setSelected(p.getAsBoolean());
+					cb.selectedProperty().addListener(new BurdenedChangeListenerer<Boolean>(path + e.getKey(), Type.BOOLEAN));
 					vbox.getChildren().add(cb);
 				} else {
 					BorderPane bp = new BorderPane();
@@ -246,9 +252,11 @@ public class GUIController implements Initializable, Listener {
 					if (p.isString()) {
 						text = new TextField();
 						text.setText(p.getAsString());
+						text.textProperty().addListener(new BurdenedChangeListenerer<String>(path + e.getKey(), Type.STRING));
 					} else if (p.isNumber()) {
 						text = new NumberTextField();
 						text.setText("" + p.getAsNumber());
+						text.textProperty().addListener(new BurdenedChangeListenerer<String>(path + e.getKey(), Type.NUMBER));
 					}
 
 					bp.setLeft(label);
@@ -264,5 +272,55 @@ public class GUIController implements Initializable, Listener {
 		}
 		vbox.prefHeightProperty().bind(slab.heightProperty());
 		slab.setContent(vbox);
+	}
+	
+	/**
+	 * This class is used to carry important information regarding changed
+	 * configuration.
+	 * 
+	 * @author Johan Holmberg
+	 *
+	 * @param <T>
+	 */
+	private class BurdenedChangeListenerer<T> implements ChangeListener<T> {
+		
+		private String path;
+		private Type type;
+		
+		public BurdenedChangeListenerer(String path, Type type) {
+			this.path = path;
+			this.type = type;
+		}
+
+		@Override
+		public void changed(ObservableValue<? extends T> observable, T oldValue, T newValue) {
+			String strVal = null;
+			boolean boolVal = false;
+			
+			switch (type) {
+			case STRING:
+				strVal = (String) newValue;
+				config.updateValue(path, strVal);
+				break;
+			case NUMBER:
+				strVal = (String) newValue;
+				if (strVal.length() == 0) {
+					strVal = "0";
+				}
+				if (strVal.contains(".")) {
+					config.updateValue(path, Double.parseDouble(strVal));
+				} else {
+					config.updateValue(path, Integer.parseInt(strVal));
+				}
+				break;
+			case BOOLEAN:
+				boolVal = (boolean) newValue;
+				config.updateValue(path, boolVal);
+				break;
+			default:
+				break;
+			}
+		}
+		
 	}
 }
