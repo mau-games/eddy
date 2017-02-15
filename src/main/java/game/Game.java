@@ -50,7 +50,10 @@ public class Game implements Listener{
 		} catch (MissingConfigurationException e) {
 			logger.error("Couldn't read configuration file:\n" + e.getMessage());
 		}
+        
+        EventRouter.getInstance().registerListener(this, new Start());
 		
+        // TODO: Maybe only use the dynamic config?
         sizeN = n;
         sizeM = m;
         sizeDoors = doors;
@@ -59,8 +62,6 @@ public class Game implements Listener{
         ranges = new Ranges();
         
         chooseDoorPositions();
-        
-        EventRouter.getInstance().registerListener(this, new Start());
     }
     
     private void chooseDoorPositions(){
@@ -117,8 +118,22 @@ public class Game implements Listener{
 	@Override
 	public synchronized void ping(PCGEvent e) {
 		if(e instanceof Start){
+			readConfiguration();
 			startAll();		
 		}
+	}
+
+	/**
+	 * Reads and applies the current configuration.
+	 */
+	private void readConfiguration() {
+        sizeN = config.getInt("game.dimensions.n");
+        sizeM = config.getInt("game.dimensions.m");
+        sizeDoors = config.getInt("game.doors");
+        // TODO: Fix this!
+//        Game.level = config.getString("game.level");
+        
+        chooseDoorPositions();
 	}
 
 	// TODO: Bad code smell. This feels really out of place.
