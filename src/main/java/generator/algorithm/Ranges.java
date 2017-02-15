@@ -15,18 +15,18 @@ import com.google.gson.JsonSyntaxException;
 import game.TileTypes;
 import generator.config.Config;
 import util.Util;
-import util.config.ConfigurationReader;
+import util.config.ConfigurationUtility;
 import util.config.MissingConfigurationException;
 
 //TODO: Consider merging this with Config.java
 public class Ranges {
 	private final Logger logger = LoggerFactory.getLogger(Config.class);
-	private ConfigurationReader config;
+	private ConfigurationUtility config;
 	private JsonArray ranges;
 	
 	public Ranges(){
 		try {
-			config = ConfigurationReader.getInstance();
+			config = ConfigurationUtility.getInstance();
 		} catch (MissingConfigurationException e) {
 			logger.error("Couldn't read configuration file:\n" + e.getMessage());
 		}

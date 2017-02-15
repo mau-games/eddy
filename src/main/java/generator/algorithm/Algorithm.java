@@ -17,7 +17,7 @@ import util.Point;
 import util.Util;
 import util.algorithms.Node;
 import util.algorithms.Pathfinder;
-import util.config.ConfigurationReader;
+import util.config.ConfigurationUtility;
 import util.config.MissingConfigurationException;
 import util.eventrouting.EventRouter;
 import util.eventrouting.events.AlgorithmDone;
@@ -26,7 +26,7 @@ import util.eventrouting.events.StatusMessage;
 
 public class Algorithm extends Thread {
 	private final Logger logger = LoggerFactory.getLogger(Config.class);
-	private ConfigurationReader config;
+	private ConfigurationUtility config;
 	
 	private int populationSize; 
 	private float mutationProbability;
@@ -44,7 +44,7 @@ public class Algorithm extends Thread {
 
 	public Algorithm(int size, Config gConfig){
 		try {
-			config = ConfigurationReader.getInstance();
+			config = ConfigurationUtility.getInstance();
 		} catch (MissingConfigurationException e) {
 			logger.error("Couldn't read configuration file:\n" + e.getMessage());
 		}

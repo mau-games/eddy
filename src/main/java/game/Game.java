@@ -12,7 +12,7 @@ import generator.config.Config;
 import generator.config.Config.TLevel;
 import util.Point;
 import util.Util;
-import util.config.ConfigurationReader;
+import util.config.ConfigurationUtility;
 import util.config.MissingConfigurationException;
 import util.eventrouting.EventRouter;
 import util.eventrouting.Listener;
@@ -23,7 +23,7 @@ import util.eventrouting.events.Start;
 //TODO: Document
 public class Game implements Listener{
 	private final Logger logger = LoggerFactory.getLogger(Game.class);
-	private ConfigurationReader config;
+	private ConfigurationUtility config;
 
     public static int sizeN; //Horizontal room size in tiles
     public static int sizeM; //Vertical room size in tiles
@@ -46,7 +46,7 @@ public class Game implements Listener{
 
     public Game(int n, int m, int doors, Config.TLevel level, String profile) {
 		try {
-			config = ConfigurationReader.getInstance();
+			config = ConfigurationUtility.getInstance();
 		} catch (MissingConfigurationException e) {
 			logger.error("Couldn't read configuration file:\n" + e.getMessage());
 		}

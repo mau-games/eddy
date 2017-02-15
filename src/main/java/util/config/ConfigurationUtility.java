@@ -26,11 +26,11 @@ import com.google.gson.JsonParser;
  * 
  * @author Johan Holmberg, Malmö University
  */
-public class ConfigurationReader { 
+public class ConfigurationUtility { 
 	
 	private static String defaultConfig = "config/config.json";
-	final static Logger logger = LoggerFactory.getLogger(ConfigurationReader.class);
-	private static ConfigurationReader instance = null;
+	final static Logger logger = LoggerFactory.getLogger(ConfigurationUtility.class);
+	private static ConfigurationUtility instance = null;
 	
 	private JsonObject config;
 	
@@ -40,7 +40,7 @@ public class ConfigurationReader {
 	 * @throws MissingConfigurationException if the configuration file wasn't
 	 * 		found.
 	 */
-	protected ConfigurationReader() throws MissingConfigurationException {
+	protected ConfigurationUtility() throws MissingConfigurationException {
 		FileReader file = null;
 		ClassLoader loader = getClass().getClassLoader();
 		try {
@@ -59,7 +59,7 @@ public class ConfigurationReader {
 	 * @throws MissingConfigurationException if the configuration file wasn't
 	 * 		found. 
 	 */
-	protected ConfigurationReader(String location)
+	protected ConfigurationUtility(String location)
 			throws MissingConfigurationException {
 		URL url;
 		BufferedReader file = null;
@@ -85,10 +85,10 @@ public class ConfigurationReader {
 	 * @return An instance of ConfigurationReader.
 	 * @throws MissingConfigurationException
 	 */
-	public static ConfigurationReader getInstance()
+	public static ConfigurationUtility getInstance()
 			throws MissingConfigurationException {
 		if (instance == null) {
-			instance = new ConfigurationReader();
+			instance = new ConfigurationUtility();
 		}
 		return instance;
 	}
@@ -101,10 +101,10 @@ public class ConfigurationReader {
 	 * @return An instance of ConfigurationReader.
 	 * @throws MissingConfigurationException
 	 */
-	public static ConfigurationReader getInstance(String location)
+	public static ConfigurationUtility getInstance(String location)
 			throws MissingConfigurationException {
 		if (instance == null) {
-			instance = new ConfigurationReader(location);
+			instance = new ConfigurationUtility(location);
 		}
 		return instance;
 	}

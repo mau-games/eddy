@@ -11,7 +11,7 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
-import util.config.ConfigurationReader;
+import util.config.ConfigurationUtility;
 import util.config.MissingConfigurationException;
 
 /**
@@ -22,7 +22,7 @@ import util.config.MissingConfigurationException;
 public class ProgramStarter extends Application {
 	
 	final static Logger logger = LoggerFactory.getLogger(ProgramStarter.class);
-	private static ConfigurationReader config;
+	private static ConfigurationUtility config;
 	private Game game;
 	private MapCollector mapCollector;
 
@@ -40,7 +40,7 @@ public class ProgramStarter extends Application {
 	public void start(Stage stage) {
 		Parent root;
 		try {
-			config = ConfigurationReader.getInstance();
+			config = ConfigurationUtility.getInstance();
 			root = FXMLLoader.load(getClass().getResource("/gui/MainScene.fxml"));
 	        Scene scene = new Scene(root, 1024, 768);
 	    

@@ -13,7 +13,7 @@ import com.google.gson.JsonParser;
 import com.google.gson.JsonSyntaxException;
 
 import game.Game;
-import util.config.ConfigurationReader;
+import util.config.ConfigurationUtility;
 import util.config.MissingConfigurationException;
 
 // TODO: Maybe merge this with the common merge object?
@@ -31,7 +31,7 @@ import util.config.MissingConfigurationException;
 public class Config {
 
 	final Logger logger = LoggerFactory.getLogger(Config.class);
-	private ConfigurationReader config;
+	private ConfigurationUtility config;
 	
 	public enum TLevel {
 		EASY,
@@ -49,7 +49,7 @@ public class Config {
 	 */
 	public Config(String profile) {
 		try {
-			config = ConfigurationReader.getInstance();
+			config = ConfigurationUtility.getInstance();
 			readConfig(fetchProfileAsFile(profile));
 		} catch (MissingConfigurationException e) {
 			logger.error("Couldn't load the configuration file");

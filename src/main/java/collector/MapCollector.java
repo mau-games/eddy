@@ -11,7 +11,7 @@ import org.slf4j.LoggerFactory;
 
 import game.Map;
 import generator.config.Config;
-import util.config.ConfigurationReader;
+import util.config.ConfigurationUtility;
 import util.config.MissingConfigurationException;
 import util.eventrouting.EventRouter;
 import util.eventrouting.Listener;
@@ -27,7 +27,7 @@ import util.eventrouting.events.MapUpdate;
 public class MapCollector implements Listener {
 
 	private final Logger logger = LoggerFactory.getLogger(Config.class);
-	private ConfigurationReader config;
+	private ConfigurationUtility config;
 	private String path;
 	private boolean active;
 
@@ -36,7 +36,7 @@ public class MapCollector implements Listener {
 	 */
 	public MapCollector() {
 		try {
-			config = ConfigurationReader.getInstance();
+			config = ConfigurationUtility.getInstance();
 		} catch (MissingConfigurationException e) {
 			logger.error("Couldn't read configuration file:\n" + e.getMessage());
 		}
