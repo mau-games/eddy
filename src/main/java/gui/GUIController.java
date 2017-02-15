@@ -211,6 +211,9 @@ public class GUIController implements Initializable, Listener {
 		for (Entry<String, JsonElement> e : o.entrySet()) {
 			if (e.getKey().equals("_comment")) {
 				// Don't display the comments!
+				Text text = new Text(e.getValue().getAsString());
+				text.setWrappingWidth(280);
+				vbox.getChildren().add(text);
 			} else if (e.getValue() instanceof JsonObject) {
 				TitledPane title = new TitledPane(e.getKey(), null);
 				title.prefHeightProperty().bind(accordion.heightProperty());
@@ -229,15 +232,17 @@ public class GUIController implements Initializable, Listener {
 				} else {
 					BorderPane bp = new BorderPane();
 					Label label = new Label(e.getKey());
-					TextField text = new TextField();
-
+					TextField text = null;
 					label.setLabelFor(text);
 					
 					if (p.isString()) {
+						text = new TextField();
 						text.setText(p.getAsString());
 					} else if (p.isNumber()) {
+						text = new NumberTextField();
 						text.setText("" + p.getAsNumber());
 					}
+
 
 					bp.setLeft(label);
 					bp.setRight(text);
