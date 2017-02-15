@@ -199,10 +199,18 @@ public class GUIController implements Initializable, Listener {
 	 * Reads the full config tree and builds a GUI to handle it.
 	 */
 	private void readAndBuildConfig() {
-		addToConfigPane(config.getTree(), configSlab);
+		addToConfigPane(config.getTree(), configSlab, "");
 	}
 
-	private void addToConfigPane(JsonObject o, TitledPane slab) {
+	/**
+	 * Adds an object to the config pane and connects it to its corresponding
+	 * config value.
+	 * 
+	 * @param o The object to add.
+	 * @param slab The pane to add it to.
+	 * @param path The parent's JSON path.
+	 */
+	private void addToConfigPane(JsonObject o, TitledPane slab, String path) {
 		VBox vbox = new VBox();
 		Accordion accordion = new Accordion();
 		int aCount;
@@ -210,7 +218,6 @@ public class GUIController implements Initializable, Listener {
 
 		for (Entry<String, JsonElement> e : o.entrySet()) {
 			if (e.getKey().equals("_comment")) {
-				// Don't display the comments!
 				Text text = new Text(e.getValue().getAsString());
 				text.setWrappingWidth(280);
 				vbox.getChildren().add(text);
@@ -218,12 +225,13 @@ public class GUIController implements Initializable, Listener {
 				TitledPane title = new TitledPane(e.getKey(), null);
 				title.prefHeightProperty().bind(accordion.heightProperty());
 				accordion.getPanes().add(title);
-				addToConfigPane(e.getValue().getAsJsonObject(), title);
+				addToConfigPane(e.getValue().getAsJsonObject(), title, path + e.getKey() + ".");
 				aCount++;
 			} else if (e.getValue() instanceof JsonArray) {
 				// TODO: Do stuff
 			} else if (e.getValue() instanceof JsonPrimitive) {
 				JsonPrimitive p = e.getValue().getAsJsonPrimitive();
+				System.out.println(path + e.getKey());
 
 				if (p.isBoolean()) {
 					CheckBox cb = new CheckBox(e.getKey());
@@ -242,7 +250,6 @@ public class GUIController implements Initializable, Listener {
 						text = new NumberTextField();
 						text.setText("" + p.getAsNumber());
 					}
-
 
 					bp.setLeft(label);
 					bp.setRight(text);
