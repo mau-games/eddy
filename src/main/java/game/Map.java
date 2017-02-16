@@ -460,13 +460,9 @@ public class Map {
 					wallCount++;
 					break;
 				case ENEMY:
-				case ENEMY2:
 					enemies.add(new Point(i, j));
 					break;
-				case COIN:
-				case COIN2:
-				case COFFER:
-				case COFFER2:
+				case TREASURE:
 					treasures.add(new Point(i, j));
 					break;
 				default:
@@ -501,13 +497,9 @@ public class Map {
 					map.wallCount++;
 					break;
 				case ENEMY:
-				case ENEMY2:
 					map.enemies.add(new Point(i, j));
 					break;
-				case COIN:
-				case COIN2:
-				case COFFER:
-				case COFFER2:
+				case TREASURE:
 					map.treasures.add(new Point(i, j));
 					break;
 				case DOOR:

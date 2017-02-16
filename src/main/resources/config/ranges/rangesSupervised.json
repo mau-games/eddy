@@ -17,24 +17,14 @@
     "from": 0.9,
     "to": 0.93,
     "elements": [
-      "COIN",
-      "COIN2"
+      "TREASURE"
     ]
   },
   {
     "from": 0.93,
-    "to": 0.92,
-    "elements": [
-      "COFFER",
-      "COFFER2"
-    ]
-  },
-  {
-    "from": 0.92,
     "to": 1.0,
     "elements": [
-      "ENEMY",
-      "ENEMY2"
+      "ENEMY"
     ]
   }
 ]

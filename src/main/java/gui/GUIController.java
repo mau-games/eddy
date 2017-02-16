@@ -168,14 +168,10 @@ public class GUIController implements Initializable, Listener {
 		case DOOR:
 			color = Color.BLACK;
 			break;
-		case COIN:
-		case COIN2:
-		case COFFER:
-		case COFFER2:
+		case TREASURE:
 			color = Color.YELLOW;
 			break;
 		case ENEMY:
-		case ENEMY2:
 			color = Color.RED;
 			break;
 		case WALL:

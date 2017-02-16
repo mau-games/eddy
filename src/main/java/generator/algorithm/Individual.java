@@ -71,7 +71,7 @@ public class Individual {
 	 */
 	public void mutate() {
 		int indexToMutate = Util.getNextInt(0,genotype.getSizeChromosome());
-		genotype.getChromosome()[indexToMutate] = (genotype.getChromosome()[indexToMutate] + Util.getNextInt(0, 7)) % 8; //TODO: Change this - hard coding the number of tile types is bad!!!
+		genotype.getChromosome()[indexToMutate] = (genotype.getChromosome()[indexToMutate] + Util.getNextInt(0, 4)) % 4; //TODO: Change this - hard coding the number of tile types is bad!!!
 	}
 	
 	
