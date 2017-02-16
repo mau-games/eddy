@@ -43,7 +43,7 @@ public class ProgramStarter extends Application {
 		try {
 			config = ConfigurationUtility.getInstance();
 			root = FXMLLoader.load(getClass().getResource("/gui/MainScene.fxml"));
-	        Scene scene = new Scene(root, 1024, 768);
+	        Scene scene = new Scene(root,800, 600);
 	    
 	        stage.getIcons().add(new Image(getClass().getResourceAsStream("/graphics/icon.png"))); 
 	        stage.setTitle("Eddy - Evolutionary Dungeon Designer");
