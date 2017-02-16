@@ -10,6 +10,7 @@ import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.image.Image;
 import javafx.stage.Stage;
 import util.config.ConfigurationUtility;
 import util.config.MissingConfigurationException;
@@ -44,9 +45,11 @@ public class ProgramStarter extends Application {
 			root = FXMLLoader.load(getClass().getResource("/gui/MainScene.fxml"));
 	        Scene scene = new Scene(root, 1024, 768);
 	    
+	        stage.getIcons().add(new Image(getClass().getResourceAsStream("/graphics/icon.png"))); 
 	        stage.setTitle("Eddy - Evolutionary Dungeon Designer");
 	        stage.setScene(scene);
 	        stage.show();
+	        
 	        
 	        // Set up a new game
 	        game = new Game();
