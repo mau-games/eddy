@@ -24,6 +24,7 @@ public class ProgramStarter extends Application {
 	
 	final static Logger logger = LoggerFactory.getLogger(ProgramStarter.class);
 	private static ConfigurationUtility config;
+
 	private Game game;
 	private MapCollector mapCollector;
 
@@ -41,7 +42,9 @@ public class ProgramStarter extends Application {
 	public void start(Stage stage) {
 		Parent root;
 		try {
+
 			config = ConfigurationUtility.getInstance();
+
 			root = FXMLLoader.load(getClass().getResource("/gui/MainScene.fxml"));
 	        Scene scene = new Scene(root,800, 600);
 	    
@@ -57,8 +60,6 @@ public class ProgramStarter extends Application {
 	        // Set up a new map collector
 	        mapCollector = new MapCollector();
 	        
-		} catch (MissingConfigurationException e) {
-			logger.error("Couldn't read configuration file:\n" + e.getMessage());
 		} catch (Exception e) {
 			logger.error("Couldn't load GUI: " + e.getMessage(), e);
 			System.exit(0);

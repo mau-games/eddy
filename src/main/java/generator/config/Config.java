@@ -14,6 +14,7 @@ import com.google.gson.JsonSyntaxException;
 
 import game.Game;
 import util.config.ConfigurationUtility;
+
 import util.config.MissingConfigurationException;
 
 // TODO: Maybe merge this with the common merge object?
@@ -33,14 +34,26 @@ public class Config {
 	final Logger logger = LoggerFactory.getLogger(Config.class);
 	private ConfigurationUtility config;
 	
-	public enum TLevel {
+	public enum DifficultyLevel {
 		EASY,
 		MEDIUM,
-		HARD
+		HARD;
+		
+		public static DifficultyLevel parseDifficulty(String difficulty){
+			DifficultyLevel level;
+			if (difficulty.equals("medium")) {
+				level = DifficultyLevel.MEDIUM;
+			} else if (difficulty.equals("hard")) {
+				level = DifficultyLevel.HARD;
+			} else {
+				level = DifficultyLevel.EASY;
+			}
+			return level;
+		}
 	}
-
+	
 	private JsonObject configJson;
-	private TLevel level;
+	private DifficultyLevel level;
 
 	/**
 	 * Reads and applies a new profile to the current project.
@@ -234,7 +247,7 @@ public class Config {
 	 * @param level The level value to be translated.
 	 * @return A string representation of the value.
 	 */
-	private String getDifficultyString(TLevel level) {
+	private String getDifficultyString(DifficultyLevel level) {
 		switch (level) {
 			case EASY:
 				return "easy";

@@ -9,7 +9,7 @@ import org.slf4j.LoggerFactory;
 import generator.algorithm.Algorithm;
 import generator.algorithm.Ranges;
 import generator.config.Config;
-import generator.config.Config.TLevel;
+import generator.config.Config.DifficultyLevel;
 import util.Point;
 import util.Util;
 import util.config.ConfigurationUtility;
@@ -19,22 +19,23 @@ import util.eventrouting.Listener;
 import util.eventrouting.PCGEvent;
 import util.eventrouting.events.Start;
 
-//TODO: Too much static stuff here. Clean up.
-//TODO: Document
 public class Game implements Listener{
 	private final Logger logger = LoggerFactory.getLogger(Game.class);
-	private ConfigurationUtility config;
 
-    public static int sizeN; //Horizontal room size in tiles
-    public static int sizeM; //Vertical room size in tiles
-    public static int sizeDoors; // The number of doors TODO: Shift this
+	private ConfigurationUtility config;
+	private Algorithm geneticAlgorithm;
+	
+	//TODO: There must be a better way to handle these public static variables
+	public static int sizeM; //Number of columns
+    public static int sizeN; //Number of rows
+    public static int doorCount;
     public static String gameConfigFileName;
     public static Ranges ranges; 
-    public static List<Point> doorsPositions = null; //For fixed door positions - set them here. TODO: Rethink this?
-    public static Config.TLevel level; //Difficulty level
-    private Algorithm geneticAlgorithm;
+    public static List<Point> doors = null; 
+    public static Config.DifficultyLevel level;  
     
-    public static Config.TLevel getLevel() {
+    public static Config.DifficultyLevel getLevel()
+    {
         return level;
     }
 
@@ -43,38 +44,48 @@ public class Game implements Listener{
     }
 
     public Game() {
+
 		try {
 			config = ConfigurationUtility.getInstance();
 		} catch (MissingConfigurationException e) {
 			logger.error("Couldn't read configuration file:\n" + e.getMessage());
 		}
+
+        
+        readConfiguration();
+        chooseDoorPositions();
         
         EventRouter.getInstance().registerListener(this, new Start());
         ranges = new Ranges();
 		
-        readConfiguration();
+       
     }
     
+    /**
+     * Selects positions for between 1 and 4 doors. 
+     * The first door is the main entrance. 
+     * Doors can't be in corners.
+     */
     private void chooseDoorPositions(){
-    	doorsPositions = new ArrayList<Point>();
+    	doors = new ArrayList<Point>();
     	List<Integer> walls = new ArrayList<Integer>();
     	walls.add(0);
     	walls.add(1);
     	walls.add(2);
     	walls.add(3);
-    	for(int i = 0; i < sizeDoors; i++){
+    	for(int i = 0; i < doorCount; i++){
     		switch(walls.remove(Util.getNextInt(0, walls.size()))){
     		case 0: //North
-    			doorsPositions.add(new Point(Util.getNextInt(1, sizeM - 1), sizeN - 1));
+    			doors.add(new Point(Util.getNextInt(1, sizeM - 1), sizeN - 1));
     			break;
     		case 1: //East
-    			doorsPositions.add(new Point(sizeM - 1, Util.getNextInt(1, sizeN - 1)));
+    			doors.add(new Point(sizeM - 1, Util.getNextInt(1, sizeN - 1)));
     			break;
     		case 2: //South
-    			doorsPositions.add(new Point(Util.getNextInt(1, sizeM - 1), 0));
+    			doors.add(new Point(Util.getNextInt(1, sizeM - 1), 0));
     			break;
     		case 3: //West
-    			doorsPositions.add(new Point(0, Util.getNextInt(1, sizeN - 1)));
+    			doors.add(new Point(0, Util.getNextInt(1, sizeN - 1)));
     			break;
     		}
     	}
@@ -87,7 +98,7 @@ public class Game implements Listener{
     {
     	reinit();
     	geneticAlgorithm = new Algorithm(config.getInt("generator.population_size"), 
-    			new Config(gameConfigFileName));
+    			new Config(config.getString("game.profiles.default")));
     	//Start the algorithm on a new thread.
     	geneticAlgorithm.start();
     }
@@ -96,10 +107,13 @@ public class Game implements Listener{
      * Set everything back to its initial state before running the genetic algorithm
      */
     private void reinit(){
-    	doorsPositions.clear();
+    	doors.clear();
     	chooseDoorPositions();
     }
     
+    /**
+     * Stop the algorithm. Used in the case that the application window is closed.
+     */
     public void stop(){
     	if(geneticAlgorithm != null && geneticAlgorithm.isAlive()){
     		geneticAlgorithm.terminate();
@@ -120,7 +134,7 @@ public class Game implements Listener{
 	private void readConfiguration() {
         sizeN = config.getInt("game.dimensions.n");
         sizeM = config.getInt("game.dimensions.m");
-        sizeDoors = config.getInt("game.doors");
+        doorCount = config.getInt("game.doors");
         gameConfigFileName = config.getString("game.profiles.default");
         Game.level = parseDifficulty(config.getString("game.difficulty"));
         
@@ -128,15 +142,15 @@ public class Game implements Listener{
 	}
 
 	// TODO: Bad code smell. This feels really out of place.
-	public static TLevel parseDifficulty(String difficulty) {
-		TLevel level;
+	public static DifficultyLevel parseDifficulty(String difficulty) {
+		DifficultyLevel level;
 		
 		if (difficulty.equals("medium")) {
-			level = TLevel.MEDIUM;
+			level = DifficultyLevel.MEDIUM;
 		} else if (difficulty.equals("hard")) {
-			level = TLevel.HARD;
+			level = DifficultyLevel.HARD;
 		} else {
-			level = TLevel.EASY;
+			level = DifficultyLevel.EASY;
 		}
 			
 		return level;

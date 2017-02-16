@@ -43,7 +43,7 @@ public class Phenotype {
 			
 			TileTypes[] types = genes.stream().map(x -> TileTypes.values()[x]).toArray(TileTypes[]::new);
 			
-			map = new Map(types, Game.sizeN, Game.sizeM, Game.sizeDoors);
+			map = new Map(types, Game.sizeN, Game.sizeM, Game.doorCount);
 		}
 		return map;
 	}

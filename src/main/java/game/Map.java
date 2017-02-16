@@ -47,7 +47,7 @@ public class Map {
 		wallCount = 0;
 		
 		
-		this.doorCount = Game.doorsPositions.size();
+		this.doorCount = Game.doors.size();
 		
 		matrix = new int[n][m];
 		
@@ -77,38 +77,38 @@ public class Map {
 	}
 	
 	private void markDoors(){
-		entrance = Game.doorsPositions.get(0);
+		entrance = Game.doors.get(0);
 		for(int i = 0; i < doorCount; i++)
         {
 			
             // Check if door overrides an enemy
-            if (TileTypes.toTileType(matrix[Game.doorsPositions.get(i).getX()][Game.doorsPositions.get(i).getY()]).isEnemy())
+            if (TileTypes.toTileType(matrix[Game.doors.get(i).getX()][Game.doors.get(i).getY()]).isEnemy())
             {
             	int ii = i;
-            	enemies.removeIf((x)->x.equals(Game.doorsPositions.get(ii)));
+            	enemies.removeIf((x)->x.equals(Game.doors.get(ii)));
             }
 
             // Check if door overrides a treasure
-            if (TileTypes.toTileType(matrix[Game.doorsPositions.get(i).getX()][Game.doorsPositions.get(i).getY()]).isTreasure())
+            if (TileTypes.toTileType(matrix[Game.doors.get(i).getX()][Game.doors.get(i).getY()]).isTreasure())
             {
             	int ii = i;
-            	treasures.removeIf((x)->x.equals(Game.doorsPositions.get(ii)));
+            	treasures.removeIf((x)->x.equals(Game.doors.get(ii)));
             }
 
             // Check if door overrides a wall
-            if (matrix[Game.doorsPositions.get(i).getX()][Game.doorsPositions.get(i).getY()] == TileTypes.WALL.getValue())
+            if (matrix[Game.doors.get(i).getX()][Game.doors.get(i).getY()] == TileTypes.WALL.getValue())
             {
                 wallCount--;
             } 
             
             if(i == 0)
             {
-                matrix[Game.doorsPositions.get(i).getX()][Game.doorsPositions.get(i).getY()] = TileTypes.DOORENTER.getValue();
+                matrix[Game.doors.get(i).getX()][Game.doors.get(i).getY()] = TileTypes.DOORENTER.getValue();
             }
             else
             {
-            	doors.add(Game.doorsPositions.get(i));
-            	matrix[Game.doorsPositions.get(i).getX()][Game.doorsPositions.get(i).getY()] = TileTypes.DOOR.getValue();
+            	doors.add(Game.doors.get(i));
+            	matrix[Game.doors.get(i).getX()][Game.doors.get(i).getY()] = TileTypes.DOOR.getValue();
             }
 
 

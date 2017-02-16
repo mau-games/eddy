@@ -507,6 +507,11 @@ public class Algorithm extends Thread {
         {
             if (i != populationValid.size() - 1 && !flag)
             {
+            	if(valid.isEvaluated())
+            		System.out.println("Pointless!");
+        		else
+        			System.out.println("Fine");
+            			
                 evaluateValidIndividual(valid); // TODO: Check if this is necessary. Hasn't it already been evaluated?
                 populationValid.set(i, valid);
                 i++;
