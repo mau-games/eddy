@@ -1,8 +1,7 @@
 package generator.algorithm;
 
-import java.util.ArrayList;
-import java.util.List;
 
+import java.util.Arrays;
 import game.Game;
 import game.Map;
 import game.TileTypes;
@@ -28,22 +27,8 @@ public class Phenotype {
 	 */
 	public Map getMap() {
 		if(map == null){
-			int size = genotype.getSizeChromosome() / genotype.getChromosomeItemBits();
-			List<Integer> genes = new ArrayList<Integer>(size);
-			for(int i = 0; i < size; i++){
-				
-				String binaryNumber = "";
-				for(int j = 0; j < genotype.getChromosomeItemBits(); j++){
-					binaryNumber += Integer.toString(genotype.getChromosome()[i*3 + j]);
-				}
-				int decimalNumber = Integer.parseInt(binaryNumber,2);
-				
-				genes.add(decimalNumber);
-			}
-			
-			TileTypes[] types = genes.stream().map(x -> TileTypes.values()[x]).toArray(TileTypes[]::new);
-			
-			map = new Map(types, Game.sizeN, Game.sizeM, Game.doorCount);
+			TileTypes[] tileTypes = Arrays.stream(genotype.getChromosome()).boxed().map(x -> TileTypes.toTileType(x)).toArray(TileTypes[]::new);
+			map = new Map(tileTypes, Game.sizeN, Game.sizeM, Game.doorCount);
 		}
 		return map;
 	}

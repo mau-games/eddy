@@ -71,22 +71,21 @@ public class Individual {
 	 */
 	public void mutate() {
 		int indexToMutate = Util.getNextInt(0,genotype.getSizeChromosome());
-		boolean bit = genotype.getChromosome()[indexToMutate] == 0;
-		genotype.getChromosome()[indexToMutate] = bit ? 1 : 0;
+		genotype.getChromosome()[indexToMutate] = (genotype.getChromosome()[indexToMutate] + Util.getNextInt(0, 7)) % 8; //TODO: Change this - hard coding the number of tile types is bad!!!
 	}
 	
 	
-	/**
-	 * Mutate each bit of the chromosome with a small probability
-	 */
-	public void bitStringMutation(){
-		for(int i = 0; i < genotype.getSizeChromosome(); i++){
-			if(Math.random() < 0.5){
-				int bit = genotype.getChromosome()[i];
-				genotype.getChromosome()[i] = bit == 0 ? 1 : 0;
-			}
-		}
-	}
+//	/**
+//	 * Mutate each bit of the chromosome with a small probability
+//	 */
+//	public void bitStringMutation(){
+//		for(int i = 0; i < genotype.getSizeChromosome(); i++){
+//			if(Math.random() < 0.5){
+//				int bit = genotype.getChromosome()[i];
+//				genotype.getChromosome()[i] = bit == 0 ? 1 : 0;
+//			}
+//		}
+//	}
 	
 	/**
 	 * Get this individual's calculated fitness
