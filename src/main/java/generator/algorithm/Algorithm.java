@@ -227,52 +227,14 @@ public class Algorithm extends Thread {
     			&& (treasure + doors + enemies == map.getTreasureCount() + map.getDoorCount() + map.getEnemyCount())
     			&& map.getTreasureCount() > 0 && map.getEnemyCount() > 0;
 	}
-
-	
-//	/**
-//	 * NEW VERSION!
-//	 * Uses Flood Fill to calculate a score for the safety of the room's entrance.
-//	 * 
-//	 * @param ind The individual to evaluate.
-//	 * @return The safety value for the room's entrance.
-//	 */
-//	public float evaluateSafetyEnterDoor(Individual ind)
-//    {
-//        Map map = ind.getPhenotype().getMap();
-//
-//        List<Node> visited = new ArrayList<Node>();
-//    	Queue<Node> queue = new LinkedList<Node>();
-//    	
-//    	Node root = new Node(0.0f, map.getEntrance(), null);
-//    	queue.add(root);
-//    	
-//    	while(!queue.isEmpty()){
-//    		Node current = queue.remove();
-//    		visited.add(current);
-//    		
-//    		List<Point> children = map.getAvailableCoords(current.position);
-//            for(Point child : children)
-//            {
-//                if (visited.stream().filter(x->x.equals(child)).findFirst().isPresent() 
-//                		|| queue.stream().filter(x->x.equals(child)).findFirst().isPresent()) 
-//                	continue;
-//
-//                //Create child node
-//                Node n = new Node(0.0f, child, current);
-//                queue.add(n);
-//            }
-//            if(map.getTile(current.position).isEnemy())
-//    			break;
-//    	}
-//    	if(queue.isEmpty())
-//    	{
-//    		return 0;
-//    	}
-//    	return 1 - (float)visited.size()/map.getNonWallTileCount();  
-//    }
 	
 	/**
 	 * Uses flood fill to calculate a score for the safety of the room's entrance
+	 * 
+	 * The safety value is between 0 and 1. 
+	 * 0 means there is an enemy adjacent to the entry door. 
+	 * 1 means there is no enemy in the room (impossible).
+	 * In practice the highest safety will be achieved when an enemy is as far away from the entrance as possible.
 	 * 
 	 * @param ind The individual to evaluate.
 	 * @return The safety value for the room's entrance.
@@ -359,28 +321,17 @@ public class Algorithm extends Thread {
 	        	
 	            int dinTreasureToEnemy = pathfinder.find(treasure, closestEnemy).length;
 	            
-	
                 //Distance in nodes from treasure to entrance
                 int dinTreasureToStartDoor = pathfinder.find(treasure, doorEnter).length;
 	
-	                //Formule result
-	                /*
-	                    (dti,mj - dti,i) /
-	                    (dti,mj - dti,i)
-	                */
-	                double result = (double)
-	                    (dinTreasureToEnemy - dinTreasureToStartDoor) / 
-	                    (dinTreasureToEnemy + dinTreasureToStartDoor);
-	
-	                if (Double.isNaN(result))
-	                {
-	                    result = 0.0f;
-	                }
-	                
-	                //System.out.println("treasure to enemy 2 " + dinTreasureToEnemy + ", " + result);
+                double result = (double)
+                    (dinTreasureToEnemy - dinTreasureToStartDoor) / 
+                    (dinTreasureToEnemy + dinTreasureToStartDoor);
 
-	                map.setTreasureSafety(treasure, Math.max(0.0, result));
-	            
+                if (Double.isNaN(result))
+                    result = 0.0f;
+                
+                map.setTreasureSafety(treasure, Math.max(0.0, result));
 	        }
 	    }
 	}
@@ -401,85 +352,84 @@ public class Algorithm extends Thread {
         Map map = ind.getPhenotype().getMap();
 
 
-        //security area (1)
-        //System.out.println("" + evaluateSafetyEnterDoor(ind) + " " + evaluateSafetyEnterDoor3(ind));
-        double fitness_security_area = evaluateEntranceSafety(ind); //Note - this has been changed from the Unity version
-        map.setEntrySafetyFitness(fitness_security_area);
+        //Entrance safety (1)
+        double entranceSafetyFitness = evaluateEntranceSafety(ind); //Note - this has been changed from the Unity version
+        map.setEntranceSafety(entranceSafetyFitness);
         try {
-			fitness_security_area = Math.abs(fitness_security_area - generatorConfig.getSecurityAreaVariance());
+			entranceSafetyFitness = Math.abs(entranceSafetyFitness - generatorConfig.getEntranceSafety());
 		} catch (MissingConfigurationException e) {
 			e.printStackTrace();
 		}
 
-        //# enemies (2)
+        //Enemy density (2)
         double[] expectedEnemiesRange = null;
 		try {
 			expectedEnemiesRange = generatorConfig.getEnemyQuantityRange();
 		} catch (MissingConfigurationException e) {
 			e.printStackTrace();
 		}
-        double fitness_enemies_proportion = 0.0;
+        double enemyDensityFitness = 0.0;
         double enemyPercent = map.getEnemyPercentage();
-        if(enemyPercent > expectedEnemiesRange[0])
+        if(enemyPercent < expectedEnemiesRange[0])
         {
-            fitness_enemies_proportion = enemyPercent - expectedEnemiesRange[1];
+            enemyDensityFitness = expectedEnemiesRange[0] - enemyPercent;
         }
-        else
+        else if(enemyPercent > expectedEnemiesRange[1])
         { 
-            fitness_enemies_proportion = enemyPercent - expectedEnemiesRange[0];
+            enemyDensityFitness = enemyPercent - expectedEnemiesRange[1];
         }
 
-        //avg seg tesoros (3)
+        //Average treasure safety (3)
         evaluateTreasureSafeties(ind);
         Double[] safeties = map.getAllTreasureSafeties();
         double safeties_average = Util.calcAverage(safeties);
        
-        double fitness_avg_treasures_security = 0.0;
+        double averageTreasureSafetyFitness = 0.0;
         try {
-			fitness_avg_treasures_security = safeties_average - generatorConfig.getAverageTreasureSecurity();
+			averageTreasureSafetyFitness = Math.abs(safeties_average - generatorConfig.getAverageTreasureSafety());
 		} catch (MissingConfigurationException e) {
 			e.printStackTrace();
 		}
 
 
-        //# treasures (4)
+        //Treasure density (4)
         double[] expectedTreasuresRange = null;
 		try {
 			expectedTreasuresRange = generatorConfig.getTreasureQuantityRange();
 		} catch (MissingConfigurationException e) {
 			e.printStackTrace();
 		}
-        double fitness_treasures_proportion = 0.0;
+        double treasureDensityFitness = 0.0;
         double treasurePercent = map.getTreasurePercentage();
-        if(treasurePercent > expectedTreasuresRange[0])
+        if(treasurePercent < expectedTreasuresRange[0])
         {
-            fitness_treasures_proportion = treasurePercent - expectedTreasuresRange[1];
+            treasureDensityFitness = expectedTreasuresRange[0] - treasurePercent;
         }
-        else
+        else if (treasurePercent > expectedTreasuresRange[1])
         {
-            fitness_treasures_proportion = treasurePercent - expectedTreasuresRange[0];
+            treasureDensityFitness = treasurePercent - expectedTreasuresRange[1];
         }
 
-        //variance treasures security
+        //Treasure Safety Variance (5)
         double safeties_variance = Util.calcVariance(safeties);
         double expectedSafetyVariance = 0.0;
 		try {
-			expectedSafetyVariance = generatorConfig.getTreasureSecurityVariance();
+			expectedSafetyVariance = generatorConfig.getTreasureSafetyVariance();
 		} catch (MissingConfigurationException e) {
 			e.printStackTrace();
 		}
 
-        double fitness_treasures_security_variance = safeties_variance - expectedSafetyVariance;
+        double treasureSafetyVarianceFitness = Math.abs(safeties_variance - expectedSafetyVariance);
 
         //Removed countCloseWalls method because it ALWAYS returns 0 and the intended function is unclear
         //Consequently, weights have been adjusted
 
         fitness =
-            (Math.abs(fitness_security_area) * 0.2) +
-            (Math.abs(fitness_enemies_proportion) * 0.3) +
-            (Math.abs(fitness_avg_treasures_security) * 0.1) +
-            (Math.abs(fitness_treasures_proportion) * 0.2) +
-            (Math.abs(fitness_treasures_security_variance) * 0.2);
+            entranceSafetyFitness * 0.2 +
+            enemyDensityFitness * 0.3 +
+            averageTreasureSafetyFitness * 0.1 +
+            treasureDensityFitness * 0.2 +
+            treasureSafetyVarianceFitness * 0.2;
 
         //set final fitness
         ind.setFitness(fitness);

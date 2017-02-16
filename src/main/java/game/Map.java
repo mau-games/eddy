@@ -27,7 +27,7 @@ public class Map {
 	private int failedPathsToAnotherDoor;
 	private Dictionary<Point, Double> treasureSafety;
 	private Point entrance;
-	private double entranceSafetyFitness;
+	private double entranceSafety;
 	
 	/**
 	 * Creates an instance of map.
@@ -428,21 +428,21 @@ public class Map {
     }
     
     /**
-     * Sets the safety fitness value for the map's entry point.
+     * Sets the safety value for the map's entry point.
      * 
-     * @param fitness A safety fitness value.
+     * @param safety A safety value.
      */
-    public void setEntrySafetyFitness(double fitness) {
-    	entranceSafetyFitness = fitness;
+    public void setEntranceSafety(double safety) {
+    	entranceSafety = safety;
     }
     
     /**
-     * Gets the safety fitness value for the map's entry point.
+     * Gets the safety value for the map's entry point.
      * 
-     * @return The safety fitness value.
+     * @return The safety value.
      */
-    public double getEntrySafetyFitness() {
-    	return entranceSafetyFitness;
+    public double getEntranceSafety() {
+    	return entranceSafety;
     }
 
     

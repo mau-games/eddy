@@ -81,18 +81,18 @@ public class Config {
 	/**
 	 * TODO: Explain this more in detail once we understand it.
 	 * 
-	 * Returns the security area variance setting.
+	 * Returns the target entrance safety setting.
 	 * 
-	 * @return The security area variance setting.
+	 * @return The target entrance safety
 	 * @throws MissingConfigurationException if no configuration has yet been
 	 * 		 read and applied.
 	 */
-	public double getSecurityAreaVariance() throws MissingConfigurationException {
+	public double getEntranceSafety() throws MissingConfigurationException {
 		if (configJson == null) {
 			throw new MissingConfigurationException();
 		}
 
-		return configJson.get("security_area").getAsJsonObject()
+		return configJson.get("entrance_safety").getAsJsonObject()
 				.get(getDifficultyString(level)).getAsDouble();
 	}
 
@@ -131,12 +131,12 @@ public class Config {
 	 * @throws MissingConfigurationException if no configuration has yet been
 	 * 		 read and applied.
 	 */
-	public double getAverageTreasureSecurity() throws MissingConfigurationException {
+	public double getAverageTreasureSafety() throws MissingConfigurationException {
 		if (configJson == null) {
 			throw new MissingConfigurationException();
 		}
 
-		return configJson.get("avg_treasures_security").getAsJsonObject()
+		return configJson.get("avg_treasure_safety").getAsJsonObject()
 				.get(getDifficultyString(level)).getAsDouble();
 	}
 
@@ -169,18 +169,18 @@ public class Config {
 	/**
 	 * TODO: Explain this more in detail once we understand it.
 	 * 
-	 * Returns the treasure security variance.
+	 * Returns the target treasure safety variance.
 	 * 
 	 * @return The treasure security variance.
 	 * @throws MissingConfigurationException if no configuration has yet been
 	 * 		 read and applied.
 	 */
-	public double getTreasureSecurityVariance() throws MissingConfigurationException {
+	public double getTreasureSafetyVariance() throws MissingConfigurationException {
 		if (configJson == null) {
 			throw new MissingConfigurationException();
 		}
 
-		return configJson.get("treasures_security_variance").getAsJsonObject()
+		return configJson.get("treasure_safety_variance").getAsJsonObject()
 				.get(getDifficultyString(level)).getAsDouble();
 	}
 

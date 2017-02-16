@@ -38,7 +38,7 @@ public class Util {
 	 */
     public static double calcAverage(Double[] numbers)
     {
-    	return Arrays.asList(numbers).stream().reduce(0.0,(a,b)-> a + b) / numbers.length;
+    	return Arrays.asList(numbers).stream().reduce(0.0,Double::sum) / numbers.length;
     }
 
     /**
