@@ -287,13 +287,11 @@ public class Algorithm extends Thread {
     	Node root = new Node(0.0f, map.getEntrance(), null);
     	queue.add(root);
     	
-    	float area = 0;
-    	
     	while(!queue.isEmpty()){
     		Node current = queue.remove();
     		visited.add(current);
     		if(map.getTile(current.position).isEnemy())
-    			area = visited.size();
+    			break;
     		
     		List<Point> children = map.getAvailableCoords(current.position);
             for(Point child : children)
@@ -308,7 +306,7 @@ public class Algorithm extends Thread {
             }
             
     	}
-    	return (float)area/map.getNonWallTileCount();  
+    	return (float)visited.size()/map.getNonWallTileCount();  
     }
 	
 	/**
@@ -408,7 +406,7 @@ public class Algorithm extends Thread {
         double fitness_security_area = evaluateEntranceSafety(ind); //Note - this has been changed from the Unity version
         map.setEntrySafetyFitness(fitness_security_area);
         try {
-			fitness_security_area -= generatorConfig.getSecurityAreaVariance();
+			fitness_security_area = Math.abs(fitness_security_area - generatorConfig.getSecurityAreaVariance());
 		} catch (MissingConfigurationException e) {
 			e.printStackTrace();
 		}

@@ -3,8 +3,8 @@
 
   "security_area" : {
     "easy": 0.5,
-    "medium": 0.14,
-    "hard": 0.02
+    "medium": 0.3,
+    "hard": 0.1
   },
 
   "enemies_quantity": {
