@@ -34,17 +34,15 @@ public class Game implements Listener{
     public static Config.TLevel level; //Difficulty level
     private Algorithm geneticAlgorithm;
     
-    public static Config.TLevel getLevel()
-    {
+    public static Config.TLevel getLevel() {
         return level;
     }
 
-    public static Ranges getRanges()
-    {
+    public static Ranges getRanges() {
         return ranges;
     }
 
-    public Game(int n, int m, int doors, Config.TLevel level, String profile) {
+    public Game() {
 		try {
 			config = ConfigurationUtility.getInstance();
 		} catch (MissingConfigurationException e) {
@@ -52,16 +50,9 @@ public class Game implements Listener{
 		}
         
         EventRouter.getInstance().registerListener(this, new Start());
-		
-        // TODO: Maybe only use the dynamic config?
-        sizeN = n;
-        sizeM = m;
-        sizeDoors = doors;
-        Game.level = level;
-        gameConfigFileName = profile;
         ranges = new Ranges();
-        
-        chooseDoorPositions();
+		
+        readConfiguration();
     }
     
     private void chooseDoorPositions(){
@@ -130,8 +121,8 @@ public class Game implements Listener{
         sizeN = config.getInt("game.dimensions.n");
         sizeM = config.getInt("game.dimensions.m");
         sizeDoors = config.getInt("game.doors");
-        // TODO: Fix this!
-//        Game.level = config.getString("game.level");
+        gameConfigFileName = config.getString("game.profiles.default");
+        Game.level = parseDifficulty(config.getString("game.difficulty"));
         
         chooseDoorPositions();
 	}

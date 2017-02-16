@@ -49,14 +49,7 @@ public class ProgramStarter extends Application {
 	        stage.show();
 	        
 	        // Set up a new game
-	        // TODO: Bad code smell. This class knows too much about Game's inner workings. Fix Game.
-	        game = new Game(
-	        		config.getInt("game.dimensions.m"),
-	        		config.getInt("game.dimensions.n"),
-	        		config.getInt("game.doors"),
-	        		Game.parseDifficulty(config.getString("game.difficulty")),
-	        		config.getString("game.profiles.default")
-	        		);
+	        game = new Game();
 	        
 	        // Set up a new map collector
 	        mapCollector = new MapCollector();
