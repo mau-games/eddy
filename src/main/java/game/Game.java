@@ -97,8 +97,7 @@ public class Game implements Listener{
     private void startAll()
     {
     	reinit();
-    	geneticAlgorithm = new Algorithm(config.getInt("generator.population_size"), 
-    			new Config(config.getString("game.profiles.default")));
+    	geneticAlgorithm = new Algorithm(new Config(config.getString("game.profiles.default")));
     	//Start the algorithm on a new thread.
     	geneticAlgorithm.start();
     }

@@ -26,6 +26,7 @@
         "generations": 100,
         "population_size": 100,
         "mutation_probability": 0.9,
-        "offspring_size": 0.7
+        "offspring_size": 0.7,
+        "feasible_proportion": 0.5
     }
 }

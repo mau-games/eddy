@@ -5,6 +5,7 @@ import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
+import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,28 +33,29 @@ public class Algorithm extends Thread {
 	private float mutationProbability;
 	private float offspringSize;
 	
-	private List<Individual> populationValid;
-	private List<Individual> populationInvalid;
+	private List<Individual> feasiblePopulation;
+	private List<Individual> infeasiblePopulation;
 	private Individual best;
 	private Config generatorConfig;
-	private List<Individual> readyToValid;
-	private List<Individual> readyToInvalid;
+	private List<Individual> feasiblePool;
+	private List<Individual> infeasiblePool;
 	private int size;
 	private boolean stop = false;
+	private int feasibleAmount;
 	
 
-	public Algorithm(int size, Config gConfig){
+	public Algorithm(Config gConfig){
 		try {
 			config = ConfigurationUtility.getInstance();
 		} catch (MissingConfigurationException e) {
 			logger.error("Couldn't read configuration file:\n" + e.getMessage());
 		}
-		
-		this.size = size;
+
 		generatorConfig = gConfig;
 		populationSize = config.getInt("generator.population_size");
 		mutationProbability = (float) config.getDouble("generator.mutation_probability");
 		offspringSize = (float) config.getDouble("generator.offspring_size");
+		feasibleAmount = (int)((double)populationSize * config.getDouble("generator.feasible_proportion"));
 
 		initPopulations();
 	}
@@ -86,24 +88,28 @@ public class Algorithm extends Thread {
 	private void initPopulations(){
 		broadcastStatusUpdate("Initialising...");
 		
-		readyToValid = new ArrayList<Individual>();
-		readyToInvalid = new ArrayList<Individual>();
-
-		populationValid = new ArrayList<Individual>();
-		populationInvalid = new ArrayList<Individual>();
+		feasiblePool = new ArrayList<Individual>();
+		infeasiblePool = new ArrayList<Individual>();
+		feasiblePopulation = new ArrayList<Individual>();
+		infeasiblePopulation = new ArrayList<Individual>();
+		
 		int i = 0;
 		int j = 0;
-		while((i + j) < size){
+		while((i + j) < populationSize){
 			Individual ind = new Individual(Game.sizeN * Game.sizeM, mutationProbability);
 			ind.initialize();
 			
 			if(checkIndividual(ind)){
-				populationValid.add(ind);
-				i++;
+				if(i < feasibleAmount){
+					feasiblePool.add(ind);
+					i++;
+				}
 			}
 			else {
-				populationInvalid.add(ind);
-				j++;
+				if(j < populationSize - feasibleAmount){
+					infeasiblePool.add(ind);
+					j++;
+				}
 			}
 		}
 		
@@ -124,51 +130,69 @@ public class Algorithm extends Thread {
         	if(stop)
         		return;
         	
+        	
+        	
         	broadcastStatusUpdate("Generation " + generationCount);
 
-            evaluateGeneration();
-            insertReadyToValidAndEvaluate();
-            insertReadyToInvalidAndEvaluate();
+        	evaluateAndTrimPools();
+        	copyPoolsToPopulations();
+        	
+            //evaluateGeneration();
+            //insertReadyToValidAndEvaluate();
+            //insertReadyToInvalidAndEvaluate();
 
-                //info population valid
-                double[] dataValid = infoGenerational(populationValid, true);
-//                avgFitness = dataValid[0];
-                //info population invalid
-//                double[] dataInvalid = infoGenerational(populationInvalid, false);
-//
-//                messageGeneration += "Generation " + generationCount + "\n";
-//                messageGeneration += "Avg valid fitness: " + dataValid[0] + "\n";
-//                messageGeneration += "Min valid fitness: " + dataValid[1] + "\n";
-//                messageGeneration += "Max valid fitness: " + dataValid[2] + "\n\n";
-//
-//                messageGeneration += "Avg invalid fitness: " + dataInvalid[0] + "\n";
-//                messageGeneration += "Min invalid fitness: " + dataInvalid[1] + "\n";
-//                messageGeneration += "Max invalid fitness: " + dataInvalid[2] + "\n\n";
-//                messageGeneration += "Valids: " + populationValid.Count() + "\n";
-//                messageGeneration += "Invalids: " + populationInvalid.Count() + "\n";
-//                messageGeneration += "Ready to valids: " + readyToValid.Count() + "\n";
-//                messageGeneration += "Ready to invalid: " + readyToInvalid.Count() + "\n";
-//                messageGeneration += "BEST: " + best.getFitness();
-//
-//                MessagesPool.add(messageGeneration);
-//                MessagesPool.addObject(best);
-
+            //info population valid
+            double[] dataValid = infoGenerational(feasiblePopulation, true);
             
             //broadcastStatusUpdate("Generation " + generationCount + " finished.");
             broadcastStatusUpdate("Average fitness: " + dataValid[0]);
             broadcastStatusUpdate("Max fitness: " + dataValid[2]);
             broadcastStatusUpdate("BEST fitness: " + best.getFitness());
-            broadcastStatusUpdate("Valids: " + populationValid.size());
-            broadcastStatusUpdate("Invalids: " + populationInvalid.size());
+            broadcastStatusUpdate("Valids: " + feasiblePopulation.size());
+            broadcastStatusUpdate("Invalids: " + infeasiblePopulation.size());
 
             broadcastMapUpdate(best.getPhenotype().getMap());
             
             
-            produceNextValidGeneration();
-            produceNextInvalidGeneration();
+            breedFeasibleIndividuals();
+            breedInfeasibleIndividuals();
             generationCount++;
         }
         EventRouter.getInstance().postEvent(new AlgorithmDone());
+	}
+	
+	/**
+	 * Evaluates the fitness of all individuals in pools and trims them down to the desired sizes
+	 */
+	private void evaluateAndTrimPools(){
+        //Evaluate valid individuals
+        for(Individual ind : feasiblePool)
+        {
+            if (!ind.isEvaluated())
+                evaluateFeasibleIndividual(ind);
+        }
+        this.sortPopulation(feasiblePool, true);
+        feasiblePool = feasiblePool.stream().limit(feasibleAmount).collect(Collectors.toList());
+
+        //Evaluate invalid individuals
+        for(Individual ind : infeasiblePool)
+        {
+            if (!ind.isEvaluated())
+                evaluateInfeasibleIndividual(ind);
+        }
+        this.sortPopulation(infeasiblePool, false);
+        infeasiblePool = infeasiblePool.stream().limit(populationSize - feasibleAmount).collect(Collectors.toList());
+	}
+	
+	/**
+	 * Copy individuals from pools to populations for breeding etc.
+	 */
+	private void copyPoolsToPopulations(){
+		feasiblePopulation.clear();
+		feasiblePool.forEach(individual -> feasiblePopulation.add(individual));
+		
+		infeasiblePopulation.clear();
+		infeasiblePool.forEach(individual -> infeasiblePopulation.add(individual));
 	}
 	
 	/**
@@ -346,7 +370,7 @@ public class Algorithm extends Thread {
 	 * 
 	 * @param ind The valid individual to evaluate
 	 */
-    public void evaluateValidIndividual(Individual ind)
+    public void evaluateFeasibleIndividual(Individual ind)
     {
         double fitness = 0.0;
         Map map = ind.getPhenotype().getMap();
@@ -445,7 +469,7 @@ public class Algorithm extends Thread {
      * 
      * @param ind The invalid individual to evaluate
      */
-	public void evaluateInvalidIndividual(Individual ind)
+	public void evaluateInfeasibleIndividual(Individual ind)
 	{
 		double fitness = 0.0;
 	    Map map = ind.getPhenotype().getMap();
@@ -478,76 +502,17 @@ public class Algorithm extends Thread {
 	public void evaluateGeneration()
     {
         //Evaluate valid individuals
-        for(Individual ind : populationValid)
+        for(Individual ind : feasiblePopulation)
         {
             if (!ind.isEvaluated())
-                evaluateValidIndividual(ind);
+                evaluateFeasibleIndividual(ind);
         }
 
         //Evaluate invalid individuals
-        for(Individual ind : populationInvalid)
+        for(Individual ind : infeasiblePopulation)
         {
             if (!ind.isEvaluated())
-                evaluateInvalidIndividual(ind);
-        }
-    }
-
-	/**
-	 * Add new valid individuals to the valid population
-	 * TODO: Check if this and the next method are really well implemented
-	 */
-    private void insertReadyToValidAndEvaluate()
-    {
-    	//Sort valid population in descending order
-        sortPopulation(populationValid, false);
-
-        int i = 0;
-        boolean flag = false;
-        for (Individual valid : readyToValid)
-        {
-            if (i != populationValid.size() - 1 && !flag)
-            {
-            	if(valid.isEvaluated())
-            		System.out.println("Pointless!");
-        		else
-        			System.out.println("Fine");
-            			
-                evaluateValidIndividual(valid); // TODO: Check if this is necessary. Hasn't it already been evaluated?
-                populationValid.set(i, valid);
-                i++;
-            }
-            else
-            {
-                if (!flag) 
-                	flag = true;
-                addValidIndividual(valid);
-            }
-        }
-    }
-
-    /**
-	 * Add new invalid individuals to the invalid population
-	 */
-    private void insertReadyToInvalidAndEvaluate()
-    {
-        sortPopulation(populationInvalid, true);
-
-        int i = 0;
-        boolean flag = false;
-        for (Individual invalid : readyToInvalid)
-        {
-            if (i != populationInvalid.size() - 1 && !flag)
-            {
-                evaluateInvalidIndividual(invalid);
-                populationInvalid.set(i, invalid);
-                i++;
-            }
-            else
-            {
-                if(!flag) 
-                	flag = true;
-                addInvalidIndividual(invalid);
-            }
+                evaluateInfeasibleIndividual(ind);
         }
     }
 
@@ -557,14 +522,14 @@ public class Algorithm extends Thread {
      *  2. Crossover these individuals
      *  3. Add them back into the population
      */
-    private void produceNextValidGeneration()
+    private void breedFeasibleIndividuals()
     {
-        //Select progenitors for crossover
-        List<Individual> progenitors = selectProgenitors(populationValid);
-        //Crossover progenitors
-        List<Individual> sons = crossOverBetweenProgenitors(progenitors);
-        //Re-insert to population valid (Replace worst for sons)
-        replaceSonsInPopulationValid(sons);
+        //Select parents for crossover
+        List<Individual> parents = selectProgenitors(feasiblePopulation);
+        //Crossover parents
+        List<Individual> children = crossOverBetweenProgenitors(parents);
+        //Assign to a pool based on feasibility
+        assignToPool(children);
     }
 
     /**
@@ -573,14 +538,14 @@ public class Algorithm extends Thread {
      *  2. Crossover these individuals
      *  3. Add them back into the population
      */
-    private void produceNextInvalidGeneration()
+    private void breedInfeasibleIndividuals()
     {
         //Select parents for crossover
-        List<Individual> parents = selectProgenitors(populationInvalid);
+        List<Individual> parents = selectProgenitors(infeasiblePopulation);
         //Crossover parents
         List<Individual> children = crossOverBetweenProgenitors(parents);
-        //Re-insert to population invalid (Replace worst for sons)
-        replaceSonsInPopulationInvalid(children);
+        //Assign to a pool based on feasibility
+        assignToPool(children);
     }
 			
     /**
@@ -645,62 +610,25 @@ public class Algorithm extends Thread {
     }
 
     /**
-     * Add individuals to either the valid population or readyToInvalid depending on whether or not they are valid.
+     * TODO: Document
      * 
      * @param sons Individuals to add
      */
-    private void replaceSonsInPopulationValid(List<Individual> sons)
+    private void assignToPool(List<Individual> sons)
     {
-        sortPopulation(populationValid, false);
-        
-        int i = 0;
-        readyToInvalid = new ArrayList<Individual>();
-
         for (Individual son : sons)
         {
             if(checkIndividual(son))
             {
-                //replace in population valid
-                populationValid.set(i,son);
+                feasiblePool.add(son);
             }
             else
             {
-				//mark as ready to invalid
-                readyToInvalid.add(son);
+                infeasiblePool.add(son);
             }
-
-            i++;
-        }
-
-    }
-
-    /**
-     * Add individuals to either the invalid population or readyToValid depending on whether or not they are valid.
-     * 
-     * @param sons Individuals to add
-     */
-    private void replaceSonsInPopulationInvalid(List<Individual> sons)
-    {
-        sortPopulation(populationInvalid, false);
-        
-        readyToValid = new ArrayList<Individual>();
-        int i = 0;
-        for (Individual son : sons)
-        {
-            if(checkIndividual(son))
-            {
-                //mark as ready to valid
-                readyToValid.add(son);
-            }
-            else
-            {
-                //replace in population invalid
-                populationInvalid.set(i,son);
-            }
-
-            i++;
         }
     }
+
 
     /**
      * Sorts a population according to fitness
@@ -770,9 +698,9 @@ public class Algorithm extends Thread {
 	 */
     private void addValidIndividual(Individual valid)
     {
-        if (populationValid.size() < populationSize)
+        if (feasiblePopulation.size() < populationSize)
         {
-            populationValid.add(valid);
+            feasiblePopulation.add(valid);
         }
     }
 
@@ -783,9 +711,9 @@ public class Algorithm extends Thread {
 	 */
     private void addInvalidIndividual(Individual invalid)
     {
-        if (populationInvalid.size() < populationSize)
+        if (infeasiblePopulation.size() < populationSize)
         {
-            populationInvalid.add(invalid);
+            infeasiblePopulation.add(invalid);
         }
     }
 	
