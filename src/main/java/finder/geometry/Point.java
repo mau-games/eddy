@@ -73,4 +73,11 @@ public class Point extends Geometry {
 		}
 		return false;
 	}
+	
+	@Override
+	public int hashCode() {
+		int hash = 13 * x * 17 * y;
+		
+		return hash;
+	}
 }

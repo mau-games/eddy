@@ -77,4 +77,14 @@ public class Rectangle extends Polygon {
 		}
 		return false;
 	}
+	
+	@Override
+	public int hashCode() {
+		int hash = 7 * points.get(0).getX()
+				* 13 * points.get(0).getY()
+				* 17 * points.get(2).getX()
+				* 19 * points.get(2).getY();
+		
+		return hash;
+	}
 }

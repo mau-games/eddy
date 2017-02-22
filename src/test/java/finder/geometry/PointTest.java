@@ -44,4 +44,10 @@ public class PointTest {
 		assertEquals(p1, p2);
 	}
 
+	@Test
+	public void testHashCode() {
+		Point p = new Point(3, 2);
+		
+		assertEquals(1326, p.hashCode());
+	}
 }
