@@ -70,6 +70,18 @@ public class Rectangle extends Polygon {
 	// TODO: Override *ness functions
 	
 	@Override
+	public boolean overlaps(Polygon p) {
+		if (p instanceof Rectangle) {
+			return points.get(0).getX() < p.getPoint(2).getX() &&
+					points.get(2).getX() > p.getPoint(0).getX() &&
+					points.get(0).getY() < p.getPoint(2).getY() &&
+					points.get(2).getY() > p.getPoint(0).getY();
+		} else {
+			return super.overlaps(p);
+		}
+	}
+	
+	@Override
 	public boolean equals(Object rect) {
 		if (rect instanceof Rectangle) {
 			Rectangle r = (Rectangle) rect;
