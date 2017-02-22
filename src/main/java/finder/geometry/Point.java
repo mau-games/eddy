@@ -64,4 +64,13 @@ public class Point extends Geometry {
 	public void setY(int y) {
 		this.y = y;
 	}
+	
+	@Override
+	public boolean equals(Object point) {
+		if (point instanceof Point) {
+			Point p = (Point) point;
+			return x == p.getX() && y == p.getY();
+		}
+		return false;
+	}
 }

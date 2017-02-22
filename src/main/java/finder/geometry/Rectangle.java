@@ -69,4 +69,12 @@ public class Rectangle extends Polygon {
 	
 	// TODO: Override *ness functions
 	
+	@Override
+	public boolean equals(Object rect) {
+		if (rect instanceof Rectangle) {
+			Rectangle r = (Rectangle) rect;
+			return points.get(0).equals(r.getTopLeft()) && points.get(2).equals(r.getBottomRight());
+		}
+		return false;
+	}
 }
