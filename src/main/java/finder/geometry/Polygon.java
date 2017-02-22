@@ -62,4 +62,26 @@ public class Polygon extends Multipoint {
 		// TODO: Implement this.
 		return -1;
 	}
+	
+	/**
+	 * Takes two polygons and combines them into a single object.
+	 * 
+	 * @param p The polygon to combine with.
+	 * @return A new polygon object.
+	 */
+	public Polygon union(Polygon p) {
+		// TODO: Implement this.
+		return null;
+	}
+	
+	/**
+	 * Checks whether two polygons overlap or not.
+	 * 
+	 * @param p The polygon to check against.
+	 * @return True if the two polygons overlap, otherwise false.
+	 */
+	public boolean overlaps(Polygon p) {
+		// TODO: Implement this.
+		return false;
+	}
 }
