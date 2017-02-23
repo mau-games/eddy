@@ -13,7 +13,7 @@ import finder.geometry.Rectangle;
 import finder.patterns.Pattern;
 import game.Map;
 
-public class TestRoom {
+public class RoomTest {
 
 	@Test
 	public void testEmptyMap() {
