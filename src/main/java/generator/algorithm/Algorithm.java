@@ -156,12 +156,13 @@ public class Algorithm extends Thread {
 
             
             //broadcastStatusUpdate("Generation " + generationCount + " finished.");
-            broadcastStatusUpdate("Average fitness: " + dataValid[0]);
-            broadcastStatusUpdate("Max fitness: " + dataValid[2]);
+//            broadcastStatusUpdate("Average fitness: " + dataValid[0]);
+//            broadcastStatusUpdate("Max fitness: " + dataValid[2]);
             broadcastStatusUpdate("BEST fitness: " + best.getFitness());
-            broadcastStatusUpdate("Valids: " + populationValid.size());
-            broadcastStatusUpdate("Invalids: " + populationInvalid.size());
+//            broadcastStatusUpdate("Valids: " + populationValid.size());
+//            broadcastStatusUpdate("Invalids: " + populationInvalid.size());
             broadcastStatusUpdate("Best corridor count: " + Corridor.corridorTileCount(best.getPhenotype().getMap(), null));
+            broadcastStatusUpdate("Best passable tile count: " + best.getPhenotype().getMap().getNonWallTileCount());
 
             broadcastMapUpdate(best.getPhenotype().getMap());
             
@@ -484,7 +485,9 @@ public class Algorithm extends Thread {
 //            (Math.abs(fitness_treasures_security_variance) * 0.2);
 
     	Map map = ind.getPhenotype().getMap();
-    	double fitness = 1.0 - (double)Corridor.corridorTileCount(map, null)/(double)map.getNonWallTileCount();
+    	int passableTiles = map.getNonWallTileCount();
+    	int corridors = Corridor.corridorTileCount(map, null);
+    	double fitness = 1.0 - (double)corridors/(double)passableTiles;
     	
     	
     	
