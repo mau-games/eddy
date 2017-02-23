@@ -59,7 +59,7 @@ public class Corridor extends Pattern {
 			for(int j = 0; j < map.getRowCount(); j++)
 				if(IsCorridorTile(map,i,j))
 					corridorTiles[i][j] = true;
-		
+
 		List<List<SearchNode>> candidateCorridors = new ArrayList<List<SearchNode>>();
     	
     	for(int i = 0; i < map.getColCount(); i++)
@@ -100,8 +100,75 @@ public class Corridor extends Pattern {
 			    		
 			    	}
 			    	
-			    	if(c.size() > 2)
-			    		candidateCorridors.add(c);
+			    	if(c.size() < 3){
+			    		for(SearchNode sn : c){
+			    			corridorTiles[sn.position.getX()][sn.position.getY()] = false;
+			    		}
+			    	}
+			    		//candidateCorridors.add(c);
+		
+				} else {
+					visited[i][j] = true;
+				}
+
+			}
+    	}
+    	
+    	visited = new boolean[map.getColCount()][map.getRowCount()];
+    	
+    	//For every non-corridor tile, if ALL of its passable neighbours are corridors
+		//then let it be a corridor too (so as not to make it feel left out)
+		for(int i = 0; i < map.getColCount(); i++)
+			for(int j = 0; j < map.getRowCount(); j++)
+				if(!corridorTiles[i][j])
+				{
+					if((i == 0 || corridorTiles[i-1][j])
+							&& (i == map.getColCount() - 1 || corridorTiles[i+1][j])
+							&& (j == 0 || corridorTiles[i][j - 1])
+							&& (j == map.getRowCount() - 1 || corridorTiles[i][j + 1])){
+						corridorTiles[i][j] = true;
+					}
+				}
+		
+		for(int i = 0; i < map.getColCount(); i++)
+    	{
+			for(int j = 0; j < map.getRowCount(); j++)
+			{
+				if(!visited[i][j] && corridorTiles[i][j]){
+					List<SearchNode> c = new ArrayList<SearchNode>();
+					
+					Queue<SearchNode> queue = new LinkedList<SearchNode>();
+			    	SearchNode root = new SearchNode(new Point(i,j), null);
+			    	queue.add(root);
+			    	visited[i][j] = true;
+			    	
+			    	while(!queue.isEmpty()){
+			    		SearchNode current = queue.remove();
+			    		c.add(current);
+			    		
+			    		int ii = current.position.getX();
+			    		int jj = current.position.getY();
+			    		
+			    		if(ii > 0 && !visited[ii-1][jj] && corridorTiles[ii-1][jj]){
+			    			queue.add(new SearchNode(new Point(ii-1,jj), null));
+			    			visited[ii-1][jj] = true;
+			    		}
+			    		if(jj > 0 && !visited[ii][jj - 1] && corridorTiles[ii][jj - 1]){
+			    			queue.add(new SearchNode(new Point(ii,jj - 1), null));
+			    			visited[ii][jj - 1] = true;
+			    		}
+			    		if(ii < map.getColCount() - 1 && !visited[ii+1][jj] && corridorTiles[ii+1][jj]){
+			    			queue.add(new SearchNode(new Point(ii+1,jj), null));
+			    			visited[ii+1][jj] = true;
+			    		}
+			    		if(jj < map.getRowCount() - 1 && !visited[ii][jj + 1] && corridorTiles[ii][jj + 1]){
+			    			queue.add(new SearchNode(new Point(ii,jj + 1), null));
+			    			visited[ii][jj + 1] = true;
+			    		}
+			    		
+			    	}
+			    	
+		    		candidateCorridors.add(c);
 		
 				} else {
 					visited[i][j] = true;
@@ -127,15 +194,31 @@ public class Corridor extends Pattern {
 		return x < 0 || y < 0 || x == map.getRowCount() || y == map.getColCount() || map.getTile(x,y) == TileTypes.WALL;
 	}
 	
+	private static boolean MightAsWellBeAWall(Map map,int x, int y, int i, int j){
+		int xSign = (int)Math.signum(x-i);
+		int ySign = (int)Math.signum(y-j);
+		return xSign != 0 && ySign != 0 && IsWall(map, i + xSign, j) && IsWall(map, i, j + ySign);
+
+	}
+	
 	private static boolean IsCorridorTile(Map map, int x, int y){
-		return !IsWall(map,x,y) && (IsTileFlanked(map,x,y) || Count8DirectionalWallNeighbours(map,x,y) >= 5);
+		return !IsWall(map,x,y) && IsTileFlanked(map,x,y);// || Count8DirectionalWallNeighbours(map,x,y) >= 6);
 	}
 	
 	private static int Count8DirectionalWallNeighbours(Map map, int x, int y){
 		int wallNeighbours = 0;
 		for(int i = -1; i<= 1; i++)
 			for(int j = -1; j<= 1; j++)
-				if(i != 0 && j != 00 && IsWall(map,x+i,y+j))
+				if((i != 0 || j != 0) && IsWall(map,x+i,y+j))
+					wallNeighbours++;
+		return wallNeighbours;
+	}
+	
+	private static int Count8DirectionalNonBlockedWallNeighbours(Map map, int x, int y){
+		int wallNeighbours = 0;
+		for(int i = -1; i<= 1; i++)
+			for(int j = -1; j<= 1; j++)
+				if((i != 0 || j != 0) && (IsWall(map,x+i,y+j) || MightAsWellBeAWall(map,x+i,y+j,i,j)))
 					wallNeighbours++;
 		return wallNeighbours;
 	}
