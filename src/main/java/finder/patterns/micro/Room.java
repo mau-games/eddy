@@ -7,6 +7,7 @@ import java.util.List;
 
 import finder.geometry.Geometry;
 import finder.geometry.Point;
+import finder.geometry.Polygon;
 import finder.geometry.Rectangle;
 import finder.patterns.Pattern;
 import game.Map;
@@ -43,8 +44,10 @@ public class Room extends Pattern {
 		Point p1 = ((Rectangle) boundary).getTopLeft();
 		Point p2 = ((Rectangle) boundary).getBottomRight();
 		if (map == null || boundary == null ||
-				map.getRowCount() == 0 ||
-				map.getColCount() == 0 ||
+				map.getRowCount() < 3 ||
+				map.getColCount() < 3 ||
+				p2.getX() - p1.getX() < 2 ||
+				p2.getY() - p1.getY() < 2 ||
 				p1.getX() >= map.getColCount() ||
 				p2.getX() >= map.getColCount() ||
 				p1.getY() >= map.getRowCount() ||
@@ -52,6 +55,22 @@ public class Room extends Pattern {
 			return results;
 		}
 		System.out.println(p1.getX() + ", " + p1.getY() + "; " + p2.getX() + ", " + p2.getY());
+		
+//		HashSet<Point> candidates = new HashSet<Point>();
+//		for (int i = p1.getX() + 1; i < p2.getX() - 1; i++) {
+//			for (int j = p1.getY() + 1; j < p2.getY() - 1; j++) {
+//				if (map.getTile(i, j) != TileTypes.WALL) {
+//					candidates.add(new Point(i, j));
+//				}
+//			}
+//		}
+//		for (Point p : candidates) {
+//			if (isRoom(map, p)) {
+//				growRoom(map, candidates, p);
+//			}
+//		}
+		
+		// -------------------8<-------------------------------------
 		
 		// While searching for rooms, we treat anything not being a wall as a
 		// part of a potential room.
@@ -104,6 +123,53 @@ public class Room extends Pattern {
 		}
 
 		return results;
+	}
+	
+	private static boolean isRoom(Map map, Point p) {
+		int x = p.getX();
+		int y = p.getY();
+		
+		if (map.getTile(x, y) == TileTypes.FLOOR ||
+				map.getTile(x - 1, y) == TileTypes.FLOOR ||
+				map.getTile(x + 1, y) == TileTypes.FLOOR) {
+			return false;
+		}
+		
+		for (int i = x - 1; i <= x + 1; i++) {
+			if (map.getTile(i, y - 1) == TileTypes.FLOOR) {
+				return false;
+			}
+		}
+		
+		for (int i = x - 1; i <= y + 1; i++) {
+			if (map.getTile(i, y + 1) == TileTypes.FLOOR) {
+				return false;
+			}
+		}
+		
+		return true;
+	}
+	
+	private static Polygon growRoom(Map map, HashSet candidates, Point point) {
+		HashSet<Point> ps = new HashSet<Point>();
+		int x = point.getX();
+		int y = point.getY();
+		
+		for (int i = x - 1; i <= x + 1; i++) {
+			for (int j = y - 1; j <= y + 1; j++) {
+				Point p = new Point(x, y);
+				ps.add(p);
+				candidates.remove(p);
+			}
+		}
+		
+		
+		
+		return null;
+	}
+	
+	private static boolean hasThreeNeighbours(Map map, Point p) {
+		return false;
 	}
 	
 	private static Rectangle tryGrow(Map map, Geometry boundary, Rectangle candidate) {
