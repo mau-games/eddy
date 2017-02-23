@@ -1,6 +1,7 @@
 package finder.geometry;
 
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * The Multipoint class represents an abstract geometric object consisting of zero
@@ -33,9 +34,18 @@ public abstract class Multipoint extends Geometry {
 	/**
 	 * Returns the number of points in the construct.
 	 * 
-	 * @return
+	 * @return The number of points.
 	 */
 	public int getNumberOfPoints() {
 		return points.size();
+	}
+	
+	/**
+	 * Returns all points as a list.
+	 * 
+	 * @return A list of all points.
+	 */
+	public List<Point> getPoints() {
+		return points;
 	}
 }
