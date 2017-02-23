@@ -18,6 +18,10 @@ import game.TileTypes;
  * @author Johan Holmberg
  */
 public class Room extends Pattern {
+	
+	public Room(Geometry geometry) {
+		boundaries = geometry;
+	}
 
 	// TODO: This might be slightly more efficient: https://gist.github.com/pelya/4babc0bab224bd22e6f30ce17d784c07
 	// TODO: Consider non-rectangular geometries in the future.
@@ -60,7 +64,7 @@ public class Room extends Pattern {
 			for (int j = p1.getY(); j <= p2.getY(); j++) {
 				if (map.getTile(i, j) == TileTypes.WALL) {
 					if (width >= 3) { // TODO: Put this into the config file
-						end = new Point(i, j);
+						end = new Point(i, j - 1);
 						candidates.push(new Rectangle(start, end));
 						System.out.println("Added rectangle: "
 								+ start.getX() + "," + start.getY() + "; "
@@ -76,7 +80,7 @@ public class Room extends Pattern {
 				}
 			}
 			if (width >= 3) { // TODO: Put this into the config file
-				end = new Point(i, p2.getX());
+				end = new Point(i, p2.getY());
 				candidates.push(new Rectangle(start, end));
 				System.out.println("Added rectangle: "
 						+ start.getX() + "," + start.getY() + "; "
@@ -95,7 +99,9 @@ public class Room extends Pattern {
 			}
 		}
 		System.out.println("Number of rooms: " + rects.size());
-//		results = new ArrayList<Pattern>(hset);
+		for (Rectangle rect : rects) {
+			results.add(new Room(rect));
+		}
 
 		return results;
 	}
@@ -105,20 +111,24 @@ public class Room extends Pattern {
 		int y2 = candidate.getBottomRight().getY();
 		int left = candidate.getTopLeft().getX();
 		int right = left;
+
+		System.out.println("Hello with " + left + " and " + y1 + "," + y2);
 		
-		// First, try to grow upwards
-		while (left >= ((Rectangle) boundary).getTopLeft().getY()
-				&& isRectangle(map, left, y1, y2)) {
+		// First, try to grow leftwards
+		while (left - 1 >= ((Rectangle) boundary).getTopLeft().getY()
+				&& isRectangle(map, left - 1, y1, y2)) {
 			left--;
+			System.out.println("Checked " + left);
 		}
 		
-		// Then, try to grow downwards
-		while (right <= ((Rectangle) boundary).getTopLeft().getY()
-				&& isRectangle(map, right, y1, y2)) {
+		// Then, try to grow rightwards
+		while (right + 1 <= ((Rectangle) boundary).getBottomRight().getY()
+				&& isRectangle(map, right + 1, y1, y2)) {
 			right++;
+			System.out.println("Checked " + right);
 		}
 		
-		if (right - left >= 3) { // TODO: Put this into the config file
+		if (right - left >= 2) { // TODO: Put this into the config file (i.e. 3 - 1)
 			System.out.println("Found room!" + y1 + "," + left + "; " + y2 + "," + right);
 			return new Rectangle(new Point(y1, left), new Point(y2, right));
 		} else {
@@ -126,9 +136,10 @@ public class Room extends Pattern {
 		}
 	}
 
-	private static boolean isRectangle(Map map, int col, int y1, int y2) {
+	private static boolean isRectangle(Map map, int row, int y1, int y2) {
 		for (int i = y1; i <= y2; i++) {
-			if (map.getTile(col, i) == TileTypes.WALL) {
+			System.out.println(map.getTile(row, i));
+			if (map.getTile(row, i) == TileTypes.WALL) {
 				return false;
 			}
 		}

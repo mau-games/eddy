@@ -35,4 +35,10 @@ public class RectangleTest {
 		assertEquals(r1, r2);
 	}
 
+	@Test
+	public void testHashCode() {
+		Rectangle rectangle = new Rectangle(new Point(1, 1), new Point(10, 10));
+		
+		assertEquals(2939300, rectangle.hashCode());
+	}
 }
