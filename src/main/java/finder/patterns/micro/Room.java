@@ -3,7 +3,9 @@ package finder.patterns.micro;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.PriorityQueue;
 
 import finder.geometry.Geometry;
 import finder.geometry.Point;
@@ -24,9 +26,7 @@ public class Room extends Pattern {
 		boundaries = geometry;
 	}
 
-	// TODO: This might be slightly more efficient: https://gist.github.com/pelya/4babc0bab224bd22e6f30ce17d784c07
 	// TODO: Consider non-rectangular geometries in the future.
-	// TODO: Consider non-rectangular rooms in the future.
 	/**
 	 * Searches a map for rooms. The searchable area can be limited by a set of
 	 * boundaries. If these boundaries are invalid, no search will be
@@ -54,162 +54,130 @@ public class Room extends Pattern {
 				p2.getY() >= map.getRowCount()) {
 			return results;
 		}
-		System.out.println(p1.getX() + ", " + p1.getY() + "; " + p2.getX() + ", " + p2.getY());
 		
-//		HashSet<Point> candidates = new HashSet<Point>();
-//		for (int i = p1.getX() + 1; i < p2.getX() - 1; i++) {
-//			for (int j = p1.getY() + 1; j < p2.getY() - 1; j++) {
-//				if (map.getTile(i, j) != TileTypes.WALL) {
-//					candidates.add(new Point(i, j));
-//				}
-//			}
-//		}
-//		for (Point p : candidates) {
-//			if (isRoom(map, p)) {
-//				growRoom(map, candidates, p);
-//			}
-//		}
+		int[][] matrix = new int[p2.getX() - p1.getX() + 1][p2.getY() - p1.getY() + 1];
 		
-		// -------------------8<-------------------------------------
-		
-		// While searching for rooms, we treat anything not being a wall as a
-		// part of a potential room.
-		ArrayDeque<Rectangle> candidates = new ArrayDeque<Rectangle>();
-		HashSet<Rectangle> rects = new HashSet<Rectangle>();
-		int width = 0;
-		Point start = null;
-		Point end = null;
-		for (int i = p1.getX(); i <= p2.getX(); i++) {
-			for (int j = p1.getY(); j <= p2.getY(); j++) {
-				if (map.getTile(i, j) == TileTypes.WALL) {
-					if (width >= 3) { // TODO: Put this into the config file
-						end = new Point(i, j - 1);
-						candidates.push(new Rectangle(start, end));
-						System.out.println("Added rectangle: "
-								+ start.getX() + "," + start.getY() + "; "
-								+ end.getX() + ", " + end.getY());
-					}
-					start = null;
-					width = 0;
+		for (int i = 0; i < matrix.length; i++) {
+			for (int j = 0; j < matrix[0].length; j++) {
+				if (map.getTile(p1.getX() + i, p1.getY() + j) == TileTypes.WALL) {
+					matrix[i][j] = -1;
 				} else {
-					if (start == null) {
-						start = new Point(i, j);
-					}
-					width++;
+					matrix[i][j] = 0;
 				}
 			}
-			if (width >= 3) { // TODO: Put this into the config file
-				end = new Point(i, p2.getY());
-				candidates.push(new Rectangle(start, end));
-				System.out.println("Added rectangle: "
-						+ start.getX() + "," + start.getY() + "; "
-						+ end.getX() + "," + end.getY());
-			}
-			start = null;
-			width = 0;
 		}
-		System.out.println("Number of candidates: " + candidates.size());
+		for (int i = 0; i < matrix.length; i++) {
+			for (int j = 0; j < matrix[0].length; j++) {
+				System.out.print(matrix[i][j] + 1);
+			}
+			System.out.println();
+		}
+		System.out.println();
 		
-		// For each candidate: Try to grow. If big enough, push to rectangles.
-		for (Rectangle candidate : candidates) {
-			candidate = tryGrow(map, boundary, candidate);
-			if (candidate != null) {
-				rects.add(candidate);
+		int roomCounter = 0;
+		for (int i = 1; i < matrix.length - 1; i++) {
+			for (int j = 1; j < matrix[0].length - 1; j++) {
+				if (isRoom(matrix, i, j)) {
+					growRoom(matrix, i, j, ++roomCounter);
+					results.add(new Room(new Point(i, j)));
+				}
 			}
 		}
-		System.out.println("Number of rooms: " + rects.size());
-		for (Rectangle rect : rects) {
-			results.add(new Room(rect));
+		for (int i = 0; i < matrix.length; i++) {
+			for (int j = 0; j < matrix[0].length; j++) {
+				System.out.print(matrix[i][j] + 1);
+			}
+			System.out.println();
 		}
 
 		return results;
 	}
 	
-	private static boolean isRoom(Map map, Point p) {
-		int x = p.getX();
-		int y = p.getY();
-		
-		if (map.getTile(x, y) == TileTypes.FLOOR ||
-				map.getTile(x - 1, y) == TileTypes.FLOOR ||
-				map.getTile(x + 1, y) == TileTypes.FLOOR) {
+	private static boolean isRoom(int[][] map, int x, int y) {
+		if (map[x][y] != 0) {
 			return false;
 		}
 		
 		for (int i = x - 1; i <= x + 1; i++) {
-			if (map.getTile(i, y - 1) == TileTypes.FLOOR) {
-				return false;
-			}
-		}
-		
-		for (int i = x - 1; i <= y + 1; i++) {
-			if (map.getTile(i, y + 1) == TileTypes.FLOOR) {
-				return false;
-			}
-		}
-		
-		return true;
-	}
-	
-	private static Polygon growRoom(Map map, HashSet candidates, Point point) {
-		HashSet<Point> ps = new HashSet<Point>();
-		int x = point.getX();
-		int y = point.getY();
-		
-		for (int i = x - 1; i <= x + 1; i++) {
 			for (int j = y - 1; j <= y + 1; j++) {
-				Point p = new Point(x, y);
-				ps.add(p);
-				candidates.remove(p);
-			}
-		}
-		
-		
-		
-		return null;
-	}
-	
-	private static boolean hasThreeNeighbours(Map map, Point p) {
-		return false;
-	}
-	
-	private static Rectangle tryGrow(Map map, Geometry boundary, Rectangle candidate) {
-		int y1 = candidate.getTopLeft().getY();
-		int y2 = candidate.getBottomRight().getY();
-		int left = candidate.getTopLeft().getX();
-		int right = left;
-
-		System.out.println("Hello with " + left + " and " + y1 + "," + y2);
-		
-		// First, try to grow leftwards
-		while (left - 1 >= ((Rectangle) boundary).getTopLeft().getY()
-				&& isRectangle(map, left - 1, y1, y2)) {
-			left--;
-			System.out.println("Checked " + left);
-		}
-		
-		// Then, try to grow rightwards
-		while (right + 1 <= ((Rectangle) boundary).getBottomRight().getY()
-				&& isRectangle(map, right + 1, y1, y2)) {
-			right++;
-			System.out.println("Checked " + right);
-		}
-		
-		if (right - left >= 2) { // TODO: Put this into the config file (i.e. 3 - 1)
-			System.out.println("Found room!" + y1 + "," + left + "; " + y2 + "," + right);
-			return new Rectangle(new Point(y1, left), new Point(y2, right));
-		} else {
-			return null;
-		}
-	}
-
-	private static boolean isRectangle(Map map, int row, int y1, int y2) {
-		for (int i = y1; i <= y2; i++) {
-			System.out.println(map.getTile(row, i));
-			if (map.getTile(row, i) == TileTypes.WALL) {
-				return false;
+				if (map[i][j] != 0) {
+					return false;
+				}
 			}
 		}
 		
 		return true;
+	}
+	
+	private static void growRoom(int[][] map, int x, int y, int room) {
+		LinkedList<Point> pq = new LinkedList<Point>();
+		Point p;
+		
+		for (int i = x - 1; i < x + 2; i++) {
+			for (int j = y - 1; j < y + 2; j++) {
+				map[i][j] = room;
+			}
+		}
+		if (x + 2 < map.length) {
+			pq.addLast(new Point(x + 2, y));
+			pq.addLast(new Point(x + 2, y + 1));
+			pq.addLast(new Point(x + 2, y - 1));
+		}
+		if (y - 2 >= 0) {
+			pq.addLast(new Point(x, y - 2));
+			pq.addLast(new Point(x + 1, y - 2));
+			pq.addLast(new Point(x - 1, y - 2));
+		}
+		if (x - 2 >= 0) {
+			pq.addLast(new Point(x - 2, y));
+			pq.addLast(new Point(x - 2, y - 1));
+			pq.addLast(new Point(x - 2, y + 1));
+		}
+		if (y + 2 < map[0].length) {
+			pq.addLast(new Point(x, y + 2));
+			pq.addLast(new Point(x - 1, y + 2));
+			pq.addLast(new Point(x + 1, y + 2));
+		}
+		
+		while (!pq.isEmpty()) {
+			p = pq.removeFirst();
+			x = p.getX();
+			y = p.getY();
+			
+			if (map[x][y] == 0 && hasThreeNeighbours(map, p, room)) {
+				map[x][y] = room;
+				if (x + 1 < map.length) {
+					pq.addLast(new Point(x + 1, y));
+				}
+				if (y - 1 >= 0) {
+					pq.addLast(new Point(x, y - 1));
+				}
+				if (x - 1 >= 0) {
+					pq.addLast(new Point(x - 1, y));
+				}
+				if (y + 1 < map[0].length) {
+					pq.addLast(new Point(x, y + 1));
+				}
+			}
+		}
+	}
+	
+	private static boolean hasThreeNeighbours(int[][] map, Point p, int room) {
+		int neighbours = 0;
+		int x = p.getX();
+		int y = p.getY();
+
+		for (int i = x - 1; i <= x + 1; i++) {
+			if (i >= 0 && i < map.length) {
+				for (int j = y - 1; j <= y + 1; j++) {
+					if (j >= 0 && j < map[0].length && map[i][j] == room) {
+						neighbours++;
+					}
+				}
+			}
+
+		}
+
+		return neighbours >= 3;
 	}
 }
