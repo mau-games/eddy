@@ -3,10 +3,12 @@ package finder.patterns.micro;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.PriorityQueue;
 
+import finder.geometry.Bitmap;
 import finder.geometry.Geometry;
 import finder.geometry.Point;
 import finder.geometry.Polygon;
@@ -66,29 +68,28 @@ public class Room extends Pattern {
 				}
 			}
 		}
-		for (int i = 0; i < matrix.length; i++) {
-			for (int j = 0; j < matrix[0].length; j++) {
-				System.out.print(matrix[i][j] + 1);
-			}
-			System.out.println();
-		}
-		System.out.println();
+//		for (int i = 0; i < matrix.length; i++) {
+//			for (int j = 0; j < matrix[0].length; j++) {
+//				System.out.print(matrix[i][j] + 1);
+//			}
+//			System.out.println();
+//		}
+//		System.out.println();
 		
 		int roomCounter = 0;
 		for (int i = 1; i < matrix.length - 1; i++) {
 			for (int j = 1; j < matrix[0].length - 1; j++) {
 				if (isRoom(matrix, i, j)) {
-					growRoom(matrix, i, j, ++roomCounter);
-					results.add(new Room(new Point(i, j)));
+					results.add(new Room(growRoom(matrix, i, j, ++roomCounter)));
 				}
 			}
 		}
-		for (int i = 0; i < matrix.length; i++) {
-			for (int j = 0; j < matrix[0].length; j++) {
-				System.out.print(matrix[i][j] + 1);
-			}
-			System.out.println();
-		}
+//		for (int i = 0; i < matrix.length; i++) {
+//			for (int j = 0; j < matrix[0].length; j++) {
+//				System.out.print(matrix[i][j] + 1);
+//			}
+//			System.out.println();
+//		}
 
 		return results;
 	}
@@ -109,8 +110,10 @@ public class Room extends Pattern {
 		return true;
 	}
 	
-	private static void growRoom(int[][] map, int x, int y, int room) {
+	private static Polygon growRoom(int[][] map, int x, int y, int room) {
+		Polygon polygon = new Bitmap();
 		LinkedList<Point> pq = new LinkedList<Point>();
+		LinkedList<Point> cloud = new LinkedList<Point>(); // poly
 		Point p;
 		
 		for (int i = x - 1; i < x + 2; i++) {
@@ -138,6 +141,7 @@ public class Room extends Pattern {
 			pq.addLast(new Point(x - 1, y + 2));
 			pq.addLast(new Point(x + 1, y + 2));
 		}
+		cloud.addAll(pq); // poly
 		
 		while (!pq.isEmpty()) {
 			p = pq.removeFirst();
@@ -146,6 +150,7 @@ public class Room extends Pattern {
 			
 			if (map[x][y] == 0 && hasThreeNeighbours(map, p, room)) {
 				map[x][y] = room;
+				cloud.addLast(p); // poly
 				if (x + 1 < map.length) {
 					pq.addLast(new Point(x + 1, y));
 				}
@@ -160,9 +165,27 @@ public class Room extends Pattern {
 				}
 			}
 		}
+		
+		// ˇˇˇ poly ˇ̌ˇˇ
+		Iterator<Point> iter = cloud.iterator();
+		while (iter.hasNext()) {
+			if (hasEightNeighbours(map, iter.next(), room)) {
+				iter.remove();
+			}
+		}
+		
+		return polygon;
 	}
 	
 	private static boolean hasThreeNeighbours(int[][] map, Point p, int room) {
+		return countNeighbours(map, p, room) >= 3;
+	}
+	
+	private static boolean hasEightNeighbours(int[][] map, Point p, int room) {
+		return countNeighbours(map, p, room) == 8;
+	}
+	
+	private static int countNeighbours(int[][] map, Point p, int room) {
 		int neighbours = 0;
 		int x = p.getX();
 		int y = p.getY();
@@ -177,7 +200,7 @@ public class Room extends Pattern {
 			}
 
 		}
-
-		return neighbours >= 3;
+		
+		return neighbours;
 	}
 }
