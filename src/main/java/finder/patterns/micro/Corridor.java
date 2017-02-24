@@ -100,7 +100,7 @@ public class Corridor extends Pattern {
 			    		
 			    	}
 			    	
-			    	if(c.size() < 3){
+			    	if(c.size() < 2){
 			    		for(SearchNode sn : c){
 			    			corridorTiles[sn.position.getX()][sn.position.getY()] = false;
 			    		}
@@ -184,7 +184,7 @@ public class Corridor extends Pattern {
     			corridorTileCount += l.size();
     	}
     	
-    	System.out.println("corridors: " + candidateCorridors.size());
+//    	System.out.println("corridors: " + candidateCorridors.size());
     	
     	return corridorTileCount;
     	

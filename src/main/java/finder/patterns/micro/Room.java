@@ -54,7 +54,7 @@ public class Room extends Pattern {
 				p2.getY() >= map.getRowCount()) {
 			return results;
 		}
-		System.out.println(p1.getX() + ", " + p1.getY() + "; " + p2.getX() + ", " + p2.getY());
+//		System.out.println(p1.getX() + ", " + p1.getY() + "; " + p2.getX() + ", " + p2.getY());
 		
 //		HashSet<Point> candidates = new HashSet<Point>();
 //		for (int i = p1.getX() + 1; i < p2.getX() - 1; i++) {
@@ -85,9 +85,9 @@ public class Room extends Pattern {
 					if (width >= 3) { // TODO: Put this into the config file
 						end = new Point(i, j - 1);
 						candidates.push(new Rectangle(start, end));
-						System.out.println("Added rectangle: "
-								+ start.getX() + "," + start.getY() + "; "
-								+ end.getX() + ", " + end.getY());
+//						System.out.println("Added rectangle: "
+//								+ start.getX() + "," + start.getY() + "; "
+//								+ end.getX() + ", " + end.getY());
 					}
 					start = null;
 					width = 0;
@@ -101,14 +101,14 @@ public class Room extends Pattern {
 			if (width >= 3) { // TODO: Put this into the config file
 				end = new Point(i, p2.getY());
 				candidates.push(new Rectangle(start, end));
-				System.out.println("Added rectangle: "
-						+ start.getX() + "," + start.getY() + "; "
-						+ end.getX() + "," + end.getY());
+//				System.out.println("Added rectangle: "
+//						+ start.getX() + "," + start.getY() + "; "
+//						+ end.getX() + "," + end.getY());
 			}
 			start = null;
 			width = 0;
 		}
-		System.out.println("Number of candidates: " + candidates.size());
+//		System.out.println("Number of candidates: " + candidates.size());
 		
 		// For each candidate: Try to grow. If big enough, push to rectangles.
 		for (Rectangle candidate : candidates) {
@@ -117,7 +117,7 @@ public class Room extends Pattern {
 				rects.add(candidate);
 			}
 		}
-		System.out.println("Number of rooms: " + rects.size());
+//		System.out.println("Number of rooms: " + rects.size());
 		for (Rectangle rect : rects) {
 			results.add(new Room(rect));
 		}
@@ -178,24 +178,24 @@ public class Room extends Pattern {
 		int left = candidate.getTopLeft().getX();
 		int right = left;
 
-		System.out.println("Hello with " + left + " and " + y1 + "," + y2);
+//		System.out.println("Hello with " + left + " and " + y1 + "," + y2);
 		
 		// First, try to grow leftwards
 		while (left - 1 >= ((Rectangle) boundary).getTopLeft().getY()
 				&& isRectangle(map, left - 1, y1, y2)) {
 			left--;
-			System.out.println("Checked " + left);
+//			System.out.println("Checked " + left);
 		}
 		
 		// Then, try to grow rightwards
 		while (right + 1 <= ((Rectangle) boundary).getBottomRight().getY()
 				&& isRectangle(map, right + 1, y1, y2)) {
 			right++;
-			System.out.println("Checked " + right);
+//			System.out.println("Checked " + right);
 		}
 		
 		if (right - left >= 2) { // TODO: Put this into the config file (i.e. 3 - 1)
-			System.out.println("Found room!" + y1 + "," + left + "; " + y2 + "," + right);
+//			System.out.println("Found room!" + y1 + "," + left + "; " + y2 + "," + right);
 			return new Rectangle(new Point(y1, left), new Point(y2, right));
 		} else {
 			return null;
@@ -204,7 +204,7 @@ public class Room extends Pattern {
 
 	private static boolean isRectangle(Map map, int row, int y1, int y2) {
 		for (int i = y1; i <= y2; i++) {
-			System.out.println(map.getTile(row, i));
+//			System.out.println(map.getTile(row, i));
 			if (map.getTile(row, i) == TileTypes.WALL) {
 				return false;
 			}
