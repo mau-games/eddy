@@ -168,8 +168,11 @@ public class Room extends Pattern {
 		
 		// ˇˇˇ poly ˇ̌ˇˇ
 		Iterator<Point> iter = cloud.iterator();
+		p = null;
 		while (iter.hasNext()) {
-			if (hasEightNeighbours(map, iter.next(), room)) {
+			p = iter.next();
+			polygon.addPoint(p);
+			if (hasEightNeighbours(map, p, room)) {
 				iter.remove();
 			}
 		}
