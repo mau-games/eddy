@@ -191,7 +191,7 @@ public class Algorithm extends Thread {
             if (!ind.isEvaluated())
                 evaluateFeasibleIndividual(ind);
         }
-        this.sortPopulation(feasiblePool, true);
+        this.sortPopulation(feasiblePool, false);
         feasiblePool = feasiblePool.stream().limit(feasibleAmount).collect(Collectors.toList());
 
         //Evaluate invalid individuals
@@ -479,34 +479,34 @@ public class Algorithm extends Thread {
     	//Corridor fitness
     	Map map = ind.getPhenotype().getMap();
     	int passableTiles = map.getNonWallTileCount();
-//    	int corridors = Corridor.corridorTileCount(map, null);
-//    	double fitness = 1.0 - (double)corridors/(double)passableTiles;
+    	int corridors = Corridor.corridorTileCount(map, null);
+    	double fitness = (double)corridors/(double)passableTiles;
     	
-    	int roomArea = 0;
-    	List<Pattern> rooms = Room.matches(map, new Rectangle(new finder.geometry.Point(0,0),new finder.geometry.Point(map.getColCount()-1,map.getRowCount()-1)));
-    	
-    	//Room fitness
-    	for(Pattern p : rooms){
-    		roomArea += ((Polygon)p.getGeometry()).getArea();
-    	}
-//    
-    	int avgRoomArea = 0;
-    	if(rooms.size() > 0)
-    		avgRoomArea = roomArea/rooms.size();
-    	double avgRoomAreaPercent = (double)avgRoomArea / (double)(map.getRowCount()*map.getColCount());
-    	double roomAreaDifference = Math.abs(avgRoomAreaPercent - 0.5);
-    	
-    	//double fitness = roomAreaDifference;
-    	double wallProportion = (double)map.getWallCount()/(map.getRowCount()*map.getColCount());
+//    	int roomArea = 0;
+//    	List<Pattern> rooms = Room.matches(map, new Rectangle(new finder.geometry.Point(0,0),new finder.geometry.Point(map.getColCount()-1,map.getRowCount()-1)));
 //    	
-    	double wallTarget = 0.06 * rooms.size();
-    	double wallFitness = Math.abs(wallProportion - wallTarget);
+//    	//Room fitness
+//    	for(Pattern p : rooms){
+//    		roomArea += ((Polygon)p.getGeometry()).getArea();
+//    	}
+////    
+//    	int avgRoomArea = 0;
+//    	if(rooms.size() > 0)
+//    		avgRoomArea = roomArea/rooms.size();
+//    	double avgRoomAreaPercent = (double)avgRoomArea / (double)(map.getRowCount()*map.getColCount());
+//    	double roomAreaDifference = Math.abs(avgRoomAreaPercent - 0.5);
 //    	
-//    	double fitness = 0.2 - 0.2*(double)roomArea/(double)passableTiles
-//    			+ 0.8 * roomAreaDifference;
-    	//double fitness = 1.0 - 0.65*(double)roomArea/(double)passableTiles - 0.35*(1-wallFitness);
-    	
-    	double fitness = 1.0 - (double)roomArea/passableTiles;
+//    	//double fitness = roomAreaDifference;
+//    	double wallProportion = (double)map.getWallCount()/(map.getRowCount()*map.getColCount());
+////    	
+//    	double wallTarget = 0.3 * rooms.size();
+//    	double wallFitness = Math.abs(wallProportion - wallTarget);
+////    	
+////    	double fitness = 0.2 - 0.2*(double)roomArea/(double)passableTiles
+////    			+ 0.8 * roomAreaDifference;
+//    	double fitness = 1.0 - 0.65*(double)roomArea/(double)passableTiles - 0.35*(1-wallFitness);
+//    	
+//    	double fitness = 1.0 - (double)roomArea/passableTiles;
     	
         //set final fitness
         ind.setFitness(fitness);
@@ -578,7 +578,7 @@ public class Algorithm extends Thread {
     private void breedFeasibleIndividuals()
     {
         //Select parents for crossover
-        List<Individual> parents = selectProgenitors(feasiblePopulation);
+        List<Individual> parents = tournamentSelection(feasiblePopulation);
         //Crossover parents
         List<Individual> children = crossOverBetweenProgenitors(parents);
         //Assign to a pool based on feasibility
@@ -594,7 +594,7 @@ public class Algorithm extends Thread {
     private void breedInfeasibleIndividuals()
     {
         //Select parents for crossover
-        List<Individual> parents = selectProgenitors(infeasiblePopulation);
+        List<Individual> parents = tournamentSelection(infeasiblePopulation);
         //Crossover parents
         List<Individual> children = crossOverBetweenProgenitors(parents);
         //Assign to a pool based on feasibility
@@ -626,41 +626,76 @@ public class Algorithm extends Thread {
 
     
     /**
-     * Selects progenitors from a population using tournament selection
-     * (see https://en.wikipedia.org/wiki/Tournament_selection).
+     * Selects parents from a population using (deterministic) tournament selection - i.e. the winner is always the individual with the "best" fitness.
+     * See: https://en.wikipedia.org/wiki/Tournament_selection
      * TODO: Make sure this is properly implemented.
      * 
      * @param population A whole population of individuals
      * @return A list of chosen progenitors
      */
-    private List<Individual> selectProgenitors(List<Individual> population)
-    {
-        int countProgenitors = (int)(offspringSize * population.size()) / 2;
-        List<Individual> progenitors = new ArrayList<Individual>();
+    private List<Individual> tournamentSelection(List<Individual> population)
+    { 
+        List<Individual> parents = new ArrayList<Individual>();
+        int numberOfParents = (int)(offspringSize * population.size()) / 2;
 
-        while(countProgenitors > 0)
+        while(parents.size() < numberOfParents)
         {
-            int individuals_to_select = Util.getNextInt(1, population.size());
+        	//Select at least one individual to "fight" in the tournament
+            int tournamentSize = Util.getNextInt(1, population.size());
 
-            Individual bestProgenitor = null;
-            for(int i = 0; i < individuals_to_select; i++)
+            Individual winner = null;
+            for(int i = 0; i < tournamentSize; i++)
             {
-                int progenitorIndex = Util.getNextInt(0, population.size() - 1);
-                Individual progenitor = population.get(progenitorIndex);
+                int progenitorIndex = Util.getNextInt(0, population.size());
+                Individual individual = population.get(progenitorIndex);
 
-                //select the progenitor with the lowest fitness
-                if(bestProgenitor == null || (bestProgenitor.getFitness() > progenitor.getFitness()))
+                //select the individual with the highest fitness
+                if(winner == null || (winner.getFitness() < individual.getFitness()))
                 {
-                    bestProgenitor = progenitor;
+                	winner = individual;
                 }
             }
 
-            progenitors.add(bestProgenitor);
-            countProgenitors--;
+            parents.add(winner);
         }
 
-        return progenitors;
+        return parents;
     }
+    
+    /**
+     * Selects parents by fitness proportionate selection.
+     * See: https://en.wikipedia.org/wiki/Fitness_proportionate_selection
+     * Currently allows duplicates, is this wise?
+     * 
+     * @param population
+     * @return
+     */
+    private List<Individual> fitnessProportionateRouletteWheelSelection(List<Individual> population){
+    	sortPopulation(population, false);
+    	
+    	List<Individual> parents = new ArrayList<Individual>();
+    	int numberOfParents = (int)(offspringSize * population.size()) / 2;
+    	
+    	//Calculate sum of fitnesses:
+    	double fitnessSum = population.stream().map((i)->i.getFitness()).reduce(0.0, (acc,f)->acc+f);
+    	
+    	while(parents.size() < numberOfParents){
+    		
+        	double rand = Math.random() * fitnessSum;
+        	
+        	for(int i = 0; i < population.size();i++){
+        		rand -= population.get(i).getFitness();
+        		if(rand <= 0){
+        			parents.add(population.get(i));
+        			break;
+        		}
+        	}
+    		
+    	}
+    	
+    	return parents;
+    }
+    
 
     /**
      * TODO: Document
