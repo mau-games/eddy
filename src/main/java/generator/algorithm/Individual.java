@@ -1,5 +1,6 @@
 package generator.algorithm;
 
+import game.Game;
 import util.Util;
 
 /**
@@ -63,6 +64,34 @@ public class Individual {
 		}
 		
 		return children;
+	}
+	
+	public Individual[] rectangularCrossover(Individual other){
+		Individual[] children = new Individual[2];
+		children[0] = new Individual(new Genotype(genotype.getChromosome().clone()), mutationProbability);
+		children[1] = new Individual(new Genotype(other.getGenotype().getChromosome().clone()), mutationProbability);
+		
+		int lowerBoundM = Util.getNextInt(0, Game.sizeM);
+		int upperBoundM = Util.getNextInt(lowerBoundM, Game.sizeM);
+		int lowerBoundN = Util.getNextInt(0, Game.sizeN);
+		int upperBoundN = Util.getNextInt(lowerBoundN, Game.sizeN);
+		
+		for(int i = lowerBoundM; i <= upperBoundM; i++){
+			for(int j = lowerBoundN; j <= upperBoundN; j++){
+				//exchange
+				children[0].getGenotype().getChromosome()[j*Game.sizeM + i] = other.getGenotype().getChromosome()[j*Game.sizeM + i];
+				children[1].getGenotype().getChromosome()[j*Game.sizeM + i] = genotype.getChromosome()[j*Game.sizeM + i];
+			}
+		}
+		
+		//mutate
+		for(int i = 0; i < 2; i++){
+			if(Util.getNextFloat(0.0f,1.0f) <= mutationProbability)
+				children[i].mutate();
+		}
+		
+		return children;
+		
 	}
 	
 	
