@@ -156,4 +156,15 @@ public class RoomTest {
 		assertEquals(2, rooms.size());
 	}
 
+	@Test
+	public void testBigGenerated() throws IOException {
+		Map map = Map.fromString(IOUtils.toString(
+				this.getClass().getResourceAsStream("/maps/rooms/big-generated.map"),
+				"UTF-8"));
+		Rectangle boundary = new Rectangle(new Point(0, 0), new Point(15, 15));
+		List<Pattern> rooms = Room.matches(map, boundary);
+
+		assertEquals(2, rooms.size());
+	}
+
 }
