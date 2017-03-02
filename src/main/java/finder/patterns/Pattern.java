@@ -10,6 +10,7 @@ import game.Map;
  * The Pattern class is used to describe dungeon game design patterns.
  * 
  * @author Johan Holmberg
+ * @author Alexander Baldwin
  */
 public abstract class Pattern {
 	
