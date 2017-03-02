@@ -155,7 +155,6 @@ public class Room extends Pattern {
 			
 			if (map[x][y] == 0 && hasThreeNeighbours(map, p, room)) {
 				map[x][y] = room;
-				polygon.addPoint(p);
 //				cloud.addLast(p); // poly
 				if (x + 1 < map.length) {
 					pq.addLast(new Point(x + 1, y));
@@ -168,6 +167,14 @@ public class Room extends Pattern {
 				}
 				if (y + 1 < map[0].length) {
 					pq.addLast(new Point(x, y + 1));
+				}
+			}
+		}
+		
+		for (x = 0; x < map.length; x++) {
+			for (y = 0; y < map[0].length; y++) {
+				if (map[x][y] == room) {
+					polygon.addPoint(new Point(x, y));
 				}
 			}
 		}
