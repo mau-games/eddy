@@ -14,7 +14,7 @@ import util.Point;
 
 public class Corridor extends Pattern {
 
-	private final int TARGET_LENGTH = 20;
+	private final int TARGET_LENGTH = 2;
 	
 	public Corridor(Geometry geometry){
 		boundaries = geometry;
@@ -44,6 +44,7 @@ public class Corridor extends Pattern {
 
 	@Override
 	public double getQuality(){
+		//return 1;
 		return Math.min((double)((Bitmap)boundaries).getArea()/TARGET_LENGTH,1.0);
 	}
 	
@@ -130,7 +131,9 @@ public class Corridor extends Pattern {
 			for(int j = 0; j < map.getRowCount(); j++)
 				if(!corridorTiles[i][j] && (isTurnConnector(map,i,j) || isIntersectionConnector(map,i,j)))
 				{
-					
+					Bitmap b = new Bitmap();
+					b.addPoint(new finder.geometry.Point(i,j));
+					results.add(new Connector(b));
 				}
     	
     	
@@ -241,6 +244,9 @@ public class Corridor extends Pattern {
 	 * @return true if the given tile is a turn connector
 	 */
 	private static boolean isTurnConnector(Map map, int x, int y){
+		if(IsWall(map,x,y)) 
+			return false;
+		
 		/*
 		 * Case 1:
 		 * 
@@ -291,6 +297,8 @@ public class Corridor extends Pattern {
 	 * @return
 	 */
 	private static boolean isIntersectionConnector(Map map, int x, int y){
+		if(IsWall(map,x,y)) 
+			return false;
 		
 		return 	(IsWall(map,x-1,y) || IsCorridorTile(map,x-1,y))
 			&&  (IsWall(map,x+1,y) || IsCorridorTile(map,x+1,y))

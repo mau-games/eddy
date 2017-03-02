@@ -160,19 +160,27 @@ public class Algorithm extends Thread {
 
             broadcastMapUpdate(best.getPhenotype().getMap());
   
+//            Map map = best.getPhenotype().getMap();
+//          	List<Pattern> rooms = Room.matches(map, new Rectangle(new finder.geometry.Point(0,0),new finder.geometry.Point(map.getColCount()-1,map.getRowCount()-1)));
+//          	int roomCount = rooms.size();
+//          	int roomArea = 0;
+//      	
+//	      	//Room fitness
+//	      	for(Pattern p : rooms){
+//	      		roomArea += ((Polygon)p.getGeometry()).getArea();
+//	      	}
+          
+            
             Map map = best.getPhenotype().getMap();
-          	List<Pattern> rooms = Room.matches(map, new Rectangle(new finder.geometry.Point(0,0),new finder.geometry.Point(map.getColCount()-1,map.getRowCount()-1)));
-          	int roomCount = rooms.size();
-          	int roomArea = 0;
-      	
-	      	//Room fitness
-	      	for(Pattern p : rooms){
-	      		roomArea += ((Polygon)p.getGeometry()).getArea();
-	      	}
+        	double passableTiles = map.getNonWallTileCount();
+        	double corridorArea = 0;	
+        	List<Pattern> corridors = Corridor.matches(map,null);
+        	for(Pattern p : corridors){
+        		corridorArea += ((Polygon)p.getGeometry()).getArea() * p.getQuality();
+        	}
           
-          
-          broadcastStatusUpdate("Rooms: " + roomCount);
-          broadcastStatusUpdate("Room tiles: " + roomArea);
+          broadcastStatusUpdate("Corridors & Connectors: " + corridors.size());
+          broadcastStatusUpdate("Corridor tiles: " + corridorArea);
           broadcastStatusUpdate("Passable tiles: " + best.getPhenotype().getMap().getNonWallTileCount());
             breedFeasibleIndividuals();
             breedInfeasibleIndividuals();
@@ -485,33 +493,33 @@ public class Algorithm extends Thread {
     		corridorArea += ((Polygon)p.getGeometry()).getArea() * p.getQuality();
     	}
     	
-    	//double fitness = corridorArea/passableTiles;
+    	double fitness = corridorArea/passableTiles;
     	
-    	int roomArea = 0;
-    	List<Pattern> rooms = Room.matches(map, new Rectangle(new finder.geometry.Point(0,0),new finder.geometry.Point(map.getColCount()-1,map.getRowCount()-1)));
-    	
-    	//Room fitness
-    	for(Pattern p : rooms){
-    		roomArea += ((Polygon)p.getGeometry()).getArea();
-    	}
-//    
-    	int avgRoomArea = 0;
-    	if(rooms.size() > 0)
-    		avgRoomArea = roomArea/rooms.size();
-    	double avgRoomAreaPercent = (double)avgRoomArea / (double)(map.getRowCount()*map.getColCount());
-    	double roomAreaDifference = Math.abs(avgRoomAreaPercent - 0.5);
-    	
-    	//double fitness = roomAreaDifference;
-    	double wallProportion = (double)map.getWallCount()/(map.getRowCount()*map.getColCount());
+//    	int roomArea = 0;
+//    	List<Pattern> rooms = Room.matches(map, new Rectangle(new finder.geometry.Point(0,0),new finder.geometry.Point(map.getColCount()-1,map.getRowCount()-1)));
 //    	
-    	double wallTarget = 0.3 * rooms.size();
-    	double wallFitness = Math.abs(wallProportion - wallTarget);
+//    	//Room fitness
+//    	for(Pattern p : rooms){
+//    		roomArea += ((Polygon)p.getGeometry()).getArea();
+//    	}
+////    
+//    	int avgRoomArea = 0;
+//    	if(rooms.size() > 0)
+//    		avgRoomArea = roomArea/rooms.size();
+//    	double avgRoomAreaPercent = (double)avgRoomArea / (double)(map.getRowCount()*map.getColCount());
+//    	double roomAreaDifference = Math.abs(avgRoomAreaPercent - 0.5);
 //    	
-//    	double fitness = 0.2 - 0.2*(double)roomArea/(double)passableTiles
-//    			+ 0.8 * roomAreaDifference;
-    	//double fitness = 1.0 - 0.65*(double)roomArea/(double)passableTiles - 0.35*(1-wallFitness);
-    	
-    	double fitness = (double)roomArea/passableTiles;
+//    	//double fitness = roomAreaDifference;
+//    	double wallProportion = (double)map.getWallCount()/(map.getRowCount()*map.getColCount());
+////    	
+//    	double wallTarget = 0.3 * rooms.size();
+//    	double wallFitness = Math.abs(wallProportion - wallTarget);
+////    	
+////    	double fitness = 0.2 - 0.2*(double)roomArea/(double)passableTiles
+////    			+ 0.8 * roomAreaDifference;
+//    	//double fitness = 1.0 - 0.65*(double)roomArea/(double)passableTiles - 0.35*(1-wallFitness);
+//    	
+//    	double fitness = (double)roomArea/passableTiles;
     	
         //set final fitness
         ind.setFitness(fitness);
