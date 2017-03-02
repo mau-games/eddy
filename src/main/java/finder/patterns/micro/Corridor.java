@@ -5,6 +5,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
 
+import finder.geometry.Bitmap;
 import finder.geometry.Geometry;
 import finder.patterns.Pattern;
 import game.Map;
@@ -13,8 +14,11 @@ import util.Point;
 
 public class Corridor extends Pattern {
 
+	private final int TARGET_LENGTH = 20;
 	
-	
+	public Corridor(Geometry geometry){
+		boundaries = geometry;
+	}
 	
 	private static class SearchNode {
 
@@ -38,6 +42,11 @@ public class Corridor extends Pattern {
 	    }
 	}
 
+	@Override
+	public double getQuality(){
+		return Math.min((double)((Bitmap)boundaries).getArea()/TARGET_LENGTH,1.0);
+	}
+	
 	
 	
 	/**
@@ -49,8 +58,8 @@ public class Corridor extends Pattern {
 	 * @param boundary
 	 * @return
 	 */
-	public static int corridorTileCount(Map map, Geometry boundary){
-		//List<Pattern> results = new ArrayList<Pattern>();
+	public static List<Pattern> matches(Map map, Geometry boundary){
+		List<Pattern> results = new ArrayList<Pattern>();
 		
 		boolean[][] corridorTiles = new boolean[map.getColCount()][map.getRowCount()];
 		boolean[][] visited = new boolean[map.getColCount()][map.getRowCount()];
@@ -104,6 +113,8 @@ public class Corridor extends Pattern {
 			    		for(SearchNode sn : c){
 			    			corridorTiles[sn.position.getX()][sn.position.getY()] = false;
 			    		}
+			    	} else {
+			    		candidateCorridors.add(c);
 			    	}
 			    		//candidateCorridors.add(c);
 		
@@ -114,80 +125,93 @@ public class Corridor extends Pattern {
 			}
     	}
     	
-    	visited = new boolean[map.getColCount()][map.getRowCount()];
-    	
-    	//For every non-corridor tile, if ALL of its passable neighbours are corridors
-		//then let it be a corridor too (so as not to make it feel left out)
-		for(int i = 0; i < map.getColCount(); i++)
+    	//For all the remaining floor tiles, if check if they are connectors
+    	for(int i = 0; i < map.getColCount(); i++)
 			for(int j = 0; j < map.getRowCount(); j++)
-				if(!corridorTiles[i][j])
+				if(!corridorTiles[i][j] && (isTurnConnector(map,i,j) || isIntersectionConnector(map,i,j)))
 				{
-					if((i == 0 || corridorTiles[i-1][j])
-							&& (i == map.getColCount() - 1 || corridorTiles[i+1][j])
-							&& (j == 0 || corridorTiles[i][j - 1])
-							&& (j == map.getRowCount() - 1 || corridorTiles[i][j + 1])){
-						corridorTiles[i][j] = true;
-					}
-				}
-		
-		for(int i = 0; i < map.getColCount(); i++)
-    	{
-			for(int j = 0; j < map.getRowCount(); j++)
-			{
-				if(!visited[i][j] && corridorTiles[i][j]){
-					List<SearchNode> c = new ArrayList<SearchNode>();
 					
-					Queue<SearchNode> queue = new LinkedList<SearchNode>();
-			    	SearchNode root = new SearchNode(new Point(i,j), null);
-			    	queue.add(root);
-			    	visited[i][j] = true;
-			    	
-			    	while(!queue.isEmpty()){
-			    		SearchNode current = queue.remove();
-			    		c.add(current);
-			    		
-			    		int ii = current.position.getX();
-			    		int jj = current.position.getY();
-			    		
-			    		if(ii > 0 && !visited[ii-1][jj] && corridorTiles[ii-1][jj]){
-			    			queue.add(new SearchNode(new Point(ii-1,jj), null));
-			    			visited[ii-1][jj] = true;
-			    		}
-			    		if(jj > 0 && !visited[ii][jj - 1] && corridorTiles[ii][jj - 1]){
-			    			queue.add(new SearchNode(new Point(ii,jj - 1), null));
-			    			visited[ii][jj - 1] = true;
-			    		}
-			    		if(ii < map.getColCount() - 1 && !visited[ii+1][jj] && corridorTiles[ii+1][jj]){
-			    			queue.add(new SearchNode(new Point(ii+1,jj), null));
-			    			visited[ii+1][jj] = true;
-			    		}
-			    		if(jj < map.getRowCount() - 1 && !visited[ii][jj + 1] && corridorTiles[ii][jj + 1]){
-			    			queue.add(new SearchNode(new Point(ii,jj + 1), null));
-			    			visited[ii][jj + 1] = true;
-			    		}
-			    		
-			    	}
-			    	
-		    		candidateCorridors.add(c);
-		
-				} else {
-					visited[i][j] = true;
 				}
-
-			}
-    	}
-
-    	int corridorTileCount = 0;
     	
+    	
+//    	visited = new boolean[map.getColCount()][map.getRowCount()];
+//    	
+//    	//For every non-corridor tile, if ALL of its passable neighbours are corridors
+//		//then let it be a corridor too (so as not to make it feel left out)
+//		for(int i = 0; i < map.getColCount(); i++)
+//			for(int j = 0; j < map.getRowCount(); j++)
+//				if(!corridorTiles[i][j])
+//				{
+//					if((i == 0 || corridorTiles[i-1][j])
+//							&& (i == map.getColCount() - 1 || corridorTiles[i+1][j])
+//							&& (j == 0 || corridorTiles[i][j - 1])
+//							&& (j == map.getRowCount() - 1 || corridorTiles[i][j + 1])){
+//						corridorTiles[i][j] = true;
+//					}
+//				}
+//		
+//		for(int i = 0; i < map.getColCount(); i++)
+//    	{
+//			for(int j = 0; j < map.getRowCount(); j++)
+//			{
+//				if(!visited[i][j] && corridorTiles[i][j]){
+//					List<SearchNode> c = new ArrayList<SearchNode>();
+//					
+//					Queue<SearchNode> queue = new LinkedList<SearchNode>();
+//			    	SearchNode root = new SearchNode(new Point(i,j), null);
+//			    	queue.add(root);
+//			    	visited[i][j] = true;
+//			    	
+//			    	while(!queue.isEmpty()){
+//			    		SearchNode current = queue.remove();
+//			    		c.add(current);
+//			    		
+//			    		int ii = current.position.getX();
+//			    		int jj = current.position.getY();
+//			    		
+//			    		if(ii > 0 && !visited[ii-1][jj] && corridorTiles[ii-1][jj]){
+//			    			queue.add(new SearchNode(new Point(ii-1,jj), null));
+//			    			visited[ii-1][jj] = true;
+//			    		}
+//			    		if(jj > 0 && !visited[ii][jj - 1] && corridorTiles[ii][jj - 1]){
+//			    			queue.add(new SearchNode(new Point(ii,jj - 1), null));
+//			    			visited[ii][jj - 1] = true;
+//			    		}
+//			    		if(ii < map.getColCount() - 1 && !visited[ii+1][jj] && corridorTiles[ii+1][jj]){
+//			    			queue.add(new SearchNode(new Point(ii+1,jj), null));
+//			    			visited[ii+1][jj] = true;
+//			    		}
+//			    		if(jj < map.getRowCount() - 1 && !visited[ii][jj + 1] && corridorTiles[ii][jj + 1]){
+//			    			queue.add(new SearchNode(new Point(ii,jj + 1), null));
+//			    			visited[ii][jj + 1] = true;
+//			    		}
+//			    		
+//			    	}
+//			    	
+//		    		candidateCorridors.add(c);
+//		
+//				} else {
+//					visited[i][j] = true;
+//				}
+//
+//			}
+//    	}
+
+    	
+    	//For each corridor, build the geometry and create a Corridor pattern   	
     	for(List<SearchNode> l : candidateCorridors){
-    		//if(l.size() > 2)
-    			corridorTileCount += l.size();
+    		Bitmap b = new Bitmap();
+			for(SearchNode sn : l){
+				b.addPoint(new finder.geometry.Point(sn.position.getX(),sn.position.getY()));
+			}
+			results.add(new Corridor(b));
     	}
     	
 //    	System.out.println("corridors: " + candidateCorridors.size());
     	
-    	return corridorTileCount;
+    	//return corridorTileCount;
     	
+    	return results;
 	}
 	
 	private static boolean IsWall(Map map, int x, int y){
@@ -203,6 +227,76 @@ public class Corridor extends Pattern {
 	
 	private static boolean IsCorridorTile(Map map, int x, int y){
 		return !IsWall(map,x,y) && IsTileFlanked(map,x,y);// || Count8DirectionalWallNeighbours(map,x,y) >= 6);
+	}
+	
+	/**
+	 * Returns true if the given tile is a turn connector
+	 * 
+	 * TODO: 	Should the floor tiles necessarily be corridor tiles? 
+	 * 			Can a sequence of connectors count as a very bendy corridor?
+	 * 
+	 * @param map
+	 * @param x
+	 * @param y
+	 * @return true if the given tile is a turn connector
+	 */
+	private static boolean isTurnConnector(Map map, int x, int y){
+		/*
+		 * Case 1:
+		 * 
+		 *  ?C#
+		 *  #XC
+		 *  ?#?
+		 */
+		if(IsWall(map,x-1,y) && IsWall(map,x,y+1) && IsWall(map,x+1,y-1) && IsCorridorTile(map,x+1,y) && IsCorridorTile(map,x,y-1))
+			return true;
+		/*
+		 * Case 2:
+		 * 
+		 *  ?#?
+		 *  #XC
+		 *  ?C#
+		 */
+		else if(IsWall(map,x-1,y) && IsWall(map,x,y-1) && IsWall(map,x+1,y+1) && IsCorridorTile(map,x+1,y) && IsCorridorTile(map,x,y+1))
+			return true;
+		/*
+		 * Case 3:
+		 * 
+		 *  ?#?
+		 *  CX#
+		 *  #C?
+		 */
+		else if(IsWall(map,x+1,y) && IsWall(map,x,y-1) && IsWall(map,x-1,y+1) && IsCorridorTile(map,x-1,y) && IsCorridorTile(map,x,y+1))
+			return true;
+		/*
+		 * Case 4:
+		 * 
+		 *  #C?
+		 *  CX#
+		 *  ?#?
+		 */
+		else if(IsWall(map,x+1,y) && IsWall(map,x,y+1) && IsWall(map,x-1,y-1) && IsCorridorTile(map,x-1,y) && IsCorridorTile(map,x,y-1))
+			return true;
+		
+		//Not a turn connector:
+		return false;
+	}
+	
+	/**
+	 * Returns true if all the adjacent floor tiles are corridor tiles
+	 * 
+	 * @param map
+	 * @param x
+	 * @param y
+	 * @return
+	 */
+	private static boolean isIntersectionConnector(Map map, int x, int y){
+		
+		return 	(IsWall(map,x-1,y) || IsCorridorTile(map,x-1,y))
+			&&  (IsWall(map,x+1,y) || IsCorridorTile(map,x+1,y))
+			&&  (IsWall(map,x,y-1) || IsCorridorTile(map,x,y-1))
+			&&  (IsWall(map,x,y+1) || IsCorridorTile(map,x,y+1));
+
 	}
 	
 	private static int Count8DirectionalWallNeighbours(Map map, int x, int y){

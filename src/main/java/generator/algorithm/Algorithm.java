@@ -478,9 +478,14 @@ public class Algorithm extends Thread {
     	
     	//Corridor fitness
     	Map map = ind.getPhenotype().getMap();
-    	int passableTiles = map.getNonWallTileCount();
-    	int corridors = Corridor.corridorTileCount(map, null);
-    	//double fitness = (double)corridors/(double)passableTiles;
+    	double passableTiles = map.getNonWallTileCount();
+    	double corridorArea = 0;	
+    	List<Pattern> corridors = Corridor.matches(map,null);
+    	for(Pattern p : corridors){
+    		corridorArea += ((Polygon)p.getGeometry()).getArea() * p.getQuality();
+    	}
+    	
+    	//double fitness = corridorArea/passableTiles;
     	
     	int roomArea = 0;
     	List<Pattern> rooms = Room.matches(map, new Rectangle(new finder.geometry.Point(0,0),new finder.geometry.Point(map.getColCount()-1,map.getRowCount()-1)));
