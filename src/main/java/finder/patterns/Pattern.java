@@ -35,4 +35,13 @@ public abstract class Pattern {
 	public Geometry getGeometry() {
 		return boundaries;
 	}
+	
+	/**
+	 * Returns a measure of the quality of this pattern
+	 *  
+	 * @return A number between 0.0 and 1.0 representing the quality of the pattern (where 1 is best)
+	 */
+	public double getQuality(){
+		return 1.0;
+	}
 }
