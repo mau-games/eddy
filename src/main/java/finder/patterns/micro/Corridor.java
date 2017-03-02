@@ -126,17 +126,12 @@ public class Corridor extends Pattern {
     	}
     	
     	//For all the remaining floor tiles, if check if they are connectors
-//    	for(int i = 0; i < map.getColCount(); i++)
-//			for(int j = 0; j < map.getRowCount(); j++)
-//				if(!corridorTiles[i][j])
-//				{
-//					if((i == 0 || corridorTiles[i-1][j])
-//							&& (i == map.getColCount() - 1 || corridorTiles[i+1][j])
-//							&& (j == 0 || corridorTiles[i][j - 1])
-//							&& (j == map.getRowCount() - 1 || corridorTiles[i][j + 1])){
-//						corridorTiles[i][j] = true;
-//					}
-//				}
+    	for(int i = 0; i < map.getColCount(); i++)
+			for(int j = 0; j < map.getRowCount(); j++)
+				if(!corridorTiles[i][j] && (isTurnConnector(map,i,j) || isIntersectionConnector(map,i,j)))
+				{
+					
+				}
     	
     	
 //    	visited = new boolean[map.getColCount()][map.getRowCount()];
