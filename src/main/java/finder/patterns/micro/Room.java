@@ -1,6 +1,7 @@
 package finder.patterns.micro;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -22,6 +23,54 @@ public class Room extends Pattern {
 	
 	public Room(Geometry geometry) {
 		boundaries = geometry;
+	}
+	
+	@Override
+	/**
+	 * Returns a measure of the quality of this pattern.
+	 * 
+	 * <p>The quality for a room is decided by two factors:<br>
+	 * * The ratio of the room's area versus it's bounding rectangle<br>
+	 * * The deviation from a set area
+	 *  
+	 * @return A number between 0.0 and 1.0 representing the quality of the pattern (where 1 is best)
+	 */
+	public double getQuality() {
+		Polygon polygon = (Polygon) boundaries;
+		Rectangle rectangle = constructRectangle();
+		int desiredRectangleArea = 25; 
+		
+		return polygon.getArea() / (2 * rectangle.getArea())
+				+ (desiredRectangleArea
+						/ (2 * Math.abs(desiredRectangleArea - polygon.getArea())));
+	}
+	
+	private Rectangle constructRectangle() {
+		Polygon polygon = (Polygon) boundaries;
+		int minX = Integer.MAX_VALUE;
+		int maxX = Integer.MIN_VALUE;
+		int minY = Integer.MAX_VALUE;
+		int maxY = Integer.MIN_VALUE;
+		
+		Iterator<Point> iter = polygon.getPoints().iterator();
+		Point p = null;
+		while (iter.hasNext()) {
+			p = iter.next();
+			if (minX > p.getX()) {
+				minX = p.getX();
+			}
+			if (maxX < p.getX()) {
+				maxX = p.getX();
+			}
+			if (minY > p.getY()) {
+				minY = p.getY();
+			}
+			if (maxY < p.getY()) {
+				maxY = p.getY();
+			}
+		}
+		
+		return new Rectangle(new Point(minX, minY), new Point(maxX, maxY));
 	}
 
 	// TODO: Consider non-rectangular geometries in the future.
