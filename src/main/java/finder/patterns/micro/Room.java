@@ -39,10 +39,19 @@ public class Room extends Pattern {
 		Polygon polygon = (Polygon) boundaries;
 		Rectangle rectangle = constructRectangle();
 		int desiredRectangleArea = 25; 
+		double floorRatio = polygon.getArea() / rectangle.getArea();
+		double areaDeviation = 1;
+		double floorRatioWeight = 0.5;
+		double areaDeviationWeight = 0.5;
 		
-		return polygon.getArea() / (2 * rectangle.getArea())
-				+ (desiredRectangleArea
-						/ (2 * Math.abs(desiredRectangleArea - polygon.getArea())));
+		// TODO: This part sucks right now. Needs work...
+		areaDeviation = Math.abs(desiredRectangleArea - polygon.getArea())
+				/ desiredRectangleArea;;
+		if (areaDeviation > 1) {
+			areaDeviation = 0;
+		}
+		
+		return floorRatio * floorRatioWeight + areaDeviation * areaDeviationWeight;
 	}
 	
 	private Rectangle constructRectangle() {
