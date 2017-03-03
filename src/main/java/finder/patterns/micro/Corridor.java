@@ -8,13 +8,14 @@ import java.util.Queue;
 import finder.geometry.Bitmap;
 import finder.geometry.Geometry;
 import finder.patterns.Pattern;
+import finder.patterns.micro.Connector.ConnectorType;
 import game.Map;
 import game.TileTypes;
 import util.Point;
 
 public class Corridor extends Pattern {
 
-	private final int TARGET_LENGTH = 2;
+	private final int TARGET_LENGTH = 8;
 	
 	public Corridor(Geometry geometry){
 		boundaries = geometry;
@@ -129,11 +130,18 @@ public class Corridor extends Pattern {
     	//For all the remaining floor tiles, if check if they are connectors
     	for(int i = 0; i < map.getColCount(); i++)
 			for(int j = 0; j < map.getRowCount(); j++)
-				if(!corridorTiles[i][j] && (isTurnConnector(map,i,j) || isIntersectionConnector(map,i,j)))
+				if(!corridorTiles[i][j])
 				{
-					Bitmap b = new Bitmap();
-					b.addPoint(new finder.geometry.Point(i,j));
-					results.add(new Connector(b));
+					if(isTurnConnector(map,i,j)){
+						Bitmap b = new Bitmap();
+						b.addPoint(new finder.geometry.Point(i,j));
+						results.add(new Connector(b, ConnectorType.TURN));
+					} else if (isIntersectionConnector(map,i,j)){
+						Bitmap b = new Bitmap();
+						b.addPoint(new finder.geometry.Point(i,j));
+						results.add(new Connector(b, ConnectorType.INTERSECTION));
+					}
+					
 				}
     	
     	
@@ -221,6 +229,10 @@ public class Corridor extends Pattern {
 		return x < 0 || y < 0 || x == map.getRowCount() || y == map.getColCount() || map.getTile(x,y) == TileTypes.WALL;
 	}
 	
+	private static boolean isFloor(Map map, int x, int y){
+		return x > 0 && y > 0 && x < map.getRowCount() && y < map.getColCount() && map.getTile(x,y) == TileTypes.FLOOR;
+	}
+	
 	private static boolean MightAsWellBeAWall(Map map,int x, int y, int i, int j){
 		int xSign = (int)Math.signum(x-i);
 		int ySign = (int)Math.signum(y-j);
@@ -254,7 +266,7 @@ public class Corridor extends Pattern {
 		 *  #XC
 		 *  ?#?
 		 */
-		if(IsWall(map,x-1,y) && IsWall(map,x,y+1) && IsWall(map,x+1,y-1) && IsCorridorTile(map,x+1,y) && IsCorridorTile(map,x,y-1))
+		if(IsWall(map,x-1,y) && IsWall(map,x,y+1) && IsWall(map,x+1,y-1) && isFloor(map,x+1,y) && isFloor(map,x,y-1))
 			return true;
 		/*
 		 * Case 2:
@@ -263,7 +275,7 @@ public class Corridor extends Pattern {
 		 *  #XC
 		 *  ?C#
 		 */
-		else if(IsWall(map,x-1,y) && IsWall(map,x,y-1) && IsWall(map,x+1,y+1) && IsCorridorTile(map,x+1,y) && IsCorridorTile(map,x,y+1))
+		else if(IsWall(map,x-1,y) && IsWall(map,x,y-1) && IsWall(map,x+1,y+1) && isFloor(map,x+1,y) && isFloor(map,x,y+1))
 			return true;
 		/*
 		 * Case 3:
@@ -272,7 +284,7 @@ public class Corridor extends Pattern {
 		 *  CX#
 		 *  #C?
 		 */
-		else if(IsWall(map,x+1,y) && IsWall(map,x,y-1) && IsWall(map,x-1,y+1) && IsCorridorTile(map,x-1,y) && IsCorridorTile(map,x,y+1))
+		else if(IsWall(map,x+1,y) && IsWall(map,x,y-1) && IsWall(map,x-1,y+1) && isFloor(map,x-1,y) && isFloor(map,x,y+1))
 			return true;
 		/*
 		 * Case 4:
@@ -281,7 +293,7 @@ public class Corridor extends Pattern {
 		 *  CX#
 		 *  ?#?
 		 */
-		else if(IsWall(map,x+1,y) && IsWall(map,x,y+1) && IsWall(map,x-1,y-1) && IsCorridorTile(map,x-1,y) && IsCorridorTile(map,x,y-1))
+		else if(IsWall(map,x+1,y) && IsWall(map,x,y+1) && IsWall(map,x-1,y-1) && isFloor(map,x-1,y) && isFloor(map,x,y-1))
 			return true;
 		
 		//Not a turn connector:

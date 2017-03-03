@@ -5,13 +5,27 @@ import finder.patterns.Pattern;
 
 public class Connector extends Pattern {
 
-	
-	public double getQuality(){
-		return 1.0;
+	public enum ConnectorType {
+		TURN,
+		INTERSECTION		
 	}
 	
-	public Connector(Geometry geometry){
+	private ConnectorType type;
+	
+	public double getQuality(){
+		switch(type){
+			case TURN:
+				return 0.2;
+			case INTERSECTION:
+				return 0.8;
+		}
+		return 1.0;
+		
+	}
+	
+	public Connector(Geometry geometry, ConnectorType type){
 		boundaries = geometry;
+		this.type = type;
 	}
 	
 	

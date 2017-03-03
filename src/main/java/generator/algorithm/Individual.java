@@ -87,7 +87,10 @@ public class Individual {
 		//mutate
 		for(int i = 0; i < 2; i++){
 			if(Util.getNextFloat(0.0f,1.0f) <= mutationProbability)
-				children[i].mutate();
+				if(Util.getNextFloat(0, 1) <= 0.8f)
+					children[i].mutate();
+				else
+					children[i].mutateRotate180();
 		}
 		
 		return children;
@@ -101,6 +104,20 @@ public class Individual {
 	public void mutate() {
 		int indexToMutate = Util.getNextInt(0,genotype.getSizeChromosome());
 		genotype.getChromosome()[indexToMutate] = (genotype.getChromosome()[indexToMutate] + Util.getNextInt(0, 4)) % 4; //TODO: Change this - hard coding the number of tile types is bad!!!
+	}
+	
+	private void mutateRotate180(){
+		int[] chromosomeCopy = genotype.getChromosome().clone();
+		for(int i = 0; i < Game.sizeM; i++)
+			for(int j = 0; j < Game.sizeN; j++)
+				genotype.getChromosome()[j*Game.sizeN + i] = chromosomeCopy[(Game.sizeN - 1 - j)*Game.sizeN + Game.sizeM - 1 - i];
+	}
+	
+	private void mutateRotate90(){
+		int[] chromosomeCopy = genotype.getChromosome().clone();
+		for(int i = 0; i < Game.sizeM; i++)
+			for(int j = 0; j < Game.sizeN; j++)
+				genotype.getChromosome()[j*Game.sizeN + i] = chromosomeCopy[(Game.sizeN - 1 - i)*Game.sizeN + Game.sizeM - 1 - j];
 	}
 	
 	
