@@ -18,6 +18,7 @@ import util.eventrouting.EventRouter;
 import util.eventrouting.Listener;
 import util.eventrouting.PCGEvent;
 import util.eventrouting.events.Start;
+import util.eventrouting.events.Stop;
 
 public class Game implements Listener{
 	private final Logger logger = LoggerFactory.getLogger(Game.class);
@@ -54,11 +55,10 @@ public class Game implements Listener{
         
         readConfiguration();
         chooseDoorPositions();
-        
+
         EventRouter.getInstance().registerListener(this, new Start());
+        EventRouter.getInstance().registerListener(this, new Stop());
         ranges = new Ranges();
-		
-       
     }
     
     /**
@@ -124,6 +124,8 @@ public class Game implements Listener{
 		if(e instanceof Start){
 			readConfiguration();
 			startAll();		
+		} else if (e instanceof Stop) {
+			stop();
 		}
 	}
 

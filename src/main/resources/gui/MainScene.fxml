@@ -20,6 +20,7 @@
       <VBox id="controlPane" fx:id="controlPane" maxWidth="-Infinity" minWidth="-Infinity" prefHeight="598.0" prefWidth="340.0">
          <children>
             <Button id="runButton" fx:id="runButton" maxWidth="-Infinity" mnemonicParsing="false" onAction="#runButtonPressed" prefWidth="200.0" text="Run!" />
+            <Button id="cancelButton" fx:id="cancelButton" maxWidth="-Infinity" mnemonicParsing="false" onAction="#cancelButtonPressed" prefWidth="200.0" text="Cancel" />
             <Accordion>
               <panes>
                 <TitledPane id="messageSlab" fx:id="messageSlab" animated="false" maxHeight="1.7976931348623157E308" minWidth="-Infinity" prefHeight="1012.0" prefWidth="340.0" text="Output">

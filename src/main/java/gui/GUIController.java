@@ -42,6 +42,7 @@ import util.eventrouting.events.AlgorithmDone;
 import util.eventrouting.events.MapUpdate;
 import util.eventrouting.events.Start;
 import util.eventrouting.events.StatusMessage;
+import util.eventrouting.events.Stop;
 
 /**
  * This class controls our fantastic GUI.
@@ -56,6 +57,7 @@ public class GUIController implements Initializable, Listener {
 	@FXML private Text messageDisplayer;
 	@FXML private Canvas mapCanvas;
 	@FXML private Button runButton;
+	@FXML private Button cancelButton;
 	@FXML private TitledPane messageSlab;
 	@FXML private TitledPane configSlab;
 
@@ -85,6 +87,19 @@ public class GUIController implements Initializable, Listener {
 		messageDisplayer.setText("");
 		router.postEvent(new Start());
 		runButton.setDisable(true);
+		cancelButton.setDisable(false);
+	}
+
+	/**
+	 * Handles the cancel button's action events.
+	 * 
+	 * @param ev The action event that triggered this call. 
+	 */
+	@FXML
+	protected void cancelButtonPressed(ActionEvent ev) {
+		router.postEvent(new Stop());
+		runButton.setDisable(false);
+		cancelButton.setDisable(true);
 	}
 
 	/**
