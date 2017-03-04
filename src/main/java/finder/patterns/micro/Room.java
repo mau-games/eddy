@@ -96,12 +96,20 @@ public class Room extends Pattern {
 	public static List<Pattern> matches(Map map, Geometry boundary) {
 
 		ArrayList<Pattern> results = new ArrayList<Pattern>();
+		
+		if (map == null) {
+			return results;
+		}
+		
+		if (boundary == null) {
+			boundary = new Rectangle(new Point(0, 0),
+					new Point(map.getColCount() -1 , map.getRowCount() - 1));
+		}
 
 		// Check boundary sanity.
 		Point p1 = ((Rectangle) boundary).getTopLeft();
 		Point p2 = ((Rectangle) boundary).getBottomRight();
-		if (map == null || boundary == null ||
-				map.getRowCount() < 3 ||
+		if (map.getRowCount() < 3 ||
 				map.getColCount() < 3 ||
 				p2.getX() - p1.getX() < 2 ||
 				p2.getY() - p1.getY() < 2 ||

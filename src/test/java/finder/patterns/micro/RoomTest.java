@@ -113,6 +113,16 @@ public class RoomTest {
 	}
 
 	@Test
+	public void test10x10FeaturesUsingNullBoundary() throws IOException {
+		Map map = Map.fromString(IOUtils.toString(
+				this.getClass().getResourceAsStream("/maps/rooms/10x10features.map"),
+				"UTF-8"));
+		List<Pattern> rooms = Room.matches(map, null);
+		
+		assertEquals(4, rooms.size());
+	}
+
+	@Test
 	public void test10x10FeaturesUsingBoundariesFindingARoom() throws IOException {
 		Map map = Map.fromString(IOUtils.toString(
 				this.getClass().getResourceAsStream("/maps/rooms/10x10features.map"),
