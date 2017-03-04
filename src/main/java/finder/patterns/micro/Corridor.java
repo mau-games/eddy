@@ -15,7 +15,7 @@ import util.Point;
 
 public class Corridor extends Pattern {
 
-	private final int TARGET_LENGTH = 8;
+	private final int TARGET_LENGTH = 4;
 	
 	public Corridor(Geometry geometry){
 		boundaries = geometry;

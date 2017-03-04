@@ -39,7 +39,7 @@ public class Rectangle extends Polygon {
 		Point p1 = points.get(0);
 		Point p2 = points.get(2);
 		
-		return (p2.getX() - p1.getX()) * (p2.getY() - p1.getY());
+		return (p2.getX() - p1.getX() + 1) * (p2.getY() - p1.getY() + 1);
 	}
 
 	/* (non-Javadoc)
