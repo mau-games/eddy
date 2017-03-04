@@ -46,9 +46,8 @@ public class Room extends Pattern {
 		double floorRatioWeight = 0.5;
 		double areaDeviationWeight = 0.5;
 		
-		// TODO: This part sucks right now. Needs work...
 		areaDeviation = 1 - Math.abs(desiredRectangleArea - polyArea)
-				/ desiredRectangleArea;;
+				/ desiredRectangleArea;
 		if (areaDeviation < 0) {
 			areaDeviation = 0;
 		}
