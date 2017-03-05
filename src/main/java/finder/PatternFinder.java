@@ -1,10 +1,13 @@
 package finder;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import game.Map;
 import finder.patterns.CompositePattern;
 import finder.patterns.Pattern;
+import finder.patterns.micro.Corridor;
+import finder.patterns.micro.Room;
 
 /**
  * PatternFinder is used to find patterns within a map.
@@ -35,6 +38,8 @@ public class PatternFinder {
 	 * @return A list of all found pattern instances.
 	 */
 	public List<Pattern> findMicroPatterns() {
+		micropatterns = new ArrayList<Pattern>();
+		
 		/*
 		 * Do this:
 		 * 1. Get all patterns in finder.patterns.micro
@@ -43,8 +48,13 @@ public class PatternFinder {
 		 * 4. Return all found pattern instances
 		 * 
 		 * MAYBE: Specify which patterns to look for in the config?
+		 * 
+		 * For now, let's just implicitly call each pattern.
 		 */
-		return null;
+		micropatterns.addAll(Room.matches(map, null));
+		micropatterns.addAll(Corridor.matches(map, null)); // This also finds connectors
+		
+		return micropatterns;
 	}
 	
 	// TODO: Implement this
@@ -55,6 +65,8 @@ public class PatternFinder {
 	 * @return A list of all found pattern instances.
 	 */
 	public List<Pattern> findMesoPatterns() {
+		mesopatterns = new ArrayList<CompositePattern>();
+		
 		/*
 		 * Do this:
 		 * 1. Get all patterns in finder.patterns.meso
@@ -80,6 +92,8 @@ public class PatternFinder {
 	 * @return A list of all found pattern instances.
 	 */
 	public List<Pattern> findMacroPatterns() {
+		macropatterns = new ArrayList<CompositePattern>();
+		
 		/*
 		 * Do this:
 		 * 1. Get all patterns in finder.patterns.meso

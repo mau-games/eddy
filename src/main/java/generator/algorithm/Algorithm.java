@@ -10,9 +10,11 @@ import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import finder.PatternFinder;
 import finder.geometry.Polygon;
 import finder.geometry.Rectangle;
 import finder.patterns.Pattern;
+import finder.patterns.micro.Connector;
 import finder.patterns.micro.Corridor;
 import finder.patterns.micro.Room;
 import game.Game;
@@ -160,35 +162,53 @@ public class Algorithm extends Thread {
 
             broadcastMapUpdate(best.getPhenotype().getMap());
   
-          //Corridor fitness
         	Map map = best.getPhenotype().getMap();
-        	double passableTiles = map.getNonWallTileCount();
-        	double corridorArea = 0;	
-        	List<Pattern> corridors = Corridor.matches(map,null);
-        	for(Pattern p : corridors){
-        		corridorArea += ((Polygon)p.getGeometry()).getArea() * p.getQuality();
-        	}
+        	PatternFinder pm = new PatternFinder(map);
+        	List<Pattern> micros = pm.findMicroPatterns();
         	
+        	double passableTiles = map.getNonWallTileCount();
+        	
+        	// Corridor stuff
+        	double corridorArea = 0; // TODO: Rename this
+        	int corridorCount = 0;
+        	
+        	// Connector
+        	int connectorCount = 0;
+
+        	// Room stuff
+        	int roomArea = 0; // TODO: Rename this
+        	int avgRoomArea = 0;
+        	int roomCount = 0;
+        	
+        	// Filter the patterns
+        	for(Pattern p : micros){
+        		if (p instanceof Corridor) {
+            		corridorArea += ((Polygon)p.getGeometry()).getArea() * p.getQuality();
+            		corridorCount++;
+        		} else if (p instanceof Connector) {
+        			// TODO: Should connectors be counted as corridor area?
+            		corridorArea += ((Polygon)p.getGeometry()).getArea() * p.getQuality();
+            		connectorCount++;
+        		} else if (p instanceof Room) {
+        			roomArea += ((Polygon)p.getGeometry()).getArea() * p.getQuality();
+        			roomCount++;
+        		}
+        	}
+
+            //Corridor fitness
         	double corridorFitness = corridorArea/passableTiles;
         	
-        	int roomArea = 0;
-        	List<Pattern> rooms = Room.matches(map, new Rectangle(new finder.geometry.Point(0,0),new finder.geometry.Point(map.getColCount()-1,map.getRowCount()-1)));
-        	
         	//Room fitness
-        	for(Pattern p : rooms){
-        		roomArea += ((Polygon)p.getGeometry()).getArea() * p.getQuality();
-        	}
     //    
-        	int avgRoomArea = 0;
-        	if(rooms.size() > 0)
-        		avgRoomArea = roomArea/rooms.size();
+        	if(roomCount > 0)
+        		avgRoomArea = roomArea/roomCount;
         	double avgRoomAreaPercent = (double)avgRoomArea / (double)(map.getRowCount()*map.getColCount());
         	double roomAreaDifference = Math.abs(avgRoomAreaPercent - 0.5);
         	
         	//double fitness = roomAreaDifference;
         	double wallProportion = (double)map.getWallCount()/(map.getRowCount()*map.getColCount());
 //        	
-        	double wallTarget = 0.3 * rooms.size();
+        	double wallTarget = 0.3 * roomCount;
         	double wallFitness = Math.abs(wallProportion - wallTarget);
 //        	
 //        	double fitness = 0.2 - 0.2*(double)roomArea/(double)passableTiles
@@ -201,13 +221,13 @@ public class Algorithm extends Thread {
           
         	broadcastStatusUpdate("Corridor Fitness: " + corridorFitness);
         	broadcastStatusUpdate("Room Fitness: " + roomFitness);
-        	
-          broadcastStatusUpdate("Corridors & Connectors: " + corridors.size());
-          broadcastStatusUpdate("Corridor tiles: " + corridorArea);
-          broadcastStatusUpdate("Passable tiles: " + best.getPhenotype().getMap().getNonWallTileCount());
-            breedFeasibleIndividuals();
-            breedInfeasibleIndividuals();
-            generationCount++;
+
+        	broadcastStatusUpdate("Corridors & Connectors: " + (corridorCount + connectorCount));
+        	broadcastStatusUpdate("Corridor tiles: " + corridorArea);
+        	broadcastStatusUpdate("Passable tiles: " + best.getPhenotype().getMap().getNonWallTileCount());
+        	breedFeasibleIndividuals();
+        	breedInfeasibleIndividuals();
+        	generationCount++;
         }
         EventRouter.getInstance().postEvent(new AlgorithmDone());
 	}
