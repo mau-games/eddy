@@ -192,7 +192,7 @@ public class GUIController implements Initializable, Listener {
 	 */
 	@FXML
 	protected void mapSlabPressed(MouseEvent ev) {
-		populatePatternList();
+//		populatePatternList();
 	}
 
 	/**
@@ -248,10 +248,13 @@ public class GUIController implements Initializable, Listener {
 				});
 			}
 		} else if (e instanceof AlgorithmDone) {
-			runButton.setDisable(false);
 			micropatterns = ((AlgorithmDone) e).micropatterns;
 			mesopatterns = ((AlgorithmDone) e).mesopatterns;
 			macropatterns = ((AlgorithmDone) e).macropatterns;
+			Platform.runLater(() -> {
+				runButton.setDisable(false);
+				populatePatternList();
+			});
 		}
 	}
 
@@ -425,8 +428,8 @@ public class GUIController implements Initializable, Listener {
 					roomColour = roomColour.darker();
 				} else if (p instanceof Connector) {
 					PatternInstanceControl pic =
-							new PatternInstanceControl(rooms.size(),
-									roomColour,
+							new PatternInstanceControl(connectors.size(),
+									connectorColour,
 									p,
 									activePatterns);
 					connectors.add(pic);
@@ -436,8 +439,8 @@ public class GUIController implements Initializable, Listener {
 					connectorColour = connectorColour.darker();
 				} else if (p instanceof Corridor) {
 					PatternInstanceControl pic =
-							new PatternInstanceControl(rooms.size(),
-									roomColour,
+							new PatternInstanceControl(corridors.size(),
+									corridorColour,
 									p,
 									activePatterns);
 					corridors.add(pic);
