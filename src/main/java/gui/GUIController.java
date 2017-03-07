@@ -413,13 +413,37 @@ public class GUIController implements Initializable, Listener {
 			
 			for (Pattern p : micropatterns) {
 				if (p instanceof Room) {
-					rooms.add(new PatternInstanceControl(rooms.size(), roomColour, p, activePatterns));
+					PatternInstanceControl pic =
+							new PatternInstanceControl(rooms.size(),
+									roomColour,
+									p,
+									activePatterns);
+					rooms.add(pic);
+					if (activePatterns.containsKey(p)) {
+						pic.setSelected(true);
+					}
 					roomColour = roomColour.darker();
 				} else if (p instanceof Connector) {
-					connectors.add(new PatternInstanceControl(connectors.size(), connectorColour, p, activePatterns));
+					PatternInstanceControl pic =
+							new PatternInstanceControl(rooms.size(),
+									roomColour,
+									p,
+									activePatterns);
+					connectors.add(pic);
+					if (activePatterns.containsKey(p)) {
+						pic.setSelected(true);
+					}
 					connectorColour = connectorColour.darker();
 				} else if (p instanceof Corridor) {
-					corridors.add(new PatternInstanceControl(corridors.size(), corridorColour, p, activePatterns));
+					PatternInstanceControl pic =
+							new PatternInstanceControl(rooms.size(),
+									roomColour,
+									p,
+									activePatterns);
+					corridors.add(pic);
+					if (activePatterns.containsKey(p)) {
+						pic.setSelected(true);
+					}
 					corridorColour = corridorColour.darker();
 				}
 			}
