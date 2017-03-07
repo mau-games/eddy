@@ -88,6 +88,8 @@ public class GUIController implements Initializable, Listener {
 	private List<CompositePattern> mesopatterns;
 	private List<CompositePattern> macropatterns;
 	private IdentityHashMap<Pattern, Color> activePatterns = new IdentityHashMap<Pattern, Color>();
+	
+	private double patternOpacity = 0;
 
 	/**
 	 * Creates an instance of GUIController. This method is implicitly called
@@ -299,6 +301,7 @@ public class GUIController implements Initializable, Listener {
 	 * Restores the map view to the latest map.
 	 */
 	private void restoreMap() {
+		patternOpacity = config.getDouble("map.visual.pattern_opacity");
 		if (currentMap != null) {
 			Platform.runLater(() -> {
 				// First, draw the raw map
@@ -386,7 +389,7 @@ public class GUIController implements Initializable, Listener {
 	private synchronized void drawOutline(int x, int y, int width, int height, Color c) {
 		GraphicsContext gc = mapCanvas.getGraphicsContext2D();
 		
-		gc.setFill(new Color(c.getRed(), c.getGreen(), c.getBlue(), 0.6));
+		gc.setFill(new Color(c.getRed(), c.getGreen(), c.getBlue(), patternOpacity));
 		gc.setStroke(c);
 		gc.setLineWidth(2);
 		gc.fillRect(x, y, width, height);
