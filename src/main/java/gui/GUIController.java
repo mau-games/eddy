@@ -26,6 +26,7 @@ import finder.patterns.micro.Corridor;
 import finder.patterns.micro.Room;
 import game.Map;
 import game.TileTypes;
+import gui.controls.NumberTextField;
 import gui.controls.PatternInstanceControl;
 import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
