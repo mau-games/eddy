@@ -3,6 +3,7 @@
 <?import javafx.scene.canvas.Canvas?>
 <?import javafx.scene.control.Accordion?>
 <?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
 <?import javafx.scene.control.ScrollPane?>
 <?import javafx.scene.control.SplitPane?>
 <?import javafx.scene.control.TitledPane?>
@@ -31,6 +32,23 @@
                           </content>
                         </ScrollPane>
                      </content>
+                </TitledPane>
+                <TitledPane fx:id="mapSlab" animated="false" onMouseClicked="#mapSlabPressed" text="Map actions">
+                	<content>
+                		<VBox id="mapControls" fx:id="mapControls" maxWidth="-Infinity" minWidth="-Infinity" prefHeight="598.0" prefWidth="340.0">
+                			<children>
+                				<HBox>
+                					<children>
+                						<Button id="selectAllPatternsButton" fx:id="selectAllPatternsButton" maxWidth="-Infinity" mnemonicParsing="false" onAction="#selectAllPatternsButtonPressed" prefWidth="200.0" text="Select all patterns" />
+                						<Button id="deselectAllPatternsButton" fx:id="deselectAllPatternsButton" maxWidth="-Infinity" mnemonicParsing="false" onAction="#deselectAllPatternsButtonPressed" prefWidth="200.0" text="Deselect all patterns" />
+                					</children>
+                				</HBox>
+                				<Label id="patternLabel" text="Available pattern instances:" />
+                				<Accordion id="patternAccordion" fx:id="patternAccordion" maxWidth="-Infinity" minWidth="-Infinity" prefHeight="598.0" prefWidth="340.0">
+                				</Accordion>
+                			</children>
+                		</VBox>
+                	</content>
                 </TitledPane>
                 <TitledPane fx:id="configSlab" animated="false" onMouseClicked="#configSlabPressed" text="Configure">
                 </TitledPane>

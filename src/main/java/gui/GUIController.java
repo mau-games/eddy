@@ -1,6 +1,10 @@
 package gui;
 
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.IdentityHashMap;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map.Entry;
 import java.util.ResourceBundle;
 
@@ -12,14 +16,25 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 
+import finder.geometry.Bitmap;
+import finder.geometry.Geometry;
+import finder.geometry.Point;
+import finder.patterns.CompositePattern;
+import finder.patterns.Pattern;
+import finder.patterns.micro.Connector;
+import finder.patterns.micro.Corridor;
+import finder.patterns.micro.Room;
 import game.Map;
 import game.TileTypes;
+import gui.controls.PatternInstanceControl;
 import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
+import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.scene.Node;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.Accordion;
@@ -40,6 +55,7 @@ import util.eventrouting.Listener;
 import util.eventrouting.PCGEvent;
 import util.eventrouting.events.AlgorithmDone;
 import util.eventrouting.events.MapUpdate;
+import util.eventrouting.events.RequestRedraw;
 import util.eventrouting.events.Start;
 import util.eventrouting.events.StatusMessage;
 import util.eventrouting.events.Stop;
@@ -53,7 +69,8 @@ public class GUIController implements Initializable, Listener {
 	public enum Type {
 		STRING, NUMBER, BOOLEAN;
 	};
-	
+
+	@FXML private Accordion patternAccordion;
 	@FXML private Text messageDisplayer;
 	@FXML private Canvas mapCanvas;
 	@FXML private Button runButton;
@@ -64,6 +81,12 @@ public class GUIController implements Initializable, Listener {
 	final static Logger logger = LoggerFactory.getLogger(GUIController.class);
 	private static EventRouter router = EventRouter.getInstance();
 	private ConfigurationUtility config;
+	
+	private Map currentMap;
+	private List<Pattern> micropatterns;
+	private List<CompositePattern> mesopatterns;
+	private List<CompositePattern> macropatterns;
+	private IdentityHashMap<Pattern, Color> activePatterns = new IdentityHashMap<Pattern, Color>();
 
 	/**
 	 * Creates an instance of GUIController. This method is implicitly called
@@ -85,9 +108,10 @@ public class GUIController implements Initializable, Listener {
 	@FXML
 	protected void runButtonPressed(ActionEvent ev) {
 		messageDisplayer.setText("");
-		router.postEvent(new Start());
+		activePatterns.clear();
 		runButton.setDisable(true);
 		cancelButton.setDisable(false);
+		router.postEvent(new Start());
 	}
 
 	/**
@@ -101,6 +125,52 @@ public class GUIController implements Initializable, Listener {
 		runButton.setDisable(false);
 		cancelButton.setDisable(true);
 	}
+	
+	/**
+	 * Handles the select all patterns button's action events.
+	 * 
+	 * @param ev The action event that triggered this call.
+	 */
+	@FXML
+	protected void selectAllPatternsButtonPressed(ActionEvent ev) {
+		PatternInstanceControl pic = null;
+		for (TitledPane pane : patternAccordion.getPanes()) {
+			VBox box = (VBox) pane.getContent();
+			for (Node node : box.getChildren()) {
+				if (node instanceof PatternInstanceControl) {
+					pic = (PatternInstanceControl) node;
+					Platform.runLater(() -> {
+						((PatternInstanceControl) node).setSelected(true);
+					});
+					activePatterns.put(pic.getPattern(), pic.getColour());
+				}
+			}
+		}
+		
+		restoreMap();
+	}
+	
+	/**
+	 * Handles the de-select all patterns button's action events.
+	 * 
+	 * @param ev The action event that triggered this call.
+	 */
+	@FXML
+	protected void deselectAllPatternsButtonPressed(ActionEvent ev) {
+		activePatterns.clear();
+		for (TitledPane pane : patternAccordion.getPanes()) {
+			VBox box = (VBox) pane.getContent();
+			for (Node node : box.getChildren()) {
+				if (node instanceof PatternInstanceControl) {
+					Platform.runLater(() -> {
+						((PatternInstanceControl) node).setSelected(false);
+					});
+				}
+			}
+		}
+		
+		restoreMap();
+	}
 
 	/**
 	 * Handles the config slab's action events.
@@ -110,6 +180,16 @@ public class GUIController implements Initializable, Listener {
 	@FXML
 	protected void configSlabPressed(MouseEvent ev) {
 		readAndBuildConfig();
+	}
+
+	/**
+	 * Handles the map slab's action events.
+	 * 
+	 * @param ev The action that triggered this call.
+	 */
+	@FXML
+	protected void mapSlabPressed(MouseEvent ev) {
+		populatePatternList();
 	}
 
 	/**
@@ -125,7 +205,8 @@ public class GUIController implements Initializable, Listener {
 	public void initialize(URL location, ResourceBundle resources) {
 		router.registerListener(this, new MapUpdate(null));
 		router.registerListener(this, new StatusMessage(null));
-		router.registerListener(this, new AlgorithmDone());
+		router.registerListener(this, new AlgorithmDone(null, null, null));
+		router.registerListener(this, new RequestRedraw());
 		messageDisplayer.setText("Awaiting commands");
 	}
 
@@ -144,20 +225,18 @@ public class GUIController implements Initializable, Listener {
 		for (int i = 0; i < m; i++) {
 			for (int j = 0; j < n; j++) {
 				gc.setFill(getColour(matrix[i][j]));
-				gc.fillRect(j * pWidth, i * pWidth, pWidth, pWidth);
+				gc.fillRect(i * pWidth, j * pWidth, pWidth, pWidth);
 			}
 		}
 	}
 
 	@Override
 	public synchronized void ping(PCGEvent e) {
-		if (e instanceof MapUpdate) {
-			Map map = (Map) e.getPayload();
-			if (map != null) {
-				Platform.runLater(() -> {
-					drawMatrix(map.toMatrix());
-				});
-			}
+		if (e instanceof RequestRedraw) {
+			restoreMap();
+		} else if (e instanceof MapUpdate) {
+			currentMap = (Map) e.getPayload();
+			restoreMap();
 		} else if (e instanceof StatusMessage) {
 			String message = (String) e.getPayload();
 			if (message != null) {
@@ -167,6 +246,9 @@ public class GUIController implements Initializable, Listener {
 			}
 		} else if (e instanceof AlgorithmDone) {
 			runButton.setDisable(false);
+			micropatterns = ((AlgorithmDone) e).micropatterns;
+			mesopatterns = ((AlgorithmDone) e).mesopatterns;
+			macropatterns = ((AlgorithmDone) e).macropatterns;
 		}
 	}
 
@@ -193,7 +275,7 @@ public class GUIController implements Initializable, Listener {
 			color = Color.DARKSLATEGRAY;
 			break;
 		case FLOOR:
-			color = Color.LIGHTGRAY;
+			color = Color.WHITE;
 			break;
 		case DOORENTER:
 			color = Color.MAGENTA;
@@ -210,6 +292,149 @@ public class GUIController implements Initializable, Listener {
 	 */
 	private void readAndBuildConfig() {
 		addToConfigPane(config.getTree(), configSlab, "");
+	}
+	
+	/**
+	 * Restores the map view to the latest map.
+	 */
+	private void restoreMap() {
+		if (currentMap != null) {
+			Platform.runLater(() -> {
+				// First, draw the raw map
+				drawMatrix(currentMap.toMatrix());
+				
+				// Now, let's put patterns and stuff on it
+				for (Entry<Pattern, Color> e : activePatterns.entrySet()) {
+					Platform.runLater(() -> {
+						outlinePattern(e.getKey(), e.getValue());
+					});
+				}
+			});
+		}
+	}
+	
+	/**
+	 * Outlines a pattern onto the map.
+	 * 
+	 * @param p The pattern.
+	 * @param c The color of the pattern's outline.
+	 */
+	private void outlinePattern(Pattern p, Color c) {
+		Geometry g = p.getGeometry();
+		
+		if (g instanceof Point) {
+			outlinePoint((Point) g, c);
+		} else if (g instanceof Bitmap) {
+			for (Point point : ((finder.geometry.Polygon) g).getPoints()) {
+				outlinePoint(point, c);
+			}
+		} else if (g instanceof finder.geometry.Rectangle) {
+			outlineRectangle((finder.geometry.Rectangle) g, c);
+		}
+	}
+	
+	/**
+	 * Outlines a point on the map
+	 * 
+	 * @param p The point to outline.
+	 * @param c The colour of the point's outline.
+	 */
+	private void outlinePoint(Point p, Color c) {
+		int[][] matrix = currentMap.toMatrix();
+		int m = matrix.length;
+		int n = matrix[0].length;
+		int pWidth = (int) Math.floor(mapCanvas.getWidth() / Math.max(m, n));
+		
+		drawOutline(
+				p.getX() * pWidth,
+				p.getY() * pWidth,
+				pWidth - 1,
+				pWidth - 1,
+				c);
+	}
+	
+	/**
+	 * Outlines a rectangle on the map.
+	 * 
+	 * @param r The rectangle to outline.
+	 * @param c The colour of the rectangle's outline.
+	 */
+	private void outlineRectangle(finder.geometry.Rectangle r, Color c) {
+		int[][] matrix = currentMap.toMatrix();
+		int m = matrix.length;
+		int n = matrix[0].length;
+		int pWidth = (int) Math.floor(mapCanvas.getWidth() / Math.max(m, n));
+		
+		drawOutline(
+				r.getTopLeft().getX() * pWidth,
+				r.getTopLeft().getY() * pWidth,
+				(r.getBottomRight().getX() - r.getTopLeft().getX() + 1) * pWidth + pWidth - 1,
+				(r.getBottomRight().getY() - r.getTopLeft().getY() + 1) * pWidth + pWidth - 1,
+				c);
+	}
+	
+	/**
+	 * Draws an outline on the map.
+	 * 
+	 * @param x The x value of the first point.
+	 * @param y The y value of the first point.
+	 * @param width The x value of the second point.
+	 * @param height The y value of the second point.
+	 * @param c The colour of the outline.
+	 */
+	private synchronized void drawOutline(int x, int y, int width, int height, Color c) {
+		GraphicsContext gc = mapCanvas.getGraphicsContext2D();
+		
+		gc.setFill(new Color(c.getRed(), c.getGreen(), c.getBlue(), 0.6));
+		gc.setStroke(c);
+		gc.setLineWidth(2);
+		gc.fillRect(x, y, width, height);
+		gc.strokeRect(x, y, width, height);
+	}
+	
+	/**
+	 * Populates the pattern list.
+	 */
+	private void populatePatternList() {
+		patternAccordion.getPanes().clear();
+		if (micropatterns != null) {
+			// TODO: This doesn't scale very well, but works for now
+			List<Node> rooms = new ArrayList<Node>();
+			List<Node> connectors = new ArrayList<Node>();
+			List<Node> corridors = new ArrayList<Node>();
+			
+			Color roomColour = Color.BLUE;
+			Color connectorColour = Color.YELLOW;
+			Color corridorColour = Color.RED;
+			
+			for (Pattern p : micropatterns) {
+				if (p instanceof Room) {
+					rooms.add(new PatternInstanceControl(rooms.size(), roomColour, p, activePatterns));
+					roomColour = roomColour.darker();
+				} else if (p instanceof Connector) {
+					connectors.add(new PatternInstanceControl(connectors.size(), connectorColour, p, activePatterns));
+					connectorColour = connectorColour.darker();
+				} else if (p instanceof Corridor) {
+					corridors.add(new PatternInstanceControl(corridors.size(), corridorColour, p, activePatterns));
+					corridorColour = corridorColour.darker();
+				}
+			}
+			
+			if (rooms.size() > 0) {
+				patternAccordion.getPanes().add(new TitledPane("Rooms",
+						new VBox(rooms.toArray(new Node[0]))));
+			}
+			
+			if (corridors.size() > 0) {
+				patternAccordion.getPanes().add(new TitledPane("Corridors",
+						new VBox(corridors.toArray(new Node[0]))));
+			}
+			
+			if (connectors.size() > 0) {
+				patternAccordion.getPanes().add(new TitledPane("Connectors",
+						new VBox(connectors.toArray(new Node[0]))));
+			}
+		}
 	}
 
 	/**

@@ -13,6 +13,7 @@ import org.slf4j.LoggerFactory;
 import finder.PatternFinder;
 import finder.geometry.Polygon;
 import finder.geometry.Rectangle;
+import finder.patterns.CompositePattern;
 import finder.patterns.Pattern;
 import finder.patterns.micro.Connector;
 import finder.patterns.micro.Corridor;
@@ -132,6 +133,10 @@ public class Algorithm extends Thread {
 
         int generationCount = 1;
         int generations = config.getInt("generator.generations");
+        
+        List<Pattern> micros = null;
+        List<CompositePattern> mesos = null;
+        List<CompositePattern> macros = null;
 
         while (generationCount <= generations) {
         	if(stop)
@@ -164,7 +169,7 @@ public class Algorithm extends Thread {
   
         	Map map = best.getPhenotype().getMap();
         	PatternFinder pm = new PatternFinder(map);
-        	List<Pattern> micros = pm.findMicroPatterns();
+        	micros = pm.findMicroPatterns();
         	
         	double passableTiles = map.getNonWallTileCount();
         	
@@ -229,7 +234,7 @@ public class Algorithm extends Thread {
         	breedInfeasibleIndividuals();
         	generationCount++;
         }
-        EventRouter.getInstance().postEvent(new AlgorithmDone());
+        EventRouter.getInstance().postEvent(new AlgorithmDone(micros, mesos, macros));
 	}
 	
 	/**
