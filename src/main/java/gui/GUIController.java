@@ -44,6 +44,7 @@ import javafx.scene.control.CheckBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextField;
+import javafx.scene.control.TextInputControl;
 import javafx.scene.control.TitledPane;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.BorderPane;
@@ -139,7 +140,7 @@ public class GUIController implements Initializable, Listener {
 	protected void selectAllPatternsButtonPressed(ActionEvent ev) {
 		PatternInstanceControl pic = null;
 		for (TitledPane pane : patternAccordion.getPanes()) {
-			VBox box = (VBox) pane.getContent();
+			VBox box = (VBox) ((ScrollPane) pane.getContent()).getContent();
 			for (Node node : box.getChildren()) {
 				if (node instanceof PatternInstanceControl) {
 					pic = (PatternInstanceControl) node;
@@ -163,7 +164,7 @@ public class GUIController implements Initializable, Listener {
 	protected void deselectAllPatternsButtonPressed(ActionEvent ev) {
 		activePatterns.clear();
 		for (TitledPane pane : patternAccordion.getPanes()) {
-			VBox box = (VBox) pane.getContent();
+			VBox box = (VBox) ((ScrollPane) pane.getContent()).getContent();
 			for (Node node : box.getChildren()) {
 				if (node instanceof PatternInstanceControl) {
 					Platform.runLater(() -> {
