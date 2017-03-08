@@ -133,6 +133,17 @@ public class Individual {
 //		}
 //	}
 	
+	public double getDistance(Individual other){
+		int[] thisChromosome = this.getGenotype().getChromosome();
+		int[] otherChromosome = other.getGenotype().getChromosome();
+		
+		int match = 0;
+		for(int i = 0; i < thisChromosome.length;i++)
+			if(thisChromosome[i] == otherChromosome[i]) match++;
+		
+		return (double)(thisChromosome.length-match)/thisChromosome.length;
+	}
+	
 	/**
 	 * Get this individual's calculated fitness
 	 * 

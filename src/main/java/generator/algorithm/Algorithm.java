@@ -233,6 +233,19 @@ public class Algorithm extends Thread {
         	breedFeasibleIndividuals();
         	breedInfeasibleIndividuals();
         	generationCount++;
+        	
+        	
+        	
+        	//Check diversity:
+        	double distance = 0.0;
+        	for(int i = 0; i < feasiblePopulation.size(); i++){
+        		if(feasiblePopulation.get(i) != best)
+        			distance += best.getDistance(feasiblePopulation.get(i));
+        	}
+        	double averageDistance = distance / (double)(feasiblePopulation.size() - 1);
+        	broadcastStatusUpdate("Average distance from best individual: " + averageDistance);
+        	
+        	
         }
         EventRouter.getInstance().postEvent(new AlgorithmDone(micros, mesos, macros));
 	}
@@ -565,7 +578,14 @@ public class Algorithm extends Thread {
     	
     	double roomFitness = (double)roomArea/passableTiles;
     	
-    	double fitness = 0.2 * treasureAndEnemyFitness +  0.8*(0.2 * roomFitness + 0.8 * corridorFitness);
+    	double roomTarget = 0.95;
+    	double corridorTarget = 0.05;
+    	
+    	roomFitness = 1 - Math.abs(roomFitness - roomTarget)/Math.max(roomTarget, 1.0 - roomTarget);
+    	corridorFitness = 1 - Math.abs(corridorFitness - corridorTarget)/Math.max(corridorTarget, 1.0 - corridorTarget);
+    	
+    	
+    	double fitness = 0.5 * treasureAndEnemyFitness +  0.5*(0.5 * roomFitness + 0.5 * corridorFitness);
     	
         //set final fitness
         ind.setFitness(fitness);
@@ -675,7 +695,7 @@ public class Algorithm extends Thread {
 
         while (countSons < sonSize)
         {
-            Individual[] offspring = progenitors.get(Util.getNextInt(0, sizeProgenitors)).rectangularCrossover(progenitors.get(Util.getNextInt(0, sizeProgenitors)));
+            Individual[] offspring = progenitors.get(Util.getNextInt(0, sizeProgenitors)).twoPointCrossover(progenitors.get(Util.getNextInt(0, sizeProgenitors)));
             sons.addAll(Arrays.asList(offspring));
             countSons += 2;
         }

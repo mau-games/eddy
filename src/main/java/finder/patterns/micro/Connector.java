@@ -15,9 +15,9 @@ public class Connector extends Pattern {
 	public double getQuality(){
 		switch(type){
 			case TURN:
-				return 0.2;
+				return 0.1;
 			case INTERSECTION:
-				return 0.8;
+				return 0.9;
 		}
 		return 1.0;
 		

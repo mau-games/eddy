@@ -26,8 +26,8 @@
         }
     },
     "generator": {
-        "generations": 100,
-        "population_size": 100,
+        "generations": 200,
+        "population_size": 150,
         "mutation_probability": 0.9,
         "offspring_size": 0.7,
         "feasible_proportion": 0.5
