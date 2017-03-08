@@ -448,92 +448,88 @@ public class Algorithm extends Thread {
 	 */
     public void evaluateFeasibleIndividual(Individual ind)
     {
-//        double fitness = 0.0;
-//        Map map = ind.getPhenotype().getMap();
-//
-//
-//        //Entrance safety (1)
-//        double entranceSafetyFitness = evaluateEntranceSafety(ind); //Note - this has been changed from the Unity version
-//        map.setEntranceSafety(entranceSafetyFitness);
-//        try {
-//			entranceSafetyFitness = Math.abs(entranceSafetyFitness - generatorConfig.getEntranceSafety());
-//		} catch (MissingConfigurationException e) {
-//			e.printStackTrace();
-//		}
-//
-//        //Enemy density (2)
-//        double[] expectedEnemiesRange = null;
-//		try {
-//			expectedEnemiesRange = generatorConfig.getEnemyQuantityRange();
-//		} catch (MissingConfigurationException e) {
-//			e.printStackTrace();
-//		}
-//        double enemyDensityFitness = 0.0;
-//        double enemyPercent = map.getEnemyPercentage();
-//        if(enemyPercent < expectedEnemiesRange[0])
-//        {
-//            enemyDensityFitness = expectedEnemiesRange[0] - enemyPercent;
-//        }
-//        else if(enemyPercent > expectedEnemiesRange[1])
-//        { 
-//            enemyDensityFitness = enemyPercent - expectedEnemiesRange[1];
-//        }
-//
-//        //Average treasure safety (3)
-//        evaluateTreasureSafeties(ind);
-//        Double[] safeties = map.getAllTreasureSafeties();
-//        double safeties_average = Util.calcAverage(safeties);
-//       
-//        double averageTreasureSafetyFitness = 0.0;
-//        try {
-//			averageTreasureSafetyFitness = Math.abs(safeties_average - generatorConfig.getAverageTreasureSafety());
-//		} catch (MissingConfigurationException e) {
-//			e.printStackTrace();
-//		}
-//
-//
-//        //Treasure density (4)
-//        double[] expectedTreasuresRange = null;
-//		try {
-//			expectedTreasuresRange = generatorConfig.getTreasureQuantityRange();
-//		} catch (MissingConfigurationException e) {
-//			e.printStackTrace();
-//		}
-//        double treasureDensityFitness = 0.0;
-//        double treasurePercent = map.getTreasurePercentage();
-//        if(treasurePercent < expectedTreasuresRange[0])
-//        {
-//            treasureDensityFitness = expectedTreasuresRange[0] - treasurePercent;
-//        }
-//        else if (treasurePercent > expectedTreasuresRange[1])
-//        {
-//            treasureDensityFitness = treasurePercent - expectedTreasuresRange[1];
-//        }
-//
-//        //Treasure Safety Variance (5)
-//        double safeties_variance = Util.calcVariance(safeties);
-//        double expectedSafetyVariance = 0.0;
-//		try {
-//			expectedSafetyVariance = generatorConfig.getTreasureSafetyVariance();
-//		} catch (MissingConfigurationException e) {
-//			e.printStackTrace();
-//		}
-//
-//        double treasureSafetyVarianceFitness = Math.abs(safeties_variance - expectedSafetyVariance);
-//
-//        //Removed countCloseWalls method because it ALWAYS returns 0 and the intended function is unclear
-//        //Consequently, weights have been adjusted
-//
-//        fitness =
-//            entranceSafetyFitness * 0.2 +
-//            enemyDensityFitness * 0.3 +
-//            averageTreasureSafetyFitness * 0.1 +
-//            treasureDensityFitness * 0.2 +
-//            treasureSafetyVarianceFitness * 0.2;
+        Map map = ind.getPhenotype().getMap();
 
+        //Entrance safety (1)
+        double entranceSafetyFitness = evaluateEntranceSafety(ind); //Note - this has been changed from the Unity version
+        map.setEntranceSafety(entranceSafetyFitness);
+        try {
+			entranceSafetyFitness = Math.abs(entranceSafetyFitness - generatorConfig.getEntranceSafety());
+		} catch (MissingConfigurationException e) {
+			e.printStackTrace();
+		}
+
+        //Enemy density (2)
+        double[] expectedEnemiesRange = null;
+		try {
+			expectedEnemiesRange = generatorConfig.getEnemyQuantityRange();
+		} catch (MissingConfigurationException e) {
+			e.printStackTrace();
+		}
+        double enemyDensityFitness = 0.0;
+        double enemyPercent = map.getEnemyPercentage();
+        if(enemyPercent < expectedEnemiesRange[0])
+        {
+            enemyDensityFitness = expectedEnemiesRange[0] - enemyPercent;
+        }
+        else if(enemyPercent > expectedEnemiesRange[1])
+        { 
+            enemyDensityFitness = enemyPercent - expectedEnemiesRange[1];
+        }
+
+        //Average treasure safety (3)
+        evaluateTreasureSafeties(ind);
+        Double[] safeties = map.getAllTreasureSafeties();
+        double safeties_average = Util.calcAverage(safeties);
+       
+        double averageTreasureSafetyFitness = 0.0;
+        try {
+			averageTreasureSafetyFitness = Math.abs(safeties_average - generatorConfig.getAverageTreasureSafety());
+		} catch (MissingConfigurationException e) {
+			e.printStackTrace();
+		}
+
+
+        //Treasure density (4)
+        double[] expectedTreasuresRange = null;
+		try {
+			expectedTreasuresRange = generatorConfig.getTreasureQuantityRange();
+		} catch (MissingConfigurationException e) {
+			e.printStackTrace();
+		}
+        double treasureDensityFitness = 0.0;
+        double treasurePercent = map.getTreasurePercentage();
+        if(treasurePercent < expectedTreasuresRange[0])
+        {
+            treasureDensityFitness = expectedTreasuresRange[0] - treasurePercent;
+        }
+        else if (treasurePercent > expectedTreasuresRange[1])
+        {
+            treasureDensityFitness = treasurePercent - expectedTreasuresRange[1];
+        }
+
+        //Treasure Safety Variance (5)
+        double safeties_variance = Util.calcVariance(safeties);
+        double expectedSafetyVariance = 0.0;
+		try {
+			expectedSafetyVariance = generatorConfig.getTreasureSafetyVariance();
+		} catch (MissingConfigurationException e) {
+			e.printStackTrace();
+		}
+
+        double treasureSafetyVarianceFitness = Math.abs(safeties_variance - expectedSafetyVariance);
+
+        //Removed countCloseWalls method because it ALWAYS returns 0 and the intended function is unclear
+        //Consequently, weights have been adjusted
+
+        double treasureAndEnemyFitness = 1.0 -
+            entranceSafetyFitness * 0.2 -
+            enemyDensityFitness * 0.3 -
+            averageTreasureSafetyFitness * 0.1 -
+            treasureDensityFitness * 0.2 -
+            treasureSafetyVarianceFitness * 0.2;
     	
     	//Corridor fitness
-    	Map map = ind.getPhenotype().getMap();
     	double passableTiles = map.getNonWallTileCount();
     	double corridorArea = 0;	
     	List<Pattern> corridors = Corridor.matches(map,null);
@@ -569,7 +565,7 @@ public class Algorithm extends Thread {
     	
     	double roomFitness = (double)roomArea/passableTiles;
     	
-    	double fitness = 0.3 * roomFitness + 0.7 * corridorFitness;
+    	double fitness = 0.2 * treasureAndEnemyFitness +  0.8*(0.2 * roomFitness + 0.8 * corridorFitness);
     	
         //set final fitness
         ind.setFitness(fitness);

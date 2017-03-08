@@ -9,8 +9,8 @@
 
   "enemies_quantity": {
     "easy": {
-      "min": 0.01,
-      "max": 0.02
+      "min": 0.005,
+      "max": 0.007
     },
     "medium": {
       "min": 0.02,

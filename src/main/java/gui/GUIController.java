@@ -246,7 +246,7 @@ public class GUIController implements Initializable, Listener {
 				});
 			}
 		} else if (e instanceof AlgorithmDone) {
-			runButton.setDisable(false);
+			Platform.runLater(() -> {runButton.setDisable(false);});
 			micropatterns = ((AlgorithmDone) e).micropatterns;
 			mesopatterns = ((AlgorithmDone) e).mesopatterns;
 			macropatterns = ((AlgorithmDone) e).macropatterns;
