@@ -4,6 +4,9 @@
             "_comment": "~/ denotes the home directory. Slashes will be converted to backslashes on Windows.",
             "path": "~/eddy/maps/",
             "active": true
+        },
+        "visual": {
+            "pattern_opacity": 0.6
         }
     },
     "game": {

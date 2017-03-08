@@ -42,6 +42,7 @@ import javafx.scene.control.Accordion;
 import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.Label;
+import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextField;
 import javafx.scene.control.TitledPane;
 import javafx.scene.input.MouseEvent;
@@ -88,6 +89,8 @@ public class GUIController implements Initializable, Listener {
 	private List<CompositePattern> mesopatterns;
 	private List<CompositePattern> macropatterns;
 	private IdentityHashMap<Pattern, Color> activePatterns = new IdentityHashMap<Pattern, Color>();
+	
+	private double patternOpacity = 0;
 
 	/**
 	 * Creates an instance of GUIController. This method is implicitly called
@@ -190,7 +193,7 @@ public class GUIController implements Initializable, Listener {
 	 */
 	@FXML
 	protected void mapSlabPressed(MouseEvent ev) {
-		populatePatternList();
+//		populatePatternList();
 	}
 
 	/**
@@ -246,10 +249,13 @@ public class GUIController implements Initializable, Listener {
 				});
 			}
 		} else if (e instanceof AlgorithmDone) {
-			Platform.runLater(() -> {runButton.setDisable(false);});
 			micropatterns = ((AlgorithmDone) e).micropatterns;
 			mesopatterns = ((AlgorithmDone) e).mesopatterns;
 			macropatterns = ((AlgorithmDone) e).macropatterns;
+			Platform.runLater(() -> {
+				runButton.setDisable(false);
+				populatePatternList();
+			});
 		}
 	}
 
@@ -299,6 +305,7 @@ public class GUIController implements Initializable, Listener {
 	 * Restores the map view to the latest map.
 	 */
 	private void restoreMap() {
+		patternOpacity = config.getDouble("map.visual.pattern_opacity");
 		if (currentMap != null) {
 			Platform.runLater(() -> {
 				// First, draw the raw map
@@ -386,7 +393,7 @@ public class GUIController implements Initializable, Listener {
 	private synchronized void drawOutline(int x, int y, int width, int height, Color c) {
 		GraphicsContext gc = mapCanvas.getGraphicsContext2D();
 		
-		gc.setFill(new Color(c.getRed(), c.getGreen(), c.getBlue(), 0.6));
+		gc.setFill(new Color(c.getRed(), c.getGreen(), c.getBlue(), patternOpacity));
 		gc.setStroke(c);
 		gc.setLineWidth(2);
 		gc.fillRect(x, y, width, height);
@@ -410,30 +417,54 @@ public class GUIController implements Initializable, Listener {
 			
 			for (Pattern p : micropatterns) {
 				if (p instanceof Room) {
-					rooms.add(new PatternInstanceControl(rooms.size(), roomColour, p, activePatterns));
+					PatternInstanceControl pic =
+							new PatternInstanceControl(rooms.size(),
+									roomColour,
+									p,
+									activePatterns);
+					rooms.add(pic);
+					if (activePatterns.containsKey(p)) {
+						pic.setSelected(true);
+					}
 					roomColour = roomColour.darker();
 				} else if (p instanceof Connector) {
-					connectors.add(new PatternInstanceControl(connectors.size(), connectorColour, p, activePatterns));
+					PatternInstanceControl pic =
+							new PatternInstanceControl(connectors.size(),
+									connectorColour,
+									p,
+									activePatterns);
+					connectors.add(pic);
+					if (activePatterns.containsKey(p)) {
+						pic.setSelected(true);
+					}
 					connectorColour = connectorColour.darker();
 				} else if (p instanceof Corridor) {
-					corridors.add(new PatternInstanceControl(corridors.size(), corridorColour, p, activePatterns));
+					PatternInstanceControl pic =
+							new PatternInstanceControl(corridors.size(),
+									corridorColour,
+									p,
+									activePatterns);
+					corridors.add(pic);
+					if (activePatterns.containsKey(p)) {
+						pic.setSelected(true);
+					}
 					corridorColour = corridorColour.darker();
 				}
 			}
 			
 			if (rooms.size() > 0) {
 				patternAccordion.getPanes().add(new TitledPane("Rooms",
-						new VBox(rooms.toArray(new Node[0]))));
+						new ScrollPane(new VBox(rooms.toArray(new Node[0])))));
 			}
 			
 			if (corridors.size() > 0) {
 				patternAccordion.getPanes().add(new TitledPane("Corridors",
-						new VBox(corridors.toArray(new Node[0]))));
+						new ScrollPane(new VBox(corridors.toArray(new Node[0])))));
 			}
 			
 			if (connectors.size() > 0) {
 				patternAccordion.getPanes().add(new TitledPane("Connectors",
-						new VBox(connectors.toArray(new Node[0]))));
+						new ScrollPane(new VBox(connectors.toArray(new Node[0])))));
 			}
 		}
 	}
