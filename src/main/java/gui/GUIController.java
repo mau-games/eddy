@@ -42,6 +42,7 @@ import javafx.scene.control.Accordion;
 import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.Label;
+import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextField;
 import javafx.scene.control.TitledPane;
 import javafx.scene.input.MouseEvent;
@@ -453,17 +454,17 @@ public class GUIController implements Initializable, Listener {
 			
 			if (rooms.size() > 0) {
 				patternAccordion.getPanes().add(new TitledPane("Rooms",
-						new VBox(rooms.toArray(new Node[0]))));
+						new ScrollPane(new VBox(rooms.toArray(new Node[0])))));
 			}
 			
 			if (corridors.size() > 0) {
 				patternAccordion.getPanes().add(new TitledPane("Corridors",
-						new VBox(corridors.toArray(new Node[0]))));
+						new ScrollPane(new VBox(corridors.toArray(new Node[0])))));
 			}
 			
 			if (connectors.size() > 0) {
 				patternAccordion.getPanes().add(new TitledPane("Connectors",
-						new VBox(connectors.toArray(new Node[0]))));
+						new ScrollPane(new VBox(connectors.toArray(new Node[0])))));
 			}
 		}
 	}
