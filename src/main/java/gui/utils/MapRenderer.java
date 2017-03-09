@@ -106,7 +106,7 @@ public class MapRenderer {
 		int m = matrix.length;
 		int n = matrix[0].length;
 		int pWidth = (int) Math.floor(ctx.getCanvas().getWidth() / Math.max(m, n));
-		patternOpacity = config.getDouble("map.visual.pattern_opacity");
+		patternOpacity = config.getDouble("map.pattern_opacity");
 				
 		for (Entry<Pattern, Color> e : patterns.entrySet()) {
 			Platform.runLater(() -> {
@@ -162,22 +162,22 @@ public class MapRenderer {
 		if (image == null) {
 			switch (TileTypes.toTileType(pixel)) {
 			case DOOR:
-				image = new Image("/" + config.getString("map.visual.tiles.door"));
+				image = new Image("/" + config.getString("map.tiles.door"));
 				break;
 			case TREASURE:
-				image = new Image("/" + config.getString("map.visual.tiles.treasure"));
+				image = new Image("/" + config.getString("map.tiles.treasure"));
 				break;
 			case ENEMY:
-				image = new Image("/" + config.getString("map.visual.tiles.enemy"));;
+				image = new Image("/" + config.getString("map.tiles.enemy"));;
 				break;
 			case WALL:
-				image = new Image("/" + config.getString("map.visual.tiles.wall"));;
+				image = new Image("/" + config.getString("map.tiles.wall"));;
 				break;
 			case FLOOR:
-				image = new Image("/" + config.getString("map.visual.tiles.floor"));;
+				image = new Image("/" + config.getString("map.tiles.floor"));;
 				break;
 			case DOORENTER:
-				image = new Image("/" + config.getString("map.visual.tiles.doorenter"));;
+				image = new Image("/" + config.getString("map.tiles.doorenter"));;
 				break;
 			default:
 				image = null;

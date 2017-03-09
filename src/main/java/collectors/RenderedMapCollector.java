@@ -41,8 +41,8 @@ public class RenderedMapCollector implements Listener {
 			logger.error("Couldn't read configuration file:\n" + e.getMessage());
 		}
 		EventRouter.getInstance().registerListener(this, new MapRendered(null));
-		path = Util.normalisePath(config.getString("map.image_exporter.path"));
-		active = config.getBoolean("map.image_exporter.active");
+		path = Util.normalisePath(config.getString("collectors.image_exporter.path"));
+		active = config.getBoolean("collectors.image_exporter.active");
 	}
 
 	@Override

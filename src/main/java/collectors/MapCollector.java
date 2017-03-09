@@ -41,8 +41,8 @@ public class MapCollector implements Listener {
 			logger.error("Couldn't read configuration file:\n" + e.getMessage());
 		}
 		EventRouter.getInstance().registerListener(this, new MapUpdate(null));
-		path = Util.normalisePath(config.getString("map.collector.path"));
-		active = config.getBoolean("map.collector.active");
+		path = Util.normalisePath(config.getString("collectors.map_collector.path"));
+		active = config.getBoolean("collectors.map_collector.active");
 	}
 
 	@Override

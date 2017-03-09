@@ -1,25 +1,13 @@
 {
     "map": {
-        "collector": {
-            "_comment": "~/ denotes the home directory. Slashes will be converted to backslashes on Windows.",
-            "path": "~/eddy/maps/",
-            "active": true
-        },
-        "image_exporter": {
-            "_comment": "~/ denotes the home directory. Slashes will be converted to backslashes on Windows.",
-            "path": "~/eddy/maps/rendered/",
-            "active": true
-        },
-        "visual": {
-            "pattern_opacity": 0.6,
-            "tiles": {
-                "floor": "graphics/tiles/floor.png",
-                "wall": "graphics/tiles/wall.png",
-                "enemy": "graphics/tiles/enemy.png",
-                "treasure": "graphics/tiles/treasure.png",
-                "doorenter": "graphics/tiles/entrydoor.png",
-                "door": "graphics/tiles/door.png"
-            }
+        "pattern_opacity": 0.6,
+        "tiles": {
+            "floor": "graphics/tiles/floor.png",
+            "wall": "graphics/tiles/wall.png",
+            "enemy": "graphics/tiles/enemy.png",
+            "treasure": "graphics/tiles/treasure.png",
+            "doorenter": "graphics/tiles/entrydoor.png",
+            "door": "graphics/tiles/door.png"
         }
     },
     "game": {
@@ -44,6 +32,18 @@
         "mutation_probability": 0.9,
         "offspring_size": 0.7,
         "feasible_proportion": 0.5
+    },
+    "collectors": {
+        "map_collector": {
+            "_comment": "~/ denotes the home directory. Slashes will be converted to backslashes on Windows.",
+            "path": "~/eddy/maps/",
+            "active": true
+        },
+        "image_exporter": {
+            "_comment": "~/ denotes the home directory. Slashes will be converted to backslashes on Windows.",
+            "path": "~/eddy/maps/rendered/",
+            "active": true
+        }
     },
     "patterns": {
         "room": {
