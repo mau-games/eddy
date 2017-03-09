@@ -43,6 +43,11 @@ public class MapCollector implements Listener {
 		EventRouter.getInstance().registerListener(this, new MapUpdate(null));
 		path = Util.normalisePath(config.getString("collectors.map_collector.path"));
 		active = config.getBoolean("collectors.map_collector.active");
+
+		File directory = new File(path);
+		if (!directory.exists()) {
+			directory.mkdir();
+		}
 	}
 
 	@Override
