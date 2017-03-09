@@ -1,9 +1,7 @@
 package util.eventrouting.events;
 
-import java.util.List;
+import java.util.HashMap;
 
-import finder.patterns.CompositePattern;
-import finder.patterns.Pattern;
 import util.eventrouting.PCGEvent;
 
 /**
@@ -12,15 +10,8 @@ import util.eventrouting.PCGEvent;
  * @author Johan Holmberg, Malmö University
  */
 public class AlgorithmDone extends PCGEvent {
-	public List<Pattern> micropatterns = null;
-	public List<CompositePattern> mesopatterns = null;
-	public List<CompositePattern> macropatterns = null;
 	
-	public AlgorithmDone(List<Pattern> micropatterns,
-			List<CompositePattern> mesopatterns,
-			List<CompositePattern> macropatterns) {
-		this.micropatterns = micropatterns;
-		this.mesopatterns = mesopatterns;
-		this.macropatterns = macropatterns;
+	public AlgorithmDone(HashMap<String, Object> map) {
+		setPayload(map);
 	}
 }

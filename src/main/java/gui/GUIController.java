@@ -2,6 +2,7 @@ package gui;
 
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Map.Entry;
@@ -219,7 +220,7 @@ public class GUIController implements Initializable, Listener {
 	public void initialize(URL location, ResourceBundle resources) {
 		router.registerListener(this, new MapUpdate(null));
 		router.registerListener(this, new StatusMessage(null));
-		router.registerListener(this, new AlgorithmDone(null, null, null));
+		router.registerListener(this, new AlgorithmDone(null));
 		router.registerListener(this, new RequestRedraw());
 		messageDisplayer.setText("Awaiting commands");
 	}
@@ -239,9 +240,10 @@ public class GUIController implements Initializable, Listener {
 				});
 			}
 		} else if (e instanceof AlgorithmDone) {
-			micropatterns = ((AlgorithmDone) e).micropatterns;
-			mesopatterns = ((AlgorithmDone) e).mesopatterns;
-			macropatterns = ((AlgorithmDone) e).macropatterns;
+			HashMap result = (HashMap) ((AlgorithmDone) e).getPayload();
+			micropatterns = (List<Pattern>) result.get("micropatterns");
+			mesopatterns = (List<CompositePattern>) result.get("mesopatterns");
+			macropatterns = (List<CompositePattern>) result.get("macropatterns");
 			Platform.runLater(() -> {
 				runButton.setDisable(false);
 				cancelButton.setDisable(true);

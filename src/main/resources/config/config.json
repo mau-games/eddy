@@ -43,6 +43,11 @@
             "_comment": "~/ denotes the home directory. Slashes will be converted to backslashes on Windows.",
             "path": "~/eddy/maps/rendered/",
             "active": true
+        },
+        "generation_collector": {
+            "_comment": "~/ denotes the home directory. Slashes will be converted to backslashes on Windows.",
+            "path": "~/eddy/",
+            "active": true
         }
     },
     "patterns": {

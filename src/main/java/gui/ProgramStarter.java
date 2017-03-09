@@ -4,6 +4,7 @@ package gui;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import collectors.GenerationCollector;
 import collectors.MapCollector;
 import collectors.RenderedMapCollector;
 import game.Game;
@@ -29,6 +30,7 @@ public class ProgramStarter extends Application {
 	private Game game;
 	private MapCollector mapCollector;
 	private RenderedMapCollector renderedMapCollector;
+	private GenerationCollector generationCollector;
 
 	/**
 	 * This is the GUI entry point.
@@ -62,6 +64,7 @@ public class ProgramStarter extends Application {
 	        // Set up a bunch of collectors
 	        mapCollector = new MapCollector();
 	        renderedMapCollector = new RenderedMapCollector();
+	        generationCollector = new GenerationCollector();
 	        
 		} catch (Exception e) {
 			logger.error("Couldn't load GUI: " + e.getMessage(), e);

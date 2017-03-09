@@ -2,6 +2,7 @@ package generator.algorithm;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
@@ -30,6 +31,7 @@ import util.config.ConfigurationUtility;
 import util.config.MissingConfigurationException;
 import util.eventrouting.EventRouter;
 import util.eventrouting.events.AlgorithmDone;
+import util.eventrouting.events.GenerationDone;
 import util.eventrouting.events.MapUpdate;
 import util.eventrouting.events.StatusMessage;
 
@@ -245,9 +247,15 @@ public class Algorithm extends Thread {
         	double averageDistance = distance / (double)(feasiblePopulation.size() - 1);
         	broadcastStatusUpdate("Average distance from best individual: " + averageDistance);
         	
-        	
+        	// Fill this string with your data
+        	String generation = "generation " + generationCount;
+        	EventRouter.getInstance().postEvent(new GenerationDone(generation));
         }
-        EventRouter.getInstance().postEvent(new AlgorithmDone(micros, mesos, macros));
+        HashMap<String, Object> result = new HashMap<String, Object>();
+        result.put("micropatterns", micros);
+        result.put("mesopatterns", mesos);
+        result.put("macropatterns", macros);
+        EventRouter.getInstance().postEvent(new AlgorithmDone(result));
 	}
 	
 	/**
