@@ -38,13 +38,13 @@ public class Room extends Pattern {
 	public double getQuality() {
 		Polygon polygon = (Polygon) boundaries;
 		Rectangle rectangle = constructRectangle();
-		double desiredRectangleArea = 9; 
+		double desiredRectangleArea = 64; 
 		double polyArea = polygon.getArea();
 		double rectArea = rectangle.getArea();
 		double floorRatio = polyArea / rectArea;
 		double areaDeviation = 1;
-		double floorRatioWeight = 0.5;
-		double areaDeviationWeight = 0.5;
+		double floorRatioWeight = 0.9;
+		double areaDeviationWeight = 0.1;
 		
 		areaDeviation = 1 - Math.abs(desiredRectangleArea - polyArea)
 				/ desiredRectangleArea;

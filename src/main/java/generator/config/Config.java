@@ -108,6 +108,24 @@ public class Config {
 		return configJson.get("entrance_safety").getAsJsonObject()
 				.get(getDifficultyString(level)).getAsDouble();
 	}
+	
+	
+	/**
+	 * Returns the setting for entrance greed (a measure of how close to the door treasures should spawn)
+	 * 
+	 * @return The target entrance greed
+	 * @throws MissingConfigurationException if no configuration has yet been
+	 * 		 read and applied.
+	 */
+	public double getEntranceGreed() throws MissingConfigurationException {
+		if (configJson == null) {
+			throw new MissingConfigurationException();
+		}
+
+		return configJson.get("entrance_greed").getAsJsonObject()
+				.get(getDifficultyString(level)).getAsDouble();
+	}
+	
 
 	/**
 	 * TODO: Explain this more in detail once we understand it.

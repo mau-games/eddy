@@ -385,6 +385,49 @@ public class Algorithm extends Thread {
     }
 	
 	/**
+	 * Uses flood fill to calculate a score for the greed of the room's entrance
+	 * 
+	 * The greed value is between 0 and 1. 
+	 * 0 means there is an treasure adjacent to the entry door. 
+	 * 1 means there is no treasure in the room (impossible).
+	 * In practice the highest greed will be achieved when a treasure is as far away from the entrance as possible.
+	 * 
+	 * @param ind The individual to evaluate.
+	 * @return The safety value for the room's entrance.
+	 */
+	public float evaluateEntranceGreed(Individual ind)
+    {
+        Map map = ind.getPhenotype().getMap();
+
+        List<Node> visited = new ArrayList<Node>();
+    	Queue<Node> queue = new LinkedList<Node>();
+    	
+    	Node root = new Node(0.0f, map.getEntrance(), null);
+    	queue.add(root);
+    	
+    	while(!queue.isEmpty()){
+    		Node current = queue.remove();
+    		visited.add(current);
+    		if(map.getTile(current.position).isTreasure())
+    			break;
+    		
+    		List<Point> children = map.getAvailableCoords(current.position);
+            for(Point child : children)
+            {
+                if (visited.stream().filter(x->x.equals(child)).findFirst().isPresent() 
+                		|| queue.stream().filter(x->x.equals(child)).findFirst().isPresent()) 
+                	continue;
+
+                //Create child node
+                Node n = new Node(0.0f, child, current);
+                queue.add(n);
+            }
+            
+    	}
+    	return (float)visited.size()/map.getNonWallTileCount();  
+    }
+	
+	/**
 	 * Evaluates the treasure safety of a valid individual 
 	 * See Sentient Sketchbook for a description of the method
 	 * 
@@ -531,12 +574,22 @@ public class Algorithm extends Thread {
 		}
 
         double treasureSafetyVarianceFitness = Math.abs(safeties_variance - expectedSafetyVariance);
+        
+        //Entrance greed (6)
+        double entranceGreedFitness = evaluateEntranceGreed(ind); //Note - this has been changed from the Unity version
+        map.setEntranceGreed(entranceGreedFitness);
+        try {
+        	entranceGreedFitness = Math.abs(entranceGreedFitness - generatorConfig.getEntranceGreed());
+		} catch (MissingConfigurationException e) {
+			e.printStackTrace();
+		}
 
         //Removed countCloseWalls method because it ALWAYS returns 0 and the intended function is unclear
         //Consequently, weights have been adjusted
 
         double treasureAndEnemyFitness = 1.0 -
-            entranceSafetyFitness * 0.2 -
+            entranceSafetyFitness * 0.1 -
+            entranceGreedFitness * 0.1 -
             enemyDensityFitness * 0.3 -
             averageTreasureSafetyFitness * 0.1 -
             treasureDensityFitness * 0.2 -
@@ -578,8 +631,8 @@ public class Algorithm extends Thread {
     	
     	double roomFitness = (double)roomArea/passableTiles;
     	
-    	double roomTarget = 0.95;
-    	double corridorTarget = 0.05;
+    	double roomTarget = 0.7;
+    	double corridorTarget = 0.3;
     	
     	roomFitness = 1 - Math.abs(roomFitness - roomTarget)/Math.max(roomTarget, 1.0 - roomTarget);
     	corridorFitness = 1 - Math.abs(corridorFitness - corridorTarget)/Math.max(corridorTarget, 1.0 - corridorTarget);

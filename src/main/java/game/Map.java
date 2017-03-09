@@ -28,6 +28,7 @@ public class Map {
 	private Dictionary<Point, Double> treasureSafety;
 	private Point entrance;
 	private double entranceSafety;
+	private double entranceGreed;
 	
 	/**
 	 * Creates an instance of map.
@@ -434,6 +435,15 @@ public class Map {
      */
     public void setEntranceSafety(double safety) {
     	entranceSafety = safety;
+    }
+    
+    /**
+     * Sets the map's entrance "greed" (that is, how close is the nearest treasure?).
+     * 
+     * @param safety A safety value.
+     */
+    public void setEntranceGreed(double greed) {
+    	entranceGreed = greed;
     }
     
     /**

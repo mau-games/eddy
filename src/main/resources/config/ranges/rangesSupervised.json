@@ -1,13 +1,13 @@
 [
   {
     "from": 0,
-    "to": 0.7,
+    "to": 0.6,
     "elements": [
       "FLOOR"
     ]
   },
   {
-    "from": 0.7,
+    "from": 0.6,
     "to": 0.9,
     "elements": [
       "WALL"
