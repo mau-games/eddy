@@ -23,6 +23,7 @@ public class LabeledTextField extends HBox {
 	 */
 	public LabeledTextField(String label, TextField textField) {
 		super();
+		getStyleClass().add("labeled-text-field");
 		
 		this.label = new Label(label);
 		this.textField = textField;
