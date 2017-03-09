@@ -85,7 +85,7 @@ public class GUIController implements Initializable, Listener {
 	
 	private Map currentMap;
 	private GraphicsContext ctx;
-	private MapRenderer renderer = new MapRenderer();
+	private MapRenderer renderer = MapRenderer.getInstance();
 	
 	private List<Pattern> micropatterns;
 	private List<CompositePattern> mesopatterns;
@@ -240,7 +240,7 @@ public class GUIController implements Initializable, Listener {
 				});
 			}
 		} else if (e instanceof AlgorithmDone) {
-			HashMap result = (HashMap) ((AlgorithmDone) e).getPayload();
+			HashMap<String, Object> result = (HashMap<String, Object>) ((AlgorithmDone) e).getPayload();
 			micropatterns = (List<Pattern>) result.get("micropatterns");
 			mesopatterns = (List<CompositePattern>) result.get("mesopatterns");
 			macropatterns = (List<CompositePattern>) result.get("macropatterns");
@@ -248,8 +248,6 @@ public class GUIController implements Initializable, Listener {
 				runButton.setDisable(false);
 				cancelButton.setDisable(true);
 				populatePatternList();
-				// We might as well see if anyone is interested in our rendered map
-				sendRenderedMap();
 			});
 		}
 	}
@@ -301,16 +299,6 @@ public class GUIController implements Initializable, Listener {
 				renderer.drawPatterns(ctx, matrix, activePatterns);
 			});
 		}
-	}
-	
-	/**
-	 * Publishes a rendered map.
-	 */
-	private void sendRenderedMap() {
-		Canvas canvas = new Canvas(mapCanvas.getWidth(), mapCanvas.getHeight());
-		renderer.renderMap(canvas.getGraphicsContext2D(), currentMap.toMatrix());
-		Image image = canvas.snapshot(new SnapshotParameters(), null);
-		router.postEvent(new MapRendered(image));
 	}
 	
 	/**

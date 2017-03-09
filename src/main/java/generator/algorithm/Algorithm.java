@@ -142,6 +142,8 @@ public class Algorithm extends Thread {
         List<Pattern> micros = null;
         List<CompositePattern> mesos = null;
         List<CompositePattern> macros = null;
+        
+        Map map = null;
 
         while (generationCount <= generations) {
         	if(stop)
@@ -172,7 +174,7 @@ public class Algorithm extends Thread {
 
             broadcastMapUpdate(best.getPhenotype().getMap());
   
-        	Map map = best.getPhenotype().getMap();
+        	map = best.getPhenotype().getMap();
         	PatternFinder pm = new PatternFinder(map);
         	micros = pm.findMicroPatterns();
         	
@@ -258,6 +260,7 @@ public class Algorithm extends Thread {
         result.put("micropatterns", micros);
         result.put("mesopatterns", mesos);
         result.put("macropatterns", macros);
+        result.put("map", map);
         EventRouter.getInstance().postEvent(new AlgorithmDone(result));
 	}
 	

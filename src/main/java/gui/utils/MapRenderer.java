@@ -1,7 +1,11 @@
 package gui.utils;
 
 import java.util.ArrayList;
+import java.util.Dictionary;
+import java.util.HashMap;
+import java.util.Hashtable;
 import java.util.IdentityHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
@@ -12,16 +16,24 @@ import finder.geometry.Bitmap;
 import finder.geometry.Geometry;
 import finder.geometry.Point;
 import finder.geometry.Rectangle;
+import finder.patterns.CompositePattern;
 import finder.patterns.Pattern;
 import game.TileTypes;
 import gui.GUIController;
 import javafx.application.Platform;
+import javafx.fxml.Initializable;
+import javafx.scene.SnapshotParameters;
+import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.image.Image;
 import javafx.scene.paint.Color;
 import util.config.ConfigurationUtility;
 import util.config.MissingConfigurationException;
 import util.eventrouting.EventRouter;
+import util.eventrouting.Listener;
+import util.eventrouting.PCGEvent;
+import util.eventrouting.events.AlgorithmDone;
+import util.eventrouting.events.MapRendered;
 
 /**
  * This class is used to render maps. The resulting images can be used by
@@ -29,25 +41,62 @@ import util.eventrouting.EventRouter;
  * 
  * @author Johan Holmberg
  */
-public class MapRenderer {
+public class MapRenderer implements Listener {
+	
+	private static MapRenderer instance = null;
 	
 	final static Logger logger = LoggerFactory.getLogger(GUIController.class);
+	private static EventRouter router = EventRouter.getInstance();
 	private ConfigurationUtility config;
 
 	private ArrayList<Image> tiles = new ArrayList<Image>();
 	private double patternOpacity = 0;
 	private int nbrOfTiles = 6;
 	
-	public MapRenderer() {
+	private int finalMapWidth;
+	private int finalMapHeight;
+	
+	Dictionary<String, List<Listener>> roster;
+	
+	private MapRenderer() {
 		try {
 			config = ConfigurationUtility.getInstance();
 		} catch (MissingConfigurationException e) {
 			logger.error("Couldn't read config: " + e.getMessage());
 		}
 		
-		// Set up the image list
+		router.registerListener(this, new AlgorithmDone(null));
+
+		finalMapHeight = config.getInt("map.final_rendition.height");
+		finalMapWidth = config.getInt("map.final_rendition.width");
+		
+		// Set up the tile image list
 		for (int i = 0; i < nbrOfTiles; i++) {
 			tiles.add(i, null);
+		}
+	}
+	
+	/**
+	 * Gets the singleton instance of this class.
+	 * 
+	 * @return An instance of MapRenderer.
+	 */
+	public static MapRenderer getInstance() {
+		if (instance == null) {
+			instance = new MapRenderer();
+		}
+		return instance;
+	}
+
+	@Override
+	public void ping(PCGEvent e) {
+		if (e instanceof AlgorithmDone) {
+			Map result = (Map) ((AlgorithmDone) e).getPayload();
+			Platform.runLater(() -> {
+				// We might as well see if anyone is interested in our rendered map
+				Map map = (Map) e.getPayload();
+				sendRenderedMap((game.Map) map.get("map"));
+			});
 		}
 	}
 
@@ -113,6 +162,16 @@ public class MapRenderer {
 				drawPattern(ctx, e.getKey(), e.getValue(), pWidth);
 			});
 		}
+	}
+	
+	/**
+	 * Publishes a rendered map.
+	 */
+	private void sendRenderedMap(game.Map map) {
+		Canvas canvas = new Canvas(finalMapWidth, finalMapHeight);
+		renderMap(canvas.getGraphicsContext2D(), map.toMatrix());
+		Image image = canvas.snapshot(new SnapshotParameters(), null);
+		router.postEvent(new MapRendered(image));
 	}
 
 	/**
