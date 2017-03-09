@@ -26,7 +26,7 @@ import util.eventrouting.events.MapUpdate;
  */
 public class MapCollector implements Listener {
 
-	private final Logger logger = LoggerFactory.getLogger(Config.class);
+	private final Logger logger = LoggerFactory.getLogger(MapCollector.class);
 	private ConfigurationUtility config;
 	private String path;
 	private boolean active;
