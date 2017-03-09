@@ -244,6 +244,7 @@ public class GUIController implements Initializable, Listener {
 			macropatterns = ((AlgorithmDone) e).macropatterns;
 			Platform.runLater(() -> {
 				runButton.setDisable(false);
+				cancelButton.setDisable(true);
 				populatePatternList();
 				// We might as well see if anyone is interested in our rendered map
 				sendRenderedMap();
