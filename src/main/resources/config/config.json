@@ -31,7 +31,11 @@
         "population_size": 150,
         "mutation_probability": 0.9,
         "offspring_size": 0.7,
-        "feasible_proportion": 0.5
+        "feasible_proportion": 0.5,
+        "weights": {
+            "room": 0.5,
+            "corridor": 0.5
+        }
     },
     "collectors": {
         "map_collector": {

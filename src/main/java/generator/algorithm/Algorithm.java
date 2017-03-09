@@ -135,6 +135,9 @@ public class Algorithm extends Thread {
 
         int generationCount = 1;
         int generations = config.getInt("generator.generations");
+
+        double roomWeight = config.getDouble("generator.weights.room");
+        double corridorWeight = config.getDouble("generator.weights.corridor");
         
         List<Pattern> micros = null;
         List<CompositePattern> mesos = null;
@@ -224,7 +227,7 @@ public class Algorithm extends Thread {
         	
         	double roomFitness = (double)roomArea/passableTiles;
         	
-        	//double fitness = 0.5 * roomFitness + 0.5 * corridorFitness;
+        	//double fitness = roomWeight * roomFitness + corridorWeight * corridorFitness;
           
         	broadcastStatusUpdate("Corridor Fitness: " + corridorFitness);
         	broadcastStatusUpdate("Room Fitness: " + roomFitness);
