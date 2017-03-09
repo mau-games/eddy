@@ -28,6 +28,7 @@ import game.TileTypes;
 import gui.controls.LabeledTextField;
 import gui.controls.NumberTextField;
 import gui.controls.PatternInstanceControl;
+import gui.utils.MapRenderer;
 import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
@@ -84,16 +85,15 @@ public class GUIController implements Initializable, Listener {
 	private ConfigurationUtility config;
 	
 	private Map currentMap;
-	private ArrayList<Image> tiles = new ArrayList<Image>();
+	GraphicsContext ctx;
+	private MapRenderer renderer = new MapRenderer();
 	
 	private List<Pattern> micropatterns;
 	private List<CompositePattern> mesopatterns;
 	private List<CompositePattern> macropatterns;
 	private IdentityHashMap<Pattern, Color> activePatterns = new IdentityHashMap<Pattern, Color>();
 	
-	private double patternOpacity = 0;
 	private boolean render = false;
-	private int nbrOfTiles = 6;
 
 	/**
 	 * Creates an instance of GUIController. This method is implicitly called
@@ -105,13 +105,9 @@ public class GUIController implements Initializable, Listener {
 		} catch (MissingConfigurationException e) {
 			logger.error("Couldn't read config: " + e.getMessage());
 		}
-		
-		patternOpacity = config.getDouble("map.visual.pattern_opacity");
-		
-		// Set up the image list
-		for (int i = 0; i < nbrOfTiles; i++) {
-			tiles.add(i, null);
-		}
+		Platform.runLater(() -> {
+			ctx = mapCanvas.getGraphicsContext2D();
+		});
 	}
 
 	/**
@@ -219,16 +215,6 @@ public class GUIController implements Initializable, Listener {
 	 */
 	@FXML
 	protected void mapSlabPressed(MouseEvent ev) {
-//		populatePatternList();
-	}
-
-	/**
-	 * Displays a message in the message console.
-	 * 
-	 * @param message The message to display
-	 */
-	private synchronized void addMessage(String message) {
-		messageDisplayer.setText(messageDisplayer.getText() + "\n" + message);
 	}
 
 	@Override
@@ -238,32 +224,6 @@ public class GUIController implements Initializable, Listener {
 		router.registerListener(this, new AlgorithmDone(null, null, null));
 		router.registerListener(this, new RequestRedraw());
 		messageDisplayer.setText("Awaiting commands");
-	}
-
-	/**
-	 * Draws a matrix on the canvas.
-	 * 
-	 * @param matrix A rectangular matrix of integers. Each integer corresponds
-	 * 		to some predefined colour.
-	 */
-	public synchronized void drawMatrix(int[][] matrix) {
-		int m = matrix.length;
-		int n = matrix[0].length;
-		int pWidth = (int) Math.floor(mapCanvas.getWidth() / Math.max(m, n));
-		GraphicsContext gc = mapCanvas.getGraphicsContext2D();
-		Image image = null;
-
-		for (int i = 0; i < m; i++) {
-			for (int j = 0; j < n; j++) {
-				if (render) {
-					image = getTileImage(matrix[i][j]);
-					gc.drawImage(image, i * pWidth, j * pWidth, pWidth, pWidth);
-				} else {
-					gc.setFill(getColour(matrix[i][j]));
-					gc.fillRect(i * pWidth, j * pWidth, pWidth, pWidth);
-				}
-			}
-		}
 	}
 
 	@Override
@@ -292,182 +252,52 @@ public class GUIController implements Initializable, Listener {
 	}
 
 	/**
-	 * Selects a colour based on the pixel's integer value.
-	 * 
-	 * @param pixel The pixel to select for.
-	 * @return A selected colour code.
-	 */
-	private Color getColour(int pixel) {
-		Color color = null;
-
-		switch (TileTypes.toTileType(pixel)) {
-		case DOOR:
-			color = Color.BLACK;
-			break;
-		case TREASURE:
-			color = Color.YELLOW;
-			break;
-		case ENEMY:
-			color = Color.RED;
-			break;
-		case WALL:
-			color = Color.DARKSLATEGRAY;
-			break;
-		case FLOOR:
-			color = Color.WHITE;
-			break;
-		case DOORENTER:
-			color = Color.MAGENTA;
-			break;
-		default:
-			color = Color.WHITE;
-		}
-
-		return color;
-	}
-
-	/**
-	 * Selects a tile image based on the pixel's integer value.
-	 * 
-	 * @param pixel The pixel to select for.
-	 * @return A file.
-	 */
-	private Image getTileImage(int pixel) {
-		Image image = tiles.get(pixel);
-
-		if (image == null) {
-			switch (TileTypes.toTileType(pixel)) {
-			case DOOR:
-				image = new Image("/" + config.getString("map.visual.tiles.door"));
-				break;
-			case TREASURE:
-				image = new Image("/" + config.getString("map.visual.tiles.treasure"));
-				break;
-			case ENEMY:
-				image = new Image("/" + config.getString("map.visual.tiles.enemy"));;
-				break;
-			case WALL:
-				image = new Image("/" + config.getString("map.visual.tiles.wall"));;
-				break;
-			case FLOOR:
-				image = new Image("/" + config.getString("map.visual.tiles.floor"));;
-				break;
-			case DOORENTER:
-				image = new Image("/" + config.getString("map.visual.tiles.doorenter"));;
-				break;
-			default:
-				image = null;
-			}
-			tiles.add(pixel, image);
-		}
-
-		return image;
-	}
-
-	/**
 	 * Reads the full config tree and builds a GUI to handle it.
 	 */
 	private void readAndBuildConfig() {
 		addToConfigPane(config.getTree(), configSlab, "");
+	}
+
+	/**
+	 * Displays a message in the message console.
+	 * 
+	 * @param message The message to display
+	 */
+	private synchronized void addMessage(String message) {
+		messageDisplayer.setText(messageDisplayer.getText() + "\n" + message);
+	}
+
+	/**
+	 * Draws a matrix on the canvas.
+	 * 
+	 * @param matrix A rectangular matrix of integers. Each integer corresponds
+	 * 		to some predefined colour.
+	 */
+	private synchronized void drawMatrix(int[][] matrix) {
+		Platform.runLater(() -> {
+			if (render) {
+				renderer.renderMap(ctx, matrix);
+			} else {
+				renderer.sketchMap(ctx, matrix);
+			}
+		});
 	}
 	
 	/**
 	 * Restores the map view to the latest map.
 	 */
 	private void restoreMap() {
-		patternOpacity = config.getDouble("map.visual.pattern_opacity");
 		if (currentMap != null) {
 			Platform.runLater(() -> {
-				// First, draw the raw map
-				drawMatrix(currentMap.toMatrix());
-				
-				// Now, let's put patterns and stuff on it
-				for (Entry<Pattern, Color> e : activePatterns.entrySet()) {
-					Platform.runLater(() -> {
-						outlinePattern(e.getKey(), e.getValue());
-					});
+				int[][] matrix = currentMap.toMatrix();
+				if (render) {
+					renderer.renderMap(ctx, matrix);
+				} else {
+					renderer.sketchMap(ctx, matrix);
 				}
+				renderer.drawPatterns(ctx, matrix, activePatterns);
 			});
 		}
-	}
-	
-	/**
-	 * Outlines a pattern onto the map.
-	 * 
-	 * @param p The pattern.
-	 * @param c The color of the pattern's outline.
-	 */
-	private void outlinePattern(Pattern p, Color c) {
-		Geometry g = p.getGeometry();
-		
-		if (g instanceof Point) {
-			outlinePoint((Point) g, c);
-		} else if (g instanceof Bitmap) {
-			for (Point point : ((finder.geometry.Polygon) g).getPoints()) {
-				outlinePoint(point, c);
-			}
-		} else if (g instanceof finder.geometry.Rectangle) {
-			outlineRectangle((finder.geometry.Rectangle) g, c);
-		}
-	}
-	
-	/**
-	 * Outlines a point on the map
-	 * 
-	 * @param p The point to outline.
-	 * @param c The colour of the point's outline.
-	 */
-	private void outlinePoint(Point p, Color c) {
-		int[][] matrix = currentMap.toMatrix();
-		int m = matrix.length;
-		int n = matrix[0].length;
-		int pWidth = (int) Math.floor(mapCanvas.getWidth() / Math.max(m, n));
-		
-		drawRectangle(
-				p.getX() * pWidth,
-				p.getY() * pWidth,
-				pWidth - 1,
-				pWidth - 1,
-				c);
-	}
-	
-	/**
-	 * Outlines a rectangle on the map.
-	 * 
-	 * @param r The rectangle to outline.
-	 * @param c The colour of the rectangle's outline.
-	 */
-	private void outlineRectangle(finder.geometry.Rectangle r, Color c) {
-		int[][] matrix = currentMap.toMatrix();
-		int m = matrix.length;
-		int n = matrix[0].length;
-		int pWidth = (int) Math.floor(mapCanvas.getWidth() / Math.max(m, n));
-		
-		drawRectangle(
-				r.getTopLeft().getX() * pWidth,
-				r.getTopLeft().getY() * pWidth,
-				(r.getBottomRight().getX() - r.getTopLeft().getX() + 1) * pWidth + pWidth - 1,
-				(r.getBottomRight().getY() - r.getTopLeft().getY() + 1) * pWidth + pWidth - 1,
-				c);
-	}
-	
-	/**
-	 * Draws a rectangle on the map.
-	 * 
-	 * @param x The x value of the first point.
-	 * @param y The y value of the first point.
-	 * @param width The x value of the second point.
-	 * @param height The y value of the second point.
-	 * @param c The colour of the outline.
-	 */
-	private synchronized void drawRectangle(int x, int y, int width, int height, Color c) {
-		GraphicsContext gc = mapCanvas.getGraphicsContext2D();
-		
-		gc.setFill(new Color(c.getRed(), c.getGreen(), c.getBlue(), patternOpacity));
-		gc.setStroke(c);
-		gc.setLineWidth(2);
-		gc.fillRect(x, y, width, height);
-		gc.strokeRect(x, y, width, height);
 	}
 	
 	/**
