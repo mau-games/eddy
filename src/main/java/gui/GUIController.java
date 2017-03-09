@@ -3,7 +3,6 @@ package gui;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.IdentityHashMap;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map.Entry;
 import java.util.ResourceBundle;
@@ -44,6 +43,7 @@ import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextField;
 import javafx.scene.control.TitledPane;
+import javafx.scene.image.Image;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.VBox;
@@ -76,6 +76,7 @@ public class GUIController implements Initializable, Listener {
 	@FXML private Canvas mapCanvas;
 	@FXML private Button runButton;
 	@FXML private Button cancelButton;
+	@FXML private CheckBox renderMapBox;
 	@FXML private TitledPane messageSlab;
 	@FXML private TitledPane configSlab;
 
@@ -84,12 +85,16 @@ public class GUIController implements Initializable, Listener {
 	private ConfigurationUtility config;
 	
 	private Map currentMap;
+	private ArrayList<Image> tiles = new ArrayList<Image>();
+	
 	private List<Pattern> micropatterns;
 	private List<CompositePattern> mesopatterns;
 	private List<CompositePattern> macropatterns;
 	private IdentityHashMap<Pattern, Color> activePatterns = new IdentityHashMap<Pattern, Color>();
 	
 	private double patternOpacity = 0;
+	private boolean render = false;
+	private int nbrOfTiles = 6;
 
 	/**
 	 * Creates an instance of GUIController. This method is implicitly called
@@ -100,6 +105,11 @@ public class GUIController implements Initializable, Listener {
 			config = ConfigurationUtility.getInstance();
 		} catch (MissingConfigurationException e) {
 			logger.error("Couldn't read config: " + e.getMessage());
+		}
+		
+		// Set up the image list
+		for (int i = 0; i < nbrOfTiles; i++) {
+			tiles.add(i, null);
 		}
 	}
 
@@ -174,6 +184,22 @@ public class GUIController implements Initializable, Listener {
 		
 		restoreMap();
 	}
+	
+	/**
+	 * Handles the render map check box.
+	 * 
+	 * @param ev The action event that triggered this call.
+	 */
+	@FXML
+	protected void renderMapBoxToggled(ActionEvent ev) {
+		render = renderMapBox.isSelected();
+		
+		if (currentMap != null) {
+			Platform.runLater(() -> {
+				drawMatrix(currentMap.toMatrix());
+			});
+		}
+	}
 
 	/**
 	 * Handles the config slab's action events.
@@ -224,11 +250,17 @@ public class GUIController implements Initializable, Listener {
 		int n = matrix[0].length;
 		int pWidth = (int) Math.floor(mapCanvas.getWidth() / Math.max(m, n));
 		GraphicsContext gc = mapCanvas.getGraphicsContext2D();
+		Image image = null;
 
 		for (int i = 0; i < m; i++) {
 			for (int j = 0; j < n; j++) {
-				gc.setFill(getColour(matrix[i][j]));
-				gc.fillRect(i * pWidth, j * pWidth, pWidth, pWidth);
+				if (render) {
+					image = getTileImage(matrix[i][j]);
+					gc.drawImage(image, i * pWidth, j * pWidth, pWidth, pWidth);
+				} else {
+					gc.setFill(getColour(matrix[i][j]));
+					gc.fillRect(i * pWidth, j * pWidth, pWidth, pWidth);
+				}
 			}
 		}
 	}
@@ -291,6 +323,44 @@ public class GUIController implements Initializable, Listener {
 		}
 
 		return color;
+	}
+
+	/**
+	 * Selects a tile image based on the pixel's integer value.
+	 * 
+	 * @param pixel The pixel to select for.
+	 * @return A file.
+	 */
+	private Image getTileImage(int pixel) {
+		Image image = tiles.get(pixel);
+
+		if (image == null) {
+			switch (TileTypes.toTileType(pixel)) {
+			case DOOR:
+				image = new Image("/" + config.getString("map.visual.tiles.door"));
+				break;
+			case TREASURE:
+				image = new Image("/" + config.getString("map.visual.tiles.treasure"));
+				break;
+			case ENEMY:
+				image = new Image("/" + config.getString("map.visual.tiles.enemy"));;
+				break;
+			case WALL:
+				image = new Image("/" + config.getString("map.visual.tiles.wall"));;
+				break;
+			case FLOOR:
+				image = new Image("/" + config.getString("map.visual.tiles.floor"));;
+				break;
+			case DOORENTER:
+				image = new Image("/" + config.getString("map.visual.tiles.doorenter"));;
+				break;
+			default:
+				image = null;
+			}
+			tiles.add(pixel, image);
+		}
+
+		return image;
 	}
 
 	/**

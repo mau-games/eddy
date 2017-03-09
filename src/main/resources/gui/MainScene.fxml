@@ -3,6 +3,7 @@
 <?import javafx.scene.canvas.Canvas?>
 <?import javafx.scene.control.Accordion?>
 <?import javafx.scene.control.Button?>
+<?import javafx.scene.control.CheckBox?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.ScrollPane?>
 <?import javafx.scene.control.SplitPane?>
@@ -43,6 +44,7 @@
                 						<Button id="deselectAllPatternsButton" fx:id="deselectAllPatternsButton" maxWidth="-Infinity" mnemonicParsing="false" onAction="#deselectAllPatternsButtonPressed" prefWidth="200.0" text="Deselect all patterns" />
                 					</children>
                 				</HBox>
+                				<CheckBox fx:id="renderMapBox" id="renderMapBox" onAction="#renderMapBoxToggled" text="Render map" />
                 				<Label id="patternLabel" text="Available pattern instances:" />
                 				<Accordion id="patternAccordion" fx:id="patternAccordion" maxWidth="-Infinity" minWidth="-Infinity" prefHeight="598.0" prefWidth="340.0">
                 				</Accordion>

@@ -6,7 +6,15 @@
             "active": true
         },
         "visual": {
-            "pattern_opacity": 0.6
+            "pattern_opacity": 0.6,
+            "tiles": {
+                "floor": "graphics/tiles/floor.png",
+                "wall": "graphics/tiles/wall.png",
+                "enemy": "graphics/tiles/enemy.png",
+                "treasure": "graphics/tiles/treasure.png",
+                "doorenter": "graphics/tiles/entrydoor.png",
+                "door": "graphics/tiles/door.png"
+            }
         }
     },
     "game": {
