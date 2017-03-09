@@ -107,6 +107,8 @@ public class GUIController implements Initializable, Listener {
 			logger.error("Couldn't read config: " + e.getMessage());
 		}
 		
+		patternOpacity = config.getDouble("map.visual.pattern_opacity");
+		
 		// Set up the image list
 		for (int i = 0; i < nbrOfTiles; i++) {
 			tiles.add(i, null);
@@ -422,7 +424,7 @@ public class GUIController implements Initializable, Listener {
 		int n = matrix[0].length;
 		int pWidth = (int) Math.floor(mapCanvas.getWidth() / Math.max(m, n));
 		
-		drawOutline(
+		drawRectangle(
 				p.getX() * pWidth,
 				p.getY() * pWidth,
 				pWidth - 1,
@@ -442,7 +444,7 @@ public class GUIController implements Initializable, Listener {
 		int n = matrix[0].length;
 		int pWidth = (int) Math.floor(mapCanvas.getWidth() / Math.max(m, n));
 		
-		drawOutline(
+		drawRectangle(
 				r.getTopLeft().getX() * pWidth,
 				r.getTopLeft().getY() * pWidth,
 				(r.getBottomRight().getX() - r.getTopLeft().getX() + 1) * pWidth + pWidth - 1,
@@ -451,7 +453,7 @@ public class GUIController implements Initializable, Listener {
 	}
 	
 	/**
-	 * Draws an outline on the map.
+	 * Draws a rectangle on the map.
 	 * 
 	 * @param x The x value of the first point.
 	 * @param y The y value of the first point.
@@ -459,7 +461,7 @@ public class GUIController implements Initializable, Listener {
 	 * @param height The y value of the second point.
 	 * @param c The colour of the outline.
 	 */
-	private synchronized void drawOutline(int x, int y, int width, int height, Color c) {
+	private synchronized void drawRectangle(int x, int y, int width, int height, Color c) {
 		GraphicsContext gc = mapCanvas.getGraphicsContext2D();
 		
 		gc.setFill(new Color(c.getRed(), c.getGreen(), c.getBlue(), patternOpacity));
