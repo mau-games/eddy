@@ -14,7 +14,6 @@ import javafx.scene.layout.Priority;
 public class LabeledTextField extends HBox {
 	private Label label;
 	private TextField textField;
-	private Pane pane = new Pane();
 	
 	/**
 	 * Creates an instance of this class.
@@ -31,7 +30,6 @@ public class LabeledTextField extends HBox {
 		this.label.setLabelFor(this.textField);
 		
 		getChildren().addAll(this.label, this.textField);
-		HBox.setHgrow(pane, Priority.ALWAYS);
 	}
 	
 	/**
