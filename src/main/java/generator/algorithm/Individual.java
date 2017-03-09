@@ -60,7 +60,10 @@ public class Individual {
 		//mutate
 		for(int i = 0; i < 2; i++){
 			if(Util.getNextFloat(0.0f,1.0f) <= mutationProbability)
-				children[i].mutate();
+				if(Util.getNextFloat(0, 1) <= 0.8f)
+					children[i].mutate();
+				else
+					children[i].mutateRotate180();
 		}
 		
 		return children;
@@ -106,6 +109,17 @@ public class Individual {
 		genotype.getChromosome()[indexToMutate] = (genotype.getChromosome()[indexToMutate] + Util.getNextInt(0, 4)) % 4; //TODO: Change this - hard coding the number of tile types is bad!!!
 	}
 	
+	/**
+	 * Mutate each bit of the chromosome with a small probability
+	 */
+	public void mutateAll(){
+		for(int i = 0; i < genotype.getSizeChromosome(); i++){
+			if(Math.random() < 0.01){
+				genotype.getChromosome()[i] = (genotype.getChromosome()[i] + Util.getNextInt(0, 4)) % 4; //TODO: Change this - hard coding the number of tile types is bad!!!
+			}
+		}
+	}
+	
 	private void mutateRotate180(){
 		int[] chromosomeCopy = genotype.getChromosome().clone();
 		for(int i = 0; i < Game.sizeM; i++)
@@ -121,17 +135,7 @@ public class Individual {
 	}
 	
 	
-//	/**
-//	 * Mutate each bit of the chromosome with a small probability
-//	 */
-//	public void bitStringMutation(){
-//		for(int i = 0; i < genotype.getSizeChromosome(); i++){
-//			if(Math.random() < 0.5){
-//				int bit = genotype.getChromosome()[i];
-//				genotype.getChromosome()[i] = bit == 0 ? 1 : 0;
-//			}
-//		}
-//	}
+
 	
 	public double getDistance(Individual other){
 		int[] thisChromosome = this.getGenotype().getChromosome();
