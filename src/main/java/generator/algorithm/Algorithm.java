@@ -532,6 +532,8 @@ public class Algorithm extends Thread {
         { 
             enemyDensityFitness = enemyPercent - expectedEnemiesRange[1];
         }
+        //Scale fitness to be between 0 and 1:
+        enemyDensityFitness = enemyDensityFitness/Math.max(expectedEnemiesRange[0], 1.0 - expectedEnemiesRange[1]);
 
         //Average treasure safety (3)
         evaluateTreasureSafeties(ind);
@@ -563,6 +565,8 @@ public class Algorithm extends Thread {
         {
             treasureDensityFitness = treasurePercent - expectedTreasuresRange[1];
         }
+        //Scale fitness to be between 0 and 1:
+        treasureDensityFitness = treasureDensityFitness/Math.max(expectedTreasuresRange[0], 1.0 - expectedTreasuresRange[1]);
 
         //Treasure Safety Variance (5)
         double safeties_variance = Util.calcVariance(safeties);
