@@ -5,6 +5,11 @@
             "path": "~/eddy/maps/",
             "active": true
         },
+        "image_exporter": {
+            "_comment": "~/ denotes the home directory. Slashes will be converted to backslashes on Windows.",
+            "path": "~/eddy/maps/rendered/",
+            "active": true
+        },
         "visual": {
             "pattern_opacity": 0.6,
             "tiles": {

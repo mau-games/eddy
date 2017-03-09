@@ -15,16 +15,12 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 
-import finder.geometry.Bitmap;
-import finder.geometry.Geometry;
-import finder.geometry.Point;
 import finder.patterns.CompositePattern;
 import finder.patterns.Pattern;
 import finder.patterns.micro.Connector;
 import finder.patterns.micro.Corridor;
 import finder.patterns.micro.Room;
 import game.Map;
-import game.TileTypes;
 import gui.controls.LabeledTextField;
 import gui.controls.NumberTextField;
 import gui.controls.PatternInstanceControl;
@@ -36,6 +32,7 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.Node;
+import javafx.scene.SnapshotParameters;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.Accordion;
@@ -55,6 +52,7 @@ import util.eventrouting.EventRouter;
 import util.eventrouting.Listener;
 import util.eventrouting.PCGEvent;
 import util.eventrouting.events.AlgorithmDone;
+import util.eventrouting.events.MapRendered;
 import util.eventrouting.events.MapUpdate;
 import util.eventrouting.events.RequestRedraw;
 import util.eventrouting.events.Start;
@@ -85,7 +83,7 @@ public class GUIController implements Initializable, Listener {
 	private ConfigurationUtility config;
 	
 	private Map currentMap;
-	GraphicsContext ctx;
+	private GraphicsContext ctx;
 	private MapRenderer renderer = new MapRenderer();
 	
 	private List<Pattern> micropatterns;
@@ -247,6 +245,8 @@ public class GUIController implements Initializable, Listener {
 			Platform.runLater(() -> {
 				runButton.setDisable(false);
 				populatePatternList();
+				// We might as well see if anyone is interested in our rendered map
+				sendRenderedMap();
 			});
 		}
 	}
@@ -298,6 +298,16 @@ public class GUIController implements Initializable, Listener {
 				renderer.drawPatterns(ctx, matrix, activePatterns);
 			});
 		}
+	}
+	
+	/**
+	 * Publishes a rendered map.
+	 */
+	private void sendRenderedMap() {
+		Canvas canvas = new Canvas(mapCanvas.getWidth(), mapCanvas.getHeight());
+		renderer.renderMap(canvas.getGraphicsContext2D(), currentMap.toMatrix());
+		Image image = canvas.snapshot(new SnapshotParameters(), null);
+		router.postEvent(new MapRendered(image));
 	}
 	
 	/**
