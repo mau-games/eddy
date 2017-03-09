@@ -39,5 +39,15 @@
         "mutation_probability": 0.9,
         "offspring_size": 0.7,
         "feasible_proportion": 0.5
+    },
+    "patterns": {
+        "room": {
+            "desired_area": 36,
+            "floor_ratio_weight": 0.5,
+            "area_deviation_weight": 0.5
+        },
+        "corridor": {
+            "target_length": 4
+        }
     }
 }

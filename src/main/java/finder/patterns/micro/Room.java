@@ -13,6 +13,8 @@ import finder.geometry.Rectangle;
 import finder.patterns.Pattern;
 import game.Map;
 import game.TileTypes;
+import util.config.ConfigurationUtility;
+import util.config.MissingConfigurationException;
 
 /**
  * This class represents the dungeon game design pattern called Room.
@@ -21,8 +23,23 @@ import game.TileTypes;
  */
 public class Room extends Pattern {
 	
+	private ConfigurationUtility config;
+	
+	double desiredRectangleArea = 36;
+	double floorRatioWeight = 0.8;
+	double areaDeviationWeight = 0.2;
+	
 	public Room(Geometry geometry) {
 		boundaries = geometry;
+		try {
+			config = ConfigurationUtility.getInstance();
+		} catch (MissingConfigurationException e) {
+			// This will be caught and reported elsewhere.
+		}
+
+		desiredRectangleArea = config.getDouble("patterns.room.desired_area");
+		floorRatioWeight = config.getDouble("patterns.room.floor_ratio_weight");
+		areaDeviationWeight = config.getDouble("patterns.room.area_deviation_weight");
 	}
 	
 	@Override
@@ -38,13 +55,10 @@ public class Room extends Pattern {
 	public double getQuality() {
 		Polygon polygon = (Polygon) boundaries;
 		Rectangle rectangle = constructRectangle();
-		double desiredRectangleArea = 36; 
 		double polyArea = polygon.getArea();
 		double rectArea = rectangle.getArea();
 		double floorRatio = polyArea / rectArea;
 		double areaDeviation = 1;
-		double floorRatioWeight = 0.8;
-		double areaDeviationWeight = 0.2;
 		
 		areaDeviation = 1 - Math.abs(desiredRectangleArea - polyArea)
 				/ desiredRectangleArea;

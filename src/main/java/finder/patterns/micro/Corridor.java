@@ -12,13 +12,22 @@ import finder.patterns.micro.Connector.ConnectorType;
 import game.Map;
 import game.TileTypes;
 import util.Point;
+import util.config.ConfigurationUtility;
+import util.config.MissingConfigurationException;
 
 public class Corridor extends Pattern {
 
-	private final int TARGET_LENGTH = 4;
+	private ConfigurationUtility config;
+	private int targetLength;
 	
 	public Corridor(Geometry geometry){
 		boundaries = geometry;
+		try {
+			config = ConfigurationUtility.getInstance();
+		} catch (MissingConfigurationException e) {
+			// This will be caught and reported elsewhere.
+		}
+		targetLength = config.getInt("patterns.corridor.target_length");
 	}
 	
 	private static class SearchNode {
@@ -45,8 +54,7 @@ public class Corridor extends Pattern {
 
 	@Override
 	public double getQuality(){
-		//return 1;
-		return Math.min((double)((Bitmap)boundaries).getArea()/TARGET_LENGTH,1.0);
+		return Math.min((double)((Bitmap)boundaries).getArea()/targetLength,1.0);
 	}
 	
 	
