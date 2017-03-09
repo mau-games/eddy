@@ -10,7 +10,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import game.Map;
-import generator.config.Config;
+import util.Util;
 import util.config.ConfigurationUtility;
 import util.config.MissingConfigurationException;
 import util.eventrouting.EventRouter;
@@ -41,7 +41,7 @@ public class MapCollector implements Listener {
 			logger.error("Couldn't read configuration file:\n" + e.getMessage());
 		}
 		EventRouter.getInstance().registerListener(this, new MapUpdate(null));
-		path = normalisePath(config.getString("map.collector.path"));
+		path = Util.normalisePath(config.getString("map.collector.path"));
 		active = config.getBoolean("map.collector.active");
 	}
 
@@ -65,24 +65,5 @@ public class MapCollector implements Listener {
 				}
 			}
 		}
-	}
-
-	/**
-	 * Normalises a path to work equally well on Windows as on sane operating
-	 * systems. The provided path should be Unix-formatted. ~/ will be
-	 * converted to the current user's home directory.
-	 * 
-	 * @param path A Unix-formatted path.
-	 * @return A path that is usable by the current operating system.
-	 */
-	private String normalisePath(String path) {
-		if (path.startsWith("~/")) {
-			path = path.replace("~", System.getProperty("user.home"));
-		}
-		if (File.separator.equals("\\")) {
-			path = path.replace("/", "\\");
-		}
-
-		return path;
 	}
 }
