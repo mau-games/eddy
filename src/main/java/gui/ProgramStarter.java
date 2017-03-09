@@ -4,7 +4,7 @@ package gui;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import collector.MapCollector;
+import collectors.MapCollector;
 import game.Game;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
