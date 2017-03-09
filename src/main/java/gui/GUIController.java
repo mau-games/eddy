@@ -25,6 +25,7 @@ import finder.patterns.micro.Corridor;
 import finder.patterns.micro.Room;
 import game.Map;
 import game.TileTypes;
+import gui.controls.LabeledTextField;
 import gui.controls.NumberTextField;
 import gui.controls.PatternInstanceControl;
 import javafx.application.Platform;
@@ -577,10 +578,7 @@ public class GUIController implements Initializable, Listener {
 					cb.selectedProperty().addListener(new BurdenedChangeListenerer<Boolean>(path + e.getKey(), Type.BOOLEAN));
 					vbox.getChildren().add(cb);
 				} else {
-					BorderPane bp = new BorderPane();
-					Label label = new Label(e.getKey());
 					TextField text = null;
-					label.setLabelFor(text);
 					
 					if (p.isString()) {
 						text = new TextField();
@@ -592,9 +590,7 @@ public class GUIController implements Initializable, Listener {
 						text.textProperty().addListener(new BurdenedChangeListenerer<String>(path + e.getKey(), Type.NUMBER));
 					}
 
-					bp.setLeft(label);
-					bp.setRight(text);
-					vbox.getChildren().add(bp);
+					vbox.getChildren().add(new LabeledTextField(e.getKey(), text));
 				}
 			}
 		}
