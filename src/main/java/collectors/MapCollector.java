@@ -51,7 +51,7 @@ public class MapCollector implements Listener {
 			if (active) {
 				Map map = (Map) e.getPayload();
 				DateTimeFormatter format =
-						DateTimeFormatter.ofPattern("yyyy-MM-dd_H-m-s-n");
+						DateTimeFormatter.ofPattern("yyyy-MM-dd_HH-mm-s-n");
 				String name = "map_" +
 						LocalDateTime.now().format(format) + ".txt";
 				File file = new File(path + name);
