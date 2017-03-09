@@ -46,6 +46,11 @@ public class RenderedMapCollector implements Listener {
 		EventRouter.getInstance().registerListener(this, new MapRendered(null));
 		path = Util.normalisePath(config.getString("collectors.image_exporter.path"));
 		active = config.getBoolean("collectors.image_exporter.active");
+
+		File directory = new File(path);
+		if (!directory.exists()) {
+			directory.mkdir();
+		}
 	}
 
 	@Override
@@ -67,15 +72,11 @@ public class RenderedMapCollector implements Listener {
 				DateTimeFormatter.ofPattern("yyyy-MM-dd_HH-mm-s-n");
 		String name = "renderedmap_" +
 				LocalDateTime.now().format(format) + ".png";
-		File directory = new File(path);
 		File file = new File(path + name);
 		logger.debug("Writing map to " + path + name);
 		BufferedImage image = SwingFXUtils.fromFXImage(map, null);
 
 		try {
-			if (!directory.exists()) {
-				directory.mkdir();
-			}
 			ImageIO.write(image, "png", file);
 		} catch (IOException e1) {
 			logger.error("Couldn't write map to " + path + name +
