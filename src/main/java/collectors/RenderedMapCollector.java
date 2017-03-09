@@ -22,7 +22,7 @@ import util.eventrouting.PCGEvent;
 import util.eventrouting.events.MapRendered;
 
 /**
- * RenderedMapCollector listens for MapUpdate events and saves them to a preset
+ * RenderedMapCollector listens for MapRendered events and saves them to a preset
  * destination for later analysis.
  * 
  * @author Johan Holmberg, Malmö University
@@ -34,6 +34,9 @@ public class RenderedMapCollector implements Listener {
 	private String path;
 	private boolean active;
 	
+	/**
+	 * Creates an instance of RenderedMapCollector.
+	 */
 	public RenderedMapCollector() {
 		try {
 			config = ConfigurationUtility.getInstance();
@@ -54,6 +57,11 @@ public class RenderedMapCollector implements Listener {
 		}
 	}
 
+	/**
+	 * Saves an image.
+	 * 
+	 * @param map The image to save.
+	 */
 	private void saveImage(Image map) {
 		DateTimeFormatter format =
 				DateTimeFormatter.ofPattern("yyyy-MM-dd_HH-mm-s-n");
