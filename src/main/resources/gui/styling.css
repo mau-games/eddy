@@ -21,3 +21,7 @@
 	-fx-padding: 15 0 0 0;
 	-fx-font-weight: bold;
 }
+
+.labeled-text-field .label {
+	-fx-pref-width: 200;
+}

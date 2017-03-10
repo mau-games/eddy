@@ -1,4 +1,4 @@
-package collector;
+package collectors;
 
 import java.io.File;
 import java.io.IOException;
@@ -10,7 +10,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import game.Map;
-import generator.config.Config;
+import util.Util;
 import util.config.ConfigurationUtility;
 import util.config.MissingConfigurationException;
 import util.eventrouting.EventRouter;
@@ -26,7 +26,7 @@ import util.eventrouting.events.MapUpdate;
  */
 public class MapCollector implements Listener {
 
-	private final Logger logger = LoggerFactory.getLogger(Config.class);
+	private final Logger logger = LoggerFactory.getLogger(MapCollector.class);
 	private ConfigurationUtility config;
 	private String path;
 	private boolean active;
@@ -41,8 +41,13 @@ public class MapCollector implements Listener {
 			logger.error("Couldn't read configuration file:\n" + e.getMessage());
 		}
 		EventRouter.getInstance().registerListener(this, new MapUpdate(null));
-		path = normalisePath(config.getString("map.collector.path"));
-		active = config.getBoolean("map.collector.active");
+		path = Util.normalisePath(config.getString("collectors.map_collector.path"));
+		active = config.getBoolean("collectors.map_collector.active");
+
+		File directory = new File(path);
+		if (!directory.exists()) {
+			directory.mkdir();
+		}
 	}
 
 	@Override
@@ -51,7 +56,7 @@ public class MapCollector implements Listener {
 			if (active) {
 				Map map = (Map) e.getPayload();
 				DateTimeFormatter format =
-						DateTimeFormatter.ofPattern("yyyy-MM-dd_H-m-s-n");
+						DateTimeFormatter.ofPattern("yyyy-MM-dd_HH-mm-s-n");
 				String name = "map_" +
 						LocalDateTime.now().format(format) + ".txt";
 				File file = new File(path + name);
@@ -65,24 +70,5 @@ public class MapCollector implements Listener {
 				}
 			}
 		}
-	}
-
-	/**
-	 * Normalises a path to work equally well on Windows as on sane operating
-	 * systems. The provided path should be Unix-formatted. ~/ will be
-	 * converted to the current user's home directory.
-	 * 
-	 * @param path A Unix-formatted path.
-	 * @return A path that is usable by the current operating system.
-	 */
-	private String normalisePath(String path) {
-		if (path.startsWith("~/")) {
-			path = path.replace("~", System.getProperty("user.home"));
-		}
-		if (File.separator.equals("\\")) {
-			path = path.replace("/", "\\");
-		}
-
-		return path;
 	}
 }

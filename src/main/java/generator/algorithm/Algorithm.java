@@ -2,6 +2,7 @@ package generator.algorithm;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
@@ -30,6 +31,7 @@ import util.config.ConfigurationUtility;
 import util.config.MissingConfigurationException;
 import util.eventrouting.EventRouter;
 import util.eventrouting.events.AlgorithmDone;
+import util.eventrouting.events.GenerationDone;
 import util.eventrouting.events.MapUpdate;
 import util.eventrouting.events.StatusMessage;
 
@@ -133,10 +135,15 @@ public class Algorithm extends Thread {
 
         int generationCount = 1;
         int generations = config.getInt("generator.generations");
+
+        double roomWeight = config.getDouble("generator.weights.room");
+        double corridorWeight = config.getDouble("generator.weights.corridor");
         
         List<Pattern> micros = null;
         List<CompositePattern> mesos = null;
         List<CompositePattern> macros = null;
+        
+        Map map = null;
 
         while (generationCount <= generations) {
         	if(stop)
@@ -167,7 +174,7 @@ public class Algorithm extends Thread {
 
             broadcastMapUpdate(best.getPhenotype().getMap());
   
-        	Map map = best.getPhenotype().getMap();
+        	map = best.getPhenotype().getMap();
         	PatternFinder pm = new PatternFinder(map);
         	micros = pm.findMicroPatterns();
         	
@@ -222,7 +229,7 @@ public class Algorithm extends Thread {
         	
         	double roomFitness = (double)roomArea/passableTiles;
         	
-        	//double fitness = 0.5 * roomFitness + 0.5 * corridorFitness;
+        	//double fitness = roomWeight * roomFitness + corridorWeight * corridorFitness;
           
         	broadcastStatusUpdate("Corridor Fitness: " + corridorFitness);
         	broadcastStatusUpdate("Room Fitness: " + roomFitness);
@@ -245,9 +252,16 @@ public class Algorithm extends Thread {
         	double averageDistance = distance / (double)(feasiblePopulation.size() - 1);
         	broadcastStatusUpdate("Average distance from best individual: " + averageDistance);
         	
-        	
+        	// Fill this string with your data
+        	String generation = "generation " + generationCount;
+        	EventRouter.getInstance().postEvent(new GenerationDone(generation));
         }
-        EventRouter.getInstance().postEvent(new AlgorithmDone(micros, mesos, macros));
+        HashMap<String, Object> result = new HashMap<String, Object>();
+        result.put("micropatterns", micros);
+        result.put("mesopatterns", mesos);
+        result.put("macropatterns", macros);
+        result.put("map", map);
+        EventRouter.getInstance().postEvent(new AlgorithmDone(result));
 	}
 	
 	/**
