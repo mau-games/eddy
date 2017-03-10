@@ -635,8 +635,8 @@ public class Algorithm extends Thread {
     	
     	double roomFitness = (double)roomArea/passableTiles;
     	
-    	double roomTarget = 0.6;
-    	double corridorTarget = 0.4;
+    	double roomTarget = 1;
+    	double corridorTarget = 0;
     	
     	roomFitness = 1 - Math.abs(roomFitness - roomTarget)/Math.max(roomTarget, 1.0 - roomTarget);
     	corridorFitness = 1 - Math.abs(corridorFitness - corridorTarget)/Math.max(corridorTarget, 1.0 - corridorTarget);
