@@ -8,7 +8,10 @@ import collectors.GenerationCollector;
 import collectors.MapCollector;
 import collectors.RenderedMapCollector;
 import game.Game;
+import gui.controls.PatternInstanceControl;
+import gui.utils.MapRenderer;
 import javafx.application.Application;
+import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
@@ -31,6 +34,8 @@ public class ProgramStarter extends Application {
 	private MapCollector mapCollector;
 	private RenderedMapCollector renderedMapCollector;
 	private GenerationCollector generationCollector;
+	private static final boolean batch = false;
+	private String batchConfig = "config/config2";
 
 	/**
 	 * This is the GUI entry point.
@@ -47,17 +52,19 @@ public class ProgramStarter extends Application {
 		Parent root;
 		try {
 
+			
 			config = ConfigurationUtility.getInstance();
 
-			root = FXMLLoader.load(getClass().getResource("/gui/MainScene.fxml"));
-	        Scene scene = new Scene(root,800, 600);
-	    
-	        stage.getIcons().add(new Image(getClass().getResourceAsStream("/graphics/icon.png"))); 
-	        stage.setTitle("Eddy - Evolutionary Dungeon Designer");
-	        stage.setScene(scene);
-	        stage.show();
-	        
-	        
+			if(!batch){
+				root = FXMLLoader.load(getClass().getResource("/gui/MainScene.fxml"));
+				
+		        Scene scene = new Scene(root,800, 600);
+		        stage.getIcons().add(new Image(getClass().getResourceAsStream("/graphics/icon.png"))); 
+		        stage.setTitle("Eddy - Evolutionary Dungeon Designer");
+		        stage.setScene(scene);
+		        stage.show();
+			}
+
 	        // Set up a new game
 	        game = new Game();
 	        
@@ -65,6 +72,22 @@ public class ProgramStarter extends Application {
 	        mapCollector = new MapCollector();
 	        renderedMapCollector = new RenderedMapCollector();
 	        generationCollector = new GenerationCollector();
+	        
+	        MapRenderer.getInstance();
+	        if(batch){
+	        	try {
+	    			ConfigurationUtility.SwitchConfig(batchConfig, true);
+	    		} catch (MissingConfigurationException e) {
+	    			e.printStackTrace();
+	    		}
+	        	
+	        	
+	        	Platform.runLater(() -> {
+	        		game.batchRun();
+				});
+	        	
+	        }
+
 	        
 		} catch (Exception e) {
 			logger.error("Couldn't load GUI: " + e.getMessage(), e);
@@ -76,5 +99,7 @@ public class ProgramStarter extends Application {
 	public void stop(){
 		game.stop();
 	}
+	
+	
 
 }

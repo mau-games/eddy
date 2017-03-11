@@ -56,27 +56,44 @@ public class ConfigurationUtility {
 	 * 
 	 * @param location The URL of a configuration file. This could be a local
 	 * 		file, as well as a remote HTTP resource.
+	 * @param localResource Is the config file in the project's resources folder?
 	 * @throws MissingConfigurationException if the configuration file wasn't
 	 * 		found. 
 	 */
-	protected ConfigurationUtility(String location)
+	protected ConfigurationUtility(String location, boolean localResource)
 			throws MissingConfigurationException {
-		URL url;
-		BufferedReader file = null;
-		try {
-			if (location.startsWith("http://") ||
-					location.startsWith("https://")) {
-				url = new URL(location);
-			} else {
-				url = Paths.get(location).toUri().toURL();
+		openConfig(location, localResource);
+	}
+	
+	private void openConfig(String location, boolean localResource) throws MissingConfigurationException{
+		if(localResource){
+			FileReader file = null;
+			ClassLoader loader = getClass().getClassLoader();
+			try {
+				file = new FileReader(loader.getResource(location).getFile());
+			} catch (FileNotFoundException e) {
+				throw new MissingConfigurationException();
 			}
-			file = new BufferedReader(new InputStreamReader(url.openStream()));
-		} catch (MalformedURLException e) {
-			throw new MissingConfigurationException();
-		} catch (IOException e) {
-			logger.error("Couldn't read the configuration file: " + e.getMessage());
+			readFile(file);
+		} else {
+			URL url;
+			BufferedReader file = null;
+			try {
+				if (location.startsWith("http://") ||
+						location.startsWith("https://")) {
+					url = new URL(location);
+				} else {
+					url = Paths.get(location).toUri().toURL();
+				}
+				file = new BufferedReader(new InputStreamReader(url.openStream()));
+			} catch (MalformedURLException e) {
+				throw new MissingConfigurationException();
+			} catch (IOException e) {
+				logger.error("Couldn't read the configuration file: " + e.getMessage());
+			}
+			readFile(file);
 		}
-		readFile(file);
+		
 	}
 	
 	/**
@@ -98,13 +115,32 @@ public class ConfigurationUtility {
 	 * 
 	 * @param location The URL of a configuration file. This could be a local
 	 * 		file, as well as a remote HTTP resource.
-	 * @return An instance of ConfigurationReader.
+	 * @param localResource Is the config file in the project's resources folder?
+	 * @return An instance of ConfigurationUtility.
 	 * @throws MissingConfigurationException
 	 */
-	public static ConfigurationUtility getInstance(String location)
+	public static ConfigurationUtility getInstance(String location, boolean localResource)
 			throws MissingConfigurationException {
 		if (instance == null) {
-			instance = new ConfigurationUtility(location);
+			instance = new ConfigurationUtility(location, localResource);
+		}
+		return instance;
+	}
+	
+	/**
+	 * Switches to a new config file.
+	 * 
+	 * @param location location The URL of a configuration file. This could be a local
+	 * 		file, as well as a remote HTTP resource.
+	 * @param localResource Is the config file in the project's resources folder?
+	 * @return An instance of ConfigurationUtility.
+	 * @throws MissingConfigurationException
+	 */
+	public static ConfigurationUtility SwitchConfig(String location, boolean localResource) throws MissingConfigurationException{
+		if (instance == null) {
+			instance = new ConfigurationUtility(location,localResource);
+		} else {
+			instance.openConfig(location,localResource);
 		}
 		return instance;
 	}

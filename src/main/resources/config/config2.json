@@ -37,25 +37,25 @@
         "offspring_size": 0.7,
         "feasible_proportion": 0.5,
         "weights": {
-            "room": 0.5,
-            "corridor": 0.5
+            "room": 0.1,
+            "corridor": 0.9
         }
     },
     "collectors": {
         "map_collector": {
             "_comment": "~/ denotes the home directory. Slashes will be converted to backslashes on Windows.",
-            "path": "~/eddy/maps/",
+            "path": "~/eddy/batch_tests/config2/maps/",
             "active": true,
             "save_all": false
         },
         "image_exporter": {
             "_comment": "~/ denotes the home directory. Slashes will be converted to backslashes on Windows.",
-            "path": "~/eddy/maps/rendered/",
+            "path": "~/eddy/batch_tests/config2/maps/rendered/",
             "active": true
         },
         "generation_collector": {
             "_comment": "~/ denotes the home directory. Slashes will be converted to backslashes on Windows.",
-            "path": "~/eddy/",
+            "path": "~/eddy/batch_tests/config2/",
             "active": true
         }        
     },

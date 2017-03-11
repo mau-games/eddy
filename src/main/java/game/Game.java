@@ -17,7 +17,11 @@ import util.config.MissingConfigurationException;
 import util.eventrouting.EventRouter;
 import util.eventrouting.Listener;
 import util.eventrouting.PCGEvent;
+import util.eventrouting.events.AlgorithmDone;
+import util.eventrouting.events.AlgorithmStarted;
+import util.eventrouting.events.RenderingDone;
 import util.eventrouting.events.Start;
+import util.eventrouting.events.StatusMessage;
 import util.eventrouting.events.Stop;
 
 public class Game implements Listener{
@@ -25,6 +29,8 @@ public class Game implements Listener{
 
 	private ConfigurationUtility config;
 	private Algorithm geneticAlgorithm;
+	private int runCount = 0;
+	private boolean batch = false;
 	
 	//TODO: There must be a better way to handle these public static variables
 	public static int sizeM; //Number of columns
@@ -58,6 +64,8 @@ public class Game implements Listener{
 
         EventRouter.getInstance().registerListener(this, new Start());
         EventRouter.getInstance().registerListener(this, new Stop());
+        EventRouter.getInstance().registerListener(this, new AlgorithmDone(null));
+        EventRouter.getInstance().registerListener(this, new RenderingDone());
         ranges = new Ranges();
     }
     
@@ -91,6 +99,8 @@ public class Game implements Listener{
     	}
     }
 
+    
+    
 	/**
 	 *  Kicks the algorithm into action.
 	 */
@@ -100,6 +110,23 @@ public class Game implements Listener{
     	geneticAlgorithm = new Algorithm(new Config(config.getString("game.profiles.default")));
     	//Start the algorithm on a new thread.
     	geneticAlgorithm.start();
+    	
+    }
+    
+    public void batchRun(){
+    	batch = true;
+    	runCount = 0;
+    	batchStep();
+    	
+    }
+    
+    private void batchStep(){
+    	
+		EventRouter.getInstance().postEvent(new AlgorithmStarted("" + runCount));
+		geneticAlgorithm = new Algorithm(new Config(config.getString("game.profiles.default")));
+    	//Start the algorithm on a new thread.
+    	geneticAlgorithm.start();
+    	runCount++;
     }
     
     /**
@@ -126,7 +153,21 @@ public class Game implements Listener{
 			startAll();		
 		} else if (e instanceof Stop) {
 			stop();
+		} else if (e instanceof RenderingDone){
+			
+			if(batch && runCount < 5){
+				logger.info("Run " + runCount + " done...");
+				batchStep();
+			}
+			else if (batch){
+				logger.info("Run " + runCount + " done...");
+				logger.info("Batch finished.");
+				System.exit(0);
+			}
+				
 		}
+		
+		
 	}
 
 	/**

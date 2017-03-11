@@ -241,7 +241,7 @@ public class MapRenderer implements Listener {
 			default:
 				image = null;
 			}
-			tiles.add(pixel, image);
+			tiles.set(pixel, image);
 		}
 
 		return image;

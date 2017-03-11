@@ -17,6 +17,7 @@ import util.eventrouting.EventRouter;
 import util.eventrouting.Listener;
 import util.eventrouting.PCGEvent;
 import util.eventrouting.events.AlgorithmDone;
+import util.eventrouting.events.AlgorithmStarted;
 import util.eventrouting.events.GenerationDone;
 import util.eventrouting.events.MapUpdate;
 
@@ -33,6 +34,7 @@ public class GenerationCollector implements Listener {
 	private String path;
 	private boolean active;
 	private StringBuffer data = new StringBuffer();
+	private String runID = "";
 
 	/**
 	 * Creates an instance of MapCollector.
@@ -45,13 +47,10 @@ public class GenerationCollector implements Listener {
 		}
 		EventRouter.getInstance().registerListener(this, new GenerationDone(null));
 		EventRouter.getInstance().registerListener(this, new AlgorithmDone(null));
+		EventRouter.getInstance().registerListener(this, new AlgorithmStarted(null));
 		path = Util.normalisePath(config.getString("collectors.generation_collector.path"));
 		active = config.getBoolean("collectors.generation_collector.active");
 
-		File directory = new File(path);
-		if (!directory.exists()) {
-			directory.mkdir();
-		}
 	}
 
 	@Override
@@ -64,14 +63,24 @@ public class GenerationCollector implements Listener {
 			if (active) {
 				saveRun();
 			}
+		} else if (e instanceof AlgorithmStarted) {
+			runID = (String)e.getPayload();
 		}
 	}
 	
 	private void saveRun() {
+		path = Util.normalisePath(config.getString("collectors.generation_collector.path"));
+		File directory = new File(path);
+		if (!directory.exists()) {
+			directory.mkdir();
+		}
+		
 		DateTimeFormatter format =
 				DateTimeFormatter.ofPattern("yyyy-MM-dd_HH-mm-s-n");
 		String name = "algorithm_result_" +
 				LocalDateTime.now().format(format) + ".txt";
+		if(runID != "")
+			name = "run" + runID + "_" + name;
 		File file = new File(path + name);
 		logger.debug("Writing map to " + path + name);
 
