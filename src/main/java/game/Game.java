@@ -54,7 +54,7 @@ public class Game implements Listener{
 
         
         readConfiguration();
-        chooseDoorPositions();
+        //chooseDoorPositions();
 
         EventRouter.getInstance().registerListener(this, new Start());
         EventRouter.getInstance().registerListener(this, new Stop());

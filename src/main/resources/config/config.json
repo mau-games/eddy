@@ -45,7 +45,8 @@
         "map_collector": {
             "_comment": "~/ denotes the home directory. Slashes will be converted to backslashes on Windows.",
             "path": "~/eddy/maps/",
-            "active": true
+            "active": true,
+            "save_all": false
         },
         "image_exporter": {
             "_comment": "~/ denotes the home directory. Slashes will be converted to backslashes on Windows.",
@@ -66,6 +67,10 @@
         },
         "corridor": {
             "target_length": 4
+        },
+        "connector": {
+        	"turn_quality" : 0.1,
+        	"intersection_quality" : 0.9
         }
     }
 }

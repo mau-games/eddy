@@ -52,6 +52,8 @@ public class Algorithm extends Thread {
 	private int size;
 	private boolean stop = false;
 	private int feasibleAmount;
+	private double roomTarget;
+	private double corridorTarget;
 	
 
 	public Algorithm(Config gConfig){
@@ -66,6 +68,8 @@ public class Algorithm extends Thread {
 		mutationProbability = (float) config.getDouble("generator.mutation_probability");
 		offspringSize = (float) config.getDouble("generator.offspring_size");
 		feasibleAmount = (int)((double)populationSize * config.getDouble("generator.feasible_proportion"));
+		roomTarget = config.getDouble("generator.weights.room");
+		corridorTarget = config.getDouble("generator.weights.corridor");
 
 		initPopulations();
 	}
@@ -649,8 +653,6 @@ public class Algorithm extends Thread {
     	
     	double roomFitness = (double)roomArea/passableTiles;
     	
-    	double roomTarget = 1;
-    	double corridorTarget = 0;
     	
     	roomFitness = 1 - Math.abs(roomFitness - roomTarget)/Math.max(roomTarget, 1.0 - roomTarget);
     	corridorFitness = 1 - Math.abs(corridorFitness - corridorTarget)/Math.max(corridorTarget, 1.0 - corridorTarget);
