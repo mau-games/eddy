@@ -168,6 +168,8 @@ public class MapRenderer implements Listener {
 	 * Publishes a rendered map.
 	 */
 	private void sendRenderedMap(game.Map map) {
+		finalMapHeight = config.getInt("map.final_rendition.height");
+		finalMapWidth = config.getInt("map.final_rendition.width");
 		Canvas canvas = new Canvas(finalMapWidth, finalMapHeight);
 		renderMap(canvas.getGraphicsContext2D(), map.toMatrix());
 		Image image = canvas.snapshot(new SnapshotParameters(), null);

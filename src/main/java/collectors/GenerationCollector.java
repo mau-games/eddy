@@ -90,5 +90,6 @@ public class GenerationCollector implements Listener {
 			logger.error("Couldn't write data to " + path + name +
 					":\n" + e1.getMessage());
 		}
+		data.delete(0, data.length());
 	}
 }

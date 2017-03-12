@@ -153,29 +153,14 @@ public class Algorithm extends Thread {
         	if(stop)
         		return;
         	
-        	
-        	
         	broadcastStatusUpdate("Generation " + generationCount);
 
         	evaluateAndTrimPools();
         	copyPoolsToPopulations();
-        	
-            //evaluateGeneration();
-            //insertReadyToValidAndEvaluate();
-            //insertReadyToInvalidAndEvaluate();
 
-            //info population valid
             double[] dataValid = infoGenerational(feasiblePopulation, true);
             
-            //broadcastStatusUpdate("Generation " + generationCount + " finished.");
-//          broadcastStatusUpdate("Average fitness: " + dataValid[0]);
-//          broadcastStatusUpdate("Max fitness: " + dataValid[2]);
-          broadcastStatusUpdate("BEST fitness: " + best.getFitness());
-//          broadcastStatusUpdate("Valids: " + populationValid.size());
-//          broadcastStatusUpdate("Invalids: " + populationInvalid.size());
-         // broadcastStatusUpdate("Best corridor count: " + Corridor.corridorTileCount(best.getPhenotype().getMap(), null));
-        //  broadcastStatusUpdate("Best passable tile count: " + best.getPhenotype().getMap().getNonWallTileCount());
-
+            broadcastStatusUpdate("BEST fitness: " + best.getFitness());
             broadcastMapUpdate(best.getPhenotype().getMap());
   
         	map = best.getPhenotype().getMap();
@@ -192,8 +177,7 @@ public class Algorithm extends Thread {
         	int connectorCount = 0;
 
         	// Room stuff
-        	int roomArea = 0; // TODO: Rename this
-        	int avgRoomArea = 0;
+        	double roomArea = 0; // TODO: Rename this
         	int roomCount = 0;
         	
         	// Filter the patterns
@@ -210,37 +194,39 @@ public class Algorithm extends Thread {
         			roomCount++;
         		}
         	}
-
-            //Corridor fitness
-        	double corridorFitness = corridorArea/passableTiles;
-        	
-        	//Room fitness
-    //    
-        	if(roomCount > 0)
-        		avgRoomArea = roomArea/roomCount;
-        	double avgRoomAreaPercent = (double)avgRoomArea / (double)(map.getRowCount()*map.getColCount());
-        	double roomAreaDifference = Math.abs(avgRoomAreaPercent - 0.5);
-        	
-        	//double fitness = roomAreaDifference;
-        	double wallProportion = (double)map.getWallCount()/(map.getRowCount()*map.getColCount());
+//
+//            //Corridor fitness
+//        	double corridorFitness = corridorArea/passableTiles;
 //        	
-        	double wallTarget = 0.3 * roomCount;
-        	double wallFitness = Math.abs(wallProportion - wallTarget);
+//        	//Room fitness
+//    //    
+//        	if(roomCount > 0)
+//        		avgRoomArea = roomArea/roomCount;
+//        	double avgRoomAreaPercent = (double)avgRoomArea / (double)(map.getRowCount()*map.getColCount());
+//        	double roomAreaDifference = Math.abs(avgRoomAreaPercent - 0.5);
 //        	
-//        	double fitness = 0.2 - 0.2*(double)roomArea/(double)passableTiles
-//        			+ 0.8 * roomAreaDifference;
-        	//double fitness = 1.0 - 0.65*(double)roomArea/(double)passableTiles - 0.35*(1-wallFitness);
-        	
-        	double roomFitness = (double)roomArea/passableTiles;
-        	
-        	//double fitness = roomWeight * roomFitness + corridorWeight * corridorFitness;
+//        	//double fitness = roomAreaDifference;
+//        	double wallProportion = (double)map.getWallCount()/(map.getRowCount()*map.getColCount());
+////        	
+//        	double wallTarget = 0.3 * roomCount;
+//        	double wallFitness = Math.abs(wallProportion - wallTarget);
+////        	
+////        	double fitness = 0.2 - 0.2*(double)roomArea/(double)passableTiles
+////        			+ 0.8 * roomAreaDifference;
+//        	//double fitness = 1.0 - 0.65*(double)roomArea/(double)passableTiles - 0.35*(1-wallFitness);
+//        	
+//        	double roomFitness = (double)roomArea/passableTiles;
+//        	
+//        	//double fitness = roomWeight * roomFitness + corridorWeight * corridorFitness;
           
-        	broadcastStatusUpdate("Corridor Fitness: " + corridorFitness);
-        	broadcastStatusUpdate("Room Fitness: " + roomFitness);
+        	broadcastStatusUpdate("Corridor Fitness: " + best.getCorridorFitness());
+        	broadcastStatusUpdate("Room Fitness: " + best.getRoomFitness());
 
-        	broadcastStatusUpdate("Corridors & Connectors: " + (corridorCount + connectorCount));
-        	broadcastStatusUpdate("Corridor tiles: " + corridorArea);
+        	broadcastStatusUpdate("Corridors & Connectors: " + best.getCorridorArea());
+        	//broadcastStatusUpdate("Corridor tiles: " + corridorArea);
         	broadcastStatusUpdate("Passable tiles: " + best.getPhenotype().getMap().getNonWallTileCount());
+        	
+        	
         	breedFeasibleIndividuals();
         	breedInfeasibleIndividuals();
         	generationCount++;
@@ -256,8 +242,19 @@ public class Algorithm extends Thread {
         	double averageDistance = distance / (double)(feasiblePopulation.size() - 1);
         	broadcastStatusUpdate("Average distance from best individual: " + averageDistance);
         	
+        	//Data we want:
+        	// Best fitness
+        	// Average fitness
+        	// Corridor fitness
+        	// Room fitness
+        	// Corridor proportion (& connector)
+        	// Room proportion
+        	
+        	
         	// Fill this string with your data
-        	String generation = "generation " + generationCount;
+        	String generation = "" + best.getFitness() + "," + dataValid[0] + "," + best.getCorridorFitness() + "," + best.getRoomFitness() + "," + best.getCorridorArea()/passableTiles + "," + best.getRoomArea()/passableTiles + "," + best.getTreasureAndEnemyFitness();
+        	
+        	
         	EventRouter.getInstance().postEvent(new GenerationDone(generation));
         }
         HashMap<String, Object> result = new HashMap<String, Object>();
@@ -606,8 +603,6 @@ public class Algorithm extends Thread {
 			e.printStackTrace();
 		}
 
-        //Removed countCloseWalls method because it ALWAYS returns 0 and the intended function is unclear
-        //Consequently, weights have been adjusted
 
         double treasureAndEnemyFitness = 1.0 -
             entranceSafetyFitness * 0.1 -
@@ -617,51 +612,43 @@ public class Algorithm extends Thread {
             treasureDensityFitness * 0.2 -
             treasureSafetyVarianceFitness * 0.2;
     	
+        
     	//Corridor fitness
     	double passableTiles = map.getNonWallTileCount();
     	double corridorArea = 0;	
+    	double rawCorridorArea = 0;
     	List<Pattern> corridors = Corridor.matches(map,null);
     	for(Pattern p : corridors){
+    		rawCorridorArea += ((Polygon)p.getGeometry()).getArea();
     		corridorArea += ((Polygon)p.getGeometry()).getArea() * p.getQuality();
     	}
-    	
     	double corridorFitness = corridorArea/passableTiles;
+    	corridorFitness = 1 - Math.abs(corridorFitness - corridorTarget)/Math.max(corridorTarget, 1.0 - corridorTarget);
     	
-    	int roomArea = 0;
+    	//Room fitness
+    	double roomArea = 0;
+    	double rawRoomArea = 0;
     	List<Pattern> rooms = Room.matches(map, new Rectangle(new finder.geometry.Point(0,0),new finder.geometry.Point(map.getColCount()-1,map.getRowCount()-1)));
     	
     	//Room fitness
     	for(Pattern p : rooms){
+    		rawRoomArea += ((Polygon)p.getGeometry()).getArea();
     		roomArea += ((Polygon)p.getGeometry()).getArea() * p.getQuality();
     	}
-//    
-    	int avgRoomArea = 0;
-    	if(rooms.size() > 0)
-    		avgRoomArea = roomArea/rooms.size();
-    	double avgRoomAreaPercent = (double)avgRoomArea / (double)(map.getRowCount()*map.getColCount());
-    	double roomAreaDifference = Math.abs(avgRoomAreaPercent - 0.5);
     	
-    	//double fitness = roomAreaDifference;
-    	double wallProportion = (double)map.getWallCount()/(map.getRowCount()*map.getColCount());
-//    	
-    	double wallTarget = 0.3 * rooms.size();
-    	double wallFitness = Math.abs(wallProportion - wallTarget);
-//    	
-//    	double fitness = 0.2 - 0.2*(double)roomArea/(double)passableTiles
-//    			+ 0.8 * roomAreaDifference;
-    	//double fitness = 1.0 - 0.65*(double)roomArea/(double)passableTiles - 0.35*(1-wallFitness);
-    	
-    	double roomFitness = (double)roomArea/passableTiles;
-    	
-    	
+    	double roomFitness = roomArea/passableTiles;
     	roomFitness = 1 - Math.abs(roomFitness - roomTarget)/Math.max(roomTarget, 1.0 - roomTarget);
-    	corridorFitness = 1 - Math.abs(corridorFitness - corridorTarget)/Math.max(corridorTarget, 1.0 - corridorTarget);
     	
-    	
-    	double fitness = 0.5 * treasureAndEnemyFitness +  0.5*(0.5 * roomFitness + 0.5 * corridorFitness);
+
+    	double fitness = 0.2 * treasureAndEnemyFitness +  0.8*(0.25 * roomFitness + 0.75 * corridorFitness);
     	
         //set final fitness
         ind.setFitness(fitness);
+        ind.setTreasureAndEnemyFitness(treasureAndEnemyFitness);
+        ind.setRoomFitness(roomFitness);
+    	ind.setCorridorFitness(corridorFitness);
+    	ind.setRoomArea(rawRoomArea);
+    	ind.setCorridorArea(rawCorridorArea);
         ind.setEvaluate(true);
     }
 
@@ -904,13 +891,12 @@ public class Algorithm extends Thread {
             if (currFitness < minFitness)
             {
                 minFitness = currFitness;
-                if (saveBest)
-                    best = population.get(i);
             }
             if (currFitness > maxFitness)
             {
                 maxFitness = currFitness;
-                
+                if (saveBest)
+                    best = population.get(i);
             }
         }
 

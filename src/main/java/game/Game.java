@@ -41,6 +41,8 @@ public class Game implements Listener{
     public static List<Point> doors = null; 
     public static Config.DifficultyLevel level;  
     
+    private static final int batchRuns = 100;
+    
     public static Config.DifficultyLevel getLevel()
     {
         return level;
@@ -60,7 +62,7 @@ public class Game implements Listener{
 
         
         readConfiguration();
-        //chooseDoorPositions();
+        chooseDoorPositions();
 
         EventRouter.getInstance().registerListener(this, new Start());
         EventRouter.getInstance().registerListener(this, new Stop());
@@ -114,6 +116,8 @@ public class Game implements Listener{
     }
     
     public void batchRun(){
+    	readConfiguration();
+    	chooseDoorPositions();
     	batch = true;
     	runCount = 0;
     	batchStep();
@@ -155,7 +159,7 @@ public class Game implements Listener{
 			stop();
 		} else if (e instanceof RenderingDone){
 			
-			if(batch && runCount < 5){
+			if(batch && runCount < batchRuns){
 				logger.info("Run " + runCount + " done...");
 				batchStep();
 			}
@@ -180,7 +184,7 @@ public class Game implements Listener{
         gameConfigFileName = config.getString("game.profiles.default");
         Game.level = parseDifficulty(config.getString("game.difficulty"));
         
-        chooseDoorPositions();
+        
 	}
 
 	// TODO: Bad code smell. This feels really out of place.

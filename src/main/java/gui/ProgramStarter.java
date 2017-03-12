@@ -34,8 +34,8 @@ public class ProgramStarter extends Application {
 	private MapCollector mapCollector;
 	private RenderedMapCollector renderedMapCollector;
 	private GenerationCollector generationCollector;
-	private static final boolean batch = false;
-	private String batchConfig = "config/config2";
+	private static final boolean batch = true;
+	private String batchConfig = "config/test_batches/all-corridor_intersections_length4.json";
 
 	/**
 	 * This is the GUI entry point.

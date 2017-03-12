@@ -12,10 +12,72 @@ import util.Util;
  */
 public class Individual {
 	private double fitness;
+	
+	//TODO: Reconsider these...
+	private double treasureAndEnemyFitness;
+    private double roomFitness;
+	private double corridorFitness;
+	private double roomArea;
+	private double corridorArea;
+	
 	private Genotype genotype;
 	private Phenotype phenotype;
 	private boolean evaluate;
 	private float mutationProbability;
+	
+	public void setTreasureAndEnemyFitness(double treasureAndEnemyFitness){
+		this.treasureAndEnemyFitness = treasureAndEnemyFitness;
+	}
+	public void setRoomFitness(double roomFitness){
+		this.roomFitness = roomFitness;
+	}
+	public void setCorridorFitness(double corridorFitness){
+		this.corridorFitness = corridorFitness;
+	}
+	
+	/**
+	 * Room area NOT weighted by quality
+	 * @param roomArea
+	 */
+	public void setRoomArea(double roomArea){
+		this.roomArea = roomArea;
+	}
+	
+	/**
+	 * Corridor area NOT weighted by quality
+	 * @param corridorArea
+	 */
+	public void setCorridorArea(double corridorArea){
+		this.corridorArea = corridorArea;
+	}
+	
+	public double getTreasureAndEnemyFitness(){
+		return treasureAndEnemyFitness;
+	}
+	public double getRoomFitness(){
+		return roomFitness;
+	}
+	public double getCorridorFitness(){
+		return corridorFitness;
+	}
+	
+	/**
+	 * Room area NOT weighted by quality
+	 * @param roomArea
+	 * @return
+	 */
+	public double getRoomArea(){
+		return roomArea;
+	}
+	
+	/**
+	 * Corridor area NOT weighted by quality
+	 * @param corridorArea
+	 * @return
+	 */
+	public double getCorridorArea(){
+		return corridorArea;
+	}
 	
 	public Individual(int size, float mutationProbability) {
 		this(new Genotype(size), mutationProbability);

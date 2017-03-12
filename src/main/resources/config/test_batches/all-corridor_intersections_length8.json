@@ -17,8 +17,8 @@
     "game": {
         "difficulty": "easy",
         "dimensions": {
-            "m": 16,
-            "n": 16
+            "m": 12,
+            "n": 12
         },
         "doors": 3,
         "profiles": {
@@ -44,18 +44,18 @@
     "collectors": {
         "map_collector": {
             "_comment": "~/ denotes the home directory. Slashes will be converted to backslashes on Windows.",
-            "path": "~/eddy/batch_tests/config2/maps/",
+            "path": "~/eddy/batch_tests/all-corridor_intersections_length8/maps/",
             "active": true,
             "save_all": false
         },
         "image_exporter": {
             "_comment": "~/ denotes the home directory. Slashes will be converted to backslashes on Windows.",
-            "path": "~/eddy/batch_tests/config2/maps/rendered/",
+            "path": "~/eddy/batch_tests/all-corridor_intersections_length8/maps/rendered/",
             "active": true
         },
         "generation_collector": {
             "_comment": "~/ denotes the home directory. Slashes will be converted to backslashes on Windows.",
-            "path": "~/eddy/batch_tests/config2/",
+            "path": "~/eddy/batch_tests/all-corridor_intersections_length8/",
             "active": true
         }        
     },
@@ -66,11 +66,11 @@
             "area_deviation_weight": 0.8
         },
         "corridor": {
-            "target_length": 3
+            "target_length": 8
         },
         "connector": {
-        	"turn_quality" : 0.9,
-        	"intersection_quality" : 0
+        	"turn_quality" : 0.05,
+        	"intersection_quality" : 0.95
         }
     }
 }

@@ -17,8 +17,8 @@
     "game": {
         "difficulty": "easy",
         "dimensions": {
-            "m": 16,
-            "n": 16
+            "m": 12,
+            "n": 12
         },
         "doors": 3,
         "profiles": {
@@ -37,40 +37,40 @@
         "offspring_size": 0.7,
         "feasible_proportion": 0.5,
         "weights": {
-            "room": 0,
-            "corridor": 1
+            "room": 1,
+            "corridor": 0
         }
     },
     "collectors": {
         "map_collector": {
             "_comment": "~/ denotes the home directory. Slashes will be converted to backslashes on Windows.",
-            "path": "~/eddy/batch_tests/config2/maps/",
+            "path": "~/eddy/batch_tests/all-room_area64_square0.5_size0.5/maps/",
             "active": true,
             "save_all": false
         },
         "image_exporter": {
             "_comment": "~/ denotes the home directory. Slashes will be converted to backslashes on Windows.",
-            "path": "~/eddy/batch_tests/config2/maps/rendered/",
+            "path": "~/eddy/batch_tests/all-room_area64_square0.5_size0.5/maps/rendered/",
             "active": true
         },
         "generation_collector": {
             "_comment": "~/ denotes the home directory. Slashes will be converted to backslashes on Windows.",
-            "path": "~/eddy/batch_tests/config2/",
+            "path": "~/eddy/batch_tests/all-room_area64_square0.5_size0.5/",
             "active": true
         }        
     },
     "patterns": {
         "room": {
-            "desired_area": 9,
-            "floor_ratio_weight": 0.2,
-            "area_deviation_weight": 0.8
+            "desired_area": 64,
+            "floor_ratio_weight": 0.5,
+            "area_deviation_weight": 0.5
         },
         "corridor": {
-            "target_length": 3
+            "target_length": 4
         },
         "connector": {
-        	"turn_quality" : 0.9,
-        	"intersection_quality" : 0
+        	"turn_quality" : 0.5,
+        	"intersection_quality" : 0.5
         }
     }
 }
