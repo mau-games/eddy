@@ -35,7 +35,7 @@ public class ProgramStarter extends Application {
 	private RenderedMapCollector renderedMapCollector;
 	private GenerationCollector generationCollector;
 	private static final boolean batch = true;
-	private String batchConfig = "config/test_batches/all-corridor_intersections_length4.json";
+	private String batchConfig = "config/test_batches/16x16/room0.8_corridor0.2_area25_square0.8_size0.2_length4.json";
 
 	/**
 	 * This is the GUI entry point.
