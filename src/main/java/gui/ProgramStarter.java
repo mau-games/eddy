@@ -8,7 +8,6 @@ import collectors.GenerationCollector;
 import collectors.MapCollector;
 import collectors.RenderedMapCollector;
 import game.Game;
-import gui.controls.PatternInstanceControl;
 import gui.utils.MapRenderer;
 import javafx.application.Application;
 import javafx.application.Platform;

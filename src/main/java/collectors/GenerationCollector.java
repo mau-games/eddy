@@ -9,7 +9,6 @@ import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import game.Map;
 import util.Util;
 import util.config.ConfigurationUtility;
 import util.config.MissingConfigurationException;
@@ -19,7 +18,6 @@ import util.eventrouting.PCGEvent;
 import util.eventrouting.events.AlgorithmDone;
 import util.eventrouting.events.AlgorithmStarted;
 import util.eventrouting.events.GenerationDone;
-import util.eventrouting.events.MapUpdate;
 
 /**
  * GenerationCollector listens for MapUpdate events and saves them to a preset
