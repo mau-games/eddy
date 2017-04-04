@@ -60,8 +60,7 @@ public class Room extends Pattern {
 		double floorRatio = polyArea / rectArea;
 		double areaDeviation = 1;
 		
-		areaDeviation = 1 - Math.abs(desiredRectangleArea - polyArea)
-				/ desiredRectangleArea;
+		areaDeviation = 1 - Math.abs(desiredRectangleArea - polyArea) / desiredRectangleArea;		
 		if (areaDeviation < 0) {
 			areaDeviation = 0;
 		}

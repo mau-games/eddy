@@ -63,7 +63,6 @@ public class Rectangle extends Polygon {
 	 */
 	@Override
 	public double getRoundness() {
-		// TODO Auto-generated method stub
 		return super.getRoundness();
 	}
 	

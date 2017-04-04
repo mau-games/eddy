@@ -17,7 +17,7 @@ import util.config.ConfigurationUtility;
 
 import util.config.MissingConfigurationException;
 
-// TODO: Maybe merge this with the common merge object?
+// TODO: Maybe merge this with the common config object?
 /**
  * Config represents a configuration to be used by the generator. It is
  * game-specific, meaning that each game type should have its own dedicated
@@ -53,6 +53,8 @@ public class Config {
 	}
 	
 	private JsonObject configJson;
+	//TODO: Consider changing handling of difficulty level
+	//to cope better with switching configs
 	private DifficultyLevel level;
 
 	/**
@@ -67,13 +69,7 @@ public class Config {
 		} catch (MissingConfigurationException e) {
 			logger.error("Couldn't load the configuration file");
 		}
-		/*
-		 * TODO: FIX THIS THING! Is the mystic Game just a dynamic setting? If
-		 * so, where do we find it? And most importantly, why don't we set it
-		 * dynamically? This code smells.
-		 * ALEX - I put this back in temporarily
-		 */
-		level = Game.getLevel();
+		level = DifficultyLevel.parseDifficulty(config.getString("game.difficulty"));
 	}
 
 	/**
@@ -92,8 +88,6 @@ public class Config {
 	}
 
 	/**
-	 * TODO: Explain this more in detail once we understand it.
-	 * 
 	 * Returns the target entrance safety setting.
 	 * 
 	 * @return The target entrance safety
@@ -128,8 +122,6 @@ public class Config {
 	
 
 	/**
-	 * TODO: Explain this more in detail once we understand it.
-	 * 
 	 * Returns the enemy quantity range.
 	 * 
 	 * @return The enemy quantity range.
@@ -154,8 +146,6 @@ public class Config {
 	}
 
 	/**
-	 * TODO: Explain this more in detail once we understand it.
-	 * 
 	 * Returns the treasure security variance.
 	 * 
 	 * @return The treasure security variance.
@@ -172,8 +162,6 @@ public class Config {
 	}
 
 	/**
-	 * TODO: Explain this more in detail once we understand it.
-	 * 
 	 * Returns the treasure quantity range.
 	 * 
 	 * @return The treasure quantity range.
@@ -198,8 +186,6 @@ public class Config {
 	}
 
 	/**
-	 * TODO: Explain this more in detail once we understand it.
-	 * 
 	 * Returns the target treasure safety variance.
 	 * 
 	 * @return The treasure security variance.

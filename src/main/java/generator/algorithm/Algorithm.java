@@ -55,6 +55,8 @@ public class Algorithm extends Thread {
 	private double roomTarget;
 	private double corridorTarget;
 	
+	private int infeasiblesMoved = 0;
+	private int movedInfeasiblesKept = 0;
 
 	public Algorithm(Config gConfig){
 		try {
@@ -132,6 +134,7 @@ public class Algorithm extends Thread {
 	
 	/**
 	 * Starts the algorithm. Called when the thread starts.
+	 * TODO: Reorganise this
 	 */
 	public void run(){
 		
@@ -155,6 +158,8 @@ public class Algorithm extends Thread {
         	
         	broadcastStatusUpdate("Generation " + generationCount);
 
+        	
+        	movedInfeasiblesKept = 0;
         	evaluateAndTrimPools();
         	copyPoolsToPopulations();
 
@@ -170,14 +175,14 @@ public class Algorithm extends Thread {
         	double passableTiles = map.getNonWallTileCount();
         	
         	// Corridor stuff
-        	double corridorArea = 0; // TODO: Rename this
+        	double corridorArea = 0; 
         	int corridorCount = 0;
         	
         	// Connector
         	int connectorCount = 0;
 
         	// Room stuff
-        	double roomArea = 0; // TODO: Rename this
+        	double roomArea = 0; 
         	int roomCount = 0;
         	
         	// Filter the patterns
@@ -186,7 +191,6 @@ public class Algorithm extends Thread {
             		corridorArea += ((Polygon)p.getGeometry()).getArea() * p.getQuality();
             		corridorCount++;
         		} else if (p instanceof Connector) {
-        			// TODO: Should connectors be counted as corridor area?
             		corridorArea += ((Polygon)p.getGeometry()).getArea() * p.getQuality();
             		connectorCount++;
         		} else if (p instanceof Room) {
@@ -226,6 +230,8 @@ public class Algorithm extends Thread {
         	//broadcastStatusUpdate("Corridor tiles: " + corridorArea);
         	broadcastStatusUpdate("Passable tiles: " + best.getPhenotype().getMap().getNonWallTileCount());
         	
+        	broadcastStatusUpdate("Infeasibles moved: " + infeasiblesMoved);
+        	broadcastStatusUpdate("Moved infeasibles kept: " + movedInfeasiblesKept);
         	
         	breedFeasibleIndividuals();
         	breedInfeasibleIndividuals();
@@ -277,6 +283,7 @@ public class Algorithm extends Thread {
         }
         this.sortPopulation(feasiblePool, false);
         feasiblePool = feasiblePool.stream().limit(feasibleAmount).collect(Collectors.toList());
+        feasiblePool.forEach(individual -> {if(((Individual)individual).isChildOfInfeasibles()) movedInfeasiblesKept++; individual.setChildOfInfeasibles(false);});
 
         //Evaluate invalid individuals
         for(Individual ind : infeasiblePool)
@@ -721,7 +728,7 @@ public class Algorithm extends Thread {
         //Crossover parents
         List<Individual> children = crossOverBetweenProgenitors(parents);
         //Assign to a pool based on feasibility
-        assignToPool(children);
+        assignToPool(children, false);
     }
 
     /**
@@ -737,7 +744,8 @@ public class Algorithm extends Thread {
         //Crossover parents
         List<Individual> children = crossOverBetweenProgenitors(parents);
         //Assign to a pool based on feasibility
-        assignToPool(children);
+        infeasiblesMoved = 0;
+        assignToPool(children, true);
     }
 			
     /**
@@ -767,7 +775,6 @@ public class Algorithm extends Thread {
     /**
      * Selects parents from a population using (deterministic) tournament selection - i.e. the winner is always the individual with the "best" fitness.
      * See: https://en.wikipedia.org/wiki/Tournament_selection
-     * TODO: Make sure this is properly implemented.
      * 
      * @param population A whole population of individuals
      * @return A list of chosen progenitors
@@ -837,16 +844,22 @@ public class Algorithm extends Thread {
     
 
     /**
-     * TODO: Document
+     * Assign the given individuals to either the feasible or infeasible pools
+     * depending on whether or not they are feasible.
      * 
      * @param sons Individuals to add
+     * @param infeasible Are the individuals the offspring of infeasible parents?
      */
-    private void assignToPool(List<Individual> sons)
+    private void assignToPool(List<Individual> sons, boolean infeasible)
     {
         for (Individual son : sons)
         {
+        	if(infeasible)
+        		son.setChildOfInfeasibles(true);
             if(checkIndividual(son))
             {
+            	if(infeasible)
+            		infeasiblesMoved++;
                 feasiblePool.add(son);
             }
             else

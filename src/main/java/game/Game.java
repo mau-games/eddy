@@ -39,15 +39,8 @@ public class Game implements Listener{
     public static String gameConfigFileName;
     public static Ranges ranges; 
     public static List<Point> doors = null; 
-    public static Config.DifficultyLevel level;  
-    
     private static final int batchRuns = 100;
     
-    public static Config.DifficultyLevel getLevel()
-    {
-        return level;
-    }
-
     public static Ranges getRanges() {
         return ranges;
     }
@@ -181,26 +174,7 @@ public class Game implements Listener{
         sizeN = config.getInt("game.dimensions.n");
         sizeM = config.getInt("game.dimensions.m");
         doorCount = config.getInt("game.doors");
-        gameConfigFileName = config.getString("game.profiles.default");
-        Game.level = parseDifficulty(config.getString("game.difficulty"));
-        
-        
+        gameConfigFileName = config.getString("game.profiles.default");  
 	}
-
-	// TODO: Bad code smell. This feels really out of place.
-	public static DifficultyLevel parseDifficulty(String difficulty) {
-		DifficultyLevel level;
-		
-		if (difficulty.equals("medium")) {
-			level = DifficultyLevel.MEDIUM;
-		} else if (difficulty.equals("hard")) {
-			level = DifficultyLevel.HARD;
-		} else {
-			level = DifficultyLevel.EASY;
-		}
-			
-		return level;
-	}
-
 	
 }

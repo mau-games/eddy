@@ -255,8 +255,6 @@ public class Corridor extends Pattern {
 	/**
 	 * Returns true if the given tile is a turn connector
 	 * 
-	 * TODO: 	Should the floor tiles necessarily be corridor tiles? 
-	 * 			Can a sequence of connectors count as a very bendy corridor?
 	 * 
 	 * @param map
 	 * @param x
@@ -310,6 +308,8 @@ public class Corridor extends Pattern {
 	
 	/**
 	 * Returns true if all the adjacent floor tiles are corridor tiles
+	 * 
+	 * TODO: Experiment with using IsFloor instead of IsCorridorTile
 	 * 
 	 * @param map
 	 * @param x

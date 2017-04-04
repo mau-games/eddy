@@ -25,6 +25,8 @@ public class Individual {
 	private boolean evaluate;
 	private float mutationProbability;
 	
+	private boolean childOfInfeasibles = false;
+	
 	public void setTreasureAndEnemyFitness(double treasureAndEnemyFitness){
 		this.treasureAndEnemyFitness = treasureAndEnemyFitness;
 	}
@@ -59,6 +61,14 @@ public class Individual {
 	}
 	public double getCorridorFitness(){
 		return corridorFitness;
+	}
+	
+	public boolean isChildOfInfeasibles(){
+		return childOfInfeasibles;
+	}
+	
+	public void setChildOfInfeasibles(boolean cOI){
+		childOfInfeasibles = cOI;
 	}
 	
 	/**

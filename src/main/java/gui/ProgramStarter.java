@@ -34,8 +34,8 @@ public class ProgramStarter extends Application {
 	private MapCollector mapCollector;
 	private RenderedMapCollector renderedMapCollector;
 	private GenerationCollector generationCollector;
-	private static final boolean batch = true;
-	private String batchConfig = "config/test_batches/16x16/room0.8_corridor0.2_area25_square0.8_size0.2_length4.json";
+	private static final boolean batch = false;
+	private String batchConfig = "config/test_batches/room0.2_corridor0.8_area9_square0.5_size0.5_length4.json";
 
 	/**
 	 * This is the GUI entry point.
