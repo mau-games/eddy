@@ -18,7 +18,9 @@ import finder.patterns.CompositePattern;
 import finder.patterns.Pattern;
 import finder.patterns.micro.Connector;
 import finder.patterns.micro.Corridor;
+import finder.patterns.micro.Enemy;
 import finder.patterns.micro.Room;
+import finder.patterns.micro.Treasure;
 import game.Game;
 import game.Map;
 import game.TileTypes;
@@ -49,7 +51,6 @@ public class Algorithm extends Thread {
 	private Config generatorConfig;
 	private List<Individual> feasiblePool;
 	private List<Individual> infeasiblePool;
-	private int size;
 	private boolean stop = false;
 	private int feasibleAmount;
 	private double roomTarget;
@@ -58,14 +59,13 @@ public class Algorithm extends Thread {
 	private int infeasiblesMoved = 0;
 	private int movedInfeasiblesKept = 0;
 
-	public Algorithm(Config gConfig){
+	public Algorithm(){
 		try {
 			config = ConfigurationUtility.getInstance();
 		} catch (MissingConfigurationException e) {
 			logger.error("Couldn't read configuration file:\n" + e.getMessage());
 		}
-
-		generatorConfig = gConfig;
+		generatorConfig = Config.getInstance();
 		populationSize = config.getInt("generator.population_size");
 		mutationProbability = (float) config.getDouble("generator.mutation_probability");
 		offspringSize = (float) config.getDouble("generator.offspring_size");
@@ -301,157 +301,6 @@ public class Algorithm extends Thread {
 	}
 	
 	/**
-	 * Uses flood fill to calculate a score for the safety of the room's entrance
-	 * 
-	 * The safety value is between 0 and 1. 
-	 * 0 means there is an enemy adjacent to the entry door. 
-	 * 1 means there is no enemy in the room (impossible).
-	 * In practice the highest safety will be achieved when an enemy is as far away from the entrance as possible.
-	 * 
-	 * @param ind The individual to evaluate.
-	 * @return The safety value for the room's entrance.
-	 */
-	public float evaluateEntranceSafety(Individual ind)
-    {
-        Map map = ind.getPhenotype().getMap();
-
-        List<Node> visited = new ArrayList<Node>();
-    	Queue<Node> queue = new LinkedList<Node>();
-    	
-    	Node root = new Node(0.0f, map.getEntrance(), null);
-    	queue.add(root);
-    	
-    	while(!queue.isEmpty()){
-    		Node current = queue.remove();
-    		visited.add(current);
-    		if(map.getTile(current.position).isEnemy())
-    			break;
-    		
-    		List<Point> children = map.getAvailableCoords(current.position);
-            for(Point child : children)
-            {
-                if (visited.stream().filter(x->x.equals(child)).findFirst().isPresent() 
-                		|| queue.stream().filter(x->x.equals(child)).findFirst().isPresent()) 
-                	continue;
-
-                //Create child node
-                Node n = new Node(0.0f, child, current);
-                queue.add(n);
-            }
-            
-    	}
-    	return (float)visited.size()/map.getNonWallTileCount();  
-    }
-	
-	/**
-	 * Uses flood fill to calculate a score for the greed of the room's entrance
-	 * 
-	 * The greed value is between 0 and 1. 
-	 * 0 means there is an treasure adjacent to the entry door. 
-	 * 1 means there is no treasure in the room (impossible).
-	 * In practice the highest greed will be achieved when a treasure is as far away from the entrance as possible.
-	 * 
-	 * @param ind The individual to evaluate.
-	 * @return The safety value for the room's entrance.
-	 */
-	public float evaluateEntranceGreed(Individual ind)
-    {
-        Map map = ind.getPhenotype().getMap();
-
-        List<Node> visited = new ArrayList<Node>();
-    	Queue<Node> queue = new LinkedList<Node>();
-    	
-    	Node root = new Node(0.0f, map.getEntrance(), null);
-    	queue.add(root);
-    	
-    	while(!queue.isEmpty()){
-    		Node current = queue.remove();
-    		visited.add(current);
-    		if(map.getTile(current.position).isTreasure())
-    			break;
-    		
-    		List<Point> children = map.getAvailableCoords(current.position);
-            for(Point child : children)
-            {
-                if (visited.stream().filter(x->x.equals(child)).findFirst().isPresent() 
-                		|| queue.stream().filter(x->x.equals(child)).findFirst().isPresent()) 
-                	continue;
-
-                //Create child node
-                Node n = new Node(0.0f, child, current);
-                queue.add(n);
-            }
-            
-    	}
-    	return (float)visited.size()/map.getNonWallTileCount();  
-    }
-	
-	/**
-	 * Evaluates the treasure safety of a valid individual 
-	 * See Sentient Sketchbook for a description of the method
-	 * 
-	 * @param ind The individual to evaluate
-	 */
-	public void evaluateTreasureSafeties(Individual ind)
-	{
-	    Map map = ind.getPhenotype().getMap();
-	
-	    if(map.getEnemyCount() > 0)
-	    {
-
-	        Point doorEnter = map.getEntrance();
-	        
-	        Pathfinder pathfinder = new Pathfinder(map);
-	
-	        for (Point treasure: map.getTreasures())
-	        {
-	        	//Find the closest enemy
-	            List<Node> visited = new ArrayList<Node>();
-	        	Queue<Node> queue = new LinkedList<Node>();
-	        	
-	        	Node root = new Node(0.0f, treasure, null);
-	        	queue.add(root);
-	        	Point closestEnemy = null;
-	        	
-	        	while(!queue.isEmpty()){
-	        		Node current = queue.remove();
-	        		visited.add(current);
-	        		if(map.getTile(current.position).isEnemy()){
-	        			closestEnemy = current.position;
-	        			break;
-	        		}
-	        		
-	        		List<Point> children = map.getAvailableCoords(current.position);
-	                for(Point child : children)
-	                {
-	                    if (visited.stream().filter(x->x.equals(child)).findFirst().isPresent() 
-	                    		|| queue.stream().filter(x->x.equals(child)).findFirst().isPresent()) 
-	                    	continue;
-
-	                    //Create child node
-	                    Node n = new Node(0.0f, child, current);
-	                    queue.add(n);
-	                }
-	        	}
-	        	
-	            int dinTreasureToEnemy = pathfinder.find(treasure, closestEnemy).length;
-	            
-                //Distance in nodes from treasure to entrance
-                int dinTreasureToStartDoor = pathfinder.find(treasure, doorEnter).length;
-	
-                double result = (double)
-                    (dinTreasureToEnemy - dinTreasureToStartDoor) / 
-                    (dinTreasureToEnemy + dinTreasureToStartDoor);
-
-                if (Double.isNaN(result))
-                    result = 0.0f;
-                
-                map.setTreasureSafety(treasure, Math.max(0.0, result));
-	        }
-	    }
-	}
-	
-	/**
 	 * Evaluates the fitness of a valid individual using the following factors:
 	 *  1. Entrance safety (how close are enemies to the entrance)
 	 *  2. Proportion of tiles that are enemies
@@ -465,96 +314,30 @@ public class Algorithm extends Thread {
     {
         Map map = ind.getPhenotype().getMap();
 
-        //Entrance safety (1)
-        double entranceSafetyFitness = evaluateEntranceSafety(ind); //Note - this has been changed from the Unity version
-        map.setEntranceSafety(entranceSafetyFitness);
-        try {
-			entranceSafetyFitness = Math.abs(entranceSafetyFitness - generatorConfig.getEntranceSafety());
-		} catch (MissingConfigurationException e) {
-			e.printStackTrace();
-		}
-
-        //Enemy density (2)
-        double[] expectedEnemiesRange = null;
-		try {
-			expectedEnemiesRange = generatorConfig.getEnemyQuantityRange();
-		} catch (MissingConfigurationException e) {
-			e.printStackTrace();
-		}
-        double enemyDensityFitness = 0.0;
-        double enemyPercent = map.getEnemyPercentage();
-        if(enemyPercent < expectedEnemiesRange[0])
-        {
-            enemyDensityFitness = expectedEnemiesRange[0] - enemyPercent;
-        }
-        else if(enemyPercent > expectedEnemiesRange[1])
-        { 
-            enemyDensityFitness = enemyPercent - expectedEnemiesRange[1];
-        }
-        //Scale fitness to be between 0 and 1:
-        enemyDensityFitness = enemyDensityFitness/Math.max(expectedEnemiesRange[0], 1.0 - expectedEnemiesRange[1]);
-
-        //Average treasure safety (3)
-        evaluateTreasureSafeties(ind);
-        Double[] safeties = map.getAllTreasureSafeties();
-        double safeties_average = Util.calcAverage(safeties);
-       
-        double averageTreasureSafetyFitness = 0.0;
-        try {
-			averageTreasureSafetyFitness = Math.abs(safeties_average - generatorConfig.getAverageTreasureSafety());
-		} catch (MissingConfigurationException e) {
-			e.printStackTrace();
-		}
-
-
-        //Treasure density (4)
-        double[] expectedTreasuresRange = null;
-		try {
-			expectedTreasuresRange = generatorConfig.getTreasureQuantityRange();
-		} catch (MissingConfigurationException e) {
-			e.printStackTrace();
-		}
-        double treasureDensityFitness = 0.0;
-        double treasurePercent = map.getTreasurePercentage();
-        if(treasurePercent < expectedTreasuresRange[0])
-        {
-            treasureDensityFitness = expectedTreasuresRange[0] - treasurePercent;
-        }
-        else if (treasurePercent > expectedTreasuresRange[1])
-        {
-            treasureDensityFitness = treasurePercent - expectedTreasuresRange[1];
-        }
-        //Scale fitness to be between 0 and 1:
-        treasureDensityFitness = treasureDensityFitness/Math.max(expectedTreasuresRange[0], 1.0 - expectedTreasuresRange[1]);
-
-        //Treasure Safety Variance (5)
-        double safeties_variance = Util.calcVariance(safeties);
-        double expectedSafetyVariance = 0.0;
-		try {
-			expectedSafetyVariance = generatorConfig.getTreasureSafetyVariance();
-		} catch (MissingConfigurationException e) {
-			e.printStackTrace();
-		}
-
-        double treasureSafetyVarianceFitness = Math.abs(safeties_variance - expectedSafetyVariance);
         
-        //Entrance greed (6)
-        double entranceGreedFitness = evaluateEntranceGreed(ind); //Note - this has been changed from the Unity version
-        map.setEntranceGreed(entranceGreedFitness);
-        try {
-        	entranceGreedFitness = Math.abs(entranceGreedFitness - generatorConfig.getEntranceGreed());
-		} catch (MissingConfigurationException e) {
-			e.printStackTrace();
-		}
+        //Door Fitness - don't care about this for now
+        double doorFitness = 1.0f;
+        
+        //Entrance Fitness
+        double entranceFitness = 1.0;
+    	for(Pattern p : Enemy.matches(map,null)){
+    		entranceFitness -= p.getQuality();
+    	}
+        
+        //Enemy Fitness
+        double enemyFitness = 1.0;
+    	for(Pattern p : Enemy.matches(map,null)){
+    		enemyFitness -= p.getQuality();
+    	}
+        
+        //Treasure Fitness
+        double treasureFitness = 1.0;
+    	for(Pattern p : Treasure.matches(map,null)){
+    		treasureFitness -= p.getQuality();
+    	}
+        
 
-
-        double treasureAndEnemyFitness = 1.0 -
-            entranceSafetyFitness * 0.1 -
-            entranceGreedFitness * 0.1 -
-            enemyDensityFitness * 0.3 -
-            averageTreasureSafetyFitness * 0.1 -
-            treasureDensityFitness * 0.2 -
-            treasureSafetyVarianceFitness * 0.2;
+        double treasureAndEnemyFitness = 0.0 * doorFitness + 0.5 * entranceFitness + 0.3 * enemyFitness + 0.2 * treasureFitness;
     	
         
     	//Corridor fitness
@@ -584,7 +367,9 @@ public class Algorithm extends Thread {
     	roomFitness = 1 - Math.abs(roomFitness - roomTarget)/Math.max(roomTarget, 1.0 - roomTarget);
     	
 
-    	double fitness = 0.2 * treasureAndEnemyFitness +  0.8*(0.25 * roomFitness + 0.75 * corridorFitness);
+    	double fitness = 0.2 * treasureAndEnemyFitness
+    			+  0.8*(0.25 * roomFitness + 0.75 * corridorFitness);
+    	
     	
         //set final fitness
         ind.setFitness(fitness);

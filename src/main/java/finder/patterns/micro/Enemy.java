@@ -13,6 +13,7 @@ import finder.geometry.Rectangle;
 import finder.patterns.Pattern;
 import game.Map;
 import game.TileTypes;
+import generator.config.Config;
 import util.config.ConfigurationUtility;
 import util.config.MissingConfigurationException;
 
@@ -23,24 +24,25 @@ import util.config.MissingConfigurationException;
  */
 public class Enemy extends Pattern {
 	
-	public Enemy(Geometry geometry) {
+	private double quality = 0.0;
+	
+	public Enemy(Geometry geometry, Map map) {
 		boundaries = geometry;
+		this.map = map;
 	}
 	
 	@Override
 	/**
 	 * Returns a measure of the quality of this pattern.
 	 * 
-	 * <p>The quality for a room is decided by two factors:<br>
-	 * * The ratio of the room's area versus it's bounding rectangle<br>
-	 * * The deviation from a set area
+	 * The quality for an enemy is decided by the number of enemies in the room
 	 *  
 	 * @return A number between 0.0 and 1.0 representing the quality of the pattern (where 1 is best)
 	 */
 	public double getQuality() {
-		return 0;
+		return quality;
 	}
-
+	
 	// TODO: Consider non-rectangular geometries in the future.
 	/**
 	 * Searches a map for enemies. The searchable area can be limited by a set of
@@ -52,6 +54,10 @@ public class Enemy extends Pattern {
 	 * @return A list of found room pattern instances.
 	 */
 	public static List<Pattern> matches(Map map, Geometry boundary) {
+		
+		
+		double quality = calculateEnemyQuality(map);
+
 
 		ArrayList<Pattern> results = new ArrayList<Pattern>();
 		
@@ -76,7 +82,8 @@ public class Enemy extends Pattern {
 
 		if (p1.equals(p2)) {
 			if (isEnemy(map.toMatrix(), p1.getX(), p1.getY())) {
-				results.add(new Entrance(new Point(p1.getX(), p1.getY())));
+				results.add(new Enemy(new Point(p1.getX(), p1.getY()),map));
+				((Enemy)results.get(results.size()-1)).quality = quality; 
 			}
 			return results;
 		}
@@ -93,7 +100,8 @@ public class Enemy extends Pattern {
 		for (int i = 0; i < matrix.length; i++) {
 			for (int j = 0; j < matrix[0].length; j++) {
 				if (isEnemy(matrix, i, j)) {
-					results.add(new Enemy(new Point(i, j)));
+					results.add(new Enemy(new Point(i, j),map));
+					((Enemy)results.get(results.size()-1)).quality = quality; 
 				}
 			}
 		}
@@ -103,5 +111,30 @@ public class Enemy extends Pattern {
 	
 	private static boolean isEnemy(int[][] map, int x, int y) {
 		return map[x][y] == 3;
+	}
+	
+	private static double calculateEnemyQuality(Map map){
+		double[] expectedEnemiesRange = null;
+		try {
+			expectedEnemiesRange = Config.getInstance().getEnemyQuantityRange();
+		} catch (MissingConfigurationException e) {
+			e.printStackTrace();
+		}
+        double quality = 0.0;
+        double enemyPercent = map.getEnemyPercentage();
+        if(enemyPercent < expectedEnemiesRange[0])
+        {
+        	quality = expectedEnemiesRange[0] - enemyPercent;
+        }
+        else if(enemyPercent > expectedEnemiesRange[1])
+        { 
+        	quality = enemyPercent - expectedEnemiesRange[1];
+        }
+        //Scale fitness to be between 0 and 1:
+        quality = quality/Math.max(expectedEnemiesRange[0], 1.0 - expectedEnemiesRange[1]);
+        quality /= map.getEnemyCount();
+        
+        return quality;
+		
 	}
 }
