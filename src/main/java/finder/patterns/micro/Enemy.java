@@ -17,7 +17,7 @@ import util.config.ConfigurationUtility;
 import util.config.MissingConfigurationException;
 
 /**
- * This class represents the dungeon game design pattern called Room.
+ * This class represents the dungeon game design pattern called Enemy.
  * 
  * @author Johan Holmberg
  */

@@ -17,7 +17,7 @@ import util.config.ConfigurationUtility;
 import util.config.MissingConfigurationException;
 
 /**
- * This class represents the dungeon game design pattern called Room.
+ * This class represents the dungeon game design pattern called Treasure.
  * 
  * @author Johan Holmberg
  */
@@ -43,7 +43,7 @@ public class Treasure extends Pattern {
 
 	// TODO: Consider non-rectangular geometries in the future.
 	/**
-	 * Searches a map for enemies. The searchable area can be limited by a set of
+	 * Searches a map for treasures. The searchable area can be limited by a set of
 	 * boundaries. If these boundaries are invalid, no search will be
 	 * performed.
 	 * 
