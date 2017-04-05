@@ -15,7 +15,7 @@ import game.Map;
 public abstract class Pattern {
 	
 	protected Geometry boundaries = null;
-	
+	protected Map map = null;
 	/**
 	 * Searches a map for instances of this pattern and returns a list of found
 	 * instances.

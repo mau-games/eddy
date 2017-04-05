@@ -23,8 +23,9 @@ import util.config.MissingConfigurationException;
  */
 public class Door extends Pattern {
 	
-	public Door(Geometry geometry) {
+	public Door(Geometry geometry, Map map) {
 		boundaries = geometry;
+		this.map = map;
 	}
 	
 	@Override
@@ -38,6 +39,8 @@ public class Door extends Pattern {
 	 * @return A number between 0.0 and 1.0 representing the quality of the pattern (where 1 is best)
 	 */
 	public double getQuality() {
+		//Probably just return 0 here, doors don't have any particular quality attributes (yet).
+		
 		return 0;
 	}
 
@@ -79,26 +82,26 @@ public class Door extends Pattern {
 		// We only need to consider the rim of the geometry
 		if (p1.equals(p2)) {
 			if (isDoor(matrix, p1.getX(), p1.getY())) {
-				results.add(new Entrance(new Point(p1.getX(), p1.getY())));
+				results.add(new Door(new Point(p1.getX(), p1.getY()),map));
 			}
 			return results;
 		}
 		
 		for (int i = p1.getX(); i <= p2.getX(); i++) {
 			if (isDoor(matrix, i, p1.getY())) {
-				results.add(new Door(new Point(i, p1.getY())));
+				results.add(new Door(new Point(i, p1.getY()),map));
 			}
 			if (isDoor(matrix, i, p2.getY())) {
-				results.add(new Door(new Point(i, p2.getY())));
+				results.add(new Door(new Point(i, p2.getY()),map));
 			}
 		}
 		
 		for (int j = p1.getY() + 1; j < p2.getY(); j++) { // Don't count the corners twice
 			if (isDoor(matrix, p1.getX(), j)) {
-				results.add(new Door(new Point(p1.getX(), j)));
+				results.add(new Door(new Point(p1.getX(), j),map));
 			}
 			if (isDoor(matrix, p2.getX(), j)) {
-				results.add(new Door(new Point(p2.getX(), j)));
+				results.add(new Door(new Point(p2.getX(), j),map));
 			}
 		}
 

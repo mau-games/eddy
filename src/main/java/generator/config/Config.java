@@ -3,6 +3,7 @@ package generator.config;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.Reader;
+import java.net.URL;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,6 +34,7 @@ public class Config {
 
 	final Logger logger = LoggerFactory.getLogger(Config.class);
 	private ConfigurationUtility config;
+	private static Config instance = null;
 	
 	public enum DifficultyLevel {
 		EASY,
@@ -62,7 +64,7 @@ public class Config {
 	 * 
 	 * @param profile The name of the profile to use.
 	 */
-	public Config(String profile) {
+	protected Config(String profile) {
 		try {
 			config = ConfigurationUtility.getInstance();
 			readConfig(fetchProfileAsFile(profile));
@@ -71,6 +73,22 @@ public class Config {
 		}
 		level = DifficultyLevel.parseDifficulty(config.getString("game.difficulty"));
 	}
+	
+	/**
+	 * Gets the singleton instance of this class.
+	 * 
+	 * @return An instance of Config
+	 */
+	public static Config getInstance(){
+		if (instance == null) {
+			instance = new Config("game.profiles.default");
+		}
+		return instance;
+	}
+	
+	
+	
+	
 
 	/**
 	 * Returns the name of the game profile.
@@ -233,11 +251,12 @@ public class Config {
 	 * 		 read and applied.
 	 */
 	private Reader fetchProfileAsFile(String profile) throws MissingConfigurationException {
-		String fileName = config.getString("game.profiles.location") + profile + ".json";
+		String fileName = config.getString("game.profiles.location") + config.getString(profile) + ".json";
 		FileReader file = null;
 		ClassLoader loader = getClass().getClassLoader();
 		try {
-			file = new FileReader(loader.getResource(fileName).getFile());
+			URL url = loader.getResource(fileName);
+			file = new FileReader(url.getFile());
 		} catch (FileNotFoundException e) {
 			throw new MissingConfigurationException();
 		}

@@ -100,7 +100,7 @@ public class Game implements Listener{
     private void startAll()
     {
     	reinit();
-    	geneticAlgorithm = new Algorithm(new Config(config.getString("game.profiles.default")));
+    	geneticAlgorithm = new Algorithm();
     	//Start the algorithm on a new thread.
     	geneticAlgorithm.start();
     	
@@ -118,7 +118,7 @@ public class Game implements Listener{
     private void batchStep(){
     	
 		EventRouter.getInstance().postEvent(new AlgorithmStarted("" + runCount));
-		geneticAlgorithm = new Algorithm(new Config(config.getString("game.profiles.default")));
+		geneticAlgorithm = new Algorithm();
     	//Start the algorithm on a new thread.
     	geneticAlgorithm.start();
     	runCount++;
