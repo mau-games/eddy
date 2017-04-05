@@ -196,14 +196,14 @@ public class Individual {
 		int[] chromosomeCopy = genotype.getChromosome().clone();
 		for(int i = 0; i < Game.sizeM; i++)
 			for(int j = 0; j < Game.sizeN; j++)
-				genotype.getChromosome()[j*Game.sizeN + i] = chromosomeCopy[(Game.sizeN - 1 - j)*Game.sizeN + Game.sizeM - 1 - i];
+				genotype.getChromosome()[j*Game.sizeM + i] = chromosomeCopy[(Game.sizeN - 1 - j)*Game.sizeM + Game.sizeM - 1 - i];
 	}
 	
 	private void mutateRotate90(){
 		int[] chromosomeCopy = genotype.getChromosome().clone();
 		for(int i = 0; i < Game.sizeM; i++)
 			for(int j = 0; j < Game.sizeN; j++)
-				genotype.getChromosome()[j*Game.sizeN + i] = chromosomeCopy[(Game.sizeN - 1 - i)*Game.sizeN + Game.sizeM - 1 - j];
+				genotype.getChromosome()[j*Game.sizeM + i] = chromosomeCopy[(Game.sizeN - 1 - i)*Game.sizeM + Game.sizeM - 1 - j];
 	}
 	
 	

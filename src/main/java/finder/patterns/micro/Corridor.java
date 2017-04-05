@@ -234,11 +234,11 @@ public class Corridor extends Pattern {
 	}
 	
 	private static boolean IsWall(Map map, int x, int y){
-		return x < 0 || y < 0 || x == map.getRowCount() || y == map.getColCount() || map.getTile(x,y) == TileTypes.WALL;
+		return x < 0 || y < 0 || x == map.getColCount() || y == map.getRowCount() || map.getTile(x,y) == TileTypes.WALL;
 	}
 	
 	private static boolean isFloor(Map map, int x, int y){
-		return x > 0 && y > 0 && x < map.getRowCount() && y < map.getColCount() && map.getTile(x,y) == TileTypes.FLOOR;
+		return x > 0 && y > 0 && x < map.getColCount() && y < map.getRowCount() && map.getTile(x,y) == TileTypes.FLOOR;
 	}
 	
 	private static boolean MightAsWellBeAWall(Map map,int x, int y, int i, int j){

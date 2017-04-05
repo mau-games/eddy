@@ -107,6 +107,7 @@ public class MapRenderer implements Listener {
 	 * 		to some predefined colour.
 	 */
 	public synchronized void sketchMap(GraphicsContext ctx, int[][] matrix) {
+		ctx.clearRect(0, 0, ctx.getCanvas().getWidth(), ctx.getCanvas().getHeight());
 		int m = matrix.length;
 		int n = matrix[0].length;
 		int pWidth = (int) Math.floor(ctx.getCanvas().getWidth() / Math.max(m, n));
@@ -127,6 +128,7 @@ public class MapRenderer implements Listener {
 	 * 		to some predefined value.
 	 */
 	public synchronized void renderMap(GraphicsContext ctx, int[][] matrix) {
+		ctx.clearRect(0, 0, ctx.getCanvas().getWidth(), ctx.getCanvas().getHeight());
 		int m = matrix.length;
 		int n = matrix[0].length;
 		int pWidth = (int) Math.floor(ctx.getCanvas().getWidth() / Math.max(m, n));

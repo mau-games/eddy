@@ -50,7 +50,7 @@ public class Map {
 		
 		this.doorCount = Game.doors.size();
 		
-		matrix = new int[n][m];
+		matrix = new int[m][n];
 		
 		initMapFromTypes(types);
 		
