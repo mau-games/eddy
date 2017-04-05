@@ -311,14 +311,13 @@ public class Algorithm extends Thread {
     {
         Map map = ind.getPhenotype().getMap();
         PatternFinder finder = map.getPatternFinder();
-        List<Pattern> micros = finder.findMicroPatterns();
         List<Enemy> enemies = new ArrayList<Enemy>();
         List<Treasure> treasures = new ArrayList<Treasure>();
         List<Corridor> corridors = new ArrayList<Corridor>();
         List<Connector> connectors = new ArrayList<Connector>();
         List<Room> rooms = new ArrayList<Room>();
         
-        for (Pattern p : micros) {
+        for (Pattern p : finder.findMicroPatterns()) {
         	if (p instanceof Enemy) {
         		enemies.add((Enemy) p);
         	} else if (p instanceof Treasure) {
