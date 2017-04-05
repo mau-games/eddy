@@ -134,17 +134,11 @@ public class Algorithm extends Thread {
 	
 	/**
 	 * Starts the algorithm. Called when the thread starts.
-	 * TODO: Reorganise this
 	 */
 	public void run(){
 		
 		broadcastStatusUpdate("Evolving...");
-
-        int generationCount = 1;
         int generations = config.getInt("generator.generations");
-
-        double roomWeight = config.getDouble("generator.weights.room");
-        double corridorWeight = config.getDouble("generator.weights.corridor");
         
         List<Pattern> micros = null;
         List<CompositePattern> mesos = null;
@@ -152,7 +146,7 @@ public class Algorithm extends Thread {
         
         Map map = null;
 
-        while (generationCount <= generations) {
+        for(int generationCount = 1; generationCount <= generations; generationCount++) {
         	if(stop)
         		return;
         	
@@ -166,68 +160,15 @@ public class Algorithm extends Thread {
             double[] dataValid = infoGenerational(feasiblePopulation, true);
             
             broadcastStatusUpdate("BEST fitness: " + best.getFitness());
-            broadcastMapUpdate(best.getPhenotype().getMap());
-  
-        	map = best.getPhenotype().getMap();
-        	PatternFinder pm = new PatternFinder(map);
-        	micros = pm.findMicroPatterns();
-        	
-        	double passableTiles = map.getNonWallTileCount();
-        	
-        	// Corridor stuff
-        	double corridorArea = 0; 
-        	int corridorCount = 0;
-        	
-        	// Connector
-        	int connectorCount = 0;
-
-        	// Room stuff
-        	double roomArea = 0; 
-        	int roomCount = 0;
-        	
-        	// Filter the patterns
-        	for(Pattern p : micros){
-        		if (p instanceof Corridor) {
-            		corridorArea += ((Polygon)p.getGeometry()).getArea() * p.getQuality();
-            		corridorCount++;
-        		} else if (p instanceof Connector) {
-            		corridorArea += ((Polygon)p.getGeometry()).getArea() * p.getQuality();
-            		connectorCount++;
-        		} else if (p instanceof Room) {
-        			roomArea += ((Polygon)p.getGeometry()).getArea() * p.getQuality();
-        			roomCount++;
-        		}
-        	}
-//
-//            //Corridor fitness
-//        	double corridorFitness = corridorArea/passableTiles;
-//        	
-//        	//Room fitness
-//    //    
-//        	if(roomCount > 0)
-//        		avgRoomArea = roomArea/roomCount;
-//        	double avgRoomAreaPercent = (double)avgRoomArea / (double)(map.getRowCount()*map.getColCount());
-//        	double roomAreaDifference = Math.abs(avgRoomAreaPercent - 0.5);
-//        	
-//        	//double fitness = roomAreaDifference;
-//        	double wallProportion = (double)map.getWallCount()/(map.getRowCount()*map.getColCount());
-////        	
-//        	double wallTarget = 0.3 * roomCount;
-//        	double wallFitness = Math.abs(wallProportion - wallTarget);
-////        	
-////        	double fitness = 0.2 - 0.2*(double)roomArea/(double)passableTiles
-////        			+ 0.8 * roomAreaDifference;
-//        	//double fitness = 1.0 - 0.65*(double)roomArea/(double)passableTiles - 0.35*(1-wallFitness);
-//        	
-//        	double roomFitness = (double)roomArea/passableTiles;
-//        	
-//        	//double fitness = roomWeight * roomFitness + corridorWeight * corridorFitness;
+            
+            map = best.getPhenotype().getMap();
+            broadcastMapUpdate(map);
+            
           
         	broadcastStatusUpdate("Corridor Fitness: " + best.getCorridorFitness());
         	broadcastStatusUpdate("Room Fitness: " + best.getRoomFitness());
 
         	broadcastStatusUpdate("Corridors & Connectors: " + best.getCorridorArea());
-        	//broadcastStatusUpdate("Corridor tiles: " + corridorArea);
         	broadcastStatusUpdate("Passable tiles: " + best.getPhenotype().getMap().getNonWallTileCount());
         	
         	broadcastStatusUpdate("Infeasibles moved: " + infeasiblesMoved);
@@ -235,8 +176,6 @@ public class Algorithm extends Thread {
         	
         	breedFeasibleIndividuals();
         	breedInfeasibleIndividuals();
-        	generationCount++;
-        	
         	
         	
         	//Check diversity:
@@ -248,6 +187,8 @@ public class Algorithm extends Thread {
         	double averageDistance = distance / (double)(feasiblePopulation.size() - 1);
         	broadcastStatusUpdate("Average distance from best individual: " + averageDistance);
         	
+        	double passableTiles = map.getNonWallTileCount();
+        	
         	//Data we want:
         	// Best fitness
         	// Average fitness
@@ -255,14 +196,10 @@ public class Algorithm extends Thread {
         	// Room fitness
         	// Corridor proportion (& connector)
         	// Room proportion
-        	
-        	
-        	// Fill this string with your data
         	String generation = "" + best.getFitness() + "," + dataValid[0] + "," + best.getCorridorFitness() + "," + best.getRoomFitness() + "," + best.getCorridorArea()/passableTiles + "," + best.getRoomArea()/passableTiles + "," + best.getTreasureAndEnemyFitness();
-        	
-        	
         	EventRouter.getInstance().postEvent(new GenerationDone(generation));
         }
+        
         HashMap<String, Object> result = new HashMap<String, Object>();
         result.put("micropatterns", micros);
         result.put("mesopatterns", mesos);
