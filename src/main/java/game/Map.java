@@ -15,6 +15,7 @@ import util.Point;
  */
 public class Map {
 	private int[][] matrix; // The actual map
+	private boolean[][] allocated; // A map keeps track of allocated tiles
 	private int m;			// The number of rows in a map
 	private int n;			// The number of columns in a map
 	private int doorCount;	// The number of doors in a map
@@ -39,18 +40,9 @@ public class Map {
 	 * @param doorCount The number of doors to be seeded in a map.
 	 */
 	public Map(TileTypes[] types, int rows, int cols, int doorCount) {
-		doors = new ArrayList<Point>();
-		treasures = new ArrayList<Point>();
-		enemies = new ArrayList<Point>();
-		treasureSafety = new Hashtable<Point, Double>();
-		this.m = cols;
-		this.n = rows;
-		wallCount = 0;
-		
+		init(rows, cols);
 		
 		this.doorCount = Game.doors.size();
-		
-		matrix = new int[m][n];
 		
 		initMapFromTypes(types);
 		
@@ -65,6 +57,10 @@ public class Map {
 	 * @param cols The number of columns in a map.
 	 */
 	private Map(int rows, int cols) {
+		init(rows, cols);
+	}
+	
+	private void init(int rows, int cols) {
 		doors = new ArrayList<Point>();
 		treasures = new ArrayList<Point>();
 		enemies = new ArrayList<Point>();
@@ -75,6 +71,7 @@ public class Map {
 		this.doorCount = 0;
 		
 		matrix = new int[n][m];
+		allocated = new boolean[m][n];
 	}
 	
 	private void markDoors(){
