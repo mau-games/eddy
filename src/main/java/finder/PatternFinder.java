@@ -98,7 +98,7 @@ public class PatternFinder {
 	
 	// TODO: Implement this
 	/**
-	 * Finds macro patterns witin a map. It searches for all patterns
+	 * Finds macro patterns within a map. It searches for all patterns
 	 * available in the finder.patterns.macro package.
 	 * 
 	 * @return A list of all found pattern instances.
