@@ -73,6 +73,13 @@ public class Treasure extends Pattern {
 				p2.getY() >= map.getRowCount()) {
 			return results;
 		}
+
+		if (p1.equals(p2)) {
+			if (isTreasure(map.toMatrix(), p1.getX(), p1.getY())) {
+				results.add(new Entrance(new Point(p1.getX(), p1.getY())));
+			}
+			return results;
+		}
 		
 		int[][] matrix = new int[p2.getX() - p1.getX() + 1][p2.getY() - p1.getY() + 1];
 

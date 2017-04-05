@@ -77,6 +77,13 @@ public class Door extends Pattern {
 		int[][] matrix = map.toMatrix();
 		
 		// We only need to consider the rim of the geometry
+		if (p1.equals(p2)) {
+			if (isDoor(matrix, p1.getX(), p1.getY())) {
+				results.add(new Entrance(new Point(p1.getX(), p1.getY())));
+			}
+			return results;
+		}
+		
 		for (int i = p1.getX(); i <= p2.getX(); i++) {
 			if (isDoor(matrix, i, p1.getY())) {
 				results.add(new Door(new Point(i, p1.getY())));
