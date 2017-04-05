@@ -7,7 +7,11 @@ import game.Map;
 import finder.patterns.CompositePattern;
 import finder.patterns.Pattern;
 import finder.patterns.micro.Corridor;
+import finder.patterns.micro.Door;
+import finder.patterns.micro.Enemy;
+import finder.patterns.micro.Entrance;
 import finder.patterns.micro.Room;
+import finder.patterns.micro.Treasure;
 
 /**
  * PatternFinder is used to find patterns within a map.
@@ -53,6 +57,10 @@ public class PatternFinder {
 		 */
 		micropatterns.addAll(Room.matches(map, null));
 		micropatterns.addAll(Corridor.matches(map, null)); // This also finds connectors
+		micropatterns.addAll(Treasure.matches(map, null));
+		micropatterns.addAll(Enemy.matches(map, null));
+		micropatterns.addAll(Door.matches(map, null));
+		micropatterns.addAll(Entrance.matches(map, null));
 		
 		return micropatterns;
 	}
