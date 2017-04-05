@@ -9,7 +9,6 @@ import org.slf4j.LoggerFactory;
 import generator.algorithm.Algorithm;
 import generator.algorithm.Ranges;
 import generator.config.Config;
-import generator.config.Config.DifficultyLevel;
 import util.Point;
 import util.Util;
 import util.config.ConfigurationUtility;
@@ -21,7 +20,6 @@ import util.eventrouting.events.AlgorithmDone;
 import util.eventrouting.events.AlgorithmStarted;
 import util.eventrouting.events.RenderingDone;
 import util.eventrouting.events.Start;
-import util.eventrouting.events.StatusMessage;
 import util.eventrouting.events.Stop;
 
 public class Game implements Listener{
