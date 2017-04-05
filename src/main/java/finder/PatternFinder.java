@@ -7,6 +7,7 @@ import game.Map;
 import finder.patterns.CompositePattern;
 import finder.patterns.Pattern;
 import finder.patterns.micro.Corridor;
+import finder.patterns.micro.Enemy;
 import finder.patterns.micro.Room;
 
 /**
@@ -53,6 +54,7 @@ public class PatternFinder {
 		 */
 		micropatterns.addAll(Room.matches(map, null));
 		micropatterns.addAll(Corridor.matches(map, null)); // This also finds connectors
+		micropatterns.addAll(Enemy.matches(map, null)); // This also finds connectors
 		
 		return micropatterns;
 	}
