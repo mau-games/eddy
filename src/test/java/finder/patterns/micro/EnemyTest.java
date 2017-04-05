@@ -138,7 +138,7 @@ public class EnemyTest {
 		Map map = Map.fromString(IOUtils.toString(
 				this.getClass().getResourceAsStream("/maps/rooms/10x10features.map"),
 				"UTF-8"));
-		Rectangle boundary = new Rectangle(new Point(4, 4), new Point(7, 7));
+		Rectangle boundary = new Rectangle(new Point(2, 2), new Point(4, 5));
 		List<Pattern> enemies = Enemy.matches(map, boundary);
 
 		assertEquals(0, enemies.size());

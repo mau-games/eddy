@@ -127,7 +127,7 @@ public class TreasureTest {
 		Map map = Map.fromString(IOUtils.toString(
 				this.getClass().getResourceAsStream("/maps/rooms/10x10features.map"),
 				"UTF-8"));
-		Rectangle boundary = new Rectangle(new Point(0, 6), new Point(9, 9));
+		Rectangle boundary = new Rectangle(new Point(6, 0), new Point(9, 9));
 		List<Pattern> treasures = Treasure.matches(map, boundary);
 
 		assertEquals(1, treasures.size());

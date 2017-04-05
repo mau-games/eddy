@@ -67,11 +67,7 @@ public class Enemy extends Pattern {
 		// Check boundary sanity.
 		Point p1 = ((Rectangle) boundary).getTopLeft();
 		Point p2 = ((Rectangle) boundary).getBottomRight();
-		if (map.getRowCount() < 3 ||
-				map.getColCount() < 3 ||
-				p2.getX() - p1.getX() < 2 ||
-				p2.getY() - p1.getY() < 2 ||
-				p1.getX() >= map.getColCount() ||
+		if (p1.getX() >= map.getColCount() ||
 				p2.getX() >= map.getColCount() ||
 				p1.getY() >= map.getRowCount() ||
 				p2.getY() >= map.getRowCount()) {
@@ -88,7 +84,7 @@ public class Enemy extends Pattern {
 		
 		for (int i = 0; i < matrix.length; i++) {
 			for (int j = 0; j < matrix[0].length; j++) {
-				if (isEnemy(map.toMatrix(), i, j)) {
+				if (isEnemy(matrix, i, j)) {
 					results.add(new Enemy(new Point(i, j)));
 				}
 			}
