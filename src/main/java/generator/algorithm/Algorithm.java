@@ -140,10 +140,6 @@ public class Algorithm extends Thread {
 		broadcastStatusUpdate("Evolving...");
         int generations = config.getInt("generator.generations");
         
-        List<Pattern> micros = null;
-        List<CompositePattern> mesos = null;
-        List<CompositePattern> macros = null;
-        
         Map map = null;
 
         for(int generationCount = 1; generationCount <= generations; generationCount++) {
@@ -200,10 +196,11 @@ public class Algorithm extends Thread {
         	EventRouter.getInstance().postEvent(new GenerationDone(generation));
         }
         
+        PatternFinder finder = map.getPatternFinder();
         HashMap<String, Object> result = new HashMap<String, Object>();
-        result.put("micropatterns", micros);
-        result.put("mesopatterns", mesos);
-        result.put("macropatterns", macros);
+        result.put("micropatterns", finder.findMicroPatterns());
+        result.put("mesopatterns", finder.findMesoPatterns());
+        result.put("macropatterns", finder.findMacroPatterns());
         result.put("map", map);
         EventRouter.getInstance().postEvent(new AlgorithmDone(result));
 	}
@@ -313,26 +310,48 @@ public class Algorithm extends Thread {
     public void evaluateFeasibleIndividual(Individual ind)
     {
         Map map = ind.getPhenotype().getMap();
-
+        PatternFinder finder = map.getPatternFinder();
+        List<Pattern> micros = finder.findMicroPatterns();
+        List<Enemy> enemies = new ArrayList<Enemy>();
+        List<Treasure> treasures = new ArrayList<Treasure>();
+        List<Corridor> corridors = new ArrayList<Corridor>();
+        List<Connector> connectors = new ArrayList<Connector>();
+        List<Room> rooms = new ArrayList<Room>();
+        
+        for (Pattern p : micros) {
+        	if (p instanceof Enemy) {
+        		enemies.add((Enemy) p);
+        	} else if (p instanceof Treasure) {
+        		treasures.add((Treasure) p);
+        	} else if (p instanceof Corridor) {
+        		corridors.add((Corridor) p);
+        	} else if (p instanceof Connector) {
+        		connectors.add((Connector) p);
+        	} else if (p instanceof Room) {
+        		rooms.add((Room) p);
+        	}
+        }
+        
         
         //Door Fitness - don't care about this for now
         double doorFitness = 1.0f;
         
         //Entrance Fitness
         double entranceFitness = 1.0;
-    	for(Pattern p : Enemy.matches(map,null)){
+        
+    	for(Pattern p : enemies){
     		entranceFitness -= p.getQuality();
     	}
         
         //Enemy Fitness
         double enemyFitness = 1.0;
-    	for(Pattern p : Enemy.matches(map,null)){
+    	for(Pattern p : enemies){
     		enemyFitness -= p.getQuality();
     	}
         
         //Treasure Fitness
         double treasureFitness = 1.0;
-    	for(Pattern p : Treasure.matches(map,null)){
+    	for(Pattern p : treasures){
     		treasureFitness -= p.getQuality();
     	}
         
@@ -344,7 +363,6 @@ public class Algorithm extends Thread {
     	double passableTiles = map.getNonWallTileCount();
     	double corridorArea = 0;	
     	double rawCorridorArea = 0;
-    	List<Pattern> corridors = Corridor.matches(map,null);
     	for(Pattern p : corridors){
     		rawCorridorArea += ((Polygon)p.getGeometry()).getArea();
     		corridorArea += ((Polygon)p.getGeometry()).getArea() * p.getQuality();
@@ -355,7 +373,6 @@ public class Algorithm extends Thread {
     	//Room fitness
     	double roomArea = 0;
     	double rawRoomArea = 0;
-    	List<Pattern> rooms = Room.matches(map, new Rectangle(new finder.geometry.Point(0,0),new finder.geometry.Point(map.getColCount()-1,map.getRowCount()-1)));
     	
     	//Room fitness
     	for(Pattern p : rooms){

@@ -73,6 +73,7 @@ public class Corridor extends Pattern {
 		
 		boolean[][] corridorTiles = new boolean[map.getColCount()][map.getRowCount()];
 		boolean[][] visited = new boolean[map.getColCount()][map.getRowCount()];
+		boolean[][] allocated = map.getAllocationMatrix();
 		
 		for(int i = 0; i < map.getColCount(); i++)
 			for(int j = 0; j < map.getRowCount(); j++)
@@ -92,6 +93,7 @@ public class Corridor extends Pattern {
 			    	SearchNode root = new SearchNode(new Point(i,j), null);
 			    	queue.add(root);
 			    	visited[i][j] = true;
+			    	allocated[i][j] = true;
 			    	
 			    	while(!queue.isEmpty()){
 			    		SearchNode current = queue.remove();
@@ -103,18 +105,22 @@ public class Corridor extends Pattern {
 			    		if(ii > 0 && !visited[ii-1][jj] && corridorTiles[ii-1][jj]){
 			    			queue.add(new SearchNode(new Point(ii-1,jj), null));
 			    			visited[ii-1][jj] = true;
+							allocated[ii - 1][jj] = true;
 			    		}
 			    		if(jj > 0 && !visited[ii][jj - 1] && corridorTiles[ii][jj - 1]){
 			    			queue.add(new SearchNode(new Point(ii,jj - 1), null));
 			    			visited[ii][jj - 1] = true;
+							allocated[ii][jj - 1] = true;
 			    		}
 			    		if(ii < map.getColCount() - 1 && !visited[ii+1][jj] && corridorTiles[ii+1][jj]){
 			    			queue.add(new SearchNode(new Point(ii+1,jj), null));
 			    			visited[ii+1][jj] = true;
+							allocated[ii + 1][jj] = true;
 			    		}
 			    		if(jj < map.getRowCount() - 1 && !visited[ii][jj + 1] && corridorTiles[ii][jj + 1]){
 			    			queue.add(new SearchNode(new Point(ii,jj + 1), null));
 			    			visited[ii][jj + 1] = true;
+							allocated[ii][jj + 1] = true;
 			    		}
 			    		
 			    	}
@@ -122,6 +128,7 @@ public class Corridor extends Pattern {
 			    	if(c.size() < 2){
 			    		for(SearchNode sn : c){
 			    			corridorTiles[sn.position.getX()][sn.position.getY()] = false;
+							allocated[sn.position.getX()][sn.position.getY()] = false;
 			    		}
 			    	} else {
 			    		candidateCorridors.add(c);
@@ -138,16 +145,18 @@ public class Corridor extends Pattern {
     	//For all the remaining floor tiles, if check if they are connectors
     	for(int i = 0; i < map.getColCount(); i++)
 			for(int j = 0; j < map.getRowCount(); j++)
-				if(!corridorTiles[i][j])
+				if(!corridorTiles[i][j] && !allocated[i][j])
 				{
 					if(isTurnConnector(map,i,j)){
 						Bitmap b = new Bitmap();
 						b.addPoint(new finder.geometry.Point(i,j));
 						results.add(new Connector(b, ConnectorType.TURN));
+						allocated[i][j] = true;
 					} else if (isIntersectionConnector(map,i,j)){
 						Bitmap b = new Bitmap();
 						b.addPoint(new finder.geometry.Point(i,j));
 						results.add(new Connector(b, ConnectorType.INTERSECTION));
+						allocated[i][j] = true;
 					}
 					
 				}

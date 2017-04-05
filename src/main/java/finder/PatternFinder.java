@@ -42,6 +42,10 @@ public class PatternFinder {
 	 * @return A list of all found pattern instances.
 	 */
 	public List<Pattern> findMicroPatterns() {
+		if (micropatterns != null) {
+			return micropatterns;
+		}
+		
 		micropatterns = new ArrayList<Pattern>();
 		
 		/*
@@ -55,8 +59,8 @@ public class PatternFinder {
 		 * 
 		 * For now, let's just implicitly call each pattern.
 		 */
-		micropatterns.addAll(Room.matches(map, null));
 		micropatterns.addAll(Corridor.matches(map, null)); // This also finds connectors
+		micropatterns.addAll(Room.matches(map, null));
 		micropatterns.addAll(Treasure.matches(map, null));
 		micropatterns.addAll(Enemy.matches(map, null));
 		micropatterns.addAll(Door.matches(map, null));
@@ -114,9 +118,6 @@ public class PatternFinder {
 		 */
 		if (mesopatterns == null) {
 			findMesoPatterns();
-		}
-		if (micropatterns == null) {
-			findMicroPatterns();
 		}
 		
 		return null;

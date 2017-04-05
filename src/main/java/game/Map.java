@@ -6,6 +6,7 @@ import java.util.Dictionary;
 import java.util.Hashtable;
 import java.util.List;
 
+import finder.PatternFinder;
 import util.Point;
 
 /**
@@ -23,6 +24,7 @@ public class Map {
 	private List<Point> doors;		// A list of doors
 	private List<Point> treasures;	// A list of treasures
 	private List<Point> enemies;		// A list of enemies
+	private PatternFinder finder;
 	private int failedPathsToTreasures;
 	private int failedPathsToEnemies;
 	private int failedPathsToAnotherDoor;
@@ -61,6 +63,7 @@ public class Map {
 	}
 	
 	private void init(int rows, int cols) {
+		finder = new PatternFinder(this);
 		doors = new ArrayList<Point>();
 		treasures = new ArrayList<Point>();
 		enemies = new ArrayList<Point>();
@@ -451,7 +454,24 @@ public class Map {
     public double getEntranceSafety() {
     	return entranceSafety;
     }
-
+    
+    /**
+     * Gets the allocation matrix.
+     * 
+     * @return The allocation matrix.
+     */
+    public boolean[][] getAllocationMatrix() {
+    	return allocated;
+    }
+    
+    /**
+     * Gets the pattern finder associated with this map.
+     * 
+     * @return A pattern finder.
+     */
+    public PatternFinder getPatternFinder() {
+    	return finder;
+    }
     
 	/**
 	 * Initialises a map.

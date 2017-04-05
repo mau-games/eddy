@@ -134,8 +134,8 @@ public class Room extends Pattern {
 		}
 		
 		int[][] matrix = new int[p2.getX() - p1.getX() + 1][p2.getY() - p1.getY() + 1];
+		boolean[][] allocated = map.getAllocationMatrix();
 		
-
 		for (int i = 0; i < matrix.length; i++) {
 			for (int j = 0; j < matrix[0].length; j++) {
 				if (map.getTile(p1.getX() + i, p1.getY() + j) == TileTypes.WALL) {
@@ -158,8 +158,8 @@ public class Room extends Pattern {
 		int roomCounter = 0;
 		for (int i = 1; i < matrix.length - 1; i++) {
 			for (int j = 1; j < matrix[0].length - 1; j++) {
-				if (isRoom(matrix, i, j)) {
-					results.add(new Room(growRoom(matrix, i, j, ++roomCounter)));
+				if (isRoom(matrix, allocated, i, j)) {
+					results.add(new Room(growRoom(matrix, allocated, i, j, ++roomCounter)));
 				}
 			}
 		}
@@ -175,14 +175,14 @@ public class Room extends Pattern {
 		return results;
 	}
 	
-	private static boolean isRoom(int[][] map, int x, int y) {
+	private static boolean isRoom(int[][] map, boolean[][] allocated, int x, int y) {
 		if (map[x][y] != 0) {
 			return false;
 		}
 		
 		for (int i = x - 1; i <= x + 1; i++) {
 			for (int j = y - 1; j <= y + 1; j++) {
-				if (map[i][j] != 0) {
+				if (map[i][j] != 0 || allocated[i][j]) {
 					return false;
 				}
 			}
@@ -191,36 +191,62 @@ public class Room extends Pattern {
 		return true;
 	}
 	
-	private static Polygon growRoom(int[][] map, int x, int y, int room) {
+	private static Polygon growRoom(int[][] map, boolean[][] allocated, int x, int y, int room) {
 		Polygon polygon = new Bitmap();
 		LinkedList<Point> pq = new LinkedList<Point>();
 //		LinkedList<Point> cloud = new LinkedList<Point>(); // poly
 		Point p;
 		
+		// The core will never be allocated, no need to check for that
 		for (int i = x - 1; i < x + 2; i++) {
 			for (int j = y - 1; j < y + 2; j++) {
 				map[i][j] = room;
+				allocated[i][j] = true;
 			}
 		}
 		if (x + 2 < map.length) {
-			pq.addLast(new Point(x + 2, y));
-			pq.addLast(new Point(x + 2, y + 1));
-			pq.addLast(new Point(x + 2, y - 1));
+			if (!allocated[x + 2][y]) {
+				pq.addLast(new Point(x + 2, y));
+			}
+			if (!allocated[x + 2][y + 1]) {
+				pq.addLast(new Point(x + 2, y + 1));
+			}
+			if (!allocated[x + 2][y - 1]) {
+				pq.addLast(new Point(x + 2, y - 1));
+			}
 		}
 		if (y - 2 >= 0) {
-			pq.addLast(new Point(x, y - 2));
-			pq.addLast(new Point(x + 1, y - 2));
-			pq.addLast(new Point(x - 1, y - 2));
+			if (!allocated[x][y - 2]) {
+				pq.addLast(new Point(x, y - 2));
+			}
+			if (!allocated[x + 1][y - 2]) {
+				pq.addLast(new Point(x + 1, y - 2));
+			}
+			if (!allocated[x - 1][y - 2]) {
+				pq.addLast(new Point(x - 1, y - 2));
+			}
 		}
 		if (x - 2 >= 0) {
-			pq.addLast(new Point(x - 2, y));
-			pq.addLast(new Point(x - 2, y - 1));
-			pq.addLast(new Point(x - 2, y + 1));
+			if (!allocated[x - 2][y]) {
+				pq.addLast(new Point(x - 2, y));
+			}
+			if (!allocated[x - 2][y - 1]) {
+				pq.addLast(new Point(x - 2, y - 1));
+			}
+			if (!allocated[x - 2][y + 1]) {
+				pq.addLast(new Point(x - 2, y + 1));
+			}
 		}
 		if (y + 2 < map[0].length) {
-			pq.addLast(new Point(x, y + 2));
-			pq.addLast(new Point(x - 1, y + 2));
-			pq.addLast(new Point(x + 1, y + 2));
+			if (!allocated[x][y + 2]) {
+				pq.addLast(new Point(x, y + 2));
+			}
+			if (!allocated[x - 1][y + 2]) {
+				pq.addLast(new Point(x - 1, y + 2));
+			}
+			if (!allocated[x + 1][y + 2]) {
+				pq.addLast(new Point(x + 1, y + 2));
+			}
 		}
 //		cloud.addAll(pq); // poly
 		
@@ -232,16 +258,16 @@ public class Room extends Pattern {
 			if (map[x][y] == 0 && hasThreeNeighbours(map, p, room)) {
 				map[x][y] = room;
 //				cloud.addLast(p); // poly
-				if (x + 1 < map.length) {
+				if (x + 1 < map.length && !allocated[x + 1][y]) {
 					pq.addLast(new Point(x + 1, y));
 				}
-				if (y - 1 >= 0) {
+				if (y - 1 >= 0 && !allocated[x][y - 1]) {
 					pq.addLast(new Point(x, y - 1));
 				}
-				if (x - 1 >= 0) {
+				if (x - 1 >= 0 && !allocated[x - 1][y]) {
 					pq.addLast(new Point(x - 1, y));
 				}
-				if (y + 1 < map[0].length) {
+				if (y + 1 < map[0].length && !allocated[x][y + 1]) {
 					pq.addLast(new Point(x, y + 1));
 				}
 			}
@@ -251,11 +277,12 @@ public class Room extends Pattern {
 			for (y = 0; y < map[0].length; y++) {
 				if (map[x][y] == room) {
 					polygon.addPoint(new Point(x, y));
+					allocated[x][y] = true;
 				}
 			}
 		}
 		
-		polygon = tryAgain(map, polygon, room);
+		polygon = tryAgain(map, allocated, polygon, room);
 		
 		// ˇˇˇ poly ˇ̌ˇˇ
 //		Iterator<Point> iter = cloud.iterator();
@@ -271,7 +298,7 @@ public class Room extends Pattern {
 		return polygon;
 	}
 	
-	private static Polygon tryAgain(int[][] map, Polygon polygon, int room) {
+	private static Polygon tryAgain(int[][] map, boolean[][] allocated, Polygon polygon, int room) {
 		LinkedList<Point> pq = new LinkedList<Point>();
 		Point p = null;
 		int x = 0, y = 0;
@@ -281,18 +308,19 @@ public class Room extends Pattern {
 			for (y = 0; y < map[0].length; y++) {
 				if (map[x][y] == room) {
 					p = new Point(x, y);
+					allocated[x][y] = true;
 					++size;
 					if (!hasEightNeighbours(map, p, room)) {
-						if (x + 1 < map.length) {
+						if (x + 1 < map.length && !allocated[x + 1][y]) {
 							pq.addLast(new Point(x + 1, y));
 						}
-						if (y - 1 >= 0) {
+						if (y - 1 >= 0 && !allocated[x][y - 1]) {
 							pq.addLast(new Point(x, y - 1));
 						}
-						if (x - 1 >= 0) {
+						if (x - 1 >= 0 && !allocated[x - 1][y]) {
 							pq.addLast(new Point(x - 1, y));
 						}
-						if (y + 1 < map[0].length) {
+						if (y + 1 < map[0].length && !allocated[x][y + 1]) {
 							pq.addLast(new Point(x, y + 1));
 						}
 					}
@@ -308,23 +336,23 @@ public class Room extends Pattern {
 			if (map[x][y] == 0 && hasThreeNeighbours(map, p, room)) {
 				map[x][y] = room;
 				polygon.addPoint(p);
-				if (x + 1 < map.length) {
+				if (x + 1 < map.length && !allocated[x + 1][y]) {
 					pq.addLast(new Point(x + 1, y));
 				}
-				if (y - 1 >= 0) {
+				if (y - 1 >= 0 && !allocated[x][y - 1]) {
 					pq.addLast(new Point(x, y - 1));
 				}
-				if (x - 1 >= 0) {
+				if (x - 1 >= 0 && !allocated[x - 1][y]) {
 					pq.addLast(new Point(x - 1, y));
 				}
-				if (y + 1 < map[0].length) {
+				if (y + 1 < map[0].length && !allocated[x][y + 1]) {
 					pq.addLast(new Point(x, y + 1));
 				}
 			}
 		}
 		
 		if (polygon.getArea() > size) {
-			polygon = tryAgain(map, polygon, room);
+			polygon = tryAgain(map, allocated, polygon, room);
 		}
 		
 		return polygon;
