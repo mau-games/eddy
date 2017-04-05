@@ -83,16 +83,10 @@ public class Treasure extends Pattern {
 			return results;
 		}
 		
-		int[][] matrix = new int[p2.getX() - p1.getX() + 1][p2.getY() - p1.getY() + 1];
-
-		for (int i = 0; i < matrix.length; i++) {
-			for (int j = 0; j < matrix[0].length; j++) {
-				matrix[i][j] = map.getTile(p1.getX() + i, p1.getY() + j).getValue();
-			}
-		}
+		int[][] matrix = map.toMatrix();
 		
-		for (int i = 0; i < matrix.length; i++) {
-			for (int j = 0; j < matrix[0].length; j++) {
+		for (int i = p1.getY(); i <= p2.getX(); i++) {
+			for (int j = p1.getY(); j <= p2.getY(); j++) {
 				if (isTreasure(matrix, i, j)) {
 					results.add(new Treasure(new Point(i, j),map));
 					((Treasure)results.get(results.size()-1)).quality = quality; 
