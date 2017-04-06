@@ -90,6 +90,7 @@ public class GUIController implements Initializable, Listener {
 	private IdentityHashMap<Pattern, Color> activePatterns = new IdentityHashMap<Pattern, Color>();
 	
 	private boolean render = false;
+	private boolean renderPatterns = false;
 
 	/**
 	 * Creates an instance of GUIController. This method is implicitly called
@@ -139,6 +140,11 @@ public class GUIController implements Initializable, Listener {
 	 */
 	@FXML
 	protected void selectAllPatternsButtonPressed(ActionEvent ev) {
+		renderPatterns = true;
+		selectAllPatterns();
+	}
+	
+	protected void selectAllPatterns(){
 		PatternInstanceControl pic = null;
 		for (TitledPane pane : patternAccordion.getPanes()) {
 			VBox box = (VBox) ((ScrollPane) pane.getContent()).getContent();
@@ -163,6 +169,11 @@ public class GUIController implements Initializable, Listener {
 	 */
 	@FXML
 	protected void deselectAllPatternsButtonPressed(ActionEvent ev) {
+		renderPatterns = false;
+		deselectAllPatterns();
+	}
+	
+	protected void deselectAllPatterns(){
 		activePatterns.clear();
 		for (TitledPane pane : patternAccordion.getPanes()) {
 			VBox box = (VBox) ((ScrollPane) pane.getContent()).getContent();
@@ -190,6 +201,11 @@ public class GUIController implements Initializable, Listener {
 		if (currentMap != null) {
 			Platform.runLater(() -> {
 				drawMatrix(currentMap.toMatrix());
+				if(renderPatterns){
+					selectAllPatterns();
+				} else {
+					deselectAllPatterns();
+				}
 			});
 		}
 	}
