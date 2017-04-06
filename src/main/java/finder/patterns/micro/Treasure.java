@@ -65,32 +65,13 @@ public class Treasure extends Pattern {
 			boundary = new Rectangle(new Point(0, 0),
 					new Point(map.getColCount() -1 , map.getRowCount() - 1));
 		}
-
-		// Check boundary sanity.
-		Point p1 = ((Rectangle) boundary).getTopLeft();
-		Point p2 = ((Rectangle) boundary).getBottomRight();
-		if (p1.getX() >= map.getColCount() ||
-				p2.getX() >= map.getColCount() ||
-				p1.getY() >= map.getRowCount() ||
-				p2.getY() >= map.getRowCount()) {
-			return results;
-		}
-
-		if (p1.equals(p2)) {
-			if (isTreasure(map.toMatrix(), p1.getX(), p1.getY())) {
-				results.add(new Treasure(new Point(p1.getX(), p1.getY()),map));
-			}
-			return results;
-		}
 		
-		int[][] matrix = map.toMatrix();
-		
-		for (int i = p1.getY(); i <= p2.getX(); i++) {
-			for (int j = p1.getY(); j <= p2.getY(); j++) {
-				if (isTreasure(matrix, i, j)) {
-					results.add(new Treasure(new Point(i, j),map));
-					((Treasure)results.get(results.size()-1)).quality = quality; 
-				}
+		for(util.Point p : map.getTreasures()){
+			Point p_ = new Point(p.getX(),p.getY());
+			if(((Rectangle)boundary).contains(p_)){
+				Treasure t = new Treasure(p_,map);
+				t.quality = quality;
+				results.add(t);
 			}
 		}
 

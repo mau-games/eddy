@@ -157,6 +157,7 @@ public class Polygon extends Multipoint {
 	
 	/**
 	 * Checks whether this instance of Polygon contains a point p.
+	 * TODO: This doesn't work
 	 * 
 	 * @param p The point to look for.
 	 * @return True if the point is contained, otherwise false.

@@ -77,6 +77,10 @@ public class Map {
 		allocated = new boolean[m][n];
 	}
 	
+	public void resetAllocated(){
+		allocated = new boolean[m][n];
+	}
+	
 	private void markDoors(){
 		entrance = Game.doors.get(0);
 		for(int i = 0; i < doorCount; i++)

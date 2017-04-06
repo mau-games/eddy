@@ -382,7 +382,6 @@ public class Algorithm extends Thread {
     	double roomFitness = roomArea/passableTiles;
     	roomFitness = 1 - Math.abs(roomFitness - roomTarget)/Math.max(roomTarget, 1.0 - roomTarget);
     	
-
     	double fitness = 0.2 * treasureAndEnemyFitness
     			+  0.8*(0.25 * roomFitness + 0.75 * corridorFitness);
     	

@@ -10,6 +10,7 @@ import finder.patterns.micro.Corridor;
 import finder.patterns.micro.Door;
 import finder.patterns.micro.Enemy;
 import finder.patterns.micro.Entrance;
+import finder.patterns.micro.Nothing;
 import finder.patterns.micro.Room;
 import finder.patterns.micro.Treasure;
 
@@ -65,6 +66,7 @@ public class PatternFinder {
 		micropatterns.addAll(Enemy.matches(map, null));
 		micropatterns.addAll(Door.matches(map, null));
 		micropatterns.addAll(Entrance.matches(map, null));
+		micropatterns.addAll(Nothing.matches(map, null)); // This MUST come last
 		
 		return micropatterns;
 	}

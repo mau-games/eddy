@@ -67,41 +67,11 @@ public class Door extends Pattern {
 					new Point(map.getColCount() -1 , map.getRowCount() - 1));
 		}
 
-		// Check boundary sanity.
-		Point p1 = ((Rectangle) boundary).getTopLeft();
-		Point p2 = ((Rectangle) boundary).getBottomRight();
-		if (p1.getX() >= map.getColCount() ||
-				p2.getX() >= map.getColCount() ||
-				p1.getY() >= map.getRowCount() ||
-				p2.getY() >= map.getRowCount()) {
-			return results;
-		}
-		
-		int[][] matrix = map.toMatrix();
-		
-		// We only need to consider the rim of the geometry
-		if (p1.equals(p2)) {
-			if (isDoor(matrix, p1.getX(), p1.getY())) {
-				results.add(new Door(new Point(p1.getX(), p1.getY()),map));
-			}
-			return results;
-		}
-		
-		for (int i = p1.getX(); i <= p2.getX(); i++) {
-			if (isDoor(matrix, i, p1.getY())) {
-				results.add(new Door(new Point(i, p1.getY()),map));
-			}
-			if (isDoor(matrix, i, p2.getY())) {
-				results.add(new Door(new Point(i, p2.getY()),map));
-			}
-		}
-		
-		for (int j = p1.getY() + 1; j < p2.getY(); j++) { // Don't count the corners twice
-			if (isDoor(matrix, p1.getX(), j)) {
-				results.add(new Door(new Point(p1.getX(), j),map));
-			}
-			if (isDoor(matrix, p2.getX(), j)) {
-				results.add(new Door(new Point(p2.getX(), j),map));
+		for(util.Point p : map.getDoors()){
+			Point p_ = new Point(p.getX(),p.getY());
+			if(((Rectangle)boundary).contains(p_)){
+				Door d = new Door(p_,map);
+				results.add(d);
 			}
 		}
 

@@ -98,4 +98,9 @@ public class Rectangle extends Polygon {
 		
 		return hash;
 	}
+	
+	@Override
+	public boolean contains(Point p){
+		return p.getX() >= points.get(0).getX() && p.getX() <= points.get(2).getX() && p.getY() >= points.get(0).getY() && p.getY() <= points.get(2).getY();
+	}
 }
