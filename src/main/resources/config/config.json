@@ -31,7 +31,7 @@
         }
     },
     "generator": {
-        "generations": 200,
+        "generations": 150,
         "population_size": 150,
         "mutation_probability": 0.9,
         "offspring_size": 0.7,
