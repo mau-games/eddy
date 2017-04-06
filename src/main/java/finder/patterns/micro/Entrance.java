@@ -74,48 +74,13 @@ public class Entrance extends Pattern {
 			boundary = new Rectangle(new Point(0, 0),
 					new Point(map.getColCount() -1 , map.getRowCount() - 1));
 		}
-
-		// Check boundary sanity.
-		Point p1 = ((Rectangle) boundary).getTopLeft();
-		Point p2 = ((Rectangle) boundary).getBottomRight();
-		if (p1.getX() >= map.getColCount() ||
-				p2.getX() >= map.getColCount() ||
-				p1.getY() >= map.getRowCount() ||
-				p2.getY() >= map.getRowCount()) {
-			return results;
-		}
 		
-		int[][] matrix = map.toMatrix();
-		
-		// We only need to consider the rim of the geometry
-		if (p1.equals(p2)) {
-			if (isEntrance(matrix, p1.getX(), p1.getY())) {
-				results.add(new Entrance(new Point(p1.getX(), p1.getY()),map));
-				((Entrance)results.get(results.size()-1)).quality = quality; 
-			}
-			return results;
-		}
-		
-		for (int i = p1.getX(); i <= p2.getX(); i++) {
-			if (isEntrance(matrix, i, p1.getY())) {
-				results.add(new Entrance(new Point(i, p1.getY()),map));
-				((Entrance)results.get(results.size()-1)).quality = quality; 
-			}
-			if (isEntrance(matrix, i, p2.getY())) {
-				results.add(new Entrance(new Point(i, p2.getY()),map));
-				((Entrance)results.get(results.size()-1)).quality = quality; 
-			}
-		}
-		
-		for (int j = p1.getY() + 1; j < p2.getY(); j++) { // Don't count the corners twice
-			if (isEntrance(matrix, p1.getX(), j)) {
-				results.add(new Entrance(new Point(p1.getX(), j),map));
-				((Entrance)results.get(results.size()-1)).quality = quality; 
-			}
-			if (isEntrance(matrix, p2.getX(), j)) {
-				results.add(new Entrance(new Point(p2.getX(), j),map));
-				((Entrance)results.get(results.size()-1)).quality = quality; 
-			}
+		util.Point p = map.getEntrance();
+		Point p_ = new Point(p.getX(),p.getY());
+		if(((Rectangle)boundary).contains(p_)){
+			Entrance e = new Entrance(p_,map);
+			e.quality = quality;
+			results.add(e);
 		}
 
 		return results;
