@@ -10,10 +10,11 @@ import finder.geometry.Geometry;
 import finder.geometry.Point;
 import finder.geometry.Rectangle;
 import finder.patterns.Pattern;
+import finder.patterns.SpacialPattern;
 import game.Map;
 import game.TileTypes;
 
-public class Nothing extends Pattern {
+public class Nothing extends SpacialPattern {
 
 	public Nothing(Geometry geometry, Map map) {
 		boundaries = geometry;

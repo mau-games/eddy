@@ -1,25 +1,20 @@
 package finder.patterns.micro;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
 
-import finder.geometry.Bitmap;
 import finder.geometry.Geometry;
 import finder.geometry.Point;
-import finder.geometry.Polygon;
 import finder.geometry.Rectangle;
+import finder.patterns.InventorialPattern;
 import finder.patterns.Pattern;
 import game.Map;
-import game.TileTypes;
-import generator.algorithm.Individual;
 import generator.config.Config;
 import util.Util;
 import util.algorithms.Node;
 import util.algorithms.Pathfinder;
-import util.config.ConfigurationUtility;
 import util.config.MissingConfigurationException;
 
 /**
@@ -27,7 +22,7 @@ import util.config.MissingConfigurationException;
  * 
  * @author Johan Holmberg
  */
-public class Entrance extends Pattern {
+public class Entrance extends InventorialPattern {
 	
 	private double quality;
 	

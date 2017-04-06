@@ -8,6 +8,7 @@ import java.util.Queue;
 import finder.geometry.Bitmap;
 import finder.geometry.Geometry;
 import finder.patterns.Pattern;
+import finder.patterns.SpacialPattern;
 import finder.patterns.micro.Connector.ConnectorType;
 import game.Map;
 import game.TileTypes;
@@ -15,7 +16,7 @@ import util.Point;
 import util.config.ConfigurationUtility;
 import util.config.MissingConfigurationException;
 
-public class Corridor extends Pattern {
+public class Corridor extends SpacialPattern {
 
 	private ConfigurationUtility config;
 	private int targetLength;
