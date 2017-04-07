@@ -32,6 +32,15 @@ public class Graph<T> {
 	 public int countNodes() {
 		 return nodes.size();
 	 }
+	 
+	 /**
+	  * Gets the list of nodes.
+	  * 
+	  * @return A list of nodes.
+	  */
+	 public Map<T, Node<T>> getNodes() {
+		 return nodes;
+	 }
 	
 	/**
 	 * Adds a new node to the graph. Each value can only be added once.
