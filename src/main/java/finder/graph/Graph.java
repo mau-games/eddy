@@ -37,15 +37,16 @@ public class Graph<T> {
 	 * Adds a new node to the graph. Each value can only be added once.
 	 * 
 	 * @param value A value that will be represented by the node.
-	 * @return True if the node was added, otherwise false.
+	 * @return The newly added node. Null if not added.
 	 */
-	public boolean addNode(T value) {
+	public Node<T> addNode(T value) {
 		if (containsNode(value)) {
-			return false;
+			return null;
 		}
-		
-		nodes.put(value, new Node<T>(value));
-		return true;
+
+		Node<T> node = new Node<T>(value);
+		nodes.put(value, node);
+		return node;
 	}
 	
 	/**
