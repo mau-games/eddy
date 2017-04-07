@@ -16,6 +16,15 @@ public class Graph<T> {
 	private final Map<T, Node<T>> nodes = new HashMap<T, Node<T>>();
 	
 	/**
+	 * Returns the first node in the graph map.
+	 * 
+	 * @return A node.
+	 */
+	 public Node<T> getStartingPoint() {
+		 return (Node<T>) nodes.entrySet().iterator().next();
+	 }
+	
+	/**
 	 * Adds a new node to the graph. Each value can only be added once.
 	 * 
 	 * @param value A value that will be represented by the node.
