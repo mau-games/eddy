@@ -171,6 +171,10 @@ public class Map {
 	 * @return A tile.
 	 */
 	public TileTypes getTile(Point point){
+		if (point == null) {
+			return null;
+		}
+		
 		return TileTypes.toTileType(matrix[point.getX()][point.getY()]);
 	}
 	

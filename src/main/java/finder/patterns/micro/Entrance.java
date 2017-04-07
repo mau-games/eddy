@@ -56,12 +56,9 @@ public class Entrance extends InventorialPattern {
 	 * @return A list of found room pattern instances.
 	 */
 	public static List<Pattern> matches(Map map, Geometry boundary) {
-		
-		double quality = calculateEntranceQuality(map);
-		
 		ArrayList<Pattern> results = new ArrayList<Pattern>();
 		
-		if (map == null) {
+		if (map == null || map.getColCount() == 0) {
 			return results;
 		}
 		
@@ -69,6 +66,8 @@ public class Entrance extends InventorialPattern {
 			boundary = new Rectangle(new Point(0, 0),
 					new Point(map.getColCount() -1 , map.getRowCount() - 1));
 		}
+		
+		double quality = calculateEntranceQuality(map);
 		
 		util.Point p = map.getEntrance();
 		Point p_ = new Point(p.getX(),p.getY());

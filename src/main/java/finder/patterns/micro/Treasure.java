@@ -47,9 +47,6 @@ public class Treasure extends InventorialPattern {
 	 * @return A list of found room pattern instances.
 	 */
 	public static List<Pattern> matches(Map map, Geometry boundary) {
-
-		double quality = calculateTreasureQuality(map);
-		
 		ArrayList<Pattern> results = new ArrayList<Pattern>();
 		
 		if (map == null) {
@@ -60,6 +57,18 @@ public class Treasure extends InventorialPattern {
 			boundary = new Rectangle(new Point(0, 0),
 					new Point(map.getColCount() -1 , map.getRowCount() - 1));
 		}
+
+		// Check boundary sanity.
+		Point p1 = ((Rectangle) boundary).getTopLeft();
+		Point p2 = ((Rectangle) boundary).getBottomRight();
+		if (p1.getX() >= map.getColCount() ||
+				p2.getX() >= map.getColCount() ||
+				p1.getY() >= map.getRowCount() ||
+				p2.getY() >= map.getRowCount()) {
+			return results;
+		}
+
+		double quality = calculateTreasureQuality(map);
 		
 		for(util.Point p : map.getTreasures()){
 			Point p_ = new Point(p.getX(),p.getY());
