@@ -328,7 +328,6 @@ public class Algorithm extends Thread {
         		rooms.add((Room) p);
         	}
         }
-        Populator.populate(finder.findMicroPatterns());
         
         
         //Door Fitness - don't care about this for now
@@ -691,5 +690,4 @@ public class Algorithm extends Thread {
             infeasiblePopulation.add(invalid);
         }
     }
-	
 }

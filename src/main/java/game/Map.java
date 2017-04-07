@@ -7,6 +7,7 @@ import java.util.Hashtable;
 import java.util.List;
 
 import finder.PatternFinder;
+import finder.Populator;
 import util.Point;
 
 /**
@@ -75,6 +76,7 @@ public class Map {
 		
 		matrix = new int[n][m];
 		allocated = new boolean[m][n];
+        Populator.populate(finder.findMicroPatterns());
 	}
 	
 	public void resetAllocated(){
