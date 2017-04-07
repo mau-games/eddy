@@ -23,6 +23,15 @@ public class Graph<T> {
 	 public Node<T> getStartingPoint() {
 		 return (Node<T>) nodes.entrySet().iterator().next();
 	 }
+	 
+	 /**
+	  * Counts the number of nodes in the graph.
+	  * 
+	  * @return The number of nodes.
+	  */
+	 public int countNodes() {
+		 return nodes.size();
+	 }
 	
 	/**
 	 * Adds a new node to the graph. Each value can only be added once.
