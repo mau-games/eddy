@@ -14,8 +14,6 @@ import org.slf4j.LoggerFactory;
 import finder.PatternFinder;
 import finder.Populator;
 import finder.geometry.Polygon;
-import finder.geometry.Rectangle;
-import finder.patterns.CompositePattern;
 import finder.patterns.Pattern;
 import finder.patterns.micro.Connector;
 import finder.patterns.micro.Corridor;
@@ -29,7 +27,6 @@ import generator.config.Config;
 import util.Point;
 import util.Util;
 import util.algorithms.Node;
-import util.algorithms.Pathfinder;
 import util.config.ConfigurationUtility;
 import util.config.MissingConfigurationException;
 import util.eventrouting.EventRouter;
@@ -198,7 +195,6 @@ public class Algorithm extends Thread {
         }
         
         PatternFinder finder = map.getPatternFinder();
-        Populator.populate(finder.findMicroPatterns());
         HashMap<String, Object> result = new HashMap<String, Object>();
         result.put("micropatterns", finder.findMicroPatterns());
         result.put("mesopatterns", finder.findMesoPatterns());
@@ -332,6 +328,7 @@ public class Algorithm extends Thread {
         		rooms.add((Room) p);
         	}
         }
+        Populator.populate(finder.findMicroPatterns());
         
         
         //Door Fitness - don't care about this for now
