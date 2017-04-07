@@ -12,4 +12,14 @@ public class Bitmap extends Polygon {
 			points.add(p);
 		}
 	}
+	
+	/**
+	 * Checks whether this instance of Bitmap contains a point p.
+	 * 
+	 * @param p The point to look for.
+	 * @return True if the point is contained, otherwise false.
+	 */
+	public boolean contains(Point p) {
+		return points.contains(p);
+	}
 }

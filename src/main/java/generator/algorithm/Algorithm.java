@@ -12,6 +12,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import finder.PatternFinder;
+import finder.Populator;
 import finder.geometry.Polygon;
 import finder.geometry.Rectangle;
 import finder.patterns.CompositePattern;
@@ -197,6 +198,7 @@ public class Algorithm extends Thread {
         }
         
         PatternFinder finder = map.getPatternFinder();
+        Populator.populate(finder.findMicroPatterns());
         HashMap<String, Object> result = new HashMap<String, Object>();
         result.put("micropatterns", finder.findMicroPatterns());
         result.put("mesopatterns", finder.findMesoPatterns());
