@@ -3,6 +3,7 @@ package finder;
 import java.util.ArrayList;
 import java.util.List;
 
+import finder.geometry.Bitmap;
 import finder.geometry.Point;
 import finder.geometry.Polygon;
 import finder.patterns.InventorialPattern;
@@ -38,8 +39,8 @@ public class Populator {
 		// Now, try to fit all inventorials into the spacial patterns.
 		for (InventorialPattern ip : inventorials) {
 			for (SpacialPattern sp : spacials) {
-				Polygon polygon = (Polygon) sp.getGeometry();
-				if (polygon.contains((Point) ip.getGeometry())) {
+				Bitmap bitmap = (Bitmap) sp.getGeometry();
+				if (bitmap.contains((Point) ip.getGeometry())) {
 					sp.addPattern(ip);
 					break;
 				}

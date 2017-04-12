@@ -28,11 +28,11 @@ public class Map {
 	private int n;			// The number of columns in a map
 	private int doorCount;	// The number of doors in a map
 	private int wallCount;	// The number of wall tiles in a map
-	private static List<Point> doors = new ArrayList<Point>();
-	private static List<Point> treasures = new ArrayList<Point>();
-	private static List<Point> enemies = new ArrayList<Point>();
-	private static Graph<SpacialPattern> graph = new Graph<SpacialPattern>();
-	private static PatternFinder finder;
+	private List<Point> doors = new ArrayList<Point>();
+	private List<Point> treasures = new ArrayList<Point>();
+	private List<Point> enemies = new ArrayList<Point>();
+	//private Graph<SpacialPattern> graph = new Graph<SpacialPattern>();
+	private PatternFinder finder;
 	private int failedPathsToTreasures;
 	private int failedPathsToEnemies;
 	private int failedPathsToAnotherDoor;
@@ -58,6 +58,10 @@ public class Map {
 		
 		markDoors();
 		
+		finder = new PatternFinder(this);
+		//Populator.populate(finder.findMicroPatterns());
+        //buildGraph(finder.findMicroPatterns());
+		
 	}
 	
 	/**
@@ -71,7 +75,7 @@ public class Map {
 	}
 	
 	private void init(int rows, int cols) {
-		finder = new PatternFinder(this);
+		
 		treasureSafety = new Hashtable<Point, Double>();
 		this.m = cols;
 		this.n = rows;
@@ -80,8 +84,7 @@ public class Map {
 		
 		matrix = new int[n][m];
 		allocated = new boolean[m][n];
-        Populator.populate(finder.findMicroPatterns());
-        buildGraph(finder.findMicroPatterns());
+        
 	}
 	
 	public void resetAllocated(){
@@ -513,53 +516,6 @@ public class Map {
 				matrix[i][j] = tiles[tile++].getValue();
 			}
 		}
-	}
-	
-	/**
-	 * Builds the spacial pattern graph.
-	 */
-	private void buildGraph(List<Pattern> patterns) {
-		List<SpacialPattern> spacials = new ArrayList<SpacialPattern>();
-		java.util.Map<SpacialPattern, Node<SpacialPattern>> nodes = graph.getNodes();
-		Node<SpacialPattern> addedNode = null;
-		
-		for (Pattern pattern : patterns) {
-			if (pattern instanceof SpacialPattern) {
-				spacials.add((SpacialPattern) pattern);
-			}
-		}
-		
-		for (SpacialPattern current : spacials) {
-			addedNode = graph.addNode(current);
-			
-			// Check for adjacent nodes already in the graph. If found,
-			// connect them.
-			Iterator<Entry<SpacialPattern, Node<SpacialPattern>>> it =
-					nodes.entrySet().iterator();
-			while (it.hasNext()) {
-				Entry<SpacialPattern, Node<SpacialPattern>> entry = it.next();
-				
-				// Don't bother if we're looking at the newly added node
-				if (entry.getValue() == addedNode) {
-					break;
-				}
-				
-				SpacialPattern sp = entry.getValue().getValue();
-				
-				if (false) { // TODO: Check for adjacency!
-					addedNode.connectTo(entry.getValue());
-				}
-			}
-		}
-	}
-	
-	/**
-	 * Gets the spacial pattern graph.
-	 * 
-	 * @return A spacial pattern graph.
-	 */
-	public Graph getGraph() {
-		return graph;
 	}
 
 	/**

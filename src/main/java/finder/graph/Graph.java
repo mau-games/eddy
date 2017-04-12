@@ -21,7 +21,7 @@ public class Graph<T> {
 	 * @return A node.
 	 */
 	 public Node<T> getStartingPoint() {
-		 return (Node<T>) nodes.entrySet().iterator().next();
+		 return nodes.entrySet().iterator().next().getValue();
 	 }
 	 
 	 /**

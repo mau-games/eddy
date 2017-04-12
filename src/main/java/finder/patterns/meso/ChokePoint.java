@@ -27,17 +27,14 @@ public class ChokePoint extends CompositePattern {
 	 * @param boundary A boundary in which the pattern is searched for.
 	 * @return A list of found instances.
 	 */
-	public static List<Pattern> matches(Map map, Geometry boundary) {
-		
-		//Graph<Pattern> patternGraph = map.getPatternGraph();
-		Graph<Pattern> patternGraph = new Graph<Pattern>();
+	public static List<CompositePattern> matches(Map map, Graph<Pattern> patternGraph) {
 		
 		// How to find a choke point:
 		// Look at boundaries between patterns where: one or both of the patterns are rooms.
 		// If the width of the edge is 1, we have a potential choke point.
 		// The potential choke point is an actual choke point if all paths from pattern A to pattern B must pass through that edge (BFS?)
 		
-		return new ArrayList<Pattern>();
+		return new ArrayList<CompositePattern>();
 	}
 	
 }

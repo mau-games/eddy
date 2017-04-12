@@ -183,6 +183,8 @@ public class Algorithm extends Thread {
         	
         	double passableTiles = map.getNonWallTileCount();
         	
+        	map.getPatternFinder().findMesoPatterns();
+        	
         	//Data we want:
         	// Best fitness
         	// Average fitness
@@ -328,6 +330,8 @@ public class Algorithm extends Thread {
         		rooms.add((Room) p);
         	}
         }
+        
+        
         
         
         //Door Fitness - don't care about this for now
