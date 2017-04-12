@@ -1,27 +1,21 @@
 package finder.patterns.micro;
 
 import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.LinkedList;
 import java.util.List;
 
-import finder.geometry.Bitmap;
 import finder.geometry.Geometry;
 import finder.geometry.Point;
-import finder.geometry.Polygon;
 import finder.geometry.Rectangle;
+import finder.patterns.InventorialPattern;
 import finder.patterns.Pattern;
 import game.Map;
-import game.TileTypes;
-import util.config.ConfigurationUtility;
-import util.config.MissingConfigurationException;
 
 /**
  * This class represents the dungeon game design pattern called Door.
  * 
  * @author Johan Holmberg
  */
-public class Door extends Pattern {
+public class Door extends InventorialPattern {
 	
 	public Door(Geometry geometry, Map map) {
 		boundaries = geometry;

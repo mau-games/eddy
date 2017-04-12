@@ -4,9 +4,16 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Dictionary;
 import java.util.Hashtable;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map.Entry;
 
 import finder.PatternFinder;
+import finder.Populator;
+import finder.graph.Graph;
+import finder.graph.Node;
+import finder.patterns.Pattern;
+import finder.patterns.SpacialPattern;
 import util.Point;
 
 /**
@@ -21,10 +28,11 @@ public class Map {
 	private int n;			// The number of columns in a map
 	private int doorCount;	// The number of doors in a map
 	private int wallCount;	// The number of wall tiles in a map
-	private List<Point> doors;		// A list of doors
-	private List<Point> treasures;	// A list of treasures
-	private List<Point> enemies;		// A list of enemies
-	private PatternFinder finder;
+	private static List<Point> doors = new ArrayList<Point>();
+	private static List<Point> treasures = new ArrayList<Point>();
+	private static List<Point> enemies = new ArrayList<Point>();
+	private static Graph<SpacialPattern> graph = new Graph<SpacialPattern>();
+	private static PatternFinder finder;
 	private int failedPathsToTreasures;
 	private int failedPathsToEnemies;
 	private int failedPathsToAnotherDoor;
@@ -64,9 +72,6 @@ public class Map {
 	
 	private void init(int rows, int cols) {
 		finder = new PatternFinder(this);
-		doors = new ArrayList<Point>();
-		treasures = new ArrayList<Point>();
-		enemies = new ArrayList<Point>();
 		treasureSafety = new Hashtable<Point, Double>();
 		this.m = cols;
 		this.n = rows;
@@ -75,6 +80,8 @@ public class Map {
 		
 		matrix = new int[n][m];
 		allocated = new boolean[m][n];
+        Populator.populate(finder.findMicroPatterns());
+        buildGraph(finder.findMicroPatterns());
 	}
 	
 	public void resetAllocated(){
@@ -171,6 +178,10 @@ public class Map {
 	 * @return A tile.
 	 */
 	public TileTypes getTile(Point point){
+		if (point == null) {
+			return null;
+		}
+		
 		return TileTypes.toTileType(matrix[point.getX()][point.getY()]);
 	}
 	
@@ -505,6 +516,62 @@ public class Map {
 	}
 	
 	/**
+	 * Builds the spacial pattern graph.
+	 */
+	private void buildGraph(List<Pattern> patterns) {
+		List<SpacialPattern> spacials = new ArrayList<SpacialPattern>();
+		java.util.Map<SpacialPattern, Node<SpacialPattern>> nodes = graph.getNodes();
+		Node<SpacialPattern> addedNode = null;
+		
+		for (Pattern pattern : patterns) {
+			if (pattern instanceof SpacialPattern) {
+				spacials.add((SpacialPattern) pattern);
+			}
+		}
+		
+		for (SpacialPattern current : spacials) {
+			addedNode = graph.addNode(current);
+			
+			// Check for adjacent nodes already in the graph. If found,
+			// connect them.
+			Iterator<Entry<SpacialPattern, Node<SpacialPattern>>> it =
+					nodes.entrySet().iterator();
+			while (it.hasNext()) {
+				Entry<SpacialPattern, Node<SpacialPattern>> entry = it.next();
+				
+				// Don't bother if we're looking at the newly added node
+				if (entry.getValue() == addedNode) {
+					break;
+				}
+				
+				SpacialPattern sp = entry.getValue().getValue();
+				
+				if (false) { // TODO: Check for adjacency!
+					addedNode.connectTo(entry.getValue());
+				}
+			}
+		}
+	}
+	
+	/**
+	 * Gets the spacial pattern graph.
+	 * 
+	 * @return A spacial pattern graph.
+	 */
+	public Graph getGraph() {
+		return graph;
+	}
+
+	/**
+	 * Exports this map as a 2D matrix of integers
+	 * 
+	 * @return A matrix of integers.
+	 */
+	public int[][] toMatrix() {
+		return matrix;
+	}
+	
+	/**
 	 * Builds a map from a string representing a rectangular room. Each row in
 	 * the string, separated by a newline (\n), represents a row in the
 	 * resulting map's matrix.
@@ -545,15 +612,6 @@ public class Map {
 		}
 		
 		return map;
-	}
-
-	/**
-	 * Exports this map as a 2D matrix of integers
-	 * 
-	 * @return A matrix of integers.
-	 */
-	public int[][] toMatrix() {
-		return matrix;
 	}
 	
 	@Override

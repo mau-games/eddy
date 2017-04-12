@@ -16,18 +16,46 @@ public class Graph<T> {
 	private final Map<T, Node<T>> nodes = new HashMap<T, Node<T>>();
 	
 	/**
+	 * Returns the first node in the graph map.
+	 * 
+	 * @return A node.
+	 */
+	 public Node<T> getStartingPoint() {
+		 return (Node<T>) nodes.entrySet().iterator().next();
+	 }
+	 
+	 /**
+	  * Counts the number of nodes in the graph.
+	  * 
+	  * @return The number of nodes.
+	  */
+	 public int countNodes() {
+		 return nodes.size();
+	 }
+	 
+	 /**
+	  * Gets the list of nodes.
+	  * 
+	  * @return A list of nodes.
+	  */
+	 public Map<T, Node<T>> getNodes() {
+		 return nodes;
+	 }
+	
+	/**
 	 * Adds a new node to the graph. Each value can only be added once.
 	 * 
 	 * @param value A value that will be represented by the node.
-	 * @return True if the node was added, otherwise false.
+	 * @return The newly added node. Null if not added.
 	 */
-	public boolean addNode(T value) {
+	public Node<T> addNode(T value) {
 		if (containsNode(value)) {
-			return false;
+			return null;
 		}
-		
-		nodes.put(value, new Node<T>(value));
-		return true;
+
+		Node<T> node = new Node<T>(value);
+		nodes.put(value, node);
+		return node;
 	}
 	
 	/**

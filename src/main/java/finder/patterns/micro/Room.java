@@ -11,6 +11,7 @@ import finder.geometry.Point;
 import finder.geometry.Polygon;
 import finder.geometry.Rectangle;
 import finder.patterns.Pattern;
+import finder.patterns.SpacialPattern;
 import game.Map;
 import game.TileTypes;
 import util.config.ConfigurationUtility;
@@ -21,7 +22,7 @@ import util.config.MissingConfigurationException;
  * 
  * @author Johan Holmberg
  */
-public class Room extends Pattern {
+public class Room extends SpacialPattern {
 	
 	private ConfigurationUtility config;
 	

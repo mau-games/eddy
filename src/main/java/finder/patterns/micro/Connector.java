@@ -1,11 +1,11 @@
 package finder.patterns.micro;
 
 import finder.geometry.Geometry;
-import finder.patterns.Pattern;
+import finder.patterns.SpacialPattern;
 import util.config.ConfigurationUtility;
 import util.config.MissingConfigurationException;
 
-public class Connector extends Pattern {
+public class Connector extends SpacialPattern {
 
 	private double turnQuality = 0.0;
 	private double intersectionQuality = 0.0;

@@ -1,20 +1,15 @@
 package finder.patterns.micro;
 
 import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.LinkedList;
 import java.util.List;
 
-import finder.geometry.Bitmap;
 import finder.geometry.Geometry;
 import finder.geometry.Point;
-import finder.geometry.Polygon;
 import finder.geometry.Rectangle;
+import finder.patterns.InventorialPattern;
 import finder.patterns.Pattern;
 import game.Map;
-import game.TileTypes;
 import generator.config.Config;
-import util.config.ConfigurationUtility;
 import util.config.MissingConfigurationException;
 
 /**
@@ -22,7 +17,7 @@ import util.config.MissingConfigurationException;
  * 
  * @author Johan Holmberg
  */
-public class Enemy extends Pattern {
+public class Enemy extends InventorialPattern {
 	
 	private double quality = 0.0;
 	
@@ -66,6 +61,16 @@ public class Enemy extends Pattern {
 		if (boundary == null) {
 			boundary = new Rectangle(new Point(0, 0),
 					new Point(map.getColCount() -1 , map.getRowCount() - 1));
+		}
+
+		// Check boundary sanity.
+		Point p1 = ((Rectangle) boundary).getTopLeft();
+		Point p2 = ((Rectangle) boundary).getBottomRight();
+		if (p1.getX() >= map.getColCount() ||
+				p2.getX() >= map.getColCount() ||
+				p1.getY() >= map.getRowCount() ||
+				p2.getY() >= map.getRowCount()) {
+			return results;
 		}
 		
 		for(util.Point p : map.getEnemies()){

@@ -12,9 +12,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import finder.PatternFinder;
+import finder.Populator;
 import finder.geometry.Polygon;
-import finder.geometry.Rectangle;
-import finder.patterns.CompositePattern;
 import finder.patterns.Pattern;
 import finder.patterns.micro.Connector;
 import finder.patterns.micro.Corridor;
@@ -28,7 +27,6 @@ import generator.config.Config;
 import util.Point;
 import util.Util;
 import util.algorithms.Node;
-import util.algorithms.Pathfinder;
 import util.config.ConfigurationUtility;
 import util.config.MissingConfigurationException;
 import util.eventrouting.EventRouter;
@@ -692,5 +690,4 @@ public class Algorithm extends Thread {
             infeasiblePopulation.add(invalid);
         }
     }
-	
 }
