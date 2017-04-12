@@ -146,7 +146,7 @@ public class Node<T> {
 	/**
 	 * Returns the number of edges connected to this node.
 	 * 
-	 * @return The number of edgs.
+	 * @return The number of edges.
 	 */
 	public int countEdges() {
 		return edges.size();
