@@ -116,6 +116,7 @@ public class Graph<T> {
 	/**
 	 * Connects two nodes in the graph with each other. The nodes will only be
 	 * connected if they are not already connected.
+	 * TODO: Alex - Why would you ever want to do this?
 	 * 
 	 * @param a A node.
 	 * @param b Another node.
@@ -131,6 +132,7 @@ public class Graph<T> {
 	
 	/**
 	 * Forcefully connects two nodes in the graph with each other.
+	 * TODO: Alex - Why would you ever want to do this?
 	 * 
 	 * @param a A node.
 	 * @param b Another node.

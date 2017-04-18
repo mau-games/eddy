@@ -2,9 +2,12 @@ package gui.utils;
 
 import java.util.ArrayList;
 import java.util.Dictionary;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Queue;
 import java.util.Map.Entry;
+import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -13,7 +16,18 @@ import finder.geometry.Bitmap;
 import finder.geometry.Geometry;
 import finder.geometry.Point;
 import finder.geometry.Rectangle;
+import finder.graph.Edge;
+import finder.graph.Graph;
+import finder.graph.Node;
+import finder.patterns.InventorialPattern;
 import finder.patterns.Pattern;
+import finder.patterns.SpacialPattern;
+import finder.patterns.meso.GuardRoom;
+import finder.patterns.micro.Connector;
+import finder.patterns.micro.Corridor;
+import finder.patterns.micro.Enemy;
+import finder.patterns.micro.Nothing;
+import finder.patterns.micro.Room;
 import game.TileTypes;
 import gui.GUIController;
 import javafx.application.Platform;
@@ -149,6 +163,8 @@ public class MapRenderer implements Listener {
 			GraphicsContext ctx,
 			int[][] matrix,
 			Map<Pattern, Color> patterns) {
+		
+		//TODO: The following calculation should probably be split out into a method
 		int m = matrix.length;
 		int n = matrix[0].length;
 		int pWidth = (int) Math.floor(ctx.getCanvas().getWidth() / Math.max(m, n));
@@ -159,6 +175,118 @@ public class MapRenderer implements Listener {
 				drawPattern(ctx, e.getKey(), e.getValue(), pWidth);
 			});
 		}
+	}
+	
+	public synchronized void drawGraph(GraphicsContext ctx, int[][] matrix, Graph<Pattern> patternGraph){
+
+		int m = matrix.length;
+		int n = matrix[0].length;
+		int pWidth = (int) Math.floor(ctx.getCanvas().getWidth() / Math.max(m, n));
+		
+		patternGraph.resetGraph();
+		
+		Queue<Node<Pattern>> nodeQueue = new LinkedList<Node<Pattern>>();
+		nodeQueue.add(patternGraph.getStartingPoint());
+		
+		while(!nodeQueue.isEmpty()){
+			Node<Pattern> current = nodeQueue.remove();
+			current.tryVisit();
+			
+			
+			//Draw the current node
+			drawCircle(ctx, getPatternCentre((SpacialPattern)current.getValue(), pWidth),getNodeColor((SpacialPattern)current.getValue()),getNodeRadius((SpacialPattern)current.getValue(),pWidth));
+			
+			
+			
+			List<Edge> edges = new ArrayList<Edge>();
+			edges.addAll(current.getEdges());
+			while(!edges.isEmpty()){
+				Edge e = edges.remove(0);
+				int edgeCount = 1;
+				for(int i = 0; i < edges.size(); i++){
+					if(edges.get(i).getNodeA() == e.getNodeA() && edges.get(i).getNodeB() == e.getNodeB()){
+						edges.remove(i--);
+						edgeCount++;
+					}
+				}
+				ctx.setStroke(Color.BLACK);
+				ctx.setLineWidth(3);
+				
+				Point a = getPatternCentre((SpacialPattern)e.getNodeA().getValue(),pWidth);
+				Point b = getPatternCentre((SpacialPattern)e.getNodeB().getValue(),pWidth);
+				Point half = new Point((a.getX()+b.getX())/2, (a.getY()+b.getY())/2);
+				double perpX = b.getY() - a.getY();
+				double perpY = a.getX() - b.getX();
+				double len = Math.sqrt(perpX*perpX + perpY*perpY);
+				perpX /= len;
+				perpY /= len;
+				
+				for(int i = 0; i < edgeCount; i++){
+					ctx.beginPath();
+					ctx.moveTo(a.getX(), a.getY());
+					ctx.quadraticCurveTo(half.getX() + (-20*(edgeCount-1) + 40*i)*perpX, half.getY() + (-20*(edgeCount-1) + 40*i)*perpY, b.getX(), b.getY());
+					ctx.stroke();
+					ctx.closePath();
+				}
+
+				
+				//ctx.lineTo(b.getX(), b.getY());
+				
+				
+				
+			}
+			
+			nodeQueue.addAll(current.getEdges().stream().map((Edge<Pattern> e)->{
+				Node<Pattern> ret = null;
+				if(e.getNodeA() == current){
+					ret = e.getNodeB();
+				}
+				else{
+					ret = e.getNodeA();
+				}
+				//drawLine(ctx,getPatternCentre((SpacialPattern)e.getNodeA().getValue(),pWidth),getPatternCentre((SpacialPattern)e.getNodeB().getValue(),pWidth),Color.BLACK,e.getWidth()*2);
+				return ret;
+				}).filter((Node<Pattern> node)->{
+					if(!node.isVisited()){
+						node.tryVisit();
+						return true;
+					} 
+					return false;
+				}).collect(Collectors.toList()));
+		}
+		
+		
+	}
+	
+	private Point getPatternCentre(SpacialPattern p, int pWidth){
+		Point sum = ((Bitmap)p.getGeometry()).getPoints().stream().reduce(new Point(),(Point result, Point point)->{result.setX(result.getX()+point.getX()); result.setY(result.getY()+point.getY());return result;});
+		double x = (double)sum.getX()/((Bitmap)p.getGeometry()).getNumberOfPoints();
+		double y = (double)sum.getY()/((Bitmap)p.getGeometry()).getNumberOfPoints();
+		return new Point((int)(pWidth*(x+0.5)),(int)(pWidth*(y+0.5)));
+	}
+	
+	private int getNodeRadius(SpacialPattern p, int pWidth){
+		if(p instanceof Room)
+			return (int)(pWidth * 1.0);
+		if(p instanceof Corridor)
+			return (int)(pWidth * 0.25);
+		if(p instanceof Connector)
+			return (int)(pWidth * 0.25);
+		if(p instanceof Nothing)
+			return (int)(pWidth * 0.25);
+		return (int)(pWidth * 2.0);
+	}
+	
+	private Color getNodeColor(SpacialPattern p){
+		if(p instanceof Room)
+			return Color.BLUE;
+		if(p instanceof Corridor)
+			return Color.RED;
+		if(p instanceof Connector)
+			return Color.YELLOW;
+		if(p instanceof Nothing)
+			return Color.LIGHTGRAY;
+		return Color.BLACK;
 	}
 	
 	/**
@@ -308,5 +436,19 @@ public class MapRenderer implements Listener {
 		ctx.setLineWidth(2);
 		ctx.fillRect(x, y, width, height);
 		ctx.strokeRect(x, y, width, height);
+	}
+	
+	private void drawCircle(GraphicsContext ctx, Point p, Color c, int radius){
+		ctx.setFill(new Color(c.getRed(), c.getGreen(), c.getBlue(), 0.8));
+		ctx.setStroke(c);
+		ctx.setLineWidth(4);
+		ctx.fillOval(p.getX()-radius, p.getY()-radius, 2*radius, 2*radius);
+		ctx.strokeOval(p.getX()-radius, p.getY()-radius, 2*radius, 2*radius);
+	}
+	
+	private void drawLine(GraphicsContext ctx, Point a, Point b, Color c, double width){
+		ctx.setStroke(c);
+		ctx.setLineWidth(width);
+		ctx.strokeLine(a.getX(), a.getY(), b.getX(), b.getY());
 	}
 }

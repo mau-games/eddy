@@ -310,6 +310,7 @@ public class GUIController implements Initializable, Listener {
 					renderer.sketchMap(ctx, matrix);
 				}
 				renderer.drawPatterns(ctx, matrix, activePatterns);
+				renderer.drawGraph(ctx, matrix, currentMap.getPatternFinder().getPatternGraph());
 			});
 		}
 	}

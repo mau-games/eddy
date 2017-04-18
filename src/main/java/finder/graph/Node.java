@@ -181,7 +181,7 @@ public class Node<T> {
 	 * @return If the node was successfully visited.
 	 */
 	public boolean tryVisit() {
-		if (visited) {
+		if (!visited) {
 			visited = true;
 			return true;
 		} else {

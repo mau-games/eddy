@@ -22,4 +22,5 @@ public class Bitmap extends Polygon {
 	public boolean contains(Point p) {
 		return points.contains(p);
 	}
+	
 }

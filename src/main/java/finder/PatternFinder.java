@@ -225,16 +225,21 @@ public class PatternFinder {
 				while(!adjacencyQueue.isEmpty()){
 					Point currentPoint = adjacencyQueue.remove();
 					visited.add(currentPoint);
-					adjacencyQueue.addAll(adjacentTiles.stream().filter((Point p)->{return adjacent(currentPoint,p);}).collect(Collectors.toList()));
-					adjacentTiles.removeIf((Point p)->{return adjacent(currentPoint,p);});
+					adjacencyQueue.addAll(adjacentTiles.stream().filter((Point p)->{return adjacent(currentPoint,p) && samePattern(currentPoint,p);}).collect(Collectors.toList()));
+					adjacentTiles.removeIf((Point p)->{return adjacent(currentPoint,p) && samePattern(currentPoint,p);});
 				}
 				
-				patternGraph.forceConnect(currentPattern.getValue(), spacialPatternGrid[visited.get(0).getX()][visited.get(0).getY()], visited.size());
+				currentPattern.forciblyConnectTo(patternGraph.getNode(spacialPatternGrid[visited.get(0).getX()][visited.get(0).getY()]), visited.size());
+				
 			}
 			
 			
 
 		}
+	}
+	
+	private boolean samePattern(Point a, Point b){
+		return spacialPatternGrid[a.getX()][a.getY()] == spacialPatternGrid[b.getX()][b.getY()];
 	}
 	
 	private boolean adjacent(Point a, Point b){

@@ -19,7 +19,7 @@ import game.Map;
 public class TreasureRoom extends CompositePattern {
 
 	public static List<CompositePattern> matches(Map map, Graph<Pattern> patternGraph) {
-		List<CompositePattern> treasureRooms = new ArrayList<CompositePattern>();
+		List<CompositePattern> treasureRooms = new ArrayList<>();
 		
 		patternGraph.resetGraph();
 		

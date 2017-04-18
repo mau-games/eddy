@@ -36,7 +36,7 @@ public class GuardRoom extends CompositePattern {
 					g.patterns.addAll(containedEnemies);
 					g.patterns.add(current.getValue());
 					guardRooms.add(g);
-					System.out.println("Got a guard room!");
+					//System.out.println("Got a guard room!");
 				}
 			}
 			nodeQueue.addAll(current.getEdges().stream().map((Edge<Pattern> e)->{
