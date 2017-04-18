@@ -244,7 +244,8 @@ public class PatternFinder {
 	
 	private boolean adjacent(Point a, Point b){
 		return a.getX() == b.getX() && Math.abs(a.getY() - b.getY()) == 1 
-			|| a.getY() == b.getY() && Math.abs(a.getX() - b.getX()) == 1;
+			|| a.getY() == b.getY() && Math.abs(a.getX() - b.getX()) == 1
+			|| Math.abs(a.getY() - b.getY()) == 1 && Math.abs(a.getX() - b.getX()) == 1;
 	}
 	
 	private void assignSpacialPatternsToGrid(){		

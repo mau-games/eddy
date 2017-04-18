@@ -210,7 +210,7 @@ public class MapRenderer implements Listener {
 					}
 				}
 				ctx.setStroke(Color.BLACK);
-				ctx.setLineWidth(3);
+				ctx.setLineWidth(e.getWidth()*2);
 				
 				Point a = getPatternCentre((SpacialPattern)e.getNodeA().getValue(),pWidth);
 				Point b = getPatternCentre((SpacialPattern)e.getNodeB().getValue(),pWidth);
