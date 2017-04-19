@@ -19,9 +19,11 @@ import finder.geometry.Rectangle;
 import finder.graph.Edge;
 import finder.graph.Graph;
 import finder.graph.Node;
+import finder.patterns.CompositePattern;
 import finder.patterns.InventorialPattern;
 import finder.patterns.Pattern;
 import finder.patterns.SpacialPattern;
+import finder.patterns.meso.ChokePoint;
 import finder.patterns.meso.GuardRoom;
 import finder.patterns.micro.Connector;
 import finder.patterns.micro.Corridor;
@@ -256,6 +258,22 @@ public class MapRenderer implements Listener {
 		}
 		
 		
+	}
+	
+	public void drawMesoPatterns(GraphicsContext ctx, int[][] matrix, List<CompositePattern> mesopatterns){
+		int m = matrix.length;
+		int n = matrix[0].length;
+		int pWidth = (int) Math.floor(ctx.getCanvas().getWidth() / Math.max(m, n));
+		
+		for(CompositePattern p : mesopatterns){
+			if(p instanceof ChokePoint){
+				Point centreA = getPatternCentre((SpacialPattern)p.getPatterns().get(0),pWidth);
+				Point centreB = getPatternCentre((SpacialPattern)p.getPatterns().get(1),pWidth);
+				double xMid = ((double)centreA.getX() + (double)centreB.getX()) / 2.0;
+				double yMid = ((double)centreA.getY() + (double)centreB.getY()) / 2.0;
+				drawCircle(ctx,new Point((int)xMid,(int)yMid),Color.MAGENTA,15);
+			}
+		}
 	}
 	
 	private Point getPatternCentre(SpacialPattern p, int pWidth){
