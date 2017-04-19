@@ -1,12 +1,20 @@
 package finder.patterns.meso;
 
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Queue;
+import java.util.stream.Collectors;
 
 import finder.geometry.Geometry;
+import finder.graph.Edge;
 import finder.graph.Graph;
+import finder.graph.Node;
 import finder.patterns.CompositePattern;
+import finder.patterns.InventorialPattern;
 import finder.patterns.Pattern;
+import finder.patterns.micro.Room;
+import finder.patterns.micro.Treasure;
 import game.Map;
 
 /**
@@ -34,7 +42,44 @@ public class ChokePoint extends CompositePattern {
 		// If the width of the edge is 1, we have a potential choke point.
 		// The potential choke point is an actual choke point if all paths from pattern A to pattern B must pass through that edge (BFS?)
 		
-		return new ArrayList<CompositePattern>();
+		List<CompositePattern> chokePoints = new ArrayList<>();
+		List<Edge<Pattern>> potentialChokeEdges = new ArrayList<>();
+		
+		patternGraph.resetGraph();
+		
+		Queue<Node<Pattern>> nodeQueue = new LinkedList<Node<Pattern>>();
+		nodeQueue.add(patternGraph.getStartingPoint());
+		
+		while(!nodeQueue.isEmpty()){
+			Node<Pattern> current = nodeQueue.remove();
+			current.tryVisit();
+
+			for(Edge<Pattern> e : current.getEdges()){
+				if(e.getNodeA() == current && !e.getNodeB().isVisited()){
+					nodeQueue.add(e.getNodeB());
+					e.getNodeB().tryVisit();
+				} else if (e.getNodeB() == current && !e.getNodeA().isVisited()){
+					nodeQueue.add(e.getNodeA());
+					e.getNodeA().tryVisit();
+				}
+				if(!potentialChokeEdges.contains(e) && potentialChokeEdge(patternGraph, e)){
+					potentialChokeEdges.add(e);
+				}
+			}
+		}
+		
+		for(Edge<Pattern> e : potentialChokeEdges){
+			ChokePoint cp = new ChokePoint();
+			cp.patterns.add(e.getNodeA().getValue());
+			cp.patterns.add(e.getNodeB().getValue());
+			chokePoints.add(cp);
+		}
+		
+		return chokePoints;		
+	}
+	
+	private static boolean potentialChokeEdge(Graph<Pattern> patternGraph, Edge<Pattern> edge){
+		return (edge.getNodeA().getValue() instanceof Room || edge.getNodeB().getValue() instanceof Room) && edge.getWidth() == 1 && !patternGraph.isEdgeInCycle(edge);
 	}
 	
 }

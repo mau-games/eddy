@@ -1,8 +1,17 @@
 package finder.graph;
 
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Queue;
+import java.util.stream.Collectors;
+
+import finder.patterns.InventorialPattern;
+import finder.patterns.Pattern;
+import finder.patterns.meso.TreasureRoom;
+import finder.patterns.micro.Room;
+import finder.patterns.micro.Treasure;
 
 /**
  * Graph represents a bidirectional graph.
@@ -173,5 +182,38 @@ public class Graph<T> {
 			Node<T> node = getNode(key);
 			node.unvisit();
 		});
+	}
+	
+	public boolean isEdgeInCycle(Edge<T> edge) {
+		Map<Node<T>,Boolean> tempVisited = new HashMap<Node<T>,Boolean>();
+		
+		Queue<Node<T>> nodeQueue = new LinkedList<Node<T>>();
+		nodeQueue.add(edge.getNodeA());
+		tempVisited.put(edge.getNodeA(), true);
+		
+		while(!nodeQueue.isEmpty()){
+			Node<T> current = nodeQueue.remove();
+
+			if(current == edge.getNodeB())
+				return true;
+			
+			for(Edge<T> e : current.getEdges()){
+				if(e != edge){
+					if(e.getNodeA() == current){
+						if(!tempVisited.containsKey(e.getNodeB())){
+							nodeQueue.add(e.getNodeB());
+							tempVisited.put(e.getNodeB(), true);
+						}
+					} else {
+						if(!tempVisited.containsKey(e.getNodeA())){
+							nodeQueue.add(e.getNodeA());
+							tempVisited.put(e.getNodeA(), true);
+						}
+					}
+				}
+			}
+		}
+
+		return false;
 	}
 }
