@@ -24,6 +24,7 @@ import finder.patterns.InventorialPattern;
 import finder.patterns.Pattern;
 import finder.patterns.SpacialPattern;
 import finder.patterns.meso.ChokePoint;
+import finder.patterns.meso.DeadEnd;
 import finder.patterns.meso.GuardRoom;
 import finder.patterns.micro.Connector;
 import finder.patterns.micro.Corridor;
@@ -272,6 +273,11 @@ public class MapRenderer implements Listener {
 				double xMid = ((double)centreA.getX() + (double)centreB.getX()) / 2.0;
 				double yMid = ((double)centreA.getY() + (double)centreB.getY()) / 2.0;
 				drawCircle(ctx,new Point((int)xMid,(int)yMid),Color.MAGENTA,15);
+			}
+			else if (p instanceof DeadEnd){
+				for(Pattern p2 : p.getPatterns()){
+					drawCircle(ctx,getPatternCentre((SpacialPattern)p2,pWidth),Color.BLACK,5);
+				}
 			}
 		}
 	}

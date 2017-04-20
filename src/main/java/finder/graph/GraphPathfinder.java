@@ -45,6 +45,7 @@ public class GraphPathfinder {
         while(!queue.isEmpty()){
         	PathNode current = queue.remove();
         	current.graphNode.tryVisit();
+        	
         	if(current.graphNode == goal){
         		return reconstructPath(current);
         	}
