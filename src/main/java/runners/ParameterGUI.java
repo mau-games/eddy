@@ -24,17 +24,15 @@ import util.config.MissingConfigurationException;
  * 
  * @author Johan Holmberg, Malmö University
  */
-public class ProgramStarter extends Application {
-	
-	final static Logger logger = LoggerFactory.getLogger(ProgramStarter.class);
+public class ParameterGUI extends Application {
+
+	final static Logger logger = LoggerFactory.getLogger(ParameterGUI.class);
 	private static ConfigurationUtility config;
 
 	private Game game;
 	private MapCollector mapCollector;
 	private RenderedMapCollector renderedMapCollector;
 	private GenerationCollector generationCollector;
-	private static final boolean batch = false;
-	private String batchConfig = "config/test_batches/room0.2_corridor0.8_area9_square0.5_size0.5_length4.json";
 
 	/**
 	 * This is the GUI entry point.
@@ -50,44 +48,30 @@ public class ProgramStarter extends Application {
 	public void start(Stage stage) {
 		Parent root;
 		try {
-
-			
 			config = ConfigurationUtility.getInstance();
 
-			if(!batch){
-				root = FXMLLoader.load(getClass().getResource("/gui/MainScene.fxml"));
-				
-		        Scene scene = new Scene(root,800, 600);
-		        stage.getIcons().add(new Image(getClass().getResourceAsStream("/graphics/icon.png"))); 
-		        stage.setTitle("Eddy - Evolutionary Dungeon Designer");
-		        stage.setScene(scene);
-		        stage.show();
-			}
+			root = FXMLLoader.load(getClass().getResource("/gui/ParameterGUI.fxml"));
 
-	        // Set up a new game
-	        game = new Game();
-	        
-	        // Set up a bunch of collectors
-	        mapCollector = new MapCollector();
-	        renderedMapCollector = new RenderedMapCollector();
-	        generationCollector = new GenerationCollector();
-	        
-	        MapRenderer.getInstance();
-	        if(batch){
-	        	try {
-	    			ConfigurationUtility.SwitchConfig(batchConfig, true);
-	    		} catch (MissingConfigurationException e) {
-	    			e.printStackTrace();
-	    		}
-	        	
-	        	
-	        	Platform.runLater(() -> {
-	        		game.batchRun();
-				});
-	        	
-	        }
+			Scene scene = new Scene(root,800, 600);
+			stage.getIcons().add(new Image(getClass().getResourceAsStream("/graphics/icon.png"))); 
+			stage.setTitle("Eddy - Evolutionary Dungeon Designer");
+			stage.setScene(scene);
+			stage.show();
 
-	        
+			// Set up a new game
+			game = new Game();
+
+			// Set up a bunch of collectors
+			mapCollector = new MapCollector();
+			renderedMapCollector = new RenderedMapCollector();
+			generationCollector = new GenerationCollector();
+
+			MapRenderer.getInstance();
+
+			Platform.runLater(() -> {
+				game.batchRun();
+			});
+
 		} catch (Exception e) {
 			logger.error("Couldn't load GUI: " + e.getMessage(), e);
 			System.exit(0);
@@ -98,7 +82,4 @@ public class ProgramStarter extends Application {
 	public void stop(){
 		game.stop();
 	}
-	
-	
-
 }
