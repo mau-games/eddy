@@ -9,7 +9,7 @@
             "doorenter": "graphics/tiles/entrydoor.png",
             "door": "graphics/tiles/door.png"
         },
-        "final_rendition": {
+        "render": {
             "height": 1000,
             "width": 1000
         }

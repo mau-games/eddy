@@ -38,4 +38,44 @@ public class ApplicationConfig {
 		return config.getInt("game.doors");
 	}
 	
+	public String getGenerationCollectorPath(){
+		return config.getString("collectors.generation_collector.path");
+	}	
+	
+	public boolean getGenerationCollectorActive(){
+		return config.getBoolean("collectors.generation_collector.active");
+	}
+	
+	public String getMapCollectorPath(){
+		return config.getString("collectors.map_collector.path");
+	}
+	
+	public boolean getMapCollectorActive(){
+		return config.getBoolean("collectors.map_collector.active");
+	}
+	
+	public boolean getMapCollectorSaveAll(){
+		return config.getBoolean("collectors.map_collector.save_all");
+	}
+	
+	public String getImageExporterPath(){
+		return config.getString("collectors.image_exporter.path");
+	}
+	
+	public boolean getImageExporterActive(){
+		return config.getBoolean("collectors.image_exporter.active");
+	}
+	
+	public int getMapRenderHeight(){
+		return config.getInt("map.render.height");
+	}
+	
+	public int getMapRenderWidth(){
+		return config.getInt("map.render.width");
+	}
+	
+	public double getPatternOpacity(){
+		return config.getDouble("map.pattern_opacity");
+	}
+	
 }

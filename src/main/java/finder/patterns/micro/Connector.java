@@ -2,6 +2,7 @@ package finder.patterns.micro;
 
 import finder.geometry.Geometry;
 import finder.patterns.SpacialPattern;
+import generator.config.GeneratorConfig;
 import util.config.ConfigurationUtility;
 import util.config.MissingConfigurationException;
 
@@ -28,18 +29,13 @@ public class Connector extends SpacialPattern {
 		
 	}
 	
-	public Connector(Geometry geometry, ConnectorType type){
+	public Connector(GeneratorConfig config, Geometry geometry, ConnectorType type){
 		boundaries = geometry;
 		this.type = type;
-		
-		ConfigurationUtility config;
-		try {
-			config = ConfigurationUtility.getInstance();
-			turnQuality = config.getDouble("patterns.connector.turn_quality");
-			intersectionQuality = config.getDouble("patterns.connector.intersection_quality");
-		} catch (MissingConfigurationException e) {
-			// This will be caught and reported elsewhere.
-		}
+
+		turnQuality = config.getTurnQuality();
+		intersectionQuality = config.getIntersectionQuality();
+
 	}
 	
 	

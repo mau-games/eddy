@@ -55,7 +55,31 @@ public class GeneratorConfig {
 	public double getCorridorProportion(){
 		return config.getDouble("generator.weights.corridor");
 	}
+	
+	public int getCorridorTargetLength(){
+		return config.getInt("patterns.corridor.target_length");
+	}
 
+	public double getTurnQuality(){
+		return config.getDouble("patterns.connector.turn_quality");
+	}
+	
+	public double getIntersectionQuality(){
+		return config.getDouble("patterns.connector.intersection_quality");
+	}
+	
+	public int getChamberTargetArea(){
+		return config.getInt("patterns.room.desired_area");
+	}
+	
+	public double getChamberTargetSquareness(){
+		return config.getDouble("patterns.room.squareness");
+	}
+	
+	public double getChamberAreaCorrectness(){
+		return config.getDouble("patterns.room.size");
+	}
+	
 	public int getGenerations(){
 		return config.getInt("generator.generations");
 	}

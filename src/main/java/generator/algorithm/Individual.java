@@ -96,6 +96,7 @@ public class Individual {
 	}
 	
 	public Individual(GeneratorConfig config, Genotype genotype, float mutationProbability){
+		this.config = config;
 		this.genotype = genotype;
 		this.phenotype = null;
 		this.fitness = 0.0;
@@ -274,7 +275,7 @@ public class Individual {
 	 */
 	public Phenotype getPhenotype(){
 		if(phenotype == null){
-			phenotype = new Phenotype(genotype);
+			phenotype = new Phenotype(config, genotype);
 		}
 		return phenotype;
 	}

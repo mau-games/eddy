@@ -31,6 +31,7 @@ import finder.patterns.micro.Corridor;
 import finder.patterns.micro.Enemy;
 import finder.patterns.micro.Nothing;
 import finder.patterns.micro.Room;
+import game.ApplicationConfig;
 import game.TileTypes;
 import gui.GUIController;
 import javafx.application.Platform;
@@ -59,7 +60,7 @@ public class MapRenderer implements Listener {
 	
 	final static Logger logger = LoggerFactory.getLogger(GUIController.class);
 	private static EventRouter router = EventRouter.getInstance();
-	private ConfigurationUtility config;
+	private ApplicationConfig config;
 
 	private ArrayList<Image> tiles = new ArrayList<Image>();
 	private double patternOpacity = 0;
@@ -72,15 +73,15 @@ public class MapRenderer implements Listener {
 	
 	private MapRenderer() {
 		try {
-			config = ConfigurationUtility.getInstance();
+			config = ApplicationConfig.getInstance();
 		} catch (MissingConfigurationException e) {
 			logger.error("Couldn't read config: " + e.getMessage());
 		}
 		
 		router.registerListener(this, new AlgorithmDone(null));
 
-		finalMapHeight = config.getInt("map.final_rendition.height");
-		finalMapWidth = config.getInt("map.final_rendition.width");
+		finalMapHeight = config.getMapRenderHeight();
+		finalMapWidth = config.getMapRenderWidth();
 		
 		// Set up the tile image list
 		for (int i = 0; i < nbrOfTiles; i++) {
@@ -171,7 +172,7 @@ public class MapRenderer implements Listener {
 		int m = matrix.length;
 		int n = matrix[0].length;
 		int pWidth = (int) Math.floor(ctx.getCanvas().getWidth() / Math.max(m, n));
-		patternOpacity = config.getDouble("map.pattern_opacity");
+		patternOpacity = config.getPatternOpacity();
 				
 		for (Entry<Pattern, Color> e : patterns.entrySet()) {
 			Platform.runLater(() -> {
@@ -309,8 +310,8 @@ public class MapRenderer implements Listener {
 	 * Publishes a rendered map.
 	 */
 	private void sendRenderedMap(game.Map map) {
-		finalMapHeight = config.getInt("map.final_rendition.height");
-		finalMapWidth = config.getInt("map.final_rendition.width");
+		finalMapHeight = config.getMapRenderHeight();
+		finalMapWidth = config.getMapRenderWidth();
 		Canvas canvas = new Canvas(finalMapWidth, finalMapHeight);
 		renderMap(canvas.getGraphicsContext2D(), map.toMatrix());
 		Image image = canvas.snapshot(new SnapshotParameters(), null);
@@ -364,22 +365,22 @@ public class MapRenderer implements Listener {
 		if (image == null) {
 			switch (TileTypes.toTileType(pixel)) {
 			case DOOR:
-				image = new Image("/" + config.getString("map.tiles.door"));
+				image = new Image("/" + config.getInternalConfig().getString("map.tiles.door"));
 				break;
 			case TREASURE:
-				image = new Image("/" + config.getString("map.tiles.treasure"));
+				image = new Image("/" + config.getInternalConfig().getString("map.tiles.treasure"));
 				break;
 			case ENEMY:
-				image = new Image("/" + config.getString("map.tiles.enemy"));;
+				image = new Image("/" + config.getInternalConfig().getString("map.tiles.enemy"));;
 				break;
 			case WALL:
-				image = new Image("/" + config.getString("map.tiles.wall"));;
+				image = new Image("/" + config.getInternalConfig().getString("map.tiles.wall"));;
 				break;
 			case FLOOR:
-				image = new Image("/" + config.getString("map.tiles.floor"));;
+				image = new Image("/" + config.getInternalConfig().getString("map.tiles.floor"));;
 				break;
 			case DOORENTER:
-				image = new Image("/" + config.getString("map.tiles.doorenter"));;
+				image = new Image("/" + config.getInternalConfig().getString("map.tiles.doorenter"));;
 				break;
 			default:
 				image = null;

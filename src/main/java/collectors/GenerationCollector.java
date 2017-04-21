@@ -9,6 +9,7 @@ import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import game.ApplicationConfig;
 import util.Util;
 import util.config.ConfigurationUtility;
 import util.config.MissingConfigurationException;
@@ -28,7 +29,7 @@ import util.eventrouting.events.GenerationDone;
 public class GenerationCollector implements Listener {
 
 	private final Logger logger = LoggerFactory.getLogger(GenerationCollector.class);
-	private ConfigurationUtility config;
+	private ApplicationConfig config;
 	private String path;
 	private boolean active;
 	private StringBuffer data = new StringBuffer();
@@ -39,15 +40,15 @@ public class GenerationCollector implements Listener {
 	 */
 	public GenerationCollector() {
 		try {
-			config = ConfigurationUtility.getInstance();
+			config = ApplicationConfig.getInstance();
 		} catch (MissingConfigurationException e) {
 			logger.error("Couldn't read configuration file:\n" + e.getMessage());
 		}
 		EventRouter.getInstance().registerListener(this, new GenerationDone(null));
 		EventRouter.getInstance().registerListener(this, new AlgorithmDone(null));
 		EventRouter.getInstance().registerListener(this, new AlgorithmStarted(null));
-		path = Util.normalisePath(config.getString("collectors.generation_collector.path"));
-		active = config.getBoolean("collectors.generation_collector.active");
+		path = Util.normalisePath(config.getGenerationCollectorPath());
+		active = config.getGenerationCollectorActive();
 
 	}
 
@@ -67,7 +68,6 @@ public class GenerationCollector implements Listener {
 	}
 	
 	private void saveRun() {
-		path = Util.normalisePath(config.getString("collectors.generation_collector.path"));
 		File directory = new File(path);
 		if (!directory.exists()) {
 			directory.mkdir();

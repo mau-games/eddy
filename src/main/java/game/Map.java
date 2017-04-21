@@ -15,6 +15,7 @@ import finder.graph.Node;
 import finder.patterns.Pattern;
 import finder.patterns.SpacialPattern;
 import util.Point;
+import generator.config.GeneratorConfig;
 
 /**
  * This class represents a dungeon room map.
@@ -40,6 +41,7 @@ public class Map {
 	private Point entrance;
 	private double entranceSafety;
 	private double entranceGreed;
+	private GeneratorConfig config;
 	
 	/**
 	 * Creates an instance of map.
@@ -49,9 +51,10 @@ public class Map {
 	 * @param cols The number of columns in a map.
 	 * @param doorCount The number of doors to be seeded in a map.
 	 */
-	public Map(TileTypes[] types, int rows, int cols, int doorCount) {
+	public Map(GeneratorConfig config, TileTypes[] types, int rows, int cols, int doorCount) {
 		init(rows, cols);
 		
+		this.config = config;
 		this.doorCount = Game.doors.size();
 		
 		initMapFromTypes(types);
@@ -62,6 +65,10 @@ public class Map {
 		//Populator.populate(finder.findMicroPatterns());
         //buildGraph(finder.findMicroPatterns());
 		
+	}
+	
+	public GeneratorConfig getConfig(){
+		return config;
 	}
 	
 	/**

@@ -11,11 +11,9 @@ import finder.geometry.Rectangle;
 import finder.patterns.InventorialPattern;
 import finder.patterns.Pattern;
 import game.Map;
-import generator.config.Config;
 import util.Util;
 import util.algorithms.Node;
 import util.algorithms.Pathfinder;
-import util.config.MissingConfigurationException;
 
 /**
  * This class represents the dungeon game design pattern called Entrance.
@@ -88,41 +86,25 @@ public class Entrance extends InventorialPattern {
 		//Entrance safety
 	    double entranceSafetyQuality = evaluateEntranceSafety(map);
 	    map.setEntranceSafety(entranceSafetyQuality);
-	    try {
-	    	entranceSafetyQuality = Math.abs(entranceSafetyQuality - Config.getInstance().getEntranceSafety());
-		} catch (MissingConfigurationException e) {
-			e.printStackTrace();
-		}
+	    entranceSafetyQuality = Math.abs(entranceSafetyQuality - map.getConfig().getEntranceSafety());
 	    
 	    //Average treasure safety
         evaluateTreasureSafeties(map);
         Double[] safeties = map.getAllTreasureSafeties();
         double safeties_average = Util.calcAverage(safeties);
         double averageTreasureSafetyQuality = 0.0;
-        try {
-        	averageTreasureSafetyQuality = Math.abs(safeties_average - Config.getInstance().getAverageTreasureSafety());
-		} catch (MissingConfigurationException e) {
-			e.printStackTrace();
-		}
+        averageTreasureSafetyQuality = Math.abs(safeties_average - map.getConfig().getAverageTreasureSafety());
         
         //Treasure Safety Variance
         double safeties_variance = Util.calcVariance(safeties);
         double expectedSafetyVariance = 0.0;
-		try {
-			expectedSafetyVariance = Config.getInstance().getTreasureSafetyVariance();
-		} catch (MissingConfigurationException e) {
-			e.printStackTrace();
-		}
+		expectedSafetyVariance = map.getConfig().getTreasureSafetyVariance();
         double treasureSafetyVarianceQuality = Math.abs(safeties_variance - expectedSafetyVariance);
         
         //Entrance greed
         double entranceGreedQuality = evaluateEntranceGreed(map); //Note - this has been changed from the Unity version
         map.setEntranceGreed(entranceGreedQuality);
-        try {
-        	entranceGreedQuality = Math.abs(entranceGreedQuality - Config.getInstance().getEntranceGreed());
-		} catch (MissingConfigurationException e) {
-			e.printStackTrace();
-		}
+    	entranceGreedQuality = Math.abs(entranceGreedQuality - map.getConfig().getEntranceGreed());
         
         double quality = 0.2*entranceSafetyQuality + 0.2 * entranceGreedQuality + 0.2 * averageTreasureSafetyQuality + 0.4 * treasureSafetyVarianceQuality;
         return quality;

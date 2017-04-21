@@ -12,23 +12,18 @@ import finder.patterns.SpacialPattern;
 import finder.patterns.micro.Connector.ConnectorType;
 import game.Map;
 import game.TileTypes;
+import generator.config.GeneratorConfig;
 import util.Point;
 import util.config.ConfigurationUtility;
 import util.config.MissingConfigurationException;
 
 public class Corridor extends SpacialPattern {
 
-	private ConfigurationUtility config;
 	private int targetLength;
 	
-	public Corridor(Geometry geometry){
+	public Corridor(GeneratorConfig config, Geometry geometry){
 		boundaries = geometry;
-		try {
-			config = ConfigurationUtility.getInstance();
-		} catch (MissingConfigurationException e) {
-			// This will be caught and reported elsewhere.
-		}
-		targetLength = config.getInt("patterns.corridor.target_length");
+		targetLength = config.getCorridorTargetLength();
 	}
 	
 	private static class SearchNode {
@@ -151,12 +146,12 @@ public class Corridor extends SpacialPattern {
 					if(isTurnConnector(map,i,j)){
 						Bitmap b = new Bitmap();
 						b.addPoint(new finder.geometry.Point(i,j));
-						results.add(new Connector(b, ConnectorType.TURN));
+						results.add(new Connector(map.getConfig(),b, ConnectorType.TURN));
 						allocated[i][j] = true;
 					} else if (isIntersectionConnector(map,i,j)){
 						Bitmap b = new Bitmap();
 						b.addPoint(new finder.geometry.Point(i,j));
-						results.add(new Connector(b, ConnectorType.INTERSECTION));
+						results.add(new Connector(map.getConfig(),b, ConnectorType.INTERSECTION));
 						allocated[i][j] = true;
 					}
 					
@@ -168,7 +163,7 @@ public class Corridor extends SpacialPattern {
 			for(SearchNode sn : l){
 				b.addPoint(new finder.geometry.Point(sn.position.getX(),sn.position.getY()));
 			}
-			results.add(new Corridor(b));
+			results.add(new Corridor(map.getConfig(),b));
     	}
     	
     	return results;

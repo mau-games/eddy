@@ -31,8 +31,8 @@
     "patterns": {
         "room": {
             "desired_area": 36,
-            "floor_ratio_weight": 0.5,
-            "area_deviation_weight": 0.5
+            "squareness": 0.5,
+            "size": 0.5
         },
         "corridor": {
             "target_length": 4
