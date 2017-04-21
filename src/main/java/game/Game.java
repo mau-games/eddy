@@ -103,7 +103,6 @@ public class Game implements Listener{
     	geneticAlgorithm = new Algorithm();
     	//Start the algorithm on a new thread.
     	geneticAlgorithm.start();
-    	
     }
     
     public void batchRun(){

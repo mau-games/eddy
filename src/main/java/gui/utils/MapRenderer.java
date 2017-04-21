@@ -195,12 +195,9 @@ public class MapRenderer implements Listener {
 			Node<Pattern> current = nodeQueue.remove();
 			current.tryVisit();
 			
-			
 			//Draw the current node
 			drawCircle(ctx, getPatternCentre((SpacialPattern)current.getValue(), pWidth),getNodeColor((SpacialPattern)current.getValue()),getNodeRadius((SpacialPattern)current.getValue(),pWidth));
-			
-			
-			
+
 			List<Edge> edges = new ArrayList<Edge>();
 			edges.addAll(current.getEdges());
 			while(!edges.isEmpty()){
@@ -232,11 +229,6 @@ public class MapRenderer implements Listener {
 					ctx.closePath();
 				}
 
-				
-				//ctx.lineTo(b.getX(), b.getY());
-				
-				
-				
 			}
 			
 			nodeQueue.addAll(current.getEdges().stream().map((Edge<Pattern> e)->{

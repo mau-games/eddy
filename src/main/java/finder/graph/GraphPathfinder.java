@@ -39,9 +39,7 @@ public class GraphPathfinder {
 
         Queue<PathNode> queue = new LinkedList<PathNode>();
         queue.add(new PathNode(start,null));
-        
-        
-        
+
         while(!queue.isEmpty()){
         	PathNode current = queue.remove();
         	current.graphNode.tryVisit();
