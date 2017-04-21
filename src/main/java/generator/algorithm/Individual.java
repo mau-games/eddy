@@ -1,6 +1,7 @@
 package generator.algorithm;
 
 import game.Game;
+import generator.config.GeneratorConfig;
 import util.Util;
 
 /**
@@ -24,6 +25,7 @@ public class Individual {
 	private Phenotype phenotype;
 	private boolean evaluate;
 	private float mutationProbability;
+	private GeneratorConfig config;
 	
 	private boolean childOfInfeasibles = false;
 	
@@ -89,11 +91,11 @@ public class Individual {
 		return corridorArea;
 	}
 	
-	public Individual(int size, float mutationProbability) {
-		this(new Genotype(size), mutationProbability);
+	public Individual(GeneratorConfig config, int size, float mutationProbability) {
+		this(config, new Genotype(config,size), mutationProbability);
 	}
 	
-	public Individual(Genotype genotype, float mutationProbability){
+	public Individual(GeneratorConfig config, Genotype genotype, float mutationProbability){
 		this.genotype = genotype;
 		this.phenotype = null;
 		this.fitness = 0.0;
@@ -117,8 +119,8 @@ public class Individual {
 	 */
 	public Individual[] twoPointCrossover(Individual other){
 		Individual[] children = new Individual[2];
-		children[0] = new Individual(new Genotype(genotype.getChromosome().clone()), mutationProbability);
-		children[1] = new Individual(new Genotype(other.getGenotype().getChromosome().clone()), mutationProbability);
+		children[0] = new Individual(config, new Genotype(config, genotype.getChromosome().clone()), mutationProbability);
+		children[1] = new Individual(config, new Genotype(config, other.getGenotype().getChromosome().clone()), mutationProbability);
 		
 		int lowerBound = Util.getNextInt(0, genotype.getSizeChromosome());
 		int upperBound = Util.getNextInt(lowerBound, genotype.getSizeChromosome());
@@ -143,8 +145,8 @@ public class Individual {
 	
 	public Individual[] rectangularCrossover(Individual other){
 		Individual[] children = new Individual[2];
-		children[0] = new Individual(new Genotype(genotype.getChromosome().clone()), mutationProbability);
-		children[1] = new Individual(new Genotype(other.getGenotype().getChromosome().clone()), mutationProbability);
+		children[0] = new Individual(config, new Genotype(config, genotype.getChromosome().clone()), mutationProbability);
+		children[1] = new Individual(config, new Genotype(config, other.getGenotype().getChromosome().clone()), mutationProbability);
 		
 		int lowerBoundM = Util.getNextInt(0, Game.sizeM);
 		int upperBoundM = Util.getNextInt(lowerBoundM, Game.sizeM);

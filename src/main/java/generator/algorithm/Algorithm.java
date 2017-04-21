@@ -23,7 +23,7 @@ import finder.patterns.micro.Treasure;
 import game.Game;
 import game.Map;
 import game.TileTypes;
-import generator.config.Config;
+import generator.config.GeneratorConfig;
 import util.Point;
 import util.Util;
 import util.algorithms.Node;
@@ -36,8 +36,8 @@ import util.eventrouting.events.MapUpdate;
 import util.eventrouting.events.StatusMessage;
 
 public class Algorithm extends Thread {
-	private final Logger logger = LoggerFactory.getLogger(Config.class);
-	private ConfigurationUtility config;
+	private final Logger logger = LoggerFactory.getLogger(Algorithm.class);
+	private GeneratorConfig config;
 	
 	private int populationSize; 
 	private float mutationProbability;
@@ -46,7 +46,6 @@ public class Algorithm extends Thread {
 	private List<Individual> feasiblePopulation;
 	private List<Individual> infeasiblePopulation;
 	private Individual best;
-	private Config generatorConfig;
 	private List<Individual> feasiblePool;
 	private List<Individual> infeasiblePool;
 	private boolean stop = false;
@@ -57,19 +56,14 @@ public class Algorithm extends Thread {
 	private int infeasiblesMoved = 0;
 	private int movedInfeasiblesKept = 0;
 
-	public Algorithm(){
-		try {
-			config = ConfigurationUtility.getInstance();
-		} catch (MissingConfigurationException e) {
-			logger.error("Couldn't read configuration file:\n" + e.getMessage());
-		}
-		generatorConfig = Config.getInstance();
-		populationSize = config.getInt("generator.population_size");
-		mutationProbability = (float) config.getDouble("generator.mutation_probability");
-		offspringSize = (float) config.getDouble("generator.offspring_size");
-		feasibleAmount = (int)((double)populationSize * config.getDouble("generator.feasible_proportion"));
-		roomTarget = config.getDouble("generator.weights.room");
-		corridorTarget = config.getDouble("generator.weights.corridor");
+	public Algorithm(GeneratorConfig config){
+		this.config = config;
+		populationSize = config.getPopulationSize();
+		mutationProbability = (float)config.getMutationProbability();
+		offspringSize = (float)config.getOffspringSize();
+		feasibleAmount = (int)((double)populationSize * config.getFeasibleProportion());
+		roomTarget = config.getRoomProportion();
+		corridorTarget = config.getCorridorProportion();
 
 		initPopulations();
 	}
@@ -110,7 +104,7 @@ public class Algorithm extends Thread {
 		int i = 0;
 		int j = 0;
 		while((i + j) < populationSize){
-			Individual ind = new Individual(Game.sizeN * Game.sizeM, mutationProbability);
+			Individual ind = new Individual(config, Game.sizeN * Game.sizeM, mutationProbability);
 			ind.initialize();
 			
 			if(checkIndividual(ind)){
@@ -136,7 +130,7 @@ public class Algorithm extends Thread {
 	public void run(){
 		
 		broadcastStatusUpdate("Evolving...");
-        int generations = config.getInt("generator.generations");
+        int generations = config.getGenerations();
         
         Map map = null;
 

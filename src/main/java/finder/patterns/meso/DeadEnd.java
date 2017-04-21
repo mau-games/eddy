@@ -38,8 +38,6 @@ public class DeadEnd extends CompositePattern {
 		
 		List<CompositePattern> deadEnds = new ArrayList<>();
 		
-		
-		
 		//Find doors & entrance
 		Entrance entrance = null;
 		List<Door> doors = new ArrayList<Door>();
@@ -60,7 +58,7 @@ public class DeadEnd extends CompositePattern {
 			}
 		}		
 		
-		//TODO: If this even works, it can surely be written more elegantly
+		//TODO: This can surely be written more elegantly
 		//For each node in the set, do the aforementioned procedure...
 		patternGraph.resetGraph();
 		for(Node<Pattern> n : criticalPath){

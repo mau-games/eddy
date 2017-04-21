@@ -51,8 +51,6 @@ public class ProgramStarter extends Application {
 		Parent root;
 		try {
 
-			
-			config = ConfigurationUtility.getInstance();
 
 			if(!batch){
 				root = FXMLLoader.load(getClass().getResource("/gui/MainScene.fxml"));
@@ -73,19 +71,19 @@ public class ProgramStarter extends Application {
 	        generationCollector = new GenerationCollector();
 	        
 	        MapRenderer.getInstance();
-	        if(batch){
-	        	try {
-	    			ConfigurationUtility.SwitchConfig(batchConfig, true);
-	    		} catch (MissingConfigurationException e) {
-	    			e.printStackTrace();
-	    		}
-	        	
-	        	
-	        	Platform.runLater(() -> {
-	        		game.batchRun();
-				});
-	        	
-	        }
+//	        if(batch){
+//	        	try {
+//	    			//ConfigurationUtility.SwitchConfig(batchConfig, true);
+//	    		} catch (MissingConfigurationException e) {
+//	    			e.printStackTrace();
+//	    		}
+//	        	
+//	        	
+//	        	Platform.runLater(() -> {
+//	        		game.batchRun();
+//				});
+//	        	
+//	        }
 
 	        
 		} catch (Exception e) {

@@ -7,8 +7,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import generator.algorithm.Algorithm;
-import generator.algorithm.Ranges;
-import generator.config.Config;
+import generator.config.GeneratorConfig;
 import util.Point;
 import util.Util;
 import util.config.ConfigurationUtility;
@@ -25,7 +24,7 @@ import util.eventrouting.events.Stop;
 public class Game implements Listener{
 	private final Logger logger = LoggerFactory.getLogger(Game.class);
 
-	private ConfigurationUtility config;
+	private ApplicationConfig config;
 	private Algorithm geneticAlgorithm;
 	private int runCount = 0;
 	private boolean batch = false;
@@ -34,24 +33,18 @@ public class Game implements Listener{
 	public static int sizeM; //Number of columns
     public static int sizeN; //Number of rows
     public static int doorCount;
-    public static String gameConfigFileName;
-    public static Ranges ranges; 
     public static List<Point> doors = null; 
     private static final int batchRuns = 100;
-    
-    public static Ranges getRanges() {
-        return ranges;
-    }
+   
 
     public Game() {
 
 		try {
-			config = ConfigurationUtility.getInstance();
+			config = ApplicationConfig.getInstance();
 		} catch (MissingConfigurationException e) {
 			logger.error("Couldn't read configuration file:\n" + e.getMessage());
 		}
 
-        
         readConfiguration();
         chooseDoorPositions();
 
@@ -59,7 +52,6 @@ public class Game implements Listener{
         EventRouter.getInstance().registerListener(this, new Stop());
         EventRouter.getInstance().registerListener(this, new AlgorithmDone(null));
         EventRouter.getInstance().registerListener(this, new RenderingDone());
-        ranges = new Ranges();
     }
     
     /**
@@ -100,7 +92,11 @@ public class Game implements Listener{
     private void startAll()
     {
     	reinit();
-    	geneticAlgorithm = new Algorithm();
+    	try {
+			geneticAlgorithm = new Algorithm(new GeneratorConfig());
+		} catch (MissingConfigurationException e) {
+			logger.error("Couldn't read generator configuration file:\n" + e.getMessage());
+		}
     	//Start the algorithm on a new thread.
     	geneticAlgorithm.start();
     }
@@ -117,7 +113,11 @@ public class Game implements Listener{
     private void batchStep(){
     	
 		EventRouter.getInstance().postEvent(new AlgorithmStarted("" + runCount));
-		geneticAlgorithm = new Algorithm();
+		try {
+			geneticAlgorithm = new Algorithm(new GeneratorConfig());
+		} catch (MissingConfigurationException e) {
+			logger.error("Couldn't read generator configuration file:\n" + e.getMessage());
+		}
     	//Start the algorithm on a new thread.
     	geneticAlgorithm.start();
     	runCount++;
@@ -167,11 +167,10 @@ public class Game implements Listener{
 	/**
 	 * Reads and applies the current configuration.
 	 */
-	private void readConfiguration() {
-        sizeN = config.getInt("game.dimensions.n");
-        sizeM = config.getInt("game.dimensions.m");
-        doorCount = config.getInt("game.doors");
-        gameConfigFileName = config.getString("game.profiles.default");  
+	private void readConfiguration() {  
+        sizeM = config.getDimensionM();
+        sizeN = config.getDimensionN();
+        doorCount = config.getDoors();
 	}
 	
 }
