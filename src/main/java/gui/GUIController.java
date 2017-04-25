@@ -301,7 +301,7 @@ public class GUIController implements Initializable, Listener {
 	/**
 	 * Restores the map view to the latest map.
 	 */
-	private void restoreMap() {
+	private synchronized void restoreMap() {
 		if (currentMap != null) {
 			Platform.runLater(() -> {
 				int[][] matrix = currentMap.toMatrix();
@@ -311,8 +311,8 @@ public class GUIController implements Initializable, Listener {
 					renderer.sketchMap(ctx, matrix);
 				}
 				renderer.drawPatterns(ctx, matrix, activePatterns);
-				renderer.drawGraph(ctx, matrix, currentMap.getPatternFinder().getPatternGraph());
-				renderer.drawMesoPatterns(ctx, matrix, currentMap.getPatternFinder().findMesoPatterns());
+				//renderer.drawGraph(ctx, matrix, currentMap.getPatternFinder().getPatternGraph());
+				//renderer.drawMesoPatterns(ctx, matrix, currentMap.getPatternFinder().findMesoPatterns());
 			});
 		}
 	}

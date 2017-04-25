@@ -1,6 +1,8 @@
 package gui;
 
 
+import java.io.File;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -8,6 +10,7 @@ import collectors.GenerationCollector;
 import collectors.MapCollector;
 import collectors.RenderedMapCollector;
 import game.Game;
+import game.Map;
 import gui.utils.MapRenderer;
 import javafx.application.Application;
 import javafx.application.Platform;
@@ -84,6 +87,8 @@ public class ProgramStarter extends Application {
 //				});
 //	        	
 //	        }
+	        
+	        Map.LoadMap(new File("C:\\Users\\ab4645\\eddy\\maps\\map_2017-04-25_12-15-23-465000000.txt"));
 
 	        
 		} catch (Exception e) {

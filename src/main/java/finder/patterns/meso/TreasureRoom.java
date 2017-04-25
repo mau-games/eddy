@@ -31,10 +31,10 @@ public class TreasureRoom extends CompositePattern {
 			current.tryVisit();
 			if(current.getValue() instanceof Room){
 				List<InventorialPattern> containedTreasure = ((Room)current.getValue()).getContainedPatterns().stream().filter(p->{return p instanceof Treasure;}).collect(Collectors.toList());
-				if(containedTreasure.size() > 2){
+				if(containedTreasure.size() > 1){
 					TreasureRoom t = new TreasureRoom();
-					t.patterns.addAll(containedTreasure);
 					t.patterns.add(current.getValue());
+					t.patterns.addAll(containedTreasure);
 					treasureRooms.add(t);
 					//System.out.println("Got a treasure room!");
 				}

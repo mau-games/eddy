@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
@@ -36,6 +37,7 @@ import util.eventrouting.events.MapUpdate;
 import util.eventrouting.events.StatusMessage;
 
 public class Algorithm extends Thread {
+	private UUID id;
 	private final Logger logger = LoggerFactory.getLogger(Algorithm.class);
 	private GeneratorConfig config;
 	
@@ -58,6 +60,7 @@ public class Algorithm extends Thread {
 
 	public Algorithm(GeneratorConfig config){
 		this.config = config;
+		id = UUID.randomUUID();
 		populationSize = config.getPopulationSize();
 		mutationProbability = (float)config.getMutationProbability();
 		offspringSize = (float)config.getOffspringSize();
@@ -138,7 +141,7 @@ public class Algorithm extends Thread {
         	if(stop)
         		return;
         	
-        	broadcastStatusUpdate("Generation " + generationCount);
+//        	broadcastStatusUpdate("Generation " + generationCount);
 
         	
         	movedInfeasiblesKept = 0;
@@ -147,37 +150,37 @@ public class Algorithm extends Thread {
 
             double[] dataValid = infoGenerational(feasiblePopulation, true);
             
-            broadcastStatusUpdate("BEST fitness: " + best.getFitness());
+//            broadcastStatusUpdate("BEST fitness: " + best.getFitness());
             
             map = best.getPhenotype().getMap();
-            broadcastMapUpdate(map);
+            //broadcastMapUpdate(map);
             
           
-        	broadcastStatusUpdate("Corridor Fitness: " + best.getCorridorFitness());
-        	broadcastStatusUpdate("Room Fitness: " + best.getRoomFitness());
-
-        	broadcastStatusUpdate("Corridors & Connectors: " + best.getCorridorArea());
-        	broadcastStatusUpdate("Passable tiles: " + best.getPhenotype().getMap().getNonWallTileCount());
-        	
-        	broadcastStatusUpdate("Infeasibles moved: " + infeasiblesMoved);
-        	broadcastStatusUpdate("Moved infeasibles kept: " + movedInfeasiblesKept);
-        	
+//        	broadcastStatusUpdate("Corridor Fitness: " + best.getCorridorFitness());
+//        	broadcastStatusUpdate("Room Fitness: " + best.getRoomFitness());
+//
+//        	broadcastStatusUpdate("Corridors & Connectors: " + best.getCorridorArea());
+//        	broadcastStatusUpdate("Passable tiles: " + best.getPhenotype().getMap().getNonWallTileCount());
+//        	
+//        	broadcastStatusUpdate("Infeasibles moved: " + infeasiblesMoved);
+//        	broadcastStatusUpdate("Moved infeasibles kept: " + movedInfeasiblesKept);
+//        	
         	breedFeasibleIndividuals();
         	breedInfeasibleIndividuals();
+//        	
+//        	
+//        	//Check diversity:
+//        	double distance = 0.0;
+//        	for(int i = 0; i < feasiblePopulation.size(); i++){
+//        		if(feasiblePopulation.get(i) != best)
+//        			distance += best.getDistance(feasiblePopulation.get(i));
+//        	}
+//        	double averageDistance = distance / (double)(feasiblePopulation.size() - 1);
+//        	broadcastStatusUpdate("Average distance from best individual: " + averageDistance);
+//        	
+//        	double passableTiles = map.getNonWallTileCount();
         	
-        	
-        	//Check diversity:
-        	double distance = 0.0;
-        	for(int i = 0; i < feasiblePopulation.size(); i++){
-        		if(feasiblePopulation.get(i) != best)
-        			distance += best.getDistance(feasiblePopulation.get(i));
-        	}
-        	double averageDistance = distance / (double)(feasiblePopulation.size() - 1);
-        	broadcastStatusUpdate("Average distance from best individual: " + averageDistance);
-        	
-        	double passableTiles = map.getNonWallTileCount();
-        	
-        	map.getPatternFinder().findMesoPatterns();
+        	//map.getPatternFinder().findMesoPatterns();
         	
         	//Data we want:
         	// Best fitness
@@ -186,10 +189,10 @@ public class Algorithm extends Thread {
         	// Room fitness
         	// Corridor proportion (& connector)
         	// Room proportion
-        	String generation = "" + best.getFitness() + "," + dataValid[0] + "," + best.getCorridorFitness() + "," + best.getRoomFitness() + "," + best.getCorridorArea()/passableTiles + "," + best.getRoomArea()/passableTiles + "," + best.getTreasureAndEnemyFitness();
-        	EventRouter.getInstance().postEvent(new GenerationDone(generation));
+        	//String generation = "" + best.getFitness() + "," + dataValid[0] + "," + best.getCorridorFitness() + "," + best.getRoomFitness() + "," + best.getCorridorArea()/passableTiles + "," + best.getRoomArea()/passableTiles + "," + best.getTreasureAndEnemyFitness();
+        	//EventRouter.getInstance().postEvent(new GenerationDone(generation));
         }
-        
+        broadcastMapUpdate(map);
         PatternFinder finder = map.getPatternFinder();
         HashMap<String, Object> result = new HashMap<String, Object>();
         result.put("micropatterns", finder.findMicroPatterns());
@@ -324,6 +327,8 @@ public class Algorithm extends Thread {
         		rooms.add((Room) p);
         	}
         }
+        
+        finder.findMesoPatterns();
         
         
         

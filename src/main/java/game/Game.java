@@ -25,7 +25,7 @@ public class Game implements Listener{
 	private final Logger logger = LoggerFactory.getLogger(Game.class);
 
 	private ApplicationConfig config;
-	private Algorithm geneticAlgorithm;
+	private List<Algorithm> runs = new ArrayList<Algorithm>();
 	private int runCount = 0;
 	private boolean batch = false;
 	
@@ -92,36 +92,40 @@ public class Game implements Listener{
     private void startAll()
     {
     	reinit();
+    	Algorithm geneticAlgorithm = null;
     	try {
 			geneticAlgorithm = new Algorithm(new GeneratorConfig());
+			runs.add(geneticAlgorithm);
+			geneticAlgorithm.start();
 		} catch (MissingConfigurationException e) {
 			logger.error("Couldn't read generator configuration file:\n" + e.getMessage());
 		}
     	//Start the algorithm on a new thread.
-    	geneticAlgorithm.start();
     }
     
-    public void batchRun(){
-    	readConfiguration();
-    	chooseDoorPositions();
-    	batch = true;
-    	runCount = 0;
-    	batchStep();
-    	
-    }
     
-    private void batchStep(){
-    	
-		EventRouter.getInstance().postEvent(new AlgorithmStarted("" + runCount));
-		try {
-			geneticAlgorithm = new Algorithm(new GeneratorConfig());
-		} catch (MissingConfigurationException e) {
-			logger.error("Couldn't read generator configuration file:\n" + e.getMessage());
-		}
-    	//Start the algorithm on a new thread.
-    	geneticAlgorithm.start();
-    	runCount++;
-    }
+    
+//    public void batchRun(){
+//    	readConfiguration();
+//    	chooseDoorPositions();
+//    	batch = true;
+//    	runCount = 0;
+//    	batchStep();
+//    	
+//    }
+    
+//    private void batchStep(){
+//    	
+//		EventRouter.getInstance().postEvent(new AlgorithmStarted("" + runCount));
+//		try {
+//			geneticAlgorithm = new Algorithm(new GeneratorConfig());
+//		} catch (MissingConfigurationException e) {
+//			logger.error("Couldn't read generator configuration file:\n" + e.getMessage());
+//		}
+//    	//Start the algorithm on a new thread.
+//    	geneticAlgorithm.start();
+//    	runCount++;
+//    }
     
     /**
      * Set everything back to its initial state before running the genetic algorithm
@@ -135,29 +139,37 @@ public class Game implements Listener{
      * Stop the algorithm. Used in the case that the application window is closed.
      */
     public void stop(){
-    	if(geneticAlgorithm != null && geneticAlgorithm.isAlive()){
-    		geneticAlgorithm.terminate();
+    	for(Algorithm a : runs){
+    		if(a.isAlive()) a.terminate();
     	}
+//    	if(geneticAlgorithm != null && geneticAlgorithm.isAlive()){
+//    		geneticAlgorithm.terminate();
+//    	}
     }
 
 	@Override
 	public synchronized void ping(PCGEvent e) {
 		if(e instanceof Start){
 			readConfiguration();
-			startAll();		
+			startAll();
+//			startAll();
+//			startAll();
+//			startAll();
+//			startAll();
+//			startAll();
 		} else if (e instanceof Stop) {
 			stop();
 		} else if (e instanceof RenderingDone){
 			
-			if(batch && runCount < batchRuns){
-				logger.info("Run " + runCount + " done...");
-				batchStep();
-			}
-			else if (batch){
-				logger.info("Run " + runCount + " done...");
-				logger.info("Batch finished.");
-				System.exit(0);
-			}
+//			if(batch && runCount < batchRuns){
+//				logger.info("Run " + runCount + " done...");
+//				batchStep();
+//			}
+//			else if (batch){
+//				logger.info("Run " + runCount + " done...");
+//				logger.info("Batch finished.");
+//				System.exit(0);
+//			}
 				
 		}
 		

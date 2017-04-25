@@ -1,8 +1,12 @@
 package game;
 
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Dictionary;
+import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
@@ -15,6 +19,10 @@ import finder.graph.Node;
 import finder.patterns.Pattern;
 import finder.patterns.SpacialPattern;
 import util.Point;
+import util.config.MissingConfigurationException;
+import util.eventrouting.EventRouter;
+import util.eventrouting.events.AlgorithmDone;
+import util.eventrouting.events.MapUpdate;
 import generator.config.GeneratorConfig;
 
 /**
@@ -41,7 +49,7 @@ public class Map {
 	private Point entrance;
 	private double entranceSafety;
 	private double entranceGreed;
-	private GeneratorConfig config;
+	private GeneratorConfig config = null;
 	
 	/**
 	 * Creates an instance of map.
@@ -71,6 +79,10 @@ public class Map {
 		return config;
 	}
 	
+	public void setConfig(GeneratorConfig config){
+		this.config = config;
+	}
+	
 	/**
 	 * Creates an instance of map.
 	 * 
@@ -79,6 +91,7 @@ public class Map {
 	 */
 	private Map(int rows, int cols) {
 		init(rows, cols);
+		finder = new PatternFinder(this);
 	}
 	
 	private void init(int rows, int cols) {
@@ -535,6 +548,30 @@ public class Map {
 	}
 	
 	/**
+	 * Hacky load map implementation - TODO: should probably not be here
+	 * 
+	 * @param file
+	 * @throws IOException
+	 */
+	public static void LoadMap(File file) throws IOException{
+		FileReader reader = new FileReader(file);
+		String mapString = "";
+		while(reader.ready()){
+			char c = (char) reader.read();
+			mapString += c;
+		}
+		Map map = fromString(mapString);
+		EventRouter.getInstance().postEvent(new MapUpdate(map));
+		PatternFinder finder = map.getPatternFinder();
+        HashMap<String, Object> result = new HashMap<String, Object>();
+        result.put("micropatterns", finder.findMicroPatterns());
+        result.put("mesopatterns", finder.findMesoPatterns());
+        result.put("macropatterns", finder.findMacroPatterns());
+        result.put("map", map);
+        EventRouter.getInstance().postEvent(new AlgorithmDone(result));
+	}
+	
+	/**
 	 * Builds a map from a string representing a rectangular room. Each row in
 	 * the string, separated by a newline (\n), represents a row in the
 	 * resulting map's matrix.
@@ -548,6 +585,11 @@ public class Map {
 		TileTypes type = null;
 		
 		Map map = new Map(rowCount, colCount);
+		try {
+			map.setConfig(new GeneratorConfig());
+		} catch (MissingConfigurationException e) {
+			e.printStackTrace();
+		}
 		
 		for (int i = 0; i < rowCount; i++) {
 			for (int j = 0; j < colCount; j++) {

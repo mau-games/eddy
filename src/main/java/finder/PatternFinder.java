@@ -95,9 +95,9 @@ public class PatternFinder {
 	 * @return A list of all found pattern instances.
 	 */
 	public List<CompositePattern> findMesoPatterns() {
-//		if(mesopatterns != null){
-//			return mesopatterns;
-//		}
+		if(mesopatterns != null){
+			return mesopatterns;
+		}
 		mesopatterns = new ArrayList<CompositePattern>();
 
 		/*

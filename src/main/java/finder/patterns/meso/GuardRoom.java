@@ -18,6 +18,7 @@ import finder.patterns.micro.Treasure;
 import game.Map;
 
 public class GuardRoom extends CompositePattern {
+	
 	public static List<CompositePattern> matches(Map map, Graph<Pattern> patternGraph) {
 		List<CompositePattern> guardRooms = new ArrayList<CompositePattern>();
 		
@@ -31,10 +32,10 @@ public class GuardRoom extends CompositePattern {
 			current.tryVisit();
 			if(current.getValue() instanceof Room){
 				List<InventorialPattern> containedEnemies = ((Room)current.getValue()).getContainedPatterns().stream().filter(p->{return p instanceof Enemy;}).collect(Collectors.toList());
-				if(containedEnemies.size() > 2){
+				if(containedEnemies.size() > 1){
 					GuardRoom g = new GuardRoom();
-					g.patterns.addAll(containedEnemies);
 					g.patterns.add(current.getValue());
+					g.patterns.addAll(containedEnemies);
 					guardRooms.add(g);
 					//System.out.println("Got a guard room!");
 				}

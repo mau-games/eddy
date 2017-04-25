@@ -26,6 +26,7 @@ import finder.patterns.SpacialPattern;
 import finder.patterns.meso.ChokePoint;
 import finder.patterns.meso.DeadEnd;
 import finder.patterns.meso.GuardRoom;
+import finder.patterns.meso.TreasureRoom;
 import finder.patterns.micro.Connector;
 import finder.patterns.micro.Corridor;
 import finder.patterns.micro.Enemy;
@@ -102,7 +103,7 @@ public class MapRenderer implements Listener {
 	}
 
 	@Override
-	public void ping(PCGEvent e) {
+	public synchronized void ping(PCGEvent e) {
 		if (e instanceof AlgorithmDone) {
 			Map result = (Map) ((AlgorithmDone) e).getPayload();
 			Platform.runLater(() -> {
@@ -123,12 +124,12 @@ public class MapRenderer implements Listener {
 		ctx.clearRect(0, 0, ctx.getCanvas().getWidth(), ctx.getCanvas().getHeight());
 		int m = matrix.length;
 		int n = matrix[0].length;
-		int pWidth = (int) Math.floor(ctx.getCanvas().getWidth() / Math.max(m, n));
+		double pWidth = ctx.getCanvas().getWidth() / (double)Math.max(m, n);
 
 		for (int i = 0; i < m; i++) {
 			for (int j = 0; j < n; j++) {
 				ctx.setFill(getColour(matrix[i][j]));
-				ctx.fillRect(i * pWidth, j * pWidth, pWidth, pWidth);
+				ctx.fillRect((double)i * pWidth, (double)j * pWidth, pWidth, pWidth);
 			}
 		}
 	}
@@ -144,7 +145,7 @@ public class MapRenderer implements Listener {
 		ctx.clearRect(0, 0, ctx.getCanvas().getWidth(), ctx.getCanvas().getHeight());
 		int m = matrix.length;
 		int n = matrix[0].length;
-		int pWidth = (int) Math.floor(ctx.getCanvas().getWidth() / Math.max(m, n));
+		double pWidth = ctx.getCanvas().getWidth() / (double)Math.max(m, n);
 		Image image = null;
 
 		for (int i = 0; i < m; i++) {
@@ -171,14 +172,24 @@ public class MapRenderer implements Listener {
 		//TODO: The following calculation should probably be split out into a method
 		int m = matrix.length;
 		int n = matrix[0].length;
-		int pWidth = (int) Math.floor(ctx.getCanvas().getWidth() / Math.max(m, n));
+		double pWidth = ctx.getCanvas().getWidth() / (double)Math.max(m, n);
 		patternOpacity = config.getPatternOpacity();
 				
 		for (Entry<Pattern, Color> e : patterns.entrySet()) {
 			Platform.runLater(() -> {
-				drawPattern(ctx, e.getKey(), e.getValue(), pWidth);
+				drawPattern(ctx, e.getKey(), getPatternColor(e.getKey())/*e.getValue()*/, pWidth);
 			});
 		}
+	}
+	
+	private Color getPatternColor(Pattern p){
+		if(p instanceof Room)
+			return Color.BLUE;
+		if(p instanceof Corridor)
+			return Color.RED;
+		if(p instanceof Connector)
+			return Color.YELLOW;
+		return Color.BLACK;
 	}
 	
 	public synchronized void drawGraph(GraphicsContext ctx, int[][] matrix, Graph<Pattern> patternGraph){
@@ -272,6 +283,12 @@ public class MapRenderer implements Listener {
 					drawCircle(ctx,getPatternCentre((SpacialPattern)p2,pWidth),Color.BLACK,5);
 				}
 			}
+			else if (p instanceof TreasureRoom){
+				drawArbitraryRectangle(ctx,getPatternCentre((SpacialPattern)p.getPatterns().get(0),pWidth),pWidth*1.5,pWidth, Color.ORANGE);
+			}
+			else if (p instanceof GuardRoom){
+				drawArbitraryRectangle(ctx,getPatternCentre((SpacialPattern)p.getPatterns().get(0),pWidth),pWidth,pWidth*1.5, Color.BROWN);
+			}
 		}
 	}
 	
@@ -309,7 +326,7 @@ public class MapRenderer implements Listener {
 	/**
 	 * Publishes a rendered map.
 	 */
-	private void sendRenderedMap(game.Map map) {
+	private synchronized void sendRenderedMap(game.Map map) {
 		finalMapHeight = config.getMapRenderHeight();
 		finalMapWidth = config.getMapRenderWidth();
 		Canvas canvas = new Canvas(finalMapWidth, finalMapHeight);
@@ -402,17 +419,42 @@ public class MapRenderer implements Listener {
 	private void drawPattern(
 			GraphicsContext ctx,
 			Pattern p, Color c,
-			int pWidth) {
+			double pWidth) {
 		Geometry g = p.getGeometry();
 		
 		if (g instanceof Point) {
 			drawPoint(ctx, (Point) g, c, pWidth);
 		} else if (g instanceof Bitmap) {
-			for (Point point : ((finder.geometry.Polygon) g).getPoints()) {
-				drawPoint(ctx, point, c, pWidth);
-			}
+			drawBitmapProperly(ctx,(Bitmap)g,c,pWidth);
+//			for (Point point : ((finder.geometry.Polygon) g).getPoints()) {
+//				drawPoint(ctx, point, c, pWidth);
+//			}
 		} else if (g instanceof finder.geometry.Rectangle) {
 			drawRectangle(ctx, (Rectangle) g, c, pWidth);
+		}
+	}
+	
+	private void drawBitmapProperly(GraphicsContext ctx, Bitmap b, Color c, double pWidth){
+		for(Point p : b.getPoints()){
+			ctx.setFill(new Color(c.getRed(), c.getGreen(), c.getBlue(), patternOpacity));
+			ctx.fillRect(p.getX() * pWidth, p.getY() * pWidth, pWidth, pWidth);
+		}
+		for(Point p : b.getPoints()){
+			ctx.setStroke(new Color(c.getRed()*0.3, c.getGreen()*0.3, c.getBlue()*0.3, 1));
+			ctx.setLineWidth(pWidth*0.15);
+			if(!b.contains(new Point(p.getX() - 1, p.getY()))){
+				ctx.strokeLine(pWidth*p.getX(), pWidth*p.getY(), pWidth*p.getX(), pWidth*(p.getY()+1));
+			}
+			if(!b.contains(new Point(p.getX() + 1, p.getY()))){
+				ctx.strokeLine(pWidth*(p.getX()+1), pWidth*p.getY(), pWidth*(p.getX()+1), pWidth*(p.getY()+1));
+			}
+			
+			if(!b.contains(new Point(p.getX(), p.getY() - 1))){
+				ctx.strokeLine(pWidth*p.getX(), pWidth*p.getY(), pWidth*(p.getX()+1), pWidth*p.getY());
+			}
+			if(!b.contains(new Point(p.getX(), p.getY() + 1))){
+				ctx.strokeLine(pWidth*(p.getX()), pWidth*(p.getY()+1), pWidth*(p.getX()+1), pWidth*(p.getY()+1));
+			}
 		}
 	}
 	
@@ -424,12 +466,20 @@ public class MapRenderer implements Listener {
 	 * @param c The colour to use.
 	 * @param width The width of a "pixel".
 	 */
-	private void drawPoint(GraphicsContext ctx, Point p, Color c, int width) {
+	private void drawPoint(GraphicsContext ctx, Point p, Color c, double width) {
 		ctx.setFill(new Color(c.getRed(), c.getGreen(), c.getBlue(), patternOpacity));
 		ctx.setStroke(c);
 		ctx.setLineWidth(2);
-		ctx.fillRect(p.getX() * width, p.getY() * width, width - 1, width - 1);
-		ctx.strokeRect(p.getX() * width, p.getY() * width, width - 1, width - 1);
+		ctx.fillRect((double)p.getX() * width, (double)p.getY() * width, width, width);
+		ctx.strokeRect((double)p.getX() * width, (double)p.getY() * width, width, width);
+	}
+	
+	private void drawArbitraryRectangle(GraphicsContext ctx, Point center, double width, double height, Color c){
+		ctx.setFill(new Color(c.getRed(), c.getGreen(), c.getBlue(), 0.8));
+		ctx.setStroke(c);
+		ctx.setLineWidth(3);
+		ctx.fillRect(center.getX() - width/2.0, center.getY() - height/2.0, width, height);
+		ctx.strokeRect(center.getX() - width/2.0, center.getY() - height/2.0, width, height);
 	}
 	
 	/**
@@ -442,11 +492,11 @@ public class MapRenderer implements Listener {
 	 * @param y The y value of the first point.
 	 * @param pWidth The width of a "pixel".
 	 */
-	private void drawRectangle(GraphicsContext ctx, Rectangle r, Color c, int pWidth) {
-		int x = r.getTopLeft().getX() * pWidth;
-		int y = r.getTopLeft().getY() * pWidth;
-		int width = (r.getBottomRight().getX() - x + 1) * pWidth + pWidth - 1;
-		int height = (r.getBottomRight().getY() - y + 1) * width + width - 1;
+	private void drawRectangle(GraphicsContext ctx, Rectangle r, Color c, double pWidth) {
+		double x = r.getTopLeft().getX() * pWidth;
+		double y = r.getTopLeft().getY() * pWidth;
+		double width = (r.getBottomRight().getX() - x + 1) * pWidth + pWidth - 1;
+		double height = (r.getBottomRight().getY() - y + 1) * width + width - 1;
 		
 		ctx.setFill(new Color(c.getRed(), c.getGreen(), c.getBlue(), patternOpacity));
 		ctx.setStroke(c);
@@ -455,7 +505,7 @@ public class MapRenderer implements Listener {
 		ctx.strokeRect(x, y, width, height);
 	}
 	
-	private void drawCircle(GraphicsContext ctx, Point p, Color c, int radius){
+	private void drawCircle(GraphicsContext ctx, Point p, Color c, double radius){
 		ctx.setFill(new Color(c.getRed(), c.getGreen(), c.getBlue(), 0.8));
 		ctx.setStroke(c);
 		ctx.setLineWidth(4);

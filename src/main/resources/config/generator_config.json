@@ -1,13 +1,13 @@
 {
     "generator": {
-        "generations": 150,
-        "population_size": 150,
+        "generations": 100,
+        "population_size": 50,
         "mutation_probability": 0.9,
         "offspring_size": 0.7,
-        "feasible_proportion": 0.5,
+        "feasible_proportion": 1,
         "weights": {
-            "room": 0.5,
-            "corridor": 0.5
+            "room": 0.7,
+            "corridor": 0.3
         }
     },
     "tile_type_ranges": {
@@ -30,9 +30,9 @@
 	},
     "patterns": {
         "room": {
-            "desired_area": 36,
-            "squareness": 0.5,
-            "size": 0.5
+            "desired_area": 25,
+            "squareness": 0.4,
+            "size": 0.6
         },
         "corridor": {
             "target_length": 4
@@ -55,8 +55,8 @@
         },
         "treasure": {
 			"treasures_quantity": {
-				"min": 0.005,
-				"max": 0.01
+				"min": 0.02,
+				"max": 0.03
 			}
         },
         "door": {

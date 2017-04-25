@@ -53,8 +53,6 @@ public class Corridor extends SpacialPattern {
 		return Math.min((double)((Bitmap)boundaries).getArea()/targetLength,1.0);
 	}
 	
-	
-	
 	/**
 	 * Algorithm description:
 	 * 

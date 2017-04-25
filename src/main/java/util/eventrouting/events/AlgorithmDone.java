@@ -9,7 +9,7 @@ import util.eventrouting.PCGEvent;
  * 
  * @author Johan Holmberg, Malmö University
  */
-public class AlgorithmDone extends PCGEvent {
+public class AlgorithmDone extends AlgorithmEvent {
 	
 	public AlgorithmDone(HashMap<String, Object> map) {
 		setPayload(map);

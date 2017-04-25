@@ -9,7 +9,7 @@ import util.eventrouting.PCGEvent;
  * @author Alexander Baldwin, Malmö University
  * @author Johan Holmberg, Malmö University
  */
-public class MapUpdate extends PCGEvent {
+public class MapUpdate extends AlgorithmEvent {
 	
 	/**
 	 * Creates a new event.
