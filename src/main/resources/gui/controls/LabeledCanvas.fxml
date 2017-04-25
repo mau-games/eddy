@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.canvas.Canvas?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.VBox?>
+
+<VBox xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/8.0.111">
+      <Canvas fx:id="canvas" height="120.0" width="120.0" />
+      <Label fx:id="label" minWidth="-Infinity" prefWidth="120.0" text="Label" textAlignment="CENTER" wrapText="true" />
+</VBox>
