@@ -77,7 +77,7 @@ public class DeadEnd extends CompositePattern {
 							Node<Pattern> current = queue.remove();
 							
 							for(Edge<Pattern> e2 : current.getEdges()){
-								Node<Pattern> n2 = getOtherNode(e2,n);
+								Node<Pattern> n2 = getOtherNode(e2,current);
 								if(!criticalPath.contains(n2) && !n2.isVisited()){
 									if(!patternGraph.isEdgeInCycle(e2)){
 										deadEnds.add(expandDeadEnd(n2,current));
