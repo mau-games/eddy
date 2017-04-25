@@ -68,10 +68,6 @@ public class ParameterGUI extends Application {
 
 			MapRenderer.getInstance();
 
-			Platform.runLater(() -> {
-				game.batchRun();
-			});
-
 		} catch (Exception e) {
 			logger.error("Couldn't load GUI: " + e.getMessage(), e);
 			System.exit(0);
