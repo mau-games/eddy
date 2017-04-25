@@ -23,6 +23,7 @@ import finder.patterns.CompositePattern;
 import finder.patterns.InventorialPattern;
 import finder.patterns.Pattern;
 import finder.patterns.SpacialPattern;
+import finder.patterns.meso.Ambush;
 import finder.patterns.meso.ChokePoint;
 import finder.patterns.meso.DeadEnd;
 import finder.patterns.meso.GuardRoom;
@@ -196,7 +197,7 @@ public class MapRenderer implements Listener {
 
 		int m = matrix.length;
 		int n = matrix[0].length;
-		int pWidth = (int) Math.floor(ctx.getCanvas().getWidth() / Math.max(m, n));
+		double pWidth = ctx.getCanvas().getWidth() / (double)Math.max(m, n);
 		
 		patternGraph.resetGraph();
 		
@@ -268,7 +269,7 @@ public class MapRenderer implements Listener {
 	public void drawMesoPatterns(GraphicsContext ctx, int[][] matrix, List<CompositePattern> mesopatterns){
 		int m = matrix.length;
 		int n = matrix[0].length;
-		int pWidth = (int) Math.floor(ctx.getCanvas().getWidth() / Math.max(m, n));
+		double pWidth = ctx.getCanvas().getWidth() / (double)Math.max(m, n);
 		
 		for(CompositePattern p : mesopatterns){
 			if(p instanceof ChokePoint){
@@ -289,26 +290,29 @@ public class MapRenderer implements Listener {
 			else if (p instanceof GuardRoom){
 				drawArbitraryRectangle(ctx,getPatternCentre((SpacialPattern)p.getPatterns().get(0),pWidth),pWidth,pWidth*1.5, Color.BROWN);
 			}
+			else if (p instanceof Ambush){
+				drawArbitraryRectangle(ctx,getPatternCentre((SpacialPattern)p.getPatterns().get(0),pWidth),pWidth*0.5,pWidth*2.0, Color.DARKCYAN);
+			}
 		}
 	}
 	
-	private Point getPatternCentre(SpacialPattern p, int pWidth){
+	private Point getPatternCentre(SpacialPattern p, double pWidth){
 		Point sum = ((Bitmap)p.getGeometry()).getPoints().stream().reduce(new Point(),(Point result, Point point)->{result.setX(result.getX()+point.getX()); result.setY(result.getY()+point.getY());return result;});
 		double x = (double)sum.getX()/((Bitmap)p.getGeometry()).getNumberOfPoints();
 		double y = (double)sum.getY()/((Bitmap)p.getGeometry()).getNumberOfPoints();
 		return new Point((int)(pWidth*(x+0.5)),(int)(pWidth*(y+0.5)));
 	}
 	
-	private int getNodeRadius(SpacialPattern p, int pWidth){
+	private double getNodeRadius(SpacialPattern p, double pWidth){
 		if(p instanceof Room)
-			return (int)(pWidth * 1.0);
+			return (pWidth * 1.0);
 		if(p instanceof Corridor)
-			return (int)(pWidth * 0.25);
+			return (pWidth * 0.25);
 		if(p instanceof Connector)
-			return (int)(pWidth * 0.25);
+			return (pWidth * 0.25);
 		if(p instanceof Nothing)
-			return (int)(pWidth * 0.25);
-		return (int)(pWidth * 2.0);
+			return (pWidth * 0.25);
+		return (pWidth * 2.0);
 	}
 	
 	private Color getNodeColor(SpacialPattern p){
