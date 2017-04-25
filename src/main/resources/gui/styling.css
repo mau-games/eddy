@@ -25,3 +25,7 @@
 .labeled-text-field .label {
 	-fx-pref-width: 200;
 }
+
+#toolbox .button {
+	-fx-pref-width: 80;
+}
