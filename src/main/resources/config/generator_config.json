@@ -6,8 +6,8 @@
         "offspring_size": 0.7,
         "feasible_proportion": 1,
         "weights": {
-            "room": 0.7,
-            "corridor": 0.3
+            "room": 0.85,
+            "corridor": 0.15
         }
     },
     "tile_type_ranges": {
@@ -30,9 +30,9 @@
 	},
     "patterns": {
         "room": {
-            "desired_area": 25,
-            "squareness": 0.4,
-            "size": 0.6
+            "desired_area": 60,
+            "squareness": 0.3,
+            "size": 0.7
         },
         "corridor": {
             "target_length": 4
