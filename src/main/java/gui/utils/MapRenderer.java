@@ -178,19 +178,9 @@ public class MapRenderer implements Listener {
 				
 		for (Entry<Pattern, Color> e : patterns.entrySet()) {
 			Platform.runLater(() -> {
-				drawPattern(ctx, e.getKey(), getPatternColor(e.getKey())/*e.getValue()*/, pWidth);
+				drawPattern(ctx, e.getKey(), e.getValue(), pWidth);
 			});
 		}
-	}
-	
-	private Color getPatternColor(Pattern p){
-		if(p instanceof Room)
-			return Color.BLUE;
-		if(p instanceof Corridor)
-			return Color.RED;
-		if(p instanceof Connector)
-			return Color.YELLOW;
-		return Color.BLACK;
 	}
 	
 	public synchronized void drawGraph(GraphicsContext ctx, int[][] matrix, Graph<Pattern> patternGraph){

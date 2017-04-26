@@ -343,7 +343,7 @@ public class GUIController implements Initializable, Listener {
 					if (activePatterns.containsKey(p)) {
 						pic.setSelected(true);
 					}
-					roomColour = roomColour.darker();
+					//roomColour = roomColour.darker();
 				} else if (p instanceof Connector) {
 					PatternInstanceControl pic =
 							new PatternInstanceControl(connectors.size(),
@@ -354,7 +354,7 @@ public class GUIController implements Initializable, Listener {
 					if (activePatterns.containsKey(p)) {
 						pic.setSelected(true);
 					}
-					connectorColour = connectorColour.darker();
+					//connectorColour = connectorColour.darker();
 				} else if (p instanceof Corridor) {
 					PatternInstanceControl pic =
 							new PatternInstanceControl(corridors.size(),
@@ -365,7 +365,7 @@ public class GUIController implements Initializable, Listener {
 					if (activePatterns.containsKey(p)) {
 						pic.setSelected(true);
 					}
-					corridorColour = corridorColour.darker();
+					//corridorColour = corridorColour.darker();
 				}
 			}
 			
