@@ -2,6 +2,7 @@ package gui.controls;
 
 import java.io.IOException;
 
+import javafx.beans.property.StringProperty;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.canvas.GraphicsContext;
@@ -76,11 +77,29 @@ public class LabeledCanvas extends BorderPane {
 	}
 	
 	/**
-	 * Updates the label.
+	 * Gets the label's text.
 	 * 
-	 * @param label The new text to display.
+	 * @return The label's text value.
 	 */
-	public void updateLabel(String label) {
-		this.label.setText(label);
-	}
+    public String getText() {
+        return label.getText();
+    }
+	
+	/**
+	 * Sets the label's text.
+	 * 
+	 * @param label The text to display.
+	 */
+    public void setText(String value) {
+    	label.setText(value);
+    }
+
+    /**
+     * Gets the label's text property.
+     * 
+     * @return The label's text property.
+     */
+    public StringProperty textProperty() {
+        return label.textProperty();
+    }
 }
