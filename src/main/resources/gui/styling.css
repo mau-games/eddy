@@ -22,6 +22,11 @@
 	-fx-font-weight: bold;
 }
 
+.labeled-canvas .label {
+	-fx-text-alignment: center;
+	-fx-pref-width: 120;
+}
+
 .labeled-text-field .label {
 	-fx-pref-width: 200;
 }

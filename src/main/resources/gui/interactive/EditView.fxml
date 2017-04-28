@@ -1,17 +1,23 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import gui.controls.LabeledCanvas?>
+
+<?import javafx.geometry.Insets?>
 <?import javafx.scene.canvas.Canvas?>
 <?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
 <?import javafx.scene.control.ToolBar?>
 <?import javafx.scene.image.Image?>
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
 
-<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" stylesheets="@../styling.css" xmlns="http://javafx.com/javafx/8.0.111" xmlns:fx="http://javafx.com/fxml/1" fx:controller="gui.InteractiveGUIController">
+<fx:root type="javafx.scene.layout.BorderPane" stylesheets="@../styling.css" xmlns:fx="http://javafx.com/fxml/1">
    <left>
-      <ToolBar id="toolbox" orientation="VERTICAL" prefHeight="400.0" prefWidth="99.0" BorderPane.alignment="TOP_CENTER">
+      <ToolBar id="toolbox" orientation="VERTICAL" prefHeight="400.0" prefWidth="95.0" BorderPane.alignment="TOP_CENTER">
         <items>
+          <Label text="Editor tools" />
           <Button contentDisplay="TOP" mnemonicParsing="false" text="Floor">
                <graphic>
                   <ImageView fitWidth="40.0" pickOnBounds="true" preserveRatio="true">
@@ -48,16 +54,31 @@
                   </ImageView>
                </graphic>
           </Button>
+          <Button contentDisplay="TOP" mnemonicParsing="false" text="Generate">
+              <VBox.margin>
+                  <Insets>
+                      <top>20</top>
+                  </Insets>
+              </VBox.margin>
+          </Button>
         </items>
       </ToolBar>
    </left>
    <center>
       <BorderPane prefHeight="200.0" prefWidth="200.0" BorderPane.alignment="CENTER">
          <bottom>
-            <HBox prefHeight="100.0" prefWidth="200.0" BorderPane.alignment="CENTER" />
+            <HBox prefHeight="100.0" prefWidth="200.0" BorderPane.alignment="CENTER">
+               <children>
+                  <LabeledCanvas fx:id="map1" />
+                  <LabeledCanvas fx:id="map2" />
+                  <LabeledCanvas fx:id="map3" />
+                  <LabeledCanvas fx:id="map4" />
+               </children>
+            </HBox>
          </bottom>
          <center>
             <Canvas height="200.0" width="200.0" BorderPane.alignment="CENTER" />
-         </center></BorderPane>
+         </center>
+      </BorderPane>
    </center>
-</BorderPane>
+</fx:root>

@@ -4,7 +4,7 @@
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.layout.VBox?>
 
-<VBox xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/8.0.111">
+<fx:root type="javafx.scene.layout.VBox" xmlns:fx="http://javafx.com/fxml/1">
       <Canvas fx:id="canvas" height="120.0" width="120.0" />
       <Label fx:id="label" minWidth="-Infinity" prefWidth="120.0" text="Label" textAlignment="CENTER" wrapText="true" />
-</VBox>
+</fx:root>

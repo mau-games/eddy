@@ -22,14 +22,25 @@ public class LabeledCanvas extends VBox {
 	
 	/**
 	 * Creates an instance of this class.
+	 */
+	public LabeledCanvas() {
+		super();
+		init("default");
+	}
+	
+	/**
+	 * Creates an instance of this class.
 	 * 
 	 * @param label The control's label.
 	 */
 	public LabeledCanvas(String label) {
 		super();
-		
+		init(label);
+	}
+	
+	private void init(String label) {
 		FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource(
-				"gui/controls/LabeledCanvas.fxml"));
+				"/gui/controls/LabeledCanvas.fxml"));
 		fxmlLoader.setRoot(this);
 		fxmlLoader.setController(this);
 

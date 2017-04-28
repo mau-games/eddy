@@ -486,7 +486,7 @@ public class ParameterGUIController implements Initializable, Listener {
 				}
 				break;
 			case BOOLEAN:
-				boolVal = (boolean) newValue;
+				boolVal = (Boolean) newValue;
 				config.updateValue(path, boolVal);
 				break;
 			default:

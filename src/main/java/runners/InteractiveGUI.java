@@ -50,7 +50,7 @@ public class InteractiveGUI extends Application {
 		try {
 			config = ConfigurationUtility.getInstance();
 
-			root = FXMLLoader.load(getClass().getResource("/gui/interactive/EditView.fxml"));
+			root = FXMLLoader.load(getClass().getResource("/gui/interactive/InteractiveGUI.fxml"));
 
 			Scene scene = new Scene(root,800, 600);
 			stage.getIcons().add(new Image(getClass().getResourceAsStream("/graphics/icon.png"))); 
