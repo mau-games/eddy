@@ -27,6 +27,12 @@
 	-fx-pref-width: 500;
 }
 
+#startView {
+	-fx-padding: 20;
+	-fx-hgap: 20;
+	-fx-vgap: 20;
+}
+
 #canvasPane {
 	-fx-pref-height: 140;
 	-fx-pref-width: 140;
