@@ -4,20 +4,22 @@ import java.io.IOException;
 
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
-import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.Label;
 import javafx.scene.image.Image;
-import javafx.scene.layout.VBox;
+import javafx.scene.layout.AnchorPane;
+import javafx.scene.layout.BorderPane;
 
 /**
  * This control is used to display a labeled image.
  * 
  * @author Johan Holmberg, Malmö University
  */
-public class LabeledCanvas extends VBox {
+public class LabeledCanvas extends BorderPane {
 	@FXML private Label label;
-	@FXML private Canvas canvas;
+	@FXML private ResizableCanvas canvas;
+	@FXML private AnchorPane canvasPane;
+	@FXML private BorderPane rootPane;
 	private GraphicsContext gc;
 	
 	/**
@@ -49,6 +51,11 @@ public class LabeledCanvas extends VBox {
 		} catch (IOException exception) {
 			throw new RuntimeException(exception);
 		}
+		
+		
+		canvas.widthProperty().bind(canvasPane.widthProperty());
+		canvas.heightProperty().bind(canvasPane.heightProperty());
+		canvasPane.setPrefSize(rootPane.widthProperty().doubleValue(), 100);
 
 		getStyleClass().add("labeled-canvas");
 		this.label.setLabelFor(this.canvas);

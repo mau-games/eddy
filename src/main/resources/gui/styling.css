@@ -22,9 +22,23 @@
 	-fx-font-weight: bold;
 }
 
+#centralCanvas {
+	-fx-pref-height: 500;
+	-fx-pref-width: 500;
+}
+
+#canvasPane {
+	-fx-pref-height: 140;
+	-fx-pref-width: 140;
+}
+
+.labeled-canvas {
+	-fx-border-color: black;
+	-fx-border-width: 2;
+}
+
 .labeled-canvas .label {
 	-fx-text-alignment: center;
-	-fx-pref-width: 120;
 }
 
 .labeled-text-field .label {
