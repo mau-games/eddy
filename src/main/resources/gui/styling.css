@@ -32,11 +32,6 @@
 	-fx-pref-width: 140;
 }
 
-.labeled-canvas {
-	-fx-border-color: black;
-	-fx-border-width: 2;
-}
-
 .labeled-canvas .label {
 	-fx-text-alignment: center;
 }
