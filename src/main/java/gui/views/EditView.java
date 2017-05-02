@@ -1,7 +1,9 @@
 package gui.views;
 
 import java.io.IOException;
+import java.util.List;
 
+import gui.controls.LabeledCanvas;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.canvas.Canvas;
@@ -17,6 +19,7 @@ import javafx.scene.paint.Color;
 public class EditView extends BorderPane {
 	
 	@FXML private Canvas centralCanvas;
+	@FXML private List<LabeledCanvas> maps;
 
 	/**
 	 * Creates an instance of this class.
@@ -35,6 +38,17 @@ public class EditView extends BorderPane {
 		}
 		
 		draw();
+	}
+	
+	/**
+	 * Gets one of the maps (i.e. a labeled view displaying a map) being under
+	 * this object's control.
+	 * 
+	 * @param index An index of a map.
+	 * @return A map if it exists, otherwise null.
+	 */
+	public LabeledCanvas getMap(int index) {
+		return maps.get(index);
 	}
 
 	/**

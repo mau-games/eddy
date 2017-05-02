@@ -2,6 +2,8 @@
 
 <?import gui.controls.LabeledCanvas?>
 
+<?import java.util.ArrayList?>
+
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.canvas.Canvas?>
 <?import javafx.scene.control.Button?>
@@ -69,13 +71,21 @@
       <BorderPane>
          <bottom>
          	<StackPane alignment="CENTER">
+         		<fx:define>
+         	  	  <ArrayList fx:id="maps">
+  		         	<LabeledCanvas fx:id="map0" />
+  		         	<LabeledCanvas fx:id="map1" />
+  		         	<LabeledCanvas fx:id="map2" />
+  		         	<LabeledCanvas fx:id="map3" />
+  	         	  </ArrayList>
+         		</fx:define>
          		<children>
             		<HBox alignment="CENTER" spacing="15">
 		               <children>
-        		          <LabeledCanvas fx:id="map1" />
-                		  <LabeledCanvas fx:id="map2" />
-		                  <LabeledCanvas fx:id="map3" />
-        		          <LabeledCanvas fx:id="map4" />
+        		          <fx:reference source="map0" />
+        		          <fx:reference source="map1" />
+                		  <fx:reference source="map2" />
+		                  <fx:reference source="map3" />
 		               </children>
         		    </HBox>
             	</children>
