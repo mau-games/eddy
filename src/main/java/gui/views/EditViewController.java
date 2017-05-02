@@ -6,24 +6,28 @@ import java.util.List;
 import gui.controls.LabeledCanvas;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
-import javafx.scene.layout.GridPane;
+import javafx.scene.canvas.Canvas;
+import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.layout.BorderPane;
+import javafx.scene.paint.Color;
 
 /**
- * This class controls the interactive application's start view.
+ * his class controls the interactive application's edit view.
  * 
  * @author Johan Holmberg, Malmö University
  */
-public class StartView extends GridPane {
-
+public class EditViewController extends BorderPane {
+	
+	@FXML private Canvas centralCanvas;
 	@FXML private List<LabeledCanvas> maps;
 
 	/**
 	 * Creates an instance of this class.
 	 */
-	public StartView() {
+	public EditViewController() {
 		super();
 		FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource(
-				"/gui/interactive/StartView.fxml"));
+				"/gui/interactive/EditView.fxml"));
 		fxmlLoader.setRoot(this);
 		fxmlLoader.setController(this);
 
@@ -32,6 +36,8 @@ public class StartView extends GridPane {
 		} catch (IOException exception) {
 			throw new RuntimeException(exception);
 		}
+		
+		draw();
 	}
 	
 	/**
@@ -43,5 +49,15 @@ public class StartView extends GridPane {
 	 */
 	public LabeledCanvas getMap(int index) {
 		return maps.get(index);
+	}
+
+	/**
+	 * Draws stuff on the canvas. Useful only for testing at the moment...
+	 */
+	private void draw() {
+		GraphicsContext ctx = centralCanvas.getGraphicsContext2D();
+		
+		ctx.setFill(Color.RED);
+		ctx.fillRect(0, 0, 500, 500);
 	}
 }
