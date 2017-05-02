@@ -8,10 +8,18 @@ import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.layout.GridPane;
 
+/**
+ * This class controls the interactive application's start view.
+ * 
+ * @author Johan Holmberg, Malmö University
+ */
 public class StartView extends GridPane {
 
 	@FXML private List<LabeledCanvas> maps;
 
+	/**
+	 * Creates an instance of this class.
+	 */
 	public StartView() {
 		super();
 		FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource(
@@ -24,5 +32,16 @@ public class StartView extends GridPane {
 		} catch (IOException exception) {
 			throw new RuntimeException(exception);
 		}
+	}
+	
+	/**
+	 * Gets one of the maps (i.e. a labeled view displaying a map) being under
+	 * this object's control.
+	 * 
+	 * @param index An index of a map.
+	 * @return A map if it exists, otherwise null.
+	 */
+	public LabeledCanvas getMap(int index) {
+		return maps.get(index);
 	}
 }

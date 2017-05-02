@@ -9,10 +9,18 @@ import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.paint.Color;
 
+/**
+ * his class controls the interactive application's edit view.
+ * 
+ * @author Johan Holmberg, Malmö University
+ */
 public class EditView extends BorderPane {
 	
 	@FXML private Canvas centralCanvas;
 
+	/**
+	 * Creates an instance of this class.
+	 */
 	public EditView() {
 		super();
 		FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource(
@@ -29,6 +37,9 @@ public class EditView extends BorderPane {
 		draw();
 	}
 
+	/**
+	 * Draws stuff on the canvas. Useful only for testing at the moment...
+	 */
 	private void draw() {
 		GraphicsContext ctx = centralCanvas.getGraphicsContext2D();
 		
