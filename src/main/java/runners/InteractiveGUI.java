@@ -47,6 +47,12 @@ public class InteractiveGUI extends Application {
 	@Override
 	public void start(Stage stage) {
 		Parent root;
+		
+		stage.setOnCloseRequest(e ->{
+			Platform.exit();
+			System.exit(0);
+		});
+		
 		try {
 			config = ConfigurationUtility.getInstance();
 
