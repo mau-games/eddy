@@ -1,5 +1,6 @@
 package gui;
 
+import java.io.File;
 import java.net.URL;
 import java.util.ResourceBundle;
 
@@ -11,6 +12,9 @@ import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
+import javafx.stage.FileChooser;
+import javafx.stage.FileChooser.ExtensionFilter;
+import javafx.stage.Stage;
 import util.eventrouting.Listener;
 import util.eventrouting.PCGEvent;
 
@@ -21,6 +25,8 @@ public class InteractiveGUIController implements Initializable, Listener {
 	StartViewController startView = null;
 	EditViewController editView = null;
 	EventHandler<MouseEvent> mouseEventHandler = null;
+	
+	Stage stage = null;
 
 	@Override
 	public void ping(PCGEvent e) {
@@ -32,6 +38,12 @@ public class InteractiveGUIController implements Initializable, Listener {
 	public void initialize(URL location, ResourceBundle resources) {
 		startView = new StartViewController();
 		editView = new EditViewController();
+		
+		mainPane.sceneProperty().addListener((observableScene, oldScene, newScene) -> {
+			if (newScene != null) {
+				stage = (Stage) newScene.getWindow();
+			}
+		});
 		
 		initStartView();
 	}
@@ -53,10 +65,31 @@ public class InteractiveGUIController implements Initializable, Listener {
 	
 	public void openMap() {
 		System.out.println("Open map");
+		
+		 FileChooser fileChooser = new FileChooser();
+		 fileChooser.setTitle("Open Map");
+		 fileChooser.getExtensionFilters().addAll(
+		         new ExtensionFilter("Map Files", "*.map"),
+		         new ExtensionFilter("All Files", "*.*"));
+		 File selectedFile = fileChooser.showOpenDialog(stage);
+		 if (selectedFile != null) {
+			 System.out.println("Selected file: " + selectedFile);
+			 // TODO: Load map and switch to edit view
+		 }
 	}
 	
 	public void saveMap() {
 		System.out.println("Save map");
+		
+		 FileChooser fileChooser = new FileChooser();
+		 fileChooser.setTitle("Open Map");
+		 fileChooser.getExtensionFilters().addAll(
+		         new ExtensionFilter("Map Files", "*.map"),
+		         new ExtensionFilter("All Files", "*.*"));
+		 File selectedFile = fileChooser.showSaveDialog(stage);
+		 if (selectedFile != null) {
+			 System.out.println("Selected file: " + selectedFile);
+		 }
 	}
 	
 	public void openPreferences() {
