@@ -52,7 +52,7 @@ public class InteractiveGUI extends Application {
 
 			root = FXMLLoader.load(getClass().getResource("/gui/interactive/InteractiveGUI.fxml"));
 
-			Scene scene = new Scene(root,800, 600);
+			Scene scene = new Scene(root, 1024, 768);
 			stage.getIcons().add(new Image(getClass().getResourceAsStream("/graphics/icon.png"))); 
 			stage.setTitle("Eddy - Evolutionary Dungeon Designer");
 			stage.setScene(scene);
