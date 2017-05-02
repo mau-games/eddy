@@ -1,6 +1,7 @@
 package gui.views;
 
 import java.io.IOException;
+import java.util.List;
 
 import gui.controls.LabeledCanvas;
 import javafx.fxml.FXML;
@@ -9,12 +10,7 @@ import javafx.scene.layout.GridPane;
 
 public class StartView extends GridPane {
 
-	@FXML private LabeledCanvas map1;
-	@FXML private LabeledCanvas map2;
-	@FXML private LabeledCanvas map3;
-	@FXML private LabeledCanvas map4;
-	@FXML private LabeledCanvas map5;
-	@FXML private LabeledCanvas map6;
+	@FXML private List<LabeledCanvas> maps;
 
 	public StartView() {
 		super();
