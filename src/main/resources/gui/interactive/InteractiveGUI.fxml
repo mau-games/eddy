@@ -14,13 +14,13 @@
         <Menu mnemonicParsing="false" text="File">
           <items>
             <MenuItem mnemonicParsing="false" onAction="#startNewFlow" text="New" />
-            <MenuItem mnemonicParsing="false" text="Open…" />
-            <Menu mnemonicParsing="false" text="Open Recent" />
+            <MenuItem mnemonicParsing="false" onAction="#openMap" text="Open…" />
+            <!-- <Menu mnemonicParsing="false" text="Open Recent" /> -->
             <SeparatorMenuItem mnemonicParsing="false" />
-            <MenuItem mnemonicParsing="false" text="Save" />
-            <MenuItem mnemonicParsing="false" text="Save As…" />
+            <MenuItem mnemonicParsing="false" onAction="#saveMap" text="Save" />
+            <MenuItem mnemonicParsing="false" onAction="#saveMap" text="Save As…" />
             <SeparatorMenuItem mnemonicParsing="false" />
-            <MenuItem mnemonicParsing="false" text="Preferences…" />
+            <MenuItem mnemonicParsing="false" onAction="#openPreferences" text="Preferences…" />
             <SeparatorMenuItem mnemonicParsing="false" />
             <MenuItem mnemonicParsing="false" onAction="#exitApplication" text="Quit" />
           </items>
@@ -43,7 +43,7 @@
 -->
         <Menu mnemonicParsing="false" text="Help">
           <items>
-            <MenuItem mnemonicParsing="false" text="About Eddy" />
+            <MenuItem mnemonicParsing="false" onAction="#openAboutApplication" text="About Eddy" />
           </items>
         </Menu>
       </menus>

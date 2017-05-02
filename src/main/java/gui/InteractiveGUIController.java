@@ -51,6 +51,24 @@ public class InteractiveGUIController implements Initializable, Listener {
 		System.exit(0);
 	}
 	
+	public void openMap() {
+		System.out.println("Open map");
+	}
+	
+	public void saveMap() {
+		System.out.println("Save map");
+	}
+	
+	public void openPreferences() {
+		System.out.println("Preferences...");
+	}
+	
+	public void openAboutApplication() {
+		System.out.println("About Eddy");
+	}
+	
+//	public void
+	
 	/*
 	 * Initialisation methods
 	 */
