@@ -32,7 +32,7 @@ import finder.patterns.micro.Enemy;
 import finder.patterns.micro.Nothing;
 import finder.patterns.micro.Room;
 import game.TileTypes;
-import gui.GUIController;
+import gui.ParameterGUIController;
 import javafx.application.Platform;
 import javafx.scene.SnapshotParameters;
 import javafx.scene.canvas.Canvas;
@@ -57,7 +57,7 @@ public class MapRenderer implements Listener {
 	
 	private static MapRenderer instance = null;
 	
-	final static Logger logger = LoggerFactory.getLogger(GUIController.class);
+	final static Logger logger = LoggerFactory.getLogger(ParameterGUIController.class);
 	private static EventRouter router = EventRouter.getInstance();
 	private ConfigurationUtility config;
 

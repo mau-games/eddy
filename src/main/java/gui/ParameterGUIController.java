@@ -62,7 +62,7 @@ import util.eventrouting.events.Stop;
  * 
  * @author Johan Holmberg, Malmö University
  */
-public class GUIController implements Initializable, Listener {
+public class ParameterGUIController implements Initializable, Listener {
 	public enum Type {
 		STRING, NUMBER, BOOLEAN;
 	};
@@ -76,7 +76,7 @@ public class GUIController implements Initializable, Listener {
 	@FXML private TitledPane messageSlab;
 	@FXML private TitledPane configSlab;
 
-	final static Logger logger = LoggerFactory.getLogger(GUIController.class);
+	final static Logger logger = LoggerFactory.getLogger(ParameterGUIController.class);
 	private static EventRouter router = EventRouter.getInstance();
 	private ConfigurationUtility config;
 	
@@ -96,7 +96,7 @@ public class GUIController implements Initializable, Listener {
 	 * Creates an instance of GUIController. This method is implicitly called
 	 * when the GUI is created.
 	 */
-	public GUIController() {
+	public ParameterGUIController() {
 		try {
 			config = ConfigurationUtility.getInstance();
 		} catch (MissingConfigurationException e) {
@@ -310,7 +310,7 @@ public class GUIController implements Initializable, Listener {
 					renderer.sketchMap(ctx, matrix);
 				}
 				renderer.drawPatterns(ctx, matrix, activePatterns);
-				renderer.drawGraph(ctx, matrix, currentMap.getPatternFinder().getPatternGraph());
+				renderer.drawGraph(ctx, matrix, currentMap.getPatternFinder().getPatternGraph());				renderer.drawMesoPatterns(ctx, matrix, currentMap.getPatternFinder().findMesoPatterns());
 				renderer.drawMesoPatterns(ctx, matrix, currentMap.getPatternFinder().findMesoPatterns());
 			});
 		}
@@ -487,7 +487,7 @@ public class GUIController implements Initializable, Listener {
 				}
 				break;
 			case BOOLEAN:
-				boolVal = (boolean) newValue;
+				boolVal = (Boolean) newValue;
 				config.updateValue(path, boolVal);
 				break;
 			default:

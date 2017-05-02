@@ -8,7 +8,7 @@ public class RectangleTest {
 
 	@Test
 	public void testGetArea() {
-		Rectangle rectangle = new Rectangle(new Point(0, 0), new Point(2, 3));
+		Rectangle rectangle = new Rectangle(new Point(1, 1), new Point(2, 3));
 		
 		assertEquals(6, rectangle.getArea(), 0);
 	}
