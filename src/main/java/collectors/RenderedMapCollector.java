@@ -55,7 +55,7 @@ public class RenderedMapCollector implements Listener {
 	}
 
 	@Override
-	public void ping(PCGEvent e) {
+	public synchronized void ping(PCGEvent e) {
 		if (e instanceof MapRendered) {
 			if (active) {
 				saveImage((Image) e.getPayload());
