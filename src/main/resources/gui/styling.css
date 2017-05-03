@@ -28,7 +28,7 @@
 }
 
 #startView {
-	-fx-padding: 20;
+	-fx-padding: 40;
 	-fx-hgap: 20;
 	-fx-vgap: 20;
 }
