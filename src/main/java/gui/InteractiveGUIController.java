@@ -10,6 +10,7 @@ import javafx.application.Platform;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.scene.control.MenuItem;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.stage.FileChooser;
@@ -21,6 +22,14 @@ import util.eventrouting.PCGEvent;
 public class InteractiveGUIController implements Initializable, Listener {
 	
 	@FXML private AnchorPane mainPane;
+	@FXML private MenuItem newItem;
+	@FXML private MenuItem openItem;
+	@FXML private MenuItem saveItem;
+	@FXML private MenuItem saveAsItem;
+	@FXML private MenuItem exportItem;
+	@FXML private MenuItem prefsItem;
+	@FXML private MenuItem exitItem;
+	@FXML private MenuItem aboutItem;
 	
 	StartViewController startView = null;
 	EditViewController editView = null;
@@ -92,6 +101,10 @@ public class InteractiveGUIController implements Initializable, Listener {
 		 }
 	}
 	
+	public void exportImage() {
+		System.out.println("Exporting image");
+	}
+	
 	public void openPreferences() {
 		System.out.println("Preferences...");
 	}
@@ -118,6 +131,10 @@ public class InteractiveGUIController implements Initializable, Listener {
 		AnchorPane.setBottomAnchor(startView, 0.0);
 		AnchorPane.setLeftAnchor(startView, 0.0);
 		mainPane.getChildren().add(startView);
+		
+		saveItem.setDisable(true);
+		saveAsItem.setDisable(true);
+		exportItem.setDisable(true);
 
 		startView.getMap(0).addEventFilter(MouseEvent.MOUSE_CLICKED, mouseEventHandler);
 		startView.getMap(0).setText("Label for map 0\nSome properties for map 0");
@@ -147,6 +164,10 @@ public class InteractiveGUIController implements Initializable, Listener {
 		AnchorPane.setBottomAnchor(editView, 0.0);
 		AnchorPane.setLeftAnchor(editView, 0.0);
 		mainPane.getChildren().add(editView);
+		
+		saveItem.setDisable(false);
+		saveAsItem.setDisable(false);
+		exportItem.setDisable(false);
 		
 		editView.getMap(0).addEventFilter(MouseEvent.MOUSE_CLICKED, mouseEventHandler);
 		editView.getMap(0).setText("Label for map 0\nSome properties for map 0");
