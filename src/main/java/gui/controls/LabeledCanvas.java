@@ -77,6 +77,15 @@ public class LabeledCanvas extends BorderPane {
 	}
 	
 	/**
+	 * Returns the canvas's graphics context.
+	 * 
+	 * @return A graphics context.
+	 */
+	public GraphicsContext getGraphicsContext() {
+		return gc.getCanvas().getGraphicsContext2D();
+	}
+	
+	/**
 	 * Gets the label's text.
 	 * 
 	 * @return The label's text value.
