@@ -8,15 +8,15 @@
 <?import javafx.scene.layout.BorderPane?>
 
 <fx:root type="javafx.scene.layout.BorderPane" xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/8.0.111" fx:id="rootPane">
-   <top>
+   <center>
       <AnchorPane fx:id="canvasPane">
          <children>
             <ResizableCanvas fx:id="canvas" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
          </children>
       </AnchorPane>
-   </top>
+   </center>
    <bottom>
-      <AnchorPane prefHeight="40.0">
+      <AnchorPane fx:id="labelPane" prefHeight="40.0">
    	     <children>
             <Label fx:id="label" alignment="TOP_CENTER" minWidth="-Infinity" text="Label" textAlignment="CENTER" wrapText="true" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
          </children>

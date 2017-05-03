@@ -124,7 +124,7 @@ public class PatternFinder {
 		mesopatterns.addAll(GuardRoom.matches(map, patternGraph));
 		mesopatterns.addAll(TreasureRoom.matches(map, patternGraph));
 		mesopatterns.addAll(Ambush.matches(map, patternGraph));
-		mesopatterns.addAll(GuardedTreasure.matches(map, patternGraph)); //Do this last!
+//		mesopatterns.addAll(GuardedTreasure.matches(map, patternGraph)); //Do this last!
 		return mesopatterns;
 	}
 	

@@ -13,16 +13,17 @@
       <menus>
         <Menu mnemonicParsing="false" text="File">
           <items>
-            <MenuItem mnemonicParsing="false" onAction="#startNewFlow" text="New" />
-            <MenuItem mnemonicParsing="false" onAction="#openMap" text="Open…" />
+            <MenuItem mnemonicParsing="false" fx:id="newItem" onAction="#startNewFlow" text="New" />
+            <MenuItem mnemonicParsing="false" fx:id="openItem" onAction="#openMap" text="Open…" />
             <!-- <Menu mnemonicParsing="false" text="Open Recent" /> -->
             <SeparatorMenuItem mnemonicParsing="false" />
-            <MenuItem mnemonicParsing="false" onAction="#saveMap" text="Save" />
-            <MenuItem mnemonicParsing="false" onAction="#saveMap" text="Save As…" />
+            <MenuItem mnemonicParsing="false" fx:id="saveItem" onAction="#saveMap" text="Save" />
+            <MenuItem mnemonicParsing="false" fx:id="saveAsItem" onAction="#saveMap" text="Save As…" />
+            <MenuItem mnemonicParsing="false" fx:id="exportItem" onAction="#exportImage" text="Export image" />
             <SeparatorMenuItem mnemonicParsing="false" />
-            <MenuItem mnemonicParsing="false" onAction="#openPreferences" text="Preferences…" />
+            <MenuItem mnemonicParsing="false" fx:id="prefsItem" onAction="#openPreferences" text="Preferences…" />
             <SeparatorMenuItem mnemonicParsing="false" />
-            <MenuItem mnemonicParsing="false" onAction="#exitApplication" text="Quit" />
+            <MenuItem mnemonicParsing="false" fx:id="exitItem" onAction="#exitApplication" text="Quit" />
           </items>
         </Menu>
 <!--
@@ -43,7 +44,7 @@
 -->
         <Menu mnemonicParsing="false" text="Help">
           <items>
-            <MenuItem mnemonicParsing="false" onAction="#openAboutApplication" text="About Eddy" />
+            <MenuItem mnemonicParsing="false" fx:id="aboutItem" onAction="#openAboutApplication" text="About Eddy" />
           </items>
         </Menu>
       </menus>

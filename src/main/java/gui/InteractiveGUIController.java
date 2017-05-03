@@ -1,41 +1,75 @@
 package gui;
 
+import java.awt.image.BufferedImage;
 import java.io.File;
+import java.io.IOException;
 import java.net.URL;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ResourceBundle;
 
+import javax.imageio.ImageIO;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import game.ApplicationConfig;
+import game.Map;
 import gui.views.EditViewController;
 import gui.views.StartViewController;
 import javafx.application.Platform;
+import javafx.embed.swing.SwingFXUtils;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.scene.control.MenuItem;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.stage.FileChooser;
 import javafx.stage.FileChooser.ExtensionFilter;
 import javafx.stage.Stage;
+import util.eventrouting.EventRouter;
 import util.eventrouting.Listener;
 import util.eventrouting.PCGEvent;
+import util.eventrouting.events.AlgorithmDone;
+import util.eventrouting.events.MapUpdate;
+import util.eventrouting.events.RequestRedraw;
+import util.eventrouting.events.StatusMessage;
 
 public class InteractiveGUIController implements Initializable, Listener {
 	
 	@FXML private AnchorPane mainPane;
+	@FXML private MenuItem newItem;
+	@FXML private MenuItem openItem;
+	@FXML private MenuItem saveItem;
+	@FXML private MenuItem saveAsItem;
+	@FXML private MenuItem exportItem;
+	@FXML private MenuItem prefsItem;
+	@FXML private MenuItem exitItem;
+	@FXML private MenuItem aboutItem;
+	
+	Stage stage = null;
 	
 	StartViewController startView = null;
 	EditViewController editView = null;
 	EventHandler<MouseEvent> mouseEventHandler = null;
 	
-	Stage stage = null;
+	final static Logger logger = LoggerFactory.getLogger(InteractiveGUIController.class);
+	private static EventRouter router = EventRouter.getInstance();
+	private ApplicationConfig config;
 
 	@Override
-	public void ping(PCGEvent e) {
+	public synchronized void ping(PCGEvent e) {
 		// TODO Auto-generated method stub
 		
 	}
 
 	@Override
 	public void initialize(URL location, ResourceBundle resources) {
+		router.registerListener(this, new StatusMessage(null));
+		router.registerListener(this, new AlgorithmDone(null));
+		router.registerListener(this, new RequestRedraw());
+		
 		startView = new StartViewController();
 		editView = new EditViewController();
 		
@@ -74,7 +108,14 @@ public class InteractiveGUIController implements Initializable, Listener {
 		 File selectedFile = fileChooser.showOpenDialog(stage);
 		 if (selectedFile != null) {
 			 System.out.println("Selected file: " + selectedFile);
-			 // TODO: Load map and switch to edit view
+			 initEditView();
+			 // TODO: Load map
+			 try {
+				Map.LoadMap(selectedFile);
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 		 }
 	}
 	
@@ -90,6 +131,33 @@ public class InteractiveGUIController implements Initializable, Listener {
 		 if (selectedFile != null) {
 			 System.out.println("Selected file: " + selectedFile);
 		 }
+	}
+	
+	public void exportImage() {
+		DateTimeFormatter format =
+				DateTimeFormatter.ofPattern("yyyy-MM-dd_HH-mm-s-n");
+		String name = "renderedmap_" +
+				LocalDateTime.now().format(format) + ".png";
+
+		FileChooser fileChooser = new FileChooser();
+		fileChooser.setTitle("Open Map");
+		fileChooser.setInitialFileName(name);
+		fileChooser.getExtensionFilters().addAll(
+				new ExtensionFilter("PNG Files", "*.png"),
+				new ExtensionFilter("All Files", "*.*"));
+		File selectedFile = fileChooser.showSaveDialog(stage);
+		if (selectedFile != null && editView.getCurrentMap() != null) {
+			// TODO: We want a higher resolution here...
+			logger.debug("Writing map to " + selectedFile.getPath());
+			BufferedImage image = SwingFXUtils.fromFXImage(editView.getRenderedMap(), null);
+
+			try {
+				ImageIO.write(image, "png", selectedFile);
+			} catch (IOException e1) {
+				logger.error("Couldn't write map to " + selectedFile +
+						":\n" + e1.getMessage());
+			}
+		}
 	}
 	
 	public void openPreferences() {
@@ -110,6 +178,8 @@ public class InteractiveGUIController implements Initializable, Listener {
 	
 	private void initStartView() {
 		System.out.println("init start view");
+		// TODO: Start off a new run of the algorithm
+		
 		mainPane.getChildren().clear();
 		mouseEventHandler = new StartViewEventHandler();
 		
@@ -118,24 +188,31 @@ public class InteractiveGUIController implements Initializable, Listener {
 		AnchorPane.setBottomAnchor(startView, 0.0);
 		AnchorPane.setLeftAnchor(startView, 0.0);
 		mainPane.getChildren().add(startView);
+		
+		saveItem.setDisable(true);
+		saveAsItem.setDisable(true);
+		exportItem.setDisable(true);
 
-		startView.getMap(0).addEventFilter(MouseEvent.MOUSE_CLICKED, mouseEventHandler);
-		startView.getMap(0).setText("Label for map 0\nSome properties for map 0");
+		startView.setActive(true);
+		editView.setActive(false);
+
+		startView.getMapDisplay(0).addEventFilter(MouseEvent.MOUSE_CLICKED, mouseEventHandler);
+		startView.getMapDisplay(0).setText("Label for map 0\nSome properties for map 0");
 		
-		startView.getMap(1).addEventFilter(MouseEvent.MOUSE_CLICKED, mouseEventHandler);
-		startView.getMap(1).setText("Label for map 1\nSome properties for map 1");
+		startView.getMapDisplay(1).addEventFilter(MouseEvent.MOUSE_CLICKED, mouseEventHandler);
+		startView.getMapDisplay(1).setText("Label for map 1\nSome properties for map 1");
 		
-		startView.getMap(2).addEventFilter(MouseEvent.MOUSE_CLICKED, mouseEventHandler);
-		startView.getMap(2).setText("Label for map 2\nSome properties for map 2");
+		startView.getMapDisplay(2).addEventFilter(MouseEvent.MOUSE_CLICKED, mouseEventHandler);
+		startView.getMapDisplay(2).setText("Label for map 2\nSome properties for map 2");
 		
-		startView.getMap(3).addEventFilter(MouseEvent.MOUSE_CLICKED, mouseEventHandler);
-		startView.getMap(3).setText("Label for map 3\nSome properties for map 3");
+		startView.getMapDisplay(3).addEventFilter(MouseEvent.MOUSE_CLICKED, mouseEventHandler);
+		startView.getMapDisplay(3).setText("Label for map 3\nSome properties for map 3");
 		
-		startView.getMap(4).addEventFilter(MouseEvent.MOUSE_CLICKED, mouseEventHandler);
-		startView.getMap(4).setText("Label for map 4\nSome properties for map 4");
+		startView.getMapDisplay(4).addEventFilter(MouseEvent.MOUSE_CLICKED, mouseEventHandler);
+		startView.getMapDisplay(4).setText("Label for map 4\nSome properties for map 4");
 		
-		startView.getMap(5).addEventFilter(MouseEvent.MOUSE_CLICKED, mouseEventHandler);
-		startView.getMap(5).setText("Label for map 5\nSome properties for map 5");
+		startView.getMapDisplay(5).addEventFilter(MouseEvent.MOUSE_CLICKED, mouseEventHandler);
+		startView.getMapDisplay(5).setText("Label for map 5\nSome properties for map 5");
 	}
 
 	private void initEditView() {
@@ -147,6 +224,13 @@ public class InteractiveGUIController implements Initializable, Listener {
 		AnchorPane.setBottomAnchor(editView, 0.0);
 		AnchorPane.setLeftAnchor(editView, 0.0);
 		mainPane.getChildren().add(editView);
+		
+		saveItem.setDisable(false);
+		saveAsItem.setDisable(false);
+		exportItem.setDisable(false);
+
+		startView.setActive(false);
+		editView.setActive(true);
 		
 		editView.getMap(0).addEventFilter(MouseEvent.MOUSE_CLICKED, mouseEventHandler);
 		editView.getMap(0).setText("Label for map 0\nSome properties for map 0");

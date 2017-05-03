@@ -151,12 +151,9 @@ public class Game implements Listener{
 	public synchronized void ping(PCGEvent e) {
 		if(e instanceof Start){
 			readConfiguration();
-			startAll();
-//			startAll();
-//			startAll();
-//			startAll();
-//			startAll();
-//			startAll();
+			for (int i = 0; i < ((Start) e).getNbrOfThreads(); i++) {
+				startAll();
+			}
 		} else if (e instanceof Stop) {
 			stop();
 		} else if (e instanceof RenderingDone){
