@@ -1,6 +1,9 @@
 package generator.algorithm;
 
+import java.util.Random;
+
 import game.Game;
+import game.TileTypes;
 import generator.config.GeneratorConfig;
 import util.Util;
 
@@ -134,11 +137,15 @@ public class Individual {
 		
 		//mutate
 		for(int i = 0; i < 2; i++){
-			if(Util.getNextFloat(0.0f,1.0f) <= mutationProbability)
-				if(Util.getNextFloat(0, 1) <= 0.8f)
+			if(Util.getNextFloat(0.0f,1.0f) <= mutationProbability){
+				float rand = Util.getNextFloat(0, 1);
+				if(rand <= 0.8f)
 					children[i].mutate();
+				else if  (rand <= 0.8f)
+					children[i].squareMutation();
 				else
 					children[i].mutateRotate180();
+			}
 		}
 		
 		return children;
@@ -164,11 +171,16 @@ public class Individual {
 		
 		//mutate
 		for(int i = 0; i < 2; i++){
-			if(Util.getNextFloat(0.0f,1.0f) <= mutationProbability)
-				if(Util.getNextFloat(0, 1) <= 0.8f)
-					children[i].mutate();
+			if(Util.getNextFloat(0.0f,1.0f) <= mutationProbability){
+				float rand = Util.getNextFloat(0, 1);
+				if(rand <= 0.6f)
+					children[i].mutateAll();
+				else if  (rand <= 0.8f)
+					children[i].squareMutation();
 				else
 					children[i].mutateRotate180();
+			}
+				
 		}
 		
 		return children;
@@ -184,12 +196,39 @@ public class Individual {
 		genotype.getChromosome()[indexToMutate] = (genotype.getChromosome()[indexToMutate] + Util.getNextInt(0, 4)) % 4; //TODO: Change this - hard coding the number of tile types is bad!!!
 	}
 	
+	public void squareMutation(){
+		double wallChance = 0.1;
+		int size = Util.getNextInt(3, 5);
+		int startX = Util.getNextInt(0, Game.sizeM - size);
+		int startY = Util.getNextInt(0, Game.sizeN - size);
+		if(Util.getNextFloat(0, 1) <= wallChance){
+			for(int i = startX; i < startX + size; i++)
+				for(int j = startY; j < startY + size; j++){
+					if(genotype.getChromosome()[j*Game.sizeM + i] < 4) genotype.getChromosome()[j*Game.sizeM + i] = 1;
+				}
+		} else {
+			for(int i = startX; i < startX + size; i++)
+				for(int j = startY; j < startY + size; j++){
+					if(genotype.getChromosome()[j*Game.sizeM + i] < 4) genotype.getChromosome()[j*Game.sizeM + i] = randomFloorTile();
+				}
+		}
+	}
+	
+	public int randomFloorTile(){
+		float rand = Util.getNextFloat(0, 1);
+		if(rand < 0.1f)
+			return 2;
+		if(rand < 0.2f)
+			return 3;
+		return 0;
+	}
+	
 	/**
 	 * Mutate each bit of the chromosome with a small probability
 	 */
 	public void mutateAll(){
 		for(int i = 0; i < genotype.getSizeChromosome(); i++){
-			if(Math.random() < 0.01){
+			if(Math.random() < 0.2){
 				genotype.getChromosome()[i] = (genotype.getChromosome()[i] + Util.getNextInt(0, 4)) % 4; //TODO: Change this - hard coding the number of tile types is bad!!!
 			}
 		}

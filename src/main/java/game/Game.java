@@ -94,7 +94,7 @@ public class Game implements Listener{
     	reinit();
     	Algorithm geneticAlgorithm = null;
     	try {
-			geneticAlgorithm = new Algorithm(new GeneratorConfig());
+			geneticAlgorithm = new Algorithm(new GeneratorConfig("config/smallrooms.json"));
 			runs.add(geneticAlgorithm);
 			geneticAlgorithm.start();
 		} catch (MissingConfigurationException e) {

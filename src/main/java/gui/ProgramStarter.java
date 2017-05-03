@@ -88,7 +88,7 @@ public class ProgramStarter extends Application {
 //	        	
 //	        }
 	        
-	        //Map.LoadMap(new File("C:\\Users\\ab4645\\eddy\\maps\\map_2017-04-25_12-15-23-465000000.txt"));
+	        //Map.LoadMap(new File("C:\\Users\\ab4645\\Documents\\guardedtreasure.txt"));
 
 	        
 		} catch (Exception e) {

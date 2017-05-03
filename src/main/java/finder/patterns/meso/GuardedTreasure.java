@@ -105,6 +105,7 @@ public class GuardedTreasure extends CompositePattern {
 			
 		}
 		
+		if(guardedTreasures.size() > 0) System.out.println("Found " + guardedTreasures.size() + " guardedTreasure.");
 		return guardedTreasures;
 	}
 	
