@@ -136,7 +136,24 @@ public class MapRenderer implements Listener {
 	}
 
 	/**
-	 * Draws a matrix onto a graphics context.
+	 * Draws a matrix onto a new image.
+	 * 
+	 * @param ctx The graphics context to draw on.
+	 * @param matrix A rectangular matrix of integers. Each integer corresponds
+	 * 		to some predefined value.
+	 */
+	public synchronized Image renderMap(int[][] matrix) {
+		finalMapHeight = config.getMapRenderHeight();
+		finalMapWidth = config.getMapRenderWidth();
+		Canvas canvas = new Canvas(finalMapWidth, finalMapHeight);
+		renderMap(canvas.getGraphicsContext2D(), matrix);
+		Image image = canvas.snapshot(new SnapshotParameters(), null);
+		
+		return image;
+	}
+
+	/**
+	 * Draws a matrix onto an extisting graphics context.
 	 * 
 	 * @param ctx The graphics context to draw on.
 	 * @param matrix A rectangular matrix of integers. Each integer corresponds

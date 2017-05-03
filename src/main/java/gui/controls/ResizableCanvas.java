@@ -36,18 +36,18 @@ public class ResizableCanvas extends Canvas {
 	private void draw() {
 		double width = getWidth();
 		double height = getHeight();
+		double size = Math.min(width, height);
 
 		GraphicsContext gc = getGraphicsContext2D();
 		gc.clearRect(0, 0, width, height);
 
 
-		// TODO: Change this when we know what we really want to do here...
 		if (image == null) {
 			gc.setStroke(Color.RED);
 			gc.strokeLine(0, 0, width, height);
 			gc.strokeLine(0, height, width, 0);
 		} else {
-			gc.drawImage(image, 0, 0, width, height);
+			gc.drawImage(image, 0, 0, size, size);
 		}
 	}
 

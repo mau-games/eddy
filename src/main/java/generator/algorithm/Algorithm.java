@@ -68,6 +68,7 @@ public class Algorithm extends Thread {
 		roomTarget = config.getRoomProportion();
 		corridorTarget = config.getCorridorProportion();
 
+		System.out.println("Starting run #" + id);
 		initPopulations();
 	}
 	
@@ -90,7 +91,9 @@ public class Algorithm extends Thread {
 	 * @param best The best map from the current generation.
 	 */
 	private synchronized void broadcastMapUpdate(Map best){
-		EventRouter.getInstance().postEvent(new MapUpdate(best));
+		MapUpdate ev = new MapUpdate(best);
+        ev.setID(id);
+		EventRouter.getInstance().postEvent(ev);
 	}
 	
 	/**
@@ -199,7 +202,9 @@ public class Algorithm extends Thread {
         result.put("mesopatterns", finder.findMesoPatterns());
         result.put("macropatterns", finder.findMacroPatterns());
         result.put("map", map);
-        EventRouter.getInstance().postEvent(new AlgorithmDone(result));
+//        AlgorithmDone ev = new AlgorithmDone(result);
+//        ev.setID(id);
+//        EventRouter.getInstance().postEvent(ev);
 	}
 	
 	/**

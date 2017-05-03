@@ -69,12 +69,7 @@ public class InteractiveGUI extends Application {
 			
 			// Set up a new game
 			game = new Game();
-			router.postEvent(new Start(3));
-
-			// Set up a bunch of collectors
-			mapCollector = new MapCollector();
-			renderedMapCollector = new RenderedMapCollector();
-			generationCollector = new GenerationCollector();
+			router.postEvent(new Start(6));
 
 			MapRenderer.getInstance();
 

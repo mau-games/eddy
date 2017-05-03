@@ -59,7 +59,7 @@ public class InteractiveGUIController implements Initializable, Listener {
 	private ApplicationConfig config;
 
 	@Override
-	public void ping(PCGEvent e) {
+	public synchronized void ping(PCGEvent e) {
 		// TODO Auto-generated method stub
 		
 	}
@@ -134,8 +134,6 @@ public class InteractiveGUIController implements Initializable, Listener {
 	}
 	
 	public void exportImage() {
-		System.out.println("Exporting image");
-		
 		DateTimeFormatter format =
 				DateTimeFormatter.ofPattern("yyyy-MM-dd_HH-mm-s-n");
 		String name = "renderedmap_" +
@@ -149,6 +147,7 @@ public class InteractiveGUIController implements Initializable, Listener {
 				new ExtensionFilter("All Files", "*.*"));
 		File selectedFile = fileChooser.showSaveDialog(stage);
 		if (selectedFile != null && editView.getCurrentMap() != null) {
+			// TODO: We want a higher resolution here...
 			logger.debug("Writing map to " + selectedFile.getPath());
 			BufferedImage image = SwingFXUtils.fromFXImage(editView.getRenderedMap(), null);
 
@@ -179,6 +178,8 @@ public class InteractiveGUIController implements Initializable, Listener {
 	
 	private void initStartView() {
 		System.out.println("init start view");
+		// TODO: Start off a new run of the algorithm
+		
 		mainPane.getChildren().clear();
 		mouseEventHandler = new StartViewEventHandler();
 		
@@ -195,23 +196,23 @@ public class InteractiveGUIController implements Initializable, Listener {
 		startView.setActive(true);
 		editView.setActive(false);
 
-		startView.getMap(0).addEventFilter(MouseEvent.MOUSE_CLICKED, mouseEventHandler);
-		startView.getMap(0).setText("Label for map 0\nSome properties for map 0");
+		startView.getMapDisplay(0).addEventFilter(MouseEvent.MOUSE_CLICKED, mouseEventHandler);
+		startView.getMapDisplay(0).setText("Label for map 0\nSome properties for map 0");
 		
-		startView.getMap(1).addEventFilter(MouseEvent.MOUSE_CLICKED, mouseEventHandler);
-		startView.getMap(1).setText("Label for map 1\nSome properties for map 1");
+		startView.getMapDisplay(1).addEventFilter(MouseEvent.MOUSE_CLICKED, mouseEventHandler);
+		startView.getMapDisplay(1).setText("Label for map 1\nSome properties for map 1");
 		
-		startView.getMap(2).addEventFilter(MouseEvent.MOUSE_CLICKED, mouseEventHandler);
-		startView.getMap(2).setText("Label for map 2\nSome properties for map 2");
+		startView.getMapDisplay(2).addEventFilter(MouseEvent.MOUSE_CLICKED, mouseEventHandler);
+		startView.getMapDisplay(2).setText("Label for map 2\nSome properties for map 2");
 		
-		startView.getMap(3).addEventFilter(MouseEvent.MOUSE_CLICKED, mouseEventHandler);
-		startView.getMap(3).setText("Label for map 3\nSome properties for map 3");
+		startView.getMapDisplay(3).addEventFilter(MouseEvent.MOUSE_CLICKED, mouseEventHandler);
+		startView.getMapDisplay(3).setText("Label for map 3\nSome properties for map 3");
 		
-		startView.getMap(4).addEventFilter(MouseEvent.MOUSE_CLICKED, mouseEventHandler);
-		startView.getMap(4).setText("Label for map 4\nSome properties for map 4");
+		startView.getMapDisplay(4).addEventFilter(MouseEvent.MOUSE_CLICKED, mouseEventHandler);
+		startView.getMapDisplay(4).setText("Label for map 4\nSome properties for map 4");
 		
-		startView.getMap(5).addEventFilter(MouseEvent.MOUSE_CLICKED, mouseEventHandler);
-		startView.getMap(5).setText("Label for map 5\nSome properties for map 5");
+		startView.getMapDisplay(5).addEventFilter(MouseEvent.MOUSE_CLICKED, mouseEventHandler);
+		startView.getMapDisplay(5).setText("Label for map 5\nSome properties for map 5");
 	}
 
 	private void initEditView() {

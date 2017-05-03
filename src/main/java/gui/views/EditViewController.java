@@ -61,7 +61,7 @@ public class EditViewController extends BorderPane implements Listener {
 	}
 
 	@Override
-	public void ping(PCGEvent e) {
+	public synchronized void ping(PCGEvent e) {
 		if (e instanceof MapUpdate) {
 			if (isActive) {
 				currentMap = (Map) e.getPayload();
