@@ -3,25 +3,40 @@ package gui.views;
 import java.io.IOException;
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import game.Map;
+import gui.InteractiveGUIController;
 import gui.controls.LabeledCanvas;
+import gui.utils.MapRenderer;
+import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.paint.Color;
+import util.eventrouting.EventRouter;
+import util.eventrouting.Listener;
+import util.eventrouting.PCGEvent;
+import util.eventrouting.events.MapUpdate;
 
 /**
  * his class controls the interactive application's edit view.
  * 
  * @author Johan Holmberg, Malmö University
  */
-public class EditViewController extends BorderPane {
+public class EditViewController extends BorderPane implements Listener {
 	
 	@FXML private Canvas centralCanvas;
 	@FXML private List<LabeledCanvas> maps;
 	
-	boolean isActive = false;
+	private boolean isActive = false;
+	private Map currentMap = null;
+	private MapRenderer renderer = MapRenderer.getInstance();
+	private static EventRouter router = EventRouter.getInstance();
+	private final static Logger logger = LoggerFactory.getLogger(EditViewController.class);
 
 	/**
 	 * Creates an instance of this class.
@@ -40,6 +55,17 @@ public class EditViewController extends BorderPane {
 		}
 		
 		draw();
+		router.registerListener(this, new MapUpdate(null));
+	}
+
+	@Override
+	public void ping(PCGEvent e) {
+		if (e instanceof MapUpdate) {
+			if (isActive) {
+				currentMap = (Map) e.getPayload();
+				draw();
+			}
+		}
 	}
 	
 	/**
@@ -56,6 +82,10 @@ public class EditViewController extends BorderPane {
 	public void setActive(boolean state) {
 		isActive = state;
 	}
+	
+	public void updateMap(Map map) {
+		currentMap = map;
+	}
 
 	/**
 	 * Draws stuff on the canvas. Useful only for testing at the moment...
@@ -63,7 +93,19 @@ public class EditViewController extends BorderPane {
 	private void draw() {
 		GraphicsContext ctx = centralCanvas.getGraphicsContext2D();
 		
-		ctx.setFill(Color.RED);
-		ctx.fillRect(0, 0, 500, 500);
+		if (currentMap == null) {
+			ctx.setFill(Color.RED);
+			ctx.fillRect(0, 0, 500, 500);
+		} else {
+			if (currentMap != null) {
+				Platform.runLater(() -> {
+					int[][] matrix = currentMap.toMatrix();
+					renderer.renderMap(ctx, matrix);
+//					renderer.drawPatterns(ctx, matrix, activePatterns);
+//					renderer.drawGraph(ctx, matrix, currentMap.getPatternFinder().getPatternGraph());				renderer.drawMesoPatterns(ctx, matrix, currentMap.getPatternFinder().findMesoPatterns());
+//					renderer.drawMesoPatterns(ctx, matrix, currentMap.getPatternFinder().findMesoPatterns());
+				});
+			}
+		}
 	}
 }

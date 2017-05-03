@@ -1,9 +1,15 @@
 package gui;
 
 import java.io.File;
+import java.io.IOException;
 import java.net.URL;
 import java.util.ResourceBundle;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import game.ApplicationConfig;
+import game.Map;
 import gui.views.EditViewController;
 import gui.views.StartViewController;
 import javafx.application.Platform;
@@ -16,8 +22,13 @@ import javafx.scene.layout.AnchorPane;
 import javafx.stage.FileChooser;
 import javafx.stage.FileChooser.ExtensionFilter;
 import javafx.stage.Stage;
+import util.eventrouting.EventRouter;
 import util.eventrouting.Listener;
 import util.eventrouting.PCGEvent;
+import util.eventrouting.events.AlgorithmDone;
+import util.eventrouting.events.MapUpdate;
+import util.eventrouting.events.RequestRedraw;
+import util.eventrouting.events.StatusMessage;
 
 public class InteractiveGUIController implements Initializable, Listener {
 	
@@ -31,11 +42,15 @@ public class InteractiveGUIController implements Initializable, Listener {
 	@FXML private MenuItem exitItem;
 	@FXML private MenuItem aboutItem;
 	
+	Stage stage = null;
+	
 	StartViewController startView = null;
 	EditViewController editView = null;
 	EventHandler<MouseEvent> mouseEventHandler = null;
 	
-	Stage stage = null;
+	final static Logger logger = LoggerFactory.getLogger(InteractiveGUIController.class);
+	private static EventRouter router = EventRouter.getInstance();
+	private ApplicationConfig config;
 
 	@Override
 	public void ping(PCGEvent e) {
@@ -45,6 +60,10 @@ public class InteractiveGUIController implements Initializable, Listener {
 
 	@Override
 	public void initialize(URL location, ResourceBundle resources) {
+		router.registerListener(this, new StatusMessage(null));
+		router.registerListener(this, new AlgorithmDone(null));
+		router.registerListener(this, new RequestRedraw());
+		
 		startView = new StartViewController();
 		editView = new EditViewController();
 		
@@ -83,7 +102,14 @@ public class InteractiveGUIController implements Initializable, Listener {
 		 File selectedFile = fileChooser.showOpenDialog(stage);
 		 if (selectedFile != null) {
 			 System.out.println("Selected file: " + selectedFile);
-			 // TODO: Load map and switch to edit view
+			 initEditView();
+			 // TODO: Load map
+			 try {
+				Map.LoadMap(selectedFile);
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 		 }
 	}
 	
@@ -136,6 +162,9 @@ public class InteractiveGUIController implements Initializable, Listener {
 		saveAsItem.setDisable(true);
 		exportItem.setDisable(true);
 
+		startView.setActive(true);
+		editView.setActive(false);
+
 		startView.getMap(0).addEventFilter(MouseEvent.MOUSE_CLICKED, mouseEventHandler);
 		startView.getMap(0).setText("Label for map 0\nSome properties for map 0");
 		
@@ -168,6 +197,9 @@ public class InteractiveGUIController implements Initializable, Listener {
 		saveItem.setDisable(false);
 		saveAsItem.setDisable(false);
 		exportItem.setDisable(false);
+
+		startView.setActive(false);
+		editView.setActive(true);
 		
 		editView.getMap(0).addEventFilter(MouseEvent.MOUSE_CLICKED, mouseEventHandler);
 		editView.getMap(0).setText("Label for map 0\nSome properties for map 0");
