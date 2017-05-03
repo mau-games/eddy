@@ -16,6 +16,8 @@ import javafx.scene.layout.GridPane;
 public class StartViewController extends GridPane {
 
 	@FXML private List<LabeledCanvas> maps;
+	
+	private boolean isActive = false;
 
 	/**
 	 * Creates an instance of this class.
@@ -32,6 +34,10 @@ public class StartViewController extends GridPane {
 		} catch (IOException exception) {
 			throw new RuntimeException(exception);
 		}
+	}
+	
+	public void setActive(boolean state) {
+		isActive = state;
 	}
 	
 	/**

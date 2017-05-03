@@ -20,6 +20,8 @@ public class EditViewController extends BorderPane {
 	
 	@FXML private Canvas centralCanvas;
 	@FXML private List<LabeledCanvas> maps;
+	
+	boolean isActive = false;
 
 	/**
 	 * Creates an instance of this class.
@@ -49,6 +51,10 @@ public class EditViewController extends BorderPane {
 	 */
 	public LabeledCanvas getMap(int index) {
 		return maps.get(index);
+	}
+	
+	public void setActive(boolean state) {
+		isActive = state;
 	}
 
 	/**
