@@ -15,14 +15,19 @@ import finder.patterns.Pattern;
 import finder.patterns.micro.Room;
 import finder.patterns.micro.Treasure;
 import game.Map;
+import generator.config.GeneratorConfig;
 
 public class TreasureRoom extends CompositePattern {
 
-	private int treasureCount = 0;
+	private double quality = 0.0f;
 	
 	public double getQuality(){
-		return 1.0;	
+		return quality;
 	}
+	
+	public TreasureRoom(GeneratorConfig config, int treasureCount){
+		quality = Math.min((double)treasureCount/config.getTreasureRoomTargetTreasureAmount(),1.0);
+	}	
 	
 	public static List<CompositePattern> matches(Map map, Graph<Pattern> patternGraph) {
 		List<CompositePattern> treasureRooms = new ArrayList<>();
@@ -38,7 +43,8 @@ public class TreasureRoom extends CompositePattern {
 			if(current.getValue() instanceof Room){
 				List<InventorialPattern> containedTreasure = ((Room)current.getValue()).getContainedPatterns().stream().filter(p->{return p instanceof Treasure;}).collect(Collectors.toList());
 				if(containedTreasure.size() > 1){
-					TreasureRoom t = new TreasureRoom();
+					TreasureRoom t = new TreasureRoom(map.getConfig(),containedTreasure.size());
+					
 					t.patterns.add(current.getValue());
 					t.patterns.addAll(containedTreasure);
 					treasureRooms.add(t);

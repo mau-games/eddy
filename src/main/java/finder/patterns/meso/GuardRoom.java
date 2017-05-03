@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Queue;
 import java.util.stream.Collectors;
 
+import finder.geometry.Bitmap;
 import finder.graph.Edge;
 import finder.graph.Graph;
 import finder.graph.Node;
@@ -16,12 +17,19 @@ import finder.patterns.micro.Enemy;
 import finder.patterns.micro.Room;
 import finder.patterns.micro.Treasure;
 import game.Map;
+import generator.config.GeneratorConfig;
 
 public class GuardRoom extends CompositePattern {
 	
+	private double quality = 0.0f;
+	
 	public double getQuality(){
-		return 1.0;	
+		return quality;
 	}
+	
+	public GuardRoom(GeneratorConfig config, int enemyCount){
+		quality = Math.min((double)enemyCount/config.getGuardRoomTargetEnemyAmount(),1.0);
+	}	
 	
 	public static List<CompositePattern> matches(Map map, Graph<Pattern> patternGraph) {
 		List<CompositePattern> guardRooms = new ArrayList<CompositePattern>();
@@ -37,7 +45,7 @@ public class GuardRoom extends CompositePattern {
 			if(current.getValue() instanceof Room){
 				List<InventorialPattern> containedEnemies = ((Room)current.getValue()).getContainedPatterns().stream().filter(p->{return p instanceof Enemy;}).collect(Collectors.toList());
 				if(containedEnemies.size() > 1){
-					GuardRoom g = new GuardRoom();
+					GuardRoom g = new GuardRoom(map.getConfig(), containedEnemies.size());
 					g.patterns.add(current.getValue());
 					g.patterns.addAll(containedEnemies);
 					guardRooms.add(g);

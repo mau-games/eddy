@@ -19,6 +19,10 @@ import game.Map;
 
 public class Ambush extends CompositePattern {
 
+	public double getQuality(){
+		return 1.0;	
+	}
+	
 	public static List<CompositePattern> matches(Map map, Graph<Pattern> patternGraph) {
 		List<CompositePattern> ambushes = new ArrayList<CompositePattern>();
 		

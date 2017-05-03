@@ -172,6 +172,14 @@ public class GeneratorConfig {
 		return config.getDouble("patterns.entrance.entrance_safety");
 	}
 	
+	public int getTreasureRoomTargetTreasureAmount(){
+		return config.getInt("patterns.treasure_room.target_treasure_amount");
+	}
+	
+	public int getGuardRoomTargetEnemyAmount(){
+		return config.getInt("patterns.guard_room.target_enemy_amount");
+	}
+	
 	/**
 	 * Returns the setting for entrance greed (a measure of how close to the door treasures should spawn)
 	 * 

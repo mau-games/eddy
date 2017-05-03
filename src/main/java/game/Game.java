@@ -69,16 +69,20 @@ public class Game implements Listener{
     	for(int i = 0; i < doorCount; i++){
     		switch(walls.remove(Util.getNextInt(0, walls.size()))){
     		case 0: //North
-    			doors.add(new Point(Util.getNextInt(1, sizeM - 1), sizeN - 1));
+    			//doors.add(new Point(Util.getNextInt(1, sizeM - 1), sizeN - 1));
+    			doors.add(new Point(sizeM / 2, sizeN - 1));
     			break;
     		case 1: //East
-    			doors.add(new Point(sizeM - 1, Util.getNextInt(1, sizeN - 1)));
+    			//doors.add(new Point(sizeM - 1, Util.getNextInt(1, sizeN - 1)));
+    			doors.add(new Point(sizeM - 1, sizeN / 2));
     			break;
     		case 2: //South
-    			doors.add(new Point(Util.getNextInt(1, sizeM - 1), 0));
+    			//doors.add(new Point(Util.getNextInt(1, sizeM - 1), 0));
+    			doors.add(new Point(sizeM / 2, 0));
     			break;
     		case 3: //West
-    			doors.add(new Point(0, Util.getNextInt(1, sizeN - 1)));
+    			//doors.add(new Point(0, Util.getNextInt(1, sizeN - 1)));
+    			doors.add(new Point(0, sizeN / 2));
     			break;
     		}
     	}
@@ -89,18 +93,33 @@ public class Game implements Listener{
 	/**
 	 *  Kicks the algorithm into action.
 	 */
-    private void startAll()
+    private void startAll(int runCount)
     {
     	reinit();
     	Algorithm geneticAlgorithm = null;
-    	try {
-			geneticAlgorithm = new Algorithm(new GeneratorConfig("config/smallrooms.json"));
-			runs.add(geneticAlgorithm);
-			geneticAlgorithm.start();
-		} catch (MissingConfigurationException e) {
-			logger.error("Couldn't read generator configuration file:\n" + e.getMessage());
-		}
-    	//Start the algorithm on a new thread.
+    	
+    	List<String> configs = new ArrayList<String>();
+    	configs.add("config/bendycorridors.json");
+    	configs.add("config/straightcorridors.json");
+    	configs.add("config/smallrooms.json");
+    	configs.add("config/mediumrooms.json");
+    	configs.add("config/bigrooms.json");
+    	configs.add("config/roomsandcorridorssquare.json");
+    	
+    	for(int i = 0; i < runCount; i++){
+    		String c = "config/generator_config.json";
+    		if(!configs.isEmpty())
+    			c = configs.remove(Util.getNextInt(0, configs.size()));
+    		
+    		try {
+    			geneticAlgorithm = new Algorithm(new GeneratorConfig(c));
+    			runs.add(geneticAlgorithm);
+    			geneticAlgorithm.start();
+    		} catch (MissingConfigurationException e) {
+    			logger.error("Couldn't read generator configuration file:\n" + e.getMessage());
+    		}
+    	}
+    	
     }
     
     
@@ -151,9 +170,7 @@ public class Game implements Listener{
 	public synchronized void ping(PCGEvent e) {
 		if(e instanceof Start){
 			readConfiguration();
-			for (int i = 0; i < ((Start) e).getNbrOfThreads(); i++) {
-				startAll();
-			}
+			startAll(((Start) e).getNbrOfThreads());
 		} else if (e instanceof Stop) {
 			stop();
 		} else if (e instanceof RenderingDone){

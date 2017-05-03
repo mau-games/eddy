@@ -27,6 +27,10 @@ import game.Map;
  */
 public class ChokePoint extends CompositePattern {
 	
+	public double getQuality(){
+		return 1.0;	
+	}
+	
 	/**
 	 * Searches a map for instances of this pattern and returns a list of found
 	 * instances.

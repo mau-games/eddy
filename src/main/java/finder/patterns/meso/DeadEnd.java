@@ -19,6 +19,9 @@ import game.Map;
 public class DeadEnd extends CompositePattern {
 	
 	//TODO: NOTE, the quality of a dead end should be related to the amount of content in it.
+	public double getQuality(){
+		return 1.0;	
+	}
 
 	/**
 	 * Searches a map for instances of this pattern and returns a list of found
