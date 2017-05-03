@@ -42,27 +42,15 @@ public class BatchRunner {
 	}
 
 	public void start() {
-		try {
-			config = ConfigurationUtility.getInstance();
-			try {
-				ConfigurationUtility.SwitchConfig(batchConfig, true);
-			} catch (MissingConfigurationException e) {
-				e.printStackTrace();
-			}
+		// Set up a new game
+		game = new Game();
 
-	        // Set up a new game
-	        game = new Game();
-	        
-	        // Set up a bunch of collectors
-	        mapCollector = new MapCollector();
-	        renderedMapCollector = new RenderedMapCollector();
-	        generationCollector = new GenerationCollector();
-	        
-	        // Creates a map renderer instance.
-	        MapRenderer.getInstance();	        
-		} catch (Exception e) {
-			logger.error("Couldn't load configuration: " + e.getMessage(), e);
-			System.exit(0);
-		}
+		// Set up a bunch of collectors
+		mapCollector = new MapCollector();
+		renderedMapCollector = new RenderedMapCollector();
+		generationCollector = new GenerationCollector();
+
+		// Creates a map renderer instance.
+		MapRenderer.getInstance();	   
 	}
 }

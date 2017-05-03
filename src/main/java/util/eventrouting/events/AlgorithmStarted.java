@@ -7,7 +7,7 @@ import util.eventrouting.PCGEvent;
  * 
  * @author Alexander Baldwin, Malmö University
  */
-public class AlgorithmStarted extends PCGEvent {
+public class AlgorithmStarted extends AlgorithmEvent {
 	
 	public AlgorithmStarted(String runID) {
 		setPayload(runID);

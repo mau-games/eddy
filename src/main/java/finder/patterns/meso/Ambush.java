@@ -12,14 +12,15 @@ import finder.graph.Node;
 import finder.patterns.CompositePattern;
 import finder.patterns.InventorialPattern;
 import finder.patterns.Pattern;
+import finder.patterns.micro.Enemy;
+import finder.patterns.micro.Entrance;
 import finder.patterns.micro.Room;
-import finder.patterns.micro.Treasure;
 import game.Map;
 
-public class TreasureRoom extends CompositePattern {
+public class Ambush extends CompositePattern {
 
 	public static List<CompositePattern> matches(Map map, Graph<Pattern> patternGraph) {
-		List<CompositePattern> treasureRooms = new ArrayList<>();
+		List<CompositePattern> ambushes = new ArrayList<CompositePattern>();
 		
 		patternGraph.resetGraph();
 		
@@ -30,13 +31,14 @@ public class TreasureRoom extends CompositePattern {
 			Node<Pattern> current = nodeQueue.remove();
 			current.tryVisit();
 			if(current.getValue() instanceof Room){
-				List<InventorialPattern> containedTreasure = ((Room)current.getValue()).getContainedPatterns().stream().filter(p->{return p instanceof Treasure;}).collect(Collectors.toList());
-				if(containedTreasure.size() > 1){
-					TreasureRoom t = new TreasureRoom();
-					t.patterns.add(current.getValue());
-					t.patterns.addAll(containedTreasure);
-					treasureRooms.add(t);
-					//System.out.println("Got a treasure room!");
+				List<InventorialPattern> containedEnemies = ((Room)current.getValue()).getContainedPatterns().stream().filter(p->{return p instanceof Enemy;}).collect(Collectors.toList());
+				List<InventorialPattern> entrances = ((Room)current.getValue()).getContainedPatterns().stream().filter(p->{return p instanceof Entrance;}).collect(Collectors.toList());
+				if(containedEnemies.size() >= 1 && entrances.size() == 1){
+					Ambush a = new Ambush();
+					a.patterns.add(current.getValue());
+					a.patterns.addAll(containedEnemies);
+					a.patterns.addAll(entrances);
+					ambushes.add(a);
 				}
 			}
 			nodeQueue.addAll(current.getEdges().stream().map((Edge<Pattern> e)->{
@@ -49,7 +51,7 @@ public class TreasureRoom extends CompositePattern {
 				}).filter((Node<Pattern> n)->{return !n.isVisited();}).collect(Collectors.toList()));
 		}
 		
-		return treasureRooms;
+		return ambushes;
 	}
 	
 }

@@ -14,6 +14,7 @@ import finder.patterns.Pattern;
 import finder.patterns.SpacialPattern;
 import game.Map;
 import game.TileTypes;
+import generator.config.GeneratorConfig;
 import util.config.ConfigurationUtility;
 import util.config.MissingConfigurationException;
 
@@ -30,17 +31,12 @@ public class Room extends SpacialPattern {
 	double floorRatioWeight = 0.8;
 	double areaDeviationWeight = 0.2;
 	
-	public Room(Geometry geometry) {
+	public Room(GeneratorConfig config, Geometry geometry) {
 		boundaries = geometry;
-		try {
-			config = ConfigurationUtility.getInstance();
-		} catch (MissingConfigurationException e) {
-			// This will be caught and reported elsewhere.
-		}
 
-		desiredRectangleArea = config.getDouble("patterns.room.desired_area");
-		floorRatioWeight = config.getDouble("patterns.room.floor_ratio_weight");
-		areaDeviationWeight = config.getDouble("patterns.room.area_deviation_weight");
+		desiredRectangleArea = config.getChamberTargetArea();
+		floorRatioWeight = config.getChamberTargetSquareness();
+		areaDeviationWeight = config.getChamberAreaCorrectness();
 	}
 	
 	@Override
@@ -160,7 +156,7 @@ public class Room extends SpacialPattern {
 		for (int i = 1; i < matrix.length - 1; i++) {
 			for (int j = 1; j < matrix[0].length - 1; j++) {
 				if (isRoom(matrix, allocated, i, j)) {
-					results.add(new Room(growRoom(matrix, allocated, i, j, ++roomCounter)));
+					results.add(new Room(map.getConfig(),growRoom(matrix, allocated, i, j, ++roomCounter)));
 				}
 			}
 		}

@@ -1,0 +1,42 @@
+{
+    "map": {
+        "pattern_opacity": 0.6,
+        "tiles": {
+            "floor": "graphics/tiles/floor.png",
+            "wall": "graphics/tiles/wall.png",
+            "enemy": "graphics/tiles/enemy.png",
+            "treasure": "graphics/tiles/treasure.png",
+            "doorenter": "graphics/tiles/entrydoor.png",
+            "door": "graphics/tiles/door.png"
+        },
+        "render": {
+            "height": 1000,
+            "width": 1000
+        }
+    },
+    "game": {
+        "dimensions": {
+            "m": 12,
+            "n": 12
+        },
+        "doors": 3
+    },
+    "collectors": {
+        "map_collector": {
+            "_comment": "~/ denotes the home directory. Slashes will be converted to backslashes on Windows.",
+            "path": "~/eddy/maps/",
+            "active": true,
+            "save_all": false
+        },
+        "image_exporter": {
+            "_comment": "~/ denotes the home directory. Slashes will be converted to backslashes on Windows.",
+            "path": "~/eddy/maps/rendered/",
+            "active": true
+        },
+        "generation_collector": {
+            "_comment": "~/ denotes the home directory. Slashes will be converted to backslashes on Windows.",
+            "path": "~/eddy/",
+            "active": true
+        }        
+    }
+}

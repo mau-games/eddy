@@ -1,0 +1,66 @@
+{
+    "generator": {
+        "generations": 100,
+        "population_size": 50,
+        "mutation_probability": 0.9,
+        "offspring_size": 0.7,
+        "feasible_proportion": 1,
+        "weights": {
+            "room": 0.85,
+            "corridor": 0.15
+        }
+    },
+    "tile_type_ranges": {
+		floor: {
+			"from": 0,
+			"to": 0.7
+		},
+		wall: {
+			"from": 0.7,
+			"to": 0.9
+		},
+		treasure: {
+			"from": 0.9,
+			"to": 0.93
+		},
+		enemy: {
+			"from": 0.93,
+			"to": 1.0
+		}
+	},
+    "patterns": {
+        "room": {
+            "desired_area": 60,
+            "squareness": 0.3,
+            "size": 0.7
+        },
+        "corridor": {
+            "target_length": 4
+        },
+        "connector": {
+        	"turn_quality" : 0.1,
+        	"intersection_quality" : 0.9
+        },
+        "entrance": {
+        	"entrance_safety" : 0.2,
+			"entrance_greed" : 0.4,
+			"avg_treasure_safety": 0.2,
+			"treasure_safety_variance": 0.05
+        },
+        "enemy": {
+			"enemies_quantity": {
+				"min": 0.02,
+				"max": 0.03
+			}
+        },
+        "treasure": {
+			"treasures_quantity": {
+				"min": 0.02,
+				"max": 0.03
+			}
+        },
+        "door": {
+        
+        }
+    }
+}

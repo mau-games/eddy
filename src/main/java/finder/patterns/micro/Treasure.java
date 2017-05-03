@@ -9,8 +9,6 @@ import finder.geometry.Rectangle;
 import finder.patterns.InventorialPattern;
 import finder.patterns.Pattern;
 import game.Map;
-import generator.config.Config;
-import util.config.MissingConfigurationException;
 
 /**
  * This class represents the dungeon game design pattern called Treasure.
@@ -87,12 +85,7 @@ public class Treasure extends InventorialPattern {
 	}
 	
 	private static double calculateTreasureQuality(Map map){
-		double[] expectedTreasuresRange = null;
-		try {
-			expectedTreasuresRange = Config.getInstance().getTreasureQuantityRange();
-		} catch (MissingConfigurationException e) {
-			e.printStackTrace();
-		}
+		double[] expectedTreasuresRange = expectedTreasuresRange = map.getConfig().getTreasureQuantityRange();
         double quality = 0.0;
         double treasurePercent = map.getTreasurePercentage();
         if(treasurePercent < expectedTreasuresRange[0])

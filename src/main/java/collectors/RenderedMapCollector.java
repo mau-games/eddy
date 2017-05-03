@@ -11,6 +11,7 @@ import javax.imageio.ImageIO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import game.ApplicationConfig;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.scene.image.Image;
 import util.Util;
@@ -32,7 +33,7 @@ import util.eventrouting.events.RenderingDone;
 public class RenderedMapCollector implements Listener {
 	
 	private final Logger logger = LoggerFactory.getLogger(RenderedMapCollector.class);
-	private ConfigurationUtility config;
+	private ApplicationConfig config;
 	private String path;
 	private boolean active;
 	private String runID = "";
@@ -42,14 +43,14 @@ public class RenderedMapCollector implements Listener {
 	 */
 	public RenderedMapCollector() {
 		try {
-			config = ConfigurationUtility.getInstance();
+			config = ApplicationConfig.getInstance();
 		} catch (MissingConfigurationException e) {
 			logger.error("Couldn't read configuration file:\n" + e.getMessage());
 		}
 		EventRouter.getInstance().registerListener(this, new MapRendered(null));
 		EventRouter.getInstance().registerListener(this, new AlgorithmStarted(null));
-		path = Util.normalisePath(config.getString("collectors.image_exporter.path"));
-		active = config.getBoolean("collectors.image_exporter.active");
+		path = Util.normalisePath(config.getImageExporterPath());
+		active = config.getImageExporterActive();
 
 	}
 
@@ -70,7 +71,6 @@ public class RenderedMapCollector implements Listener {
 	 * @param map The image to save.
 	 */
 	private void saveImage(Image map) {
-		path = Util.normalisePath(config.getString("collectors.image_exporter.path"));
 		File directory = new File(path);
 		if (!directory.exists()) {
 			directory.mkdir();

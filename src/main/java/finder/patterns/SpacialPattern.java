@@ -10,7 +10,7 @@ import java.util.List;
  * @author Johan Holmberg, Malmö University
  */
 public abstract class SpacialPattern extends Pattern {
-	private static List<InventorialPattern> containedPatterns =
+	private List<InventorialPattern> containedPatterns =
 			new ArrayList<InventorialPattern>();
 	
 	/**

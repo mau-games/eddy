@@ -10,6 +10,7 @@ import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import game.ApplicationConfig;
 import game.Map;
 import util.Util;
 import util.config.ConfigurationUtility;
@@ -30,7 +31,7 @@ import util.eventrouting.events.MapUpdate;
 public class MapCollector implements Listener {
 
 	private final Logger logger = LoggerFactory.getLogger(MapCollector.class);
-	private ConfigurationUtility config;
+	private ApplicationConfig config;
 	private String path;
 	private boolean active;
 	private boolean saveAll;
@@ -41,25 +42,23 @@ public class MapCollector implements Listener {
 	 */
 	public MapCollector() {
 		try {
-			config = ConfigurationUtility.getInstance();
+			config = ApplicationConfig.getInstance();
 		} catch (MissingConfigurationException e) {
 			logger.error("Couldn't read configuration file:\n" + e.getMessage());
 		}
 		EventRouter.getInstance().registerListener(this, new MapUpdate(null));
 		EventRouter.getInstance().registerListener(this, new AlgorithmDone(null));
 		EventRouter.getInstance().registerListener(this, new AlgorithmStarted(null));
-		path = Util.normalisePath(config.getString("collectors.map_collector.path"));
-		active = config.getBoolean("collectors.map_collector.active");
-		saveAll = config.getBoolean("collectors.map_collector.save_all");
+		path = Util.normalisePath(config.getMapCollectorPath());
+		active = config.getMapCollectorActive();
+		saveAll = config.getMapCollectorSaveAll();
 
 	}
 
 	@Override
 	public synchronized void ping(PCGEvent e) {
-		saveAll = config.getBoolean("collectors.map_collector.save_all");
 		if (saveAll && e instanceof MapUpdate || !saveAll && e instanceof AlgorithmDone) {
 			if (active) {
-				path = Util.normalisePath(config.getString("collectors.map_collector.path"));
 				File directory = new File(path);
 				if (!directory.exists()) {
 					directory.mkdir();

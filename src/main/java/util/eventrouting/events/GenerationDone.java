@@ -7,7 +7,7 @@ import util.eventrouting.PCGEvent;
  * 
  * @author Johan Holmberg, Malmö University
  */
-public class GenerationDone extends PCGEvent {
+public class GenerationDone extends AlgorithmEvent {
 	
 	/**
 	 * Creates a new event.

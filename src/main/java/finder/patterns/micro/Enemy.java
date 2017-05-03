@@ -9,8 +9,6 @@ import finder.geometry.Rectangle;
 import finder.patterns.InventorialPattern;
 import finder.patterns.Pattern;
 import game.Map;
-import generator.config.Config;
-import util.config.MissingConfigurationException;
 
 /**
  * This class represents the dungeon game design pattern called Enemy.
@@ -91,11 +89,7 @@ public class Enemy extends InventorialPattern {
 	
 	private static double calculateEnemyQuality(Map map){
 		double[] expectedEnemiesRange = null;
-		try {
-			expectedEnemiesRange = Config.getInstance().getEnemyQuantityRange();
-		} catch (MissingConfigurationException e) {
-			e.printStackTrace();
-		}
+		expectedEnemiesRange = map.getConfig().getEnemyQuantityRange();
         double quality = 0.0;
         double enemyPercent = map.getEnemyPercentage();
         if(enemyPercent < expectedEnemiesRange[0])

@@ -8,7 +8,7 @@ import util.eventrouting.PCGEvent;
  * 
  * @author Johan Holmberg, Malmö University
  */
-public class MapRendered extends PCGEvent {
+public class MapRendered extends AlgorithmEvent {
 	
 	/**
 	 * Creates a new event.

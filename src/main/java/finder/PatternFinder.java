@@ -13,9 +13,11 @@ import finder.graph.Node;
 import finder.patterns.CompositePattern;
 import finder.patterns.Pattern;
 import finder.patterns.SpacialPattern;
+import finder.patterns.meso.Ambush;
 import finder.patterns.meso.ChokePoint;
 import finder.patterns.meso.DeadEnd;
 import finder.patterns.meso.GuardRoom;
+import finder.patterns.meso.GuardedTreasure;
 import finder.patterns.meso.TreasureRoom;
 import finder.patterns.micro.Corridor;
 import finder.patterns.micro.Door;
@@ -95,9 +97,9 @@ public class PatternFinder {
 	 * @return A list of all found pattern instances.
 	 */
 	public List<CompositePattern> findMesoPatterns() {
-//		if(mesopatterns != null){
-//			return mesopatterns;
-//		}
+		if(mesopatterns != null){
+			return mesopatterns;
+		}
 		mesopatterns = new ArrayList<CompositePattern>();
 
 		/*
@@ -121,7 +123,12 @@ public class PatternFinder {
 		mesopatterns.addAll(DeadEnd.matches(map, patternGraph));
 		mesopatterns.addAll(GuardRoom.matches(map, patternGraph));
 		mesopatterns.addAll(TreasureRoom.matches(map, patternGraph));
-		
+		mesopatterns.addAll(Ambush.matches(map, patternGraph));
+		mesopatterns.addAll(GuardedTreasure.matches(map, patternGraph)); //Do this last!
+		return mesopatterns;
+	}
+	
+	public List<CompositePattern> getMesoPatterns(){
 		return mesopatterns;
 	}
 	

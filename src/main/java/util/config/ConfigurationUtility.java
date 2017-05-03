@@ -28,28 +28,8 @@ import com.google.gson.JsonParser;
  */
 public class ConfigurationUtility { 
 	
-	private static String defaultConfig = "config/config.json";
 	final static Logger logger = LoggerFactory.getLogger(ConfigurationUtility.class);
-	private static ConfigurationUtility instance = null;
-	
 	private JsonObject config;
-	
-	/**
-	 * Creates an instance of ConfigurationReader, reading the contents from a
-	 * file located at the default location, config/config.json.
-	 * @throws MissingConfigurationException if the configuration file wasn't
-	 * 		found.
-	 */
-	protected ConfigurationUtility() throws MissingConfigurationException {
-		FileReader file = null;
-		ClassLoader loader = getClass().getClassLoader();
-		try {
-			file = new FileReader(loader.getResource(defaultConfig).getFile());
-		} catch (FileNotFoundException e) {
-			throw new MissingConfigurationException();
-		}
-		readFile(file);
-	}
 	
 	/**
 	 * Creates an instance of ConfigurationReader.
@@ -60,7 +40,7 @@ public class ConfigurationUtility {
 	 * @throws MissingConfigurationException if the configuration file wasn't
 	 * 		found. 
 	 */
-	protected ConfigurationUtility(String location, boolean localResource)
+	public ConfigurationUtility(String location, boolean localResource)
 			throws MissingConfigurationException {
 		openConfig(location, localResource);
 	}
@@ -94,55 +74,6 @@ public class ConfigurationUtility {
 			readFile(file);
 		}
 		
-	}
-	
-	/**
-	 * Gets the singleton instance of this class.
-	 * 
-	 * @return An instance of ConfigurationReader.
-	 * @throws MissingConfigurationException
-	 */
-	public static ConfigurationUtility getInstance()
-			throws MissingConfigurationException {
-		if (instance == null) {
-			instance = new ConfigurationUtility();
-		}
-		return instance;
-	}
-	
-	/**
-	 * Gets the singleton instance of this class.
-	 * 
-	 * @param location The URL of a configuration file. This could be a local
-	 * 		file, as well as a remote HTTP resource.
-	 * @param localResource Is the config file in the project's resources folder?
-	 * @return An instance of ConfigurationUtility.
-	 * @throws MissingConfigurationException
-	 */
-	public static ConfigurationUtility getInstance(String location, boolean localResource)
-			throws MissingConfigurationException {
-		if (instance == null) {
-			instance = new ConfigurationUtility(location, localResource);
-		}
-		return instance;
-	}
-	
-	/**
-	 * Switches to a new config file.
-	 * 
-	 * @param location location The URL of a configuration file. This could be a local
-	 * 		file, as well as a remote HTTP resource.
-	 * @param localResource Is the config file in the project's resources folder?
-	 * @return An instance of ConfigurationUtility.
-	 * @throws MissingConfigurationException
-	 */
-	public static ConfigurationUtility SwitchConfig(String location, boolean localResource) throws MissingConfigurationException{
-		if (instance == null) {
-			instance = new ConfigurationUtility(location,localResource);
-		} else {
-			instance.openConfig(location,localResource);
-		}
-		return instance;
 	}
 	
 	/**

@@ -38,8 +38,6 @@ public class DeadEnd extends CompositePattern {
 		
 		List<CompositePattern> deadEnds = new ArrayList<>();
 		
-		
-		
 		//Find doors & entrance
 		Entrance entrance = null;
 		List<Door> doors = new ArrayList<Door>();
@@ -60,7 +58,7 @@ public class DeadEnd extends CompositePattern {
 			}
 		}		
 		
-		//TODO: If this even works, it can surely be written more elegantly
+		//TODO: This can surely be written more elegantly
 		//For each node in the set, do the aforementioned procedure...
 		patternGraph.resetGraph();
 		for(Node<Pattern> n : criticalPath){
@@ -79,7 +77,7 @@ public class DeadEnd extends CompositePattern {
 							Node<Pattern> current = queue.remove();
 							
 							for(Edge<Pattern> e2 : current.getEdges()){
-								Node<Pattern> n2 = getOtherNode(e2,n);
+								Node<Pattern> n2 = getOtherNode(e2,current);
 								if(!criticalPath.contains(n2) && !n2.isVisited()){
 									if(!patternGraph.isEdgeInCycle(e2)){
 										deadEnds.add(expandDeadEnd(n2,current));

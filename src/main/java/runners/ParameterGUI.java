@@ -48,8 +48,6 @@ public class ParameterGUI extends Application {
 	public void start(Stage stage) {
 		Parent root;
 		try {
-			config = ConfigurationUtility.getInstance();
-
 			root = FXMLLoader.load(getClass().getResource("/gui/ParameterGUI.fxml"));
 
 			Scene scene = new Scene(root,800, 600);

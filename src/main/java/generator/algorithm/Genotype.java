@@ -2,15 +2,19 @@ package generator.algorithm;
 
 import game.Game;
 import game.TileTypes;
+import generator.config.GeneratorConfig;
 
 public class Genotype {
 	private int[] chromosome;
+	private GeneratorConfig config;
 	
-	public Genotype(int[] chromosome){
+	public Genotype(GeneratorConfig config, int[] chromosome){
+		this.config = config;
 		setChromosome(chromosome);
 	}
 	
-	public Genotype(int size){
+	public Genotype(GeneratorConfig config, int size){
+		this.config = config;
 		chromosome = new int[size];
 	}
 	
@@ -47,7 +51,7 @@ public class Genotype {
 	public void randomSupervisedChromosome() {
 		int i = 0;
 		while(i < chromosome.length){
-			chromosome[i++] = Game.getRanges().getSupervisedRandomType().getValue();
+			chromosome[i++] = config.getSupervisedRandomType().getValue();
 		}
 	}
 }

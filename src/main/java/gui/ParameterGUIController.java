@@ -21,6 +21,7 @@ import finder.patterns.Pattern;
 import finder.patterns.micro.Connector;
 import finder.patterns.micro.Corridor;
 import finder.patterns.micro.Room;
+import game.ApplicationConfig;
 import game.Map;
 import gui.controls.LabeledTextField;
 import gui.controls.NumberTextField;
@@ -78,7 +79,7 @@ public class ParameterGUIController implements Initializable, Listener {
 
 	final static Logger logger = LoggerFactory.getLogger(ParameterGUIController.class);
 	private static EventRouter router = EventRouter.getInstance();
-	private ConfigurationUtility config;
+	private ApplicationConfig config;
 	
 	private Map currentMap;
 	private GraphicsContext ctx;
@@ -98,7 +99,7 @@ public class ParameterGUIController implements Initializable, Listener {
 	 */
 	public ParameterGUIController() {
 		try {
-			config = ConfigurationUtility.getInstance();
+			config = config = ApplicationConfig.getInstance();
 		} catch (MissingConfigurationException e) {
 			logger.error("Couldn't read config: " + e.getMessage());
 		}
@@ -269,7 +270,7 @@ public class ParameterGUIController implements Initializable, Listener {
 	 * Reads the full config tree and builds a GUI to handle it.
 	 */
 	private void readAndBuildConfig() {
-		addToConfigPane(config.getTree(), configSlab, "");
+		addToConfigPane(config.getInternalConfig().getTree(), configSlab, "");
 	}
 
 	/**
@@ -473,7 +474,7 @@ public class ParameterGUIController implements Initializable, Listener {
 			switch (type) {
 			case STRING:
 				strVal = (String) newValue;
-				config.updateValue(path, strVal);
+				config.getInternalConfig().updateValue(path, strVal);
 				break;
 			case NUMBER:
 				strVal = (String) newValue;
@@ -481,14 +482,14 @@ public class ParameterGUIController implements Initializable, Listener {
 					strVal = "0";
 				}
 				if (strVal.contains(".")) {
-					config.updateValue(path, Double.parseDouble(strVal));
+					config.getInternalConfig().updateValue(path, Double.parseDouble(strVal));
 				} else {
-					config.updateValue(path, Integer.parseInt(strVal));
+					config.getInternalConfig().updateValue(path, Integer.parseInt(strVal));
 				}
 				break;
 			case BOOLEAN:
 				boolVal = (Boolean) newValue;
-				config.updateValue(path, boolVal);
+				config.getInternalConfig().updateValue(path, boolVal);
 				break;
 			default:
 				break;

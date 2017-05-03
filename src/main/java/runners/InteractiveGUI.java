@@ -55,8 +55,6 @@ public class InteractiveGUI extends Application {
 		});
 		
 		try {
-			config = ConfigurationUtility.getInstance();
-
 			root = FXMLLoader.load(getClass().getResource("/gui/interactive/InteractiveGUI.fxml"));
 
 			Scene scene = new Scene(root, 1024, 768);
