@@ -18,6 +18,12 @@ import game.Map;
 
 public class TreasureRoom extends CompositePattern {
 
+	private int treasureCount = 0;
+	
+	public double getQuality(){
+		return 1.0;	
+	}
+	
 	public static List<CompositePattern> matches(Map map, Graph<Pattern> patternGraph) {
 		List<CompositePattern> treasureRooms = new ArrayList<>();
 		

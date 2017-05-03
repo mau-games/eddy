@@ -19,6 +19,10 @@ import game.Map;
 
 public class GuardRoom extends CompositePattern {
 	
+	public double getQuality(){
+		return 1.0;	
+	}
+	
 	public static List<CompositePattern> matches(Map map, Graph<Pattern> patternGraph) {
 		List<CompositePattern> guardRooms = new ArrayList<CompositePattern>();
 		

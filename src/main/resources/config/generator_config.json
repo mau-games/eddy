@@ -61,6 +61,24 @@
         },
         "door": {
         
+        },
+        "guard_room": {
+        	"target_enemy_amount": 5
+        },
+        "treasure_room": {
+        	"target_treasure_amount": 5
+        },
+        "guarded_treasure": {
+        	
+        },
+        "ambush": {
+        	
+        },
+        "choke_point": {
+        
+        },
+        "dead_end": {
+        
         }
     }
 }

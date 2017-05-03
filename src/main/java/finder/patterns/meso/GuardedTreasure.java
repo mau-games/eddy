@@ -28,6 +28,10 @@ import game.Map;
  */
 public class GuardedTreasure extends CompositePattern {
 	
+	public double getQuality(){
+		return 1.0;	
+	}
+	
 	public static List<CompositePattern> matches(Map map, Graph<Pattern> patternGraph) {
 		List<CompositePattern> guardedTreasures = new ArrayList<CompositePattern>();
 		

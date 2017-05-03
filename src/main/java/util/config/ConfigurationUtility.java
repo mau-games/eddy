@@ -45,6 +45,11 @@ public class ConfigurationUtility {
 		openConfig(location, localResource);
 	}
 	
+	public ConfigurationUtility(ConfigurationUtility cUtil){
+		JsonParser parser = new JsonParser();
+		config = (JsonObject) parser.parse(cUtil.config.toString());
+	}
+	
 	private void openConfig(String location, boolean localResource) throws MissingConfigurationException{
 		if(localResource){
 			FileReader file = null;

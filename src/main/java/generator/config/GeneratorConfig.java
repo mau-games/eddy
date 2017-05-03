@@ -21,8 +21,8 @@ import util.config.MissingConfigurationException;
 
 public class GeneratorConfig {
 	private static String defaultConfig = "config/generator_config.json";
+	private static final float mutationAmount = 0.2f;
 	private ConfigurationUtility config;
-
 	
 	public GeneratorConfig() throws MissingConfigurationException{
 		config = new ConfigurationUtility(defaultConfig, true);
@@ -30,6 +30,62 @@ public class GeneratorConfig {
 	
 	public GeneratorConfig(String file) throws MissingConfigurationException{
 		config = new ConfigurationUtility(file,true);
+	}
+	
+	public GeneratorConfig(GeneratorConfig gc){
+		config = new ConfigurationUtility(gc.config);
+	}
+	
+	public void mutate(){
+		mutateRoomCorridorRatio();
+		mutateSquarenessSize();
+		mutateBendiness();
+		mutateArea();
+	}
+	
+	public void mutateRoomCorridorRatio(){
+		//wobble room/corridor proportions
+		double roomProportion = getRoomProportion();
+		roomProportion += Util.getNextFloat(-mutationAmount, mutationAmount);
+		roomProportion = Math.min(1,Math.max(0,roomProportion));
+		setRoomProportion(roomProportion);
+		setCorridorProportion(1.0-roomProportion);
+	}
+	
+	public void mutateSquarenessSize(){
+		//wobble chamber squareness:size ratio
+		double squareness = getChamberTargetSquareness();
+		squareness += Util.getNextFloat(-mutationAmount, mutationAmount);
+		squareness = Math.min(1,Math.max(0,squareness));
+		setChamberTargetSquareness(squareness);
+		setChamberAreaCorrectness(1.0-squareness);
+	}
+	
+	public void mutateBendiness(){
+		//wobble turn quality
+		double turnQuality = getTurnQuality();
+		turnQuality += Util.getNextFloat(-mutationAmount, mutationAmount);
+		turnQuality = Math.min(1,Math.max(0,turnQuality));
+		setTurnQuality(turnQuality);
+		
+		//wobble intersection quality
+		double intersectionQuality = getIntersectionQuality();
+		intersectionQuality += Util.getNextFloat(-mutationAmount, mutationAmount);
+		intersectionQuality = Math.min(1,Math.max(0,intersectionQuality));
+		setIntersectionQuality(intersectionQuality);
+		
+	}
+	
+	public void mutateArea(){
+		//wobble chamber target area
+		int area = getChamberTargetArea();
+		area += Util.getNextInt(-5, 5);
+		try {
+			area = Math.min(ApplicationConfig.getInstance().getDimensionM()*ApplicationConfig.getInstance().getDimensionN(),Math.max(9,area));
+		} catch (MissingConfigurationException e) {
+			e.printStackTrace();
+		}
+		setChamberTargetArea(area);
 	}
 	
 	public int getPopulationSize(){
@@ -52,8 +108,16 @@ public class GeneratorConfig {
 		return config.getDouble("generator.weights.room");
 	}
 	
+	public void setRoomProportion(double roomProportion){
+		config.updateValue("generator.weights.room",roomProportion);
+	}
+	
 	public double getCorridorProportion(){
 		return config.getDouble("generator.weights.corridor");
+	}
+	
+	public void setCorridorProportion(double corridorProportion){
+		config.updateValue("generator.weights.corridor", corridorProportion);
 	}
 	
 	public int getCorridorTargetLength(){
@@ -64,20 +128,40 @@ public class GeneratorConfig {
 		return config.getDouble("patterns.connector.turn_quality");
 	}
 	
+	public void setTurnQuality(double quality){
+		config.updateValue("patterns.connector.turn_quality",quality);
+	}
+	
 	public double getIntersectionQuality(){
 		return config.getDouble("patterns.connector.intersection_quality");
+	}
+	
+	public void setIntersectionQuality(double quality){
+		config.updateValue("patterns.connector.intersection_quality",quality);
 	}
 	
 	public int getChamberTargetArea(){
 		return config.getInt("patterns.room.desired_area");
 	}
 	
+	public void setChamberTargetArea(int area){
+		config.updateValue("patterns.room.desired_area", area);
+	}
+	
 	public double getChamberTargetSquareness(){
 		return config.getDouble("patterns.room.squareness");
 	}
 	
+	public void setChamberTargetSquareness(double squareness){
+		config.updateValue("patterns.room.squareness", squareness);
+	}
+	
 	public double getChamberAreaCorrectness(){
 		return config.getDouble("patterns.room.size");
+	}
+	
+	public void setChamberAreaCorrectness(double size){
+		config.updateValue("patterns.room.size",size);
 	}
 	
 	public int getGenerations(){
@@ -163,5 +247,7 @@ public class GeneratorConfig {
 		
 		return TileTypes.WALL;
 	}
+	
+	
 
 }
