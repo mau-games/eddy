@@ -6,8 +6,8 @@
         "offspring_size": 0.7,
         "feasible_proportion": 1,
         "weights": {
-            "room": 1,
-            "corridor": 0
+            "room": 0,
+            "corridor": 1
         }
     },
     "tile_type_ranges": {
@@ -31,15 +31,15 @@
     "patterns": {
         "room": {
             "desired_area": 9,
-            "squareness": 0.2,
-            "size": 0.8
+            "squareness": 0.4,
+            "size": 0.6
         },
         "corridor": {
-            "target_length": 4
+            "target_length": 8
         },
         "connector": {
-        	"turn_quality" : 0.1,
-        	"intersection_quality" : 0.9
+        	"turn_quality" : 1,
+        	"intersection_quality" : 0.1
         },
         "entrance": {
         	"entrance_safety" : 0.2,
