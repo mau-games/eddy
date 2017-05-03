@@ -12,14 +12,17 @@ import game.Map;
 import gui.controls.LabeledCanvas;
 import gui.utils.MapRenderer;
 import javafx.application.Platform;
+import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.GridPane;
 import util.eventrouting.EventRouter;
 import util.eventrouting.Listener;
 import util.eventrouting.PCGEvent;
 import util.eventrouting.events.AlgorithmDone;
 import util.eventrouting.events.MapUpdate;
+import util.eventrouting.events.RequestViewSwitch;
 
 /**
  * This class controls the interactive application's start view.
@@ -31,8 +34,7 @@ public class StartViewController extends GridPane implements Listener {
 	@FXML private List<LabeledCanvas> mapDisplays;
 	
 	private boolean isActive = false;
-	private HashMap<UUID, Integer> uuidToDisplay = new HashMap<UUID, Integer>();
-	private HashMap<UUID, Map> uuidToMap = new HashMap<UUID, Map>();
+	private HashMap<Integer, Map> maps = new HashMap<Integer, Map>();
 	private int nextMap = 0;
 	
 	private MapRenderer renderer = MapRenderer.getInstance();
@@ -65,10 +67,8 @@ public class StartViewController extends GridPane implements Listener {
 				Map map = (Map) ((MapUpdate) e).getPayload();
 				UUID uuid = ((MapUpdate) e).getID();
 				LabeledCanvas canvas = mapDisplays.get(nextMap);
-				System.out.println("Got map: " + uuid);
 				canvas.setText("Got map:\n" + uuid);
-				uuidToDisplay.put(uuid, nextMap++);
-				uuidToMap.put(uuid, map);
+				maps.put(nextMap, map);
 				
 				Platform.runLater(() -> {
 					int[][] matrix = map.toMatrix();
@@ -79,7 +79,9 @@ public class StartViewController extends GridPane implements Listener {
 //					renderer.drawMesoPatterns(ctx, matrix, currentMap.getPatternFinder().findMesoPatterns());
 				});
 				
-				// TODO: Attach event to display
+				canvas.addEventFilter(MouseEvent.MOUSE_CLICKED,
+						new MouseEventHandler(maps.get(nextMap)));
+				nextMap++;
 			}
 		}
 	}
@@ -97,5 +99,21 @@ public class StartViewController extends GridPane implements Listener {
 	 */
 	public LabeledCanvas getMapDisplay(int index) {
 		return mapDisplays.get(index);
+	}
+	
+	private class MouseEventHandler implements EventHandler<MouseEvent> {
+		
+		private Map map;
+		
+		public MouseEventHandler(Map map) {
+			this.map = map;
+		}
+		
+		@Override
+		public void handle(MouseEvent event) {
+			System.out.println(map);
+			router.postEvent(new RequestViewSwitch(map));
+		}
+		
 	}
 }
