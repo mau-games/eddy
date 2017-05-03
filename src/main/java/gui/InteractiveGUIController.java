@@ -100,7 +100,9 @@ public class InteractiveGUIController implements Initializable, Listener {
 		System.out.println("About Eddy");
 	}
 	
-//	public void
+	public void generateNewMap() {
+		System.out.println("Generate map");
+	}
 	
 	/*
 	 * Initialisation methods
@@ -145,6 +147,18 @@ public class InteractiveGUIController implements Initializable, Listener {
 		AnchorPane.setBottomAnchor(editView, 0.0);
 		AnchorPane.setLeftAnchor(editView, 0.0);
 		mainPane.getChildren().add(editView);
+		
+		editView.getMap(0).addEventFilter(MouseEvent.MOUSE_CLICKED, mouseEventHandler);
+		editView.getMap(0).setText("Label for map 0\nSome properties for map 0");
+		
+		editView.getMap(1).addEventFilter(MouseEvent.MOUSE_CLICKED, mouseEventHandler);
+		editView.getMap(1).setText("Label for map 1\nSome properties for map 1");
+		
+		editView.getMap(2).addEventFilter(MouseEvent.MOUSE_CLICKED, mouseEventHandler);
+		editView.getMap(2).setText("Label for map 2\nSome properties for map 2");
+		
+		editView.getMap(3).addEventFilter(MouseEvent.MOUSE_CLICKED, mouseEventHandler);
+		editView.getMap(3).setText("Label for map 3\nSome properties for map 3");
 	}
 	
 	/*
@@ -157,6 +171,7 @@ public class InteractiveGUIController implements Initializable, Listener {
 		public void handle(MouseEvent event) {
 			System.out.println("Map: " + event.getSource());
 			initEditView();
+			// TODO: Populate edit view with new maps based on selected map
 		}
 		
 	}
@@ -165,7 +180,7 @@ public class InteractiveGUIController implements Initializable, Listener {
 		@Override
 		public void handle(MouseEvent event) {
 			System.out.println("Map: " + event.getSource());
-			initEditView();
+			// TODO: Load map in main box
 		}
 		
 	}
