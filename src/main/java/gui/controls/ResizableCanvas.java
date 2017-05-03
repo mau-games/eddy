@@ -2,6 +2,7 @@ package gui.controls;
 
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.image.Image;
 import javafx.scene.paint.Color;
 
 /**
@@ -12,11 +13,23 @@ import javafx.scene.paint.Color;
  * @author Johan Holmberg, Malmö University
  */
 public class ResizableCanvas extends Canvas {
+	
+	private Image image;
 
 	public ResizableCanvas() {
 		// Redraw canvas when size changes.
 		widthProperty().addListener(evt -> draw());
 		heightProperty().addListener(evt -> draw());
+		draw();
+	}
+	
+	/**
+	 * Draws an image on this canvas.
+	 * 
+	 * @param image The image to draw.
+	 */
+	public void draw(Image image) {
+		this.image = image;
 		draw();
 	}
 
@@ -29,9 +42,13 @@ public class ResizableCanvas extends Canvas {
 
 
 		// TODO: Change this when we know what we really want to do here...
-		gc.setStroke(Color.RED);
-		gc.strokeLine(0, 0, width, height);
-		gc.strokeLine(0, height, width, 0);
+		if (image == null) {
+			gc.setStroke(Color.RED);
+			gc.strokeLine(0, 0, width, height);
+			gc.strokeLine(0, height, width, 0);
+		} else {
+			gc.drawImage(image, 0, 0, width, height);
+		}
 	}
 
 	@Override

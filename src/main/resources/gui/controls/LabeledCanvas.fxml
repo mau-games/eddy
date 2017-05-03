@@ -16,7 +16,7 @@
       </AnchorPane>
    </center>
    <bottom>
-      <AnchorPane prefHeight="40.0">
+      <AnchorPane fx:id="labelPane" prefHeight="40.0">
    	     <children>
             <Label fx:id="label" alignment="TOP_CENTER" minWidth="-Infinity" text="Label" textAlignment="CENTER" wrapText="true" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
          </children>

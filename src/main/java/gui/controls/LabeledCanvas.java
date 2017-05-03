@@ -2,6 +2,7 @@ package gui.controls;
 
 import java.io.IOException;
 
+import javafx.application.Platform;
 import javafx.beans.property.StringProperty;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -20,6 +21,7 @@ public class LabeledCanvas extends BorderPane {
 	@FXML private Label label;
 	@FXML private ResizableCanvas canvas;
 	@FXML private AnchorPane canvasPane;
+	@FXML private AnchorPane labelPane;
 	@FXML private BorderPane rootPane;
 	private GraphicsContext gc;
 	
@@ -53,6 +55,9 @@ public class LabeledCanvas extends BorderPane {
 			throw new RuntimeException(exception);
 		}
 		
+		rootPane.setMinSize(0, 0);
+		canvasPane.setMinSize(0, 0);
+		labelPane.setMinSize(0, 0);
 		
 		canvas.widthProperty().bind(canvasPane.widthProperty());
 		canvas.heightProperty().bind(canvasPane.heightProperty());
@@ -69,11 +74,8 @@ public class LabeledCanvas extends BorderPane {
 	 * 
 	 * @param image An image.
 	 */
-	public void drawImage(Image image) {
-		double width = gc.getCanvas().getWidth();
-		double height = gc.getCanvas().getHeight();
-		
-		gc.drawImage(image, 0, 0, width, height);
+	public void draw(Image image) {
+		canvas.draw(image);
 	}
 	
 	/**
@@ -100,7 +102,9 @@ public class LabeledCanvas extends BorderPane {
 	 * @param label The text to display.
 	 */
     public void setText(String value) {
-    	label.setText(value);
+    	Platform.runLater(() -> {
+    		label.setText(value);
+    	});
     }
 
     /**
