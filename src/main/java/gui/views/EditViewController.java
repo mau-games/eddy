@@ -15,6 +15,8 @@ import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.image.Image;
+import javafx.scene.image.WritableImage;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.paint.Color;
 import util.eventrouting.EventRouter;
@@ -85,6 +87,14 @@ public class EditViewController extends BorderPane implements Listener {
 	
 	public void updateMap(Map map) {
 		currentMap = map;
+	}
+	
+	public Map getCurrentMap() {
+		return currentMap;
+	}
+	
+	public Image getRenderedMap() {
+		return centralCanvas.snapshot(null, new WritableImage((int) centralCanvas.getWidth(), (int) centralCanvas.getHeight()));
 	}
 
 	/**

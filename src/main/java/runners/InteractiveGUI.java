@@ -19,6 +19,8 @@ import javafx.scene.image.Image;
 import javafx.stage.Stage;
 import util.config.ConfigurationUtility;
 import util.config.MissingConfigurationException;
+import util.eventrouting.EventRouter;
+import util.eventrouting.events.Start;
 
 /**
  * This class launches an interactive GUI.
@@ -63,8 +65,11 @@ public class InteractiveGUI extends Application {
 			stage.setScene(scene);
 			stage.show();
 
+			EventRouter router = EventRouter.getInstance();
+			
 			// Set up a new game
 			game = new Game();
+			router.postEvent(new Start(3));
 
 			// Set up a bunch of collectors
 			mapCollector = new MapCollector();

@@ -1,9 +1,14 @@
 package gui;
 
+import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ResourceBundle;
+
+import javax.imageio.ImageIO;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -13,6 +18,7 @@ import game.Map;
 import gui.views.EditViewController;
 import gui.views.StartViewController;
 import javafx.application.Platform;
+import javafx.embed.swing.SwingFXUtils;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -129,6 +135,30 @@ public class InteractiveGUIController implements Initializable, Listener {
 	
 	public void exportImage() {
 		System.out.println("Exporting image");
+		
+		DateTimeFormatter format =
+				DateTimeFormatter.ofPattern("yyyy-MM-dd_HH-mm-s-n");
+		String name = "renderedmap_" +
+				LocalDateTime.now().format(format) + ".png";
+
+		FileChooser fileChooser = new FileChooser();
+		fileChooser.setTitle("Open Map");
+		fileChooser.setInitialFileName(name);
+		fileChooser.getExtensionFilters().addAll(
+				new ExtensionFilter("PNG Files", "*.png"),
+				new ExtensionFilter("All Files", "*.*"));
+		File selectedFile = fileChooser.showSaveDialog(stage);
+		if (selectedFile != null && editView.getCurrentMap() != null) {
+			logger.debug("Writing map to " + selectedFile.getPath());
+			BufferedImage image = SwingFXUtils.fromFXImage(editView.getRenderedMap(), null);
+
+			try {
+				ImageIO.write(image, "png", selectedFile);
+			} catch (IOException e1) {
+				logger.error("Couldn't write map to " + selectedFile +
+						":\n" + e1.getMessage());
+			}
+		}
 	}
 	
 	public void openPreferences() {
