@@ -46,6 +46,7 @@
 	-fx-pref-width: 200;
 }
 
-#toolbox .button {
+#toolbox .button,
+#toolbox .toggle-button {
 	-fx-pref-width: 80;
 }
