@@ -88,11 +88,11 @@ public class InteractiveMap extends GridPane {
 	 * Initialises the controller.
 	 */
 	private void initialise() {
+		autosize();
 		double width = getWidth() / cols;
 		double height = getHeight() / rows;
 		double scale = Math.min(width, height);
 
-		autosize();
 		coords.clear();
 		
 		for (int i = 0; i < cols; i++) {
