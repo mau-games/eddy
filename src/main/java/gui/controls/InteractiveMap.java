@@ -1,5 +1,7 @@
 package gui.controls;
 
+import java.util.HashMap;
+
 import game.Map;
 import game.TileTypes;
 import gui.utils.MapRenderer;
@@ -19,6 +21,7 @@ public class InteractiveMap extends GridPane {
 	private int rows = 0;
 	
 	private final MapRenderer renderer = MapRenderer.getInstance();
+	private final HashMap<ImageView, Point> coords = new HashMap<ImageView, Point>();
 	
 	/**
 	 * Creates an empty instance of InteractiveMap.
@@ -35,7 +38,7 @@ public class InteractiveMap extends GridPane {
 	 */
 	public InteractiveMap(Map map) {
 		super();
-		
+
 		updateMap(map);
 	}
 	
@@ -85,10 +88,12 @@ public class InteractiveMap extends GridPane {
 	 * Initialises the controller.
 	 */
 	private void initialise() {
-		autosize();
 		double width = getWidth() / cols;
 		double height = getHeight() / rows;
 		double scale = Math.min(width, height);
+
+		autosize();
+		coords.clear();
 		
 		for (int i = 0; i < cols; i++) {
 			for (int j = 0; j < rows; j++) {
@@ -100,6 +105,7 @@ public class InteractiveMap extends GridPane {
 				GridPane.setFillWidth(iv, true);
 				GridPane.setFillHeight(iv, true);
 				add(iv, i, j);
+				coords.put(iv, new Point(i, j));
 			}
 		}
 	}
@@ -123,7 +129,6 @@ public class InteractiveMap extends GridPane {
 	 * @param tile The type of tile to draw.
 	 */
 	private void drawTile(int x, int y, TileTypes tile) {
-		System.out.println("Drawing " + tile.toString());
 		getCell(x, y).setImage(renderer.renderTile(tile));
 	}
 }
