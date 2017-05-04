@@ -4,6 +4,7 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
+import java.nio.file.Files;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ResourceBundle;
@@ -125,16 +126,26 @@ public class InteractiveGUIController implements Initializable, Listener {
 	}
 	
 	public void saveMap() {
-		System.out.println("Save map");
+		DateTimeFormatter format =
+				DateTimeFormatter.ofPattern("yyyy-MM-dd_HH-mm-s-n");
+		String name = "renderedmap_" +
+				LocalDateTime.now().format(format) + ".map";
 		
 		 FileChooser fileChooser = new FileChooser();
-		 fileChooser.setTitle("Open Map");
+		 fileChooser.setTitle("Save Map");
+			fileChooser.setInitialFileName(name);
 		 fileChooser.getExtensionFilters().addAll(
 		         new ExtensionFilter("Map Files", "*.map"),
 		         new ExtensionFilter("All Files", "*.*"));
 		 File selectedFile = fileChooser.showSaveDialog(stage);
 		 if (selectedFile != null) {
-			 System.out.println("Selected file: " + selectedFile);
+			 logger.debug("Writing map to " + selectedFile.getPath());
+			 try {
+				Files.write(selectedFile.toPath(), editView.getMap().getMap().toString().getBytes());
+			} catch (IOException e) {
+				logger.error("Couldn't write map to " + selectedFile +
+						":\n" + e.getMessage());
+			}
 		 }
 	}
 	
@@ -152,13 +163,13 @@ public class InteractiveGUIController implements Initializable, Listener {
 				new ExtensionFilter("All Files", "*.*"));
 		File selectedFile = fileChooser.showSaveDialog(stage);
 		if (selectedFile != null && editView.getCurrentMap() != null) {
-			logger.debug("Writing map to " + selectedFile.getPath());
+			logger.debug("Exporting map to " + selectedFile.getPath());
 			BufferedImage image = SwingFXUtils.fromFXImage(editView.getRenderedMap(), null);
 
 			try {
 				ImageIO.write(image, "png", selectedFile);
 			} catch (IOException e1) {
-				logger.error("Couldn't write map to " + selectedFile +
+				logger.error("Couldn't export map to " + selectedFile +
 						":\n" + e1.getMessage());
 			}
 		}
