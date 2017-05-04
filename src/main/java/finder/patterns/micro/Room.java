@@ -65,6 +65,14 @@ public class Room extends SpacialPattern {
 		return floorRatio * floorRatioWeight + areaDeviation * areaDeviationWeight;
 	}
 	
+	public double getSquareness(){
+		Polygon polygon = (Polygon) boundaries;
+		Rectangle rectangle = constructRectangle();
+		double polyArea = polygon.getArea();
+		double rectArea = rectangle.getArea();
+		return polyArea / rectArea;
+	}
+	
 	private Rectangle constructRectangle() {
 		Polygon polygon = (Polygon) boundaries;
 		int minX = Integer.MAX_VALUE;

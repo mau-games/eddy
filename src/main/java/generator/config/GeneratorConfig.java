@@ -123,6 +123,10 @@ public class GeneratorConfig {
 	public int getCorridorTargetLength(){
 		return config.getInt("patterns.corridor.target_length");
 	}
+	
+	public void setCorridorTargetLength(int length){
+		config.updateValue("patterns.corridor.target_length", length);
+	}
 
 	public double getTurnQuality(){
 		return config.getDouble("patterns.connector.turn_quality");

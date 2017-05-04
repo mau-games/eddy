@@ -14,10 +14,16 @@ import java.util.Map.Entry;
 
 import finder.PatternFinder;
 import finder.Populator;
+import finder.geometry.Polygon;
 import finder.graph.Graph;
 import finder.graph.Node;
 import finder.patterns.Pattern;
 import finder.patterns.SpacialPattern;
+import finder.patterns.micro.Connector;
+import finder.patterns.micro.Corridor;
+import finder.patterns.micro.Enemy;
+import finder.patterns.micro.Room;
+import finder.patterns.micro.Treasure;
 import util.Point;
 import util.config.MissingConfigurationException;
 import util.eventrouting.EventRouter;
@@ -537,6 +543,74 @@ public class Map {
 			}
 		}
 	}
+	
+	public GeneratorConfig getCalculatedConfig(){
+		GeneratorConfig newConfig = new GeneratorConfig(config);
+		
+        List<Enemy> enemies = new ArrayList<Enemy>();
+        List<Treasure> treasures = new ArrayList<Treasure>();
+        List<Corridor> corridors = new ArrayList<Corridor>();
+        List<Connector> connectors = new ArrayList<Connector>();
+        List<Room> rooms = new ArrayList<Room>();
+        
+        for (Pattern p : finder.findMicroPatterns()) {
+        	if (p instanceof Enemy) {
+        		enemies.add((Enemy) p);
+        	} else if (p instanceof Treasure) {
+        		treasures.add((Treasure) p);
+        	} else if (p instanceof Corridor) {
+        		corridors.add((Corridor) p);
+        	} else if (p instanceof Connector) {
+        		connectors.add((Connector) p);
+        	} else if (p instanceof Room) {
+        		rooms.add((Room) p);
+        	}
+        }
+        
+        //TODO: Also take into account other patterns!!!
+
+		
+		//CORRIDOR LENGTH
+		
+		double rawCorridorArea = 0;
+    	
+    	for(Pattern p : corridors){
+    		rawCorridorArea += ((Polygon)p.getGeometry()).getArea();
+    	}
+		
+		int avgCorridorLength = (int)Math.ceil(rawCorridorArea/corridors.size());
+		newConfig.setCorridorTargetLength(avgCorridorLength);
+		
+		//ROOM AND CORRIDOR RATIOS
+		
+    	double passableTiles = getNonWallTileCount();
+    	double rawRoomArea = 0.0;
+    	double totalSquareness = 0.0;
+    	
+    	for(Pattern p : rooms){
+    		rawRoomArea += ((Polygon)p.getGeometry()).getArea();
+    		totalSquareness += ((Room)p).getSquareness();
+    	}
+    	
+    	double roomProportion = rawRoomArea / passableTiles;
+		
+		newConfig.setRoomProportion(roomProportion);
+		newConfig.setCorridorProportion(1.0 - roomProportion);
+		
+		//CHAMBER AREA
+		
+		int avgArea = (int)Math.ceil(rawRoomArea/rooms.size());
+		newConfig.setChamberTargetArea(avgArea);
+		
+		//CHAMBER SQUARENESS AND SIZE
+		
+		double avgSquareness = totalSquareness / rooms.size();
+		newConfig.setChamberTargetSquareness(avgSquareness);
+		newConfig.setChamberAreaCorrectness(1.0 - avgSquareness);
+
+		return newConfig;
+	}
+	
 
 	/**
 	 * Exports this map as a 2D matrix of integers
