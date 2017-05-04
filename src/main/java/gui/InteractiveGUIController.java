@@ -233,8 +233,6 @@ public class InteractiveGUIController implements Initializable, Listener {
 		startView.setActive(false);
 		editView.setActive(true);
 		
-		editView.getMap().addEventFilter(MouseEvent.MOUSE_CLICKED, mouseEventHandler);
-		
 		editView.getMap(0).addEventFilter(MouseEvent.MOUSE_CLICKED, mouseEventHandler);
 		editView.getMap(0).setText("Label for map 0\nSome properties for map 0");
 		
@@ -255,10 +253,6 @@ public class InteractiveGUIController implements Initializable, Listener {
 		@Override
 		public void handle(MouseEvent event) {
 			System.out.println("Map: " + event.getTarget());
-			
-			if (event.getSource() == editView.getMap()) {
-				System.out.println("Clicked!");
-			}
 		}
 		
 	}

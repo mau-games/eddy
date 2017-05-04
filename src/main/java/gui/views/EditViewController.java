@@ -7,20 +7,19 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import game.Map;
+import game.TileTypes;
 import gui.controls.InteractiveMap;
 import gui.controls.LabeledCanvas;
 import gui.utils.MapRenderer;
-import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Pos;
-import javafx.scene.canvas.Canvas;
-import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.Cursor;
+import javafx.scene.control.ToggleButton;
+import javafx.scene.control.ToggleGroup;
 import javafx.scene.image.Image;
-import javafx.scene.image.WritableImage;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.StackPane;
-import javafx.scene.paint.Color;
 import util.eventrouting.EventRouter;
 import util.eventrouting.Listener;
 import util.eventrouting.PCGEvent;
@@ -35,9 +34,12 @@ public class EditViewController extends BorderPane implements Listener {
 	
 	@FXML private List<LabeledCanvas> maps;
 	@FXML private StackPane mapPane;
+	@FXML private ToggleGroup brushes;
 	private InteractiveMap mapView;
 	
 	private boolean isActive = false;
+	private TileTypes brush = null;
+	
 	private MapRenderer renderer = MapRenderer.getInstance();
 	private static EventRouter router = EventRouter.getInstance();
 	private final static Logger logger = LoggerFactory.getLogger(EditViewController.class);
@@ -134,5 +136,34 @@ public class EditViewController extends BorderPane implements Listener {
 	 */
 	public Image getRenderedMap() {
 		return renderer.renderMap(mapView.getMap().toMatrix());
+	}
+	
+	/**
+	 * Selects a brush.
+	 * 
+	 * I'm sorry, this is a disgusting way of handling things...
+	 */
+	public void selectBrush() {
+		if (brushes.getSelectedToggle() == null) {
+			brush = null;
+			mapView.setCursor(Cursor.DEFAULT);
+		} else {
+			mapView.setCursor(Cursor.HAND);
+			
+			switch (((ToggleButton) brushes.getSelectedToggle()).getText()) {
+			case "Floor":
+				brush = TileTypes.FLOOR;
+				break;
+			case "Wall":
+				brush = TileTypes.WALL;
+				break;
+			case "Treasure":
+				brush = TileTypes.TREASURE;
+				break;
+			case "Enemy":
+				brush = TileTypes.ENEMY;
+				break;
+			}
+		}
 	}
 }
