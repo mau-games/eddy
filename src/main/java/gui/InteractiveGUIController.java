@@ -32,7 +32,6 @@ import util.eventrouting.EventRouter;
 import util.eventrouting.Listener;
 import util.eventrouting.PCGEvent;
 import util.eventrouting.events.AlgorithmDone;
-import util.eventrouting.events.MapUpdate;
 import util.eventrouting.events.RequestRedraw;
 import util.eventrouting.events.RequestViewSwitch;
 import util.eventrouting.events.StatusMessage;
@@ -116,7 +115,6 @@ public class InteractiveGUIController implements Initializable, Listener {
 		 if (selectedFile != null) {
 			 System.out.println("Selected file: " + selectedFile);
 			 initEditView();
-			 // TODO: Load map
 			 try {
 				Map.LoadMap(selectedFile);
 			} catch (IOException e) {
@@ -154,7 +152,6 @@ public class InteractiveGUIController implements Initializable, Listener {
 				new ExtensionFilter("All Files", "*.*"));
 		File selectedFile = fileChooser.showSaveDialog(stage);
 		if (selectedFile != null && editView.getCurrentMap() != null) {
-			// TODO: We want a higher resolution here...
 			logger.debug("Writing map to " + selectedFile.getPath());
 			BufferedImage image = SwingFXUtils.fromFXImage(editView.getRenderedMap(), null);
 
@@ -184,7 +181,6 @@ public class InteractiveGUIController implements Initializable, Listener {
 	 */
 	
 	private void initStartView() {
-		System.out.println("init start view");
 		// TODO: Start off a new run of the algorithm
 		
 		mainPane.getChildren().clear();
@@ -233,6 +229,7 @@ public class InteractiveGUIController implements Initializable, Listener {
 		startView.setActive(false);
 		editView.setActive(true);
 		
+		// TODO: Delegate this to where it belongs: the edit view
 		editView.getMap(0).addEventFilter(MouseEvent.MOUSE_CLICKED, mouseEventHandler);
 		editView.getMap(0).setText("Label for map 0\nSome properties for map 0");
 		

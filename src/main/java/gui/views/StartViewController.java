@@ -111,7 +111,6 @@ public class StartViewController extends GridPane implements Listener {
 		
 		@Override
 		public void handle(MouseEvent event) {
-			System.out.println(map);
 			router.postEvent(new RequestViewSwitch(map));
 		}
 		
