@@ -91,18 +91,38 @@ public class EditViewController extends BorderPane implements Listener {
 		return maps.get(index);
 	}
 	
+	/**
+	 * Marks this control as being in an active or inactive state.
+	 * 
+	 * @param state The new state.
+	 */
 	public void setActive(boolean state) {
 		isActive = state;
 	}
 	
+	/**
+	 * Updates this control's map.
+	 * 
+	 * @param map The new map.
+	 */
 	public void updateMap(Map map) {
 		mapView.updateMap(map);
 	}
 	
+	/**
+	 * Gets the current map being controlled by this controller.
+	 * 
+	 * @return The current map.
+	 */
 	public Map getCurrentMap() {
 		return mapView.getMap();
 	}
 	
+	/**
+	 * Renders the map, making it possible to export it.
+	 * 
+	 * @return A rendered version of the map.
+	 */
 	public Image getRenderedMap() {
 		return renderer.renderMap(mapView.getMap().toMatrix());
 	}
