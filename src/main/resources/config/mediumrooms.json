@@ -30,9 +30,9 @@
 	},
     "patterns": {
         "room": {
-            "desired_area": 25,
-            "squareness": 0.3,
-            "size": 0.7
+            "desired_area": 36,
+            "squareness": 0.7,
+            "size": 0.3
         },
         "corridor": {
             "target_length": 4
