@@ -81,6 +81,15 @@ public class EditViewController extends BorderPane implements Listener {
 	}
 	
 	/**
+	 * Gets the interactive map.
+	 * 
+	 * @return An instance of InteractiveMap, if it exists.
+	 */
+	public InteractiveMap getMap() {
+		return mapView;
+	}
+	
+	/**
 	 * Gets one of the maps (i.e. a labeled view displaying a map) being under
 	 * this object's control.
 	 * 
