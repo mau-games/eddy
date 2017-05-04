@@ -7,11 +7,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import game.Map;
+import gui.controls.InteractiveMap;
 import gui.controls.LabeledCanvas;
 import gui.utils.MapRenderer;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
+import javafx.geometry.Pos;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.image.Image;
@@ -31,12 +33,11 @@ import util.eventrouting.events.MapUpdate;
  */
 public class EditViewController extends BorderPane implements Listener {
 	
-	@FXML private Canvas centralCanvas;
 	@FXML private List<LabeledCanvas> maps;
 	@FXML private StackPane mapPane;
+	private InteractiveMap mapView;
 	
 	private boolean isActive = false;
-	private Map currentMap = null;
 	private MapRenderer renderer = MapRenderer.getInstance();
 	private static EventRouter router = EventRouter.getInstance();
 	private final static Logger logger = LoggerFactory.getLogger(EditViewController.class);
@@ -57,8 +58,17 @@ public class EditViewController extends BorderPane implements Listener {
 			throw new RuntimeException(exception);
 		}
 		
-		draw();
 		router.registerListener(this, new MapUpdate(null));
+		
+		init();
+	}
+	
+	private void init() {
+		mapView = new InteractiveMap();
+		StackPane.setAlignment(mapView, Pos.CENTER);
+		mapView.setMinSize(400, 400);
+		mapView.setMaxSize(400, 400);
+		mapPane.getChildren().add(mapView);
 	}
 
 	@Override
@@ -86,37 +96,14 @@ public class EditViewController extends BorderPane implements Listener {
 	}
 	
 	public void updateMap(Map map) {
-		currentMap = map;
-		draw();
+		mapView.updateMap(map);
 	}
 	
 	public Map getCurrentMap() {
-		return currentMap;
+		return mapView.getMap();
 	}
 	
 	public Image getRenderedMap() {
-		return centralCanvas.snapshot(null, new WritableImage((int) centralCanvas.getWidth(), (int) centralCanvas.getHeight()));
-	}
-
-	/**
-	 * Draws stuff on the canvas. Useful only for testing at the moment...
-	 */
-	private void draw() {
-		GraphicsContext ctx = centralCanvas.getGraphicsContext2D();
-		
-		if (currentMap == null) {
-			ctx.setFill(Color.RED);
-			ctx.fillRect(0, 0, 500, 500);
-		} else {
-			if (currentMap != null) {
-				Platform.runLater(() -> {
-					int[][] matrix = currentMap.toMatrix();
-					renderer.renderMap(ctx, matrix);
-//					renderer.drawPatterns(ctx, matrix, activePatterns);
-//					renderer.drawGraph(ctx, matrix, currentMap.getPatternFinder().getPatternGraph());				renderer.drawMesoPatterns(ctx, matrix, currentMap.getPatternFinder().findMesoPatterns());
-//					renderer.drawMesoPatterns(ctx, matrix, currentMap.getPatternFinder().findMesoPatterns());
-				});
-			}
-		}
+		return renderer.renderMap(mapView.getMap().toMatrix());
 	}
 }

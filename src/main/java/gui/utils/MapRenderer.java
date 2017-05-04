@@ -145,6 +145,19 @@ public class MapRenderer implements Listener {
 	public synchronized Image renderTile(TileTypes tile) {
 		return getTileImage(tile.getValue());
 	}
+	
+	/**
+	 * Renders a single tile.
+	 * 
+	 * @param tile The tile type to render.
+	 * @return A rendered tile.
+	 */
+	public synchronized void renderTile(GraphicsContext ctx, TileTypes tile) {
+		Image image = getTileImage(tile.getValue());
+		double width = ctx.getCanvas().getWidth();
+		double height = ctx.getCanvas().getHeight();
+		ctx.drawImage(image, 0, 0, width, height);
+	}
 
 	/**
 	 * Draws a matrix onto a new image.

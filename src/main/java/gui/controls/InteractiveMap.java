@@ -3,10 +3,8 @@ package gui.controls;
 import game.Map;
 import game.TileTypes;
 import gui.utils.MapRenderer;
-import javafx.scene.layout.ColumnConstraints;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.GridPane;
-import javafx.scene.layout.Priority;
-import javafx.scene.layout.RowConstraints;
 
 /**
  * InteractiveMap describes a control that may be used to edit maps.
@@ -22,6 +20,13 @@ public class InteractiveMap extends GridPane {
 	private final MapRenderer renderer = MapRenderer.getInstance();
 	
 	/**
+	 * Creates an empty instance of InteractiveMap.
+	 */
+	public InteractiveMap() {
+		super();
+	}
+	
+	/**
 	 * Creates an instance of InteractiveMap, its contents being based on a
 	 * provided Map object.
 	 * 
@@ -30,11 +35,7 @@ public class InteractiveMap extends GridPane {
 	public InteractiveMap(Map map) {
 		super();
 		
-		this.map = map;
-		cols = map.getColCount();
-		rows = map.getRowCount();
-		
-		initialise();
+		updateMap(map);
 	}
 	
 	/**
@@ -45,6 +46,10 @@ public class InteractiveMap extends GridPane {
 	 * @param tile  The new tile.
 	 */
 	public synchronized void updateTile(int x, int y, TileTypes tile) {
+		if (map == null) {
+			return;
+		}
+		
 		map.setTile(x, y, tile);
 		drawTile(x, y, tile);
 	}
@@ -59,38 +64,50 @@ public class InteractiveMap extends GridPane {
 	}
 	
 	/**
+	 * Populates this control with a new map.
+	 * 
+	 * @param map A new map.
+	 */
+	public void updateMap(Map map) {
+		this.map = map;
+		cols = map.getColCount();
+		rows = map.getRowCount();
+		
+		initialise();
+	}
+	
+	/**
 	 * Initialises the controller.
 	 */
 	private void initialise() {
-		ColumnConstraints cc = new ColumnConstraints();
-		RowConstraints rc = new RowConstraints();
-
-		setMinSize(0, 0);
-		cc.setFillWidth(true);
-		cc.setHgrow(Priority.ALWAYS);
-		rc.setFillHeight(true);
-		rc.setVgrow(Priority.ALWAYS);
+		autosize();
+		double width = getWidth() / cols;
+		double height = getHeight() / rows;
+		double scale = Math.min(width, height);
 		
 		for (int i = 0; i < cols; i++) {
 			for (int j = 0; j < rows; j++) {
-				ResizableCanvas c = new ResizableCanvas();
-				GridPane.setFillWidth(c, true);
-				GridPane.setFillHeight(c, true);
-				add(c, i, j);
-				drawTile(i, j, map.getTile(i, j));
+				ImageView iv = new ImageView(renderer.renderTile(map.getTile(i, j)));
+				iv.setFitWidth(scale);
+				iv.setPreserveRatio(true);
+				iv.setSmooth(true);
+				iv.setCache(true);
+				GridPane.setFillWidth(iv, true);
+				GridPane.setFillHeight(iv, true);
+				add(iv, i, j);
 			}
 		}
 	}
 	
 	/**
-	 * Gets the resizable canvas residing within a cell.
+	 * Gets the image view residing within a cell.
 	 * 
 	 * @param x The X coordinate of the cell.
 	 * @param y The Y coordinate of the cell.
-	 * @return The resizable canvas in the cell.
+	 * @return The image view in the cell.
 	 */
-	private ResizableCanvas getCell(int x, int y) {
-		return (ResizableCanvas) getChildren().get(x * cols + y);
+	private ImageView getCell(int x, int y) {
+		return (ImageView) getChildren().get(x * cols + y);
 	}
 	
 	/**
@@ -101,6 +118,7 @@ public class InteractiveMap extends GridPane {
 	 * @param tile The type of tile to draw.
 	 */
 	private void drawTile(int x, int y, TileTypes tile) {
-		getCell(x, y).draw(renderer.renderTile(tile));
+		System.out.println("Drawing " + tile.toString());
+		getCell(x, y).setImage(renderer.renderTile(tile));
 	}
 }

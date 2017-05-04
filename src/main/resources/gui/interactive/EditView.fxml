@@ -92,11 +92,14 @@
             </StackPane>
          </bottom>
          <center>
+            <StackPane alignment="CENTER" fx:id="mapPane" />
+         <!--
          	<StackPane alignment="CENTER" fx:id="mapPane">
          		<children>
          			<Canvas height="400.0" width="400.0" StackPane.alignment="CENTER" id="centralCanvas" fx:id="centralCanvas" />
          		</children>
          	</StackPane>
+         -->
          </center>
       </BorderPane>
    </center>
