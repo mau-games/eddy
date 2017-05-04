@@ -72,6 +72,26 @@ public class Algorithm extends Thread {
 		initPopulations();
 	}
 	
+	/**
+	 * Create an Algorithm run using mutations of a given map
+	 * @param map
+	 */
+	public Algorithm(Map map){
+		this.config = new GeneratorConfig(map.getConfig());
+		
+		id = UUID.randomUUID();
+		populationSize = config.getPopulationSize();
+		mutationProbability = (float)config.getMutationProbability();
+		offspringSize = (float)config.getOffspringSize();
+		feasibleAmount = (int)((double)populationSize * config.getFeasibleProportion());
+		roomTarget = config.getRoomProportion();
+		corridorTarget = config.getCorridorProportion();
+
+		System.out.println("Starting run #" + id);
+		initPopulations(map);
+	}
+	
+	
 	public void terminate(){
 		stop = true;
 	}
@@ -94,6 +114,39 @@ public class Algorithm extends Thread {
 		MapUpdate ev = new MapUpdate(best);
         ev.setID(id);
 		EventRouter.getInstance().postEvent(ev);
+	}
+	
+	
+
+	private void initPopulations(Map map){
+		broadcastStatusUpdate("Initialising...");
+		
+		feasiblePool = new ArrayList<Individual>();
+		infeasiblePool = new ArrayList<Individual>();
+		feasiblePopulation = new ArrayList<Individual>();
+		infeasiblePopulation = new ArrayList<Individual>();
+		
+		int i = 0;
+		int j = 0;
+		while((i + j) < populationSize){
+			Individual ind = new Individual(map, mutationProbability);
+			ind.mutateAll(0.3);
+			
+			if(checkIndividual(ind)){
+				if(i < feasibleAmount){
+					feasiblePool.add(ind);
+					i++;
+				}
+			}
+			else {
+				if(j < populationSize - feasibleAmount){
+					infeasiblePool.add(ind);
+					j++;
+				}
+			}
+		}
+		
+		broadcastStatusUpdate("Population generated.");
 	}
 	
 	/**
@@ -390,7 +443,6 @@ public class Algorithm extends Thread {
     	
     	double fitness = 0.2 * treasureAndEnemyFitness
     			+  0.8*(0.25 * roomFitness + 0.75 * corridorFitness);
-    	
     	
         //set final fitness
         ind.setFitness(fitness);

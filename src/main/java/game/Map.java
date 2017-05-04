@@ -546,6 +546,8 @@ public class Map {
 	
 	public GeneratorConfig getCalculatedConfig(){
 		GeneratorConfig newConfig = new GeneratorConfig(config);
+		//Make a new pattern finder in case the map has been manually edited since the patterns were found
+		finder = new PatternFinder(this);
 		
         List<Enemy> enemies = new ArrayList<Enemy>();
         List<Treasure> treasures = new ArrayList<Treasure>();
@@ -568,7 +570,6 @@ public class Map {
         }
         
         //TODO: Also take into account other patterns!!!
-
 		
 		//CORRIDOR LENGTH
 		

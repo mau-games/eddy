@@ -3,6 +3,7 @@ package generator.algorithm;
 import java.util.Random;
 
 import game.Game;
+import game.Map;
 import game.TileTypes;
 import generator.config.GeneratorConfig;
 import util.Util;
@@ -115,6 +116,22 @@ public class Individual {
 		genotype.randomSupervisedChromosome();
 	}
 	
+	public Individual(Map map, float mutationProbability){
+		config = map.getConfig();
+		genotype = new Genotype(config,Game.sizeN * Game.sizeM);
+		phenotype = null;
+		fitness = 0.0;
+		evaluate = false;
+		this.mutationProbability = mutationProbability;
+		
+		int[] chromosome = new int[Game.sizeN * Game.sizeM];
+		int[][] mat = map.toMatrix();
+		for(int i = 0; i < mat.length; i++)
+			for(int j = 0; j < mat[0].length;j++)
+				chromosome[j*mat.length + i] = mat[i][j];
+		genotype.setChromosome(chromosome);
+	}
+	
 	/**
 	 * Two point crossover between two individuals.
 	 * 
@@ -174,7 +191,7 @@ public class Individual {
 			if(Util.getNextFloat(0.0f,1.0f) <= mutationProbability){
 				float rand = Util.getNextFloat(0, 1);
 				if(rand <= 0.6f)
-					children[i].mutateAll();
+					children[i].mutateAll(0.2);
 				else if  (rand <= 0.8f)
 					children[i].squareMutation();
 				else
@@ -226,9 +243,9 @@ public class Individual {
 	/**
 	 * Mutate each bit of the chromosome with a small probability
 	 */
-	public void mutateAll(){
+	public void mutateAll(double probability){
 		for(int i = 0; i < genotype.getSizeChromosome(); i++){
-			if(Math.random() < 0.2){
+			if(Math.random() < probability){
 				genotype.getChromosome()[i] = (genotype.getChromosome()[i] + Util.getNextInt(0, 4)) % 4; //TODO: Change this - hard coding the number of tile types is bad!!!
 			}
 		}

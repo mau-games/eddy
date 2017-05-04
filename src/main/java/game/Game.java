@@ -88,7 +88,48 @@ public class Game implements Listener{
     	}
     }
 
+    public enum MapMutationType {
+    	Preserving,
+    	OriginalConfig,
+    	ComputedConfig
+    }
     
+    private void mutateFromMap(Map map, int mutations, MapMutationType mutationType, boolean randomise){
+    	for(int i = 0; i < mutations; i++){
+    		switch(mutationType){
+			case ComputedConfig:
+			{
+				GeneratorConfig gc = map.getCalculatedConfig();
+				if(randomise)
+					gc.mutate();
+				Algorithm ga = new Algorithm(gc);
+				runs.add(ga);
+				ga.start();
+				break;
+			}
+			case OriginalConfig:
+			{
+				GeneratorConfig gc = new GeneratorConfig(map.getConfig());
+				if(randomise)
+					gc.mutate();
+				Algorithm ga = new Algorithm(gc);
+				runs.add(ga);
+				ga.start();
+				break;
+			}
+			case Preserving:
+			{
+				Algorithm ga = new Algorithm(map);
+				runs.add(ga);
+				ga.start();
+				break;
+			}
+			default:
+				break;
+        	}
+		}
+    	
+    }
     
 	/**
 	 *  Kicks the algorithm into action.
@@ -121,6 +162,7 @@ public class Game implements Listener{
     	}
     	
     }
+  
     
     
     
