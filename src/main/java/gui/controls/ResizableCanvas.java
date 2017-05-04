@@ -1,5 +1,6 @@
 package gui.controls;
 
+import javafx.application.Platform;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.image.Image;
@@ -30,7 +31,9 @@ public class ResizableCanvas extends Canvas {
 	 */
 	public void draw(Image image) {
 		this.image = image;
-		draw();
+		Platform.runLater(() -> {
+			draw();
+		});
 	}
 
 	private void draw() {
