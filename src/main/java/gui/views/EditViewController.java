@@ -7,7 +7,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import game.Map;
-import gui.InteractiveGUIController;
 import gui.controls.LabeledCanvas;
 import gui.utils.MapRenderer;
 import javafx.application.Platform;
@@ -18,6 +17,7 @@ import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.image.Image;
 import javafx.scene.image.WritableImage;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
 import util.eventrouting.EventRouter;
 import util.eventrouting.Listener;
@@ -33,6 +33,7 @@ public class EditViewController extends BorderPane implements Listener {
 	
 	@FXML private Canvas centralCanvas;
 	@FXML private List<LabeledCanvas> maps;
+	@FXML private StackPane mapPane;
 	
 	private boolean isActive = false;
 	private Map currentMap = null;
