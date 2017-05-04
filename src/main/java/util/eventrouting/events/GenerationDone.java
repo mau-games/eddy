@@ -1,7 +1,5 @@
 package util.eventrouting.events;
 
-import util.eventrouting.PCGEvent;
-
 /**
  * This event is used to post generation data.
  * 

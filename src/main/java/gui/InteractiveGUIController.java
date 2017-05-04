@@ -34,6 +34,7 @@ import util.eventrouting.PCGEvent;
 import util.eventrouting.events.AlgorithmDone;
 import util.eventrouting.events.MapUpdate;
 import util.eventrouting.events.RequestRedraw;
+import util.eventrouting.events.RequestViewSwitch;
 import util.eventrouting.events.StatusMessage;
 
 public class InteractiveGUIController implements Initializable, Listener {
@@ -60,8 +61,13 @@ public class InteractiveGUIController implements Initializable, Listener {
 
 	@Override
 	public synchronized void ping(PCGEvent e) {
-		// TODO Auto-generated method stub
-		
+		if (e instanceof RequestViewSwitch) {
+			if (e.getPayload() == null) {
+				initStartView();
+			} else {
+				initEditView((Map) e.getPayload());
+			}
+		}
 	}
 
 	@Override
@@ -69,6 +75,7 @@ public class InteractiveGUIController implements Initializable, Listener {
 		router.registerListener(this, new StatusMessage(null));
 		router.registerListener(this, new AlgorithmDone(null));
 		router.registerListener(this, new RequestRedraw());
+		router.registerListener(this, new RequestViewSwitch(null));
 		
 		startView = new StartViewController();
 		editView = new EditViewController();
@@ -181,7 +188,6 @@ public class InteractiveGUIController implements Initializable, Listener {
 		// TODO: Start off a new run of the algorithm
 		
 		mainPane.getChildren().clear();
-		mouseEventHandler = new StartViewEventHandler();
 		
 		AnchorPane.setTopAnchor(startView, 0.0);
 		AnchorPane.setRightAnchor(startView, 0.0);
@@ -196,26 +202,19 @@ public class InteractiveGUIController implements Initializable, Listener {
 		startView.setActive(true);
 		editView.setActive(false);
 
-		startView.getMapDisplay(0).addEventFilter(MouseEvent.MOUSE_CLICKED, mouseEventHandler);
 		startView.getMapDisplay(0).setText("Label for map 0\nSome properties for map 0");
-		
-		startView.getMapDisplay(1).addEventFilter(MouseEvent.MOUSE_CLICKED, mouseEventHandler);
 		startView.getMapDisplay(1).setText("Label for map 1\nSome properties for map 1");
-		
-		startView.getMapDisplay(2).addEventFilter(MouseEvent.MOUSE_CLICKED, mouseEventHandler);
 		startView.getMapDisplay(2).setText("Label for map 2\nSome properties for map 2");
-		
-		startView.getMapDisplay(3).addEventFilter(MouseEvent.MOUSE_CLICKED, mouseEventHandler);
 		startView.getMapDisplay(3).setText("Label for map 3\nSome properties for map 3");
-		
-		startView.getMapDisplay(4).addEventFilter(MouseEvent.MOUSE_CLICKED, mouseEventHandler);
 		startView.getMapDisplay(4).setText("Label for map 4\nSome properties for map 4");
-		
-		startView.getMapDisplay(5).addEventFilter(MouseEvent.MOUSE_CLICKED, mouseEventHandler);
 		startView.getMapDisplay(5).setText("Label for map 5\nSome properties for map 5");
 	}
 
 	private void initEditView() {
+		initEditView(null);
+	}
+	
+	private void initEditView(Map map) {
 		mouseEventHandler = new EditViewEventHandler();
 		
 		mainPane.getChildren().clear();
@@ -224,6 +223,8 @@ public class InteractiveGUIController implements Initializable, Listener {
 		AnchorPane.setBottomAnchor(editView, 0.0);
 		AnchorPane.setLeftAnchor(editView, 0.0);
 		mainPane.getChildren().add(editView);
+		
+		editView.updateMap(map);
 		
 		saveItem.setDisable(false);
 		saveAsItem.setDisable(false);
@@ -248,18 +249,6 @@ public class InteractiveGUIController implements Initializable, Listener {
 	/*
 	 * Event handlers
 	 */
-	
-	private class StartViewEventHandler implements EventHandler<MouseEvent> {
-
-		@Override
-		public void handle(MouseEvent event) {
-			System.out.println("Map: " + event.getSource());
-			initEditView();
-			// TODO: Populate edit view with new maps based on selected map
-		}
-		
-	}
-	
 	private class EditViewEventHandler implements EventHandler<MouseEvent> {
 		@Override
 		public void handle(MouseEvent event) {
