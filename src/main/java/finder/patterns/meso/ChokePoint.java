@@ -28,17 +28,19 @@ import generator.config.GeneratorConfig;
  */
 public class ChokePoint extends CompositePattern {
 	
-	private double quality = 1.0;
+	private double roomRoomQuality = 1.0;
+	private double roomCorridorQuality = 1.0;
 	
 	public double getQuality(){
-		return quality;
+		if(getPatterns().get(0) instanceof Room && getPatterns().get(1) instanceof Room)
+			return roomRoomQuality;
+		else
+			return roomCorridorQuality;
 	}
 	
 	public ChokePoint(GeneratorConfig config){
-		if(getPatterns().get(0) instanceof Room && getPatterns().get(1) instanceof Room)
-			quality = config.getChokePointRoomToRoomQuality();
-		else
-			quality = config.getChokePointRoomToCorridorQuality();
+		roomRoomQuality = config.getChokePointRoomToRoomQuality();
+		roomCorridorQuality = config.getChokePointRoomToCorridorQuality();
 	}
 	
 	/**

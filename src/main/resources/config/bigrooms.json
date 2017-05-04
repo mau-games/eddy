@@ -69,13 +69,14 @@
         	"target_treasure_amount": 5
         },
         "guarded_treasure": {
-        	
+        	"target_enemy_amount": 5
         },
         "ambush": {
-        	
+        	"target_enemy_amount": 3
         },
         "choke_point": {
-        
+        	"room_to_room_quality": 0.5,
+        	"room_to_corridor_quality": 0.5
         },
         "dead_end": {
         	"badness": 0.0,

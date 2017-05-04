@@ -14,9 +14,11 @@ import finder.graph.Node;
 import finder.patterns.CompositePattern;
 import finder.patterns.InventorialPattern;
 import finder.patterns.Pattern;
+import finder.patterns.SpacialPattern;
 import finder.patterns.micro.Enemy;
 import finder.patterns.micro.Room;
 import game.Map;
+import generator.config.GeneratorConfig;
 
 /**
  * The GuardedTreasure class represents the GuardedTreasure pattern.
@@ -28,8 +30,14 @@ import game.Map;
  */
 public class GuardedTreasure extends CompositePattern {
 	
+	private double quality = 1.0;
+	
 	public double getQuality(){
-		return 1.0;	
+		return quality;
+	}
+	
+	public GuardedTreasure(GeneratorConfig config, int enemies){
+		quality = Math.min((double)enemies/config.getGuardedTreasureEnemies(),1.0);
 	}
 	
 	public static List<CompositePattern> matches(Map map, Graph<Pattern> patternGraph) {
@@ -94,9 +102,14 @@ public class GuardedTreasure extends CompositePattern {
 					}
 					
 					if(!foundPath){
-						//We have a guarded treasure! Do something!
-						//...
-						GuardedTreasure gt = new GuardedTreasure();
+						
+						int enemyCount = 0;
+						for(Pattern p : de.getPatterns()){
+							if(p instanceof SpacialPattern){
+								enemyCount += ((SpacialPattern)p).getContainedPatterns().stream().filter(ip -> ip instanceof Enemy).count();
+							}
+						}
+						GuardedTreasure gt = new GuardedTreasure(map.getConfig(),enemyCount);
 						gt.getPatterns().add(r);
 						gt.getPatterns().add(de);
 						guardedTreasures.add(gt);
