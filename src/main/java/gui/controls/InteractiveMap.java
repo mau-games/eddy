@@ -5,6 +5,7 @@ import game.TileTypes;
 import gui.utils.MapRenderer;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.GridPane;
+import util.Point;
 
 /**
  * InteractiveMap describes a control that may be used to edit maps.
@@ -47,6 +48,10 @@ public class InteractiveMap extends GridPane {
 	 */
 	public synchronized void updateTile(int x, int y, TileTypes tile) {
 		if (map == null) {
+			return;
+		}
+		// Let's discard any attempts at erasing the doors
+		if (map.getDoors().contains(new Point(x, y))) {
 			return;
 		}
 		
