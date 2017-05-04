@@ -47,9 +47,9 @@ public class InteractiveMap extends GridPane {
 	 * 
 	 * @param x The X coordinate.
 	 * @param y The Y coordinate.
-	 * @param tile  The new tile.
+	 * @param tileType The new tile type.
 	 */
-	public synchronized void updateTile(int x, int y, TileTypes tile) {
+	public synchronized void updateTile(int x, int y, TileTypes tileType) {
 		if (map == null) {
 			return;
 		}
@@ -58,8 +58,33 @@ public class InteractiveMap extends GridPane {
 			return;
 		}
 		
-		map.setTile(x, y, tile);
-		drawTile(x, y, tile);
+		map.setTile(x, y, tileType);
+		drawTile(x, y, tileType);
+	}
+	
+	/**
+	 * Updates a tile on the map.
+	 * This, dear reader, is not a beautiful way of doing things, but it works.
+	 * 
+	 * @param tile The tile that we want to update.
+	 * @param tileType The new tile type.
+	 */
+	public synchronized void updateTile(ImageView tile, TileTypes tileType) {
+		if (map == null) {
+			return;
+		}
+		
+		Point p = coords.get(tile);
+		
+		// Let's discard any attempts at erasing the doors
+		if (p == null
+				|| map.getTile(p) == TileTypes.DOORENTER
+				|| map.getTile(p) == TileTypes.DOOR) {
+			return;
+		}
+		
+		map.setTile(p.getX(), p.getY(), tileType);
+		drawTile(p.getX(), p.getY(), tileType);
 	}
 	
 	/**

@@ -11,6 +11,7 @@ import game.TileTypes;
 import gui.controls.InteractiveMap;
 import gui.controls.LabeledCanvas;
 import gui.utils.MapRenderer;
+import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Pos;
@@ -18,6 +19,8 @@ import javafx.scene.Cursor;
 import javafx.scene.control.ToggleButton;
 import javafx.scene.control.ToggleGroup;
 import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.StackPane;
 import util.eventrouting.EventRouter;
@@ -71,6 +74,8 @@ public class EditViewController extends BorderPane implements Listener {
 		mapView.setMinSize(400, 400);
 		mapView.setMaxSize(400, 400);
 		mapPane.getChildren().add(mapView);
+		
+		mapView.addEventFilter(MouseEvent.MOUSE_CLICKED, new EditViewEventHandler());
 	}
 
 	@Override
@@ -165,5 +170,19 @@ public class EditViewController extends BorderPane implements Listener {
 				break;
 			}
 		}
+	}
+	
+	/*
+	 * Event handlers
+	 */
+	private class EditViewEventHandler implements EventHandler<MouseEvent> {
+		@Override
+		public void handle(MouseEvent event) {
+			if (event.getTarget() instanceof ImageView && brush != null) {
+				ImageView tile = (ImageView) event.getTarget();
+				mapView.updateTile(tile, brush);
+			}
+		}
+		
 	}
 }
