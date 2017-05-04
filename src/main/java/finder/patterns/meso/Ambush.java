@@ -16,11 +16,18 @@ import finder.patterns.micro.Enemy;
 import finder.patterns.micro.Entrance;
 import finder.patterns.micro.Room;
 import game.Map;
+import generator.config.GeneratorConfig;
 
 public class Ambush extends CompositePattern {
 
+	private double quality = 1.0;
+	
 	public double getQuality(){
-		return 1.0;	
+		return quality;	
+	}
+	
+	public Ambush(GeneratorConfig config, int enemies){
+		quality = Math.min((double)enemies/config.getAmbushEnemies(),1.0);
 	}
 	
 	public static List<CompositePattern> matches(Map map, Graph<Pattern> patternGraph) {
@@ -38,7 +45,7 @@ public class Ambush extends CompositePattern {
 				List<InventorialPattern> containedEnemies = ((Room)current.getValue()).getContainedPatterns().stream().filter(p->{return p instanceof Enemy;}).collect(Collectors.toList());
 				List<InventorialPattern> entrances = ((Room)current.getValue()).getContainedPatterns().stream().filter(p->{return p instanceof Entrance;}).collect(Collectors.toList());
 				if(containedEnemies.size() >= 1 && entrances.size() == 1){
-					Ambush a = new Ambush();
+					Ambush a = new Ambush(map.getConfig(),containedEnemies.size());
 					a.patterns.add(current.getValue());
 					a.patterns.addAll(containedEnemies);
 					a.patterns.addAll(entrances);

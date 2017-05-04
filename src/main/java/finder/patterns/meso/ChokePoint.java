@@ -83,7 +83,7 @@ public class ChokePoint extends CompositePattern {
 		}
 		
 		for(Edge<Pattern> e : potentialChokeEdges){
-			ChokePoint cp = new ChokePoint();
+			ChokePoint cp = new ChokePoint(map.getConfig());
 			cp.patterns.add(e.getNodeA().getValue());
 			cp.patterns.add(e.getNodeB().getValue());
 			chokePoints.add(cp);
