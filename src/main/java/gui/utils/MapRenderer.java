@@ -54,7 +54,8 @@ import util.eventrouting.events.MapRendered;
  * This class is used to render maps. The resulting images can be used by
  * e.g. the GUI or by collectors.
  * 
- * @author Johan Holmberg
+ * @author Johan Holmberg, Malmö University
+ * @author Alexander Baldwin, Malmö University
  */
 public class MapRenderer implements Listener {
 	
