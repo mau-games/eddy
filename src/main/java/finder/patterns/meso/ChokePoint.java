@@ -16,6 +16,7 @@ import finder.patterns.Pattern;
 import finder.patterns.micro.Room;
 import finder.patterns.micro.Treasure;
 import game.Map;
+import generator.config.GeneratorConfig;
 
 /**
  * The ChokePoint class represents the choke point pattern.
@@ -27,8 +28,17 @@ import game.Map;
  */
 public class ChokePoint extends CompositePattern {
 	
+	private double quality = 1.0;
+	
 	public double getQuality(){
-		return 1.0;	
+		return quality;
+	}
+	
+	public ChokePoint(GeneratorConfig config){
+		if(getPatterns().get(0) instanceof Room && getPatterns().get(1) instanceof Room)
+			quality = config.getChokePointRoomToRoomQuality();
+		else
+			quality = config.getChokePointRoomToCorridorQuality();
 	}
 	
 	/**

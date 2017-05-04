@@ -200,6 +200,38 @@ public class GeneratorConfig {
 		config.updateValue("patterns.dead_end.badness", badness);
 	}
 	
+	public int getGuardedTreasureEnemies(){
+		return config.getInt("patterns.guarded_treasure.target_enemy_amount");
+	}
+	
+	public void setGuardedTreasureEnemies(int enemies){
+		config.updateValue("patterns.guarded_treasure.target_enemy_amount", enemies);
+	}
+	
+	public int getAmbushEnemies(){
+		return config.getInt("patterns.ambush.target_enemy_amount");
+	}
+	
+	public void setAmbushEnemies(int enemies){
+		config.updateValue("patterns.ambush.target_enemy_amount", enemies);
+	}
+	
+	public double getChokePointRoomToRoomQuality(){
+		return config.getDouble("patterns.choke_point.room_to_room_quality");
+	}
+	
+	public void setChokePointRoomToRoomQuality(double quality){
+		config.updateValue("patterns.choke_point.room_to_room_quality", quality);
+	}
+	
+	public double getChokePointRoomToCorridorQuality(){
+		return config.getDouble("patterns.choke_point.room_to_corridor_quality");
+	}
+	
+	public void setChokePointRoomToCorridorQuality(double quality){
+		config.updateValue("patterns.choke_point.room_to_corridor_quality", quality);
+	}
+	
 	/**
 	 * Returns the setting for entrance greed (a measure of how close to the door treasures should spawn)
 	 * 
