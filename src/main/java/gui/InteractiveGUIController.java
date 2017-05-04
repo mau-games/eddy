@@ -4,6 +4,7 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
+import java.nio.file.Files;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ResourceBundle;
@@ -32,7 +33,6 @@ import util.eventrouting.EventRouter;
 import util.eventrouting.Listener;
 import util.eventrouting.PCGEvent;
 import util.eventrouting.events.AlgorithmDone;
-import util.eventrouting.events.MapUpdate;
 import util.eventrouting.events.RequestRedraw;
 import util.eventrouting.events.RequestViewSwitch;
 import util.eventrouting.events.StatusMessage;
@@ -116,7 +116,6 @@ public class InteractiveGUIController implements Initializable, Listener {
 		 if (selectedFile != null) {
 			 System.out.println("Selected file: " + selectedFile);
 			 initEditView();
-			 // TODO: Load map
 			 try {
 				Map.LoadMap(selectedFile);
 			} catch (IOException e) {
@@ -127,16 +126,26 @@ public class InteractiveGUIController implements Initializable, Listener {
 	}
 	
 	public void saveMap() {
-		System.out.println("Save map");
+		DateTimeFormatter format =
+				DateTimeFormatter.ofPattern("yyyy-MM-dd_HH-mm-s-n");
+		String name = "renderedmap_" +
+				LocalDateTime.now().format(format) + ".map";
 		
 		 FileChooser fileChooser = new FileChooser();
-		 fileChooser.setTitle("Open Map");
+		 fileChooser.setTitle("Save Map");
+			fileChooser.setInitialFileName(name);
 		 fileChooser.getExtensionFilters().addAll(
 		         new ExtensionFilter("Map Files", "*.map"),
 		         new ExtensionFilter("All Files", "*.*"));
 		 File selectedFile = fileChooser.showSaveDialog(stage);
 		 if (selectedFile != null) {
-			 System.out.println("Selected file: " + selectedFile);
+			 logger.debug("Writing map to " + selectedFile.getPath());
+			 try {
+				Files.write(selectedFile.toPath(), editView.getMap().getMap().toString().getBytes());
+			} catch (IOException e) {
+				logger.error("Couldn't write map to " + selectedFile +
+						":\n" + e.getMessage());
+			}
 		 }
 	}
 	
@@ -154,14 +163,13 @@ public class InteractiveGUIController implements Initializable, Listener {
 				new ExtensionFilter("All Files", "*.*"));
 		File selectedFile = fileChooser.showSaveDialog(stage);
 		if (selectedFile != null && editView.getCurrentMap() != null) {
-			// TODO: We want a higher resolution here...
-			logger.debug("Writing map to " + selectedFile.getPath());
+			logger.debug("Exporting map to " + selectedFile.getPath());
 			BufferedImage image = SwingFXUtils.fromFXImage(editView.getRenderedMap(), null);
 
 			try {
 				ImageIO.write(image, "png", selectedFile);
 			} catch (IOException e1) {
-				logger.error("Couldn't write map to " + selectedFile +
+				logger.error("Couldn't export map to " + selectedFile +
 						":\n" + e1.getMessage());
 			}
 		}
@@ -184,7 +192,6 @@ public class InteractiveGUIController implements Initializable, Listener {
 	 */
 	
 	private void initStartView() {
-		System.out.println("init start view");
 		// TODO: Start off a new run of the algorithm
 		
 		mainPane.getChildren().clear();
@@ -233,6 +240,7 @@ public class InteractiveGUIController implements Initializable, Listener {
 		startView.setActive(false);
 		editView.setActive(true);
 		
+		// TODO: Delegate this to where it belongs: the edit view
 		editView.getMap(0).addEventFilter(MouseEvent.MOUSE_CLICKED, mouseEventHandler);
 		editView.getMap(0).setText("Label for map 0\nSome properties for map 0");
 		
@@ -252,8 +260,7 @@ public class InteractiveGUIController implements Initializable, Listener {
 	private class EditViewEventHandler implements EventHandler<MouseEvent> {
 		@Override
 		public void handle(MouseEvent event) {
-			System.out.println("Map: " + event.getSource());
-			// TODO: Load map in main box
+			System.out.println("Map: " + event.getTarget());
 		}
 		
 	}

@@ -7,18 +7,22 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import game.Map;
-import gui.InteractiveGUIController;
+import game.TileTypes;
+import gui.controls.InteractiveMap;
 import gui.controls.LabeledCanvas;
 import gui.utils.MapRenderer;
-import javafx.application.Platform;
+import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
-import javafx.scene.canvas.Canvas;
-import javafx.scene.canvas.GraphicsContext;
+import javafx.geometry.Pos;
+import javafx.scene.Cursor;
+import javafx.scene.control.ToggleButton;
+import javafx.scene.control.ToggleGroup;
 import javafx.scene.image.Image;
-import javafx.scene.image.WritableImage;
+import javafx.scene.image.ImageView;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.BorderPane;
-import javafx.scene.paint.Color;
+import javafx.scene.layout.StackPane;
 import util.eventrouting.EventRouter;
 import util.eventrouting.Listener;
 import util.eventrouting.PCGEvent;
@@ -31,11 +35,14 @@ import util.eventrouting.events.MapUpdate;
  */
 public class EditViewController extends BorderPane implements Listener {
 	
-	@FXML private Canvas centralCanvas;
 	@FXML private List<LabeledCanvas> maps;
+	@FXML private StackPane mapPane;
+	@FXML private ToggleGroup brushes;
+	private InteractiveMap mapView;
 	
 	private boolean isActive = false;
-	private Map currentMap = null;
+	private TileTypes brush = null;
+	
 	private MapRenderer renderer = MapRenderer.getInstance();
 	private static EventRouter router = EventRouter.getInstance();
 	private final static Logger logger = LoggerFactory.getLogger(EditViewController.class);
@@ -56,8 +63,19 @@ public class EditViewController extends BorderPane implements Listener {
 			throw new RuntimeException(exception);
 		}
 		
-		draw();
 		router.registerListener(this, new MapUpdate(null));
+		
+		init();
+	}
+	
+	private void init() {
+		mapView = new InteractiveMap();
+		StackPane.setAlignment(mapView, Pos.CENTER);
+		mapView.setMinSize(400, 400);
+		mapView.setMaxSize(400, 400);
+		mapPane.getChildren().add(mapView);
+		
+		mapView.addEventFilter(MouseEvent.MOUSE_CLICKED, new EditViewEventHandler());
 	}
 
 	@Override
@@ -67,6 +85,15 @@ public class EditViewController extends BorderPane implements Listener {
 				updateMap((Map) e.getPayload());
 			}
 		}
+	}
+	
+	/**
+	 * Gets the interactive map.
+	 * 
+	 * @return An instance of InteractiveMap, if it exists.
+	 */
+	public InteractiveMap getMap() {
+		return mapView;
 	}
 	
 	/**
@@ -80,42 +107,82 @@ public class EditViewController extends BorderPane implements Listener {
 		return maps.get(index);
 	}
 	
+	/**
+	 * Marks this control as being in an active or inactive state.
+	 * 
+	 * @param state The new state.
+	 */
 	public void setActive(boolean state) {
 		isActive = state;
 	}
 	
-	public void updateMap(Map map) {
-		currentMap = map;
-		draw();
-	}
-	
-	public Map getCurrentMap() {
-		return currentMap;
-	}
-	
-	public Image getRenderedMap() {
-		return centralCanvas.snapshot(null, new WritableImage((int) centralCanvas.getWidth(), (int) centralCanvas.getHeight()));
-	}
-
 	/**
-	 * Draws stuff on the canvas. Useful only for testing at the moment...
+	 * Updates this control's map.
+	 * 
+	 * @param map The new map.
 	 */
-	private void draw() {
-		GraphicsContext ctx = centralCanvas.getGraphicsContext2D();
-		
-		if (currentMap == null) {
-			ctx.setFill(Color.RED);
-			ctx.fillRect(0, 0, 500, 500);
+	public void updateMap(Map map) {
+		mapView.updateMap(map);
+	}
+	
+	/**
+	 * Gets the current map being controlled by this controller.
+	 * 
+	 * @return The current map.
+	 */
+	public Map getCurrentMap() {
+		return mapView.getMap();
+	}
+	
+	/**
+	 * Renders the map, making it possible to export it.
+	 * 
+	 * @return A rendered version of the map.
+	 */
+	public Image getRenderedMap() {
+		return renderer.renderMap(mapView.getMap().toMatrix());
+	}
+	
+	/**
+	 * Selects a brush.
+	 * 
+	 * I'm sorry, this is a disgusting way of handling things...
+	 */
+	public void selectBrush() {
+		if (brushes.getSelectedToggle() == null) {
+			brush = null;
+			mapView.setCursor(Cursor.DEFAULT);
 		} else {
-			if (currentMap != null) {
-				Platform.runLater(() -> {
-					int[][] matrix = currentMap.toMatrix();
-					renderer.renderMap(ctx, matrix);
-//					renderer.drawPatterns(ctx, matrix, activePatterns);
-//					renderer.drawGraph(ctx, matrix, currentMap.getPatternFinder().getPatternGraph());				renderer.drawMesoPatterns(ctx, matrix, currentMap.getPatternFinder().findMesoPatterns());
-//					renderer.drawMesoPatterns(ctx, matrix, currentMap.getPatternFinder().findMesoPatterns());
-				});
+			mapView.setCursor(Cursor.HAND);
+			
+			switch (((ToggleButton) brushes.getSelectedToggle()).getText()) {
+			case "Floor":
+				brush = TileTypes.FLOOR;
+				break;
+			case "Wall":
+				brush = TileTypes.WALL;
+				break;
+			case "Treasure":
+				brush = TileTypes.TREASURE;
+				break;
+			case "Enemy":
+				brush = TileTypes.ENEMY;
+				break;
 			}
 		}
+	}
+	
+	/*
+	 * Event handlers
+	 */
+	private class EditViewEventHandler implements EventHandler<MouseEvent> {
+		@Override
+		public void handle(MouseEvent event) {
+			if (event.getTarget() instanceof ImageView && brush != null) {
+				ImageView tile = (ImageView) event.getTarget();
+				mapView.updateTile(tile, brush);
+			}
+		}
+		
 	}
 }

@@ -54,7 +54,8 @@ import util.eventrouting.events.MapRendered;
  * This class is used to render maps. The resulting images can be used by
  * e.g. the GUI or by collectors.
  * 
- * @author Johan Holmberg
+ * @author Johan Holmberg, Malmö University
+ * @author Alexander Baldwin, Malmö University
  */
 public class MapRenderer implements Listener {
 	
@@ -133,6 +134,29 @@ public class MapRenderer implements Listener {
 				ctx.fillRect((double)i * pWidth, (double)j * pWidth, pWidth, pWidth);
 			}
 		}
+	}
+	
+	/**
+	 * Renders a single tile.
+	 * 
+	 * @param tile The tile type to render.
+	 * @return A rendered tile.
+	 */
+	public synchronized Image renderTile(TileTypes tile) {
+		return getTileImage(tile.getValue());
+	}
+	
+	/**
+	 * Renders a single tile.
+	 * 
+	 * @param tile The tile type to render.
+	 * @return A rendered tile.
+	 */
+	public synchronized void renderTile(GraphicsContext ctx, TileTypes tile) {
+		Image image = getTileImage(tile.getValue());
+		double width = ctx.getCanvas().getWidth();
+		double height = ctx.getCanvas().getHeight();
+		ctx.drawImage(image, 0, 0, width, height);
 	}
 
 	/**
