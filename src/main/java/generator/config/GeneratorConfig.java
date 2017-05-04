@@ -184,6 +184,22 @@ public class GeneratorConfig {
 		return config.getInt("patterns.guard_room.target_enemy_amount");
 	}
 	
+	public double getDeadEndFilledness(){
+		return config.getDouble("patterns.dead_end.filledness");
+	}
+	
+	public void setDeadEndFilledness(double filledness){
+		config.updateValue("patterns.dead_end.filledness", filledness);
+	}
+	
+	public double getDeadEndBadness(){
+		return config.getDouble("patterns.dead_end.badness");
+	}
+	
+	public void setDeadEndBadness(double badness){
+		config.updateValue("patterns.dead_end.badness", badness);
+	}
+	
 	/**
 	 * Returns the setting for entrance greed (a measure of how close to the door treasures should spawn)
 	 * 

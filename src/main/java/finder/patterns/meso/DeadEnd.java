@@ -15,13 +15,46 @@ import finder.patterns.Pattern;
 import finder.patterns.micro.Door;
 import finder.patterns.micro.Entrance;
 import game.Map;
+import generator.config.GeneratorConfig;
 
 public class DeadEnd extends CompositePattern {
 	
-	//TODO: NOTE, the quality of a dead end should be related to the amount of content in it.
+	private double badness = 0.0;
+	private double filledness = 1.0f;
+	Map map;
+	
 	public double getQuality(){
-		return 1.0;	
+		
+		double actualFilledness = 0.0;
+		List<CompositePattern> mesopatterns = map.getPatternFinder().findMesoPatterns();
+		int contained = 0;
+		//actualFilledness is the ratio to patterns involved in meso patterns to the total number
+		for(Pattern p : getPatterns()){
+			for(CompositePattern cp : mesopatterns){
+				if(cp.getPatterns().contains(p)){
+					contained++;
+					break;
+				}
+			}
+		}
+		actualFilledness = (double) contained / getPatterns().size();
+		
+		actualFilledness = 1 - Math.abs(actualFilledness - filledness)/Math.max(filledness, 1.0 - filledness);
+		
+		double quality = actualFilledness;
+		
+		return quality * (1 - badness);	
 	}
+	
+	public DeadEnd(Map map, GeneratorConfig config){
+		this.map = map;
+		
+		
+		filledness = config.getDeadEndFilledness();
+		
+		badness = config.getDeadEndBadness();
+	}
+	
 
 	/**
 	 * Searches a map for instances of this pattern and returns a list of found
@@ -70,7 +103,7 @@ public class DeadEnd extends CompositePattern {
 				if(!criticalPath.contains(getOtherNode(e,n)) && !getOtherNode(e,n).isVisited()){
 					
 					if(!patternGraph.isEdgeInCycle(e)){
-						deadEnds.add(expandDeadEnd(getOtherNode(e,n),n));
+						deadEnds.add(expandDeadEnd(map, getOtherNode(e,n),n));
 					} else {
 					
 						Queue<Node<Pattern>> queue = new LinkedList<Node<Pattern>>();
@@ -83,7 +116,7 @@ public class DeadEnd extends CompositePattern {
 								Node<Pattern> n2 = getOtherNode(e2,current);
 								if(!criticalPath.contains(n2) && !n2.isVisited()){
 									if(!patternGraph.isEdgeInCycle(e2)){
-										deadEnds.add(expandDeadEnd(n2,current));
+										deadEnds.add(expandDeadEnd(map, n2,current));
 									} else {
 										queue.add(n2);
 										n2.tryVisit();
@@ -102,16 +135,16 @@ public class DeadEnd extends CompositePattern {
 		return deadEnds;
 	}
 	
-	private static DeadEnd expandDeadEnd(Node<Pattern> start, Node<Pattern> prev){
-		DeadEnd deadEnd = new DeadEnd();
-
+	private static DeadEnd expandDeadEnd(Map map, Node<Pattern> start, Node<Pattern> prev){
+		List<Pattern> patterns = new ArrayList<Pattern>();
+		
 		Queue<Node<Pattern>> queue = new LinkedList<Node<Pattern>>();
 		queue.add(start);
 		
 		while(!queue.isEmpty()){
 			Node<Pattern> current = queue.remove();
 			current.tryVisit();
-			deadEnd.getPatterns().add(current.getValue());
+			patterns.add(current.getValue());
 			
 			for(Edge<Pattern> e : current.getEdges()){
 				Node<Pattern> n = getOtherNode(e,current);
@@ -122,6 +155,8 @@ public class DeadEnd extends CompositePattern {
 			}
 		}
 
+		DeadEnd deadEnd = new DeadEnd(map, map.getConfig());
+		deadEnd.getPatterns().addAll(patterns);
 		return deadEnd;
 	}
 	

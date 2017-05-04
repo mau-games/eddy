@@ -78,7 +78,8 @@
         
         },
         "dead_end": {
-        
+        	"badness": 0.0,
+        	"filledness": 1.0
         }
     }
 }
