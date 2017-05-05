@@ -31,6 +31,7 @@ import javafx.scene.layout.AnchorPane;
 import javafx.stage.FileChooser;
 import javafx.stage.FileChooser.ExtensionFilter;
 import javafx.stage.Stage;
+import util.config.MissingConfigurationException;
 import util.eventrouting.EventRouter;
 import util.eventrouting.Listener;
 import util.eventrouting.PCGEvent;
@@ -74,12 +75,21 @@ public class InteractiveGUIController implements Initializable, Listener {
 				router.postEvent(new StartMapMutate(container.getMap(), MapMutationType.OriginalConfig, 4, true)); //TODO: Move some of this hard coding to ApplicationConfig
 			}
 		} else if (e instanceof MapLoaded) {
-			
+			MapContainer container = (MapContainer) e.getPayload();
+			updateConfigBasedOnMap(container.getMap());
+			initEditView(container);
+			router.postEvent(new StartMapMutate(container.getMap(), MapMutationType.OriginalConfig, 4, true)); //TODO: Move some of this hard coding to ApplicationConfig
 		}
 	}
 
 	@Override
 	public void initialize(URL location, ResourceBundle resources) {
+		try {
+			config = ApplicationConfig.getInstance();
+		} catch (MissingConfigurationException e) {
+			logger.error("Couldn't read config file.");
+		}
+		
 		router.registerListener(this, new StatusMessage(null));
 		router.registerListener(this, new AlgorithmDone(null));
 		router.registerListener(this, new RequestRedraw());
@@ -114,8 +124,6 @@ public class InteractiveGUIController implements Initializable, Listener {
 	}
 	
 	public void openMap() {
-		System.out.println("Open map");
-		
 		 FileChooser fileChooser = new FileChooser();
 		 fileChooser.setTitle("Open Map");
 		 fileChooser.getExtensionFilters().addAll(
@@ -123,7 +131,6 @@ public class InteractiveGUIController implements Initializable, Listener {
 		         new ExtensionFilter("All Files", "*.*"));
 		 File selectedFile = fileChooser.showOpenDialog(stage);
 		 if (selectedFile != null) {
-			 System.out.println("Selected file: " + selectedFile);
 			 try {
 				Map.LoadMap(selectedFile);
 			} catch (IOException e) {
@@ -193,6 +200,11 @@ public class InteractiveGUIController implements Initializable, Listener {
 	
 	public void generateNewMap() {
 		System.out.println("Generate map");
+	}
+	
+	private void updateConfigBasedOnMap(Map map) {
+		config.setDimensionM(map.getColCount());
+		config.setDimensionN(map.getRowCount());
 	}
 	
 	/*

@@ -144,6 +144,7 @@ public class EditViewController extends BorderPane implements Listener {
 	 * @param container The new map.
 	 */
 	public void updateMap(MapContainer container) {
+		nextMap = 0;
 		mapView.updateMap(container.getMap());
 	}
 	

@@ -637,15 +637,12 @@ public class Map {
 			mapString += c;
 		}
 		Map map = fromString(mapString);
-		System.out.println(map);
-		EventRouter.getInstance().postEvent(new MapUpdate(map));
 		PatternFinder finder = map.getPatternFinder();
 		MapContainer result = new MapContainer();
 		result.setMap(map);
 		result.setMicroPatterns(finder.findMicroPatterns());
 		result.setMesoPatterns(finder.findMesoPatterns());
 		result.setMacroPatterns(finder.findMacroPatterns());
-        EventRouter.getInstance().postEvent(new AlgorithmDone(result));
         EventRouter.getInstance().postEvent(new MapLoaded(result));
 	}
 	
