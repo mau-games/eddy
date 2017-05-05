@@ -15,6 +15,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import game.ApplicationConfig;
+import game.Game.MapMutationType;
 import game.Map;
 import gui.views.EditViewController;
 import gui.views.StartViewController;
@@ -35,6 +36,7 @@ import util.eventrouting.PCGEvent;
 import util.eventrouting.events.AlgorithmDone;
 import util.eventrouting.events.RequestRedraw;
 import util.eventrouting.events.RequestViewSwitch;
+import util.eventrouting.events.StartMapMutate;
 import util.eventrouting.events.StatusMessage;
 
 public class InteractiveGUIController implements Initializable, Listener {
@@ -66,6 +68,7 @@ public class InteractiveGUIController implements Initializable, Listener {
 				initStartView();
 			} else {
 				initEditView((Map) e.getPayload());
+				router.postEvent(new StartMapMutate((Map) e.getPayload(), MapMutationType.OriginalConfig, 4, true)); //TODO: Move some of this hard coding to ApplicationConfig
 			}
 		}
 	}
