@@ -73,7 +73,7 @@ public class MapCollector implements Listener {
 				DateTimeFormatter format =
 						DateTimeFormatter.ofPattern("yyyy-MM-dd_HH-mm-s-n");
 				String name = "map_" +
-						LocalDateTime.now().format(format) + ".txt";
+						LocalDateTime.now().format(format) + ".map";
 				if(runID != "")
 					name = "run" + runID + "_" + name;
 				File file = new File(path + name);
