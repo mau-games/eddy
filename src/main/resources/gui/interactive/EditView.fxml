@@ -77,7 +77,7 @@
          <bottom>
          	<StackPane alignment="CENTER">
          		<fx:define>
-         	  	  <ArrayList fx:id="maps">
+         	  	  <ArrayList fx:id="mapDisplays">
   		         	<LabeledCanvas fx:id="map0" />
   		         	<LabeledCanvas fx:id="map1" />
   		         	<LabeledCanvas fx:id="map2" />

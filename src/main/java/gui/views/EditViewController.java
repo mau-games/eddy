@@ -1,7 +1,9 @@
 package gui.views;
 
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.List;
+import java.util.UUID;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -11,6 +13,7 @@ import game.TileTypes;
 import gui.controls.InteractiveMap;
 import gui.controls.LabeledCanvas;
 import gui.utils.MapRenderer;
+import javafx.application.Platform;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -35,13 +38,15 @@ import util.eventrouting.events.MapUpdate;
  */
 public class EditViewController extends BorderPane implements Listener {
 	
-	@FXML private List<LabeledCanvas> maps;
+	@FXML private List<LabeledCanvas> mapDisplays;
 	@FXML private StackPane mapPane;
 	@FXML private ToggleGroup brushes;
 	private InteractiveMap mapView;
 	
 	private boolean isActive = false;
 	private TileTypes brush = null;
+	private HashMap<Integer, Map> maps = new HashMap<Integer, Map>();
+	private int nextMap = 0;
 	
 	private MapRenderer renderer = MapRenderer.getInstance();
 	private static EventRouter router = EventRouter.getInstance();
@@ -82,7 +87,23 @@ public class EditViewController extends BorderPane implements Listener {
 	public synchronized void ping(PCGEvent e) {
 		if (e instanceof MapUpdate) {
 			if (isActive) {
-				updateMap((Map) e.getPayload());
+				//updateMap((Map) e.getPayload());
+				Map map = (Map) ((MapUpdate) e).getPayload();
+				UUID uuid = ((MapUpdate) e).getID();
+				LabeledCanvas canvas = mapDisplays.get(nextMap);
+				canvas.setText("Got map:\n" + uuid);
+				maps.put(nextMap, map);
+				
+				Platform.runLater(() -> {
+					int[][] matrix = map.toMatrix();
+					canvas.draw(renderer.renderMap(matrix));
+//					renderer.renderMap(mapDisplays.get(nextMap++).getGraphicsContext(), matrix);
+//					renderer.drawPatterns(ctx, matrix, activePatterns);
+//					renderer.drawGraph(ctx, matrix, currentMap.getPatternFinder().getPatternGraph());				renderer.drawMesoPatterns(ctx, matrix, currentMap.getPatternFinder().findMesoPatterns());
+//					renderer.drawMesoPatterns(ctx, matrix, currentMap.getPatternFinder().findMesoPatterns());
+				});
+				
+				nextMap++;
 			}
 		}
 	}
@@ -104,7 +125,7 @@ public class EditViewController extends BorderPane implements Listener {
 	 * @return A map if it exists, otherwise null.
 	 */
 	public LabeledCanvas getMap(int index) {
-		return maps.get(index);
+		return mapDisplays.get(index);
 	}
 	
 	/**

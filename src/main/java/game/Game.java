@@ -19,6 +19,7 @@ import util.eventrouting.events.AlgorithmDone;
 import util.eventrouting.events.AlgorithmStarted;
 import util.eventrouting.events.RenderingDone;
 import util.eventrouting.events.Start;
+import util.eventrouting.events.StartMapMutate;
 import util.eventrouting.events.Stop;
 
 public class Game implements Listener{
@@ -49,6 +50,7 @@ public class Game implements Listener{
         chooseDoorPositions();
 
         EventRouter.getInstance().registerListener(this, new Start());
+        EventRouter.getInstance().registerListener(this, new StartMapMutate(null));
         EventRouter.getInstance().registerListener(this, new Stop());
         EventRouter.getInstance().registerListener(this, new AlgorithmDone(null));
         EventRouter.getInstance().registerListener(this, new RenderingDone());
@@ -213,6 +215,9 @@ public class Game implements Listener{
 		if(e instanceof Start){
 			readConfiguration();
 			startAll(((Start) e).getNbrOfThreads());
+		} else if (e instanceof StartMapMutate) {
+			StartMapMutate smm = (StartMapMutate)e;
+			mutateFromMap((Map)e.getPayload(),smm.getMutations(),smm.getMutationType(),smm.getRandomiseConfig());
 		} else if (e instanceof Stop) {
 			stop();
 		} else if (e instanceof RenderingDone){

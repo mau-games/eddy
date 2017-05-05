@@ -130,7 +130,7 @@ public class Algorithm extends Thread {
 		int j = 0;
 		while((i + j) < populationSize){
 			Individual ind = new Individual(map, mutationProbability);
-			ind.mutateAll(0.3);
+			ind.mutateAll(0.1);
 			
 			if(checkIndividual(ind)){
 				if(i < feasibleAmount){
