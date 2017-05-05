@@ -2,6 +2,10 @@ package gui.controls;
 
 import java.io.IOException;
 
+import javafx.animation.Animation;
+import javafx.animation.Interpolator;
+import javafx.animation.RotateTransition;
+import javafx.animation.TranslateTransition;
 import javafx.application.Platform;
 import javafx.beans.property.StringProperty;
 import javafx.event.EventHandler;
@@ -13,6 +17,7 @@ import javafx.scene.image.Image;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.BorderPane;
+import javafx.util.Duration;
 
 /**
  * This control is used to display a labeled image.
@@ -25,9 +30,11 @@ public class LabeledCanvas extends BorderPane {
 	@FXML private AnchorPane canvasPane;
 	@FXML private AnchorPane labelPane;
 	@FXML private BorderPane rootPane;
+	private Image rotatingThingie;
+	private RotateTransition transition;
 	
 	private GraphicsContext gc;
-	private boolean selectable = false;
+	private boolean waiting = false;
 	
 	/**
 	 * Creates an instance of this class.
@@ -72,6 +79,15 @@ public class LabeledCanvas extends BorderPane {
 		this.label.setText(label);
 		gc = canvas.getGraphicsContext2D();
 		
+		rotatingThingie = new Image("/graphics/waiting.png");
+		transition = new RotateTransition(Duration.millis(5000), canvas);
+		transition.setInterpolator(Interpolator.LINEAR);
+		transition.setFromAngle(0);
+		transition.setToAngle(360);
+		transition.setCycleCount(Animation.INDEFINITE);
+		
+		waitForImage(true);
+		
 		addEventFilter(MouseEvent.MOUSE_ENTERED, new EventHandler<MouseEvent>() {
 
 			@Override
@@ -91,24 +107,15 @@ public class LabeledCanvas extends BorderPane {
 	}
 	
 	/**
-	 * Denotes whether the control is selectable or not.
-	 * 
-	 * @param newState The new state
-	 */
-	public void setSelectable(boolean newState) {
-		selectable = newState;
-	}
-	
-	/**
 	 * Displays an image on the canvas.
 	 * 
 	 * @param image An image.
 	 */
 	public void draw(Image image) {
 		if (image == null) {
-			selectable = false;
+			waitForImage(true);
 		} else {
-			selectable = true;
+			waitForImage(false);
 		}
 		canvas.draw(image);
 	}
@@ -157,10 +164,31 @@ public class LabeledCanvas extends BorderPane {
      * @param state True if highlighted, otherwise false.
      */
     private void highlight(boolean state) {
-    	if (state && selectable) {
+    	if (state && !waiting) {
     		setStyle("-fx-border-width: 2px; -fx-border-color: #6b87f9");
     	} else {
     		setStyle("-fx-border-width: 0px");
+    	}
+    }
+    
+    /**
+     * Waits for a new image and displays a rotating wheel.
+     * 
+     * @param state True if waiting, otherwise false.
+     */
+    private void waitForImage(boolean state) {
+    	waiting = state;
+    	
+    	if (waiting) {
+    		canvas.draw(rotatingThingie);
+    		transition.play();
+    	} else {
+    		transition.stop();
+    		
+    		RotateTransition rt = new RotateTransition(Duration.ONE, canvas);
+    		rt.setToAngle(0);
+    		rt.setCycleCount(1);
+    		rt.play();
     	}
     }
 }
