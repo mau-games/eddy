@@ -28,6 +28,7 @@ import util.Point;
 import util.config.MissingConfigurationException;
 import util.eventrouting.EventRouter;
 import util.eventrouting.events.AlgorithmDone;
+import util.eventrouting.events.MapLoaded;
 import util.eventrouting.events.MapUpdate;
 import generator.config.GeneratorConfig;
 
@@ -645,6 +646,7 @@ public class Map {
         result.put("macropatterns", finder.findMacroPatterns());
         result.put("map", map);
         EventRouter.getInstance().postEvent(new AlgorithmDone(result));
+        EventRouter.getInstance().postEvent(new MapLoaded(result));
 	}
 	
 	/**
