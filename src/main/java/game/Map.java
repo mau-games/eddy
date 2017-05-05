@@ -640,11 +640,11 @@ public class Map {
 		System.out.println(map);
 		EventRouter.getInstance().postEvent(new MapUpdate(map));
 		PatternFinder finder = map.getPatternFinder();
-        HashMap<String, Object> result = new HashMap<String, Object>();
-        result.put("micropatterns", finder.findMicroPatterns());
-        result.put("mesopatterns", finder.findMesoPatterns());
-        result.put("macropatterns", finder.findMacroPatterns());
-        result.put("map", map);
+		MapContainer result = new MapContainer();
+		result.setMap(map);
+		result.setMicroPatterns(finder.findMicroPatterns());
+		result.setMesoPatterns(finder.findMesoPatterns());
+		result.setMacroPatterns(finder.findMacroPatterns());
         EventRouter.getInstance().postEvent(new AlgorithmDone(result));
         EventRouter.getInstance().postEvent(new MapLoaded(result));
 	}

@@ -9,6 +9,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import game.Map;
+import game.MapContainer;
 import gui.controls.LabeledCanvas;
 import gui.utils.MapRenderer;
 import javafx.application.Platform;
@@ -34,7 +35,7 @@ public class StartViewController extends GridPane implements Listener {
 	@FXML private List<LabeledCanvas> mapDisplays;
 	
 	private boolean isActive = false;
-	private HashMap<Integer, Map> maps = new HashMap<Integer, Map>();
+	private HashMap<Integer, MapContainer> maps = new HashMap<Integer, MapContainer>();
 	private int nextMap = 0;
 	
 	private MapRenderer renderer = MapRenderer.getInstance();
@@ -62,16 +63,16 @@ public class StartViewController extends GridPane implements Listener {
 
 	@Override
 	public synchronized void ping(PCGEvent e) {
-		if (e instanceof MapUpdate) {
+		if (e instanceof AlgorithmDone) {
 			if (isActive) {
-				Map map = (Map) ((MapUpdate) e).getPayload();
-				UUID uuid = ((MapUpdate) e).getID();
+				MapContainer container = (MapContainer) ((AlgorithmDone) e).getPayload(); 
+				UUID uuid = ((AlgorithmDone) e).getID();
 				LabeledCanvas canvas = mapDisplays.get(nextMap);
 				canvas.setText("Got map:\n" + uuid);
-				maps.put(nextMap, map);
+				maps.put(nextMap, container);
 				
 				Platform.runLater(() -> {
-					int[][] matrix = map.toMatrix();
+					int[][] matrix = container.getMap().toMatrix();
 					canvas.draw(renderer.renderMap(matrix));
 //					renderer.renderMap(mapDisplays.get(nextMap++).getGraphicsContext(), matrix);
 //					renderer.drawPatterns(ctx, matrix, activePatterns);
@@ -103,9 +104,9 @@ public class StartViewController extends GridPane implements Listener {
 	
 	private class MouseEventHandler implements EventHandler<MouseEvent> {
 		
-		private Map map;
+		private MapContainer map;
 		
-		public MouseEventHandler(Map map) {
+		public MouseEventHandler(MapContainer map) {
 			this.map = map;
 		}
 		

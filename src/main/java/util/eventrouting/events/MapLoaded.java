@@ -1,9 +1,6 @@
 package util.eventrouting.events;
 
-import java.util.HashMap;
-
-import javafx.scene.image.Image;
-import util.eventrouting.PCGEvent;
+import game.MapContainer;
 
 /**
  * This event is used to post status messages.
@@ -17,7 +14,7 @@ public class MapLoaded extends AlgorithmEvent {
 	 * 
 	 * @param payload The message to be sent.
 	 */
-	public MapLoaded(HashMap<String, Object> payload) {
+	public MapLoaded(MapContainer payload) {
 		setPayload(payload);
 	}
 }

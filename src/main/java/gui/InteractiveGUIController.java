@@ -17,6 +17,7 @@ import org.slf4j.LoggerFactory;
 import game.ApplicationConfig;
 import game.Game.MapMutationType;
 import game.Map;
+import game.MapContainer;
 import gui.views.EditViewController;
 import gui.views.StartViewController;
 import javafx.application.Platform;
@@ -34,6 +35,7 @@ import util.eventrouting.EventRouter;
 import util.eventrouting.Listener;
 import util.eventrouting.PCGEvent;
 import util.eventrouting.events.AlgorithmDone;
+import util.eventrouting.events.MapLoaded;
 import util.eventrouting.events.RequestRedraw;
 import util.eventrouting.events.RequestViewSwitch;
 import util.eventrouting.events.StartMapMutate;
@@ -67,9 +69,12 @@ public class InteractiveGUIController implements Initializable, Listener {
 			if (e.getPayload() == null) {
 				initStartView();
 			} else {
-				initEditView((Map) e.getPayload());
-				router.postEvent(new StartMapMutate((Map) e.getPayload(), MapMutationType.OriginalConfig, 4, true)); //TODO: Move some of this hard coding to ApplicationConfig
+				MapContainer container = (MapContainer) e.getPayload();
+				initEditView(container);
+				router.postEvent(new StartMapMutate(container.getMap(), MapMutationType.OriginalConfig, 4, true)); //TODO: Move some of this hard coding to ApplicationConfig
 			}
+		} else if (e instanceof MapLoaded) {
+			
 		}
 	}
 
@@ -79,6 +84,7 @@ public class InteractiveGUIController implements Initializable, Listener {
 		router.registerListener(this, new AlgorithmDone(null));
 		router.registerListener(this, new RequestRedraw());
 		router.registerListener(this, new RequestViewSwitch(null));
+		router.registerListener(this, new MapLoaded(null));
 		
 		startView = new StartViewController();
 		editView = new EditViewController();
@@ -223,7 +229,7 @@ public class InteractiveGUIController implements Initializable, Listener {
 		initEditView(null);
 	}
 	
-	private void initEditView(Map map) {
+	private void initEditView(MapContainer map) {
 		mouseEventHandler = new EditViewEventHandler();
 		
 		mainPane.getChildren().clear();

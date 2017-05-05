@@ -9,6 +9,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import game.Map;
+import game.MapContainer;
 import game.TileTypes;
 import gui.controls.InteractiveMap;
 import gui.controls.LabeledCanvas;
@@ -140,10 +141,10 @@ public class EditViewController extends BorderPane implements Listener {
 	/**
 	 * Updates this control's map.
 	 * 
-	 * @param map The new map.
+	 * @param container The new map.
 	 */
-	public void updateMap(Map map) {
-		mapView.updateMap(map);
+	public void updateMap(MapContainer container) {
+		mapView.updateMap(container.getMap());
 	}
 	
 	/**
