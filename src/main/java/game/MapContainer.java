@@ -15,6 +15,7 @@ public class MapContainer {
 	private List<Pattern> microPatterns;
 	private List<CompositePattern> mesoPatterns;
 	private List<CompositePattern> macroPatterns;
+	private String message;
 
 	/**
 	 * Creates an instance of this container.
@@ -93,5 +94,23 @@ public class MapContainer {
 	 */
 	public void setMacroPatterns(List<CompositePattern> macroPatterns) {
 		this.macroPatterns = macroPatterns;
+	}
+
+	/**
+	 * Gets the message that comes with this container.
+	 * 
+	 * @return A message.
+	 */
+	public String getMessage() {
+		return message;
+	}
+
+	/**
+	 * Sets the message that goes with this container.
+	 * 
+	 * @param message A message.
+	 */
+	public void setMessage(String message) {
+		this.message = message;
 	}
 }
