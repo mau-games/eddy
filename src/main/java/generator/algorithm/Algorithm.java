@@ -308,48 +308,7 @@ public class Algorithm extends Thread {
     */
 	private boolean checkIndividual(Individual ind){
 		Map map = ind.getPhenotype().getMap();
-		List<Node> visited = new ArrayList<Node>();
-    	Queue<Node> queue = new LinkedList<Node>();
-    	int treasure = 0;
-    	int enemies = 0;
-    	int doors = 0;
-    	
-    	Node root = new Node(0.0f, map.getEntrance(), null);
-    	queue.add(root);
-    	
-    	while(!queue.isEmpty()){
-    		Node current = queue.remove();
-    		visited.add(current);
-    		if(map.getTile(current.position) == TileTypes.DOOR)
-    			doors++;
-    		else if (map.getTile(current.position).isEnemy())
-    			enemies++;
-    		else if (map.getTile(current.position).isTreasure())
-    			treasure++;
-    		
-    		List<Point> children = map.getAvailableCoords(current.position);
-            for(Point child : children)
-            {
-                if (visited.stream().filter(x->x.equals(child)).findFirst().isPresent() 
-                		|| queue.stream().filter(x->x.equals(child)).findFirst().isPresent()) 
-                	continue;
-
-                //Create child node
-                Node n = new Node(0.0f, child, current);
-                queue.add(n);
-            }
-    	}
-    	
-    	for(int i = treasure; i < map.getTreasureCount();i++)
-    		map.addFailedPathToTreasures();
-    	for(int i = doors; i < map.getDoorCount();i++)
-    		map.addFailedPathToTreasures();
-    	for(int i = enemies; i < map.getEnemyCount();i++)
-    		map.addFailedPathToTreasures();
-    	
-    	return visited.size() == map.getNonWallTileCount() 
-    			&& (treasure + doors + enemies == map.getTreasureCount() + map.getDoorCount() + map.getEnemyCount())
-    			&& map.getTreasureCount() > 0 && map.getEnemyCount() > 0;
+		return map.isFeasible();
 	}
 	
 	/**

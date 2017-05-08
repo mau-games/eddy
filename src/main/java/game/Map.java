@@ -9,14 +9,16 @@ import java.util.Dictionary;
 import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Queue;
 import java.util.Map.Entry;
 
 import finder.PatternFinder;
 import finder.Populator;
 import finder.geometry.Polygon;
 import finder.graph.Graph;
-import finder.graph.Node;
+import util.algorithms.Node;
 import finder.patterns.Pattern;
 import finder.patterns.SpacialPattern;
 import finder.patterns.micro.Connector;
@@ -706,5 +708,50 @@ public class Map {
 		}
 		
 		return map.toString();
+	}
+	
+	public boolean isFeasible(){
+		List<Node> visited = new ArrayList<Node>();
+    	Queue<Node> queue = new LinkedList<Node>();
+    	int treasure = 0;
+    	int enemies = 0;
+    	int doors = 0;
+    	
+    	Node root = new Node(0.0f, getEntrance(), null);
+    	queue.add(root);
+    	
+    	while(!queue.isEmpty()){
+    		Node current = queue.remove();
+    		visited.add(current);
+    		if(getTile(current.position) == TileTypes.DOOR)
+    			doors++;
+    		else if (getTile(current.position).isEnemy())
+    			enemies++;
+    		else if (getTile(current.position).isTreasure())
+    			treasure++;
+    		
+    		List<Point> children = getAvailableCoords(current.position);
+            for(Point child : children)
+            {
+                if (visited.stream().filter(x->x.equals(child)).findFirst().isPresent() 
+                		|| queue.stream().filter(x->x.equals(child)).findFirst().isPresent()) 
+                	continue;
+
+                //Create child node
+                Node n = new Node(0.0f, child, current);
+                queue.add(n);
+            }
+    	}
+    	
+    	for(int i = treasure; i < getTreasureCount();i++)
+    		addFailedPathToTreasures();
+    	for(int i = doors; i < getDoorCount();i++)
+    		addFailedPathToTreasures();
+    	for(int i = enemies; i < getEnemyCount();i++)
+    		addFailedPathToTreasures();
+    	
+    	return visited.size() == getNonWallTileCount() 
+    			&& (treasure + doors + enemies == getTreasureCount() + getDoorCount() + getEnemyCount())
+    			&& getTreasureCount() > 0 && getEnemyCount() > 0;
 	}
 }
