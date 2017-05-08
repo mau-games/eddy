@@ -638,6 +638,7 @@ public class Map {
 			mapString += c;
 		}
 		Map map = fromString(mapString);
+		System.out.println(map);
 		EventRouter.getInstance().postEvent(new MapUpdate(map));
 		PatternFinder finder = map.getPatternFinder();
         HashMap<String, Object> result = new HashMap<String, Object>();

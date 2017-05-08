@@ -118,7 +118,6 @@ public class InteractiveGUIController implements Initializable, Listener {
 		 File selectedFile = fileChooser.showOpenDialog(stage);
 		 if (selectedFile != null) {
 			 System.out.println("Selected file: " + selectedFile);
-			 initEditView();
 			 try {
 				Map.LoadMap(selectedFile);
 			} catch (IOException e) {
