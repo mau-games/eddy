@@ -143,7 +143,7 @@ public class InteractiveGUIController implements Initializable, Listener {
 	public void saveMap() {
 		DateTimeFormatter format =
 				DateTimeFormatter.ofPattern("yyyy-MM-dd_HH-mm-s-n");
-		String name = "renderedmap_" +
+		String name = "map_" +
 				LocalDateTime.now().format(format) + ".map";
 		
 		 FileChooser fileChooser = new FileChooser();
