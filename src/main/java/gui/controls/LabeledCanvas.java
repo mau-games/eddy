@@ -72,7 +72,7 @@ public class LabeledCanvas extends BorderPane {
 		
 		canvas.widthProperty().bind(canvasPane.widthProperty());
 		canvas.heightProperty().bind(canvasPane.heightProperty());
-		canvasPane.setPrefSize(rootPane.widthProperty().doubleValue(), 100);
+		canvasPane.setPrefSize(rootPane.widthProperty().doubleValue(), rootPane.heightProperty().doubleValue());
 
 		getStyleClass().add("labeled-canvas");
 		this.label.setLabelFor(this.canvas);
