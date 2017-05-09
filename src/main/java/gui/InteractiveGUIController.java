@@ -42,6 +42,7 @@ import util.eventrouting.events.RequestViewSwitch;
 import util.eventrouting.events.Start;
 import util.eventrouting.events.StartMapMutate;
 import util.eventrouting.events.StatusMessage;
+import util.eventrouting.events.Stop;
 
 public class InteractiveGUIController implements Initializable, Listener {
 	
@@ -69,10 +70,12 @@ public class InteractiveGUIController implements Initializable, Listener {
 	public synchronized void ping(PCGEvent e) {
 		if (e instanceof RequestViewSwitch) {
 			if (e.getPayload() == null) {
+				router.postEvent(new Stop());
 				initStartView();
 			} else {
 				MapContainer container = (MapContainer) e.getPayload();
 				initEditView(container);
+				router.postEvent(new Stop());
 				router.postEvent(new StartMapMutate(container.getMap(), MapMutationType.OriginalConfig, 4, true)); //TODO: Move some of this hard coding to ApplicationConfig
 			}
 		} else if (e instanceof MapLoaded) {
