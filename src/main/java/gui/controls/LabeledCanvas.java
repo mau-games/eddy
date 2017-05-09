@@ -34,7 +34,7 @@ public class LabeledCanvas extends BorderPane {
 	private RotateTransition transition;
 	
 	private GraphicsContext gc;
-	private boolean waiting = false;
+	private boolean waiting = true;
 	
 	/**
 	 * Creates an instance of this class.
@@ -116,8 +116,8 @@ public class LabeledCanvas extends BorderPane {
 			waitForImage(true);
 		} else {
 			waitForImage(false);
+			canvas.draw(image);
 		}
-		canvas.draw(image);
 	}
 	
 	/**

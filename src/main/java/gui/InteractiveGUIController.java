@@ -261,15 +261,19 @@ public class InteractiveGUIController implements Initializable, Listener {
 		editView.setActive(true);
 		
 		// TODO: Delegate this to where it belongs: the edit view
+		editView.getMap(0).draw(null);
 		editView.getMap(0).addEventFilter(MouseEvent.MOUSE_CLICKED, mouseEventHandler);
 		editView.getMap(0).setText("Label for map 0\nSome properties for map 0");
-		
+
+		editView.getMap(1).draw(null);
 		editView.getMap(1).addEventFilter(MouseEvent.MOUSE_CLICKED, mouseEventHandler);
 		editView.getMap(1).setText("Label for map 1\nSome properties for map 1");
-		
+
+		editView.getMap(2).draw(null);
 		editView.getMap(2).addEventFilter(MouseEvent.MOUSE_CLICKED, mouseEventHandler);
 		editView.getMap(2).setText("Label for map 2\nSome properties for map 2");
-		
+
+		editView.getMap(3).draw(null);
 		editView.getMap(3).addEventFilter(MouseEvent.MOUSE_CLICKED, mouseEventHandler);
 		editView.getMap(3).setText("Label for map 3\nSome properties for map 3");
 	}
