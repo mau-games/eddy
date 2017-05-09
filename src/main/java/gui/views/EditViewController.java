@@ -20,6 +20,7 @@ import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Pos;
 import javafx.scene.Cursor;
+import javafx.scene.canvas.Canvas;
 import javafx.scene.control.ToggleButton;
 import javafx.scene.control.ToggleGroup;
 import javafx.scene.image.Image;
@@ -43,6 +44,7 @@ public class EditViewController extends BorderPane implements Listener {
 	@FXML private StackPane mapPane;
 	@FXML private ToggleGroup brushes;
 	private InteractiveMap mapView;
+	private Canvas patternCanvas;
 	
 	private boolean isActive = false;
 	private TileTypes brush = null;
@@ -80,6 +82,11 @@ public class EditViewController extends BorderPane implements Listener {
 		mapView.setMinSize(400, 400);
 		mapView.setMaxSize(400, 400);
 		mapPane.getChildren().add(mapView);
+		
+		patternCanvas = new Canvas(400, 400);
+		StackPane.setAlignment(patternCanvas, Pos.CENTER);
+		mapPane.getChildren().add(patternCanvas);
+		patternCanvas.setMouseTransparent(true);
 		
 		EditViewEventHandler eh = new EditViewEventHandler();
 		mapView.addEventFilter(MouseEvent.MOUSE_CLICKED, eh);
@@ -120,8 +127,6 @@ public class EditViewController extends BorderPane implements Listener {
 					canvas.draw(renderer.renderMap(matrix));
 //					renderer.renderMap(mapDisplays.get(nextMap++).getGraphicsContext(), matrix);
 //					renderer.drawPatterns(ctx, matrix, activePatterns);
-//					renderer.drawGraph(ctx, matrix, currentMap.getPatternFinder().getPatternGraph());				renderer.drawMesoPatterns(ctx, matrix, currentMap.getPatternFinder().findMesoPatterns());
-//					renderer.drawMesoPatterns(ctx, matrix, currentMap.getPatternFinder().findMesoPatterns());
 				});
 				
 				nextMap++;
@@ -166,6 +171,9 @@ public class EditViewController extends BorderPane implements Listener {
 	public void updateMap(MapContainer container) {
 		nextMap = 0;
 		mapView.updateMap(container.getMap());
+		patternCanvas.getGraphicsContext2D().clearRect(0, 0, 400, 400);
+		renderer.drawGraph(patternCanvas.getGraphicsContext2D(), container.getMap().toMatrix(), container.getMap().getPatternFinder().getPatternGraph());
+		renderer.drawMesoPatterns(patternCanvas.getGraphicsContext2D(), container.getMap().toMatrix(), container.getMap().getPatternFinder().findMesoPatterns());
 		resetMiniMaps();
 	}
 	
