@@ -5,6 +5,7 @@ import java.util.HashMap;
 import game.Map;
 import game.TileTypes;
 import gui.utils.MapRenderer;
+import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.GridPane;
 import util.Point;
@@ -22,6 +23,7 @@ public class InteractiveMap extends GridPane {
 	
 	private final MapRenderer renderer = MapRenderer.getInstance();
 	private final HashMap<ImageView, Point> coords = new HashMap<ImageView, Point>();
+	private final static HashMap<TileTypes, Image> images = new HashMap<TileTypes, Image>();
 	
 	/**
 	 * Creates an empty instance of InteractiveMap.
@@ -103,8 +105,12 @@ public class InteractiveMap extends GridPane {
 	 */
 	public void updateMap(Map map) {
 		this.map = map;
-		cols = map.getColCount();
-		rows = map.getRowCount();
+		
+		if (cols != map.getColCount() || rows != map.getRowCount()) {
+			cols = map.getColCount();
+			rows = map.getRowCount();
+			images.clear();
+		}
 		
 		initialise();
 	}
@@ -123,17 +129,26 @@ public class InteractiveMap extends GridPane {
 		
 		for (int i = 0; i < cols; i++) {
 			for (int j = 0; j < rows; j++) {
-				ImageView iv = new ImageView(renderer.renderTile(map.getTile(i, j)));
-				iv.setFitWidth(scale);
-				iv.setPreserveRatio(true);
-				iv.setSmooth(true);
-				iv.setCache(true);
+				ImageView iv = new ImageView(getImage(map.getTile(i, j), scale));
 				GridPane.setFillWidth(iv, true);
 				GridPane.setFillHeight(iv, true);
 				add(iv, i, j);
 				coords.put(iv, new Point(i, j));
 			}
 		}
+	}
+	
+	private Image getImage(TileTypes type, double size) {
+		Image tile = images.get(type);
+		
+		if (tile != null) {
+			return tile;
+		}
+		
+		tile = renderer.renderTile(type, size, size);
+		images.put(type, tile);
+		
+		return tile;
 	}
 	
 	/**

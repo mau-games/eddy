@@ -6,6 +6,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Queue;
+import java.util.UUID;
 import java.util.Map.Entry;
 import java.util.stream.Collectors;
 
@@ -106,12 +107,12 @@ public class MapRenderer implements Listener {
 	}
 
 	@Override
-	public synchronized void ping(PCGEvent e) {
+	public void ping(PCGEvent e) {
 		if (e instanceof AlgorithmDone) {
 			MapContainer result = (MapContainer) ((AlgorithmDone) e).getPayload();
 			Platform.runLater(() -> {
 				// We might as well see if anyone is interested in our rendered map
-				sendRenderedMap((game.Map) result.getMap());
+				sendRenderedMap(((AlgorithmDone)e).getID(), (game.Map) result.getMap());
 			});
 		}
 	}
@@ -144,6 +145,18 @@ public class MapRenderer implements Listener {
 	 */
 	public synchronized Image renderTile(TileTypes tile) {
 		return getTileImage(tile.getValue());
+	}
+	
+	/**
+	 * Renders a single tile.
+	 * 
+	 * @param tile The tile type to render.
+	 * @param width The width of the image.
+	 * @param height The height of the image.
+	 * @return A rendered tile.
+	 */
+	public synchronized Image renderTile(TileTypes tile, double width, double height) {
+		return getTileImage(tile.getValue(), width, height);
 	}
 	
 	/**
@@ -363,13 +376,15 @@ public class MapRenderer implements Listener {
 	/**
 	 * Publishes a rendered map.
 	 */
-	private synchronized void sendRenderedMap(game.Map map) {
+	private synchronized void sendRenderedMap(UUID runID, game.Map map) {
 		finalMapHeight = config.getMapRenderHeight();
 		finalMapWidth = config.getMapRenderWidth();
 		Canvas canvas = new Canvas(finalMapWidth, finalMapHeight);
 		renderMap(canvas.getGraphicsContext2D(), map.toMatrix());
 		Image image = canvas.snapshot(new SnapshotParameters(), null);
-		router.postEvent(new MapRendered(image));
+		MapRendered mr = new MapRendered(image);
+		mr.setID(runID);
+		router.postEvent(mr);
 	}
 
 	/**
@@ -406,12 +421,51 @@ public class MapRenderer implements Listener {
 
 		return color;
 	}
+	
+	/**
+	 * Gets a tile image based on the pixel's integer value. This method will
+	 * render the image at each run, due to it being able to scale and skew the
+	 * original image.
+	 * 
+	 * @param pixel The pixel to select for.
+	 * @param width The desired width of the tile.
+	 * @param height The desired height of the tile.
+	 * @return A tile.
+	 */
+	private Image getTileImage(int pixel, double width, double height) {
+		Image image;
+		
+		switch (TileTypes.toTileType(pixel)) {
+		case DOOR:
+			image = new Image("/" + config.getInternalConfig().getString("map.tiles.door"), width, height, false, true);
+			break;
+		case TREASURE:
+			image = new Image("/" + config.getInternalConfig().getString("map.tiles.treasure"), width, height, false, true);
+			break;
+		case ENEMY:
+			image = new Image("/" + config.getInternalConfig().getString("map.tiles.enemy"), width, height, false, true);
+			break;
+		case WALL:
+			image = new Image("/" + config.getInternalConfig().getString("map.tiles.wall"), width, height, false, true);
+			break;
+		case FLOOR:
+			image = new Image("/" + config.getInternalConfig().getString("map.tiles.floor"), width, height, false, true);
+			break;
+		case DOORENTER:
+			image = new Image("/" + config.getInternalConfig().getString("map.tiles.doorenter"), width, height, false, true);
+			break;
+		default:
+			image = null;
+		}
+		
+		return image;
+	}
 
 	/**
 	 * Selects a tile image based on the pixel's integer value.
 	 * 
 	 * @param pixel The pixel to select for.
-	 * @return A file.
+	 * @return A tile.
 	 */
 	private Image getTileImage(int pixel) {
 		Image image = tiles.get(pixel);
@@ -425,16 +479,16 @@ public class MapRenderer implements Listener {
 				image = new Image("/" + config.getInternalConfig().getString("map.tiles.treasure"));
 				break;
 			case ENEMY:
-				image = new Image("/" + config.getInternalConfig().getString("map.tiles.enemy"));;
+				image = new Image("/" + config.getInternalConfig().getString("map.tiles.enemy"));
 				break;
 			case WALL:
-				image = new Image("/" + config.getInternalConfig().getString("map.tiles.wall"));;
+				image = new Image("/" + config.getInternalConfig().getString("map.tiles.wall"));
 				break;
 			case FLOOR:
-				image = new Image("/" + config.getInternalConfig().getString("map.tiles.floor"));;
+				image = new Image("/" + config.getInternalConfig().getString("map.tiles.floor"));
 				break;
 			case DOORENTER:
-				image = new Image("/" + config.getInternalConfig().getString("map.tiles.doorenter"));;
+				image = new Image("/" + config.getInternalConfig().getString("map.tiles.doorenter"));
 				break;
 			default:
 				image = null;

@@ -177,11 +177,18 @@ public class EditViewController extends BorderPane implements Listener {
 	 */
 	public void updateMap(MapContainer container) {
 		nextMap = 0;
+		
+		if (!container.getMap().isFeasible()) {
+			mapIsInfeasible(true);
+		} else {
+			mapIsInfeasible(false);
+		}
+		
 		mapView.updateMap(container.getMap());
 		patternCanvas.getGraphicsContext2D().clearRect(0, 0, 400, 400);
-		renderer.drawPatterns(patternCanvas.getGraphicsContext2D(), container.getMap().toMatrix(), colourPatterns(container.getMap().getPatternFinder().findMicroPatterns()));
+		renderer.drawPatterns(patternCanvas.getGraphicsContext2D(), container.getMap().toMatrix(), colourPatterns(container.getMicroPatterns()));
 		renderer.drawGraph(patternCanvas.getGraphicsContext2D(), container.getMap().toMatrix(), container.getMap().getPatternFinder().getPatternGraph());
-		renderer.drawMesoPatterns(patternCanvas.getGraphicsContext2D(), container.getMap().toMatrix(), container.getMap().getPatternFinder().findMesoPatterns());
+		renderer.drawMesoPatterns(patternCanvas.getGraphicsContext2D(), container.getMap().toMatrix(), container.getMesoPatterns());
 		resetMiniMaps();
 	}
 	
@@ -252,10 +259,10 @@ public class EditViewController extends BorderPane implements Listener {
 		isInfeasible = state;
 		
 		if (isInfeasible) {
-			mapPane.setStyle("-fx-border-width: 2px; -fx-border-color: red");
+			mapView.setStyle("-fx-border-width: 2px; -fx-border-color: red");
     	} else {
-			mapPane.setStyle("-fx-border-width: 2px; -fx-border-color: green");
-//    		mapPane.setStyle("-fx-border-width: 0px");
+    		mapView.setStyle("-fx-border-width: 2px; -fx-border-color: green");
+//    		mapView.setStyle("-fx-border-width: 0px");
 		}
 	}
 	
