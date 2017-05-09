@@ -12,7 +12,6 @@ import finder.patterns.Pattern;
 import finder.patterns.micro.Corridor;
 import finder.patterns.micro.Room;
 import game.Map;
-import game.MapContainer;
 import game.TileTypes;
 import game.Game.MapMutationType;
 import gui.controls.InteractiveMap;
@@ -114,6 +113,8 @@ public class EditViewController extends BorderPane implements Listener {
 	}
 	
 	private void resetMiniMaps() {
+		nextMap = 0;
+		
 		getMap(0).draw(null);
 		getMap(0).setText("Waiting for map...");
 
@@ -182,8 +183,6 @@ public class EditViewController extends BorderPane implements Listener {
 	 * @param map The new map.
 	 */
 	public void updateMap(Map map) {
-		nextMap = 0;
-		
 		if (map.isFeasible()) {
 			mapIsFeasible(true);
 		} else {
@@ -216,6 +215,7 @@ public class EditViewController extends BorderPane implements Listener {
 	/**
 	 * Selects a brush.
 	 * 
+	 * "Why is this public?",  you ask. Because of FXML's method binding.
 	 * I'm sorry, this is a disgusting way of handling things...
 	 */
 	public void selectBrush() {
@@ -244,6 +244,8 @@ public class EditViewController extends BorderPane implements Listener {
 	
 	/**
 	 * Toggles the display of patterns on top of the map.
+	 * 
+	 * "Why is this public?",  you ask. Because of FXML's method binding.
 	 */
 	public void togglePatterns() {
 		if (patternButton.isSelected()) {
@@ -251,6 +253,16 @@ public class EditViewController extends BorderPane implements Listener {
 		} else {
 			patternCanvas.setVisible(false);
 		}
+	}
+	
+	/**
+	 * Generates four new mini maps.
+	 * 
+	 * "Why is this public?",  you ask. Because of FXML's method binding.
+	 */
+	public void generateNewMaps() {
+		resetMiniMaps();
+		generateNewMaps(mapView.getMap());
 	}
 	
 	/**
@@ -269,6 +281,16 @@ public class EditViewController extends BorderPane implements Listener {
 	}
 	
 	/**
+	 * Generates four new mini maps.
+	 * 
+	 * "Why is this public?",  you ask. Because of FXML's method binding.
+	 */
+	public void generateNewMaps(Map map) {
+		// TODO: If we want more diversity in the generated maps, then send more StartMapMutate events.
+		router.postEvent(new StartMapMutate(map, MapMutationType.Preserving, 4, true)); //TODO: Move some of this hard coding to ApplicationConfig
+	}
+	
+	/**
 	 * Replaces the map with one of the generated ones.
 	 * 
 	 * @param index The new map's index.
@@ -276,8 +298,7 @@ public class EditViewController extends BorderPane implements Listener {
 	private void replaceMap(int index) {
 		Map map = maps.get(index);
 		if (map != null) {
-			// TODO: If we want more diversity in the generated maps, then send more StartMapMutate events.
-			router.postEvent(new StartMapMutate(map, MapMutationType.Preserving, 4, true)); //TODO: Move some of this hard coding to ApplicationConfig
+			generateNewMaps(map);
 			updateMap(map);
 		}
 	}

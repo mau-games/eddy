@@ -69,7 +69,7 @@
                   </Insets>
               </VBox.margin>
           </ToggleButton>
-          <Button contentDisplay="TOP" mnemonicParsing="false" text="Generate">
+          <Button contentDisplay="TOP" mnemonicParsing="false" text="Generate" onAction="#generateNewMaps">
               <VBox.margin>
                   <Insets>
                       <top>20</top>
