@@ -122,7 +122,6 @@ public class EditViewController extends BorderPane implements Listener {
 	public synchronized void ping(PCGEvent e) {
 		if (e instanceof MapUpdate) {
 			if (isActive) {
-				//updateMap((Map) e.getPayload());
 				Map map = (Map) ((MapUpdate) e).getPayload();
 				UUID uuid = ((MapUpdate) e).getID();
 				LabeledCanvas canvas = mapDisplays.get(nextMap);
@@ -132,8 +131,6 @@ public class EditViewController extends BorderPane implements Listener {
 				Platform.runLater(() -> {
 					int[][] matrix = map.toMatrix();
 					canvas.draw(renderer.renderMap(matrix));
-//					renderer.renderMap(mapDisplays.get(nextMap++).getGraphicsContext(), matrix);
-//					renderer.drawPatterns(ctx, matrix, activePatterns);
 				});
 				
 				nextMap++;
