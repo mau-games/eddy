@@ -8,6 +8,9 @@ import java.util.UUID;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import finder.patterns.Pattern;
+import finder.patterns.micro.Corridor;
+import finder.patterns.micro.Room;
 import game.Map;
 import game.MapContainer;
 import game.TileTypes;
@@ -28,6 +31,7 @@ import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.StackPane;
+import javafx.scene.paint.Color;
 import util.eventrouting.EventRouter;
 import util.eventrouting.Listener;
 import util.eventrouting.PCGEvent;
@@ -172,8 +176,10 @@ public class EditViewController extends BorderPane implements Listener {
 	 */
 	public void updateMap(MapContainer container) {
 		nextMap = 0;
+		
 		mapView.updateMap(container.getMap());
 		patternCanvas.getGraphicsContext2D().clearRect(0, 0, 400, 400);
+		renderer.drawPatterns(patternCanvas.getGraphicsContext2D(), container.getMap().toMatrix(), colourPatterns(container.getMap().getPatternFinder().findMicroPatterns()));
 		renderer.drawGraph(patternCanvas.getGraphicsContext2D(), container.getMap().toMatrix(), container.getMap().getPatternFinder().getPatternGraph());
 		renderer.drawMesoPatterns(patternCanvas.getGraphicsContext2D(), container.getMap().toMatrix(), container.getMap().getPatternFinder().findMesoPatterns());
 		resetMiniMaps();
@@ -235,6 +241,27 @@ public class EditViewController extends BorderPane implements Listener {
 		} else {
 			patternCanvas.setVisible(false);
 		}
+	}
+	
+	/**
+	 * Composes a list of micro patterns with their respective colours for the
+	 * map renderer to use.
+	 * 
+	 * @param patterns The patterns to analyse.
+	 * @return A map that maps each pattern instance to a colour.
+	 */
+	private HashMap<Pattern, Color> colourPatterns(List<Pattern> patterns) {
+		HashMap<Pattern, Color> patternMap = new HashMap<Pattern, Color>();
+		
+		patterns.forEach((pattern) -> {
+			if (pattern instanceof Room) {
+				patternMap.put(pattern, Color.BLUE);
+			} else if (pattern instanceof Corridor) {
+				patternMap.put(pattern, Color.RED);
+			}
+		});
+		
+		return patternMap;
 	}
 	
 	/*
