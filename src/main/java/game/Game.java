@@ -17,8 +17,10 @@ import util.eventrouting.Listener;
 import util.eventrouting.PCGEvent;
 import util.eventrouting.events.AlgorithmDone;
 import util.eventrouting.events.AlgorithmStarted;
+import util.eventrouting.events.BatchDone;
 import util.eventrouting.events.RenderingDone;
 import util.eventrouting.events.Start;
+import util.eventrouting.events.StartBatch;
 import util.eventrouting.events.StartMapMutate;
 import util.eventrouting.events.Stop;
 
@@ -27,15 +29,18 @@ public class Game implements Listener{
 
 	private ApplicationConfig config;
 	private List<Algorithm> runs = new ArrayList<Algorithm>();
-	private int runCount = 0;
+	private int batchRunsLeft = 0;
+	private int batchRunsStillToFinish = 0;
 	private boolean batch = false;
+	private String batchConfig = "";
+	private static final int batchThreads = 8;
 	
 	//TODO: There must be a better way to handle these public static variables
 	public static int sizeM; //Number of columns
     public static int sizeN; //Number of rows
     public static int doorCount;
     public static List<Point> doors = null; 
-    private static final int batchRuns = 100;
+
    
 
     public Game() {
@@ -52,8 +57,9 @@ public class Game implements Listener{
         EventRouter.getInstance().registerListener(this, new Start());
         EventRouter.getInstance().registerListener(this, new StartMapMutate(null));
         EventRouter.getInstance().registerListener(this, new Stop());
-        EventRouter.getInstance().registerListener(this, new AlgorithmDone(null));
+        //EventRouter.getInstance().registerListener(this, new AlgorithmDone(null));
         EventRouter.getInstance().registerListener(this, new RenderingDone());
+        EventRouter.getInstance().registerListener(this, new StartBatch());
     }
     
     /**
@@ -173,6 +179,32 @@ public class Game implements Listener{
     	}
     	
     }
+    
+    private void startBatch(String config, int size){
+    	batch = true;
+    	batchRunsLeft = size;
+    	batchRunsStillToFinish = size;
+    	batchConfig = config;
+    	
+    	runs.clear();
+    	
+    	for(int i = 0; i < batchThreads; i++){
+    		startBatchRun();
+    	}
+    	
+    }
+    
+    private void startBatchRun(){
+		try {
+			Algorithm geneticAlgorithm = new Algorithm(new GeneratorConfig(batchConfig));
+			geneticAlgorithm.start();
+			runs.add(geneticAlgorithm);
+			batchRunsLeft--;
+		} catch (MissingConfigurationException e) {
+			e.printStackTrace();
+		}
+    }
+    
   
     
     
@@ -227,23 +259,21 @@ public class Game implements Listener{
 		} else if (e instanceof StartMapMutate) {
 			StartMapMutate smm = (StartMapMutate)e;
 			mutateFromMap((Map)e.getPayload(),smm.getMutations(),smm.getMutationType(),smm.getRandomiseConfig());
+		} else if (e instanceof StartBatch) {
+			startBatch(((StartBatch)e).getConfig(), ((StartBatch)e).getSize());
 		} else if (e instanceof Stop) {
 			stop();
 		} else if (e instanceof RenderingDone){
-			
-//			if(batch && runCount < batchRuns){
-//				logger.info("Run " + runCount + " done...");
-//				batchStep();
-//			}
-//			else if (batch){
-//				logger.info("Run " + runCount + " done...");
-//				logger.info("Batch finished.");
-//				System.exit(0);
-//			}
-				
+			if(batch){
+				batchRunsStillToFinish--;
+				if(batchRunsLeft > 0) {
+					startBatchRun();
+				}
+				if(batchRunsStillToFinish == 0){
+					EventRouter.getInstance().postEvent(new BatchDone());
+				}
+			}
 		}
-		
-		
 	}
 
 	/**

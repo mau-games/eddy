@@ -4,6 +4,8 @@ import java.io.File;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.HashMap;
+import java.util.UUID;
 
 import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
@@ -32,8 +34,8 @@ public class GenerationCollector implements Listener {
 	private ApplicationConfig config;
 	private String path;
 	private boolean active;
-	private StringBuffer data = new StringBuffer();
-	private String runID = "";
+	//private StringBuffer data = new StringBuffer();
+	private HashMap<UUID, StringBuffer> data = new HashMap<UUID, StringBuffer>();
 
 	/**
 	 * Creates an instance of MapCollector.
@@ -46,28 +48,32 @@ public class GenerationCollector implements Listener {
 		}
 		EventRouter.getInstance().registerListener(this, new GenerationDone(null));
 		EventRouter.getInstance().registerListener(this, new AlgorithmDone(null));
-		EventRouter.getInstance().registerListener(this, new AlgorithmStarted(null));
+		EventRouter.getInstance().registerListener(this, new AlgorithmStarted());
 		path = Util.normalisePath(config.getGenerationCollectorPath());
 		active = config.getGenerationCollectorActive();
 
+	}
+	
+	public void setPath(String path){
+		this.path = Util.normalisePath(path);
 	}
 
 	@Override
 	public synchronized void ping(PCGEvent e) {
 		if (e instanceof GenerationDone) {
 			if (active) {
-				data.append((String) e.getPayload() + "\n");
+				data.get(((GenerationDone) e).getID()).append((String) e.getPayload() + "\n");
 			}
 		} else if (e instanceof AlgorithmDone) {
 			if (active) {
-				saveRun();
+				saveRun(((AlgorithmDone) e).getID());
 			}
 		} else if (e instanceof AlgorithmStarted) {
-			runID = (String)e.getPayload();
+			data.put(((AlgorithmStarted) e).getID(), new StringBuffer());
 		}
 	}
 	
-	private void saveRun() {
+	private synchronized void saveRun(UUID runID) {
 		File directory = new File(path);
 		if (!directory.exists()) {
 			directory.mkdir();
@@ -77,8 +83,7 @@ public class GenerationCollector implements Listener {
 				DateTimeFormatter.ofPattern("yyyy-MM-dd_HH-mm-s-n");
 		String name = "algorithm_result_" +
 				LocalDateTime.now().format(format) + ".txt";
-		if(runID != "")
-			name = "run" + runID + "_" + name;
+		name = "run_" + runID + "_" + name;
 		File file = new File(path + name);
 		logger.debug("Writing map to " + path + name);
 
@@ -88,6 +93,6 @@ public class GenerationCollector implements Listener {
 			logger.error("Couldn't write data to " + path + name +
 					":\n" + e1.getMessage());
 		}
-		data.delete(0, data.length());
+		data.get(runID).delete(0, data.get(runID).length());
 	}
 }
