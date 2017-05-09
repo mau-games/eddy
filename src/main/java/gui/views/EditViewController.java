@@ -52,6 +52,7 @@ public class EditViewController extends BorderPane implements Listener {
 	private Canvas patternCanvas;
 	
 	private boolean isActive = false;
+	private boolean isInfeasible = false;
 	private TileTypes brush = null;
 	private HashMap<Integer, Map> maps = new HashMap<Integer, Map>();
 	private int nextMap = 0;
@@ -176,7 +177,6 @@ public class EditViewController extends BorderPane implements Listener {
 	 */
 	public void updateMap(MapContainer container) {
 		nextMap = 0;
-		
 		mapView.updateMap(container.getMap());
 		patternCanvas.getGraphicsContext2D().clearRect(0, 0, 400, 400);
 		renderer.drawPatterns(patternCanvas.getGraphicsContext2D(), container.getMap().toMatrix(), colourPatterns(container.getMap().getPatternFinder().findMicroPatterns()));
@@ -240,6 +240,22 @@ public class EditViewController extends BorderPane implements Listener {
 			patternCanvas.setVisible(true);
 		} else {
 			patternCanvas.setVisible(false);
+		}
+	}
+	
+	/**
+	 * Marks the map as being infeasible.
+	 * 
+	 * @param state
+	 */
+	public void mapIsInfeasible(boolean state) {
+		isInfeasible = state;
+		
+		if (isInfeasible) {
+			mapPane.setStyle("-fx-border-width: 2px; -fx-border-color: red");
+    	} else {
+			mapPane.setStyle("-fx-border-width: 2px; -fx-border-color: green");
+//    		mapPane.setStyle("-fx-border-width: 0px");
 		}
 	}
 	
