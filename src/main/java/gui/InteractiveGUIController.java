@@ -239,8 +239,6 @@ public class InteractiveGUIController implements Initializable, Listener {
 	}
 	
 	private void initEditView(MapContainer map) {
-		mouseEventHandler = new EditViewEventHandler();
-		
 		mainPane.getChildren().clear();
 		AnchorPane.setTopAnchor(editView, 0.0);
 		AnchorPane.setRightAnchor(editView, 0.0);
@@ -256,16 +254,5 @@ public class InteractiveGUIController implements Initializable, Listener {
 
 		startView.setActive(false);
 		editView.setActive(true);
-	}
-	
-	/*
-	 * Event handlers
-	 */
-	private class EditViewEventHandler implements EventHandler<MouseEvent> {
-		@Override
-		public void handle(MouseEvent event) {
-			System.out.println("Map: " + event.getTarget());
-		}
-		
 	}
 }
