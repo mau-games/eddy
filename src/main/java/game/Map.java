@@ -550,7 +550,7 @@ public class Map {
 	public GeneratorConfig getCalculatedConfig(){
 		GeneratorConfig newConfig = new GeneratorConfig(config);
 		//Make a new pattern finder in case the map has been manually edited since the patterns were found
-		finder = new PatternFinder(this);
+		//finder = new PatternFinder(this);
 		
         List<Enemy> enemies = new ArrayList<Enemy>();
         List<Treasure> treasures = new ArrayList<Treasure>();
@@ -603,14 +603,17 @@ public class Map {
 		
 		//CHAMBER AREA
 		
-		int avgArea = (int)Math.ceil(rawRoomArea/rooms.size());
-		newConfig.setChamberTargetArea(avgArea);
-		
+		if(rooms.size() > 0){
+			int avgArea = (int)Math.ceil(rawRoomArea/rooms.size());
+			newConfig.setChamberTargetArea(avgArea);
+		}
 		//CHAMBER SQUARENESS AND SIZE
 		
-		double avgSquareness = totalSquareness / rooms.size();
-		newConfig.setChamberTargetSquareness(avgSquareness);
-		newConfig.setChamberAreaCorrectness(1.0 - avgSquareness);
+		if(rooms.size() > 0){
+			double avgSquareness = totalSquareness / rooms.size();
+			newConfig.setChamberTargetSquareness(avgSquareness);
+			newConfig.setChamberAreaCorrectness(1.0 - avgSquareness);
+		}
 
 		return newConfig;
 	}
