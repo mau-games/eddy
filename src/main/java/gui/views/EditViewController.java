@@ -81,7 +81,27 @@ public class EditViewController extends BorderPane implements Listener {
 		mapView.setMaxSize(400, 400);
 		mapPane.getChildren().add(mapView);
 		
-		mapView.addEventFilter(MouseEvent.MOUSE_CLICKED, new EditViewEventHandler());
+		EditViewEventHandler eh = new EditViewEventHandler();
+		mapView.addEventFilter(MouseEvent.MOUSE_CLICKED, eh);
+		getMap(0).addEventFilter(MouseEvent.MOUSE_CLICKED, eh);
+		getMap(1).addEventFilter(MouseEvent.MOUSE_CLICKED, eh);
+		getMap(2).addEventFilter(MouseEvent.MOUSE_CLICKED, eh);
+		getMap(3).addEventFilter(MouseEvent.MOUSE_CLICKED, eh);
+		resetMiniMaps();
+	}
+	
+	private void resetMiniMaps() {
+		getMap(0).draw(null);
+		getMap(0).setText("Waiting for map...");
+
+		getMap(1).draw(null);
+		getMap(1).setText("Waiting for map...");
+
+		getMap(2).draw(null);
+		getMap(2).setText("Waiting for map...");
+
+		getMap(3).draw(null);
+		getMap(3).setText("Waiting for map...");
 	}
 
 	@Override
@@ -146,6 +166,7 @@ public class EditViewController extends BorderPane implements Listener {
 	public void updateMap(MapContainer container) {
 		nextMap = 0;
 		mapView.updateMap(container.getMap());
+		resetMiniMaps();
 	}
 	
 	/**
