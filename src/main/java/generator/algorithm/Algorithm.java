@@ -38,6 +38,7 @@ import util.config.ConfigurationUtility;
 import util.config.MissingConfigurationException;
 import util.eventrouting.EventRouter;
 import util.eventrouting.events.AlgorithmDone;
+import util.eventrouting.events.AlgorithmStarted;
 import util.eventrouting.events.GenerationDone;
 import util.eventrouting.events.MapUpdate;
 import util.eventrouting.events.StatusMessage;
@@ -194,6 +195,10 @@ public class Algorithm extends Thread {
 	 */
 	public void run(){
 		
+		AlgorithmStarted as = new AlgorithmStarted();
+		as.setID(id);
+		EventRouter.getInstance().postEvent(as);
+		
 		broadcastStatusUpdate("Evolving...");
         int generations = config.getGenerations();
         
@@ -261,9 +266,9 @@ public class Algorithm extends Thread {
         result.put("mesopatterns", finder.findMesoPatterns());
         result.put("macropatterns", finder.findMacroPatterns());
         result.put("map", map);
-//        AlgorithmDone ev = new AlgorithmDone(result);
-//        ev.setID(id);
-//        EventRouter.getInstance().postEvent(ev);
+        AlgorithmDone ev = new AlgorithmDone(result);
+        ev.setID(id);
+        EventRouter.getInstance().postEvent(ev);
 	}
 	
 	/**

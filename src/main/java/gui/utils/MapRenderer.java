@@ -6,6 +6,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Queue;
+import java.util.UUID;
 import java.util.Map.Entry;
 import java.util.stream.Collectors;
 
@@ -105,13 +106,13 @@ public class MapRenderer implements Listener {
 	}
 
 	@Override
-	public synchronized void ping(PCGEvent e) {
+	public void ping(PCGEvent e) {
 		if (e instanceof AlgorithmDone) {
-			Map result = (Map) ((AlgorithmDone) e).getPayload();
+			//Map result = (Map) ((AlgorithmDone) e).getPayload();
 			Platform.runLater(() -> {
 				// We might as well see if anyone is interested in our rendered map
 				Map map = (Map) e.getPayload();
-				sendRenderedMap((game.Map) map.get("map"));
+				sendRenderedMap(((AlgorithmDone)e).getID(), (game.Map) map.get("map"));
 			});
 		}
 	}
@@ -363,13 +364,15 @@ public class MapRenderer implements Listener {
 	/**
 	 * Publishes a rendered map.
 	 */
-	private synchronized void sendRenderedMap(game.Map map) {
+	private synchronized void sendRenderedMap(UUID runID, game.Map map) {
 		finalMapHeight = config.getMapRenderHeight();
 		finalMapWidth = config.getMapRenderWidth();
 		Canvas canvas = new Canvas(finalMapWidth, finalMapHeight);
 		renderMap(canvas.getGraphicsContext2D(), map.toMatrix());
 		Image image = canvas.snapshot(new SnapshotParameters(), null);
-		router.postEvent(new MapRendered(image));
+		MapRendered mr = new MapRendered(image);
+		mr.setID(runID);
+		router.postEvent(mr);
 	}
 
 	/**

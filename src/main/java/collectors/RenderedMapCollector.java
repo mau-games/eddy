@@ -5,6 +5,7 @@ import java.io.File;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.UUID;
 
 import javax.imageio.ImageIO;
 
@@ -36,7 +37,6 @@ public class RenderedMapCollector implements Listener {
 	private ApplicationConfig config;
 	private String path;
 	private boolean active;
-	private String runID = "";
 	
 	/**
 	 * Creates an instance of RenderedMapCollector.
@@ -48,20 +48,23 @@ public class RenderedMapCollector implements Listener {
 			logger.error("Couldn't read configuration file:\n" + e.getMessage());
 		}
 		EventRouter.getInstance().registerListener(this, new MapRendered(null));
-		EventRouter.getInstance().registerListener(this, new AlgorithmStarted(null));
+		EventRouter.getInstance().registerListener(this, new AlgorithmStarted());
 		path = Util.normalisePath(config.getImageExporterPath());
 		active = config.getImageExporterActive();
 
+	}
+	
+	public void setPath(String path){
+		this.path = Util.normalisePath(path);
 	}
 
 	@Override
 	public synchronized void ping(PCGEvent e) {
 		if (e instanceof MapRendered) {
 			if (active) {
-				saveImage((Image) e.getPayload());
+				saveImage(((MapRendered) e).getID(), (Image) e.getPayload());
 			}
 		} else if (e instanceof AlgorithmStarted) {
-			runID = (String)e.getPayload();
 		}
 	}
 
@@ -70,19 +73,17 @@ public class RenderedMapCollector implements Listener {
 	 * 
 	 * @param map The image to save.
 	 */
-	private void saveImage(Image map) {
+	private synchronized void saveImage(UUID runID, Image map) {
 		File directory = new File(path);
 		if (!directory.exists()) {
 			directory.mkdir();
 		}
 		
-		
 		DateTimeFormatter format =
 				DateTimeFormatter.ofPattern("yyyy-MM-dd_HH-mm-s-n");
 		String name = "renderedmap_" +
 				LocalDateTime.now().format(format) + ".png";
-		if(runID != "")
-			name = "run" + runID + "_" + name;
+		name = "run" + runID + "_" + name;
 		File file = new File(path + name);
 		logger.debug("Writing map to " + path + name);
 		BufferedImage image = SwingFXUtils.fromFXImage(map, null);

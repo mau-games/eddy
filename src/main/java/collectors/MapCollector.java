@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
+import java.util.UUID;
 
 import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
@@ -19,6 +20,7 @@ import util.eventrouting.EventRouter;
 import util.eventrouting.Listener;
 import util.eventrouting.PCGEvent;
 import util.eventrouting.events.AlgorithmDone;
+import util.eventrouting.events.AlgorithmEvent;
 import util.eventrouting.events.AlgorithmStarted;
 import util.eventrouting.events.MapUpdate;
 
@@ -35,7 +37,6 @@ public class MapCollector implements Listener {
 	private String path;
 	private boolean active;
 	private boolean saveAll;
-	private String runID = "";
 
 	/**
 	 * Creates an instance of MapCollector.
@@ -48,17 +49,22 @@ public class MapCollector implements Listener {
 		}
 		EventRouter.getInstance().registerListener(this, new MapUpdate(null));
 		EventRouter.getInstance().registerListener(this, new AlgorithmDone(null));
-		EventRouter.getInstance().registerListener(this, new AlgorithmStarted(null));
+		EventRouter.getInstance().registerListener(this, new AlgorithmStarted());
 		path = Util.normalisePath(config.getMapCollectorPath());
 		active = config.getMapCollectorActive();
 		saveAll = config.getMapCollectorSaveAll();
 
+	}
+	
+	public void setPath(String path){
+		this.path = Util.normalisePath(path);
 	}
 
 	@Override
 	public synchronized void ping(PCGEvent e) {
 		if (saveAll && e instanceof MapUpdate || !saveAll && e instanceof AlgorithmDone) {
 			if (active) {
+				UUID runID = ((AlgorithmEvent)e).getID();
 				File directory = new File(path);
 				if (!directory.exists()) {
 					directory.mkdir();
@@ -73,8 +79,7 @@ public class MapCollector implements Listener {
 						DateTimeFormatter.ofPattern("yyyy-MM-dd_HH-mm-s-n");
 				String name = "map_" +
 						LocalDateTime.now().format(format) + ".txt";
-				if(runID != "")
-					name = "run" + runID + "_" + name;
+				name = "run" + runID + "_" + name;
 				File file = new File(path + name);
 				logger.debug("Writing map to " + path + name);
 
@@ -86,7 +91,7 @@ public class MapCollector implements Listener {
 				}
 			}
 		} else if (e instanceof AlgorithmStarted) {
-			runID = (String)e.getPayload();
+
 		}
 	}
 }
