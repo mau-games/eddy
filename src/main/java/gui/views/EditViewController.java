@@ -14,6 +14,7 @@ import finder.patterns.micro.Room;
 import game.Map;
 import game.MapContainer;
 import game.TileTypes;
+import game.Game.MapMutationType;
 import gui.controls.InteractiveMap;
 import gui.controls.LabeledCanvas;
 import gui.utils.MapRenderer;
@@ -36,6 +37,7 @@ import util.eventrouting.EventRouter;
 import util.eventrouting.Listener;
 import util.eventrouting.PCGEvent;
 import util.eventrouting.events.MapUpdate;
+import util.eventrouting.events.StartMapMutate;
 
 /**
  * his class controls the interactive application's edit view.
@@ -95,12 +97,19 @@ public class EditViewController extends BorderPane implements Listener {
 		patternCanvas.setVisible(false);
 		patternCanvas.setMouseTransparent(true);
 		
-		EditViewEventHandler eh = new EditViewEventHandler();
-		mapView.addEventFilter(MouseEvent.MOUSE_CLICKED, eh);
-		getMap(0).addEventFilter(MouseEvent.MOUSE_CLICKED, eh);
-		getMap(1).addEventFilter(MouseEvent.MOUSE_CLICKED, eh);
-		getMap(2).addEventFilter(MouseEvent.MOUSE_CLICKED, eh);
-		getMap(3).addEventFilter(MouseEvent.MOUSE_CLICKED, eh);
+		mapView.addEventFilter(MouseEvent.MOUSE_CLICKED, new EditViewEventHandler());
+		getMap(0).addEventFilter(MouseEvent.MOUSE_CLICKED, (e) -> {
+			replaceMap(0);
+		});
+		getMap(1).addEventFilter(MouseEvent.MOUSE_CLICKED, (e) -> {
+			replaceMap(0);
+		});
+		getMap(2).addEventFilter(MouseEvent.MOUSE_CLICKED, (e) -> {
+			replaceMap(0);
+		});
+		getMap(3).addEventFilter(MouseEvent.MOUSE_CLICKED, (e) -> {
+			replaceMap(0);
+		});
 		resetMiniMaps();
 	}
 	
@@ -170,19 +179,19 @@ public class EditViewController extends BorderPane implements Listener {
 	/**
 	 * Updates this control's map.
 	 * 
-	 * @param container The new map.
+	 * @param map The new map.
 	 */
-	public void updateMap(MapContainer container) {
+	public void updateMap(Map map) {
 		nextMap = 0;
 		
-		if (container.getMap().isFeasible()) {
+		if (map.isFeasible()) {
 			mapIsFeasible(true);
 		} else {
 			mapIsFeasible(false);
 		}
 		
-		mapView.updateMap(container.getMap());
-		redrawPatterns(container.getMap());
+		mapView.updateMap(map);
+		redrawPatterns(map);
 		resetMiniMaps();
 	}
 	
@@ -260,6 +269,20 @@ public class EditViewController extends BorderPane implements Listener {
 	}
 	
 	/**
+	 * Replaces the map with one of the generated ones.
+	 * 
+	 * @param index The new map's index.
+	 */
+	private void replaceMap(int index) {
+		Map map = maps.get(index);
+		if (map != null) {
+			// TODO: If we want more diversity in the generated maps, then send more StartMapMutate events.
+			router.postEvent(new StartMapMutate(map, MapMutationType.Preserving, 4, true)); //TODO: Move some of this hard coding to ApplicationConfig
+			updateMap(map);
+		}
+	}
+	
+	/**
 	 * Composes a list of micro patterns with their respective colours for the
 	 * map renderer to use.
 	 * 
@@ -299,6 +322,7 @@ public class EditViewController extends BorderPane implements Listener {
 		@Override
 		public void handle(MouseEvent event) {
 			if (event.getTarget() instanceof ImageView && brush != null) {
+				// Edit the map
 				ImageView tile = (ImageView) event.getTarget();
 				mapView.updateTile(tile, brush);
 				mapView.getMap().forceReevaluation();

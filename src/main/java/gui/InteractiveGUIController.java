@@ -249,7 +249,7 @@ public class InteractiveGUIController implements Initializable, Listener {
 		AnchorPane.setLeftAnchor(editView, 0.0);
 		mainPane.getChildren().add(editView);
 		
-		editView.updateMap(map);
+		editView.updateMap(map.getMap());
 		
 		saveItem.setDisable(false);
 		saveAsItem.setDisable(false);
