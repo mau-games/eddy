@@ -43,6 +43,7 @@ public class EditViewController extends BorderPane implements Listener {
 	@FXML private List<LabeledCanvas> mapDisplays;
 	@FXML private StackPane mapPane;
 	@FXML private ToggleGroup brushes;
+	@FXML private ToggleButton patternButton;
 	private InteractiveMap mapView;
 	private Canvas patternCanvas;
 	
@@ -86,6 +87,7 @@ public class EditViewController extends BorderPane implements Listener {
 		patternCanvas = new Canvas(400, 400);
 		StackPane.setAlignment(patternCanvas, Pos.CENTER);
 		mapPane.getChildren().add(patternCanvas);
+		patternCanvas.setVisible(false);
 		patternCanvas.setMouseTransparent(true);
 		
 		EditViewEventHandler eh = new EditViewEventHandler();
@@ -221,6 +223,17 @@ public class EditViewController extends BorderPane implements Listener {
 				brush = TileTypes.ENEMY;
 				break;
 			}
+		}
+	}
+	
+	/**
+	 * Toggles the display of patterns on top of the map.
+	 */
+	public void togglePatterns() {
+		if (patternButton.isSelected()) {
+			patternCanvas.setVisible(true);
+		} else {
+			patternCanvas.setVisible(false);
 		}
 	}
 	
