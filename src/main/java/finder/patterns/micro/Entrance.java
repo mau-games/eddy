@@ -242,19 +242,23 @@ public class Entrance extends InventorialPattern {
 	                }
 	        	}
 	        	
-	            int dinTreasureToEnemy = pathfinder.find(treasure, closestEnemy).length;
-	            
-                //Distance in nodes from treasure to entrance
-                int dinTreasureToStartDoor = pathfinder.find(treasure, doorEnter).length;
-	
-                double result = (double)
-                    (dinTreasureToEnemy - dinTreasureToStartDoor) / 
-                    (dinTreasureToEnemy + dinTreasureToStartDoor);
+	        	if (treasure == null || closestEnemy == null) {
+	        		map.setTreasureSafety(treasure, 0);
+	        	} else {
+	        		int dinTreasureToEnemy = pathfinder.find(treasure, closestEnemy).length;
+		            
+	                //Distance in nodes from treasure to entrance
+	                int dinTreasureToStartDoor = pathfinder.find(treasure, doorEnter).length;
+		
+	                double result = (double)
+	                    (dinTreasureToEnemy - dinTreasureToStartDoor) / 
+	                    (dinTreasureToEnemy + dinTreasureToStartDoor);
 
-                if (Double.isNaN(result))
-                    result = 0.0f;
-                
-                map.setTreasureSafety(treasure, Math.max(0.0, result));
+	                if (Double.isNaN(result))
+	                    result = 0.0f;
+	                
+	                map.setTreasureSafety(treasure, Math.max(0.0, result));
+	        	}
 	        }
 	    }
 	}
