@@ -30,7 +30,7 @@
 	},
     "patterns": {
         "room": {
-            "desired_area": 80,
+            "desired_area": 60,
             "squareness": 0.4,
             "size": 0.6
         },

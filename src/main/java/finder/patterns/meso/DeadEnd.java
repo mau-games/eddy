@@ -31,7 +31,7 @@ public class DeadEnd extends CompositePattern {
 		//actualFilledness is the ratio to patterns involved in meso patterns to the total number
 		for(Pattern p : getPatterns()){
 			for(CompositePattern cp : mesopatterns){
-				if(cp.getPatterns().contains(p)){
+				if(cp != this && cp.getPatterns().contains(p)){
 					contained++;
 					break;
 				}
@@ -43,7 +43,7 @@ public class DeadEnd extends CompositePattern {
 		
 		double quality = actualFilledness;
 		
-		return quality * (1 - badness);	
+		return 0.5 * quality + 0.5 * (1 - badness);	
 	}
 	
 	public DeadEnd(Map map, GeneratorConfig config){

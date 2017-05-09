@@ -15,7 +15,13 @@ import org.slf4j.LoggerFactory;
 import finder.PatternFinder;
 import finder.Populator;
 import finder.geometry.Polygon;
+import finder.patterns.CompositePattern;
 import finder.patterns.Pattern;
+import finder.patterns.meso.Ambush;
+import finder.patterns.meso.DeadEnd;
+import finder.patterns.meso.GuardRoom;
+import finder.patterns.meso.GuardedTreasure;
+import finder.patterns.meso.TreasureRoom;
 import finder.patterns.micro.Connector;
 import finder.patterns.micro.Corridor;
 import finder.patterns.micro.Enemy;
@@ -345,9 +351,30 @@ public class Algorithm extends Thread {
         	}
         }
         
-        finder.findMesoPatterns();
+        List<DeadEnd> deadEnds = new ArrayList<DeadEnd>();
+        List<TreasureRoom> treasureRooms = new ArrayList<TreasureRoom>();
+        List<GuardRoom> guardRooms = new ArrayList<GuardRoom>();
+        List<Ambush> ambushes = new ArrayList<Ambush>();
+        List<GuardedTreasure> guardedTreasure = new ArrayList<GuardedTreasure>();
+        //Ignore choke points for now
+        for(CompositePattern p : finder.findMesoPatterns()){
+        	if(p instanceof DeadEnd){
+        		deadEnds.add((DeadEnd)p);
+        	} else if (p instanceof TreasureRoom){
+        		treasureRooms.add((TreasureRoom)p);
+        	} else if (p instanceof GuardRoom){
+        		guardRooms.add((GuardRoom)p);
+        	} else if (p instanceof Ambush){
+        		ambushes.add((Ambush)p);
+        	} else if (p instanceof GuardedTreasure){
+        		guardedTreasure.add((GuardedTreasure)p);
+        	}
+        	
+        }
         
         
+        double microPatternWeight = 0.8;
+        double mesoPatternWeight = 0.2;
         
         
         //Door Fitness - don't care about this for now
@@ -373,7 +400,7 @@ public class Algorithm extends Thread {
     	}
         
 
-        double treasureAndEnemyFitness = 0.0 * doorFitness + 0.5 * entranceFitness + 0.3 * enemyFitness + 0.2 * treasureFitness;
+        double treasureAndEnemyFitness = 0.0 * doorFitness + 0.2 * entranceFitness + 0.4 * enemyFitness + 0.4 * treasureFitness;
     	
         
     	//Corridor fitness
@@ -382,7 +409,18 @@ public class Algorithm extends Thread {
     	double rawCorridorArea = 0;
     	for(Pattern p : corridors){
     		rawCorridorArea += ((Polygon)p.getGeometry()).getArea();
-    		corridorArea += ((Polygon)p.getGeometry()).getArea() * p.getQuality();
+    		
+    		double mesoContribution = 0.0;
+    		for(DeadEnd de : deadEnds){
+    			if(de.getPatterns().contains(p)){
+    				mesoContribution = de.getQuality();
+    				//System.out.println(mesoContribution);
+    			}
+    				
+    		}
+    		
+    		corridorArea += ((Polygon)p.getGeometry()).getArea() * (p.getQuality()*microPatternWeight +mesoContribution*mesoPatternWeight);
+    		
     	}
     	double corridorFitness = corridorArea/passableTiles;
     	corridorFitness = 1 - Math.abs(corridorFitness - corridorTarget)/Math.max(corridorTarget, 1.0 - corridorTarget);
@@ -394,14 +432,49 @@ public class Algorithm extends Thread {
     	//Room fitness
     	for(Pattern p : rooms){
     		rawRoomArea += ((Polygon)p.getGeometry()).getArea();
-    		roomArea += ((Polygon)p.getGeometry()).getArea() * p.getQuality();
+    		double mesoContribution = 0.0;
+    		for(DeadEnd de : deadEnds){
+    			if(de.getPatterns().contains(p)){
+    				mesoContribution +=de.getQuality();
+    			}	
+    		}
+    		
+//    		for(TreasureRoom t : treasureRooms){
+//    			if(t.getPatterns().contains(p)){
+//    				mesoContribution += t.getQuality();
+//    			}
+//    		}
+//    		for(GuardRoom g : guardRooms){
+//    			if(g.getPatterns().contains(p)){
+//    				mesoContribution += g.getQuality();
+//    			}
+//    		}
+//    		for(Ambush a : ambushes){
+//    			if(a.getPatterns().contains(p)){
+//    				mesoContribution += a.getQuality();
+//    			}
+//    		}
+//    		for(GuardedTreasure gt: guardedTreasure){
+//    			if(gt.getPatterns().contains(p)){
+//    				mesoContribution += gt.getQuality();
+//    			}
+//    		}
+//    		
+//    		if(mesoContribution > 1)
+//    			mesoContribution = 1;
+    		
+    		roomArea += ((Polygon)p.getGeometry()).getArea() * (p.getQuality()*microPatternWeight + mesoContribution * mesoPatternWeight);
     	}
     	
     	double roomFitness = roomArea/passableTiles;
     	roomFitness = 1 - Math.abs(roomFitness - roomTarget)/Math.max(roomTarget, 1.0 - roomTarget);
     	
-    	double fitness = 0.2 * treasureAndEnemyFitness
-    			+  0.8*(0.25 * roomFitness + 0.75 * corridorFitness);
+    	
+    	//Total fitness
+    	double fitness = 0.4 * treasureAndEnemyFitness
+    			+  0.6 * (0.3 * roomFitness + 0.7 * corridorFitness);
+    	
+    	
     	
         //set final fitness
         ind.setFitness(fitness);

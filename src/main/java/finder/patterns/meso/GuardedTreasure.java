@@ -79,6 +79,7 @@ public class GuardedTreasure extends CompositePattern {
 				//Otherwise, it is.
 				for(Room r : deTreasure){
 					patternGraph.resetGraph();
+					List<Pattern> foundGuards = new ArrayList<Pattern>();
 					
 					boolean foundPath = false;
 					Queue<Node<Pattern>> queue = new LinkedList<Node<Pattern>>();
@@ -98,6 +99,10 @@ public class GuardedTreasure extends CompositePattern {
 								queue.add(n);
 								n.tryVisit();
 							}
+							else if(!n.isVisited() && deGuard.contains(n.getValue())){
+								foundGuards.add(n.getValue());
+								n.tryVisit();
+							}
 						}	
 					}
 					
@@ -112,6 +117,7 @@ public class GuardedTreasure extends CompositePattern {
 						GuardedTreasure gt = new GuardedTreasure(map.getConfig(),enemyCount);
 						gt.getPatterns().add(r);
 						gt.getPatterns().add(de);
+						gt.getPatterns().addAll(foundGuards);
 						guardedTreasures.add(gt);
 					}
 					
@@ -122,7 +128,7 @@ public class GuardedTreasure extends CompositePattern {
 			
 		}
 		
-		if(guardedTreasures.size() > 0) System.out.println("Found " + guardedTreasures.size() + " guardedTreasure.");
+		//if(guardedTreasures.size() > 0) System.out.println("Found " + guardedTreasures.size() + " guardedTreasure.");
 		return guardedTreasures;
 	}
 	

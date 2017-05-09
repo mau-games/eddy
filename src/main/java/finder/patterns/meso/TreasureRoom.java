@@ -26,7 +26,8 @@ public class TreasureRoom extends CompositePattern {
 	}
 	
 	public TreasureRoom(GeneratorConfig config, int treasureCount){
-		quality = Math.min((double)treasureCount/config.getTreasureRoomTargetTreasureAmount(),1.0);
+		quality = Math.max(0, 1.0 - (double)Math.abs(treasureCount - config.getTreasureRoomTargetTreasureAmount())/config.getTreasureRoomTargetTreasureAmount());
+		//quality = Math.min((double)treasureCount/config.getTreasureRoomTargetTreasureAmount(),1.0);
 	}	
 	
 	public static List<CompositePattern> matches(Map map, Graph<Pattern> patternGraph) {
@@ -42,7 +43,7 @@ public class TreasureRoom extends CompositePattern {
 			current.tryVisit();
 			if(current.getValue() instanceof Room){
 				List<InventorialPattern> containedTreasure = ((Room)current.getValue()).getContainedPatterns().stream().filter(p->{return p instanceof Treasure;}).collect(Collectors.toList());
-				if(containedTreasure.size() > 1){
+				if(containedTreasure.size() >= 1 && containedTreasure.size() == ((Room)current.getValue()).getContainedPatterns().size()){
 					TreasureRoom t = new TreasureRoom(map.getConfig(),containedTreasure.size());
 					
 					t.patterns.add(current.getValue());
@@ -51,14 +52,28 @@ public class TreasureRoom extends CompositePattern {
 					//System.out.println("Got a treasure room!");
 				}
 			}
-			nodeQueue.addAll(current.getEdges().stream().map((Edge<Pattern> e)->{
-				Node<Pattern> ret = null;
+			
+			for(Edge<Pattern> e : current.getEdges()){
+				Node<Pattern> other = null;
 				if(e.getNodeA() == current)
-					ret = e.getNodeB();
+					other = e.getNodeB();
 				else
-					ret = e.getNodeA();
-				return ret;
-				}).filter((Node<Pattern> n)->{return !n.isVisited();}).collect(Collectors.toList()));
+					other = e.getNodeA();
+				if(!other.isVisited())
+				{
+					other.tryVisit();
+					nodeQueue.add(other);
+				}
+			}
+			
+//			nodeQueue.addAll(current.getEdges().stream().map((Edge<Pattern> e)->{
+//				Node<Pattern> ret = null;
+//				if(e.getNodeA() == current)
+//					ret = e.getNodeB();
+//				else
+//					ret = e.getNodeA();
+//				return ret;
+//				}).filter((Node<Pattern> n)->{return !n.isVisited();}).collect(Collectors.toList()));
 		}
 		
 		return treasureRooms;

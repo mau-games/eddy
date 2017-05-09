@@ -79,8 +79,8 @@
         	"room_to_corridor_quality": 0.5
         },
         "dead_end": {
-        	"badness": 0.0,
-        	"filledness": 1.0
+        	"badness": 3.0,
+        	"filledness": 0.0
         }
     }
 }

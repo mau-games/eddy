@@ -44,7 +44,7 @@ public class GuardRoom extends CompositePattern {
 			current.tryVisit();
 			if(current.getValue() instanceof Room){
 				List<InventorialPattern> containedEnemies = ((Room)current.getValue()).getContainedPatterns().stream().filter(p->{return p instanceof Enemy;}).collect(Collectors.toList());
-				if(containedEnemies.size() > 1){
+				if(containedEnemies.size() >= 1 && containedEnemies.size() == ((Room)current.getValue()).getContainedPatterns().size()){
 					GuardRoom g = new GuardRoom(map.getConfig(), containedEnemies.size());
 					g.patterns.add(current.getValue());
 					g.patterns.addAll(containedEnemies);
@@ -52,14 +52,27 @@ public class GuardRoom extends CompositePattern {
 					//System.out.println("Got a guard room!");
 				}
 			}
-			nodeQueue.addAll(current.getEdges().stream().map((Edge<Pattern> e)->{
-				Node<Pattern> ret = null;
+			
+			for(Edge<Pattern> e : current.getEdges()){
+				Node<Pattern> other = null;
 				if(e.getNodeA() == current)
-					ret = e.getNodeB();
+					other = e.getNodeB();
 				else
-					ret = e.getNodeA();
-				return ret;
-				}).filter((Node<Pattern> n)->{return !n.isVisited();}).collect(Collectors.toList()));
+					other = e.getNodeA();
+				if(!other.isVisited())
+				{
+					other.tryVisit();
+					nodeQueue.add(other);
+				}
+			}
+//			nodeQueue.addAll(current.getEdges().stream().map((Edge<Pattern> e)->{
+//				Node<Pattern> ret = null;
+//				if(e.getNodeA() == current)
+//					ret = e.getNodeB();
+//				else
+//					ret = e.getNodeA();
+//				return ret;
+//				}).filter((Node<Pattern> n)->{return !n.isVisited();}).collect(Collectors.toList()));
 		}
 		
 		return guardRooms;

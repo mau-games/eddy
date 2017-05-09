@@ -171,6 +171,8 @@ public class MapRenderer implements Listener {
 		finalMapWidth = config.getMapRenderWidth();
 		Canvas canvas = new Canvas(finalMapWidth, finalMapHeight);
 		renderMap(canvas.getGraphicsContext2D(), matrix);
+	
+		
 		Image image = canvas.snapshot(new SnapshotParameters(), null);
 		
 		return image;

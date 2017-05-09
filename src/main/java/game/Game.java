@@ -142,6 +142,12 @@ public class Game implements Listener{
     	Algorithm geneticAlgorithm = null;
     	
     	List<String> configs = new ArrayList<String>();
+//    	configs.add("config/roomsandcorridorssquare.json");
+//    	configs.add("config/roomsandcorridorssquare.json");
+//    	configs.add("config/roomsandcorridorssquare.json");
+//    	configs.add("config/roomsandcorridorssquare.json");
+//    	configs.add("config/roomsandcorridorssquare.json");
+//    	configs.add("config/roomsandcorridorssquare.json");
     	configs.add("config/bendycorridors.json");
     	configs.add("config/straightcorridors.json");
     	configs.add("config/smallrooms.json");
