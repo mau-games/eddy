@@ -37,7 +37,8 @@ import generator.config.GeneratorConfig;
 /**
  * This class represents a dungeon room map.
  * 
- * @author Johan Holmberg
+ * @author Johan Holmberg, Malmö University
+ * @author Alexander Baldwin, Malmö University
  */
 public class Map {
 	private int[][] matrix; // The actual map
@@ -79,9 +80,49 @@ public class Map {
 		markDoors();
 		
 		finder = new PatternFinder(this);
-		//Populator.populate(finder.findMicroPatterns());
-        //buildGraph(finder.findMicroPatterns());
 		
+	}
+	
+	/**
+	 * Invalidates the current calculations and forces a re-evaluation of the
+	 * map.
+	 * 
+	 * TODO: This isn't very efficient, but shouldn't be so frequently used, as
+	 * to warrant any particular worry. Maybe replace it with a more granular
+	 * approach sometime?
+	 */
+	public void forceReevaluation() {
+		treasures.clear();
+		enemies.clear();
+		doors.clear();
+		treasureSafety = new Hashtable<Point, Double>();
+		wallCount = 0;
+		this.doorCount = 0;
+		allocated = new boolean[m][n];
+		
+		for (int i = 0; i < m; i++) {
+			for (int j = 0; j < n; j++) {
+				switch (TileTypes.toTileType(matrix[i][j])) {
+				case WALL:
+					wallCount++;
+					break;
+				case ENEMY:
+					enemies.add(new Point(i, j));
+					break;
+				case TREASURE:
+					treasures.add(new Point(i, j));
+					break;
+				case DOOR:
+				case DOORENTER:
+					doors.add(new Point(i, j));
+					doorCount++;
+				default:
+					break;
+				}
+			}
+		}
+		markDoors();
+		finder = new PatternFinder(this);
 	}
 	
 	public GeneratorConfig getConfig(){

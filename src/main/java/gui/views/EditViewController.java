@@ -52,7 +52,7 @@ public class EditViewController extends BorderPane implements Listener {
 	private Canvas patternCanvas;
 	
 	private boolean isActive = false;
-	private boolean isInfeasible = false;
+	private boolean isFeasible = true;
 	private TileTypes brush = null;
 	private HashMap<Integer, Map> maps = new HashMap<Integer, Map>();
 	private int nextMap = 0;
@@ -178,17 +178,14 @@ public class EditViewController extends BorderPane implements Listener {
 	public void updateMap(MapContainer container) {
 		nextMap = 0;
 		
-		if (!container.getMap().isFeasible()) {
-			mapIsInfeasible(true);
+		if (container.getMap().isFeasible()) {
+			mapIsFeasible(true);
 		} else {
-			mapIsInfeasible(false);
+			mapIsFeasible(false);
 		}
 		
 		mapView.updateMap(container.getMap());
-		patternCanvas.getGraphicsContext2D().clearRect(0, 0, 400, 400);
-		renderer.drawPatterns(patternCanvas.getGraphicsContext2D(), container.getMap().toMatrix(), colourPatterns(container.getMicroPatterns()));
-		renderer.drawGraph(patternCanvas.getGraphicsContext2D(), container.getMap().toMatrix(), container.getMap().getPatternFinder().getPatternGraph());
-		renderer.drawMesoPatterns(patternCanvas.getGraphicsContext2D(), container.getMap().toMatrix(), container.getMesoPatterns());
+		redrawPatterns(container.getMap());
 		resetMiniMaps();
 	}
 	
@@ -255,14 +252,13 @@ public class EditViewController extends BorderPane implements Listener {
 	 * 
 	 * @param state
 	 */
-	public void mapIsInfeasible(boolean state) {
-		isInfeasible = state;
+	public void mapIsFeasible(boolean state) {
+		isFeasible = state;
 		
-		if (isInfeasible) {
+		if (!isFeasible) {
 			mapView.setStyle("-fx-border-width: 2px; -fx-border-color: red");
     	} else {
-    		mapView.setStyle("-fx-border-width: 2px; -fx-border-color: green");
-//    		mapView.setStyle("-fx-border-width: 0px");
+    		mapView.setStyle("");
 		}
 	}
 	
@@ -286,6 +282,18 @@ public class EditViewController extends BorderPane implements Listener {
 		
 		return patternMap;
 	}
+
+	/**
+	 * Redraws the pattern, based on the current map layout.
+	 * 
+	 * @param container
+	 */
+	private void redrawPatterns(Map map) {
+		patternCanvas.getGraphicsContext2D().clearRect(0, 0, 400, 400);
+		renderer.drawPatterns(patternCanvas.getGraphicsContext2D(), map.toMatrix(), colourPatterns(map.getPatternFinder().findMicroPatterns()));
+		renderer.drawGraph(patternCanvas.getGraphicsContext2D(), map.toMatrix(), map.getPatternFinder().getPatternGraph());
+		renderer.drawMesoPatterns(patternCanvas.getGraphicsContext2D(), map.toMatrix(), map.getPatternFinder().getMesoPatterns());
+	}
 	
 	/*
 	 * Event handlers
@@ -296,6 +304,9 @@ public class EditViewController extends BorderPane implements Listener {
 			if (event.getTarget() instanceof ImageView && brush != null) {
 				ImageView tile = (ImageView) event.getTarget();
 				mapView.updateTile(tile, brush);
+				mapView.getMap().forceReevaluation();
+				mapIsFeasible(mapView.getMap().isFeasible());
+				redrawPatterns(mapView.getMap());
 			}
 		}
 		

@@ -20,6 +20,7 @@ public class InteractiveMap extends GridPane {
 	private Map map;
 	private int cols = 0;
 	private int rows = 0;
+	private double scale = 0;
 	
 	private final MapRenderer renderer = MapRenderer.getInstance();
 	private final HashMap<ImageView, Point> coords = new HashMap<ImageView, Point>();
@@ -122,7 +123,7 @@ public class InteractiveMap extends GridPane {
 		autosize();
 		double width = getWidth() / cols;
 		double height = getHeight() / rows;
-		double scale = Math.min(width, height);
+		scale = Math.min(width, height);
 
 		getChildren().clear();
 		coords.clear();
@@ -170,6 +171,6 @@ public class InteractiveMap extends GridPane {
 	 * @param tile The type of tile to draw.
 	 */
 	private void drawTile(int x, int y, TileTypes tile) {
-		getCell(x, y).setImage(renderer.renderTile(tile));
+		getCell(x, y).setImage(getImage(tile, scale));
 	}
 }
