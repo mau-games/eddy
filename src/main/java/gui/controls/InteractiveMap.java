@@ -118,6 +118,7 @@ public class InteractiveMap extends GridPane {
 		double height = getHeight() / rows;
 		double scale = Math.min(width, height);
 
+		getChildren().clear();
 		coords.clear();
 		
 		for (int i = 0; i < cols; i++) {

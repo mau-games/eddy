@@ -62,6 +62,13 @@
                   </ImageView>
                </graphic>
           </ToggleButton>
+          <ToggleButton fx:id="patternButton" contentDisplay="TOP" mnemonicParsing="false" wrapText="true" textAlignment="CENTER" text="Show patterns" onAction="#togglePatterns">
+              <VBox.margin>
+                  <Insets>
+                      <top>20</top>
+                  </Insets>
+              </VBox.margin>
+          </ToggleButton>
           <Button contentDisplay="TOP" mnemonicParsing="false" text="Generate">
               <VBox.margin>
                   <Insets>

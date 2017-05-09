@@ -9,6 +9,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import game.Map;
+import game.MapContainer;
 import gui.controls.LabeledCanvas;
 import gui.utils.MapRenderer;
 import javafx.application.Platform;
@@ -34,7 +35,7 @@ public class StartViewController extends GridPane implements Listener {
 	@FXML private List<LabeledCanvas> mapDisplays;
 	
 	private boolean isActive = false;
-	private HashMap<Integer, Map> maps = new HashMap<Integer, Map>();
+	private HashMap<Integer, MapContainer> maps = new HashMap<Integer, MapContainer>();
 	private int nextMap = 0;
 	
 	private MapRenderer renderer = MapRenderer.getInstance();
@@ -59,19 +60,43 @@ public class StartViewController extends GridPane implements Listener {
 		router.registerListener(this, new MapUpdate(null));
 		router.registerListener(this, new AlgorithmDone(null));
 	}
+	
+	/**
+	 * Initialises the controller for a new run.
+	 */
+	public void initialise() {
+		nextMap = 0;
+		getMapDisplay(0).draw(null);
+		getMapDisplay(0).setText("Waiting for map...");
+
+		getMapDisplay(1).draw(null);
+		getMapDisplay(1).setText("Waiting for map...");
+
+		getMapDisplay(2).draw(null);
+		getMapDisplay(2).setText("Waiting for map...");
+
+		getMapDisplay(3).draw(null);
+		getMapDisplay(3).setText("Waiting for map...");
+
+		getMapDisplay(4).draw(null);
+		getMapDisplay(4).setText("Waiting for map...");
+
+		getMapDisplay(5).draw(null);
+		getMapDisplay(5).setText("Waiting for map...");
+	}
 
 	@Override
 	public synchronized void ping(PCGEvent e) {
-		if (e instanceof MapUpdate) {
+		if (e instanceof AlgorithmDone) {
 			if (isActive) {
-				Map map = (Map) ((MapUpdate) e).getPayload();
-				UUID uuid = ((MapUpdate) e).getID();
+				MapContainer container = (MapContainer) ((AlgorithmDone) e).getPayload(); 
+				UUID uuid = ((AlgorithmDone) e).getID();
 				LabeledCanvas canvas = mapDisplays.get(nextMap);
 				canvas.setText("Got map:\n" + uuid);
-				maps.put(nextMap, map);
+				maps.put(nextMap, container);
 				
 				Platform.runLater(() -> {
-					int[][] matrix = map.toMatrix();
+					int[][] matrix = container.getMap().toMatrix();
 					canvas.draw(renderer.renderMap(matrix));
 //					renderer.renderMap(mapDisplays.get(nextMap++).getGraphicsContext(), matrix);
 //					renderer.drawPatterns(ctx, matrix, activePatterns);
@@ -103,9 +128,9 @@ public class StartViewController extends GridPane implements Listener {
 	
 	private class MouseEventHandler implements EventHandler<MouseEvent> {
 		
-		private Map map;
+		private MapContainer map;
 		
-		public MouseEventHandler(Map map) {
+		public MouseEventHandler(MapContainer map) {
 			this.map = map;
 		}
 		

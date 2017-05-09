@@ -315,7 +315,7 @@ public class PatternFinder {
 	 * 
 	 * @return A list of all found pattern instances.
 	 */
-	public List<Pattern> findMacroPatterns() {
+	public List<CompositePattern> findMacroPatterns() {
 		macropatterns = new ArrayList<CompositePattern>();
 		
 		/*

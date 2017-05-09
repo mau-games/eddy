@@ -50,7 +50,7 @@ public class ResizableCanvas extends Canvas {
 			gc.strokeLine(0, 0, width, height);
 			gc.strokeLine(0, height, width, 0);
 		} else {
-			gc.drawImage(image, 0, 0, size, size);
+			gc.drawImage(image, width/2 - size/2, height/2 - size/2, size, size);
 		}
 	}
 

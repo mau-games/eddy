@@ -17,6 +17,7 @@ import org.slf4j.LoggerFactory;
 import game.ApplicationConfig;
 import game.Game.MapMutationType;
 import game.Map;
+import game.MapContainer;
 import gui.views.EditViewController;
 import gui.views.StartViewController;
 import javafx.application.Platform;
@@ -30,14 +31,18 @@ import javafx.scene.layout.AnchorPane;
 import javafx.stage.FileChooser;
 import javafx.stage.FileChooser.ExtensionFilter;
 import javafx.stage.Stage;
+import util.config.MissingConfigurationException;
 import util.eventrouting.EventRouter;
 import util.eventrouting.Listener;
 import util.eventrouting.PCGEvent;
 import util.eventrouting.events.AlgorithmDone;
+import util.eventrouting.events.MapLoaded;
 import util.eventrouting.events.RequestRedraw;
 import util.eventrouting.events.RequestViewSwitch;
+import util.eventrouting.events.Start;
 import util.eventrouting.events.StartMapMutate;
 import util.eventrouting.events.StatusMessage;
+import util.eventrouting.events.Stop;
 
 public class InteractiveGUIController implements Initializable, Listener {
 	
@@ -65,20 +70,35 @@ public class InteractiveGUIController implements Initializable, Listener {
 	public synchronized void ping(PCGEvent e) {
 		if (e instanceof RequestViewSwitch) {
 			if (e.getPayload() == null) {
+				router.postEvent(new Stop());
 				initStartView();
 			} else {
-				initEditView((Map) e.getPayload());
-				router.postEvent(new StartMapMutate((Map) e.getPayload(), MapMutationType.OriginalConfig, 4, true)); //TODO: Move some of this hard coding to ApplicationConfig
+				MapContainer container = (MapContainer) e.getPayload();
+				initEditView(container);
+				router.postEvent(new Stop());
+				router.postEvent(new StartMapMutate(container.getMap(), MapMutationType.OriginalConfig, 4, true)); //TODO: Move some of this hard coding to ApplicationConfig
 			}
+		} else if (e instanceof MapLoaded) {
+			MapContainer container = (MapContainer) e.getPayload();
+			updateConfigBasedOnMap(container.getMap());
+			initEditView(container);
+			router.postEvent(new StartMapMutate(container.getMap(), MapMutationType.OriginalConfig, 4, true)); //TODO: Move some of this hard coding to ApplicationConfig
 		}
 	}
 
 	@Override
 	public void initialize(URL location, ResourceBundle resources) {
+		try {
+			config = ApplicationConfig.getInstance();
+		} catch (MissingConfigurationException e) {
+			logger.error("Couldn't read config file.");
+		}
+		
 		router.registerListener(this, new StatusMessage(null));
 		router.registerListener(this, new AlgorithmDone(null));
 		router.registerListener(this, new RequestRedraw());
 		router.registerListener(this, new RequestViewSwitch(null));
+		router.registerListener(this, new MapLoaded(null));
 		
 		startView = new StartViewController();
 		editView = new EditViewController();
@@ -97,6 +117,7 @@ public class InteractiveGUIController implements Initializable, Listener {
 	 */
 	
 	public void startNewFlow() {
+		router.postEvent(new Start(6));
 		initStartView();
 	}
 	
@@ -108,8 +129,6 @@ public class InteractiveGUIController implements Initializable, Listener {
 	}
 	
 	public void openMap() {
-		System.out.println("Open map");
-		
 		 FileChooser fileChooser = new FileChooser();
 		 fileChooser.setTitle("Open Map");
 		 fileChooser.getExtensionFilters().addAll(
@@ -117,7 +136,6 @@ public class InteractiveGUIController implements Initializable, Listener {
 		         new ExtensionFilter("All Files", "*.*"));
 		 File selectedFile = fileChooser.showOpenDialog(stage);
 		 if (selectedFile != null) {
-			 System.out.println("Selected file: " + selectedFile);
 			 try {
 				Map.LoadMap(selectedFile);
 			} catch (IOException e) {
@@ -130,7 +148,7 @@ public class InteractiveGUIController implements Initializable, Listener {
 	public void saveMap() {
 		DateTimeFormatter format =
 				DateTimeFormatter.ofPattern("yyyy-MM-dd_HH-mm-s-n");
-		String name = "renderedmap_" +
+		String name = "map_" +
 				LocalDateTime.now().format(format) + ".map";
 		
 		 FileChooser fileChooser = new FileChooser();
@@ -189,6 +207,11 @@ public class InteractiveGUIController implements Initializable, Listener {
 		System.out.println("Generate map");
 	}
 	
+	private void updateConfigBasedOnMap(Map map) {
+		config.setDimensionM(map.getColCount());
+		config.setDimensionN(map.getRowCount());
+	}
+	
 	/*
 	 * Initialisation methods
 	 */
@@ -211,21 +234,14 @@ public class InteractiveGUIController implements Initializable, Listener {
 		startView.setActive(true);
 		editView.setActive(false);
 
-		startView.getMapDisplay(0).setText("Label for map 0\nSome properties for map 0");
-		startView.getMapDisplay(1).setText("Label for map 1\nSome properties for map 1");
-		startView.getMapDisplay(2).setText("Label for map 2\nSome properties for map 2");
-		startView.getMapDisplay(3).setText("Label for map 3\nSome properties for map 3");
-		startView.getMapDisplay(4).setText("Label for map 4\nSome properties for map 4");
-		startView.getMapDisplay(5).setText("Label for map 5\nSome properties for map 5");
+		startView.initialise();
 	}
 
 	private void initEditView() {
 		initEditView(null);
 	}
 	
-	private void initEditView(Map map) {
-		mouseEventHandler = new EditViewEventHandler();
-		
+	private void initEditView(MapContainer map) {
 		mainPane.getChildren().clear();
 		AnchorPane.setTopAnchor(editView, 0.0);
 		AnchorPane.setRightAnchor(editView, 0.0);
@@ -241,29 +257,5 @@ public class InteractiveGUIController implements Initializable, Listener {
 
 		startView.setActive(false);
 		editView.setActive(true);
-		
-		// TODO: Delegate this to where it belongs: the edit view
-		editView.getMap(0).addEventFilter(MouseEvent.MOUSE_CLICKED, mouseEventHandler);
-		editView.getMap(0).setText("Label for map 0\nSome properties for map 0");
-		
-		editView.getMap(1).addEventFilter(MouseEvent.MOUSE_CLICKED, mouseEventHandler);
-		editView.getMap(1).setText("Label for map 1\nSome properties for map 1");
-		
-		editView.getMap(2).addEventFilter(MouseEvent.MOUSE_CLICKED, mouseEventHandler);
-		editView.getMap(2).setText("Label for map 2\nSome properties for map 2");
-		
-		editView.getMap(3).addEventFilter(MouseEvent.MOUSE_CLICKED, mouseEventHandler);
-		editView.getMap(3).setText("Label for map 3\nSome properties for map 3");
-	}
-	
-	/*
-	 * Event handlers
-	 */
-	private class EditViewEventHandler implements EventHandler<MouseEvent> {
-		@Override
-		public void handle(MouseEvent event) {
-			System.out.println("Map: " + event.getTarget());
-		}
-		
 	}
 }

@@ -34,6 +34,7 @@ import finder.patterns.micro.Enemy;
 import finder.patterns.micro.Nothing;
 import finder.patterns.micro.Room;
 import game.ApplicationConfig;
+import game.MapContainer;
 import game.TileTypes;
 import gui.ParameterGUIController;
 import javafx.application.Platform;
@@ -107,11 +108,10 @@ public class MapRenderer implements Listener {
 	@Override
 	public synchronized void ping(PCGEvent e) {
 		if (e instanceof AlgorithmDone) {
-			Map result = (Map) ((AlgorithmDone) e).getPayload();
+			MapContainer result = (MapContainer) ((AlgorithmDone) e).getPayload();
 			Platform.runLater(() -> {
 				// We might as well see if anyone is interested in our rendered map
-				Map map = (Map) e.getPayload();
-				sendRenderedMap((game.Map) map.get("map"));
+				sendRenderedMap((game.Map) result.getMap());
 			});
 		}
 	}

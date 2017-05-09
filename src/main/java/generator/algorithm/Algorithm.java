@@ -29,6 +29,7 @@ import finder.patterns.micro.Room;
 import finder.patterns.micro.Treasure;
 import game.Game;
 import game.Map;
+import game.MapContainer;
 import game.TileTypes;
 import generator.config.GeneratorConfig;
 import util.Point;
@@ -256,14 +257,14 @@ public class Algorithm extends Thread {
         }
         broadcastMapUpdate(map);
         PatternFinder finder = map.getPatternFinder();
-        HashMap<String, Object> result = new HashMap<String, Object>();
-        result.put("micropatterns", finder.findMicroPatterns());
-        result.put("mesopatterns", finder.findMesoPatterns());
-        result.put("macropatterns", finder.findMacroPatterns());
-        result.put("map", map);
-//        AlgorithmDone ev = new AlgorithmDone(result);
-//        ev.setID(id);
-//        EventRouter.getInstance().postEvent(ev);
+		MapContainer result = new MapContainer();
+		result.setMap(map);
+		result.setMicroPatterns(finder.findMicroPatterns());
+		result.setMesoPatterns(finder.findMesoPatterns());
+		result.setMacroPatterns(finder.findMacroPatterns());
+        AlgorithmDone ev = new AlgorithmDone(result);
+        ev.setID(id);
+        EventRouter.getInstance().postEvent(ev);
 	}
 	
 	/**
