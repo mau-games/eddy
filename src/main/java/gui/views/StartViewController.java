@@ -60,6 +60,30 @@ public class StartViewController extends GridPane implements Listener {
 		router.registerListener(this, new MapUpdate(null));
 		router.registerListener(this, new AlgorithmDone(null));
 	}
+	
+	/**
+	 * Initialises the controller for a new run.
+	 */
+	public void initialise() {
+		nextMap = 0;
+		getMapDisplay(0).draw(null);
+		getMapDisplay(0).setText("Waiting for map...");
+
+		getMapDisplay(1).draw(null);
+		getMapDisplay(1).setText("Waiting for map...");
+
+		getMapDisplay(2).draw(null);
+		getMapDisplay(2).setText("Waiting for map...");
+
+		getMapDisplay(3).draw(null);
+		getMapDisplay(3).setText("Waiting for map...");
+
+		getMapDisplay(4).draw(null);
+		getMapDisplay(4).setText("Waiting for map...");
+
+		getMapDisplay(5).draw(null);
+		getMapDisplay(5).setText("Waiting for map...");
+	}
 
 	@Override
 	public synchronized void ping(PCGEvent e) {

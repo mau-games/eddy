@@ -39,6 +39,7 @@ import util.eventrouting.events.AlgorithmDone;
 import util.eventrouting.events.MapLoaded;
 import util.eventrouting.events.RequestRedraw;
 import util.eventrouting.events.RequestViewSwitch;
+import util.eventrouting.events.Start;
 import util.eventrouting.events.StartMapMutate;
 import util.eventrouting.events.StatusMessage;
 
@@ -113,6 +114,7 @@ public class InteractiveGUIController implements Initializable, Listener {
 	 */
 	
 	public void startNewFlow() {
+		router.postEvent(new Start(6));
 		initStartView();
 	}
 	
@@ -229,12 +231,7 @@ public class InteractiveGUIController implements Initializable, Listener {
 		startView.setActive(true);
 		editView.setActive(false);
 
-		startView.getMapDisplay(0).setText("Label for map 0\nSome properties for map 0");
-		startView.getMapDisplay(1).setText("Label for map 1\nSome properties for map 1");
-		startView.getMapDisplay(2).setText("Label for map 2\nSome properties for map 2");
-		startView.getMapDisplay(3).setText("Label for map 3\nSome properties for map 3");
-		startView.getMapDisplay(4).setText("Label for map 4\nSome properties for map 4");
-		startView.getMapDisplay(5).setText("Label for map 5\nSome properties for map 5");
+		startView.initialise();
 	}
 
 	private void initEditView() {
