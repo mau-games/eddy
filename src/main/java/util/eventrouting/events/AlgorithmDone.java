@@ -1,8 +1,6 @@
 package util.eventrouting.events;
 
-import java.util.HashMap;
-
-import util.eventrouting.PCGEvent;
+import game.MapContainer;
 
 /**
  * This event is triggered when an algorithm run is completed.
@@ -11,7 +9,7 @@ import util.eventrouting.PCGEvent;
  */
 public class AlgorithmDone extends AlgorithmEvent {
 	
-	public AlgorithmDone(HashMap<String, Object> map) {
+	public AlgorithmDone(MapContainer map) {
 		setPayload(map);
 	}
 }

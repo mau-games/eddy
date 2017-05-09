@@ -30,6 +30,7 @@ import util.Point;
 import util.config.MissingConfigurationException;
 import util.eventrouting.EventRouter;
 import util.eventrouting.events.AlgorithmDone;
+import util.eventrouting.events.MapLoaded;
 import util.eventrouting.events.MapUpdate;
 import generator.config.GeneratorConfig;
 
@@ -638,15 +639,13 @@ public class Map {
 			mapString += c;
 		}
 		Map map = fromString(mapString);
-		System.out.println(map);
-		EventRouter.getInstance().postEvent(new MapUpdate(map));
 		PatternFinder finder = map.getPatternFinder();
-        HashMap<String, Object> result = new HashMap<String, Object>();
-        result.put("micropatterns", finder.findMicroPatterns());
-        result.put("mesopatterns", finder.findMesoPatterns());
-        result.put("macropatterns", finder.findMacroPatterns());
-        result.put("map", map);
-        EventRouter.getInstance().postEvent(new AlgorithmDone(result));
+		MapContainer result = new MapContainer();
+		result.setMap(map);
+		result.setMicroPatterns(finder.findMicroPatterns());
+		result.setMesoPatterns(finder.findMesoPatterns());
+		result.setMacroPatterns(finder.findMacroPatterns());
+        EventRouter.getInstance().postEvent(new MapLoaded(result));
 	}
 	
 	/**

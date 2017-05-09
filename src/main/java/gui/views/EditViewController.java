@@ -8,7 +8,11 @@ import java.util.UUID;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import finder.patterns.Pattern;
+import finder.patterns.micro.Corridor;
+import finder.patterns.micro.Room;
 import game.Map;
+import game.MapContainer;
 import game.TileTypes;
 import gui.controls.InteractiveMap;
 import gui.controls.LabeledCanvas;
@@ -19,6 +23,7 @@ import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Pos;
 import javafx.scene.Cursor;
+import javafx.scene.canvas.Canvas;
 import javafx.scene.control.ToggleButton;
 import javafx.scene.control.ToggleGroup;
 import javafx.scene.image.Image;
@@ -26,6 +31,7 @@ import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.StackPane;
+import javafx.scene.paint.Color;
 import util.eventrouting.EventRouter;
 import util.eventrouting.Listener;
 import util.eventrouting.PCGEvent;
@@ -41,9 +47,12 @@ public class EditViewController extends BorderPane implements Listener {
 	@FXML private List<LabeledCanvas> mapDisplays;
 	@FXML private StackPane mapPane;
 	@FXML private ToggleGroup brushes;
+	@FXML private ToggleButton patternButton;
 	private InteractiveMap mapView;
+	private Canvas patternCanvas;
 	
 	private boolean isActive = false;
+	private boolean isInfeasible = false;
 	private TileTypes brush = null;
 	private HashMap<Integer, Map> maps = new HashMap<Integer, Map>();
 	private int nextMap = 0;
@@ -80,7 +89,33 @@ public class EditViewController extends BorderPane implements Listener {
 		mapView.setMaxSize(400, 400);
 		mapPane.getChildren().add(mapView);
 		
-		mapView.addEventFilter(MouseEvent.MOUSE_CLICKED, new EditViewEventHandler());
+		patternCanvas = new Canvas(400, 400);
+		StackPane.setAlignment(patternCanvas, Pos.CENTER);
+		mapPane.getChildren().add(patternCanvas);
+		patternCanvas.setVisible(false);
+		patternCanvas.setMouseTransparent(true);
+		
+		EditViewEventHandler eh = new EditViewEventHandler();
+		mapView.addEventFilter(MouseEvent.MOUSE_CLICKED, eh);
+		getMap(0).addEventFilter(MouseEvent.MOUSE_CLICKED, eh);
+		getMap(1).addEventFilter(MouseEvent.MOUSE_CLICKED, eh);
+		getMap(2).addEventFilter(MouseEvent.MOUSE_CLICKED, eh);
+		getMap(3).addEventFilter(MouseEvent.MOUSE_CLICKED, eh);
+		resetMiniMaps();
+	}
+	
+	private void resetMiniMaps() {
+		getMap(0).draw(null);
+		getMap(0).setText("Waiting for map...");
+
+		getMap(1).draw(null);
+		getMap(1).setText("Waiting for map...");
+
+		getMap(2).draw(null);
+		getMap(2).setText("Waiting for map...");
+
+		getMap(3).draw(null);
+		getMap(3).setText("Waiting for map...");
 	}
 
 	@Override
@@ -99,8 +134,6 @@ public class EditViewController extends BorderPane implements Listener {
 					canvas.draw(renderer.renderMap(matrix));
 //					renderer.renderMap(mapDisplays.get(nextMap++).getGraphicsContext(), matrix);
 //					renderer.drawPatterns(ctx, matrix, activePatterns);
-//					renderer.drawGraph(ctx, matrix, currentMap.getPatternFinder().getPatternGraph());				renderer.drawMesoPatterns(ctx, matrix, currentMap.getPatternFinder().findMesoPatterns());
-//					renderer.drawMesoPatterns(ctx, matrix, currentMap.getPatternFinder().findMesoPatterns());
 				});
 				
 				nextMap++;
@@ -140,10 +173,16 @@ public class EditViewController extends BorderPane implements Listener {
 	/**
 	 * Updates this control's map.
 	 * 
-	 * @param map The new map.
+	 * @param container The new map.
 	 */
-	public void updateMap(Map map) {
-		mapView.updateMap(map);
+	public void updateMap(MapContainer container) {
+		nextMap = 0;
+		mapView.updateMap(container.getMap());
+		patternCanvas.getGraphicsContext2D().clearRect(0, 0, 400, 400);
+		renderer.drawPatterns(patternCanvas.getGraphicsContext2D(), container.getMap().toMatrix(), colourPatterns(container.getMap().getPatternFinder().findMicroPatterns()));
+		renderer.drawGraph(patternCanvas.getGraphicsContext2D(), container.getMap().toMatrix(), container.getMap().getPatternFinder().getPatternGraph());
+		renderer.drawMesoPatterns(patternCanvas.getGraphicsContext2D(), container.getMap().toMatrix(), container.getMap().getPatternFinder().findMesoPatterns());
+		resetMiniMaps();
 	}
 	
 	/**
@@ -191,6 +230,54 @@ public class EditViewController extends BorderPane implements Listener {
 				break;
 			}
 		}
+	}
+	
+	/**
+	 * Toggles the display of patterns on top of the map.
+	 */
+	public void togglePatterns() {
+		if (patternButton.isSelected()) {
+			patternCanvas.setVisible(true);
+		} else {
+			patternCanvas.setVisible(false);
+		}
+	}
+	
+	/**
+	 * Marks the map as being infeasible.
+	 * 
+	 * @param state
+	 */
+	public void mapIsInfeasible(boolean state) {
+		isInfeasible = state;
+		
+		if (isInfeasible) {
+			mapPane.setStyle("-fx-border-width: 2px; -fx-border-color: red");
+    	} else {
+			mapPane.setStyle("-fx-border-width: 2px; -fx-border-color: green");
+//    		mapPane.setStyle("-fx-border-width: 0px");
+		}
+	}
+	
+	/**
+	 * Composes a list of micro patterns with their respective colours for the
+	 * map renderer to use.
+	 * 
+	 * @param patterns The patterns to analyse.
+	 * @return A map that maps each pattern instance to a colour.
+	 */
+	private HashMap<Pattern, Color> colourPatterns(List<Pattern> patterns) {
+		HashMap<Pattern, Color> patternMap = new HashMap<Pattern, Color>();
+		
+		patterns.forEach((pattern) -> {
+			if (pattern instanceof Room) {
+				patternMap.put(pattern, Color.BLUE);
+			} else if (pattern instanceof Corridor) {
+				patternMap.put(pattern, Color.RED);
+			}
+		});
+		
+		return patternMap;
 	}
 	
 	/*

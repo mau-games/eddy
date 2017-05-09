@@ -25,13 +25,21 @@ public class ApplicationConfig {
 	public ConfigurationUtility getInternalConfig(){
 		return config;
 	}
-	
+
 	public int getDimensionM(){
 		return config.getInt("game.dimensions.m");
+	}
+
+	public void setDimensionM(int m){
+		config.updateValue("game.dimensions.m", m);
 	}
 	
 	public int getDimensionN(){
 		return config.getInt("game.dimensions.n");
+	}
+	
+	public void setDimensionN(int n){
+		config.updateValue("game.dimensions.n", n);
 	}
 	
 	public int getDoors(){

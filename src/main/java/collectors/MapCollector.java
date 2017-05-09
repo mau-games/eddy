@@ -13,6 +13,7 @@ import org.slf4j.LoggerFactory;
 
 import game.ApplicationConfig;
 import game.Map;
+import game.MapContainer;
 import util.Util;
 import util.config.ConfigurationUtility;
 import util.config.MissingConfigurationException;
@@ -72,14 +73,15 @@ public class MapCollector implements Listener {
 				
 				Map map;
 				if(e instanceof AlgorithmDone)
-					map = (Map)((HashMap<String, Object>)e.getPayload()).get("map");
+					map = ((MapContainer) e.getPayload()).getMap();
 				else		
 					map = (Map) e.getPayload();
 				DateTimeFormatter format =
 						DateTimeFormatter.ofPattern("yyyy-MM-dd_HH-mm-s-n");
 				String name = "map_" +
 						LocalDateTime.now().format(format) + ".txt";
-				name = "run" + runID + "_" + name;
+				name = "run_" + runID + "_" + name;
+
 				File file = new File(path + name);
 				logger.debug("Writing map to " + path + name);
 

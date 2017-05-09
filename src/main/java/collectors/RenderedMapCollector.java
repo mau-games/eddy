@@ -83,7 +83,7 @@ public class RenderedMapCollector implements Listener {
 				DateTimeFormatter.ofPattern("yyyy-MM-dd_HH-mm-s-n");
 		String name = "renderedmap_" +
 				LocalDateTime.now().format(format) + ".png";
-		name = "run" + runID + "_" + name;
+		name = "run_" + runID + "_" + name;
 		File file = new File(path + name);
 		logger.debug("Writing map to " + path + name);
 		BufferedImage image = SwingFXUtils.fromFXImage(map, null);

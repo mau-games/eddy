@@ -1,6 +1,6 @@
 package util.eventrouting.events;
 
-import game.Map;
+import game.MapContainer;
 import util.eventrouting.PCGEvent;
 /**
  * This event is used to request a view switch.
@@ -14,7 +14,7 @@ public class RequestViewSwitch extends PCGEvent{
 	 * 
 	 * @param payload The map to be worked on.
 	 */
-	public RequestViewSwitch(Map payload) {
+	public RequestViewSwitch(MapContainer payload) {
 		setPayload(payload);
 	}
 

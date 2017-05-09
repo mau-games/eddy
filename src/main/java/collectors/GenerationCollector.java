@@ -83,7 +83,7 @@ public class GenerationCollector implements Listener {
 				DateTimeFormatter.ofPattern("yyyy-MM-dd_HH-mm-s-n");
 		String name = "algorithm_result_" +
 				LocalDateTime.now().format(format) + ".txt";
-		name = "run" + runID + "_" + name;
+		name = "run_" + runID + "_" + name;
 		File file = new File(path + name);
 		logger.debug("Writing map to " + path + name);
 
