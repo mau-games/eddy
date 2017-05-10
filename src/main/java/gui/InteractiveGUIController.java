@@ -24,8 +24,8 @@ import javafx.embed.swing.SwingFXUtils;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.scene.control.Alert;
-import javafx.scene.control.Alert.AlertType;
+//import javafx.scene.control.Alert;
+//import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.MenuItem;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
@@ -198,15 +198,15 @@ public class InteractiveGUIController implements Initializable, Listener {
 	}
 	
 	public void openAboutApplication() {
-		Alert alert = new Alert(AlertType.INFORMATION);
-		alert.setTitle("About Eddy");
-		alert.setHeaderText(null);
-		alert.setContentText("Written by:\n"
-				+ "Alexander Baldwin <alexander.baldwin@mah.se>\n"
-				+ "JohanHolmberg <johan.holmberg@mah.se>\n\n"
-				+ "Thanks to José, Steve and Carl Mangus\n"
-				+ "for your input!");
-		alert.showAndWait();
+//		Alert alert = new Alert(AlertType.INFORMATION);
+//		alert.setTitle("About Eddy");
+//		alert.setHeaderText(null);
+//		alert.setContentText("Written by:\n"
+//				+ "Alexander Baldwin <alexander.baldwin@mah.se>\n"
+//				+ "JohanHolmberg <johan.holmberg@mah.se>\n\n"
+//				+ "Thanks to José, Steve and Carl Mangus\n"
+//				+ "for your input!");
+//		alert.showAndWait();
 	}
 	
 	public void generateNewMap() {

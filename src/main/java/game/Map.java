@@ -720,6 +720,8 @@ public class Map {
 			e.printStackTrace();
 		}
 		
+		Game.doors.clear();
+		
 		for (int i = 0; i < rowCount; i++) {
 			for (int j = 0; j < colCount; j++) {
 				type = TileTypes.toTileType(Integer.parseInt("" + rows[i].charAt(j), 16));
@@ -736,9 +738,12 @@ public class Map {
 					break;
 				case DOOR:
 					map.addDoor(new Point(i, j));
+					Game.doors.add(new Point(i,j));
 					break;
 				case DOORENTER:
 					map.setEntrance(new Point(i, j));
+					map.addDoor(new Point(i, j));
+					Game.doors.add(0, new Point(i,j));
 					break;
 				default:
 				}
