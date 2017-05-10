@@ -74,6 +74,7 @@ public class InteractiveGUIController implements Initializable, Listener {
 				initStartView();
 			} else {
 				MapContainer container = (MapContainer) e.getPayload();
+				router.postEvent(new Stop());
 				initEditView(container);
 			}
 		} else if (e instanceof MapLoaded) {
