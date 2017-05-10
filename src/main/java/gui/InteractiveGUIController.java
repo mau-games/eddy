@@ -15,7 +15,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import game.ApplicationConfig;
-import game.Game.MapMutationType;
 import game.Map;
 import game.MapContainer;
 import gui.views.EditViewController;
@@ -25,8 +24,8 @@ import javafx.embed.swing.SwingFXUtils;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-//import javafx.scene.control.Alert;
-//import javafx.scene.control.Alert.AlertType;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.MenuItem;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
@@ -42,7 +41,6 @@ import util.eventrouting.events.MapLoaded;
 import util.eventrouting.events.RequestRedraw;
 import util.eventrouting.events.RequestViewSwitch;
 import util.eventrouting.events.Start;
-import util.eventrouting.events.StartMapMutate;
 import util.eventrouting.events.StatusMessage;
 import util.eventrouting.events.Stop;
 
@@ -199,15 +197,15 @@ public class InteractiveGUIController implements Initializable, Listener {
 	}
 	
 	public void openAboutApplication() {
-//		Alert alert = new Alert(AlertType.INFORMATION);
-//		alert.setTitle("About Eddy");
-//		alert.setHeaderText(null);
-//		alert.setContentText("Written by:\n"
-//				+ "Alexander Baldwin <alexander.baldwin@mah.se>\n"
-//				+ "JohanHolmberg <johan.holmberg@mah.se>\n\n"
-//				+ "Thanks to José, Steve and Carl Mangus\n"
-//				+ "for your input!");
-//		alert.showAndWait();
+		Alert alert = new Alert(AlertType.INFORMATION);
+		alert.setTitle("About Eddy");
+		alert.setHeaderText(null);
+		alert.setContentText("Written by:\n"
+				+ "Alexander Baldwin <alexander.baldwin@mah.se>\n"
+				+ "JohanHolmberg <johan.holmberg@mah.se>\n\n"
+				+ "Thanks to José, Steve and Carl Mangus\n"
+				+ "for your input!");
+		alert.showAndWait();
 	}
 	
 	public void generateNewMap() {
@@ -223,9 +221,10 @@ public class InteractiveGUIController implements Initializable, Listener {
 	 * Initialisation methods
 	 */
 	
+	/**
+	 * Initialises the start view.
+	 */
 	private void initStartView() {
-		// TODO: Start off a new run of the algorithm
-		
 		mainPane.getChildren().clear();
 		
 		AnchorPane.setTopAnchor(startView, 0.0);
@@ -243,11 +242,10 @@ public class InteractiveGUIController implements Initializable, Listener {
 
 		startView.initialise();
 	}
-
-	private void initEditView() {
-		initEditView(null);
-	}
 	
+	/**
+	 * Initialises the edit view and starts a new generation run.
+	 */
 	private void initEditView(MapContainer map) {
 		mainPane.getChildren().clear();
 		AnchorPane.setTopAnchor(editView, 0.0);
