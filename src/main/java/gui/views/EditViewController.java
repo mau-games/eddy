@@ -11,6 +11,7 @@ import org.slf4j.LoggerFactory;
 import finder.patterns.Pattern;
 import finder.patterns.micro.Corridor;
 import finder.patterns.micro.Room;
+import game.ApplicationConfig;
 import game.Map;
 import game.TileTypes;
 import game.Game.MapMutationType;
@@ -21,18 +22,23 @@ import javafx.application.Platform;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
+import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Cursor;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.control.Label;
 import javafx.scene.control.ToggleButton;
 import javafx.scene.control.ToggleGroup;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.GridPane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
+import util.config.ConfigurationUtility;
+import util.config.MissingConfigurationException;
 import util.eventrouting.EventRouter;
 import util.eventrouting.Listener;
 import util.eventrouting.PCGEvent;
@@ -48,6 +54,7 @@ public class EditViewController extends BorderPane implements Listener {
 	
 	@FXML private List<LabeledCanvas> mapDisplays;
 	@FXML private StackPane mapPane;
+	@FXML private GridPane legend;
 	@FXML private ToggleGroup brushes;
 	@FXML private ToggleButton patternButton;
 	private InteractiveMap mapView;
@@ -63,6 +70,7 @@ public class EditViewController extends BorderPane implements Listener {
 	private MapRenderer renderer = MapRenderer.getInstance();
 	private static EventRouter router = EventRouter.getInstance();
 	private final static Logger logger = LoggerFactory.getLogger(EditViewController.class);
+	private ApplicationConfig config;
 
 	/**
 	 * Creates an instance of this class.
@@ -76,8 +84,11 @@ public class EditViewController extends BorderPane implements Listener {
 
 		try {
 			fxmlLoader.load();
+			config = ApplicationConfig.getInstance();
 		} catch (IOException exception) {
 			throw new RuntimeException(exception);
+		} catch (MissingConfigurationException e) {
+			logger.error("Couldn't read config file.");
 		}
 		
 		router.registerListener(this, new MapUpdate(null));
@@ -91,6 +102,7 @@ public class EditViewController extends BorderPane implements Listener {
 	private void init() {
 		initMapView();
 		initMiniMaps();
+		initLegend();
 	}
 
 	/**
@@ -162,6 +174,39 @@ public class EditViewController extends BorderPane implements Listener {
 			replaceMap(3);
 		});
 		resetMiniMaps();
+	}
+	
+	/**
+	 * Initialises the legend view.
+	 */
+	private void initLegend() {
+		ConfigurationUtility c = config.getInternalConfig();
+		
+		legend.setVgap(10);
+		legend.setHgap(10);
+		legend.setPadding(new Insets(10, 10, 10, 10));
+		
+		Label title = new Label("Pattern legend");
+		title.setStyle("-fx-font-weight: bold");
+		legend.add(title, 0, 0, 2, 1);
+		
+		legend.add(new ImageView(new Image(c.getString("map.tiles.doorenter"), 40, 40, false, false)), 0, 1);
+		legend.add(new Label("Entrance door"), 1, 1);
+		
+		legend.add(new ImageView(new Image(c.getString("map.tiles.door"), 40, 40, false, false)), 0, 2);
+		legend.add(new Label("Door"), 1, 2);
+		
+		legend.add(new ImageView(new Image(c.getString("map.mesopatterns.ambush"), 40, 40, false, false)), 0, 3);
+		legend.add(new Label("Ambush"), 1, 3);
+		
+		legend.add(new ImageView(new Image(c.getString("map.mesopatterns.guard_room"), 40, 40, false, false)), 0, 4);
+		legend.add(new Label("Guard room"), 1, 4);
+		
+		legend.add(new ImageView(new Image(c.getString("map.mesopatterns.guarded_treasure"), 40, 40, false, false)), 0, 5);
+		legend.add(new Label("Guarded treasure"), 1, 5);
+		
+		legend.add(new ImageView(new Image(c.getString("map.mesopatterns.treasure_room"), 40, 40, false, false)), 0, 6);
+		legend.add(new Label("Treasure room"), 1, 6);
 	}
 	
 	/**
