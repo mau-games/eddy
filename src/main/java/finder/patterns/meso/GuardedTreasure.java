@@ -116,6 +116,10 @@ public class GuardedTreasure extends CompositePattern {
 						}
 						GuardedTreasure gt = new GuardedTreasure(map.getConfig(),enemyCount);
 						gt.getPatterns().add(r);
+						for(TreasureRoom tr : treasureRooms){
+							if(tr.getPatterns().contains(r))
+								gt.getPatterns().add(tr);
+						}
 						gt.getPatterns().add(de);
 						gt.getPatterns().addAll(foundGuards);
 						guardedTreasures.add(gt);

@@ -28,6 +28,7 @@ import finder.patterns.meso.Ambush;
 import finder.patterns.meso.ChokePoint;
 import finder.patterns.meso.DeadEnd;
 import finder.patterns.meso.GuardRoom;
+import finder.patterns.meso.GuardedTreasure;
 import finder.patterns.meso.TreasureRoom;
 import finder.patterns.micro.Connector;
 import finder.patterns.micro.Corridor;
@@ -233,9 +234,9 @@ public class MapRenderer implements Listener {
 		patternOpacity = config.getPatternOpacity();
 				
 		for (Entry<Pattern, Color> e : patterns.entrySet()) {
-			Platform.runLater(() -> {
+			//Platform.runLater(() -> {
 				drawPattern(ctx, e.getKey(), e.getValue(), pWidth);
-			});
+			//});
 		}
 	}
 	
@@ -319,11 +320,11 @@ public class MapRenderer implements Listener {
 		
 		for(CompositePattern p : mesopatterns){
 			if(p instanceof ChokePoint){
-				Point centreA = getPatternCentre((SpacialPattern)p.getPatterns().get(0),pWidth);
-				Point centreB = getPatternCentre((SpacialPattern)p.getPatterns().get(1),pWidth);
-				double xMid = ((double)centreA.getX() + (double)centreB.getX()) / 2.0;
-				double yMid = ((double)centreA.getY() + (double)centreB.getY()) / 2.0;
-				drawCircle(ctx,new Point((int)xMid,(int)yMid),Color.MAGENTA,15);
+//				Point centreA = getPatternCentre((SpacialPattern)p.getPatterns().get(0),pWidth);
+//				Point centreB = getPatternCentre((SpacialPattern)p.getPatterns().get(1),pWidth);
+//				double xMid = ((double)centreA.getX() + (double)centreB.getX()) / 2.0;
+//				double yMid = ((double)centreA.getY() + (double)centreB.getY()) / 2.0;
+//				drawCircle(ctx,new Point((int)xMid,(int)yMid),Color.MAGENTA,15);
 			}
 			else if (p instanceof DeadEnd){
 				for(Pattern p2 : p.getPatterns()){
@@ -331,13 +332,34 @@ public class MapRenderer implements Listener {
 				}
 			}
 			else if (p instanceof TreasureRoom){
-				drawArbitraryRectangle(ctx,getPatternCentre((SpacialPattern)p.getPatterns().get(0),pWidth),pWidth*1.5,pWidth, Color.ORANGE);
+				boolean guarded = false;
+				GuardedTreasure gt = null;
+				for(CompositePattern p2 : mesopatterns){
+					if(p2 instanceof GuardedTreasure && p2.getPatterns().contains(p)){
+						gt = (GuardedTreasure)p2;
+						guarded = true;
+						break;
+					}
+				}
+				Point center = getPatternCentre((SpacialPattern)p.getPatterns().get(0),pWidth);
+				Image image = getMesoPatternImage(guarded ? gt : p);
+				double aspect = (image.getHeight()/image.getWidth());
+				ctx.drawImage(image, center.getX() - pWidth, center.getY() - aspect*pWidth, pWidth*2, aspect*pWidth*2);
+				//drawArbitraryRectangle(ctx,getPatternCentre((SpacialPattern)p.getPatterns().get(0),pWidth),pWidth*1.5,pWidth, Color.ORANGE);
 			}
 			else if (p instanceof GuardRoom){
-				drawArbitraryRectangle(ctx,getPatternCentre((SpacialPattern)p.getPatterns().get(0),pWidth),pWidth,pWidth*1.5, Color.BROWN);
+				Point center = getPatternCentre((SpacialPattern)p.getPatterns().get(0),pWidth);
+				Image image = getMesoPatternImage(p);
+				double aspect = (image.getHeight()/image.getWidth());
+				ctx.drawImage(image, center.getX() - pWidth, center.getY() - aspect*pWidth, pWidth*2, aspect*pWidth*2);
+				//drawArbitraryRectangle(ctx,getPatternCentre((SpacialPattern)p.getPatterns().get(0),pWidth),pWidth,pWidth*1.5, Color.BROWN);
 			}
 			else if (p instanceof Ambush){
-				drawArbitraryRectangle(ctx,getPatternCentre((SpacialPattern)p.getPatterns().get(0),pWidth),pWidth*0.5,pWidth*2.0, Color.DARKCYAN);
+				Point center = getPatternCentre((SpacialPattern)p.getPatterns().get(0),pWidth);
+				Image image = getMesoPatternImage(p);
+				double aspect = (image.getHeight()/image.getWidth());
+				ctx.drawImage(image, center.getX() - pWidth, center.getY() - aspect*pWidth, pWidth*2, aspect*pWidth*2);
+				//drawArbitraryRectangle(ctx,getPatternCentre((SpacialPattern)p.getPatterns().get(0),pWidth),pWidth*0.5,pWidth*2.0, Color.DARKCYAN);
 			}
 		}
 	}
@@ -351,14 +373,14 @@ public class MapRenderer implements Listener {
 	
 	private double getNodeRadius(SpacialPattern p, double pWidth){
 		if(p instanceof Room)
-			return (pWidth * 1.0);
+			return (pWidth * 0.25);
 		if(p instanceof Corridor)
 			return (pWidth * 0.25);
 		if(p instanceof Connector)
 			return (pWidth * 0.25);
 		if(p instanceof Nothing)
 			return (pWidth * 0.25);
-		return (pWidth * 2.0);
+		return (pWidth * 0.25);
 	}
 	
 	private Color getNodeColor(SpacialPattern p){
@@ -496,6 +518,20 @@ public class MapRenderer implements Listener {
 			tiles.set(pixel, image);
 		}
 
+		return image;
+	}
+	
+	private Image getMesoPatternImage(Pattern p){
+		Image image = null;
+		if(p instanceof TreasureRoom){
+			image = new Image("/graphics/mesopatterns/treasure_room.png");
+		} else if (p instanceof GuardRoom){
+			image = new Image("/graphics/mesopatterns/guard_room.png");
+		} else if (p instanceof GuardedTreasure){
+			image = new Image("/graphics/mesopatterns/guarded_treasure.png");
+		} else if (p instanceof Ambush){
+			image = new Image("/graphics/mesopatterns/ambush.png");
+		}
 		return image;
 	}
 	
