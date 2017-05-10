@@ -25,8 +25,8 @@ import javafx.embed.swing.SwingFXUtils;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.scene.control.Alert;
-import javafx.scene.control.Alert.AlertType;
+//import javafx.scene.control.Alert;
+//import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.MenuItem;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
@@ -78,13 +78,13 @@ public class InteractiveGUIController implements Initializable, Listener {
 				MapContainer container = (MapContainer) e.getPayload();
 				initEditView(container);
 				router.postEvent(new Stop());
-				router.postEvent(new StartMapMutate(container.getMap(), MapMutationType.Preserving, 4, true)); //TODO: Move some of this hard coding to ApplicationConfig
+				router.postEvent(new StartMapMutate(container.getMap(), MapMutationType.ComputedConfig, 4, true)); //TODO: Move some of this hard coding to ApplicationConfig
 			}
 		} else if (e instanceof MapLoaded) {
 			MapContainer container = (MapContainer) e.getPayload();
 			updateConfigBasedOnMap(container.getMap());
 			initEditView(container);
-			router.postEvent(new StartMapMutate(container.getMap(), MapMutationType.Preserving, 4, true)); //TODO: Move some of this hard coding to ApplicationConfig
+			router.postEvent(new StartMapMutate(container.getMap(), MapMutationType.ComputedConfig, 4, true)); //TODO: Move some of this hard coding to ApplicationConfig
 		}
 	}
 
@@ -202,15 +202,15 @@ public class InteractiveGUIController implements Initializable, Listener {
 	}
 	
 	public void openAboutApplication() {
-		Alert alert = new Alert(AlertType.INFORMATION);
-		alert.setTitle("About Eddy");
-		alert.setHeaderText(null);
-		alert.setContentText("Written by:\n"
-				+ "Alexander Baldwin <alexander.baldwin@mah.se>\n"
-				+ "JohanHolmberg <johan.holmberg@mah.se>\n\n"
-				+ "Thanks to José, Steve and Carl Mangus\n"
-				+ "for your input!");
-		alert.showAndWait();
+//		Alert alert = new Alert(AlertType.INFORMATION);
+//		alert.setTitle("About Eddy");
+//		alert.setHeaderText(null);
+//		alert.setContentText("Written by:\n"
+//				+ "Alexander Baldwin <alexander.baldwin@mah.se>\n"
+//				+ "JohanHolmberg <johan.holmberg@mah.se>\n\n"
+//				+ "Thanks to José, Steve and Carl Mangus\n"
+//				+ "for your input!");
+//		alert.showAndWait();
 	}
 	
 	public void generateNewMap() {

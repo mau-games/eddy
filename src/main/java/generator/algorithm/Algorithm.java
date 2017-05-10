@@ -85,8 +85,8 @@ public class Algorithm extends Thread {
 	 * @param map
 	 */
 	public Algorithm(Map map){
-		this.config = new GeneratorConfig(map.getConfig());
-		
+		this.config = map.getCalculatedConfig();
+		map.setConfig(this.config);
 		id = UUID.randomUUID();
 		populationSize = config.getPopulationSize();
 		mutationProbability = (float)config.getMutationProbability();
@@ -138,7 +138,7 @@ public class Algorithm extends Thread {
 		int j = 0;
 		while((i + j) < populationSize){
 			Individual ind = new Individual(map, mutationProbability);
-			ind.mutateAll(0.65);
+			ind.mutateAll(0.5);
 			
 			if(checkIndividual(ind)){
 				if(i < feasibleAmount){

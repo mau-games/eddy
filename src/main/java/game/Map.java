@@ -624,7 +624,7 @@ public class Map {
     	}
 		
 		int avgCorridorLength = (int)Math.ceil(rawCorridorArea/corridors.size());
-		newConfig.setCorridorTargetLength(avgCorridorLength);
+		newConfig.setCorridorTargetLength(Math.max(3,avgCorridorLength));
 		
 		//ROOM AND CORRIDOR RATIOS
 		
@@ -650,11 +650,19 @@ public class Map {
 		}
 		//CHAMBER SQUARENESS AND SIZE
 		
-		if(rooms.size() > 0){
-			double avgSquareness = totalSquareness / rooms.size();
-			newConfig.setChamberTargetSquareness(avgSquareness);
-			newConfig.setChamberAreaCorrectness(1.0 - avgSquareness);
-		}
+//		if(rooms.size() > 0){
+//			double avgSquareness = totalSquareness / rooms.size();
+//			newConfig.setChamberTargetSquareness(avgSquareness);
+//			newConfig.setChamberAreaCorrectness(1.0 - avgSquareness);
+//		}
+		
+		//ENEMIES
+		double enemyProportion = (double)enemies.size()/passableTiles;
+		newConfig.setEnemyQuantityRange(enemyProportion, enemyProportion);
+
+		//TREASURE
+		double treasureProportion = (double)treasures.size()/passableTiles;
+		newConfig.setTreasureQuantityRange(treasureProportion, treasureProportion);
 
 		return newConfig;
 	}
