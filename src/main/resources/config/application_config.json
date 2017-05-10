@@ -15,6 +15,12 @@
             "guarded_treasure": "graphics/mesopatterns/guarded_treasure.png",
             "treasure_room": "graphics/mesopatterns/treasure_room.png"
         },
+        "examples": {
+            "chamber": "graphics/examples/chamber.png",
+            "connector": "graphics/examples/connector.png",
+            "corridor": "graphics/examples/corridor.png",
+            "dead_end": "graphics/examples/dead_end.png"
+        },
         "render": {
             "height": 1000,
             "width": 1000
