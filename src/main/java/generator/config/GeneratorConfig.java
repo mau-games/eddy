@@ -255,6 +255,11 @@ public class GeneratorConfig {
 
 		return range;
 	}
+	
+	public void setEnemyQuantityRange(double min, double max){
+		config.updateValue("patterns.enemy.enemies_quantity.min", min);
+		config.updateValue("patterns.enemy.enemies_quantity.max", max);
+	}
 
 	/**
 	 * Returns the treasure security variance.
@@ -278,6 +283,12 @@ public class GeneratorConfig {
 
 		return range;
 	}
+	
+	public void setTreasureQuantityRange(double min, double max){
+		config.updateValue("patterns.treasure.treasures_quantity.min", min);
+		config.updateValue("patterns.treasure.treasures_quantity.max", max);
+	}
+	
 
 	/**
 	 * Returns the target treasure safety variance.

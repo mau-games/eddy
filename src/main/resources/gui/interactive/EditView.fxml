@@ -82,7 +82,14 @@
    <center>
       <BorderPane>
          <center>
-            <StackPane alignment="CENTER" fx:id="mapPane" />
+           <BorderPane>
+             <center>
+               <StackPane alignment="CENTER" fx:id="mapPane" />
+             </center>
+             <right>
+               <Label text="test" />
+             </right>
+           </BorderPane>
          </center>
          <bottom>
             <VBox>
