@@ -9,6 +9,12 @@
             "doorenter": "graphics/tiles/entrydoor.png",
             "door": "graphics/tiles/door.png"
         },
+        "mesopatterns": {
+            "ambush": "graphics/mesopatterns/ambush.png",
+            "guard_room": "graphics/mesopatterns/guard_room.png",
+            "guarded_treasure": "graphics/mesopatterns/guarded_treasure.png",
+            "treasure_room": "graphics/mesopatterns/treasure_room.png"
+        },
         "render": {
             "height": 1000,
             "width": 1000
