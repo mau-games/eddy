@@ -105,7 +105,7 @@ public class Game implements Listener{
     private void mutateFromMap(Map map, int mutations, MapMutationType mutationType, boolean randomise){
     	sizeM = map.getColCount();
     	sizeN = map.getRowCount();
-    	stop();
+
     	for(int i = 0; i < mutations; i++){
     		switch(mutationType){
 			case ComputedConfig:

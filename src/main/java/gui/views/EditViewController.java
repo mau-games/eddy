@@ -153,13 +153,13 @@ public class EditViewController extends BorderPane implements Listener {
 			replaceMap(0);
 		});
 		getMap(1).addEventFilter(MouseEvent.MOUSE_CLICKED, (e) -> {
-			replaceMap(0);
+			replaceMap(1);
 		});
 		getMap(2).addEventFilter(MouseEvent.MOUSE_CLICKED, (e) -> {
-			replaceMap(0);
+			replaceMap(2);
 		});
 		getMap(3).addEventFilter(MouseEvent.MOUSE_CLICKED, (e) -> {
-			replaceMap(0);
+			replaceMap(3);
 		});
 		resetMiniMaps();
 	}
@@ -184,22 +184,24 @@ public class EditViewController extends BorderPane implements Listener {
 	}
 
 	@Override
-	public synchronized void ping(PCGEvent e) {
+	public void ping(PCGEvent e) {
 		if (e instanceof MapUpdate) {
 			if (isActive) {
 				Map map = (Map) ((MapUpdate) e).getPayload();
 				UUID uuid = ((MapUpdate) e).getID();
-				LabeledCanvas canvas = mapDisplays.get(nextMap);
-//				canvas.setText("Got map:\n" + uuid);
-				canvas.setText("");
-				maps.put(nextMap, map);
+				LabeledCanvas canvas;
+				synchronized (mapDisplays) {
+					canvas = mapDisplays.get(nextMap);
+//					canvas.setText("Got map:\n" + uuid);
+					canvas.setText("");
+					maps.put(nextMap, map);
+					nextMap++;
+				}
 				
 				Platform.runLater(() -> {
 					int[][] matrix = map.toMatrix();
 					canvas.draw(renderer.renderMap(matrix));
 				});
-				
-				nextMap++;
 			}
 		}
 	}
@@ -334,7 +336,8 @@ public class EditViewController extends BorderPane implements Listener {
 	 */
 	public void generateNewMaps(Map map) {
 		// TODO: If we want more diversity in the generated maps, then send more StartMapMutate events.
-		router.postEvent(new StartMapMutate(map, MapMutationType.Preserving, 4, true)); //TODO: Move some of this hard coding to ApplicationConfig
+		router.postEvent(new StartMapMutate(map, MapMutationType.Preserving, 2, true)); //TODO: Move some of this hard coding to ApplicationConfig
+		router.postEvent(new StartMapMutate(map, MapMutationType.ComputedConfig, 2, true)); //TODO: Move some of this hard coding to ApplicationConfig
 	}
 	
 	/**
