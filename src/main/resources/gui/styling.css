@@ -38,6 +38,14 @@
 	-fx-pref-width: 140;
 }
 
+#generatedMapsLabel {
+	-fx-padding: 10 10 10 10;
+}
+
+#generatedMapsLabel .label {
+	-fx-font-weight: bold;
+}
+
 .labeled-canvas .label {
 	-fx-text-alignment: center;
 }
