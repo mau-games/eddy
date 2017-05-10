@@ -20,8 +20,10 @@
             <MenuItem mnemonicParsing="false" fx:id="saveItem" onAction="#saveMap" text="Save" />
             <MenuItem mnemonicParsing="false" fx:id="saveAsItem" onAction="#saveMap" text="Save As…" />
             <MenuItem mnemonicParsing="false" fx:id="exportItem" onAction="#exportImage" text="Export image" />
+<!--
             <SeparatorMenuItem mnemonicParsing="false" />
             <MenuItem mnemonicParsing="false" fx:id="prefsItem" onAction="#openPreferences" text="Preferences…" />
+-->
             <SeparatorMenuItem mnemonicParsing="false" />
             <MenuItem mnemonicParsing="false" fx:id="exitItem" onAction="#exitApplication" text="Quit" />
           </items>
