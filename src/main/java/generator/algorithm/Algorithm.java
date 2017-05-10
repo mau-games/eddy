@@ -76,7 +76,8 @@ public class Algorithm extends Thread {
 		roomTarget = config.getRoomProportion();
 		corridorTarget = config.getCorridorProportion();
 
-		System.out.println("Starting run #" + id);
+		// Uncomment this for silly debugging
+//		System.out.println("Starting run #" + id);
 		initPopulations();
 	}
 	
@@ -95,7 +96,8 @@ public class Algorithm extends Thread {
 		roomTarget = config.getRoomProportion();
 		corridorTarget = config.getCorridorProportion();
 
-		System.out.println("Starting run #" + id);
+		// Uncomment this for silly debugging
+//		System.out.println("Starting run #" + id);
 		initPopulations(map);
 	}
 	
