@@ -86,11 +86,11 @@ public class EditViewController extends BorderPane implements Listener {
 	private void init() {
 		mapView = new InteractiveMap();
 		StackPane.setAlignment(mapView, Pos.CENTER);
-		mapView.setMinSize(400, 400);
-		mapView.setMaxSize(400, 400);
+		mapView.setMinSize(420, 420);
+		mapView.setMaxSize(420, 420);
 		mapPane.getChildren().add(mapView);
 		
-		patternCanvas = new Canvas(400, 400);
+		patternCanvas = new Canvas(420, 420);
 		StackPane.setAlignment(patternCanvas, Pos.CENTER);
 		mapPane.getChildren().add(patternCanvas);
 		patternCanvas.setVisible(false);
@@ -330,7 +330,7 @@ public class EditViewController extends BorderPane implements Listener {
 	 * @param container
 	 */
 	private void redrawPatterns(Map map) {
-		patternCanvas.getGraphicsContext2D().clearRect(0, 0, 400, 400);
+		patternCanvas.getGraphicsContext2D().clearRect(0, 0, 420, 420);
 		renderer.drawPatterns(patternCanvas.getGraphicsContext2D(), map.toMatrix(), colourPatterns(map.getPatternFinder().findMicroPatterns()));
 		renderer.drawGraph(patternCanvas.getGraphicsContext2D(), map.toMatrix(), map.getPatternFinder().getPatternGraph());
 		renderer.drawMesoPatterns(patternCanvas.getGraphicsContext2D(), map.toMatrix(), map.getPatternFinder().getMesoPatterns());
