@@ -77,14 +77,11 @@ public class InteractiveGUIController implements Initializable, Listener {
 			} else {
 				MapContainer container = (MapContainer) e.getPayload();
 				initEditView(container);
-				router.postEvent(new Stop());
-				router.postEvent(new StartMapMutate(container.getMap(), MapMutationType.Preserving, 4, true)); //TODO: Move some of this hard coding to ApplicationConfig
 			}
 		} else if (e instanceof MapLoaded) {
 			MapContainer container = (MapContainer) e.getPayload();
 			updateConfigBasedOnMap(container.getMap());
 			initEditView(container);
-			router.postEvent(new StartMapMutate(container.getMap(), MapMutationType.Preserving, 4, true)); //TODO: Move some of this hard coding to ApplicationConfig
 		}
 	}
 
@@ -260,6 +257,7 @@ public class InteractiveGUIController implements Initializable, Listener {
 		mainPane.getChildren().add(editView);
 		
 		editView.updateMap(map.getMap());
+		editView.generateNewMaps();
 		
 		saveItem.setDisable(false);
 		saveAsItem.setDisable(false);
