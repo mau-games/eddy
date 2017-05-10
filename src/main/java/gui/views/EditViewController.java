@@ -24,6 +24,7 @@ import javafx.fxml.FXMLLoader;
 import javafx.geometry.Pos;
 import javafx.scene.Cursor;
 import javafx.scene.canvas.Canvas;
+import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.ToggleButton;
 import javafx.scene.control.ToggleGroup;
 import javafx.scene.image.Image;
@@ -51,6 +52,7 @@ public class EditViewController extends BorderPane implements Listener {
 	@FXML private ToggleButton patternButton;
 	private InteractiveMap mapView;
 	private Canvas patternCanvas;
+	private Canvas warningCanvas;
 	
 	private boolean isActive = false;
 	private boolean isFeasible = true;
@@ -83,19 +85,69 @@ public class EditViewController extends BorderPane implements Listener {
 		init();
 	}
 	
+	/**
+	 * Initialises the edit view.
+	 */
 	private void init() {
+		initMapView();
+		initMiniMaps();
+	}
+
+	/**
+	 * Initialises the map view and creates canvases for pattern drawing and
+	 * infeasibility notifications.
+	 */
+	private void initMapView() {
+		int width = 420;
+		int height = 420;
+		
 		mapView = new InteractiveMap();
 		StackPane.setAlignment(mapView, Pos.CENTER);
-		mapView.setMinSize(420, 420);
-		mapView.setMaxSize(420, 420);
+		mapView.setMinSize(width, height);
+		mapView.setMaxSize(width, height);
 		mapPane.getChildren().add(mapView);
 		
-		patternCanvas = new Canvas(420, 420);
+		patternCanvas = new Canvas(width, height);
 		StackPane.setAlignment(patternCanvas, Pos.CENTER);
 		mapPane.getChildren().add(patternCanvas);
 		patternCanvas.setVisible(false);
 		patternCanvas.setMouseTransparent(true);
 		
+		warningCanvas = new Canvas(width, height);
+		StackPane.setAlignment(warningCanvas, Pos.CENTER);
+		mapPane.getChildren().add(warningCanvas);
+		warningCanvas.setVisible(false);
+		warningCanvas.setMouseTransparent(true);
+		
+		GraphicsContext gc = warningCanvas.getGraphicsContext2D();
+		gc.setStroke(Color.rgb(255, 0, 0, 1.0));
+		gc.setLineWidth(3);
+		gc.strokeRect(1, 1, width - 1, height - 1);
+		gc.setLineWidth(1);
+		gc.setStroke(Color.rgb(255, 0, 0, 0.9));
+		gc.strokeRect(3, 3, width - 6, height - 6);
+		gc.setStroke(Color.rgb(255, 0, 0, 0.8));
+		gc.strokeRect(4, 4, width - 8, height - 8);
+		gc.setStroke(Color.rgb(255, 0, 0, 0.7));
+		gc.strokeRect(5, 5, width - 10, height - 10);
+		gc.setStroke(Color.rgb(255, 0, 0, 0.6));
+		gc.strokeRect(6, 6, width - 12, height - 12);
+		gc.setStroke(Color.rgb(255, 0, 0, 0.5));
+		gc.strokeRect(7, 7, width - 14, height - 14);
+		gc.setStroke(Color.rgb(255, 0, 0, 0.4));
+		gc.strokeRect(8, 8, width - 16, height - 16);
+		gc.setStroke(Color.rgb(255, 0, 0, 0.3));
+		gc.strokeRect(9, 9, width - 18, height - 18);
+		gc.setStroke(Color.rgb(255, 0, 0, 0.2));
+		gc.strokeRect(10, 10, width - 20, height - 20);
+		gc.setStroke(Color.rgb(255, 0, 0, 0.1));
+		gc.strokeRect(11, 11, width - 22, height - 22);
+	}
+
+	/**
+	 * Intialises the mini map view.
+	 */
+	private void initMiniMaps() {
 		mapView.addEventFilter(MouseEvent.MOUSE_CLICKED, new EditViewEventHandler());
 		getMap(0).addEventFilter(MouseEvent.MOUSE_CLICKED, (e) -> {
 			replaceMap(0);
@@ -112,6 +164,9 @@ public class EditViewController extends BorderPane implements Listener {
 		resetMiniMaps();
 	}
 	
+	/**
+	 * Resets the mini maps for a new run of map generation.
+	 */
 	private void resetMiniMaps() {
 		nextMap = 0;
 		
@@ -184,14 +239,9 @@ public class EditViewController extends BorderPane implements Listener {
 	 * @param map The new map.
 	 */
 	public void updateMap(Map map) {
-		if (map.isFeasible()) {
-			mapIsFeasible(true);
-		} else {
-			mapIsFeasible(false);
-		}
-		
 		mapView.updateMap(map);
 		redrawPatterns(map);
+		mapIsFeasible(map.isFeasible());
 		resetMiniMaps();
 	}
 	
@@ -274,11 +324,7 @@ public class EditViewController extends BorderPane implements Listener {
 	public void mapIsFeasible(boolean state) {
 		isFeasible = state;
 		
-		if (!isFeasible) {
-			mapView.setStyle("-fx-border-width: 2px; -fx-border-color: red");
-    	} else {
-    		mapView.setStyle("");
-		}
+		warningCanvas.setVisible(!isFeasible);
 	}
 	
 	/**
