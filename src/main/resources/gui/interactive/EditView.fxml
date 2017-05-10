@@ -26,7 +26,7 @@
       <ToolBar id="toolbox" orientation="VERTICAL" prefHeight="400.0" prefWidth="95.0" BorderPane.alignment="TOP_CENTER">
         <items>
           <Label text="Editor tools" />
-          <ToggleButton contentDisplay="TOP" mnemonicParsing="false" text="Floor" toggleGroup="$brushes" onAction="#selectBrush">
+            <ToggleButton contentDisplay="TOP" mnemonicParsing="false" text="Floor" toggleGroup="$brushes" onAction="#selectBrush">
                <graphic>
                   <ImageView fitWidth="40.0" pickOnBounds="true" preserveRatio="true">
                      <image>
@@ -34,8 +34,8 @@
                      </image>
                   </ImageView>
                </graphic>
-          </ToggleButton>
-          <ToggleButton contentDisplay="TOP" mnemonicParsing="false" text="Wall" toggleGroup="$brushes" onAction="#selectBrush">
+            </ToggleButton>
+            <ToggleButton contentDisplay="TOP" mnemonicParsing="false" text="Wall" toggleGroup="$brushes" onAction="#selectBrush">
                <graphic>
                   <ImageView fitWidth="40.0" pickOnBounds="true" preserveRatio="true">
                      <image>
@@ -43,8 +43,8 @@
                      </image>
                   </ImageView>
                </graphic>
-          </ToggleButton>
-          <ToggleButton contentDisplay="TOP" mnemonicParsing="false" text="Treasure" toggleGroup="$brushes" onAction="#selectBrush">
+            </ToggleButton>
+            <ToggleButton contentDisplay="TOP" mnemonicParsing="false" text="Treasure" toggleGroup="$brushes" onAction="#selectBrush">
                <graphic>
                   <ImageView fitWidth="40.0" pickOnBounds="true" preserveRatio="true">
                      <image>
@@ -52,8 +52,8 @@
                      </image>
                   </ImageView>
                </graphic>
-          </ToggleButton>
-          <ToggleButton contentDisplay="TOP" mnemonicParsing="false" text="Enemy" toggleGroup="$brushes" onAction="#selectBrush">
+            </ToggleButton>
+            <ToggleButton contentDisplay="TOP" mnemonicParsing="false" text="Enemy" toggleGroup="$brushes" onAction="#selectBrush">
                <graphic>
                   <ImageView fitWidth="40.0" pickOnBounds="true" preserveRatio="true">
                      <image>
@@ -61,58 +61,58 @@
                      </image>
                   </ImageView>
                </graphic>
-          </ToggleButton>
-          <ToggleButton fx:id="patternButton" contentDisplay="TOP" mnemonicParsing="false" wrapText="true" textAlignment="CENTER" text="Show patterns" onAction="#togglePatterns">
+            </ToggleButton>
+            <ToggleButton fx:id="patternButton" contentDisplay="TOP" mnemonicParsing="false" wrapText="true" textAlignment="CENTER" text="Show patterns" onAction="#togglePatterns">
+              <VBox.margin>
+                  <Insets>
+                    <top>20</top>
+                  </Insets>
+              </VBox.margin>
+            </ToggleButton>
+            <Button contentDisplay="TOP" mnemonicParsing="false" wrapText="true" textAlignment="CENTER" text="Generate maps" onAction="#generateNewMaps">
               <VBox.margin>
                   <Insets>
                       <top>20</top>
                   </Insets>
               </VBox.margin>
-          </ToggleButton>
-          <Button contentDisplay="TOP" mnemonicParsing="false" text="Generate" onAction="#generateNewMaps">
-              <VBox.margin>
-                  <Insets>
-                      <top>20</top>
-                  </Insets>
-              </VBox.margin>
-          </Button>
+            </Button>
         </items>
       </ToolBar>
    </left>
    <center>
       <BorderPane>
-         <bottom>
-         	<StackPane alignment="CENTER">
-         		<fx:define>
-         	  	  <ArrayList fx:id="mapDisplays">
-  		         	<LabeledCanvas fx:id="map0" />
-  		         	<LabeledCanvas fx:id="map1" />
-  		         	<LabeledCanvas fx:id="map2" />
-  		         	<LabeledCanvas fx:id="map3" />
-  	         	  </ArrayList>
-         		</fx:define>
-         		<children>
-            		<HBox alignment="CENTER" spacing="15">
-		               <children>
-        		          <fx:reference source="map0" />
-        		          <fx:reference source="map1" />
-                		  <fx:reference source="map2" />
-		                  <fx:reference source="map3" />
-		               </children>
-        		    </HBox>
-            	</children>
-            </StackPane>
-         </bottom>
          <center>
             <StackPane alignment="CENTER" fx:id="mapPane" />
-         <!--
-         	<StackPane alignment="CENTER" fx:id="mapPane">
-         		<children>
-         			<Canvas height="400.0" width="400.0" StackPane.alignment="CENTER" id="centralCanvas" fx:id="centralCanvas" />
-         		</children>
-         	</StackPane>
-         -->
          </center>
+         <bottom>
+            <VBox>
+              <children>
+                <StackPane alignment="CENTER" fx:id="generatedMapsLabel" id="generatedMapsLabel">
+                  <Label text="Generated maps" />
+                </StackPane>
+                <StackPane alignment="CENTER">
+                  <fx:define>
+                     <ArrayList fx:id="mapDisplays">
+                       <LabeledCanvas fx:id="map0" />
+                       <LabeledCanvas fx:id="map1" />
+                       <LabeledCanvas fx:id="map2" />
+                       <LabeledCanvas fx:id="map3" />
+                     </ArrayList>
+                  </fx:define>
+                  <children>
+                    <HBox alignment="CENTER" spacing="15">
+                       <children>
+                          <fx:reference source="map0" />
+                          <fx:reference source="map1" />
+                          <fx:reference source="map2" />
+                          <fx:reference source="map3" />
+                       </children>
+                    </HBox>
+                  </children>
+                </StackPane>
+              </children>
+            </VBox>
+         </bottom>
       </BorderPane>
    </center>
 </fx:root>
