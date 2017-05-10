@@ -135,7 +135,8 @@ public class EditViewController extends BorderPane implements Listener {
 				Map map = (Map) ((MapUpdate) e).getPayload();
 				UUID uuid = ((MapUpdate) e).getID();
 				LabeledCanvas canvas = mapDisplays.get(nextMap);
-				canvas.setText("Got map:\n" + uuid);
+//				canvas.setText("Got map:\n" + uuid);
+				canvas.setText("");
 				maps.put(nextMap, map);
 				
 				Platform.runLater(() -> {

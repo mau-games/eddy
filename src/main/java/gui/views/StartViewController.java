@@ -92,7 +92,8 @@ public class StartViewController extends GridPane implements Listener {
 				MapContainer container = (MapContainer) ((AlgorithmDone) e).getPayload(); 
 				UUID uuid = ((AlgorithmDone) e).getID();
 				LabeledCanvas canvas = mapDisplays.get(nextMap);
-				canvas.setText("Got map:\n" + uuid);
+//				canvas.setText("Got map:\n" + uuid);
+				canvas.setText("");
 				maps.put(nextMap, container);
 				
 				Platform.runLater(() -> {
