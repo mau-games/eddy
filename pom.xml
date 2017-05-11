@@ -1,9 +1,9 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
-	<groupId>se.mah.ts.ewd</groupId>
+	<groupId>se.mah.ts.edd</groupId>
 	<artifactId>eddy</artifactId>
-	<version>0.0.1-SNAPSHOT</version>
+	<version>2.0.0</version>
 	<name>Evolutionary Dungeon Designer</name>
 	<description>This project was developed as part of a Master's thesis. It aims to provide a mixed-initiative procedural dungeon generator.</description>
 	<organization>
@@ -90,7 +90,7 @@
 					<archive>
 						<manifest>
 							<addClasspath>true</addClasspath>
-							<mainClass>runners.ProgramStarter</mainClass>
+							<mainClass>runners.InteractiveGUI</mainClass>
 						</manifest>
 					</archive>
 				</configuration>
