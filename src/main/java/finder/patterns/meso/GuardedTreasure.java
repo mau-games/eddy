@@ -6,13 +6,10 @@ import java.util.List;
 import java.util.Queue;
 import java.util.stream.Collectors;
 
-import com.sun.xml.internal.ws.policy.privateutil.PolicyUtils.Collections;
-
 import finder.graph.Edge;
 import finder.graph.Graph;
 import finder.graph.Node;
 import finder.patterns.CompositePattern;
-import finder.patterns.InventorialPattern;
 import finder.patterns.Pattern;
 import finder.patterns.SpacialPattern;
 import finder.patterns.micro.Enemy;
