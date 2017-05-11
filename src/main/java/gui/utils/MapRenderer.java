@@ -64,7 +64,7 @@ public class MapRenderer implements Listener {
 	
 	private static MapRenderer instance = null;
 	
-	final static Logger logger = LoggerFactory.getLogger(ParameterGUIController.class);
+	final static Logger logger = LoggerFactory.getLogger(MapRenderer.class);
 	private static EventRouter router = EventRouter.getInstance();
 	private ApplicationConfig config;
 

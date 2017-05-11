@@ -51,18 +51,17 @@ public class ConfigurationUtility {
 	}
 	
 	private void openConfig(String location, boolean localResource) throws MissingConfigurationException{
+		Reader file = null;
 		if(localResource){
-			FileReader file = null;
-			ClassLoader loader = getClass().getClassLoader();
+			ClassLoader loader = ConfigurationUtility.class.getClassLoader();
 			try {
 				file = new FileReader(loader.getResource(location).getFile());
 			} catch (FileNotFoundException e) {
-				throw new MissingConfigurationException();
+				file = new BufferedReader(new InputStreamReader(loader.getResourceAsStream(location)));
 			}
 			readFile(file);
 		} else {
 			URL url;
-			BufferedReader file = null;
 			try {
 				if (location.startsWith("http://") ||
 						location.startsWith("https://")) {
