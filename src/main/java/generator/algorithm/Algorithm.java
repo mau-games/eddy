@@ -140,7 +140,7 @@ public class Algorithm extends Thread {
 		int j = 0;
 		while((i + j) < populationSize){
 			Individual ind = new Individual(map, mutationProbability);
-			ind.mutateAll(0.5);
+			ind.mutateAll(0.4);
 			
 			if(checkIndividual(ind)){
 				if(i < feasibleAmount){
@@ -381,8 +381,8 @@ public class Algorithm extends Thread {
         }
         
         
-        double microPatternWeight = 0.8;
-        double mesoPatternWeight = 0.2;
+        double microPatternWeight = 0.9;
+        double mesoPatternWeight = 0.1;
         
         
         //Door Fitness - don't care about this for now
@@ -447,29 +447,29 @@ public class Algorithm extends Thread {
     			}	
     		}
     		
-//    		for(TreasureRoom t : treasureRooms){
-//    			if(t.getPatterns().contains(p)){
-//    				mesoContribution += t.getQuality();
-//    			}
-//    		}
-//    		for(GuardRoom g : guardRooms){
-//    			if(g.getPatterns().contains(p)){
-//    				mesoContribution += g.getQuality();
-//    			}
-//    		}
-//    		for(Ambush a : ambushes){
-//    			if(a.getPatterns().contains(p)){
-//    				mesoContribution += a.getQuality();
-//    			}
-//    		}
-//    		for(GuardedTreasure gt: guardedTreasure){
-//    			if(gt.getPatterns().contains(p)){
-//    				mesoContribution += gt.getQuality();
-//    			}
-//    		}
-//    		
-//    		if(mesoContribution > 1)
-//    			mesoContribution = 1;
+    		for(TreasureRoom t : treasureRooms){
+    			if(t.getPatterns().contains(p)){
+    				mesoContribution += t.getQuality();
+    			}
+    		}
+    		for(GuardRoom g : guardRooms){
+    			if(g.getPatterns().contains(p)){
+    				mesoContribution += g.getQuality();
+    			}
+    		}
+    		for(Ambush a : ambushes){
+    			if(a.getPatterns().contains(p)){
+    				mesoContribution += a.getQuality();
+    			}
+    		}
+    		for(GuardedTreasure gt: guardedTreasure){
+    			if(gt.getPatterns().contains(p)){
+    				mesoContribution += gt.getQuality();
+    			}
+    		}
+    		
+    		if(mesoContribution > 1)
+    			mesoContribution = 1;
     		
     		roomArea += ((Polygon)p.getGeometry()).getArea() * (p.getQuality()*microPatternWeight + mesoContribution * mesoPatternWeight);
     	}
@@ -479,8 +479,8 @@ public class Algorithm extends Thread {
     	
     	
     	//Total fitness
-    	double fitness = 0.4 * treasureAndEnemyFitness
-    			+  0.6 * (0.3 * roomFitness + 0.7 * corridorFitness);
+    	double fitness = 0.5 * treasureAndEnemyFitness
+    			+  0.5 * (0.3 * roomFitness + 0.7 * corridorFitness);
     	
     	
     	

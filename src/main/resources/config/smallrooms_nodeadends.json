@@ -1,13 +1,13 @@
 {
     "generator": {
         "generations": 100,
-        "population_size": 100,
+        "population_size": 50,
         "mutation_probability": 0.9,
         "offspring_size": 0.7,
-        "feasible_proportion": 0.8,
+        "feasible_proportion": 1,
         "weights": {
-            "room": 0.4,
-            "corridor":0.6
+            "room": 1,
+            "corridor": 0
         }
     },
     "tile_type_ranges": {
@@ -31,14 +31,14 @@
     "patterns": {
         "room": {
             "desired_area": 9,
-            "squareness": 0.3,
-            "size": 0.7
+            "squareness": 0,
+            "size": 1
         },
         "corridor": {
-            "target_length": 5
+            "target_length": 4
         },
         "connector": {
-        	"turn_quality" : 1,
+        	"turn_quality" : 0.1,
         	"intersection_quality" : 0.9
         },
         "entrance": {
@@ -49,13 +49,13 @@
         },
         "enemy": {
 			"enemies_quantity": {
-				"min": 0.02,
-				"max": 0.03
+				"min": 0.04,
+				"max": 0.05
 			}
         },
         "treasure": {
 			"treasures_quantity": {
-				"min": 0.03,
+				"min": 0.04,
 				"max": 0.05
 			}
         },
@@ -63,10 +63,10 @@
         
         },
         "guard_room": {
-        	"target_enemy_amount": 4
+        	"target_enemy_amount": 3
         },
         "treasure_room": {
-        	"target_treasure_amount": 4
+        	"target_treasure_amount": 3
         },
         "guarded_treasure": {
         	"target_enemy_amount": 3
@@ -79,8 +79,8 @@
         	"room_to_corridor_quality": 0.5
         },
         "dead_end": {
-        	"badness": 7,
-        	"filledness": 0.5
+        	"badness": 7.0,
+        	"filledness": 0.3
         }
     }
 }

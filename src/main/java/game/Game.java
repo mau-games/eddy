@@ -151,24 +151,21 @@ public class Game implements Listener{
     	Algorithm geneticAlgorithm = null;
     	
     	List<String> configs = new ArrayList<String>();
-    	configs.add("config/smallrooms.json");
-    	configs.add("config/smallrooms.json");
-    	configs.add("config/smallrooms.json");
-    	configs.add("config/smallrooms.json");
-    	configs.add("config/smallrooms.json");
-    	configs.add("config/smallrooms.json");
-//    	configs.add("config/roomsandcorridorssquare.json");
-//    	configs.add("config/roomsandcorridorssquare.json");
-//    	configs.add("config/roomsandcorridorssquare.json");
-//    	configs.add("config/roomsandcorridorssquare.json");
-//    	configs.add("config/roomsandcorridorssquare.json");
-//    	configs.add("config/roomsandcorridorssquare.json");
-//    	configs.add("config/bendycorridors.json");
-//    	configs.add("config/straightcorridors.json");
-//    	configs.add("config/smallrooms.json");
-//    	configs.add("config/mediumrooms.json");
-//    	configs.add("config/bigrooms.json");
-//    	configs.add("config/roomsandcorridorssquare.json");
+    	if(Math.random() < 0.5)
+    		configs.add("config/bendycorridors.json");
+    	else
+    		configs.add("config/bendycorridors_nodeadends.json");
+    	if(Math.random() < 0.5)
+    		configs.add("config/straightcorridors.json");
+    	else
+    		configs.add("config/straightcorridors_nodeadends.json");
+    	if(Math.random() < 0.5)
+    		configs.add("config/smallrooms.json");
+    	else
+    		configs.add("config/smallrooms_nodeadends.json");
+    	configs.add("config/mediumrooms.json");
+    	configs.add("config/bigrooms.json");
+    	configs.add("config/roomsandcorridorssquare.json");
 //    	
     	for(int i = 0; i < runCount; i++){
     		String c = "config/generator_config.json";

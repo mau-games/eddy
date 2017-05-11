@@ -326,11 +326,7 @@ public class MapRenderer implements Listener {
 //				double yMid = ((double)centreA.getY() + (double)centreB.getY()) / 2.0;
 //				drawCircle(ctx,new Point((int)xMid,(int)yMid),Color.MAGENTA,15);
 			}
-			else if (p instanceof DeadEnd){
-				for(Pattern p2 : p.getPatterns()){
-					drawCircle(ctx,getPatternCentre((SpacialPattern)p2,pWidth),Color.BLACK,5);
-				}
-			}
+
 			else if (p instanceof TreasureRoom){
 				boolean guarded = false;
 				GuardedTreasure gt = null;
@@ -360,6 +356,13 @@ public class MapRenderer implements Listener {
 				double aspect = (image.getHeight()/image.getWidth());
 				ctx.drawImage(image, center.getX() - pWidth, center.getY() - aspect*pWidth, pWidth*2, aspect*pWidth*2);
 				//drawArbitraryRectangle(ctx,getPatternCentre((SpacialPattern)p.getPatterns().get(0),pWidth),pWidth*0.5,pWidth*2.0, Color.DARKCYAN);
+			}
+		}
+		for(CompositePattern p : mesopatterns){
+			if (p instanceof DeadEnd){
+				for(Pattern p2 : p.getPatterns()){
+					drawCircle(ctx,getPatternCentre((SpacialPattern)p2,pWidth),Color.BLACK,5);
+				}
 			}
 		}
 	}
@@ -567,8 +570,8 @@ public class MapRenderer implements Listener {
 			ctx.fillRect(p.getX() * pWidth, p.getY() * pWidth, pWidth, pWidth);
 		}
 		for(Point p : b.getPoints()){
-			ctx.setStroke(new Color(c.getRed()*0.3, c.getGreen()*0.3, c.getBlue()*0.3, 1));
-			ctx.setLineWidth(pWidth*0.15);
+			ctx.setStroke(new Color(c.getRed()*0.4, c.getGreen()*0.4, c.getBlue()*0.4, 1));
+			ctx.setLineWidth(pWidth*0.1);
 			if(!b.contains(new Point(p.getX() - 1, p.getY()))){
 				ctx.strokeLine(pWidth*p.getX(), pWidth*p.getY(), pWidth*p.getX(), pWidth*(p.getY()+1));
 			}

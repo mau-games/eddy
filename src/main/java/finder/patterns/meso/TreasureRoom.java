@@ -12,6 +12,7 @@ import finder.graph.Node;
 import finder.patterns.CompositePattern;
 import finder.patterns.InventorialPattern;
 import finder.patterns.Pattern;
+import finder.patterns.micro.Enemy;
 import finder.patterns.micro.Room;
 import finder.patterns.micro.Treasure;
 import game.Map;
@@ -43,7 +44,8 @@ public class TreasureRoom extends CompositePattern {
 			current.tryVisit();
 			if(current.getValue() instanceof Room){
 				List<InventorialPattern> containedTreasure = ((Room)current.getValue()).getContainedPatterns().stream().filter(p->{return p instanceof Treasure;}).collect(Collectors.toList());
-				if(containedTreasure.size() >= 1 && containedTreasure.size() == ((Room)current.getValue()).getContainedPatterns().size()){
+				List<InventorialPattern> containedEnemies = ((Room)current.getValue()).getContainedPatterns().stream().filter(p->{return p instanceof Enemy;}).collect(Collectors.toList());
+				if(containedTreasure.size() >= 2 && containedEnemies.size() == 0){
 					TreasureRoom t = new TreasureRoom(map.getConfig(),containedTreasure.size());
 					
 					t.patterns.add(current.getValue());

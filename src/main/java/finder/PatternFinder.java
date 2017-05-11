@@ -129,7 +129,7 @@ public class PatternFinder {
 	}
 	
 	public List<CompositePattern> getMesoPatterns(){
-		return mesopatterns;
+		return findMesoPatterns();
 	}
 	
 	private void buildPatternGraph(){

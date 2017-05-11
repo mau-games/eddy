@@ -49,27 +49,27 @@
         },
         "enemy": {
 			"enemies_quantity": {
-				"min": 0.02,
-				"max": 0.03
+				"min": 0.04,
+				"max": 0.05
 			}
         },
         "treasure": {
 			"treasures_quantity": {
-				"min": 0.01,
-				"max": 0.02
+				"min": 0.04,
+				"max": 0.05
 			}
         },
         "door": {
         
         },
         "guard_room": {
-        	"target_enemy_amount": 5
+        	"target_enemy_amount": 3
         },
         "treasure_room": {
         	"target_treasure_amount": 3
         },
         "guarded_treasure": {
-        	"target_enemy_amount": 5
+        	"target_enemy_amount": 3
         },
         "ambush": {
         	"target_enemy_amount": 3
@@ -79,8 +79,8 @@
         	"room_to_corridor_quality": 0.5
         },
         "dead_end": {
-        	"badness": 3.0,
-        	"filledness": 0.0
+        	"badness": 0.0,
+        	"filledness": 0.3
         }
     }
 }

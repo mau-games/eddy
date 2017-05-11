@@ -63,13 +63,13 @@
         
         },
         "guard_room": {
-        	"target_enemy_amount": 5
+        	"target_enemy_amount": 3
         },
         "treasure_room": {
-        	"target_treasure_amount": 5
+        	"target_treasure_amount": 3
         },
         "guarded_treasure": {
-        	"target_enemy_amount": 5
+        	"target_enemy_amount": 3
         },
         "ambush": {
         	"target_enemy_amount": 3

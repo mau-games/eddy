@@ -439,12 +439,12 @@ public class EditViewController extends BorderPane implements Listener {
 	 * 
 	 * @param container
 	 */
-	private void redrawPatterns(Map map) {
+	private synchronized void redrawPatterns(Map map) {
 		patternCanvas.getGraphicsContext2D().clearRect(0, 0, 420, 420);
 		renderer.drawPatterns(patternCanvas.getGraphicsContext2D(), map.toMatrix(), colourPatterns(map.getPatternFinder().findMicroPatterns()));
 		renderer.drawGraph(patternCanvas.getGraphicsContext2D(), map.toMatrix(), map.getPatternFinder().getPatternGraph());
 		renderer.drawMesoPatterns(patternCanvas.getGraphicsContext2D(), map.toMatrix(), map.getPatternFinder().getMesoPatterns());
-	}
+		}
 	
 	/*
 	 * Event handlers

@@ -452,8 +452,8 @@
      showgrid="false"
      inkscape:window-width="1366"
      inkscape:window-height="705"
-     inkscape:window-x="306"
-     inkscape:window-y="1042"
+     inkscape:window-x="-8"
+     inkscape:window-y="-8"
      inkscape:window-maximized="1" />
   <metadata
      id="metadata7">
@@ -473,7 +473,9 @@
      id="layer1">
     <g
        id="g4580"
-       transform="translate(150,-165.71429)">
+       transform="translate(150,-165.71429)"
+       inkscape:export-xdpi="100"
+       inkscape:export-ydpi="100">
       <path
          sodipodi:nodetypes="ccccccccccccccccc"
          inkscape:connector-curvature="0"
@@ -734,7 +736,9 @@
       </g>
     </g>
     <g
-       id="g8014">
+       id="g8014"
+       inkscape:export-xdpi="100"
+       inkscape:export-ydpi="100">
       <g
          id="g7980"
          transform="matrix(0.70710678,-0.70710678,0.70710678,0.70710678,-1526.1969,1179.6457)">
@@ -1545,7 +1549,9 @@
            y="985.21936">A</tspan></text>
     </g>
     <g
-       id="g15002">
+       id="g15002"
+       inkscape:export-xdpi="100"
+       inkscape:export-ydpi="100">
       <g
          id="g8493"
          transform="translate(1024.2857,-165.71429)">
@@ -2208,7 +2214,9 @@
     </g>
     <g
        id="g14620"
-       transform="matrix(0.83389582,0,0,0.83389582,280.24175,110.39165)">
+       transform="matrix(0.83389582,0,0,0.83389582,280.24175,110.39165)"
+       inkscape:export-xdpi="100"
+       inkscape:export-ydpi="100">
       <g
          transform="matrix(20.5644,0,0,20.5644,16366.407,-4310.1205)"
          id="g13579">

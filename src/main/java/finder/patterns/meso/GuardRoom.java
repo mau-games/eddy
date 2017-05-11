@@ -44,7 +44,8 @@ public class GuardRoom extends CompositePattern {
 			current.tryVisit();
 			if(current.getValue() instanceof Room){
 				List<InventorialPattern> containedEnemies = ((Room)current.getValue()).getContainedPatterns().stream().filter(p->{return p instanceof Enemy;}).collect(Collectors.toList());
-				if(containedEnemies.size() >= 1 && containedEnemies.size() == ((Room)current.getValue()).getContainedPatterns().size()){
+				List<InventorialPattern> containedTreasure = ((Room)current.getValue()).getContainedPatterns().stream().filter(p->{return p instanceof Treasure;}).collect(Collectors.toList());
+				if(containedEnemies.size() >= 2 && containedTreasure.size() == 0){
 					GuardRoom g = new GuardRoom(map.getConfig(), containedEnemies.size());
 					g.patterns.add(current.getValue());
 					g.patterns.addAll(containedEnemies);
