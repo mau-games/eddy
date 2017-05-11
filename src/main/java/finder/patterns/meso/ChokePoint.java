@@ -4,17 +4,13 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
-import java.util.stream.Collectors;
 
-import finder.geometry.Geometry;
 import finder.graph.Edge;
 import finder.graph.Graph;
 import finder.graph.Node;
 import finder.patterns.CompositePattern;
-import finder.patterns.InventorialPattern;
 import finder.patterns.Pattern;
 import finder.patterns.micro.Room;
-import finder.patterns.micro.Treasure;
 import game.Map;
 import generator.config.GeneratorConfig;
 
