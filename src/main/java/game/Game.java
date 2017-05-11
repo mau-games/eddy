@@ -39,7 +39,7 @@ public class Game implements Listener{
 	public static int sizeM; //Number of columns
     public static int sizeN; //Number of rows
     public static int doorCount;
-    public static List<Point> doors = null; 
+    public static List<Point> doors = new ArrayList<Point>();
 
    
 
@@ -68,7 +68,7 @@ public class Game implements Listener{
      * Doors can't be in corners.
      */
     private void chooseDoorPositions(){
-    	doors = new ArrayList<Point>();
+    	doors.clear();
     	List<Integer> walls = new ArrayList<Integer>();
     	walls.add(0);
     	walls.add(1);

@@ -32,7 +32,7 @@ public class DoorTest {
 		Rectangle boundary = new Rectangle(new Point(0, 0), new Point(0, 0));
 		List<Pattern> doors = Door.matches(map, boundary);
 
-		assertEquals(0, doors.size());
+		assertEquals(0, doors.size() - 1);
 	}
 
 	@Test
@@ -43,7 +43,7 @@ public class DoorTest {
 		Rectangle boundary = new Rectangle(new Point(0, 0), new Point(1, 1));
 		List<Pattern> doors = Door.matches(map, boundary);
 
-		assertEquals(1, doors.size());
+		assertEquals(1, doors.size() - 1);
 	}
 
 	@Test
@@ -54,7 +54,7 @@ public class DoorTest {
 		Rectangle boundary = new Rectangle(new Point(0, 0), new Point(2, 2));
 		List<Pattern> doors = Door.matches(map, boundary);
 
-		assertEquals(1, doors.size());
+		assertEquals(1, doors.size() - 1);
 	}
 
 	@Test
@@ -65,7 +65,7 @@ public class DoorTest {
 		Rectangle boundary = new Rectangle(new Point(0, 0), new Point(2, 2));
 		List<Pattern> doors = Door.matches(map, boundary);
 
-		assertEquals(1, doors.size());
+		assertEquals(1, doors.size() - 1);
 	}
 
 	@Test
@@ -76,7 +76,7 @@ public class DoorTest {
 		Rectangle boundary = new Rectangle(new Point(0, 0), new Point(3, 3));
 		List<Pattern> doors = Door.matches(map, boundary);
 
-		assertEquals(1, doors.size());
+		assertEquals(1, doors.size() - 1);
 	}
 
 	@Test
@@ -87,7 +87,7 @@ public class DoorTest {
 		Rectangle boundary = new Rectangle(new Point(0, 0), new Point(3, 3));
 		List<Pattern> doors = Door.matches(map, boundary);
 
-		assertEquals(1, doors.size());
+		assertEquals(1, doors.size() - 1);
 	}
 
 	@Test
@@ -98,7 +98,7 @@ public class DoorTest {
 		Rectangle boundary = new Rectangle(new Point(0, 0), new Point(9, 9));
 		List<Pattern> doors = Door.matches(map, boundary);
 
-		assertEquals(2, doors.size());
+		assertEquals(2, doors.size() - 1);
 	}
 
 	@Test
@@ -109,6 +109,6 @@ public class DoorTest {
 		Rectangle boundary = new Rectangle(new Point(0, 0), new Point(15, 15));
 		List<Pattern> doors = Door.matches(map, boundary);
 
-		assertEquals(2, doors.size());
+		assertEquals(2, doors.size() - 1);
 	}
 }

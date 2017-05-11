@@ -709,6 +709,10 @@ public class Map {
 	 */
 	public static Map fromString(String string) {
 		String[] rows = string.split("[\\r\\n]+");
+		// Had we just stuck to the specs, this wouldn't have been necessary...
+		if (rows.length < 2) {
+			rows = string.split("[\\n]+");
+		}
 		int rowCount = rows.length;
 		int colCount = rows[0].length();
 		TileTypes type = null;
