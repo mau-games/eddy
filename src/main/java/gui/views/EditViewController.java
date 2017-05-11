@@ -201,22 +201,22 @@ public class EditViewController extends BorderPane implements Listener {
 		legend.add(new Label("Ambush"), 1, 3);
 		
 		legend.add(new ImageView(new Image(c.getString("map.mesopatterns.guard_room"), 40, 40, false, false)), 0, 4);
-		legend.add(new Label("Guard room"), 1, 4);
+		legend.add(new Label("Guard chamber"), 1, 4);
 		
 		legend.add(new ImageView(new Image(c.getString("map.mesopatterns.guarded_treasure"), 40, 40, false, false)), 0, 5);
 		legend.add(new Label("Guarded treasure"), 1, 5);
 		
 		legend.add(new ImageView(new Image(c.getString("map.mesopatterns.treasure_room"), 40, 40, false, false)), 0, 6);
-		legend.add(new Label("Treasure room"), 1, 6);
+		legend.add(new Label("Treasure chamber"), 1, 6);
 		
 		legend.add(new ImageView(new Image(c.getString("map.examples.chamber"), 40, 40, true, true)), 0, 7);
 		legend.add(new Label("Chamber"), 1, 7);
 		
-		legend.add(new ImageView(new Image(c.getString("map.examples.connector"), 40, 40, true, true)), 0, 8);
-		legend.add(new Label("Connector"), 1, 8);
+		legend.add(new ImageView(new Image(c.getString("map.examples.corridor"), 40, 40, true, true)), 0, 8);
+		legend.add(new Label("Corridor"), 1, 8);
 		
-		legend.add(new ImageView(new Image(c.getString("map.examples.corridor"), 40, 40, true, true)), 0, 9);
-		legend.add(new Label("Treasure room"), 1, 9);
+		legend.add(new ImageView(new Image(c.getString("map.examples.connector"), 40, 40, true, true)), 0, 9);
+		legend.add(new Label("Connector"), 1, 9);
 		
 		legend.add(new ImageView(new Image(c.getString("map.examples.dead_end"), 40, 40, true, true)), 0, 10);
 		legend.add(new Label("Dead end"), 1, 10);
