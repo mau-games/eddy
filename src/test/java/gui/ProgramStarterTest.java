@@ -5,13 +5,15 @@ import static org.junit.Assert.*;
 import org.junit.Before;
 import org.junit.Test;
 
+import runners.ParameterGUI;
+
 public class ProgramStarterTest {
 
-	ProgramStarter program;
+	ParameterGUI program;
 	
 	@Before
 	public void setup() {
-		program = new ProgramStarter();
+		program = new ParameterGUI();
 	}
 	
 	@Test

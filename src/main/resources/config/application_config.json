@@ -1,0 +1,54 @@
+{
+    "map": {
+        "pattern_opacity": 0.6,
+        "tiles": {
+            "floor": "graphics/tiles/floor.png",
+            "wall": "graphics/tiles/wall.png",
+            "enemy": "graphics/tiles/enemy.png",
+            "treasure": "graphics/tiles/treasure.png",
+            "doorenter": "graphics/tiles/entrydoor.png",
+            "door": "graphics/tiles/door.png"
+        },
+        "mesopatterns": {
+            "ambush": "graphics/mesopatterns/ambush.png",
+            "guard_room": "graphics/mesopatterns/guard_room.png",
+            "guarded_treasure": "graphics/mesopatterns/guarded_treasure.png",
+            "treasure_room": "graphics/mesopatterns/treasure_room.png"
+        },
+        "examples": {
+            "chamber": "graphics/examples/chamber.png",
+            "connector": "graphics/examples/connector.png",
+            "corridor": "graphics/examples/corridor.png",
+            "dead_end": "graphics/examples/dead_end.png"
+        },
+        "render": {
+            "height": 1000,
+            "width": 1000
+        }
+    },
+    "game": {
+        "dimensions": {
+            "m": 11,
+            "n": 11
+        },
+        "doors": 3
+    },
+    "collectors": {
+        "map_collector": {
+            "_comment": "~/ denotes the home directory. Slashes will be converted to backslashes on Windows.",
+            "path": "~/eddy/maps/",
+            "active": true,
+            "save_all": false
+        },
+        "image_exporter": {
+            "_comment": "~/ denotes the home directory. Slashes will be converted to backslashes on Windows.",
+            "path": "~/eddy/maps/rendered/",
+            "active": true
+        },
+        "generation_collector": {
+            "_comment": "~/ denotes the home directory. Slashes will be converted to backslashes on Windows.",
+            "path": "~/eddy/",
+            "active": true
+        }        
+    }
+}

@@ -14,4 +14,47 @@
 
 #messagePane {
 	-fx-background-color: transparent;
+	-fx-padding: 5, 0, 0, 0;
+}
+
+#patternLabel {
+	-fx-padding: 15 0 0 0;
+	-fx-font-weight: bold;
+}
+
+#centralCanvas {
+	-fx-pref-height: 500;
+	-fx-pref-width: 500;
+}
+
+#startView {
+	-fx-padding: 40;
+	-fx-hgap: 20;
+	-fx-vgap: 20;
+}
+
+#canvasPane {
+	-fx-pref-height: 140;
+	-fx-pref-width: 140;
+}
+
+#generatedMapsLabel {
+	-fx-padding: 10 10 10 10;
+}
+
+#generatedMapsLabel .label {
+	-fx-font-weight: bold;
+}
+
+.labeled-canvas .label {
+	-fx-text-alignment: center;
+}
+
+.labeled-text-field .label {
+	-fx-pref-width: 200;
+}
+
+#toolbox .button,
+#toolbox .toggle-button {
+	-fx-pref-width: 80;
 }

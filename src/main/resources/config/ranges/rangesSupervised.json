@@ -1,0 +1,30 @@
+[
+  {
+    "from": 0,
+    "to": 0.7,
+    "elements": [
+      "FLOOR"
+    ]
+  },
+  {
+    "from": 0.7,
+    "to": 0.9,
+    "elements": [
+      "WALL"
+    ]
+  },
+  {
+    "from": 0.9,
+    "to": 0.93,
+    "elements": [
+      "TREASURE"
+    ]
+  },
+  {
+    "from": 0.93,
+    "to": 1.0,
+    "elements": [
+      "ENEMY"
+    ]
+  }
+]

@@ -1,0 +1,57 @@
+{
+  "game_name": "Zelda",
+
+  "entrance_safety" : {
+    "easy": 0.2,
+    "medium": 0.1,
+    "hard": 0.05
+  },
+
+ "entrance_greed" : {
+    "easy": 0.4,
+    "medium": 0.6,
+    "hard": 0.8
+  },
+
+  "enemies_quantity": {
+    "easy": {
+      "min": 0.02,
+      "max": 0.03
+    },
+    "medium": {
+      "min": 0.03,
+      "max": 0.05
+    },
+    "hard": {
+      "min": 0.05,
+      "max": 0.09
+    }
+  },
+
+  "avg_treasure_safety": {
+    "easy": 0.2,
+    "medium": 0.1,
+    "hard": 0.0
+  },
+
+  "treasures_quantity": {
+    "easy": {
+      "min": 0.005,
+      "max": 0.01
+    },
+    "medium": {
+      "min": 0.02,
+      "max": 0.05
+    },
+    "hard": {
+      "min": 0.05,
+      "max": 0.09
+    }
+  },
+
+  "treasure_safety_variance": {
+    "easy":0.05,
+    "medium": 0.05,
+    "hard": 0.05
+  }
+}

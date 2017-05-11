@@ -1,0 +1,86 @@
+{
+    "generator": {
+        "generations": 100,
+        "population_size": 50,
+        "mutation_probability": 0.9,
+        "offspring_size": 0.7,
+        "feasible_proportion": 1,
+        "weights": {
+            "room": 1,
+            "corridor": 0
+        }
+    },
+    "tile_type_ranges": {
+		floor: {
+			"from": 0,
+			"to": 0.7
+		},
+		wall: {
+			"from": 0.7,
+			"to": 0.9
+		},
+		treasure: {
+			"from": 0.9,
+			"to": 0.93
+		},
+		enemy: {
+			"from": 0.93,
+			"to": 1.0
+		}
+	},
+    "patterns": {
+        "room": {
+            "desired_area": 9,
+            "squareness": 0,
+            "size": 1
+        },
+        "corridor": {
+            "target_length": 4
+        },
+        "connector": {
+        	"turn_quality" : 0.1,
+        	"intersection_quality" : 0.9
+        },
+        "entrance": {
+        	"entrance_safety" : 0.2,
+			"entrance_greed" : 0.4,
+			"avg_treasure_safety": 0.2,
+			"treasure_safety_variance": 0.05
+        },
+        "enemy": {
+			"enemies_quantity": {
+				"min": 0.04,
+				"max": 0.05
+			}
+        },
+        "treasure": {
+			"treasures_quantity": {
+				"min": 0.04,
+				"max": 0.05
+			}
+        },
+        "door": {
+        
+        },
+        "guard_room": {
+        	"target_enemy_amount": 3
+        },
+        "treasure_room": {
+        	"target_treasure_amount": 3
+        },
+        "guarded_treasure": {
+        	"target_enemy_amount": 3
+        },
+        "ambush": {
+        	"target_enemy_amount": 3
+        },
+        "choke_point": {
+        	"room_to_room_quality": 0.5,
+        	"room_to_corridor_quality": 0.5
+        },
+        "dead_end": {
+        	"badness": 0.0,
+        	"filledness": 0.3
+        }
+    }
+}

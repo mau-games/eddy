@@ -1,61 +1,38 @@
 package generator.algorithm;
 
-import java.util.ArrayList;
-import java.util.List;
 
+import java.util.Arrays;
 import game.Game;
 import game.Map;
 import game.TileTypes;
+import generator.config.GeneratorConfig;
 
 public class Phenotype {
-	Genotype mGenotype;
-	Map mMap;
+	private Genotype genotype;
+	private Map map;
+	private GeneratorConfig config;
 	
-	public Phenotype(Genotype genotype){
-		mGenotype = genotype;
-		mMap = null;
+	public Phenotype(GeneratorConfig config, Genotype genotype){
+		this.config = config;
+		this.genotype = genotype;
+		map = null;
 	}
 	
 	public Phenotype(Map map){
-		mGenotype = null;
-		mMap = map;
+		genotype = null;
+		this.map = map;
 	}
 	
+	/**
+	 * Generates a Map from the Genotype
+	 * 
+	 * @return The Map for this Genotype
+	 */
 	public Map getMap() {
-		if(mMap == null){
-			int size = mGenotype.getSizeChromosome() / mGenotype.getChromosomeItemBits();
-			List<Integer> map = new ArrayList<Integer>(size);
-			for(int i = 0; i < size; i++){
-				
-				// TODO: This is heavily rewritten - make sure it works. 
-				//This whole piece of code seems very wonky. I think this can be much improved.
-				String binaryNumber = "";
-				for(int j = 0; j < mGenotype.getChromosomeItemBits(); j++){
-					binaryNumber += Integer.toString(mGenotype.getChromosome()[i*3 + j]);
-				}
-				int decimalNumber = Integer.parseInt(binaryNumber,2);
-				
-				map.add(decimalNumber);
-			}
-			
-			TileTypes[] types = map.stream().map(x -> TileTypes.values()[x]).toArray(TileTypes[]::new);
-			
-			//TODO: Some debug crap we can ignore for now
-			/*if(Game.debug){
-				string s = "";
-                int map_types_size = types.Count();
-
-                for (int i = 0; i < map_types_size; i++)
-                {
-                    //s += types[i].ToString() + ",";
-                    s += "types[" + i + "] = TYPES." + types[i].ToString() + ";" + Environment.NewLine;
-                }
-
-                File.WriteAllText("lastmap.txt", s);
-			}*/
-			
-			mMap = new Map(types, Game.sizeN, Game.sizeM, Game.sizeDoors, true);
+		if(map == null){
+			TileTypes[] tileTypes = Arrays.stream(genotype.getChromosome()).boxed().map(x -> TileTypes.toTileType(x)).toArray(TileTypes[]::new);
+			map = new Map(config, tileTypes, Game.sizeN, Game.sizeM, Game.doorCount);
 		}
-		return mMap;
+		return map;
 	}
 }

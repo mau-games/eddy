@@ -1,0 +1,76 @@
+{
+    "map": {
+        "pattern_opacity": 0.6,
+        "tiles": {
+            "floor": "graphics/tiles/floor.png",
+            "wall": "graphics/tiles/wall.png",
+            "enemy": "graphics/tiles/enemy.png",
+            "treasure": "graphics/tiles/treasure.png",
+            "doorenter": "graphics/tiles/entrydoor.png",
+            "door": "graphics/tiles/door.png"
+        },
+        "final_rendition": {
+            "height": 1000,
+            "width": 1000
+        }
+    },
+    "game": {
+        "difficulty": "easy",
+        "dimensions": {
+            "m": 12,
+            "n": 12
+        },
+        "doors": 3,
+        "profiles": {
+            "location": "config/profiles/",
+            "default": "zelda"
+        },
+        "ranges": {
+            "location": "config/ranges/",
+            "default": "rangesSupervised"
+        }
+    },
+    "generator": {
+        "generations": 150,
+        "population_size": 150,
+        "mutation_probability": 0.9,
+        "offspring_size": 0.7,
+        "feasible_proportion": 0.5,
+        "weights": {
+            "room": 1,
+            "corridor": 0
+        }
+    },
+    "collectors": {
+        "map_collector": {
+            "_comment": "~/ denotes the home directory. Slashes will be converted to backslashes on Windows.",
+            "path": "~/eddy/batch_tests/all-room_area64_square0.5_size0.5/maps/",
+            "active": true,
+            "save_all": false
+        },
+        "image_exporter": {
+            "_comment": "~/ denotes the home directory. Slashes will be converted to backslashes on Windows.",
+            "path": "~/eddy/batch_tests/all-room_area64_square0.5_size0.5/maps/rendered/",
+            "active": true
+        },
+        "generation_collector": {
+            "_comment": "~/ denotes the home directory. Slashes will be converted to backslashes on Windows.",
+            "path": "~/eddy/batch_tests/all-room_area64_square0.5_size0.5/",
+            "active": true
+        }        
+    },
+    "patterns": {
+        "room": {
+            "desired_area": 64,
+            "floor_ratio_weight": 0.5,
+            "area_deviation_weight": 0.5
+        },
+        "corridor": {
+            "target_length": 4
+        },
+        "connector": {
+        	"turn_quality" : 0.5,
+        	"intersection_quality" : 0.5
+        }
+    }
+}

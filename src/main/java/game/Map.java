@@ -1,177 +1,205 @@
 package game;
 
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Dictionary;
+import java.util.HashMap;
 import java.util.Hashtable;
+import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Queue;
+import java.util.Map.Entry;
 
+import finder.PatternFinder;
+import finder.Populator;
+import finder.geometry.Polygon;
+import finder.graph.Graph;
+import util.algorithms.Node;
+import finder.patterns.Pattern;
+import finder.patterns.SpacialPattern;
+import finder.patterns.micro.Connector;
+import finder.patterns.micro.Corridor;
+import finder.patterns.micro.Enemy;
+import finder.patterns.micro.Room;
+import finder.patterns.micro.Treasure;
 import util.Point;
-import util.Util;
+import util.config.MissingConfigurationException;
+import util.eventrouting.EventRouter;
+import util.eventrouting.events.AlgorithmDone;
+import util.eventrouting.events.MapLoaded;
+import util.eventrouting.events.MapUpdate;
+import generator.config.GeneratorConfig;
 
-// TODO: Make sure that m represents the rows and n the columns
-// TODO: Choose between x + y & Point2D
 /**
  * This class represents a dungeon room map.
  * 
- * @author Johan Holmberg
+ * @author Johan Holmberg, Malmö University
+ * @author Alexander Baldwin, Malmö University
  */
 public class Map {
 	private int[][] matrix; // The actual map
+	private boolean[][] allocated; // A map keeps track of allocated tiles
 	private int m;			// The number of rows in a map
 	private int n;			// The number of columns in a map
 	private int doorCount;	// The number of doors in a map
 	private int wallCount;	// The number of wall tiles in a map
-	private List<Point> doors;		// A list of doors
-	private List<Point> treasures;	// A list of treasures
-	private List<Point> enemies;		// A list of enemies
+	private List<Point> doors = new ArrayList<Point>();
+	private List<Point> treasures = new ArrayList<Point>();
+	private List<Point> enemies = new ArrayList<Point>();
+	//private Graph<SpacialPattern> graph = new Graph<SpacialPattern>();
+	private PatternFinder finder;
 	private int failedPathsToTreasures;
 	private int failedPathsToEnemies;
 	private int failedPathsToAnotherDoor;
 	private Dictionary<Point, Double> treasureSafety;
 	private Point entrance;
-	private double entranceSafetyFitness;
+	private double entranceSafety;
+	private double entranceGreed;
+	private GeneratorConfig config = null;
 	
-	
-	// TODO: What to do with types?
 	/**
 	 * Creates an instance of map.
 	 * 
-	 * @param types
-	 * @param m The number of rows in a map.
-	 * @param n The number of columns in a map.
+	 * @param types A chromosome transformed into an array of TileTypes.
+	 * @param rows The number of rows in a map.
+	 * @param cols The number of columns in a map.
 	 * @param doorCount The number of doors to be seeded in a map.
 	 */
-	public Map(TileTypes[] types, int m, int n, int doorCount) {
-		this(types, m, n, doorCount, true);
-	}
-	
-	// TODO: What to do with isDoors? (Alex: Remove it??)
-	/**
-	 * Creates an instance of map.
-	 * 
-	 * @param types
-	 * @param m The number of rows in a map.
-	 * @param n The number of columns in a map.
-	 * @param doorCount The number of doors to be seeded in a map.
-	 * @param isDoors
-	 */
-	public Map(TileTypes[] types, int n, int m, int doorCount, boolean isDoors) {
-		doors = new ArrayList<Point>();
-		treasures = new ArrayList<Point>();
-		enemies = new ArrayList<Point>();
-		treasureSafety = new Hashtable<Point, Double>();
-		this.m = m;
-		this.n = n;
-		wallCount = 0;
+	public Map(GeneratorConfig config, TileTypes[] types, int rows, int cols, int doorCount) {
+		init(rows, cols);
 		
-		
-		if(Game.doorsPositions != null){
-			this.doorCount = Game.doorsPositions.size();
-		} else {
-			Game.doorsPositions = new ArrayList<Point>();
-			this.doorCount = doorCount;
-		}
-		
-		matrix = new int[m][n];
+		this.config = config;
+		this.doorCount = Game.doors.size();
 		
 		initMapFromTypes(types);
 		
-		if(isDoors)
-			markDoors();
+		markDoors();
+		
+		finder = new PatternFinder(this);
 		
 	}
 	
-	private void markDoors(){
-		List<Point> positionsValid = new ArrayList<Point>();
-		int enterDoorPosition = Util.getNextInt(0, doorCount);
+	/**
+	 * Invalidates the current calculations and forces a re-evaluation of the
+	 * map.
+	 * 
+	 * TODO: This isn't very efficient, but shouldn't be so frequently used, as
+	 * to warrant any particular worry. Maybe replace it with a more granular
+	 * approach sometime?
+	 */
+	public void forceReevaluation() {
+		treasures.clear();
+		enemies.clear();
+		doors.clear();
+		treasureSafety = new Hashtable<Point, Double>();
+		wallCount = 0;
+		this.doorCount = 0;
+		allocated = new boolean[m][n];
 		
-		// TODO: Rewrite this to be less insanely inefficient
-		// Get valid door positions (non-corner tiles on the room border)
-        for (int i = 0; i < n; i++)
+		for (int i = 0; i < m; i++) {
+			for (int j = 0; j < n; j++) {
+				switch (TileTypes.toTileType(matrix[i][j])) {
+				case WALL:
+					wallCount++;
+					break;
+				case ENEMY:
+					enemies.add(new Point(i, j));
+					break;
+				case TREASURE:
+					treasures.add(new Point(i, j));
+					break;
+				case DOOR:
+				case DOORENTER:
+					doors.add(new Point(i, j));
+					doorCount++;
+				default:
+					break;
+				}
+			}
+		}
+		markDoors();
+		finder = new PatternFinder(this);
+	}
+	
+	public GeneratorConfig getConfig(){
+		return config;
+	}
+	
+	public void setConfig(GeneratorConfig config){
+		this.config = config;
+	}
+	
+	/**
+	 * Creates an instance of map.
+	 * 
+	 * @param rows The number of rows in a map.
+	 * @param cols The number of columns in a map.
+	 */
+	private Map(int rows, int cols) {
+		init(rows, cols);
+		finder = new PatternFinder(this);
+	}
+	
+	private void init(int rows, int cols) {
+		
+		treasureSafety = new Hashtable<Point, Double>();
+		this.m = cols;
+		this.n = rows;
+		wallCount = 0;
+		this.doorCount = 0;
+		
+		matrix = new int[n][m];
+		allocated = new boolean[m][n];
+        
+	}
+	
+	public void resetAllocated(){
+		allocated = new boolean[m][n];
+	}
+	
+	private void markDoors(){
+		entrance = Game.doors.get(0);
+		for(int i = 0; i < doorCount; i++)
         {
-            for (int j = 0; j < m; j++)
-            {
-                if (countNeighbors(new Point(i,j)) == 3) 
-                	positionsValid.add(new Point(i, j));
-            }
-        }
-
-        // TODO: This placement approach seems very wonky - revisit
-        // Place doors randomly
-        for(int i = 0; i < doorCount; i++)
-        {
-            Point pointWithDoor;
-
-            if (Game.doorsPositions.size() < doorCount)
-            {
-                int randomDoorTile = Util.getNextInt(0, positionsValid.size());
-                pointWithDoor = positionsValid.get(randomDoorTile);
-                Game.doorsPositions.add(pointWithDoor);
-            }
-            else
-            {
-                pointWithDoor = Game.doorsPositions.get(i);
-            }
-            
+			
             // Check if door overrides an enemy
-            if (matrix[(int)pointWithDoor.getX()][(int)pointWithDoor.getY()] == TileTypes.ENEMY.getValue()
-            		|| matrix[(int)pointWithDoor.getX()][(int)pointWithDoor.getY()] == TileTypes.ENEMY2.getValue())
+            if (TileTypes.toTileType(matrix[Game.doors.get(i).getX()][Game.doors.get(i).getY()]).isEnemy())
             {
-            	enemies.removeIf((x)->x.equals(pointWithDoor));
+            	int ii = i;
+            	enemies.removeIf((x)->x.equals(Game.doors.get(ii)));
             }
 
             // Check if door overrides a treasure
-            if(matrix[(int)pointWithDoor.getX()][(int)pointWithDoor.getY()] == TileTypes.COIN.getValue()
-            		|| matrix[(int)pointWithDoor.getX()][(int)pointWithDoor.getY()] == TileTypes.COIN2.getValue()
-            		|| matrix[(int)pointWithDoor.getX()][(int)pointWithDoor.getY()] == TileTypes.COFFER.getValue()
-            		|| matrix[(int)pointWithDoor.getX()][(int)pointWithDoor.getY()] == TileTypes.COFFER2.getValue())
+            if (TileTypes.toTileType(matrix[Game.doors.get(i).getX()][Game.doors.get(i).getY()]).isTreasure())
             {
-            	treasures.removeIf((x)->x.equals(pointWithDoor));
+            	int ii = i;
+            	treasures.removeIf((x)->x.equals(Game.doors.get(ii)));
             }
 
             // Check if door overrides a wall
-            if (matrix[(int)pointWithDoor.getX()][(int)pointWithDoor.getY()] == TileTypes.WALL.getValue())
+            if (matrix[Game.doors.get(i).getX()][Game.doors.get(i).getY()] == TileTypes.WALL.getValue())
             {
                 wallCount--;
             } 
             
-            if(enterDoorPosition == i)
+            if(i == 0)
             {
-                this.entrance = pointWithDoor;
-                //Set new tile in matrix
-                matrix[(int)pointWithDoor.getX()][(int)pointWithDoor.getY()] = TileTypes.DOORENTER.getValue();
+                matrix[Game.doors.get(i).getX()][Game.doors.get(i).getY()] = TileTypes.DOORENTER.getValue();
             }
             else
             {
-                this.doors.add(pointWithDoor);
-                //Set new tile in matrix
-                matrix[(int)pointWithDoor.getX()][(int)pointWithDoor.getY()] = TileTypes.DOOR.getValue();
+            	doors.add(Game.doors.get(i));
+            	matrix[Game.doors.get(i).getX()][Game.doors.get(i).getY()] = TileTypes.DOOR.getValue();
             }
 
-            //Don't pick the same point twice
-            positionsValid.remove(pointWithDoor);
+
         }
 	}
-	
-	private int countNeighbors(Point position) {
-		int count = 0;
 
-        //X
-        if ((position.getX() + 1) < n)
-            count++;
-        if ((position.getX() - 1) >= 0)
-            count++;
-        //Y
-        if ((position.getY() - 1) >= 0)
-            count++;
-        if ((position.getY() + 1) < m)
-            count++;
-
-        return count;
-	}
-
-	//TODO: Check that this is working properly. Rewritten quite a bit.
 	/**
 	 * Gets a list of positions of tiles adjacent to a given position
 	 * 
@@ -194,7 +222,6 @@ public class Map {
 			
 	}
 	
-	// TODO: This might be off...
 	/**
 	 * Sets a specific tile to a value.
 	 * 
@@ -206,7 +233,6 @@ public class Map {
 		matrix[x][y] = tile.getValue();
 	}
 	
-	// TODO: This might be off...
 	/**
 	 * Gets the type of a specific tile.
 	 * 
@@ -218,7 +244,6 @@ public class Map {
 		return TileTypes.toTileType(matrix[x][y]);
 	}
 	
-	// TODO: This might be off...
 	/**
 	 * Gets the type of a specific tile.
 	 * 
@@ -226,27 +251,29 @@ public class Map {
 	 * @return A tile.
 	 */
 	public TileTypes getTile(Point point){
-		return TileTypes.toTileType(matrix[(int)point.getX()][(int)point.getY()]);
+		if (point == null) {
+			return null;
+		}
+		
+		return TileTypes.toTileType(matrix[point.getX()][point.getY()]);
 	}
 	
-	// TODO: Check this...
 	/**
 	 * Returns the number of columns in a map. 
 	 * 
 	 * @return The number of columns.
 	 */
 	public int getColCount() {
-		return n;
+		return m;
 	}
 	
-	// TODO: Check this...
 	/**
 	 * Returns the number of rows in a map.
 	 * 
 	 * @return The number of rows.
 	 */
 	public int getRowCount() {
-		return m;
+		return n;
 	}
 	
 	/**
@@ -358,50 +385,31 @@ public class Map {
 	 */
 	public int getNonWallTileCount()
     {
-        return (Game.sizeN * Game.sizeM) - wallCount;
+        return (Game.sizeM * Game.sizeN) - wallCount;
     }
 	
-	// TODO: Document
+	/**
+	 * Get the ratio of enemy tiles to non-wall tiles.
+	 * 
+	 * @return The ratio of enemy tiles to non-wall tiles.
+	 */
 	public double getEnemyPercentage()
     {
         int allMap = getNonWallTileCount();
         return getEnemyCount()/(double)allMap;
     }
 	
-	// TODO: Document
+	/**
+	 * Get the ratio of treasure tiles to non-wall tiles.
+	 * 
+	 * @return The ratio of treasure tiles to non-wall tiles.
+	 */
 	public double getTreasurePercentage()
     {
         int allMap = getNonWallTileCount();
         return getTreasureCount()/(double)allMap;
     }
-	
-	// TODO: Document, rename... What on earth does this do? I have a feeling it doesn't actually work.
-	public int countCloseWalls()
-    {
-        int locked = 0;
 
-        for(int i = 0; i < n; i++)
-        {
-            for (int j = 0; i < m; i++)
-            {
-                List<Point> moves = getAvailableCoords(new Point(i,j)); // TODO: Check if right order n,m?
-
-                int movesToWalls = 0;
-                for (Point v : moves)
-                {
-                    if (matrix[(int)v.getX()][(int)v.getY()] == TileTypes.WALL.getValue())
-                    {
-                        movesToWalls++;
-                    }
-                }
-
-                if (movesToWalls > 3) locked++;
-            }
-        }
-
-        return locked;
-    }
-	
 	/**
 	 * Returns the number of treasures.
 	 * 
@@ -509,23 +517,49 @@ public class Map {
     }
     
     /**
-     * Sets the safety fitness value for the map's entry point.
+     * Sets the safety value for the map's entry point.
      * 
-     * @param fitness A safety fitness value.
+     * @param safety A safety value.
      */
-    public void setEntrySafetyFitness(double fitness) {
-    	entranceSafetyFitness = fitness;
+    public void setEntranceSafety(double safety) {
+    	entranceSafety = safety;
     }
     
     /**
-     * Gets the safety fitness value for the map's entry point.
+     * Sets the map's entrance "greed" (that is, how close is the nearest treasure?).
      * 
-     * @return The safety fitness value.
+     * @param safety A safety value.
      */
-    public double getEntrySafetyFitness() {
-    	return entranceSafetyFitness;
+    public void setEntranceGreed(double greed) {
+    	entranceGreed = greed;
     }
-
+    
+    /**
+     * Gets the safety value for the map's entry point.
+     * 
+     * @return The safety value.
+     */
+    public double getEntranceSafety() {
+    	return entranceSafety;
+    }
+    
+    /**
+     * Gets the allocation matrix.
+     * 
+     * @return The allocation matrix.
+     */
+    public boolean[][] getAllocationMatrix() {
+    	return allocated;
+    }
+    
+    /**
+     * Gets the pattern finder associated with this map.
+     * 
+     * @return A pattern finder.
+     */
+    public PatternFinder getPatternFinder() {
+    	return finder;
+    }
     
 	/**
 	 * Initialises a map.
@@ -541,13 +575,9 @@ public class Map {
 					wallCount++;
 					break;
 				case ENEMY:
-				case ENEMY2:
 					enemies.add(new Point(i, j));
 					break;
-				case COIN:
-				case COIN2:
-				case COFFER:
-				case COFFER2:
+				case TREASURE:
 					treasures.add(new Point(i, j));
 					break;
 				default:
@@ -557,16 +587,174 @@ public class Map {
 			}
 		}
 	}
+	
+	public GeneratorConfig getCalculatedConfig(){
+		GeneratorConfig newConfig = new GeneratorConfig(config);
+		//Make a new pattern finder in case the map has been manually edited since the patterns were found
+		//finder = new PatternFinder(this);
+		
+        List<Enemy> enemies = new ArrayList<Enemy>();
+        List<Treasure> treasures = new ArrayList<Treasure>();
+        List<Corridor> corridors = new ArrayList<Corridor>();
+        List<Connector> connectors = new ArrayList<Connector>();
+        List<Room> rooms = new ArrayList<Room>();
+        
+        for (Pattern p : finder.findMicroPatterns()) {
+        	if (p instanceof Enemy) {
+        		enemies.add((Enemy) p);
+        	} else if (p instanceof Treasure) {
+        		treasures.add((Treasure) p);
+        	} else if (p instanceof Corridor) {
+        		corridors.add((Corridor) p);
+        	} else if (p instanceof Connector) {
+        		connectors.add((Connector) p);
+        	} else if (p instanceof Room) {
+        		rooms.add((Room) p);
+        	}
+        }
+        
+        //TODO: Also take into account other patterns!!!
+		
+		//CORRIDOR LENGTH
+		
+		double rawCorridorArea = 0;
+    	
+    	for(Pattern p : corridors){
+    		rawCorridorArea += ((Polygon)p.getGeometry()).getArea();
+    	}
+		
+		int avgCorridorLength = (int)Math.ceil(rawCorridorArea/corridors.size());
+		newConfig.setCorridorTargetLength(Math.max(3,avgCorridorLength));
+		
+		//ROOM AND CORRIDOR RATIOS
+		
+    	double passableTiles = getNonWallTileCount();
+    	double rawRoomArea = 0.0;
+    	double totalSquareness = 0.0;
+    	
+    	for(Pattern p : rooms){
+    		rawRoomArea += ((Polygon)p.getGeometry()).getArea();
+    		totalSquareness += ((Room)p).getSquareness();
+    	}
+    	
+    	double roomProportion = rawRoomArea / passableTiles;
+		
+		newConfig.setRoomProportion(roomProportion);
+		newConfig.setCorridorProportion(1.0 - roomProportion);
+		
+		//CHAMBER AREA
+		
+		if(rooms.size() > 0){
+			int avgArea = (int)Math.ceil(rawRoomArea/rooms.size());
+			newConfig.setChamberTargetArea(avgArea);
+		}
+		//CHAMBER SQUARENESS AND SIZE
+		
+//		if(rooms.size() > 0){
+//			double avgSquareness = totalSquareness / rooms.size();
+//			newConfig.setChamberTargetSquareness(avgSquareness);
+//			newConfig.setChamberAreaCorrectness(1.0 - avgSquareness);
+//		}
+		
+		//ENEMIES
+		double enemyProportion = (double)enemies.size()/passableTiles;
+		newConfig.setEnemyQuantityRange(enemyProportion, enemyProportion);
+
+		//TREASURE
+		double treasureProportion = (double)treasures.size()/passableTiles;
+		newConfig.setTreasureQuantityRange(treasureProportion, treasureProportion);
+
+		return newConfig;
+	}
+	
 
 	/**
 	 * Exports this map as a 2D matrix of integers
 	 * 
-	 * @return A quadratic integer matrix.
+	 * @return A matrix of integers.
 	 */
 	public int[][] toMatrix() {
-		// TODO: Does this cut it, with all the new doors?
-		
 		return matrix;
+	}
+	
+	/**
+	 * Hacky load map implementation - TODO: should probably not be here
+	 * 
+	 * @param file
+	 * @throws IOException
+	 */
+	public static void LoadMap(File file) throws IOException{
+		FileReader reader = new FileReader(file);
+		String mapString = "";
+		while(reader.ready()){
+			char c = (char) reader.read();
+			mapString += c;
+		}
+		Map map = fromString(mapString);
+		PatternFinder finder = map.getPatternFinder();
+		MapContainer result = new MapContainer();
+		result.setMap(map);
+		result.setMicroPatterns(finder.findMicroPatterns());
+		result.setMesoPatterns(finder.findMesoPatterns());
+		result.setMacroPatterns(finder.findMacroPatterns());
+        EventRouter.getInstance().postEvent(new MapLoaded(result));
+	}
+	
+	/**
+	 * Builds a map from a string representing a rectangular room. Each row in
+	 * the string, separated by a newline (\n), represents a row in the
+	 * resulting map's matrix.
+	 * 
+	 * @param string A string
+	 */
+	public static Map fromString(String string) {
+		String[] rows = string.split("[\\r\\n]+");
+		// Had we just stuck to the specs, this wouldn't have been necessary...
+		if (rows.length < 2) {
+			rows = string.split("[\\n]+");
+		}
+		int rowCount = rows.length;
+		int colCount = rows[0].length();
+		TileTypes type = null;
+		
+		Map map = new Map(rowCount, colCount);
+		try {
+			map.setConfig(new GeneratorConfig());
+		} catch (MissingConfigurationException e) {
+			e.printStackTrace();
+		}
+		
+		Game.doors.clear();
+		
+		for (int i = 0; i < rowCount; i++) {
+			for (int j = 0; j < colCount; j++) {
+				type = TileTypes.toTileType(Integer.parseInt("" + rows[i].charAt(j), 16));
+				map.setTile(i, j, type);
+				switch (type) {
+				case WALL:
+					map.wallCount++;
+					break;
+				case ENEMY:
+					map.enemies.add(new Point(i, j));
+					break;
+				case TREASURE:
+					map.treasures.add(new Point(i, j));
+					break;
+				case DOOR:
+					map.addDoor(new Point(i, j));
+					Game.doors.add(new Point(i,j));
+					break;
+				case DOORENTER:
+					map.setEntrance(new Point(i, j));
+					map.addDoor(new Point(i, j));
+					Game.doors.add(0, new Point(i,j));
+					break;
+				default:
+				}
+			}
+		}
+		
+		return map;
 	}
 	
 	@Override
@@ -575,11 +763,56 @@ public class Map {
 		
 		for (int i = 0; i < m; i++) {
 			for (int j = 0; j < n; j++) {
-				map.append(matrix[m][n]);
+				map.append(Integer.toHexString(matrix[i][j]));
 			}
 			map.append("\n");
 		}
 		
 		return map.toString();
+	}
+	
+	public boolean isFeasible(){
+		List<Node> visited = new ArrayList<Node>();
+    	Queue<Node> queue = new LinkedList<Node>();
+    	int treasure = 0;
+    	int enemies = 0;
+    	int doors = 0;
+    	
+    	Node root = new Node(0.0f, getEntrance(), null);
+    	queue.add(root);
+    	
+    	while(!queue.isEmpty()){
+    		Node current = queue.remove();
+    		visited.add(current);
+    		if(getTile(current.position) == TileTypes.DOOR)
+    			doors++;
+    		else if (getTile(current.position).isEnemy())
+    			enemies++;
+    		else if (getTile(current.position).isTreasure())
+    			treasure++;
+    		
+    		List<Point> children = getAvailableCoords(current.position);
+            for(Point child : children)
+            {
+                if (visited.stream().filter(x->x.equals(child)).findFirst().isPresent() 
+                		|| queue.stream().filter(x->x.equals(child)).findFirst().isPresent()) 
+                	continue;
+
+                //Create child node
+                Node n = new Node(0.0f, child, current);
+                queue.add(n);
+            }
+    	}
+    	
+    	for(int i = treasure; i < getTreasureCount();i++)
+    		addFailedPathToTreasures();
+    	for(int i = doors; i < getDoorCount();i++)
+    		addFailedPathToTreasures();
+    	for(int i = enemies; i < getEnemyCount();i++)
+    		addFailedPathToTreasures();
+    	
+    	return visited.size() == getNonWallTileCount() 
+    			&& (treasure + doors + enemies == getTreasureCount() + getDoorCount() + getEnemyCount())
+    			&& getTreasureCount() > 0 && getEnemyCount() > 0;
 	}
 }

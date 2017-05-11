@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.canvas.Canvas?>
+<?import javafx.scene.control.Accordion?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.CheckBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.SplitPane?>
+<?import javafx.scene.control.TitledPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Text?>
+
+<SplitPane dividerPositions="0.5" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="768.0" prefWidth="1024.0" stylesheets="@styling.css" xmlns="http://javafx.com/javafx/8.0.111" xmlns:fx="http://javafx.com/fxml/1" fx:controller="gui.ParameterGUIController">
+  <items>
+      <HBox id="canvasPane">
+         <children>
+            <Canvas id="mapCanvas" fx:id="mapCanvas" height="400.0" width="400.0" />
+         </children>
+      </HBox>
+      <VBox id="controlPane" fx:id="controlPane" maxWidth="-Infinity" minWidth="-Infinity" prefHeight="598.0" prefWidth="340.0">
+         <children>
+            <Button id="runButton" fx:id="runButton" maxWidth="-Infinity" mnemonicParsing="false" onAction="#runButtonPressed" prefWidth="200.0" text="Run!" />
+            <Button id="cancelButton" fx:id="cancelButton" maxWidth="-Infinity" mnemonicParsing="false" onAction="#cancelButtonPressed" prefWidth="200.0" cancelButton="true" disable="true" text="Cancel" />
+            <Accordion>
+              <panes>
+                <TitledPane id="messageSlab" fx:id="messageSlab" animated="false" maxHeight="1.7976931348623157E308" minWidth="-Infinity" prefHeight="1012.0" prefWidth="340.0" text="Output">
+                     <content>
+                        <ScrollPane id="messagePane" fx:id="messagePane">
+                          <content>
+                            <Text id="messageDisplayer" fx:id="messageDisplayer" wrappingWidth="250.0" />
+                          </content>
+                        </ScrollPane>
+                     </content>
+                </TitledPane>
+                <TitledPane fx:id="mapSlab" animated="false" onMouseClicked="#mapSlabPressed" text="Map actions">
+                	<content>
+                		<VBox id="mapControls" fx:id="mapControls" maxWidth="-Infinity" minWidth="-Infinity" prefHeight="598.0" prefWidth="340.0">
+                			<children>
+                				<HBox>
+                					<children>
+                						<Button id="selectAllPatternsButton" fx:id="selectAllPatternsButton" maxWidth="-Infinity" mnemonicParsing="false" onAction="#selectAllPatternsButtonPressed" prefWidth="200.0" text="Select all patterns" />
+                						<Button id="deselectAllPatternsButton" fx:id="deselectAllPatternsButton" maxWidth="-Infinity" mnemonicParsing="false" onAction="#deselectAllPatternsButtonPressed" prefWidth="200.0" text="Deselect all patterns" />
+                					</children>
+                				</HBox>
+                				<CheckBox fx:id="renderMapBox" id="renderMapBox" onAction="#renderMapBoxToggled" text="Render map" />
+                				<Label id="patternLabel" text="Available pattern instances:" />
+                				<Accordion id="patternAccordion" fx:id="patternAccordion" maxWidth="-Infinity" minWidth="-Infinity" prefHeight="598.0" prefWidth="340.0">
+                				</Accordion>
+                			</children>
+                		</VBox>
+                	</content>
+                </TitledPane>
+                <TitledPane fx:id="configSlab" animated="false" onMouseClicked="#configSlabPressed" text="Configure">
+                </TitledPane>
+              </panes>
+            </Accordion>
+         </children>
+      </VBox>
+  </items>
+</SplitPane>

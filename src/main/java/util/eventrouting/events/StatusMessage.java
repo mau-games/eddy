@@ -8,7 +8,7 @@ import util.eventrouting.PCGEvent;
  * @author Alexander Baldwin, Malmö University
  * @author Johan Holmberg, Malmö University
  */
-public class StatusMessage extends PCGEvent {
+public class StatusMessage extends AlgorithmEvent {
 	
 	/**
 	 * Creates a new event.

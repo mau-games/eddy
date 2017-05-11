@@ -3,15 +3,12 @@ package util.algorithms;
 import java.util.List;
 import java.util.Optional;
 
-import javax.swing.event.ListSelectionEvent;
-
 import java.util.ArrayList;
 import game.Map;
 import util.Point;
 import util.Util;
 
 
-// TODO: Check if this is implemented properly
 public class Pathfinder {
 	//private Point2D goal;
     private Map map;
@@ -87,28 +84,6 @@ public class Pathfinder {
 
         return nodes.stream().toArray(Node[]::new);
     }
-
-    // TODO: Horrible. Worst implementation of quicksort ever.
-//    private List<Node> qSortOpenList(List<Node> open_list)
-//    {
-//        if (open_list.size() == 0) 
-//        	return new ArrayList<Node>();
-//        List<Node> left = new ArrayList<Node>();
-//        List<Node> right = new ArrayList<Node>();
-//        Node pivot = open_list.get(0);
-//
-//        for(int i = 1; i < open_list.size(); i++)
-//        {
-//            if (open_list.get(i).f < pivot.f)
-//                left.add(open_list.get(i));
-//            else
-//                right.add(open_list.get(i)); 
-//        }
-//
-//        left.add(pivot);
-//        left.addAll(right);
-//        return qSortOpenList(left);
-//    }
 
     private boolean existsPointInArrayNodes(List<Node> closed_list, Point point)
     {

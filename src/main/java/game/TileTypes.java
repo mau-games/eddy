@@ -10,16 +10,11 @@ package game;
 public enum TileTypes {
 	FLOOR(0),
     WALL(1),
-    COIN(2),
-    COIN2(3),
-    ENEMY(4),
-    ENEMY2(5),
-    COFFER(6),
-    COFFER2(7),
-    WALLOUTTER(8),
-    DOOR(9),
-    DOORENTER(10),
-    ALPHA_GREEN(11);
+    TREASURE(2),
+    ENEMY(3),
+    DOOR(4),
+    DOORENTER(5),
+    NONE(6);
 	
 	private final int value;
 	private TileTypes(int value){
@@ -33,6 +28,14 @@ public enum TileTypes {
 	 */
 	public int getValue(){
 		return value;
+	}
+	
+	public boolean isTreasure(){
+		return value == TREASURE.getValue();
+	}
+	
+	public boolean isEnemy(){
+		return value == ENEMY.getValue();
 	}
 	
 	/**
@@ -52,35 +55,19 @@ public enum TileTypes {
 			tile = TileTypes.WALL;
 			break;
 		case 2:
-			tile = TileTypes.COIN;
+			tile = TileTypes.TREASURE;
 			break;
 		case 3:
-			tile = TileTypes.COIN2;
-			break;
-		case 4:
 			tile = TileTypes.ENEMY;
 			break;
-		case 5:
-			tile = TileTypes.ENEMY2;
-			break;
-		case 6:
-			tile = TileTypes.COFFER;
-			break;
-		case 7:
-			tile = TileTypes.COFFER2;
-			break;
-		case 8:
-			tile = TileTypes.WALLOUTTER;
-			break;
-		case 9:
+		case 4:
 			tile = TileTypes.DOOR;
 			break;
-		case 10:
+		case 5:
 			tile = TileTypes.DOORENTER;
 			break;
-		case 11:
 		default:
-			tile = TileTypes.ALPHA_GREEN;
+			tile = TileTypes.NONE;
 		}
 		
 		return tile;

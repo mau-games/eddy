@@ -2,44 +2,105 @@ package generator.algorithm;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Queue;
+import java.util.UUID;
+import java.util.stream.Collectors;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import finder.PatternFinder;
+import finder.Populator;
+import finder.geometry.Polygon;
+import finder.patterns.CompositePattern;
+import finder.patterns.Pattern;
+import finder.patterns.meso.Ambush;
+import finder.patterns.meso.DeadEnd;
+import finder.patterns.meso.GuardRoom;
+import finder.patterns.meso.GuardedTreasure;
+import finder.patterns.meso.TreasureRoom;
+import finder.patterns.micro.Connector;
+import finder.patterns.micro.Corridor;
+import finder.patterns.micro.Enemy;
+import finder.patterns.micro.Room;
+import finder.patterns.micro.Treasure;
 import game.Game;
 import game.Map;
-import generator.config.Config;
-import generator.config.MissingConfigurationException;
+import game.MapContainer;
+import game.TileTypes;
+import generator.config.GeneratorConfig;
 import util.Point;
 import util.Util;
-import util.algorithms.BFS;
 import util.algorithms.Node;
-import util.algorithms.Pathfinder;
+import util.config.ConfigurationUtility;
+import util.config.MissingConfigurationException;
 import util.eventrouting.EventRouter;
 import util.eventrouting.events.AlgorithmDone;
+import util.eventrouting.events.AlgorithmStarted;
+import util.eventrouting.events.GenerationDone;
 import util.eventrouting.events.MapUpdate;
 import util.eventrouting.events.StatusMessage;
 
 public class Algorithm extends Thread {
-	// TODO: Is it weird that the starting population is 100 split between both valid and invalid, 
-	// but later invalid and valid are allowed 100 EACH? Look into this.
-	public static int POPULATION_SIZE = 100; 
-	public static float MUTATION_PROB = 0.9f;
-	public static float SON_SIZE = 0.7f;
+	private UUID id;
+	private final Logger logger = LoggerFactory.getLogger(Algorithm.class);
+	private GeneratorConfig config;
 	
-	private List<Individual> populationValid;
-	private List<Individual> populationInvalid;
+	private int populationSize; 
+	private float mutationProbability;
+	private float offspringSize;
+	
+	private List<Individual> feasiblePopulation;
+	private List<Individual> infeasiblePopulation;
 	private Individual best;
-	private Config mConfig;
-	private List<Individual> readyToValid;
-	private List<Individual> readyToInvalid;
-	private int size;
+	private List<Individual> feasiblePool;
+	private List<Individual> infeasiblePool;
 	private boolean stop = false;
+	private int feasibleAmount;
+	private double roomTarget;
+	private double corridorTarget;
 	
+	private int infeasiblesMoved = 0;
+	private int movedInfeasiblesKept = 0;
 
-	public Algorithm(int size, Config config){
-		this.size = size;
-		mConfig = config;
-		initPopulations();		
+	public Algorithm(GeneratorConfig config){
+		this.config = config;
+		id = UUID.randomUUID();
+		populationSize = config.getPopulationSize();
+		mutationProbability = (float)config.getMutationProbability();
+		offspringSize = (float)config.getOffspringSize();
+		feasibleAmount = (int)((double)populationSize * config.getFeasibleProportion());
+		roomTarget = config.getRoomProportion();
+		corridorTarget = config.getCorridorProportion();
+
+		// Uncomment this for silly debugging
+//		System.out.println("Starting run #" + id);
+		initPopulations();
 	}
+	
+	/**
+	 * Create an Algorithm run using mutations of a given map
+	 * @param map
+	 */
+	public Algorithm(Map map){
+		this.config = map.getCalculatedConfig();
+		map.setConfig(this.config);
+		id = UUID.randomUUID();
+		populationSize = config.getPopulationSize();
+		mutationProbability = (float)config.getMutationProbability();
+		offspringSize = (float)config.getOffspringSize();
+		feasibleAmount = (int)((double)populationSize * config.getFeasibleProportion());
+		roomTarget = config.getRoomProportion();
+		corridorTarget = config.getCorridorProportion();
+
+		// Uncomment this for silly debugging
+//		System.out.println("Starting run #" + id);
+		initPopulations(map);
+	}
+	
 	
 	public void terminate(){
 		stop = true;
@@ -60,34 +121,72 @@ public class Algorithm extends Thread {
 	 * @param best The best map from the current generation.
 	 */
 	private synchronized void broadcastMapUpdate(Map best){
-		EventRouter.getInstance().postEvent(new MapUpdate(best));
+		MapUpdate ev = new MapUpdate(best);
+        ev.setID(id);
+		EventRouter.getInstance().postEvent(ev);
+	}
+	
+	
+
+	private void initPopulations(Map map){
+		broadcastStatusUpdate("Initialising...");
+		
+		feasiblePool = new ArrayList<Individual>();
+		infeasiblePool = new ArrayList<Individual>();
+		feasiblePopulation = new ArrayList<Individual>();
+		infeasiblePopulation = new ArrayList<Individual>();
+		
+		int i = 0;
+		int j = 0;
+		while((i + j) < populationSize){
+			Individual ind = new Individual(map, mutationProbability);
+			ind.mutateAll(0.4);
+			
+			if(checkIndividual(ind)){
+				if(i < feasibleAmount){
+					feasiblePool.add(ind);
+					i++;
+				}
+			}
+			else {
+				if(j < populationSize - feasibleAmount){
+					infeasiblePool.add(ind);
+					j++;
+				}
+			}
+		}
+		
+		broadcastStatusUpdate("Population generated.");
 	}
 	
 	/**
 	 * Creates lists for the valid and invalid populations and populates them with individuals.
-	 * TODO: Figure out what the difference between readyToValid and populationValid is
 	 */
 	private void initPopulations(){
 		broadcastStatusUpdate("Initialising...");
 		
-		readyToValid = new ArrayList<Individual>();
-		readyToInvalid = new ArrayList<Individual>();
-
-		populationValid = new ArrayList<Individual>();
-		populationInvalid = new ArrayList<Individual>();
+		feasiblePool = new ArrayList<Individual>();
+		infeasiblePool = new ArrayList<Individual>();
+		feasiblePopulation = new ArrayList<Individual>();
+		infeasiblePopulation = new ArrayList<Individual>();
+		
 		int i = 0;
 		int j = 0;
-		while((i + j) < size){
-			Individual ind = new Individual(Game.sizeN * Game.sizeM);
+		while((i + j) < populationSize){
+			Individual ind = new Individual(config, Game.sizeN * Game.sizeM, mutationProbability);
 			ind.initialize();
 			
 			if(checkIndividual(ind)){
-				populationValid.add(ind);
-				i++;
+				if(i < feasibleAmount){
+					feasiblePool.add(ind);
+					i++;
+				}
 			}
 			else {
-				populationInvalid.add(ind);
-				j++;
+				if(j < populationSize - feasibleAmount){
+					infeasiblePool.add(ind);
+					j++;
+				}
 			}
 		}
 		
@@ -99,62 +198,115 @@ public class Algorithm extends Thread {
 	 */
 	public void run(){
 		
+		AlgorithmStarted as = new AlgorithmStarted();
+		as.setID(id);
+		EventRouter.getInstance().postEvent(as);
+		
 		broadcastStatusUpdate("Evolving...");
+        int generations = config.getGenerations();
+        
+        Map map = null;
 
-        int generationCount = 1;
-        int generations = 100; // Why? TODO: investigate
-
-        // TODO: Should there be a fixed number of generations, or should it go until a desired fitness is reached?
-        while (generationCount <= generations) {
+        for(int generationCount = 1; generationCount <= generations; generationCount++) {
         	if(stop)
         		return;
         	
-        	broadcastStatusUpdate("Generation " + generationCount);
+//        	broadcastStatusUpdate("Generation " + generationCount);
 
-            evaluateGeneration();
-            insertReadyToValidAndEvaluate();
-            insertReadyToInvalidAndEvaluate();
+        	
+        	movedInfeasiblesKept = 0;
+        	evaluateAndTrimPools();
+        	copyPoolsToPopulations();
 
-            // TODO: Sort out fancy output messages later
-                //info population valid
-                double[] dataValid = infoGenerational(populationValid, true);
-//                avgFitness = dataValid[0];
-                //info population invalid
-//                double[] dataInvalid = infoGenerational(populationInvalid, false);
-//
-//                messageGeneration += "Generation " + generationCount + "\n";
-//                messageGeneration += "Avg valid fitness: " + dataValid[0] + "\n";
-//                messageGeneration += "Min valid fitness: " + dataValid[1] + "\n";
-//                messageGeneration += "Max valid fitness: " + dataValid[2] + "\n\n";
-//
-//                messageGeneration += "Avg invalid fitness: " + dataInvalid[0] + "\n";
-//                messageGeneration += "Min invalid fitness: " + dataInvalid[1] + "\n";
-//                messageGeneration += "Max invalid fitness: " + dataInvalid[2] + "\n\n";
-//                messageGeneration += "Valids: " + populationValid.Count() + "\n";
-//                messageGeneration += "Invalids: " + populationInvalid.Count() + "\n";
-//                messageGeneration += "Ready to valids: " + readyToValid.Count() + "\n";
-//                messageGeneration += "Ready to invalid: " + readyToInvalid.Count() + "\n";
-//                messageGeneration += "BEST: " + best.getFitness();
-//
-//                MessagesPool.add(messageGeneration);
-//                MessagesPool.addObject(best);
-
+            double[] dataValid = infoGenerational(feasiblePopulation, true);
             
-            //broadcastStatusUpdate("Generation " + generationCount + " finished.");
-            broadcastStatusUpdate("Average fitness: " + dataValid[0]);
-            broadcastStatusUpdate("Max fitness: " + dataValid[2]);
-            broadcastStatusUpdate("BEST fitness: " + best.getFitness());
-            broadcastStatusUpdate("Valids: " + populationValid.size());
-            broadcastStatusUpdate("Invalids: " + populationInvalid.size());
-
-            broadcastMapUpdate(best.getPhenotype().getMap());
+//            broadcastStatusUpdate("BEST fitness: " + best.getFitness());
             
+            map = best.getPhenotype().getMap();
+            //broadcastMapUpdate(map);
             
-            produceNextValidGeneration();
-            produceNextInvalidGeneration();
-            generationCount++;
+          
+//        	broadcastStatusUpdate("Corridor Fitness: " + best.getCorridorFitness());
+//        	broadcastStatusUpdate("Room Fitness: " + best.getRoomFitness());
+//
+//        	broadcastStatusUpdate("Corridors & Connectors: " + best.getCorridorArea());
+//        	broadcastStatusUpdate("Passable tiles: " + best.getPhenotype().getMap().getNonWallTileCount());
+//        	
+//        	broadcastStatusUpdate("Infeasibles moved: " + infeasiblesMoved);
+//        	broadcastStatusUpdate("Moved infeasibles kept: " + movedInfeasiblesKept);
+//        	
+        	breedFeasibleIndividuals();
+        	breedInfeasibleIndividuals();
+//        	
+//        	
+//        	//Check diversity:
+//        	double distance = 0.0;
+//        	for(int i = 0; i < feasiblePopulation.size(); i++){
+//        		if(feasiblePopulation.get(i) != best)
+//        			distance += best.getDistance(feasiblePopulation.get(i));
+//        	}
+//        	double averageDistance = distance / (double)(feasiblePopulation.size() - 1);
+//        	broadcastStatusUpdate("Average distance from best individual: " + averageDistance);
+//        	
+//        	double passableTiles = map.getNonWallTileCount();
+        	
+        	//map.getPatternFinder().findMesoPatterns();
+        	
+        	//Data we want:
+        	// Best fitness
+        	// Average fitness
+        	// Corridor fitness
+        	// Room fitness
+        	// Corridor proportion (& connector)
+        	// Room proportion
+        	//String generation = "" + best.getFitness() + "," + dataValid[0] + "," + best.getCorridorFitness() + "," + best.getRoomFitness() + "," + best.getCorridorArea()/passableTiles + "," + best.getRoomArea()/passableTiles + "," + best.getTreasureAndEnemyFitness();
+        	//EventRouter.getInstance().postEvent(new GenerationDone(generation));
         }
-        EventRouter.getInstance().postEvent(new AlgorithmDone());
+        broadcastMapUpdate(map);
+        PatternFinder finder = map.getPatternFinder();
+		MapContainer result = new MapContainer();
+		result.setMap(map);
+		result.setMicroPatterns(finder.findMicroPatterns());
+		result.setMesoPatterns(finder.findMesoPatterns());
+		result.setMacroPatterns(finder.findMacroPatterns());
+        AlgorithmDone ev = new AlgorithmDone(result);
+        ev.setID(id);
+        EventRouter.getInstance().postEvent(ev);
+	}
+	
+	/**
+	 * Evaluates the fitness of all individuals in pools and trims them down to the desired sizes
+	 */
+	private void evaluateAndTrimPools(){
+        //Evaluate valid individuals
+        for(Individual ind : feasiblePool)
+        {
+            if (!ind.isEvaluated())
+                evaluateFeasibleIndividual(ind);
+        }
+        this.sortPopulation(feasiblePool, false);
+        feasiblePool = feasiblePool.stream().limit(feasibleAmount).collect(Collectors.toList());
+        feasiblePool.forEach(individual -> {if(((Individual)individual).isChildOfInfeasibles()) movedInfeasiblesKept++; individual.setChildOfInfeasibles(false);});
+
+        //Evaluate invalid individuals
+        for(Individual ind : infeasiblePool)
+        {
+            if (!ind.isEvaluated())
+                evaluateInfeasibleIndividual(ind);
+        }
+        this.sortPopulation(infeasiblePool, false);
+        infeasiblePool = infeasiblePool.stream().limit(populationSize - feasibleAmount).collect(Collectors.toList());
+	}
+	
+	/**
+	 * Copy individuals from pools to populations for breeding etc.
+	 */
+	private void copyPoolsToPopulations(){
+		feasiblePopulation.clear();
+		feasiblePool.forEach(individual -> feasiblePopulation.add(individual));
+		
+		infeasiblePopulation.clear();
+		infeasiblePool.forEach(individual -> infeasiblePopulation.add(individual));
 	}
 	
 	/**
@@ -162,258 +314,183 @@ public class Algorithm extends Thread {
 	 * 1. There exist paths between the entrance and all other doors
 	 * 2. There exist paths between the entrance and all enemies
 	 * 3. There exist paths between the entrance and all treasures
-	 * 4. There is at least one enemy TODO: Why?
-	 * 5. There is at least one treasure TODO: Why?
+	 * 4. There is at least one enemy
+	 * 5. There is at least one treasure
 	 * 
 	 * @param ind The individual to check
 	 * @return Return true if individual is valid, otherwise return false
     */
 	private boolean checkIndividual(Individual ind){
 		Map map = ind.getPhenotype().getMap();
-        Pathfinder pathfinder = new Pathfinder(map);
-        Point entrance = map.getEntrance();
-
-        //Check if there is a path between the entrance and all other doors
-        for (Point door : map.getDoors())
-        {
-            Node[] path = pathfinder.find(entrance,door);
-
-            if (path.length == 0)
-                map.addFailedPathToDoors();
-        }
-
-        //Check if there is a path between the entrance and all enemies
-        //enemies
-        for (Point enemy : map.getEnemies())
-        {
-            Node[] path = pathfinder.find(entrance,enemy);
-
-            if (path.length == 0)
-                map.addFailedPathToEnemies();
-        }
-
-        //Check if there is a path between the entrance and all treasures
-        for (Point treasure : map.getTreasures())
-        {
-            Node[] path = pathfinder.find(entrance,treasure);
-
-            if (path.length == 0)
-                map.addFailedPathToTreasures();
-        }
-
-        // TODO: Think about why it is a requirement that the room contains enemies and treasure.
-        return (map.getFailedPathsToAnotherDoor() == 0) &&
-                (map.getFailedPathsToEnemies() == 0) &&
-                (map.getFailedPathsToTreasures() == 0) &&
-                (map.getEnemyCount() > 0) &&
-                (map.getTreasureCount() > 0);
+		return map.isFeasible();
 	}
 	
 	/**
-	 * Uses Breadth First Search to calculate a score for the safety of the room's entrance.
-	 * According to the old source, the formula should be:
-	 * 
-	 * 	f = 1 / [ (width * height) - Numero_muros ] * SUM for all areas for each enemy
-	 * 
-	 * ...but this is not currently the case. TODO: Look into this.
-	 * 
-	 * @param ind The individual to evaluate.
-	 * @return The safety value for the room's entrance.
-	 */
-	public float evaluateSafetyEnterDoor(Individual ind)
-    {
-        Map map = ind.getPhenotype().getMap();
-        Point startDoor = map.getEntrance();
-        //int countWalls = map.getWallCount();
-        //int totalAreas = 0;
-        int minArea = 0;
-
-        BFS bfs = new BFS(map);
-
-        for(Point enemy : map.getEnemies())
-        {
-            //totalAreas += bfs.find(Map.Point2D.toUnityVector2(startDoor), Map.Point2D.toUnityVector2(enemy)).Length;
-            int area = bfs.getTraversedNodesBetween(startDoor, enemy).length;
-            if (minArea == 0 || minArea < area)
-                minArea = area;
-        }
-
-        // Note: These comments were in the original source.
-        //Formula
-        //float safetyFitness = 1.0f / ((Game.sizeN * Game.sizeM) - countWalls);
-
-        //Prod with totalAreas
-        //safetyFitness *= totalAreas;
-        //safetyFitness *= minArea;
-
-        return minArea;
-    }
-	
-	/**
-	 * Evaluates the treasure safety of a valid individual 
-	 * TODO: Look into this one more deeply.
-	 * TODO: Rename!
-	 * 
-	 * @param ind The individual to evaluate
-	 */
-	public void evaluateSafetyTreasuresWithDoorsForIndividualsValid(Individual ind)
-	{
-	    Map map = ind.getPhenotype().getMap();
-	
-	    if(map.getEnemyCount() > 0)
-	    {
-	        int treasuresSize = map.getTreasureCount();
-	        int enemiesSize = map.getEnemyCount();
-	        Point doorEnter = map.getEntrance();
-	        List<Double> maxs = new ArrayList<Double>();
-	        
-	        Pathfinder pathfinder = new Pathfinder(map);
-	
-	        for (int i = 0; i < treasuresSize; i++)
-	        {
-	            Point treasure = map.getTreasures().get(i);
-	            //enemiesSize = 0;
-	            for(int j = 0; j < enemiesSize; j++)
-	            {
-	                Point enemy = map.getEnemies().get(j);
-	
-	                //To Calculate
-	                //din = Distance in nodes
-	
-	                //Distance in nodes from treasure i to enemy j
-	                int dinTreasureToEnemy = pathfinder.find(treasure, enemy).length;
-	
-	                //Distance in nodes from treasure i to enter door
-	                int dinTreasureToStartDoor = pathfinder.find(treasure, doorEnter).length;
-	
-	                //Formule result
-	                /*
-	                    (dti,mj - dti,i) /
-	                    (dti,mj - dti,i)
-	                */
-	                double result = (double)
-	                    (dinTreasureToEnemy - dinTreasureToStartDoor) / 
-	                    (dinTreasureToEnemy + dinTreasureToStartDoor);
-	
-	                if (Double.isNaN(result))
-	                {
-	                    result = 0.0f;
-	                }
-	
-	                //Calculate and store max
-	                maxs.add(Math.max(0.0, result));
-	            }
-	
-	            //The safety is the min of maxs result
-	            if(maxs.size() > 0)
-	            {
-	                Double min = maxs.stream().min((a,b) -> Double.compare(a, b)).get();
-	                map.setTreasureSafety(treasure, min);
-	            }
-	            
-	        }
-	    }
-	}
-	
-	/**
-	 * Evaluates the fitness of a valid individual
-	 * TODO: Explain how this is done
+	 * Evaluates the fitness of a valid individual using the following factors:
+	 *  1. Entrance safety (how close are enemies to the entrance)
+	 *  2. Proportion of tiles that are enemies
+	 *  3. Average treasure safety (Are treasures closer to the door or enemies?)
+	 *  4. Proportion of tiles that are treasure
+	 *  5. Treasure safety variance (whatever this is!)
 	 * 
 	 * @param ind The valid individual to evaluate
 	 */
-    public void evaluateValidIndividual(Individual ind)
+    public void evaluateFeasibleIndividual(Individual ind)
     {
-        double fitness = 0.0;
         Map map = ind.getPhenotype().getMap();
-        int tilesPassables = map.getNonWallTileCount();
-
-        //security area (1)
-        double fitness_security_area = evaluateSafetyEnterDoor(ind) / (double)tilesPassables;
-        map.setEntrySafetyFitness(fitness_security_area);
-        try {
-			fitness_security_area -= mConfig.getSecurityAreaVariance();
-		} catch (MissingConfigurationException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-
-        //# enemies (2)
-        double[] expectedEnemiesRange = null;
-		try {
-			expectedEnemiesRange = mConfig.getEnemyQuantityRange();
-		} catch (MissingConfigurationException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-        double fitness_enemies_proportion = 0.0;
-        double enemyPercent = map.getEnemyPercentage();
-        if(enemyPercent > expectedEnemiesRange[0])
-        {
-            fitness_enemies_proportion = enemyPercent - expectedEnemiesRange[1];
+        PatternFinder finder = map.getPatternFinder();
+        List<Enemy> enemies = new ArrayList<Enemy>();
+        List<Treasure> treasures = new ArrayList<Treasure>();
+        List<Corridor> corridors = new ArrayList<Corridor>();
+        List<Connector> connectors = new ArrayList<Connector>();
+        List<Room> rooms = new ArrayList<Room>();
+        
+        for (Pattern p : finder.findMicroPatterns()) {
+        	if (p instanceof Enemy) {
+        		enemies.add((Enemy) p);
+        	} else if (p instanceof Treasure) {
+        		treasures.add((Treasure) p);
+        	} else if (p instanceof Corridor) {
+        		corridors.add((Corridor) p);
+        	} else if (p instanceof Connector) {
+        		connectors.add((Connector) p);
+        	} else if (p instanceof Room) {
+        		rooms.add((Room) p);
+        	}
         }
-        else
-        { 
-            fitness_enemies_proportion = enemyPercent - expectedEnemiesRange[0];
+        
+        List<DeadEnd> deadEnds = new ArrayList<DeadEnd>();
+        List<TreasureRoom> treasureRooms = new ArrayList<TreasureRoom>();
+        List<GuardRoom> guardRooms = new ArrayList<GuardRoom>();
+        List<Ambush> ambushes = new ArrayList<Ambush>();
+        List<GuardedTreasure> guardedTreasure = new ArrayList<GuardedTreasure>();
+        //Ignore choke points for now
+        for(CompositePattern p : finder.findMesoPatterns()){
+        	if(p instanceof DeadEnd){
+        		deadEnds.add((DeadEnd)p);
+        	} else if (p instanceof TreasureRoom){
+        		treasureRooms.add((TreasureRoom)p);
+        	} else if (p instanceof GuardRoom){
+        		guardRooms.add((GuardRoom)p);
+        	} else if (p instanceof Ambush){
+        		ambushes.add((Ambush)p);
+        	} else if (p instanceof GuardedTreasure){
+        		guardedTreasure.add((GuardedTreasure)p);
+        	}
+        	
         }
+        
+        
+        double microPatternWeight = 0.9;
+        double mesoPatternWeight = 0.1;
+        
+        
+        //Door Fitness - don't care about this for now
+        double doorFitness = 1.0f;
+        
+        //Entrance Fitness
+        double entranceFitness = 1.0;
+        
+    	for(Pattern p : enemies){
+    		entranceFitness -= p.getQuality();
+    	}
+        
+        //Enemy Fitness
+        double enemyFitness = 1.0;
+    	for(Pattern p : enemies){
+    		enemyFitness -= p.getQuality();
+    	}
+        
+        //Treasure Fitness
+        double treasureFitness = 1.0;
+    	for(Pattern p : treasures){
+    		treasureFitness -= p.getQuality();
+    	}
+        
 
-        //avg seg tesoros (3)
-        evaluateSafetyTreasuresWithDoorsForIndividualsValid(ind);
-        Double[] safeties = map.getAllTreasureSafeties();
-        double safeties_average = Util.calcAverage(safeties);
-        double fitness_avg_treasures_security = 0.0;
-        try {
-			fitness_avg_treasures_security = safeties_average - mConfig.getAverageTreasureSecurity();
-		} catch (MissingConfigurationException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-
-
-        //# treasures (4)
-        double[] expectedTreasuresRange = null;
-		try {
-			expectedTreasuresRange = mConfig.getTreasureQuantityRange();
-		} catch (MissingConfigurationException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-        double fitness_treasures_proportion = 0.0;
-        double treasurePercent = map.getTreasurePercentage();
-        if(treasurePercent > expectedTreasuresRange[0])
-        {
-            fitness_treasures_proportion = treasurePercent - expectedTreasuresRange[1];
-        }
-        else
-        {
-            fitness_treasures_proportion = treasurePercent - expectedTreasuresRange[0];
-        }
-
-        //variance treasures security
-        double safeties_variance = Util.calcVariance(safeties);
-        double expectedSafetyVariance = 0.0;
-		try {
-			expectedSafetyVariance = mConfig.getTreasureSecurityVariance();
-		} catch (MissingConfigurationException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-
-        double fitness_treasures_security_variance = safeties_variance - expectedSafetyVariance;
-
-        //Check objects locked
-        double objectsLocked = map.countCloseWalls();
-
-        // TODO: Witness the fitness. (Investigate why these values are used)
-        fitness =
-            (Math.abs(fitness_security_area) * 0.1) +
-            (Math.abs(fitness_enemies_proportion) * 0.2) +
-            (Math.abs(fitness_avg_treasures_security) * 0.1) +
-            (Math.abs(fitness_treasures_proportion) * 0.2) +
-            (Math.abs(fitness_treasures_security_variance) * 0.2) +
-            (objectsLocked * 0.2);
-
+        double treasureAndEnemyFitness = 0.0 * doorFitness + 0.2 * entranceFitness + 0.4 * enemyFitness + 0.4 * treasureFitness;
+    	
+        
+    	//Corridor fitness
+    	double passableTiles = map.getNonWallTileCount();
+    	double corridorArea = 0;	
+    	double rawCorridorArea = 0;
+    	for(Pattern p : corridors){
+    		rawCorridorArea += ((Polygon)p.getGeometry()).getArea();
+    		
+    		double mesoContribution = 0.0;
+    		for(DeadEnd de : deadEnds){
+    			if(de.getPatterns().contains(p)){
+    				mesoContribution = de.getQuality();
+    				//System.out.println(mesoContribution);
+    			}
+    				
+    		}
+    		
+    		corridorArea += ((Polygon)p.getGeometry()).getArea() * (p.getQuality()*microPatternWeight +mesoContribution*mesoPatternWeight);
+    		
+    	}
+    	double corridorFitness = corridorArea/passableTiles;
+    	corridorFitness = 1 - Math.abs(corridorFitness - corridorTarget)/Math.max(corridorTarget, 1.0 - corridorTarget);
+    	
+    	//Room fitness
+    	double roomArea = 0;
+    	double rawRoomArea = 0;
+    	
+    	//Room fitness
+    	for(Pattern p : rooms){
+    		rawRoomArea += ((Polygon)p.getGeometry()).getArea();
+    		double mesoContribution = 0.0;
+    		for(DeadEnd de : deadEnds){
+    			if(de.getPatterns().contains(p)){
+    				mesoContribution +=de.getQuality();
+    			}	
+    		}
+    		
+    		for(TreasureRoom t : treasureRooms){
+    			if(t.getPatterns().contains(p)){
+    				mesoContribution += t.getQuality();
+    			}
+    		}
+    		for(GuardRoom g : guardRooms){
+    			if(g.getPatterns().contains(p)){
+    				mesoContribution += g.getQuality();
+    			}
+    		}
+    		for(Ambush a : ambushes){
+    			if(a.getPatterns().contains(p)){
+    				mesoContribution += a.getQuality();
+    			}
+    		}
+    		for(GuardedTreasure gt: guardedTreasure){
+    			if(gt.getPatterns().contains(p)){
+    				mesoContribution += gt.getQuality();
+    			}
+    		}
+    		
+    		if(mesoContribution > 1)
+    			mesoContribution = 1;
+    		
+    		roomArea += ((Polygon)p.getGeometry()).getArea() * (p.getQuality()*microPatternWeight + mesoContribution * mesoPatternWeight);
+    	}
+    	
+    	double roomFitness = roomArea/passableTiles;
+    	roomFitness = 1 - Math.abs(roomFitness - roomTarget)/Math.max(roomTarget, 1.0 - roomTarget);
+    	
+    	
+    	//Total fitness
+    	double fitness = 0.5 * treasureAndEnemyFitness
+    			+  0.5 * (0.3 * roomFitness + 0.7 * corridorFitness);
+    	
+    	
+    	
         //set final fitness
         ind.setFitness(fitness);
+        ind.setTreasureAndEnemyFitness(treasureAndEnemyFitness);
+        ind.setRoomFitness(roomFitness);
+    	ind.setCorridorFitness(corridorFitness);
+    	ind.setRoomArea(rawRoomArea);
+    	ind.setCorridorArea(rawCorridorArea);
         ind.setEvaluate(true);
     }
 
@@ -423,13 +500,10 @@ public class Algorithm extends Thread {
      * fitness = 1 - ((1/3) * (pathToEnemiesFail/enemiesCount) +
      *				  (1/3) * (pathToTreasuresFail/treasuresCount) +
      *                (1/3) * (pathToDoorsFail/doorsCount))
-     *                
-     * TODO: This only takes into account how far from being valid the individual is.
-     * 		 Should it also take into account other fitness factors?
      * 
      * @param ind The invalid individual to evaluate
      */
-	public void evaluateInvalidIndividual(Individual ind)
+	public void evaluateInfeasibleIndividual(Individual ind)
 	{
 		double fitness = 0.0;
 	    Map map = ind.getPhenotype().getMap();
@@ -462,72 +536,17 @@ public class Algorithm extends Thread {
 	public void evaluateGeneration()
     {
         //Evaluate valid individuals
-        for(Individual ind : populationValid)
+        for(Individual ind : feasiblePopulation)
         {
             if (!ind.isEvaluated())
-                evaluateValidIndividual(ind);
+                evaluateFeasibleIndividual(ind);
         }
 
         //Evaluate invalid individuals
-        for(Individual ind : populationInvalid)
+        for(Individual ind : infeasiblePopulation)
         {
             if (!ind.isEvaluated())
-                evaluateInvalidIndividual(ind);
-        }
-    }
-
-	/**
-	 * Honestly, this method doesn't make much sense.
-	 * TODO: Investigate what this method is REALLY supposed to do
-	 */
-    public void insertReadyToValidAndEvaluate()
-    {
-    	//Sort valid population in descending order
-        sortPopulation(populationValid, false);
-
-        int i = 0;
-        boolean flag = false;
-        for (Individual valid : readyToValid)
-        {
-            if (i != populationValid.size() - 1 && !flag)
-            {
-                evaluateValidIndividual(valid); // TODO: Check if this is necessary. Hasn't it already been evaluated?
-                populationValid.set(i, valid);
-                i++;
-            }
-            else
-            {
-                if (!flag) 
-                	flag = true;
-                addValidIndividual(valid);
-            }
-        }
-    }
-
-    /**
-	 * Honestly, this method doesn't make much sense.
-	 * TODO: Investigate what this method is REALLY supposed to do
-	 */
-    public void insertReadyToInvalidAndEvaluate()
-    {
-        sortPopulation(populationInvalid, true);
-
-        int i = 0;
-        boolean flag = false;
-        for (Individual invalid : readyToInvalid)
-        {
-            if (i != populationInvalid.size() - 1 && !flag)
-            {
-                evaluateInvalidIndividual(invalid);
-                populationInvalid.set(i, invalid);
-                i++;
-            }
-            else
-            {
-                if(!flag) 
-                	flag = true;
-                addInvalidIndividual(invalid);
-            }
+                evaluateInfeasibleIndividual(ind);
         }
     }
 
@@ -537,27 +556,31 @@ public class Algorithm extends Thread {
      *  2. Crossover these individuals
      *  3. Add them back into the population
      */
-    private void produceNextValidGeneration()
+    private void breedFeasibleIndividuals()
     {
-        //Select progenitors for crossover
-        List<Individual> progenitors = selectProgenitors(populationValid);
-        //Crossover progenitors
-        List<Individual> sons = crossOverBetweenProgenitors(progenitors);
-        //Re-insert to population valid (Replace worst for sons)
-        replaceSonsInPopulationValid(sons);
+        //Select parents for crossover
+        List<Individual> parents = tournamentSelection(feasiblePopulation);
+        //Crossover parents
+        List<Individual> children = crossOverBetweenProgenitors(parents);
+        //Assign to a pool based on feasibility
+        assignToPool(children, false);
     }
 
     /**
-     * Produces a new invalid generation by some arcane means TODO: Document this better
+     * Produces a new invalid generation according to the following procedure:
+     *  1. Select individuals from the invalid population to breed
+     *  2. Crossover these individuals
+     *  3. Add them back into the population
      */
-    private void produceNextInvalidGeneration()
+    private void breedInfeasibleIndividuals()
     {
-        //Select progenitors for crossover
-        List<Individual> progenitors = selectProgenitors(populationInvalid);
-        //Crossover progenitors
-        List<Individual> sons = crossOverBetweenProgenitors(progenitors);
-        //Re-insert to population invalid (Replace worst for sons)
-        replaceSonsInPopulationInvalid(sons);
+        //Select parents for crossover
+        List<Individual> parents = tournamentSelection(infeasiblePopulation);
+        //Crossover parents
+        List<Individual> children = crossOverBetweenProgenitors(parents);
+        //Assign to a pool based on feasibility
+        infeasiblesMoved = 0;
+        assignToPool(children, true);
     }
 			
     /**
@@ -575,7 +598,7 @@ public class Algorithm extends Thread {
 
         while (countSons < sonSize)
         {
-            Individual[] offspring = progenitors.get(Util.getNextInt(0, sizeProgenitors)).reproduce(progenitors.get(Util.getNextInt(0, sizeProgenitors)));
+            Individual[] offspring = progenitors.get(Util.getNextInt(0, sizeProgenitors)).twoPointCrossover(progenitors.get(Util.getNextInt(0, sizeProgenitors)));
             sons.addAll(Arrays.asList(offspring));
             countSons += 2;
         }
@@ -585,99 +608,102 @@ public class Algorithm extends Thread {
 
     
     /**
-     * Selects progenitors from a population using tournament selection
-     * (see https://en.wikipedia.org/wiki/Tournament_selection).
-     * TODO: Make sure this is properly implemented.
+     * Selects parents from a population using (deterministic) tournament selection - i.e. the winner is always the individual with the "best" fitness.
+     * See: https://en.wikipedia.org/wiki/Tournament_selection
      * 
      * @param population A whole population of individuals
      * @return A list of chosen progenitors
      */
-    private List<Individual> selectProgenitors(List<Individual> population)
-    {
-        int countProgenitors = (int)(SON_SIZE * population.size()) / 2;
-        List<Individual> progenitors = new ArrayList<Individual>();
+    private List<Individual> tournamentSelection(List<Individual> population)
+    { 
+        List<Individual> parents = new ArrayList<Individual>();
+        int numberOfParents = (int)(offspringSize * population.size()) / 2;
 
-        while(countProgenitors > 0)
+        while(parents.size() < numberOfParents)
         {
-            int individuals_to_select = Util.getNextInt(1, population.size());
+        	//Select at least one individual to "fight" in the tournament
+            int tournamentSize = Util.getNextInt(1, population.size());
 
-            Individual bestProgenitor = null;
-            for(int i = 0; i < individuals_to_select; i++)
+            Individual winner = null;
+            for(int i = 0; i < tournamentSize; i++)
             {
-                int progenitorIndex = Util.getNextInt(0, population.size() - 1);
-                Individual progenitor = population.get(progenitorIndex);
+                int progenitorIndex = Util.getNextInt(0, population.size());
+                Individual individual = population.get(progenitorIndex);
 
-                //select the progenitor with the lowest fitness
-                if(bestProgenitor == null || (bestProgenitor.getFitness() > progenitor.getFitness()))
+                //select the individual with the highest fitness
+                if(winner == null || (winner.getFitness() < individual.getFitness()))
                 {
-                    bestProgenitor = progenitor;
+                	winner = individual;
                 }
             }
 
-            progenitors.add(bestProgenitor);
-            countProgenitors--;
+            parents.add(winner);
         }
 
-        return progenitors;
+        return parents;
     }
+    
+    /**
+     * Selects parents by fitness proportionate selection.
+     * See: https://en.wikipedia.org/wiki/Fitness_proportionate_selection
+     * Currently allows duplicates, is this wise?
+     * 
+     * @param population
+     * @return
+     */
+    private List<Individual> fitnessProportionateRouletteWheelSelection(List<Individual> population){
+    	sortPopulation(population, false);
+    	
+    	List<Individual> parents = new ArrayList<Individual>();
+    	int numberOfParents = (int)(offspringSize * population.size()) / 2;
+    	
+    	//Calculate sum of fitnesses:
+    	double fitnessSum = population.stream().map((i)->i.getFitness()).reduce(0.0, (acc,f)->acc+f);
+    	
+    	while(parents.size() < numberOfParents){
+    		
+        	double rand = Math.random() * fitnessSum;
+        	
+        	for(int i = 0; i < population.size();i++){
+        		rand -= population.get(i).getFitness();
+        		if(rand <= 0){
+        			parents.add(population.get(i));
+        			break;
+        		}
+        	}
+    		
+    	}
+    	
+    	return parents;
+    }
+    
 
     /**
-     * Add individuals to either the valid population or readyToInvalid depending on whether or not they are valid.
+     * Assign the given individuals to either the feasible or infeasible pools
+     * depending on whether or not they are feasible.
      * 
      * @param sons Individuals to add
+     * @param infeasible Are the individuals the offspring of infeasible parents?
      */
-    private void replaceSonsInPopulationValid(List<Individual> sons)
+    private void assignToPool(List<Individual> sons, boolean infeasible)
     {
-        sortPopulation(populationValid, false);
-        
-        int i = 0;
-        readyToInvalid = new ArrayList<Individual>();
-
         for (Individual son : sons)
         {
+        	if(infeasible)
+        		son.setChildOfInfeasibles(true);
             if(checkIndividual(son))
             {
-                //replace in population valid
-                populationValid.set(i,son);
+            	if(infeasible)
+            		infeasiblesMoved++;
+                feasiblePool.add(son);
             }
             else
             {
-				//mark as ready to invalid
-                readyToInvalid.add(son);
+                infeasiblePool.add(son);
             }
-
-            i++;
-        }
-
-    }
-
-    /**
-     * Add individuals to either the invalid population or readyToValid depending on whether or not they are valid.
-     * 
-     * @param sons Individuals to add
-     */
-    private void replaceSonsInPopulationInvalid(List<Individual> sons)
-    {
-        sortPopulation(populationInvalid, false);
-        
-        readyToValid = new ArrayList<Individual>();
-        int i = 0;
-        for (Individual son : sons)
-        {
-            if(checkIndividual(son))
-            {
-                //mark as ready to valid
-                readyToValid.add(son);
-            }
-            else
-            {
-                //replace in population invalid
-                populationInvalid.set(i,son);
-            }
-
-            i++;
         }
     }
+
 
     /**
      * Sorts a population according to fitness
@@ -692,7 +718,6 @@ public class Algorithm extends Thread {
  	
     /**
      * Calculates some statistics about a population and (optionally) saves the "best" individual.
-     * TODO: This seems like a clunky way of doing things - rework?
      * 
      * @param population The population to analyse
      * @param saveBest Should the best individual be saved? True should only be used for the valid population
@@ -706,8 +731,6 @@ public class Algorithm extends Thread {
         double avgFitness = 0.0;
         double minFitness = Double.POSITIVE_INFINITY;
         double maxFitness = Double.NEGATIVE_INFINITY;
-        Individual worstIndividual = null;
-
 
         for (int i = 0; i < population.size(); i++)
         {
@@ -716,15 +739,12 @@ public class Algorithm extends Thread {
             if (currFitness < minFitness)
             {
                 minFitness = currFitness;
-                worstIndividual = population.get(i);
-                // TODO: Investigate - surely it can't simultaneously be worst AND best!?!?
-                if (saveBest)
-                    best = population.get(i);
             }
             if (currFitness > maxFitness)
             {
                 maxFitness = currFitness;
-                
+                if (saveBest)
+                    best = population.get(i);
             }
         }
 
@@ -746,27 +766,28 @@ public class Algorithm extends Thread {
     }
 
 	/**
-	 * Add an individual to the valid population if the population size is less than POPULATION_SIZE
-	 * @param valid A valid individual
+	 * Add an individual to the valid population if the population size is less than POPULATION_SIZE.
+	 * 
+	 * @param valid A valid individual.
 	 */
     private void addValidIndividual(Individual valid)
     {
-        if (populationValid.size() < POPULATION_SIZE)
+        if (feasiblePopulation.size() < populationSize)
         {
-            populationValid.add(valid);
+            feasiblePopulation.add(valid);
         }
     }
 
 	/**
-	 * Add an individual to the invalid population if the population size is less than POPULATION_SIZE
-	 * @param invalid An invalid individual
+	 * Add an individual to the invalid population if the population size is less than POPULATION_SIZE.
+	 * 
+	 * @param invalid An invalid individual.
 	 */
     private void addInvalidIndividual(Individual invalid)
     {
-        if (populationInvalid.size() < POPULATION_SIZE)
+        if (infeasiblePopulation.size() < populationSize)
         {
-            populationInvalid.add(invalid);
+            infeasiblePopulation.add(invalid);
         }
     }
-	
 }

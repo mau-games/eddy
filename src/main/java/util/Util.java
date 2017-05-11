@@ -1,8 +1,15 @@
 package util;
 
+import java.io.File;
 import java.util.Arrays;
 import java.util.Random;
 
+/**
+ * Just a set of utilities.
+ * 
+ * @author Alexander Baldwin, Malmö University
+ * @author Johan Holmberg, Malmö University
+ */
 public class Util {
 
 	
@@ -38,7 +45,7 @@ public class Util {
 	 */
     public static double calcAverage(Double[] numbers)
     {
-    	return Arrays.asList(numbers).stream().reduce(0.0,(a,b)-> a + b) / numbers.length;
+    	return Arrays.asList(numbers).stream().reduce(0.0,Double::sum) / numbers.length;
     }
 
     /**
@@ -78,6 +85,25 @@ public class Util {
 		if(random == null)
 			random = new Random();
 		return min + random.nextInt(max - min);
+	}
+
+	/**
+	 * Normalises a path to work equally well on Windows as on sane operating
+	 * systems. The provided path should be Unix-formatted. ~/ will be
+	 * converted to the current user's home directory.
+	 * 
+	 * @param path A Unix-formatted path.
+	 * @return A path that is usable by the current operating system.
+	 */
+	public static String normalisePath(String path) {
+		if (path.startsWith("~/")) {
+			path = path.replace("~", System.getProperty("user.home"));
+		}
+		if (File.separator.equals("\\")) {
+			path = path.replace("/", "\\");
+		}
+
+		return path;
 	}
 	
 }
