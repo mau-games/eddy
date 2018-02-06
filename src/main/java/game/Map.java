@@ -686,9 +686,19 @@ public class Map {
 	public static void LoadMap(File file) throws IOException{
 		FileReader reader = new FileReader(file);
 		String mapString = "";
+		int lineCounter = 0;
+		int charCounter = 0;
 		while(reader.ready()){
 			char c = (char) reader.read();
-			mapString += c;
+			if ((charCounter < 11 || c == '\n') && lineCounter < 11){
+				mapString += c;
+				charCounter++;
+				if (c == '\n') {
+					charCounter = 0;
+					lineCounter++;
+				}
+			}
+
 		}
 		Map map = fromString(mapString);
 		PatternFinder finder = map.getPatternFinder();

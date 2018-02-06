@@ -7,25 +7,25 @@
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.VBox?>
 
-<VBox prefHeight="400.0" prefWidth="640.0" xmlns="http://javafx.com/javafx/8.0.111" xmlns:fx="http://javafx.com/fxml/1" fx:controller="gui.InteractiveGUIController">
+<VBox prefHeight="400.0" prefWidth="640.0" xmlns="http://javafx.com/javafx/9.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="gui.InteractiveGUIController">
   <children>
     <MenuBar VBox.vgrow="NEVER">
       <menus>
         <Menu mnemonicParsing="false" text="File">
           <items>
-            <MenuItem mnemonicParsing="false" fx:id="newItem" onAction="#startNewFlow" text="New workflow" />
-            <MenuItem mnemonicParsing="false" fx:id="openItem" onAction="#openMap" text="Open…" />
+            <MenuItem fx:id="newItem" mnemonicParsing="false" onAction="#startNewFlow" text="New workflow" />
+            <MenuItem fx:id="openItem" mnemonicParsing="false" onAction="#openMap" text="Open…" />
             <!-- <Menu mnemonicParsing="false" text="Open Recent" /> -->
             <SeparatorMenuItem mnemonicParsing="false" />
-            <MenuItem mnemonicParsing="false" fx:id="saveItem" onAction="#saveMap" text="Save" />
-            <MenuItem mnemonicParsing="false" fx:id="saveAsItem" onAction="#saveMap" text="Save As…" />
-            <MenuItem mnemonicParsing="false" fx:id="exportItem" onAction="#exportImage" text="Export image" />
+            <MenuItem fx:id="saveItem" mnemonicParsing="false" onAction="#saveMap" text="Save" />
+            <MenuItem fx:id="saveAsItem" mnemonicParsing="false" onAction="#saveMap" text="Save As…" />
+            <MenuItem fx:id="exportItem" mnemonicParsing="false" onAction="#exportImage" text="Export image" />
 <!--
             <SeparatorMenuItem mnemonicParsing="false" />
             <MenuItem mnemonicParsing="false" fx:id="prefsItem" onAction="#openPreferences" text="Preferences…" />
 -->
             <SeparatorMenuItem mnemonicParsing="false" />
-            <MenuItem mnemonicParsing="false" fx:id="exitItem" onAction="#exitApplication" text="Quit" />
+            <MenuItem fx:id="exitItem" mnemonicParsing="false" onAction="#exitApplication" text="Quit" />
           </items>
         </Menu>
 <!--
@@ -46,7 +46,7 @@
 -->
         <Menu mnemonicParsing="false" text="Help">
           <items>
-            <MenuItem mnemonicParsing="false" fx:id="aboutItem" onAction="#openAboutApplication" text="About Eddy" />
+            <MenuItem fx:id="aboutItem" mnemonicParsing="false" onAction="#openAboutApplication" text="About Eddy" />
           </items>
         </Menu>
       </menus>

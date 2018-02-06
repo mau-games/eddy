@@ -20,24 +20,33 @@ import gui.controls.InteractiveMap;
 import gui.controls.LabeledCanvas;
 import gui.utils.MapRenderer;
 import javafx.application.Platform;
+import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Cursor;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.ToggleButton;
 import javafx.scene.control.ToggleGroup;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
+import javafx.stage.Modality;
+import javafx.stage.Stage;
+import javafx.stage.StageStyle;
 import util.config.ConfigurationUtility;
 import util.config.MissingConfigurationException;
 import util.eventrouting.EventRouter;
@@ -52,22 +61,28 @@ import util.eventrouting.events.StartMapMutate;
  * @author Johan Holmberg, Malmö University
  */
 public class EditViewController extends BorderPane implements Listener {
-	
+
 	@FXML private List<LabeledCanvas> mapDisplays;
 	@FXML private StackPane mapPane;
+	//@FXML private Pane root;
 	@FXML private GridPane legend;
 	@FXML private ToggleGroup brushes;
 	@FXML private ToggleButton patternButton;
+
+	//@FXML private AnchorPane interactivePane;
+
+
 	private InteractiveMap mapView;
 	private Canvas patternCanvas;
 	private Canvas warningCanvas;
-	
+	private Canvas buttonCanvas;
+
 	private boolean isActive = false;
 	private boolean isFeasible = true;
 	private TileTypes brush = null;
 	private HashMap<Integer, Map> maps = new HashMap<Integer, Map>();
 	private int nextMap = 0;
-	
+
 	private MapRenderer renderer = MapRenderer.getInstance();
 	private static EventRouter router = EventRouter.getInstance();
 	private final static Logger logger = LoggerFactory.getLogger(EditViewController.class);
@@ -91,12 +106,12 @@ public class EditViewController extends BorderPane implements Listener {
 		} catch (MissingConfigurationException e) {
 			logger.error("Couldn't read config file.");
 		}
-		
+
 		router.registerListener(this, new MapUpdate(null));
-		
+
 		init();
 	}
-	
+
 	/**
 	 * Initialises the edit view.
 	 */
@@ -113,25 +128,67 @@ public class EditViewController extends BorderPane implements Listener {
 	private void initMapView() {
 		int width = 420;
 		int height = 420;
-		
+
+		Pane root = new Pane();
+
+
 		mapView = new InteractiveMap();
 		StackPane.setAlignment(mapView, Pos.CENTER);
 		mapView.setMinSize(width, height);
 		mapView.setMaxSize(width, height);
 		mapPane.getChildren().add(mapView);
-		
+
 		patternCanvas = new Canvas(width, height);
 		StackPane.setAlignment(patternCanvas, Pos.CENTER);
 		mapPane.getChildren().add(patternCanvas);
 		patternCanvas.setVisible(false);
 		patternCanvas.setMouseTransparent(true);
-		
+
+		buttonCanvas = new Canvas(width + 120, height + 120);
+		StackPane.setAlignment(buttonCanvas, Pos.CENTER);
+		mapPane.getChildren().add(buttonCanvas);
+		buttonCanvas.setVisible(false);
+		buttonCanvas.setMouseTransparent(true);
+
+		Button rightButton = new Button();
+		Button leftButton = new Button();
+		Button upButton = new Button();
+		Button botButton = new Button();
+
+		rightButton.setText("right");
+		leftButton.setText("left");
+		upButton.setText("up");
+		botButton.setText("bot");
+
+		rightButton.setTranslateX(300);
+		//rightButton.setTranslateY(100);
+
+		leftButton.setTranslateX(-300);
+		//leftButton.setTranslateY(-100);
+
+		//upButton.setTranslateX(300);
+		upButton.setTranslateY(-250);
+
+		//botButton.setTranslateX(300);
+		botButton.setTranslateY(250);
+
+
+
+
+		mapPane.getChildren().add(upButton);
+		mapPane.getChildren().add(botButton);
+		mapPane.getChildren().add(rightButton);
+		mapPane.getChildren().add(leftButton);
+
+
+
+
 		warningCanvas = new Canvas(width, height);
 		StackPane.setAlignment(warningCanvas, Pos.CENTER);
 		mapPane.getChildren().add(warningCanvas);
 		warningCanvas.setVisible(false);
 		warningCanvas.setMouseTransparent(true);
-		
+
 		GraphicsContext gc = warningCanvas.getGraphicsContext2D();
 		gc.setStroke(Color.rgb(255, 0, 0, 1.0));
 		gc.setLineWidth(3);
@@ -155,6 +212,8 @@ public class EditViewController extends BorderPane implements Listener {
 		gc.strokeRect(10, 10, width - 20, height - 20);
 		gc.setStroke(Color.rgb(255, 0, 0, 0.1));
 		gc.strokeRect(11, 11, width - 22, height - 22);
+
+
 	}
 
 	/**
@@ -176,58 +235,58 @@ public class EditViewController extends BorderPane implements Listener {
 		});
 		resetMiniMaps();
 	}
-	
+
 	/**
 	 * Initialises the legend view.
 	 */
 	private void initLegend() {
 		ConfigurationUtility c = config.getInternalConfig();
-		
+
 		legend.setVgap(10);
 		legend.setHgap(10);
 		legend.setPadding(new Insets(10, 10, 10, 10));
-		
+
 		Label title = new Label("Pattern legend");
 		title.setStyle("-fx-font-weight: bold");
 		legend.add(title, 0, 0, 2, 1);
-		
+
 		legend.add(new ImageView(new Image(c.getString("map.tiles.doorenter"), 40, 40, false, false)), 0, 1);
 		legend.add(new Label("Entrance door"), 1, 1);
-		
+
 		legend.add(new ImageView(new Image(c.getString("map.tiles.door"), 40, 40, false, false)), 0, 2);
 		legend.add(new Label("Door"), 1, 2);
-		
+
 		legend.add(new ImageView(new Image(c.getString("map.mesopatterns.ambush"), 40, 40, false, false)), 0, 3);
 		legend.add(new Label("Ambush"), 1, 3);
-		
+
 		legend.add(new ImageView(new Image(c.getString("map.mesopatterns.guard_room"), 40, 40, false, false)), 0, 4);
 		legend.add(new Label("Guard chamber"), 1, 4);
-		
+
 		legend.add(new ImageView(new Image(c.getString("map.mesopatterns.guarded_treasure"), 40, 40, false, false)), 0, 5);
 		legend.add(new Label("Guarded treasure"), 1, 5);
-		
+
 		legend.add(new ImageView(new Image(c.getString("map.mesopatterns.treasure_room"), 40, 40, false, false)), 0, 6);
 		legend.add(new Label("Treasure chamber"), 1, 6);
-		
+
 		legend.add(new ImageView(new Image(c.getString("map.examples.chamber"), 40, 40, true, true)), 0, 7);
 		legend.add(new Label("Chamber"), 1, 7);
-		
+
 		legend.add(new ImageView(new Image(c.getString("map.examples.corridor"), 40, 40, true, true)), 0, 8);
 		legend.add(new Label("Corridor"), 1, 8);
-		
+
 		legend.add(new ImageView(new Image(c.getString("map.examples.connector"), 40, 40, true, true)), 0, 9);
 		legend.add(new Label("Connector"), 1, 9);
-		
+
 		legend.add(new ImageView(new Image(c.getString("map.examples.dead_end"), 40, 40, true, true)), 0, 10);
 		legend.add(new Label("Dead end"), 1, 10);
 	}
-	
+
 	/**
 	 * Resets the mini maps for a new run of map generation.
 	 */
 	private void resetMiniMaps() {
 		nextMap = 0;
-		
+
 		getMap(0).draw(null);
 		getMap(0).setText("Waiting for map...");
 
@@ -250,12 +309,12 @@ public class EditViewController extends BorderPane implements Listener {
 				LabeledCanvas canvas;
 				synchronized (mapDisplays) {
 					canvas = mapDisplays.get(nextMap);
-//					canvas.setText("Got map:\n" + uuid);
+					//					canvas.setText("Got map:\n" + uuid);
 					canvas.setText("");
 					maps.put(nextMap, map);
 					nextMap++;
 				}
-				
+
 				Platform.runLater(() -> {
 					int[][] matrix = map.toMatrix();
 					canvas.draw(renderer.renderMap(matrix));
@@ -263,7 +322,7 @@ public class EditViewController extends BorderPane implements Listener {
 			}
 		}
 	}
-	
+
 	/**
 	 * Gets the interactive map.
 	 * 
@@ -272,7 +331,7 @@ public class EditViewController extends BorderPane implements Listener {
 	public InteractiveMap getMap() {
 		return mapView;
 	}
-	
+
 	/**
 	 * Gets one of the maps (i.e. a labeled view displaying a map) being under
 	 * this object's control.
@@ -283,7 +342,7 @@ public class EditViewController extends BorderPane implements Listener {
 	public LabeledCanvas getMap(int index) {
 		return mapDisplays.get(index);
 	}
-	
+
 	/**
 	 * Marks this control as being in an active or inactive state.
 	 * 
@@ -292,7 +351,7 @@ public class EditViewController extends BorderPane implements Listener {
 	public void setActive(boolean state) {
 		isActive = state;
 	}
-	
+
 	/**
 	 * Updates this control's map.
 	 * 
@@ -304,7 +363,7 @@ public class EditViewController extends BorderPane implements Listener {
 		mapIsFeasible(map.isFeasible());
 		resetMiniMaps();
 	}
-	
+
 	/**
 	 * Gets the current map being controlled by this controller.
 	 * 
@@ -313,7 +372,7 @@ public class EditViewController extends BorderPane implements Listener {
 	public Map getCurrentMap() {
 		return mapView.getMap();
 	}
-	
+
 	/**
 	 * Renders the map, making it possible to export it.
 	 * 
@@ -322,7 +381,7 @@ public class EditViewController extends BorderPane implements Listener {
 	public Image getRenderedMap() {
 		return renderer.renderMap(mapView.getMap().toMatrix());
 	}
-	
+
 	/**
 	 * Selects a brush.
 	 * 
@@ -335,7 +394,7 @@ public class EditViewController extends BorderPane implements Listener {
 			mapView.setCursor(Cursor.DEFAULT);
 		} else {
 			mapView.setCursor(Cursor.HAND);
-			
+
 			switch (((ToggleButton) brushes.getSelectedToggle()).getText()) {
 			case "Floor":
 				brush = TileTypes.FLOOR;
@@ -352,7 +411,7 @@ public class EditViewController extends BorderPane implements Listener {
 			}
 		}
 	}
-	
+
 	/**
 	 * Toggles the display of patterns on top of the map.
 	 * 
@@ -365,7 +424,7 @@ public class EditViewController extends BorderPane implements Listener {
 			patternCanvas.setVisible(false);
 		}
 	}
-	
+
 	/**
 	 * Generates four new mini maps.
 	 * 
@@ -375,7 +434,7 @@ public class EditViewController extends BorderPane implements Listener {
 		resetMiniMaps();
 		generateNewMaps(mapView.getMap());
 	}
-	
+
 	/**
 	 * Marks the map as being infeasible.
 	 * 
@@ -383,10 +442,10 @@ public class EditViewController extends BorderPane implements Listener {
 	 */
 	public void mapIsFeasible(boolean state) {
 		isFeasible = state;
-		
+
 		warningCanvas.setVisible(!isFeasible);
 	}
-	
+
 	/**
 	 * Generates four new mini maps.
 	 * 
@@ -397,7 +456,7 @@ public class EditViewController extends BorderPane implements Listener {
 		router.postEvent(new StartMapMutate(map, MapMutationType.Preserving, 2, true)); //TODO: Move some of this hard coding to ApplicationConfig
 		router.postEvent(new StartMapMutate(map, MapMutationType.ComputedConfig, 2, true)); //TODO: Move some of this hard coding to ApplicationConfig
 	}
-	
+
 	/**
 	 * Replaces the map with one of the generated ones.
 	 * 
@@ -410,7 +469,7 @@ public class EditViewController extends BorderPane implements Listener {
 			updateMap(map);
 		}
 	}
-	
+
 	/**
 	 * Composes a list of micro patterns with their respective colours for the
 	 * map renderer to use.
@@ -420,7 +479,7 @@ public class EditViewController extends BorderPane implements Listener {
 	 */
 	private HashMap<Pattern, Color> colourPatterns(List<Pattern> patterns) {
 		HashMap<Pattern, Color> patternMap = new HashMap<Pattern, Color>();
-		
+
 		patterns.forEach((pattern) -> {
 			if (pattern instanceof Room) {
 				patternMap.put(pattern, Color.BLUE);
@@ -430,7 +489,7 @@ public class EditViewController extends BorderPane implements Listener {
 				patternMap.put(pattern, Color.YELLOW);
 			}
 		});
-		
+
 		return patternMap;
 	}
 
@@ -444,8 +503,8 @@ public class EditViewController extends BorderPane implements Listener {
 		renderer.drawPatterns(patternCanvas.getGraphicsContext2D(), map.toMatrix(), colourPatterns(map.getPatternFinder().findMicroPatterns()));
 		renderer.drawGraph(patternCanvas.getGraphicsContext2D(), map.toMatrix(), map.getPatternFinder().getPatternGraph());
 		renderer.drawMesoPatterns(patternCanvas.getGraphicsContext2D(), map.toMatrix(), map.getPatternFinder().getMesoPatterns());
-		}
-	
+	}
+
 	/*
 	 * Event handlers
 	 */
@@ -461,6 +520,27 @@ public class EditViewController extends BorderPane implements Listener {
 				redrawPatterns(mapView.getMap());
 			}
 		}
-		
+
+	}
+
+
+	@FXML
+	private String handleButtonAction(ActionEvent event) throws IOException {
+
+		FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/gui/RoomMap.fxml"));
+		Parent root1 = (Parent) fxmlLoader.load();
+		Stage stage = new Stage();
+		stage.setTitle("ABC");
+		stage.setScene(new Scene(root1));
+		stage.show();
+
+		return null;
+
+	}
+
+
+
+	public void testMethod() {
+		System.out.println("hello");
 	}
 }
