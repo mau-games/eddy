@@ -7,6 +7,7 @@ import java.net.URL;
 import java.nio.file.Files;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Collections;
 import java.util.ResourceBundle;
 
 import javax.imageio.ImageIO;
@@ -74,6 +75,30 @@ public class InteractiveGUIController implements Initializable, Listener {
 				initStartView();
 			} else {
 				MapContainer container = (MapContainer) e.getPayload();
+								
+				String mapString = container.getMap().toString();
+                String mapStringRepeat = String.join("", Collections.nCopies(2, mapString));
+                System.out.println(mapStringRepeat);
+
+                String helpString = "";
+                
+                StringBuilder sb = new StringBuilder();
+
+                for (int i = 0; i < mapStringRepeat.length(); i++) {
+
+                    if (mapStringRepeat.charAt(i) == '\n') {
+                        sb.append(helpString);
+                        sb.append(mapStringRepeat.charAt(i));
+                        helpString = "";
+                    }
+                    else {
+                        sb.append(mapStringRepeat.charAt(i));
+                        helpString += mapStringRepeat.charAt(i);
+                    }
+                }
+				System.out.println(sb.toString());
+                
+                container.setMap(Map.fromString(sb.toString()));
 				router.postEvent(new Stop());
 				initEditView(container);
 			}
@@ -256,6 +281,12 @@ public class InteractiveGUIController implements Initializable, Listener {
 		mainPane.getChildren().add(editView);
 		
 		editView.updateMap(map.getMap());
+		
+		
+		
+		
+		
+		
 		editView.generateNewMaps();
 		
 		saveItem.setDisable(false);

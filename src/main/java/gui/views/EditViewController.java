@@ -47,6 +47,7 @@ import javafx.scene.paint.Color;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
+import runners.InteractiveGUI;
 import util.config.ConfigurationUtility;
 import util.config.MissingConfigurationException;
 import util.eventrouting.EventRouter;
@@ -119,6 +120,7 @@ public class EditViewController extends BorderPane implements Listener {
 		initMapView();
 		initMiniMaps();
 		initLegend();
+
 	}
 
 	/**
@@ -131,13 +133,15 @@ public class EditViewController extends BorderPane implements Listener {
 
 		Pane root = new Pane();
 
-
 		mapView = new InteractiveMap();
 		StackPane.setAlignment(mapView, Pos.CENTER);
 		mapView.setMinSize(width, height);
 		mapView.setMaxSize(width, height);
 		mapPane.getChildren().add(mapView);
-
+		
+		
+		
+		
 		patternCanvas = new Canvas(width, height);
 		StackPane.setAlignment(patternCanvas, Pos.CENTER);
 		mapPane.getChildren().add(patternCanvas);
@@ -179,9 +183,6 @@ public class EditViewController extends BorderPane implements Listener {
 		mapPane.getChildren().add(botButton);
 		mapPane.getChildren().add(rightButton);
 		mapPane.getChildren().add(leftButton);
-
-
-
 
 		warningCanvas = new Canvas(width, height);
 		StackPane.setAlignment(warningCanvas, Pos.CENTER);
@@ -359,6 +360,7 @@ public class EditViewController extends BorderPane implements Listener {
 	 */
 	public void updateMap(Map map) {
 		mapView.updateMap(map);
+		
 		redrawPatterns(map);
 		mapIsFeasible(map.isFeasible());
 		resetMiniMaps();
@@ -370,6 +372,7 @@ public class EditViewController extends BorderPane implements Listener {
 	 * @return The current map.
 	 */
 	public Map getCurrentMap() {
+		
 		return mapView.getMap();
 	}
 
@@ -537,7 +540,15 @@ public class EditViewController extends BorderPane implements Listener {
 		return null;
 
 	}
+	
 
+	@FXML
+	private String rightNavMap(ActionEvent event) throws IOException {
+
+		InteractiveGUI intGui = new InteractiveGUI();
+		return null;
+
+	}
 
 
 	public void testMethod() {
