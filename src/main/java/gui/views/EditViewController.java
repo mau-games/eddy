@@ -75,7 +75,7 @@ public class EditViewController extends BorderPane implements Listener {
 	private Button rightButton = new Button();
 	private Button leftButton = new Button();
 	private Button upButton = new Button();
-	private Button botButton = new Button();
+	private Button downButton = new Button();
 
 	//@FXML private AnchorPane interactivePane;
 
@@ -167,9 +167,9 @@ public class EditViewController extends BorderPane implements Listener {
 	
 
 		getRightButton().setText("right");
-		leftButton.setText("left");
-		upButton.setText("up");
-		botButton.setText("bot");
+		getLeftButton().setText("left");
+		getUpButton().setText("up");
+		getDownButton().setText("bot");
 		
 		
 		
@@ -177,22 +177,22 @@ public class EditViewController extends BorderPane implements Listener {
 		getRightButton().setTranslateX(300);
 		//rightButton.setTranslateY(100);
 
-		leftButton.setTranslateX(-300);
+		getLeftButton().setTranslateX(-300);
 		//leftButton.setTranslateY(-100);
 
 		//upButton.setTranslateX(300);
-		upButton.setTranslateY(-250);
+		getUpButton().setTranslateY(-250);
 
 		//botButton.setTranslateX(300);
-		botButton.setTranslateY(250);
+		getDownButton().setTranslateY(250);
 
 
 
 
-		mapPane.getChildren().add(upButton);
-		mapPane.getChildren().add(botButton);
+		mapPane.getChildren().add(getUpButton());
+		mapPane.getChildren().add(getDownButton());
 		mapPane.getChildren().add(getRightButton());
-		mapPane.getChildren().add(leftButton);
+		mapPane.getChildren().add(getLeftButton());
 
 		warningCanvas = new Canvas(width, height);
 		StackPane.setAlignment(warningCanvas, Pos.CENTER);
@@ -382,9 +382,7 @@ public class EditViewController extends BorderPane implements Listener {
 	}
 	
 	public void updateLargeMap(Map map) {
-		largeMap = map;
-		
-		
+		largeMap = map;				
 	}
 
 
@@ -580,5 +578,29 @@ public class EditViewController extends BorderPane implements Listener {
 
 	public void setRightButton(Button rightButton) {
 		this.rightButton = rightButton;
+	}
+
+	public Button getLeftButton() {
+		return leftButton;
+	}
+
+	public void setLeftButton(Button leftButton) {
+		this.leftButton = leftButton;
+	}
+
+	public Button getUpButton() {
+		return upButton;
+	}
+
+	public void setUpButton(Button upButton) {
+		this.upButton = upButton;
+	}
+
+	public Button getDownButton() {
+		return downButton;
+	}
+
+	public void setDownButton(Button downButton) {
+		this.downButton = downButton;
 	}
 }
