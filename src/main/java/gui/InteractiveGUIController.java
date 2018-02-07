@@ -46,7 +46,7 @@ import util.eventrouting.events.StatusMessage;
 import util.eventrouting.events.Stop;
 
 public class InteractiveGUIController implements Initializable, Listener {
-	
+
 	@FXML private AnchorPane mainPane;
 	@FXML private MenuItem newItem;
 	@FXML private MenuItem openItem;
@@ -56,13 +56,13 @@ public class InteractiveGUIController implements Initializable, Listener {
 	@FXML private MenuItem prefsItem;
 	@FXML private MenuItem exitItem;
 	@FXML private MenuItem aboutItem;
-	
+
 	Stage stage = null;
-	
+	MapContainer container2 = null;
 	StartViewController startView = null;
 	EditViewController editView = null;
 	EventHandler<MouseEvent> mouseEventHandler = null;
-	
+
 	final static Logger logger = LoggerFactory.getLogger(InteractiveGUIController.class);
 	private static EventRouter router = EventRouter.getInstance();
 	private ApplicationConfig config;
@@ -75,6 +75,7 @@ public class InteractiveGUIController implements Initializable, Listener {
 				initStartView();
 			} else {
 				MapContainer container = (MapContainer) e.getPayload();
+<<<<<<< HEAD
 								
 				String mapString = container.getMap().toString();
                 String mapStringRepeat = String.join("", Collections.nCopies(2, mapString));
@@ -99,6 +100,38 @@ public class InteractiveGUIController implements Initializable, Listener {
 				System.out.println(sb.toString());
                 
                 container.setMap(Map.fromString(sb.toString()));
+=======
+				container2 = container;
+				
+				String mapString = container.getMap().toString();
+				String mapStringRepeat = String.join("", Collections.nCopies(2, mapString));
+				System.out.println(mapStringRepeat);
+
+				String helpString = "";
+				StringBuilder sb = new StringBuilder();
+
+				for (int i = 0; i < mapStringRepeat.length(); i++) {
+
+					if (mapStringRepeat.charAt(i) == '\n') {
+						sb.append(helpString);
+						sb.append(mapStringRepeat.charAt(i));
+						helpString = "";
+					}
+					else {
+						sb.append(mapStringRepeat.charAt(i));
+						helpString += mapStringRepeat.charAt(i);
+					}
+				}
+				
+				System.out.println(sb.toString());
+				
+				
+
+				container.setMap(Map.fromString(sb.toString()));
+				System.out.println(container.getMap().toString());
+				
+
+>>>>>>> branch 'mixed-initiative_and_ui' of https://github.com/mau-games/eddy.git
 				router.postEvent(new Stop());
 				initEditView(container);
 			}
@@ -116,82 +149,82 @@ public class InteractiveGUIController implements Initializable, Listener {
 		} catch (MissingConfigurationException e) {
 			logger.error("Couldn't read config file.");
 		}
-		
+
 		router.registerListener(this, new StatusMessage(null));
 		router.registerListener(this, new AlgorithmDone(null));
 		router.registerListener(this, new RequestRedraw());
 		router.registerListener(this, new RequestViewSwitch(null));
 		router.registerListener(this, new MapLoaded(null));
-		
+
 		startView = new StartViewController();
 		editView = new EditViewController();
-		
+
 		mainPane.sceneProperty().addListener((observableScene, oldScene, newScene) -> {
 			if (newScene != null) {
 				stage = (Stage) newScene.getWindow();
 			}
 		});
-		
+
 		initStartView();
 	}
-	
+
 	/*
 	 * Event stuff
 	 */
-	
+
 	public void startNewFlow() {
 		router.postEvent(new Start(6));
 		initStartView();
 	}
-	
+
 	public void exitApplication() {
 		// TODO: Maybe be a bit more graceful than this...
-		
+
 		Platform.exit();
 		System.exit(0);
 	}
-	
+
 	public void openMap() {
-		 FileChooser fileChooser = new FileChooser();
-		 fileChooser.setTitle("Open Map");
-		 fileChooser.getExtensionFilters().addAll(
-		         new ExtensionFilter("Map Files", "*.map"),
-		         new ExtensionFilter("All Files", "*.*"));
-		 File selectedFile = fileChooser.showOpenDialog(stage);
-		 if (selectedFile != null) {
-			 try {
+		FileChooser fileChooser = new FileChooser();
+		fileChooser.setTitle("Open Map");
+		fileChooser.getExtensionFilters().addAll(
+				new ExtensionFilter("Map Files", "*.map"),
+				new ExtensionFilter("All Files", "*.*"));
+		File selectedFile = fileChooser.showOpenDialog(stage);
+		if (selectedFile != null) {
+			try {
 				Map.LoadMap(selectedFile);
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-		 }
+		}
 	}
-	
+
 	public void saveMap() {
 		DateTimeFormatter format =
 				DateTimeFormatter.ofPattern("yyyy-MM-dd_HH-mm-s-n");
 		String name = "map_" +
 				LocalDateTime.now().format(format) + ".map";
-		
-		 FileChooser fileChooser = new FileChooser();
-		 fileChooser.setTitle("Save Map");
-			fileChooser.setInitialFileName(name);
-		 fileChooser.getExtensionFilters().addAll(
-		         new ExtensionFilter("Map Files", "*.map"),
-		         new ExtensionFilter("All Files", "*.*"));
-		 File selectedFile = fileChooser.showSaveDialog(stage);
-		 if (selectedFile != null) {
-			 logger.debug("Writing map to " + selectedFile.getPath());
-			 try {
+
+		FileChooser fileChooser = new FileChooser();
+		fileChooser.setTitle("Save Map");
+		fileChooser.setInitialFileName(name);
+		fileChooser.getExtensionFilters().addAll(
+				new ExtensionFilter("Map Files", "*.map"),
+				new ExtensionFilter("All Files", "*.*"));
+		File selectedFile = fileChooser.showSaveDialog(stage);
+		if (selectedFile != null) {
+			logger.debug("Writing map to " + selectedFile.getPath());
+			try {
 				Files.write(selectedFile.toPath(), editView.getMap().getMap().toString().getBytes());
 			} catch (IOException e) {
 				logger.error("Couldn't write map to " + selectedFile +
 						":\n" + e.getMessage());
 			}
-		 }
+		}
 	}
-	
+
 	public void exportImage() {
 		DateTimeFormatter format =
 				DateTimeFormatter.ofPattern("yyyy-MM-dd_HH-mm-s-n");
@@ -217,48 +250,48 @@ public class InteractiveGUIController implements Initializable, Listener {
 			}
 		}
 	}
-	
+
 	public void openPreferences() {
 		System.out.println("Preferences...");
 	}
-	
+
 	public void openAboutApplication() {
-//		Alert alert = new Alert(AlertType.INFORMATION);
-//		alert.setTitle("About Eddy");
-//		alert.setHeaderText(null);
-//		alert.setContentText("Written by:\n"
-//				+ "Alexander Baldwin <alexander.baldwin@mah.se>\n"
-//				+ "JohanHolmberg <johan.holmberg@mah.se>\n\n"
-//				+ "Thanks to José, Steve and Carl Mangus\n"
-//				+ "for your input!");
-//		alert.showAndWait();
+		//		Alert alert = new Alert(AlertType.INFORMATION);
+		//		alert.setTitle("About Eddy");
+		//		alert.setHeaderText(null);
+		//		alert.setContentText("Written by:\n"
+		//				+ "Alexander Baldwin <alexander.baldwin@mah.se>\n"
+		//				+ "JohanHolmberg <johan.holmberg@mah.se>\n\n"
+		//				+ "Thanks to José, Steve and Carl Mangus\n"
+		//				+ "for your input!");
+		//		alert.showAndWait();
 	}
-	
+
 	public void generateNewMap() {
 		System.out.println("Generate map");
 	}
-	
+
 	private void updateConfigBasedOnMap(Map map) {
 		config.setDimensionM(map.getColCount());
 		config.setDimensionN(map.getRowCount());
 	}
-	
+
 	/*
 	 * Initialisation methods
 	 */
-	
+
 	/**
 	 * Initialises the start view.
 	 */
 	private void initStartView() {
 		mainPane.getChildren().clear();
-		
+
 		AnchorPane.setTopAnchor(startView, 0.0);
 		AnchorPane.setRightAnchor(startView, 0.0);
 		AnchorPane.setBottomAnchor(startView, 0.0);
 		AnchorPane.setLeftAnchor(startView, 0.0);
 		mainPane.getChildren().add(startView);
-		
+
 		saveItem.setDisable(true);
 		saveAsItem.setDisable(true);
 		exportItem.setDisable(true);
@@ -268,7 +301,7 @@ public class InteractiveGUIController implements Initializable, Listener {
 
 		startView.initialise();
 	}
-	
+
 	/**
 	 * Initialises the edit view and starts a new generation run.
 	 */
@@ -279,7 +312,9 @@ public class InteractiveGUIController implements Initializable, Listener {
 		AnchorPane.setBottomAnchor(editView, 0.0);
 		AnchorPane.setLeftAnchor(editView, 0.0);
 		mainPane.getChildren().add(editView);
+
 		
+<<<<<<< HEAD
 		editView.updateMap(map.getMap());
 		
 		
@@ -287,8 +322,41 @@ public class InteractiveGUIController implements Initializable, Listener {
 		
 		
 		
-		editView.generateNewMaps();
+=======
 		
+		String mapString = "";
+		String quad2String = "";
+		int lineCounter = 0;
+		int charCounter = 0;
+		int quad2counter = 0;
+		String fullMapString = map.getMap().toString();
+		for (int i = 0; i < fullMapString.length(); i++) {
+	
+			if ((charCounter < 11 || fullMapString.charAt(i) == '\n') && lineCounter < 11){
+				mapString += fullMapString.charAt(i);
+				charCounter++;
+				if (fullMapString.charAt(i) == '\n') {
+					charCounter = 0;
+					lineCounter++;
+				}
+			}
+			
+			if ((charCounter == 11 || fullMapString.charAt(i) == '\n') && lineCounter < 11){
+				quad2String += fullMapString.charAt(i);
+				
+			}
+		}
+		System.out.println("qaud1");
+		System.out.println(mapString);
+		System.out.println("quad2");
+		System.out.println(quad2String);
+		MapContainer quadMap = new MapContainer();
+		quadMap.setMap(Map.fromString(mapString));
+		
+		editView.updateMap(quadMap.getMap());
+>>>>>>> branch 'mixed-initiative_and_ui' of https://github.com/mau-games/eddy.git
+		editView.generateNewMaps();
+
 		saveItem.setDisable(false);
 		saveAsItem.setDisable(false);
 		exportItem.setDisable(false);

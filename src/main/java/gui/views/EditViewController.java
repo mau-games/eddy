@@ -57,7 +57,7 @@ import util.eventrouting.events.MapUpdate;
 import util.eventrouting.events.StartMapMutate;
 
 /**
- * his class controls the interactive application's edit view.
+ * This class controls the interactive application's edit view.
  * 
  * @author Johan Holmberg, Malmö University
  */
@@ -132,16 +132,27 @@ public class EditViewController extends BorderPane implements Listener {
 		int height = 420;
 
 		Pane root = new Pane();
+<<<<<<< HEAD
 
+=======
+		
+		
+>>>>>>> branch 'mixed-initiative_and_ui' of https://github.com/mau-games/eddy.git
 		mapView = new InteractiveMap();
 		StackPane.setAlignment(mapView, Pos.CENTER);
 		mapView.setMinSize(width, height);
 		mapView.setMaxSize(width, height);
 		mapPane.getChildren().add(mapView);
 		
+<<<<<<< HEAD
 		
 		
 		
+=======
+
+		
+
+>>>>>>> branch 'mixed-initiative_and_ui' of https://github.com/mau-games/eddy.git
 		patternCanvas = new Canvas(width, height);
 		StackPane.setAlignment(patternCanvas, Pos.CENTER);
 		mapPane.getChildren().add(patternCanvas);
