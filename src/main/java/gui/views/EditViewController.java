@@ -14,8 +14,10 @@ import finder.patterns.micro.Corridor;
 import finder.patterns.micro.Room;
 import game.ApplicationConfig;
 import game.Map;
+import game.MapContainer;
 import game.TileTypes;
 import game.Game.MapMutationType;
+import gui.InteractiveGUIController;
 import gui.controls.InteractiveMap;
 import gui.controls.LabeledCanvas;
 import gui.utils.MapRenderer;
@@ -57,7 +59,7 @@ import util.eventrouting.events.MapUpdate;
 import util.eventrouting.events.StartMapMutate;
 
 /**
- * This class controls the interactive application's edit view.
+ * his class controls the interactive application's edit view.
  * 
  * @author Johan Holmberg, Malmö University
  */
@@ -69,14 +71,22 @@ public class EditViewController extends BorderPane implements Listener {
 	@FXML private GridPane legend;
 	@FXML private ToggleGroup brushes;
 	@FXML private ToggleButton patternButton;
+	
+	private Button rightButton = new Button();
+	private Button leftButton = new Button();
+	private Button upButton = new Button();
+	private Button botButton = new Button();
 
 	//@FXML private AnchorPane interactivePane;
 
 
 	private InteractiveMap mapView;
+	private Map largeMap;
 	private Canvas patternCanvas;
 	private Canvas warningCanvas;
 	private Canvas buttonCanvas;
+	
+	private MapContainer map;
 
 	private boolean isActive = false;
 	private boolean isFeasible = true;
@@ -132,27 +142,16 @@ public class EditViewController extends BorderPane implements Listener {
 		int height = 420;
 
 		Pane root = new Pane();
-<<<<<<< HEAD
 
-=======
-		
-		
->>>>>>> branch 'mixed-initiative_and_ui' of https://github.com/mau-games/eddy.git
 		mapView = new InteractiveMap();
 		StackPane.setAlignment(mapView, Pos.CENTER);
 		mapView.setMinSize(width, height);
 		mapView.setMaxSize(width, height);
 		mapPane.getChildren().add(mapView);
 		
-<<<<<<< HEAD
 		
 		
 		
-=======
-
-		
-
->>>>>>> branch 'mixed-initiative_and_ui' of https://github.com/mau-games/eddy.git
 		patternCanvas = new Canvas(width, height);
 		StackPane.setAlignment(patternCanvas, Pos.CENTER);
 		mapPane.getChildren().add(patternCanvas);
@@ -165,17 +164,17 @@ public class EditViewController extends BorderPane implements Listener {
 		buttonCanvas.setVisible(false);
 		buttonCanvas.setMouseTransparent(true);
 
-		Button rightButton = new Button();
-		Button leftButton = new Button();
-		Button upButton = new Button();
-		Button botButton = new Button();
+	
 
-		rightButton.setText("right");
+		getRightButton().setText("right");
 		leftButton.setText("left");
 		upButton.setText("up");
 		botButton.setText("bot");
+		
+		
+		
 
-		rightButton.setTranslateX(300);
+		getRightButton().setTranslateX(300);
 		//rightButton.setTranslateY(100);
 
 		leftButton.setTranslateX(-300);
@@ -192,7 +191,7 @@ public class EditViewController extends BorderPane implements Listener {
 
 		mapPane.getChildren().add(upButton);
 		mapPane.getChildren().add(botButton);
-		mapPane.getChildren().add(rightButton);
+		mapPane.getChildren().add(getRightButton());
 		mapPane.getChildren().add(leftButton);
 
 		warningCanvas = new Canvas(width, height);
@@ -227,6 +226,7 @@ public class EditViewController extends BorderPane implements Listener {
 
 
 	}
+	
 
 	/**
 	 * Intialises the mini map view.
@@ -246,6 +246,10 @@ public class EditViewController extends BorderPane implements Listener {
 			replaceMap(3);
 		});
 		resetMiniMaps();
+	}
+	
+	public void setContainer(MapContainer map) {
+		map = this.map;
 	}
 
 	/**
@@ -376,6 +380,13 @@ public class EditViewController extends BorderPane implements Listener {
 		mapIsFeasible(map.isFeasible());
 		resetMiniMaps();
 	}
+	
+	public void updateLargeMap(Map map) {
+		largeMap = map;
+		
+		
+	}
+
 
 	/**
 	 * Gets the current map being controlled by this controller.
@@ -552,17 +563,22 @@ public class EditViewController extends BorderPane implements Listener {
 
 	}
 	
+	
+	
 
-	@FXML
-	private String rightNavMap(ActionEvent event) throws IOException {
 
-		InteractiveGUI intGui = new InteractiveGUI();
-		return null;
 
-	}
 
 
 	public void testMethod() {
 		System.out.println("hello");
+	}
+
+	public Button getRightButton() {
+		return rightButton;
+	}
+
+	public void setRightButton(Button rightButton) {
+		this.rightButton = rightButton;
 	}
 }
