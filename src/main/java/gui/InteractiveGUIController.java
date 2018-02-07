@@ -58,7 +58,7 @@ public class InteractiveGUIController implements Initializable, Listener {
 	@FXML private MenuItem aboutItem;
 
 	Stage stage = null;
-
+	MapContainer container2 = null;
 	StartViewController startView = null;
 	EditViewController editView = null;
 	EventHandler<MouseEvent> mouseEventHandler = null;
@@ -75,7 +75,8 @@ public class InteractiveGUIController implements Initializable, Listener {
 				initStartView();
 			} else {
 				MapContainer container = (MapContainer) e.getPayload();
-
+				container2 = container;
+				
 				String mapString = container.getMap().toString();
 				String mapStringRepeat = String.join("", Collections.nCopies(2, mapString));
 				System.out.println(mapStringRepeat);
@@ -103,17 +104,12 @@ public class InteractiveGUIController implements Initializable, Listener {
 				container.setMap(Map.fromString(sb.toString()));
 				System.out.println(container.getMap().toString());
 				
-				MapContainer container2 = container;
-				MapContainer container3 = container;
-				MapContainer container4 = container;
+
 				router.postEvent(new Stop());
 				initEditView(container);
 			}
 		} else if (e instanceof MapLoaded) {
 			MapContainer container = (MapContainer) e.getPayload();
-			MapContainer container2 = container;
-			MapContainer container3 = container;
-			MapContainer container4 = container;
 			updateConfigBasedOnMap(container.getMap());
 			initEditView(container);
 		}
@@ -290,7 +286,38 @@ public class InteractiveGUIController implements Initializable, Listener {
 		AnchorPane.setLeftAnchor(editView, 0.0);
 		mainPane.getChildren().add(editView);
 
-		editView.updateMap(map.getMap());
+		
+		
+		String mapString = "";
+		String quad2String = "";
+		int lineCounter = 0;
+		int charCounter = 0;
+		int quad2counter = 0;
+		String fullMapString = map.getMap().toString();
+		for (int i = 0; i < fullMapString.length(); i++) {
+	
+			if ((charCounter < 11 || fullMapString.charAt(i) == '\n') && lineCounter < 11){
+				mapString += fullMapString.charAt(i);
+				charCounter++;
+				if (fullMapString.charAt(i) == '\n') {
+					charCounter = 0;
+					lineCounter++;
+				}
+			}
+			
+			if ((charCounter == 11 || fullMapString.charAt(i) == '\n') && lineCounter < 11){
+				quad2String += fullMapString.charAt(i);
+				
+			}
+		}
+		System.out.println("qaud1");
+		System.out.println(mapString);
+		System.out.println("quad2");
+		System.out.println(quad2String);
+		MapContainer quadMap = new MapContainer();
+		quadMap.setMap(Map.fromString(mapString));
+		
+		editView.updateMap(quadMap.getMap());
 		editView.generateNewMaps();
 
 		saveItem.setDisable(false);
