@@ -151,9 +151,7 @@ public class EditViewController extends BorderPane implements Listener {
 		getMapView().setMinSize(width, height);
 		getMapView().setMaxSize(width, height);
 		mapPane.getChildren().add(getMapView());
-		
-		
-		
+
 		
 		patternCanvas = new Canvas(width, height);
 		StackPane.setAlignment(patternCanvas, Pos.CENTER);
@@ -582,7 +580,7 @@ public class EditViewController extends BorderPane implements Listener {
 	@FXML
 	private String handleButtonAction(ActionEvent event) throws IOException {
 
-		FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/gui/RoomMap.fxml"));
+		FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/gui/WorldMap.fxml"));
 		Parent root1 = (Parent) fxmlLoader.load();
 		Stage stage = new Stage();
 		stage.setTitle("ABC");
