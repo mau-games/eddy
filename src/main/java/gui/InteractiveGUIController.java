@@ -368,27 +368,109 @@ public class InteractiveGUIController implements Initializable, Listener {
 				setCurrentQuadMap(quadMap1);
 				editView.setMousePressed(true);
 				System.out.println("THE MOUSE IS PRESSED: " + editView.isMousePressed());
+			} else if (getCurrentQuadMap().equals(quadMap2)) {
+				quadMap2 = selectedMiniCont;
+				setCurrentQuadMap(quadMap2);
+				editView.setMousePressed(true);
+				System.out.println("THE MOUSE IS PRESSED: " + editView.isMousePressed());
+			} else if (getCurrentQuadMap().equals(quadMap3)) {
+				quadMap3 = selectedMiniCont;
+				setCurrentQuadMap(quadMap3);
+				editView.setMousePressed(true);
+				System.out.println("THE MOUSE IS PRESSED: " + editView.isMousePressed());
+			} else if (getCurrentQuadMap().equals(quadMap4)) {
+				quadMap4 = selectedMiniCont;
+				setCurrentQuadMap(quadMap4);
+				editView.setMousePressed(true);
+				System.out.println("THE MOUSE IS PRESSED: " + editView.isMousePressed());
 			}
 			
 		});
 		editView.getMap(1).addEventFilter(MouseEvent.MOUSE_CLICKED, (e) -> {
 			editView.replaceMap(1);
-			editView.setMousePressed(true);
-			System.out.println("THE MOUSE IS PRESSED: " + editView.isMousePressed());
-
+			MapContainer selectedMiniCont = new MapContainer();
+			selectedMiniCont.setMap(editView.getSelectedMiniMap());
+			System.out.println("SELECTED MINI MAP INSIDE INTGUI: ");		
+			System.out.println(editView.getSelectedMiniMap().toString());
+			if (getCurrentQuadMap().equals(quadMap1)) {
+				quadMap1 = selectedMiniCont;
+				setCurrentQuadMap(quadMap1);
+				editView.setMousePressed(true);
+				System.out.println("THE MOUSE IS PRESSED: " + editView.isMousePressed());
+			} else if (getCurrentQuadMap().equals(quadMap2)) {
+				quadMap2 = selectedMiniCont;
+				setCurrentQuadMap(quadMap2);
+				editView.setMousePressed(true);
+				System.out.println("THE MOUSE IS PRESSED: " + editView.isMousePressed());
+			} else if (getCurrentQuadMap().equals(quadMap3)) {
+				quadMap3 = selectedMiniCont;
+				setCurrentQuadMap(quadMap3);
+				editView.setMousePressed(true);
+				System.out.println("THE MOUSE IS PRESSED: " + editView.isMousePressed());
+			} else if (getCurrentQuadMap().equals(quadMap4)) {
+				quadMap4 = selectedMiniCont;
+				setCurrentQuadMap(quadMap4);
+				editView.setMousePressed(true);
+				System.out.println("THE MOUSE IS PRESSED: " + editView.isMousePressed());
+			}
 
 		});
 		editView.getMap(2).addEventFilter(MouseEvent.MOUSE_CLICKED, (e) -> {
 			editView.replaceMap(2);
-			editView.setMousePressed(true);
-			System.out.println("THE MOUSE IS PRESSED: " + editView.isMousePressed());
-
+			MapContainer selectedMiniCont = new MapContainer();
+			selectedMiniCont.setMap(editView.getSelectedMiniMap());
+			System.out.println("SELECTED MINI MAP INSIDE INTGUI: ");		
+			System.out.println(editView.getSelectedMiniMap().toString());
+			if (getCurrentQuadMap().equals(quadMap1)) {
+				quadMap1 = selectedMiniCont;
+				setCurrentQuadMap(quadMap1);
+				editView.setMousePressed(true);
+				System.out.println("THE MOUSE IS PRESSED: " + editView.isMousePressed());
+			} else if (getCurrentQuadMap().equals(quadMap2)) {
+				quadMap2 = selectedMiniCont;
+				setCurrentQuadMap(quadMap2);
+				editView.setMousePressed(true);
+				System.out.println("THE MOUSE IS PRESSED: " + editView.isMousePressed());
+			} else if (getCurrentQuadMap().equals(quadMap3)) {
+				quadMap3 = selectedMiniCont;
+				setCurrentQuadMap(quadMap3);
+				editView.setMousePressed(true);
+				System.out.println("THE MOUSE IS PRESSED: " + editView.isMousePressed());
+			} else if (getCurrentQuadMap().equals(quadMap4)) {
+				quadMap4 = selectedMiniCont;
+				setCurrentQuadMap(quadMap4);
+				editView.setMousePressed(true);
+				System.out.println("THE MOUSE IS PRESSED: " + editView.isMousePressed());
+			}
 
 		});
 		editView.getMap(3).addEventFilter(MouseEvent.MOUSE_CLICKED, (e) -> {
 			editView.replaceMap(3);
-			editView.setMousePressed(true);
-			System.out.println("THE MOUSE IS PRESSED: " + editView.isMousePressed());
+			MapContainer selectedMiniCont = new MapContainer();
+			selectedMiniCont.setMap(editView.getSelectedMiniMap());
+			System.out.println("SELECTED MINI MAP INSIDE INTGUI: ");		
+			System.out.println(editView.getSelectedMiniMap().toString());
+			if (getCurrentQuadMap().equals(quadMap1)) {
+				quadMap1 = selectedMiniCont;
+				setCurrentQuadMap(quadMap1);
+				editView.setMousePressed(true);
+				System.out.println("THE MOUSE IS PRESSED: " + editView.isMousePressed());
+			} else if (getCurrentQuadMap().equals(quadMap2)) {
+				quadMap2 = selectedMiniCont;
+				setCurrentQuadMap(quadMap2);
+				editView.setMousePressed(true);
+				System.out.println("THE MOUSE IS PRESSED: " + editView.isMousePressed());
+			} else if (getCurrentQuadMap().equals(quadMap3)) {
+				quadMap3 = selectedMiniCont;
+				setCurrentQuadMap(quadMap3);
+				editView.setMousePressed(true);
+				System.out.println("THE MOUSE IS PRESSED: " + editView.isMousePressed());
+			} else if (getCurrentQuadMap().equals(quadMap4)) {
+				quadMap4 = selectedMiniCont;
+				setCurrentQuadMap(quadMap4);
+				editView.setMousePressed(true);
+				System.out.println("THE MOUSE IS PRESSED: " + editView.isMousePressed());
+			}
 
 
 		});
