@@ -76,6 +76,9 @@ public class EditViewController extends BorderPane implements Listener {
 	private Button leftButton = new Button();
 	private Button upButton = new Button();
 	private Button downButton = new Button();
+	
+	private boolean mousePressed = false;
+	private Map selectedMiniMap;
 
 	//@FXML private AnchorPane interactivePane;
 
@@ -128,7 +131,7 @@ public class EditViewController extends BorderPane implements Listener {
 	 */
 	private void init() {
 		initMapView();
-		initMiniMaps();
+		//initMiniMaps();
 		initLegend();
 
 	}
@@ -143,11 +146,11 @@ public class EditViewController extends BorderPane implements Listener {
 
 		Pane root = new Pane();
 
-		mapView = new InteractiveMap();
-		StackPane.setAlignment(mapView, Pos.CENTER);
-		mapView.setMinSize(width, height);
-		mapView.setMaxSize(width, height);
-		mapPane.getChildren().add(mapView);
+		setMapView(new InteractiveMap());
+		StackPane.setAlignment(getMapView(), Pos.CENTER);
+		getMapView().setMinSize(width, height);
+		getMapView().setMaxSize(width, height);
+		mapPane.getChildren().add(getMapView());
 		
 		
 		
@@ -231,22 +234,38 @@ public class EditViewController extends BorderPane implements Listener {
 	/**
 	 * Intialises the mini map view.
 	 */
-	private void initMiniMaps() {
-		mapView.addEventFilter(MouseEvent.MOUSE_CLICKED, new EditViewEventHandler());
-		getMap(0).addEventFilter(MouseEvent.MOUSE_CLICKED, (e) -> {
-			replaceMap(0);
-		});
-		getMap(1).addEventFilter(MouseEvent.MOUSE_CLICKED, (e) -> {
-			replaceMap(1);
-		});
-		getMap(2).addEventFilter(MouseEvent.MOUSE_CLICKED, (e) -> {
-			replaceMap(2);
-		});
-		getMap(3).addEventFilter(MouseEvent.MOUSE_CLICKED, (e) -> {
-			replaceMap(3);
-		});
-		resetMiniMaps();
-	}
+//	private void initMiniMaps() {
+//		getMapView().addEventFilter(MouseEvent.MOUSE_CLICKED, new EditViewEventHandler());
+//		getMap(0).addEventFilter(MouseEvent.MOUSE_CLICKED, (e) -> {
+//			replaceMap(0);
+//			setMousePressed(true);
+//			System.out.println("THE MOUSE IS PRESSED: " + mousePressed);
+//		});
+//		getMap(1).addEventFilter(MouseEvent.MOUSE_CLICKED, (e) -> {
+//			replaceMap(1);
+//			setMousePressed(true);
+//			System.out.println("THE MOUSE IS PRESSED: " + mousePressed);
+//
+//
+//		});
+//		getMap(2).addEventFilter(MouseEvent.MOUSE_CLICKED, (e) -> {
+//			replaceMap(2);
+//			setMousePressed(true);
+//			System.out.println("THE MOUSE IS PRESSED: " + mousePressed);
+//
+//
+//		});
+//		getMap(3).addEventFilter(MouseEvent.MOUSE_CLICKED, (e) -> {
+//			replaceMap(3);
+//			setMousePressed(true);
+//			System.out.println("THE MOUSE IS PRESSED: " + mousePressed);
+//
+//
+//		});
+//		resetMiniMaps();
+//		setMousePressed(false);
+//
+//	}
 	
 	public void setContainer(MapContainer map) {
 		map = this.map;
@@ -300,7 +319,7 @@ public class EditViewController extends BorderPane implements Listener {
 	/**
 	 * Resets the mini maps for a new run of map generation.
 	 */
-	private void resetMiniMaps() {
+	public void resetMiniMaps() {
 		nextMap = 0;
 
 		getMap(0).draw(null);
@@ -345,7 +364,7 @@ public class EditViewController extends BorderPane implements Listener {
 	 * @return An instance of InteractiveMap, if it exists.
 	 */
 	public InteractiveMap getMap() {
-		return mapView;
+		return getMapView();
 	}
 
 	/**
@@ -374,11 +393,20 @@ public class EditViewController extends BorderPane implements Listener {
 	 * @param map The new map.
 	 */
 	public void updateMap(Map map) {
-		mapView.updateMap(map);
-		
+		getMapView().updateMap(map);
+		System.out.println("CURRENT MAP VIEW: ");
+		System.out.println(getMapView().getMap());
 		redrawPatterns(map);
 		mapIsFeasible(map.isFeasible());
 		resetMiniMaps();
+	}
+	
+	public void updateRoom(Map map) {
+		getMapView().updateMap(map);
+		
+		redrawPatterns(map);
+		mapIsFeasible(map.isFeasible());
+		//resetMiniMaps();
 	}
 	
 	public void updateLargeMap(Map map) {
@@ -393,7 +421,7 @@ public class EditViewController extends BorderPane implements Listener {
 	 */
 	public Map getCurrentMap() {
 		
-		return mapView.getMap();
+		return getMapView().getMap();
 	}
 
 	/**
@@ -402,7 +430,7 @@ public class EditViewController extends BorderPane implements Listener {
 	 * @return A rendered version of the map.
 	 */
 	public Image getRenderedMap() {
-		return renderer.renderMap(mapView.getMap().toMatrix());
+		return renderer.renderMap(getMapView().getMap().toMatrix());
 	}
 
 	/**
@@ -414,9 +442,9 @@ public class EditViewController extends BorderPane implements Listener {
 	public void selectBrush() {
 		if (brushes.getSelectedToggle() == null) {
 			brush = null;
-			mapView.setCursor(Cursor.DEFAULT);
+			getMapView().setCursor(Cursor.DEFAULT);
 		} else {
-			mapView.setCursor(Cursor.HAND);
+			getMapView().setCursor(Cursor.HAND);
 
 			switch (((ToggleButton) brushes.getSelectedToggle()).getText()) {
 			case "Floor":
@@ -455,7 +483,7 @@ public class EditViewController extends BorderPane implements Listener {
 	 */
 	public void generateNewMaps() {
 		resetMiniMaps();
-		generateNewMaps(mapView.getMap());
+		generateNewMaps(getMapView().getMap());
 	}
 
 	/**
@@ -485,11 +513,15 @@ public class EditViewController extends BorderPane implements Listener {
 	 * 
 	 * @param index The new map's index.
 	 */
-	private void replaceMap(int index) {
-		Map map = maps.get(index);
-		if (map != null) {
-			generateNewMaps(map);
-			updateMap(map);
+	public void replaceMap(int index) {
+		selectedMiniMap = maps.get(index);
+//		Map map = maps.get(index);
+		System.out.println("SELECTED MINI MAP INSIDE EDITVIEW: ");		
+		System.out.println(selectedMiniMap.toString());
+		if (selectedMiniMap != null) {
+			generateNewMaps(selectedMiniMap);
+			updateMap(selectedMiniMap);
+
 		}
 	}
 
@@ -531,16 +563,16 @@ public class EditViewController extends BorderPane implements Listener {
 	/*
 	 * Event handlers
 	 */
-	private class EditViewEventHandler implements EventHandler<MouseEvent> {
+	public class EditViewEventHandler implements EventHandler<MouseEvent> {
 		@Override
 		public void handle(MouseEvent event) {
 			if (event.getTarget() instanceof ImageView && brush != null) {
 				// Edit the map
 				ImageView tile = (ImageView) event.getTarget();
-				mapView.updateTile(tile, brush);
-				mapView.getMap().forceReevaluation();
-				mapIsFeasible(mapView.getMap().isFeasible());
-				redrawPatterns(mapView.getMap());
+				getMapView().updateTile(tile, brush);
+				getMapView().getMap().forceReevaluation();
+				mapIsFeasible(getMapView().getMap().isFeasible());
+				redrawPatterns(getMapView().getMap());
 			}
 		}
 
@@ -576,31 +608,47 @@ public class EditViewController extends BorderPane implements Listener {
 		return rightButton;
 	}
 
-	public void setRightButton(Button rightButton) {
-		this.rightButton = rightButton;
-	}
+	
 
 	public Button getLeftButton() {
 		return leftButton;
 	}
 
-	public void setLeftButton(Button leftButton) {
-		this.leftButton = leftButton;
-	}
+	
 
 	public Button getUpButton() {
 		return upButton;
 	}
 
-	public void setUpButton(Button upButton) {
-		this.upButton = upButton;
-	}
+	
 
 	public Button getDownButton() {
 		return downButton;
 	}
 
-	public void setDownButton(Button downButton) {
-		this.downButton = downButton;
+	public boolean isMousePressed() {
+		return mousePressed;
 	}
+
+	public void setMousePressed(boolean mousePressed) {
+		this.mousePressed = mousePressed;
+	}
+
+	public Map getSelectedMiniMap() {
+		return selectedMiniMap;
+	}
+
+	public void setSelectedMiniMap(Map selectedMiniMap) {
+		this.selectedMiniMap = selectedMiniMap;
+	}
+
+	public InteractiveMap getMapView() {
+		return mapView;
+	}
+
+	public void setMapView(InteractiveMap mapView) {
+		this.mapView = mapView;
+	}
+
+	
 }

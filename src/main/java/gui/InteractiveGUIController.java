@@ -20,6 +20,7 @@ import game.Map;
 import game.MapContainer;
 import gui.views.EditViewController;
 import gui.views.StartViewController;
+import gui.views.EditViewController.EditViewEventHandler;
 import javafx.application.Platform;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.event.ActionEvent;
@@ -353,20 +354,60 @@ public class InteractiveGUIController implements Initializable, Listener {
 		System.out.println(map.getMap());
 
 		editView.updateMap(quadMap1.getMap());	
-		currentQuadMap = quadMap1;
+		setCurrentQuadMap(quadMap1);
+		
+		editView.getMapView().addEventFilter(MouseEvent.MOUSE_CLICKED, editView.new EditViewEventHandler());
+		editView.getMap(0).addEventFilter(MouseEvent.MOUSE_CLICKED, (e) -> {
+			editView.replaceMap(0);
+			MapContainer selectedMiniCont = new MapContainer();
+			selectedMiniCont.setMap(editView.getSelectedMiniMap());
+			System.out.println("SELECTED MINI MAP INSIDE INTGUI: ");		
+			System.out.println(editView.getSelectedMiniMap().toString());
+			if (getCurrentQuadMap().equals(quadMap1)) {
+				quadMap1 = selectedMiniCont;
+				setCurrentQuadMap(quadMap1);
+				editView.setMousePressed(true);
+				System.out.println("THE MOUSE IS PRESSED: " + editView.isMousePressed());
+			}
+			
+		});
+		editView.getMap(1).addEventFilter(MouseEvent.MOUSE_CLICKED, (e) -> {
+			editView.replaceMap(1);
+			editView.setMousePressed(true);
+			System.out.println("THE MOUSE IS PRESSED: " + editView.isMousePressed());
+
+
+		});
+		editView.getMap(2).addEventFilter(MouseEvent.MOUSE_CLICKED, (e) -> {
+			editView.replaceMap(2);
+			editView.setMousePressed(true);
+			System.out.println("THE MOUSE IS PRESSED: " + editView.isMousePressed());
+
+
+		});
+		editView.getMap(3).addEventFilter(MouseEvent.MOUSE_CLICKED, (e) -> {
+			editView.replaceMap(3);
+			editView.setMousePressed(true);
+			System.out.println("THE MOUSE IS PRESSED: " + editView.isMousePressed());
+
+
+		});
+		editView.resetMiniMaps();
+		editView.setMousePressed(false);
+		
 
 		editView.getRightButton().setOnAction(new EventHandler<ActionEvent>() {
 			@Override
 			public void handle(ActionEvent e) {
 				System.out.println("YES RIGHT IS PRESSED");
-				if (currentQuadMap.equals(quadMap1)) {
-					editView.updateMap(quadMap2.getMap());
-					currentQuadMap = quadMap2;
+				if (getCurrentQuadMap().equals(quadMap1)) {
+					editView.updateRoom(quadMap2.getMap());
+					setCurrentQuadMap(quadMap2);
 
 
-				} else if (currentQuadMap.equals(quadMap3)) {
-					editView.updateMap(quadMap4.getMap());
-					currentQuadMap = quadMap4;
+				} else if (getCurrentQuadMap().equals(quadMap3)) {
+					editView.updateRoom(quadMap4.getMap());
+					setCurrentQuadMap(quadMap4);
 
 				}
 			}
@@ -376,14 +417,14 @@ public class InteractiveGUIController implements Initializable, Listener {
 			@Override
 			public void handle(ActionEvent e) {
 				System.out.println("YES LEFT IS PRESSED");
-				if (currentQuadMap.equals(quadMap2)) {
-					editView.updateMap(quadMap1.getMap());
-					currentQuadMap = quadMap1;
+				if (getCurrentQuadMap().equals(quadMap2)) {
+					editView.updateRoom(quadMap1.getMap());
+					setCurrentQuadMap(quadMap1);
 
 
-				} else if (currentQuadMap.equals(quadMap4)) {
-					editView.updateMap(quadMap3.getMap());
-					currentQuadMap = quadMap3;
+				} else if (getCurrentQuadMap().equals(quadMap4)) {
+					editView.updateRoom(quadMap3.getMap());
+					setCurrentQuadMap(quadMap3);
 
 				}
 			}
@@ -393,14 +434,14 @@ public class InteractiveGUIController implements Initializable, Listener {
 			@Override
 			public void handle(ActionEvent e) {
 				System.out.println("YES DOWN IS PRESSED");
-				if (currentQuadMap.equals(quadMap1)) {
-					editView.updateMap(quadMap3.getMap());
-					currentQuadMap = quadMap3;
+				if (getCurrentQuadMap().equals(quadMap1)) {
+					editView.updateRoom(quadMap3.getMap());
+					setCurrentQuadMap(quadMap3);
 
 
-				} else if (currentQuadMap.equals(quadMap2)) {
-					editView.updateMap(quadMap4.getMap());
-					currentQuadMap = quadMap4;
+				} else if (getCurrentQuadMap().equals(quadMap2)) {
+					editView.updateRoom(quadMap4.getMap());
+					setCurrentQuadMap(quadMap4);
 
 				}
 			}
@@ -409,20 +450,21 @@ public class InteractiveGUIController implements Initializable, Listener {
 			@Override
 			public void handle(ActionEvent e) {
 				System.out.println("YES UP IS PRESSED");
-				if (currentQuadMap.equals(quadMap3)) {
-					editView.updateMap(quadMap1.getMap());
-					currentQuadMap = quadMap1;
+				if (getCurrentQuadMap().equals(quadMap3)) {
+					editView.updateRoom(quadMap1.getMap());
+					setCurrentQuadMap(quadMap1);
 
 
-				} else if (currentQuadMap.equals(quadMap4)) {
-					editView.updateMap(quadMap2.getMap());
-					currentQuadMap = quadMap2;
+				} else if (getCurrentQuadMap().equals(quadMap4)) {
+					editView.updateRoom(quadMap2.getMap());
+					setCurrentQuadMap(quadMap2);
 
 				}
 			}
 		}); 
 
 		editView.generateNewMaps();
+		
 
 		saveItem.setDisable(false);
 		saveAsItem.setDisable(false);
@@ -430,6 +472,23 @@ public class InteractiveGUIController implements Initializable, Listener {
 
 		startView.setActive(false);
 		editView.setActive(true);
+		
+		
+        
+        if (editView.isMousePressed()) {
+        	System.out.println("current quad map");
+            System.out.println(currentQuadMap.getMap().toString());
+            System.out.println("mapview");
+            System.out.println(editView.getCurrentMap().toString());
+        }
+	}
+
+	private MapContainer getCurrentQuadMap() {
+		return currentQuadMap;
+	}
+
+	private void setCurrentQuadMap(MapContainer currentQuadMap) {
+		this.currentQuadMap = currentQuadMap;
 	}
 
 
