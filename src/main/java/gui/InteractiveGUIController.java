@@ -2,6 +2,7 @@ package gui;
 
 import java.awt.image.BufferedImage;
 import java.io.File;
+import java.io.FileReader;
 import java.io.IOException;
 import java.net.URL;
 import java.nio.file.Files;
@@ -15,6 +16,7 @@ import javax.imageio.ImageIO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import finder.PatternFinder;
 import game.ApplicationConfig;
 import game.Map;
 import game.MapContainer;
@@ -78,7 +80,7 @@ public class InteractiveGUIController implements Initializable, Listener {
 	private MapContainer quadMap3 = new MapContainer();
 	private MapContainer quadMap4 = new MapContainer();
 	private MapContainer tempLargeContainer = new MapContainer();
-	
+
 
 
 
@@ -159,14 +161,14 @@ public class InteractiveGUIController implements Initializable, Listener {
 
 				}
 
-			     System.out.println("quad1");
-			        System.out.println(firstQuadString);
-			        System.out.println("quad2");
-			        System.out.println(secondQuadString);
-			        System.out.println("quad3");
-			        System.out.println(thirdQuadString);
-			        System.out.println("quad4");
-			        System.out.println(fourthQuadString);
+				System.out.println("quad1");
+				System.out.println(firstQuadString);
+				System.out.println("quad2");
+				System.out.println(secondQuadString);
+				System.out.println("quad3");
+				System.out.println(thirdQuadString);
+				System.out.println("quad4");
+				System.out.println(fourthQuadString);
 				quadMap1.setMap(Map.fromString(firstQuadString));
 				quadMap2.setMap(Map.fromString(secondQuadString));
 				quadMap3.setMap(Map.fromString(thirdQuadString));
@@ -176,7 +178,59 @@ public class InteractiveGUIController implements Initializable, Listener {
 				initEditView(container);
 			}
 		} else if (e instanceof MapLoaded) {
+			
 			MapContainer container = (MapContainer) e.getPayload();
+			
+			String mapString = container.getMap().toString();
+			int lineCounter = 0;
+			int charCounter = 0;
+			String firstQuadString = "";
+			String secondQuadString = "";
+			String thirdQuadString = "";
+			String fourthQuadString = "";
+			
+			for (int i = 0; i < mapString.length(); i++) {
+
+				if ((charCounter < 11 || mapString.charAt(i) == '\n') && lineCounter < 11){
+					firstQuadString += mapString.charAt(i);
+					charCounter++;
+					if (mapString.charAt(i) == '\n') {
+						charCounter = 0;
+						lineCounter++;
+						secondQuadString += mapString.charAt(i);
+					}
+				}
+
+				else if (charCounter == 11  && lineCounter < 11){
+
+					secondQuadString += mapString.charAt(i);
+
+				}
+
+
+
+				else if ((charCounter < 11 || mapString.charAt(i) == '\n') && lineCounter == 11){
+					thirdQuadString += mapString.charAt(i);
+					charCounter++;
+					if (mapString.charAt(i) == '\n') {
+						charCounter = 0;
+						fourthQuadString += mapString.charAt(i);
+					}
+				}
+
+				else if (charCounter == 11  && lineCounter == 11){
+
+					fourthQuadString += mapString.charAt(i);
+
+				}
+
+
+			}
+			quadMap1.setMap(Map.fromString(firstQuadString));
+			quadMap2.setMap(Map.fromString(secondQuadString));
+			quadMap3.setMap(Map.fromString(thirdQuadString));
+			quadMap4.setMap(Map.fromString(fourthQuadString));
+			
 			updateConfigBasedOnMap(container.getMap());
 			initEditView(container);
 		}
@@ -234,7 +288,74 @@ public class InteractiveGUIController implements Initializable, Listener {
 		File selectedFile = fileChooser.showOpenDialog(stage);
 		if (selectedFile != null) {
 			try {
-				Map.LoadMap(selectedFile);
+
+				FileReader reader = new FileReader(selectedFile);
+				String mapString = "";
+				while(reader.ready()){
+					char c = (char) reader.read();
+
+					mapString += c;
+				}
+				
+//				int lineCounter = 0;
+//				int charCounter = 0;
+//				String firstQuadString = "";
+//				String secondQuadString = "";
+//				String thirdQuadString = "";
+//				String fourthQuadString = "";
+//				
+//				for (int i = 0; i < mapString.length(); i++) {
+//
+//					if ((charCounter < 11 || mapString.charAt(i) == '\n') && lineCounter < 11){
+//						firstQuadString += mapString.charAt(i);
+//						charCounter++;
+//						if (mapString.charAt(i) == '\n') {
+//							charCounter = 0;
+//							lineCounter++;
+//							secondQuadString += mapString.charAt(i);
+//						}
+//					}
+//
+//					else if (charCounter == 11  && lineCounter < 11){
+//
+//						secondQuadString += mapString.charAt(i);
+//
+//					}
+//
+//
+//
+//					else if ((charCounter < 11 || mapString.charAt(i) == '\n') && lineCounter == 11){
+//						thirdQuadString += mapString.charAt(i);
+//						charCounter++;
+//						if (mapString.charAt(i) == '\n') {
+//							charCounter = 0;
+//							fourthQuadString += mapString.charAt(i);
+//						}
+//					}
+//
+//					else if (charCounter == 11  && lineCounter == 11){
+//
+//						fourthQuadString += mapString.charAt(i);
+//
+//					}
+//
+//
+//				}
+//				quadMap1.setMap(Map.fromString(firstQuadString));
+//				quadMap2.setMap(Map.fromString(secondQuadString));
+//				quadMap3.setMap(Map.fromString(thirdQuadString));
+//				quadMap4.setMap(Map.fromString(fourthQuadString));
+				
+				Map map = Map.fromString(mapString);
+				PatternFinder finder = map.getPatternFinder();
+				MapContainer result = new MapContainer();
+				result.setMap(map);
+				result.setMicroPatterns(finder.findMicroPatterns());
+				result.setMesoPatterns(finder.findMesoPatterns());
+				result.setMacroPatterns(finder.findMacroPatterns());
+		        EventRouter.getInstance().postEvent(new MapLoaded(result));
+
+				//Map.LoadMap(selectedFile);
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -350,9 +471,9 @@ public class InteractiveGUIController implements Initializable, Listener {
 	/**
 	 * Initialises the world map.
 	 */
-	
+
 	private void initWorldMap(MapContainer map) {
-		
+
 	}
 
 	/**
@@ -373,7 +494,7 @@ public class InteractiveGUIController implements Initializable, Listener {
 
 		editView.updateMap(quadMap1.getMap());	
 		setCurrentQuadMap(quadMap1);
-		
+
 		editView.getMapView().addEventFilter(MouseEvent.MOUSE_CLICKED, editView.new EditViewEventHandler());
 		editView.getMap(0).addEventFilter(MouseEvent.MOUSE_CLICKED, (e) -> {
 			editView.replaceMap(0);
@@ -406,7 +527,7 @@ public class InteractiveGUIController implements Initializable, Listener {
 				editView.setMousePressed(true);
 				System.out.println("THE MOUSE IS PRESSED: " + editView.isMousePressed());
 			}
-			
+
 		});
 		editView.getMap(1).addEventFilter(MouseEvent.MOUSE_CLICKED, (e) -> {
 			editView.replaceMap(1);
@@ -512,15 +633,15 @@ public class InteractiveGUIController implements Initializable, Listener {
 		});
 		editView.resetMiniMaps();
 		editView.setMousePressed(false);
-		
-		
 
 
 
 
 
-		
-		
+
+
+
+
 
 		editView.getRightButton().setOnAction(new EventHandler<ActionEvent>() {
 			@Override
@@ -590,7 +711,7 @@ public class InteractiveGUIController implements Initializable, Listener {
 		}); 
 
 		editView.generateNewMaps();
-		
+
 
 		saveItem.setDisable(false);
 		saveAsItem.setDisable(false);
@@ -598,50 +719,50 @@ public class InteractiveGUIController implements Initializable, Listener {
 
 		startView.setActive(false);
 		editView.setActive(true);
-		
-		
-        
-        if (editView.isMousePressed()) {
-        	System.out.println("current quad map");
-            System.out.println(currentQuadMap.getMap().toString());
-            System.out.println("mapview");
-            System.out.println(editView.getCurrentMap().toString());
-        }
+
+
+
+		if (editView.isMousePressed()) {
+			System.out.println("current quad map");
+			System.out.println(currentQuadMap.getMap().toString());
+			System.out.println("mapview");
+			System.out.println(editView.getCurrentMap().toString());
+		}
 	}
-	
+
 	private MapContainer updateLargeMap() {
-		
+
 		String megaString = "";
-        String tempString = "";
-        for(int i = 0; i < quadMap1.getMap().toString().length(); i++) {
-            if(quadMap1.getMap().toString().charAt(i) != '\n') {
-                megaString += quadMap1.getMap().toString().charAt(i);
-                tempString += quadMap2.getMap().toString().charAt(i);
-            }
-            if(quadMap1.getMap().toString().charAt(i) == '\n') {
-                megaString += tempString;
-                megaString += quadMap1.getMap().toString().charAt(i);
-                tempString = "";
-            }
-        }
-        for(int i = 0; i < quadMap3.getMap().toString().length(); i++) {
-            if(quadMap3.getMap().toString().charAt(i) != '\n') {
-                megaString += quadMap3.getMap().toString().charAt(i);
-                tempString += quadMap4.getMap().toString().charAt(i);
-            }
-            if(quadMap3.getMap().toString().charAt(i) == '\n') {
-                megaString += tempString;
-                megaString += quadMap4.getMap().toString().charAt(i);
-                tempString = "";
-            }
-        }
-        System.out.println("megastring!!");
-        System.out.println(megaString);
-        
-        MapContainer largeMapCont = new MapContainer();
-        largeMapCont.setMap(Map.fromString(megaString));
-        
-        return largeMapCont;
+		String tempString = "";
+		for(int i = 0; i < quadMap1.getMap().toString().length(); i++) {
+			if(quadMap1.getMap().toString().charAt(i) != '\n') {
+				megaString += quadMap1.getMap().toString().charAt(i);
+				tempString += quadMap2.getMap().toString().charAt(i);
+			}
+			if(quadMap1.getMap().toString().charAt(i) == '\n') {
+				megaString += tempString;
+				megaString += quadMap1.getMap().toString().charAt(i);
+				tempString = "";
+			}
+		}
+		for(int i = 0; i < quadMap3.getMap().toString().length(); i++) {
+			if(quadMap3.getMap().toString().charAt(i) != '\n') {
+				megaString += quadMap3.getMap().toString().charAt(i);
+				tempString += quadMap4.getMap().toString().charAt(i);
+			}
+			if(quadMap3.getMap().toString().charAt(i) == '\n') {
+				megaString += tempString;
+				megaString += quadMap4.getMap().toString().charAt(i);
+				tempString = "";
+			}
+		}
+		System.out.println("megastring!!");
+		System.out.println(megaString);
+
+		MapContainer largeMapCont = new MapContainer();
+		largeMapCont.setMap(Map.fromString(megaString));
+
+		return largeMapCont;
 	}
 
 	private MapContainer getCurrentQuadMap() {
