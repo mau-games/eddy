@@ -408,7 +408,7 @@ public class EditViewController extends BorderPane implements Listener {
 	}
 	
 	public void updateLargeMap(Map map) {
-		largeMap = map;				
+		setLargeMap(map);				
 	}
 
 
@@ -646,6 +646,14 @@ public class EditViewController extends BorderPane implements Listener {
 
 	public void setMapView(InteractiveMap mapView) {
 		this.mapView = mapView;
+	}
+
+	public Map getLargeMap() {
+		return largeMap;
+	}
+
+	public void setLargeMap(Map largeMap) {
+		this.largeMap = largeMap;
 	}
 
 	

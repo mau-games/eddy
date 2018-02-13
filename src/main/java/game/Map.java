@@ -690,14 +690,14 @@ public class Map {
 		int charCounter = 0;
 		while(reader.ready()){
 			char c = (char) reader.read();
-			if ((charCounter < 11 || c == '\n') && lineCounter < 11){
+//			if ((charCounter < 11 || c == '\n') && lineCounter < 11){
 				mapString += c;
-				charCounter++;
-				if (c == '\n') {
-					charCounter = 0;
-					lineCounter++;
-				}
-			}
+//				charCounter++;
+//				if (c == '\n') {
+//					charCounter = 0;
+//					lineCounter++;
+//				}
+//			}
 
 		}
 		Map map = fromString(mapString);

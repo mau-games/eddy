@@ -64,7 +64,7 @@ public class InteractiveGUIController implements Initializable, Listener {
 
 	StartViewController startView = null;
 	EditViewController editView = null;
-	WorldMapController worldMap = null;
+	//WorldMapController worldMap = null;
 	EventHandler<MouseEvent> mouseEventHandler = null;
 	private MapContainer container2 = null;
 
@@ -77,6 +77,9 @@ public class InteractiveGUIController implements Initializable, Listener {
 	private MapContainer quadMap2 = new MapContainer();
 	private MapContainer quadMap3 = new MapContainer();
 	private MapContainer quadMap4 = new MapContainer();
+	private MapContainer tempLargeContainer = new MapContainer();
+	
+
 
 
 	@Override
@@ -195,7 +198,7 @@ public class InteractiveGUIController implements Initializable, Listener {
 
 		startView = new StartViewController();
 		editView = new EditViewController();
-		worldMap = new WorldMapController();
+		//worldMap = new WorldMapController();
 
 		mainPane.sceneProperty().addListener((observableScene, oldScene, newScene) -> {
 			if (newScene != null) {
@@ -240,6 +243,10 @@ public class InteractiveGUIController implements Initializable, Listener {
 	}
 
 	public void saveMap() {
+		tempLargeContainer = updateLargeMap();
+		System.out.println("TEST PRINT");
+		System.out.println(tempLargeContainer.getMap().toString());
+		editView.updateLargeMap(tempLargeContainer.getMap());
 		DateTimeFormatter format =
 				DateTimeFormatter.ofPattern("yyyy-MM-dd_HH-mm-s-n");
 		String name = "map_" +
@@ -255,7 +262,7 @@ public class InteractiveGUIController implements Initializable, Listener {
 		if (selectedFile != null) {
 			logger.debug("Writing map to " + selectedFile.getPath());
 			try {
-				Files.write(selectedFile.toPath(), editView.getMap().getMap().toString().getBytes());
+				Files.write(selectedFile.toPath(), editView.getLargeMap().toString().getBytes());
 			} catch (IOException e) {
 				logger.error("Couldn't write map to " + selectedFile +
 						":\n" + e.getMessage());
@@ -377,21 +384,25 @@ public class InteractiveGUIController implements Initializable, Listener {
 			if (getCurrentQuadMap().equals(quadMap1)) {
 				quadMap1 = selectedMiniCont;
 				setCurrentQuadMap(quadMap1);
+
 				editView.setMousePressed(true);
 				System.out.println("THE MOUSE IS PRESSED: " + editView.isMousePressed());
 			} else if (getCurrentQuadMap().equals(quadMap2)) {
 				quadMap2 = selectedMiniCont;
 				setCurrentQuadMap(quadMap2);
+
 				editView.setMousePressed(true);
 				System.out.println("THE MOUSE IS PRESSED: " + editView.isMousePressed());
 			} else if (getCurrentQuadMap().equals(quadMap3)) {
 				quadMap3 = selectedMiniCont;
 				setCurrentQuadMap(quadMap3);
+
 				editView.setMousePressed(true);
 				System.out.println("THE MOUSE IS PRESSED: " + editView.isMousePressed());
 			} else if (getCurrentQuadMap().equals(quadMap4)) {
 				quadMap4 = selectedMiniCont;
 				setCurrentQuadMap(quadMap4);
+
 				editView.setMousePressed(true);
 				System.out.println("THE MOUSE IS PRESSED: " + editView.isMousePressed());
 			}
@@ -406,21 +417,25 @@ public class InteractiveGUIController implements Initializable, Listener {
 			if (getCurrentQuadMap().equals(quadMap1)) {
 				quadMap1 = selectedMiniCont;
 				setCurrentQuadMap(quadMap1);
+
 				editView.setMousePressed(true);
 				System.out.println("THE MOUSE IS PRESSED: " + editView.isMousePressed());
 			} else if (getCurrentQuadMap().equals(quadMap2)) {
 				quadMap2 = selectedMiniCont;
 				setCurrentQuadMap(quadMap2);
+
 				editView.setMousePressed(true);
 				System.out.println("THE MOUSE IS PRESSED: " + editView.isMousePressed());
 			} else if (getCurrentQuadMap().equals(quadMap3)) {
 				quadMap3 = selectedMiniCont;
 				setCurrentQuadMap(quadMap3);
+
 				editView.setMousePressed(true);
 				System.out.println("THE MOUSE IS PRESSED: " + editView.isMousePressed());
 			} else if (getCurrentQuadMap().equals(quadMap4)) {
 				quadMap4 = selectedMiniCont;
 				setCurrentQuadMap(quadMap4);
+
 				editView.setMousePressed(true);
 				System.out.println("THE MOUSE IS PRESSED: " + editView.isMousePressed());
 			}
@@ -435,21 +450,25 @@ public class InteractiveGUIController implements Initializable, Listener {
 			if (getCurrentQuadMap().equals(quadMap1)) {
 				quadMap1 = selectedMiniCont;
 				setCurrentQuadMap(quadMap1);
+
 				editView.setMousePressed(true);
 				System.out.println("THE MOUSE IS PRESSED: " + editView.isMousePressed());
 			} else if (getCurrentQuadMap().equals(quadMap2)) {
 				quadMap2 = selectedMiniCont;
 				setCurrentQuadMap(quadMap2);
+
 				editView.setMousePressed(true);
 				System.out.println("THE MOUSE IS PRESSED: " + editView.isMousePressed());
 			} else if (getCurrentQuadMap().equals(quadMap3)) {
 				quadMap3 = selectedMiniCont;
 				setCurrentQuadMap(quadMap3);
+
 				editView.setMousePressed(true);
 				System.out.println("THE MOUSE IS PRESSED: " + editView.isMousePressed());
 			} else if (getCurrentQuadMap().equals(quadMap4)) {
 				quadMap4 = selectedMiniCont;
 				setCurrentQuadMap(quadMap4);
+
 				editView.setMousePressed(true);
 				System.out.println("THE MOUSE IS PRESSED: " + editView.isMousePressed());
 			}
@@ -464,22 +483,28 @@ public class InteractiveGUIController implements Initializable, Listener {
 			if (getCurrentQuadMap().equals(quadMap1)) {
 				quadMap1 = selectedMiniCont;
 				setCurrentQuadMap(quadMap1);
+
 				editView.setMousePressed(true);
+
 				System.out.println("THE MOUSE IS PRESSED: " + editView.isMousePressed());
 			} else if (getCurrentQuadMap().equals(quadMap2)) {
 				quadMap2 = selectedMiniCont;
 				setCurrentQuadMap(quadMap2);
+
 				editView.setMousePressed(true);
 				System.out.println("THE MOUSE IS PRESSED: " + editView.isMousePressed());
 			} else if (getCurrentQuadMap().equals(quadMap3)) {
 				quadMap3 = selectedMiniCont;
 				setCurrentQuadMap(quadMap3);
+
 				editView.setMousePressed(true);
 				System.out.println("THE MOUSE IS PRESSED: " + editView.isMousePressed());
 			} else if (getCurrentQuadMap().equals(quadMap4)) {
 				quadMap4 = selectedMiniCont;
 				setCurrentQuadMap(quadMap4);
+
 				editView.setMousePressed(true);
+
 				System.out.println("THE MOUSE IS PRESSED: " + editView.isMousePressed());
 			}
 
@@ -487,6 +512,14 @@ public class InteractiveGUIController implements Initializable, Listener {
 		});
 		editView.resetMiniMaps();
 		editView.setMousePressed(false);
+		
+		
+
+
+
+
+
+		
 		
 
 		editView.getRightButton().setOnAction(new EventHandler<ActionEvent>() {
