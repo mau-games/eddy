@@ -62,6 +62,8 @@ public class Algorithm extends Thread {
 	private int feasibleAmount;
 	private double roomTarget;
 	private double corridorTarget;
+
+	private Map oldMap = null;
 	
 	private int infeasiblesMoved = 0;
 	private int movedInfeasiblesKept = 0;
@@ -130,7 +132,8 @@ public class Algorithm extends Thread {
 
 	private void initPopulations(Map map){
 		broadcastStatusUpdate("Initialising...");
-		
+		oldMap = map;
+				
 		feasiblePool = new ArrayList<Individual>();
 		infeasiblePool = new ArrayList<Individual>();
 		feasiblePopulation = new ArrayList<Individual>();
@@ -476,12 +479,16 @@ public class Algorithm extends Thread {
     	
     	double roomFitness = roomArea/passableTiles;
     	roomFitness = 1 - Math.abs(roomFitness - roomTarget)/Math.max(roomTarget, 1.0 - roomTarget);
-    	
+
+    	//Comparison fitness 
+    	double similarityFitness = 1.0;
+    	if(oldMap != null)
+    		similarityFitness = evaluateSimilarityFitnessValue(oldMap, map, 0.95);
     	
     	//Total fitness
-    	double fitness = 0.5 * treasureAndEnemyFitness
-    			+  0.5 * (0.3 * roomFitness + 0.7 * corridorFitness);
-    	
+    	double fitness = (0.5 * treasureAndEnemyFitness
+    			+  0.5 * (0.3 * roomFitness + 0.7 * corridorFitness)
+    			* similarityFitness);
     	
     	
         //set final fitness
@@ -492,6 +499,65 @@ public class Algorithm extends Thread {
     	ind.setRoomArea(rawRoomArea);
     	ind.setCorridorArea(rawCorridorArea);
         ind.setEvaluate(true);
+    }
+    
+    /**
+     * Evaluates the percent similarity between the old map with the new individual map and calculates with the ideal percent to give the fitness function
+     * 
+     * double procentSimilar = similarTiles / totalTiles;
+     * 
+     * double similarityFitness = procentSimilar / idealProcentSimilarity;
+     * 
+     * OR (depends on if the procentSimilar is over or under idealProcentSimilarity)
+     * 
+     * double similarityFitness = (1 - procentSimilar) / (1 - idealProcentSimilarity);   
+     * 
+     * @param oldMap the map that the new generations take their values from
+     * @param newMap the newly created individual map
+     * @param idealProcentSimilarity determines how much similar the two maps should be to be ideal.
+     */
+	private double evaluateSimilarityFitnessValue(Map oldMap, Map newMap, double idealProcentSimilarity)
+    {
+    	int[][] oldMatrix = oldMap.toMatrix();
+    	int[][] newMatrix = newMap.toMatrix();
+    	double totalTiles = oldMap.getColCount() * oldMap.getRowCount();
+    	double similarTiles = totalTiles;
+    	
+    	// Calculates how many tiles that are similar between the two maps
+    	for(int i = 0; i < oldMap.getColCount(); ++i)
+    	{
+    		for(int j = 0; j < oldMap.getRowCount(); ++j)
+    		{
+    			switch (oldMatrix[i][j])
+    			{
+	    			case 1: // Just walls. Checking if both maps have a wall in the same place.
+	        			if(newMatrix[i][j] != 1)
+	        			{
+	        				similarTiles--;
+	        			}
+	        			break;
+        			default: // Every other floor tile. Checking if that there is no wall.
+        				if(newMatrix[i][j] == 1)
+	        			{
+	        				similarTiles--;
+	        			}
+        				break;
+    			}
+    		}
+    	}
+    	double procentSimilar = similarTiles / totalTiles;
+    	
+    	// Calculates the simularityFitness with the idealProcentSimilarity to be able to control how much they change
+    	double similarityFitness = 1.0;    	
+    	if(procentSimilar < idealProcentSimilarity)
+		{
+    		similarityFitness = procentSimilar / idealProcentSimilarity;
+		}
+    	else
+    	{
+    		similarityFitness = (1 - procentSimilar) / (1 - idealProcentSimilarity);    	
+    	}
+    	return similarityFitness;
     }
 
     /**
