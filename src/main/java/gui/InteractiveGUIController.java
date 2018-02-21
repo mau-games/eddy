@@ -8,28 +8,27 @@ import java.net.URL;
 import java.nio.file.Files;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.Collections;
 import java.util.ResourceBundle;
-
 import javax.imageio.ImageIO;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import finder.PatternFinder;
 import game.ApplicationConfig;
+import game.Game;
 import game.Map;
 import game.MapContainer;
-import gui.views.EditViewController;
-import gui.views.StartViewController;
-import gui.views.WorldMapController;
-import gui.views.EditViewController.EditViewEventHandler;
+import game.TileTypes;
+import generator.config.GeneratorConfig;
+import gui.views.RoomViewController;
+import gui.views.SuggestionsViewController;
+import gui.views.WorldViewController;
 import javafx.application.Platform;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.scene.control.MenuButton;
 //import javafx.scene.control.Alert;
 //import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.MenuItem;
@@ -38,17 +37,23 @@ import javafx.scene.layout.AnchorPane;
 import javafx.stage.FileChooser;
 import javafx.stage.FileChooser.ExtensionFilter;
 import javafx.stage.Stage;
+import util.Point;
 import util.config.MissingConfigurationException;
 import util.eventrouting.EventRouter;
 import util.eventrouting.Listener;
 import util.eventrouting.PCGEvent;
 import util.eventrouting.events.AlgorithmDone;
 import util.eventrouting.events.MapLoaded;
+import util.eventrouting.events.RequestEmptyRoom;
 import util.eventrouting.events.RequestRedraw;
-import util.eventrouting.events.RequestViewSwitch;
+import util.eventrouting.events.RequestRoomView;
+import util.eventrouting.events.RequestSuggestionsView;
+import util.eventrouting.events.RequestWorldView;
 import util.eventrouting.events.Start;
 import util.eventrouting.events.StatusMessage;
 import util.eventrouting.events.Stop;
+
+
 
 public class InteractiveGUIController implements Initializable, Listener {
 
@@ -61,14 +66,18 @@ public class InteractiveGUIController implements Initializable, Listener {
 	@FXML private MenuItem prefsItem;
 	@FXML private MenuItem exitItem;
 	@FXML private MenuItem aboutItem;
+	//	@FXML private MenuItem saveWorldItem;
+	//	@FXML private MenuItem openWorldItem;
+	//	@FXML private MenuButton roomSizeBtn;
 
 	Stage stage = null;
 
-	StartViewController startView = null;
-	EditViewController editView = null;
-	//WorldMapController worldMap = null;
+	Game game = new Game();
+
+	SuggestionsViewController suggestionsView = null;
+	RoomViewController roomView = null;
+	WorldViewController worldView = null;
 	EventHandler<MouseEvent> mouseEventHandler = null;
-	private MapContainer container2 = null;
 
 	final static Logger logger = LoggerFactory.getLogger(InteractiveGUIController.class);
 	private static EventRouter router = EventRouter.getInstance();
@@ -81,158 +90,24 @@ public class InteractiveGUIController implements Initializable, Listener {
 	private MapContainer quadMap4 = new MapContainer();
 	private MapContainer tempLargeContainer = new MapContainer();
 
-
-
+	// VARIABLE FOR PICKING THE SIZE OF THE WORLD MAP (3 = 3x3 map)
+	private int size = 3;
+	// ArrayList<MapContainer> worldMapList = new ArrayList<MapContainer>();
+	private MapContainer[][] worldMapMatrix = new MapContainer[size][size];
 
 	@Override
 	public synchronized void ping(PCGEvent e) {
-		if (e instanceof RequestViewSwitch) {
-			if (e.getPayload() == null) {
-				router.postEvent(new Stop());
-				initStartView();
-			} else {
-				MapContainer container = (MapContainer) e.getPayload();
-
-
-
-				String mapString = container.getMap().toString();
-				String mapStringRepeat = String.join("", Collections.nCopies(2, mapString));
-
-				String helpString = "";
-				StringBuilder sb = new StringBuilder();
-
-				for (int i = 0; i < mapStringRepeat.length(); i++) {
-
-					if (mapStringRepeat.charAt(i) == '\n') {
-						sb.append(helpString);
-						sb.append(mapStringRepeat.charAt(i));
-						helpString = "";
-					}
-					else {
-						sb.append(mapStringRepeat.charAt(i));
-						helpString += mapStringRepeat.charAt(i);
-					}
-				}
-				container.setMap(Map.fromString(sb.toString()));
-
-				String firstQuadString = "";
-				String secondQuadString = "";
-				String thirdQuadString = "";
-				String fourthQuadString = "";
-				int lineCounter = 0;
-				int charCounter = 0;
-				String fullMapString = sb.toString();
-
-				for (int i = 0; i < fullMapString.length(); i++) {
-
-					if ((charCounter < 11 || fullMapString.charAt(i) == '\n') && lineCounter < 11){
-						firstQuadString += fullMapString.charAt(i);
-						charCounter++;
-						if (fullMapString.charAt(i) == '\n') {
-							charCounter = 0;
-							lineCounter++;
-							secondQuadString += fullMapString.charAt(i);
-						}
-					}
-
-					else if (charCounter == 11  && lineCounter < 11){
-
-						secondQuadString += fullMapString.charAt(i);
-
-					}
-
-
-
-					else if ((charCounter < 11 || fullMapString.charAt(i) == '\n') && lineCounter == 11){
-						thirdQuadString += fullMapString.charAt(i);
-						charCounter++;
-						if (fullMapString.charAt(i) == '\n') {
-							charCounter = 0;
-							fourthQuadString += fullMapString.charAt(i);
-						}
-					}
-
-					else if (charCounter == 11  && lineCounter == 11){
-
-						fourthQuadString += fullMapString.charAt(i);
-
-					}
-
-
-				}
-
-				System.out.println("quad1");
-				System.out.println(firstQuadString);
-				System.out.println("quad2");
-				System.out.println(secondQuadString);
-				System.out.println("quad3");
-				System.out.println(thirdQuadString);
-				System.out.println("quad4");
-				System.out.println(fourthQuadString);
-				quadMap1.setMap(Map.fromString(firstQuadString));
-				quadMap2.setMap(Map.fromString(secondQuadString));
-				quadMap3.setMap(Map.fromString(thirdQuadString));
-				quadMap4.setMap(Map.fromString(fourthQuadString));
-
-				router.postEvent(new Stop());
-				initEditView(container);
-			}
-		} else if (e instanceof MapLoaded) {
-			
+		if (e instanceof RequestRoomView) {
 			MapContainer container = (MapContainer) e.getPayload();
-			
-			String mapString = container.getMap().toString();
-			int lineCounter = 0;
-			int charCounter = 0;
-			String firstQuadString = "";
-			String secondQuadString = "";
-			String thirdQuadString = "";
-			String fourthQuadString = "";
-			
-			for (int i = 0; i < mapString.length(); i++) {
-
-				if ((charCounter < 11 || mapString.charAt(i) == '\n') && lineCounter < 11){
-					firstQuadString += mapString.charAt(i);
-					charCounter++;
-					if (mapString.charAt(i) == '\n') {
-						charCounter = 0;
-						lineCounter++;
-						secondQuadString += mapString.charAt(i);
-					}
-				}
-
-				else if (charCounter == 11  && lineCounter < 11){
-
-					secondQuadString += mapString.charAt(i);
-
-				}
-
-
-
-				else if ((charCounter < 11 || mapString.charAt(i) == '\n') && lineCounter == 11){
-					thirdQuadString += mapString.charAt(i);
-					charCounter++;
-					if (mapString.charAt(i) == '\n') {
-						charCounter = 0;
-						fourthQuadString += mapString.charAt(i);
-					}
-				}
-
-				else if (charCounter == 11  && lineCounter == 11){
-
-					fourthQuadString += mapString.charAt(i);
-
-				}
-
-
-			}
-			quadMap1.setMap(Map.fromString(firstQuadString));
-			quadMap2.setMap(Map.fromString(secondQuadString));
-			quadMap3.setMap(Map.fromString(thirdQuadString));
-			quadMap4.setMap(Map.fromString(fourthQuadString));
-			
-			updateConfigBasedOnMap(container.getMap());
-			initEditView(container);
+			initRoomView(container);						
+		} else if (e instanceof RequestSuggestionsView) {
+			//router.postEvent(new Stop());
+			initSuggestionsView();
+		} else if (e instanceof RequestWorldView) {
+			initWorldView();
+		} else if (e instanceof RequestEmptyRoom) {
+			MapContainer container = (MapContainer) e.getPayload();
+			initRoomView(container);
 		}
 	}
 
@@ -247,12 +122,16 @@ public class InteractiveGUIController implements Initializable, Listener {
 		router.registerListener(this, new StatusMessage(null));
 		router.registerListener(this, new AlgorithmDone(null));
 		router.registerListener(this, new RequestRedraw());
-		router.registerListener(this, new RequestViewSwitch(null));
+		router.registerListener(this, new RequestRoomView(null));
 		router.registerListener(this, new MapLoaded(null));
+		router.registerListener(this, new RequestSuggestionsView());
+		router.registerListener(this, new RequestWorldView());
+		router.registerListener(this, new RequestEmptyRoom(null));
+		router.registerListener(this, new Stop());
 
-		startView = new StartViewController();
-		editView = new EditViewController();
-		//worldMap = new WorldMapController();
+		suggestionsView = new SuggestionsViewController();
+		roomView = new RoomViewController();
+		worldView = new WorldViewController();
 
 		mainPane.sceneProperty().addListener((observableScene, oldScene, newScene) -> {
 			if (newScene != null) {
@@ -260,7 +139,9 @@ public class InteractiveGUIController implements Initializable, Listener {
 			}
 		});
 
-		initStartView();
+		initWorldView();
+		
+		
 	}
 
 	/*
@@ -269,7 +150,11 @@ public class InteractiveGUIController implements Initializable, Listener {
 
 	public void startNewFlow() {
 		router.postEvent(new Start(6));
-		initStartView();
+		initSuggestionsView();
+	}
+
+	public void goToWorldView() {
+		router.postEvent(new RequestWorldView());
 	}
 
 	public void exitApplication() {
@@ -296,56 +181,7 @@ public class InteractiveGUIController implements Initializable, Listener {
 
 					mapString += c;
 				}
-				
-//				int lineCounter = 0;
-//				int charCounter = 0;
-//				String firstQuadString = "";
-//				String secondQuadString = "";
-//				String thirdQuadString = "";
-//				String fourthQuadString = "";
-//				
-//				for (int i = 0; i < mapString.length(); i++) {
-//
-//					if ((charCounter < 11 || mapString.charAt(i) == '\n') && lineCounter < 11){
-//						firstQuadString += mapString.charAt(i);
-//						charCounter++;
-//						if (mapString.charAt(i) == '\n') {
-//							charCounter = 0;
-//							lineCounter++;
-//							secondQuadString += mapString.charAt(i);
-//						}
-//					}
-//
-//					else if (charCounter == 11  && lineCounter < 11){
-//
-//						secondQuadString += mapString.charAt(i);
-//
-//					}
-//
-//
-//
-//					else if ((charCounter < 11 || mapString.charAt(i) == '\n') && lineCounter == 11){
-//						thirdQuadString += mapString.charAt(i);
-//						charCounter++;
-//						if (mapString.charAt(i) == '\n') {
-//							charCounter = 0;
-//							fourthQuadString += mapString.charAt(i);
-//						}
-//					}
-//
-//					else if (charCounter == 11  && lineCounter == 11){
-//
-//						fourthQuadString += mapString.charAt(i);
-//
-//					}
-//
-//
-//				}
-//				quadMap1.setMap(Map.fromString(firstQuadString));
-//				quadMap2.setMap(Map.fromString(secondQuadString));
-//				quadMap3.setMap(Map.fromString(thirdQuadString));
-//				quadMap4.setMap(Map.fromString(fourthQuadString));
-				
+
 				Map map = Map.fromString(mapString);
 				PatternFinder finder = map.getPatternFinder();
 				MapContainer result = new MapContainer();
@@ -353,7 +189,7 @@ public class InteractiveGUIController implements Initializable, Listener {
 				result.setMicroPatterns(finder.findMicroPatterns());
 				result.setMesoPatterns(finder.findMesoPatterns());
 				result.setMacroPatterns(finder.findMacroPatterns());
-		        EventRouter.getInstance().postEvent(new MapLoaded(result));
+				EventRouter.getInstance().postEvent(new MapLoaded(result));
 
 				//Map.LoadMap(selectedFile);
 			} catch (IOException e) {
@@ -367,7 +203,7 @@ public class InteractiveGUIController implements Initializable, Listener {
 		tempLargeContainer = updateLargeMap();
 		System.out.println("TEST PRINT");
 		System.out.println(tempLargeContainer.getMap().toString());
-		editView.updateLargeMap(tempLargeContainer.getMap());
+		roomView.updateLargeMap(tempLargeContainer.getMap());
 		DateTimeFormatter format =
 				DateTimeFormatter.ofPattern("yyyy-MM-dd_HH-mm-s-n");
 		String name = "map_" +
@@ -383,7 +219,7 @@ public class InteractiveGUIController implements Initializable, Listener {
 		if (selectedFile != null) {
 			logger.debug("Writing map to " + selectedFile.getPath());
 			try {
-				Files.write(selectedFile.toPath(), editView.getLargeMap().toString().getBytes());
+				Files.write(selectedFile.toPath(), roomView.getLargeMap().toString().getBytes());
 			} catch (IOException e) {
 				logger.error("Couldn't write map to " + selectedFile +
 						":\n" + e.getMessage());
@@ -404,9 +240,9 @@ public class InteractiveGUIController implements Initializable, Listener {
 				new ExtensionFilter("PNG Files", "*.png"),
 				new ExtensionFilter("All Files", "*.*"));
 		File selectedFile = fileChooser.showSaveDialog(stage);
-		if (selectedFile != null && editView.getCurrentMap() != null) {
+		if (selectedFile != null && roomView.getCurrentMap() != null) {
 			logger.debug("Exporting map to " + selectedFile.getPath());
-			BufferedImage image = SwingFXUtils.fromFXImage(editView.getRenderedMap(), null);
+			BufferedImage image = SwingFXUtils.fromFXImage(roomView.getRenderedMap(), null);
 
 			try {
 				ImageIO.write(image, "png", selectedFile);
@@ -419,18 +255,6 @@ public class InteractiveGUIController implements Initializable, Listener {
 
 	public void openPreferences() {
 		System.out.println("Preferences...");
-	}
-
-	public void openAboutApplication() {
-		//		Alert alert = new Alert(AlertType.INFORMATION);
-		//		alert.setTitle("About Eddy");
-		//		alert.setHeaderText(null);
-		//		alert.setContentText("Written by:\n"
-		//				+ "Alexander Baldwin <alexander.baldwin@mah.se>\n"
-		//				+ "JohanHolmberg <johan.holmberg@mah.se>\n\n"
-		//				+ "Thanks to José, Steve and Carl Mangus\n"
-		//				+ "for your input!");
-		//		alert.showAndWait();
 	}
 
 	public void generateNewMap() {
@@ -447,287 +271,535 @@ public class InteractiveGUIController implements Initializable, Listener {
 	 */
 
 	/**
-	 * Initialises the start view.
+	 * Initialises the suggestions view.
 	 */
-	private void initStartView() {
+	private void initSuggestionsView() {
 		mainPane.getChildren().clear();
 
-		AnchorPane.setTopAnchor(startView, 0.0);
-		AnchorPane.setRightAnchor(startView, 0.0);
-		AnchorPane.setBottomAnchor(startView, 0.0);
-		AnchorPane.setLeftAnchor(startView, 0.0);
-		mainPane.getChildren().add(startView);
+		AnchorPane.setTopAnchor(suggestionsView, 0.0);
+		AnchorPane.setRightAnchor(suggestionsView, 0.0);
+		AnchorPane.setBottomAnchor(suggestionsView, 0.0);
+		AnchorPane.setLeftAnchor(suggestionsView, 0.0);
+		mainPane.getChildren().add(suggestionsView);
 
 		saveItem.setDisable(true);
 		saveAsItem.setDisable(true);
 		exportItem.setDisable(true);
 
-		startView.setActive(true);
-		editView.setActive(false);
 
-		startView.initialise();
+		suggestionsView.setActive(true);
+		roomView.setActive(false);
+		worldView.setActive(false);
+
+		suggestionsView.initialise();
 	}
 
 	/**
-	 * Initialises the world map.
+	 * Initialises the world view.
 	 */
 
-	private void initWorldMap(MapContainer map) {
-
-	}
-
-	/**
-	 * Initialises the edit view and starts a new generation run.
-	 */
-	private void initEditView(MapContainer map) {
+	private void initWorldView() {
 		mainPane.getChildren().clear();
-		AnchorPane.setTopAnchor(editView, 0.0);
-		AnchorPane.setRightAnchor(editView, 0.0);
-		AnchorPane.setBottomAnchor(editView, 0.0);
-		AnchorPane.setLeftAnchor(editView, 0.0);
-		mainPane.getChildren().add(editView);
-
-
-		editView.updateLargeMap(map.getMap());
-		System.out.println("LARGE MAP");
-		System.out.println(map.getMap());
-
-		editView.updateMap(quadMap1.getMap());	
-		setCurrentQuadMap(quadMap1);
-
-		editView.getMapView().addEventFilter(MouseEvent.MOUSE_CLICKED, editView.new EditViewEventHandler());
-		editView.getMap(0).addEventFilter(MouseEvent.MOUSE_CLICKED, (e) -> {
-			editView.replaceMap(0);
-			MapContainer selectedMiniCont = new MapContainer();
-			selectedMiniCont.setMap(editView.getSelectedMiniMap());
-			System.out.println("SELECTED MINI MAP INSIDE INTGUI: ");		
-			System.out.println(editView.getSelectedMiniMap().toString());
-			if (getCurrentQuadMap().equals(quadMap1)) {
-				quadMap1 = selectedMiniCont;
-				setCurrentQuadMap(quadMap1);
-
-				editView.setMousePressed(true);
-				System.out.println("THE MOUSE IS PRESSED: " + editView.isMousePressed());
-			} else if (getCurrentQuadMap().equals(quadMap2)) {
-				quadMap2 = selectedMiniCont;
-				setCurrentQuadMap(quadMap2);
-
-				editView.setMousePressed(true);
-				System.out.println("THE MOUSE IS PRESSED: " + editView.isMousePressed());
-			} else if (getCurrentQuadMap().equals(quadMap3)) {
-				quadMap3 = selectedMiniCont;
-				setCurrentQuadMap(quadMap3);
-
-				editView.setMousePressed(true);
-				System.out.println("THE MOUSE IS PRESSED: " + editView.isMousePressed());
-			} else if (getCurrentQuadMap().equals(quadMap4)) {
-				quadMap4 = selectedMiniCont;
-				setCurrentQuadMap(quadMap4);
-
-				editView.setMousePressed(true);
-				System.out.println("THE MOUSE IS PRESSED: " + editView.isMousePressed());
-			}
-
-		});
-		editView.getMap(1).addEventFilter(MouseEvent.MOUSE_CLICKED, (e) -> {
-			editView.replaceMap(1);
-			MapContainer selectedMiniCont = new MapContainer();
-			selectedMiniCont.setMap(editView.getSelectedMiniMap());
-			System.out.println("SELECTED MINI MAP INSIDE INTGUI: ");		
-			System.out.println(editView.getSelectedMiniMap().toString());
-			if (getCurrentQuadMap().equals(quadMap1)) {
-				quadMap1 = selectedMiniCont;
-				setCurrentQuadMap(quadMap1);
-
-				editView.setMousePressed(true);
-				System.out.println("THE MOUSE IS PRESSED: " + editView.isMousePressed());
-			} else if (getCurrentQuadMap().equals(quadMap2)) {
-				quadMap2 = selectedMiniCont;
-				setCurrentQuadMap(quadMap2);
-
-				editView.setMousePressed(true);
-				System.out.println("THE MOUSE IS PRESSED: " + editView.isMousePressed());
-			} else if (getCurrentQuadMap().equals(quadMap3)) {
-				quadMap3 = selectedMiniCont;
-				setCurrentQuadMap(quadMap3);
-
-				editView.setMousePressed(true);
-				System.out.println("THE MOUSE IS PRESSED: " + editView.isMousePressed());
-			} else if (getCurrentQuadMap().equals(quadMap4)) {
-				quadMap4 = selectedMiniCont;
-				setCurrentQuadMap(quadMap4);
-
-				editView.setMousePressed(true);
-				System.out.println("THE MOUSE IS PRESSED: " + editView.isMousePressed());
-			}
-
-		});
-		editView.getMap(2).addEventFilter(MouseEvent.MOUSE_CLICKED, (e) -> {
-			editView.replaceMap(2);
-			MapContainer selectedMiniCont = new MapContainer();
-			selectedMiniCont.setMap(editView.getSelectedMiniMap());
-			System.out.println("SELECTED MINI MAP INSIDE INTGUI: ");		
-			System.out.println(editView.getSelectedMiniMap().toString());
-			if (getCurrentQuadMap().equals(quadMap1)) {
-				quadMap1 = selectedMiniCont;
-				setCurrentQuadMap(quadMap1);
-
-				editView.setMousePressed(true);
-				System.out.println("THE MOUSE IS PRESSED: " + editView.isMousePressed());
-			} else if (getCurrentQuadMap().equals(quadMap2)) {
-				quadMap2 = selectedMiniCont;
-				setCurrentQuadMap(quadMap2);
-
-				editView.setMousePressed(true);
-				System.out.println("THE MOUSE IS PRESSED: " + editView.isMousePressed());
-			} else if (getCurrentQuadMap().equals(quadMap3)) {
-				quadMap3 = selectedMiniCont;
-				setCurrentQuadMap(quadMap3);
-
-				editView.setMousePressed(true);
-				System.out.println("THE MOUSE IS PRESSED: " + editView.isMousePressed());
-			} else if (getCurrentQuadMap().equals(quadMap4)) {
-				quadMap4 = selectedMiniCont;
-				setCurrentQuadMap(quadMap4);
-
-				editView.setMousePressed(true);
-				System.out.println("THE MOUSE IS PRESSED: " + editView.isMousePressed());
-			}
-
-		});
-		editView.getMap(3).addEventFilter(MouseEvent.MOUSE_CLICKED, (e) -> {
-			editView.replaceMap(3);
-			MapContainer selectedMiniCont = new MapContainer();
-			selectedMiniCont.setMap(editView.getSelectedMiniMap());
-			System.out.println("SELECTED MINI MAP INSIDE INTGUI: ");		
-			System.out.println(editView.getSelectedMiniMap().toString());
-			if (getCurrentQuadMap().equals(quadMap1)) {
-				quadMap1 = selectedMiniCont;
-				setCurrentQuadMap(quadMap1);
-
-				editView.setMousePressed(true);
-
-				System.out.println("THE MOUSE IS PRESSED: " + editView.isMousePressed());
-			} else if (getCurrentQuadMap().equals(quadMap2)) {
-				quadMap2 = selectedMiniCont;
-				setCurrentQuadMap(quadMap2);
-
-				editView.setMousePressed(true);
-				System.out.println("THE MOUSE IS PRESSED: " + editView.isMousePressed());
-			} else if (getCurrentQuadMap().equals(quadMap3)) {
-				quadMap3 = selectedMiniCont;
-				setCurrentQuadMap(quadMap3);
-
-				editView.setMousePressed(true);
-				System.out.println("THE MOUSE IS PRESSED: " + editView.isMousePressed());
-			} else if (getCurrentQuadMap().equals(quadMap4)) {
-				quadMap4 = selectedMiniCont;
-				setCurrentQuadMap(quadMap4);
-
-				editView.setMousePressed(true);
-
-				System.out.println("THE MOUSE IS PRESSED: " + editView.isMousePressed());
-			}
-
-
-		});
-		editView.resetMiniMaps();
-		editView.setMousePressed(false);
-
-
-
-
-
-
-
-
-
-
-		editView.getRightButton().setOnAction(new EventHandler<ActionEvent>() {
-			@Override
-			public void handle(ActionEvent e) {
-				System.out.println("YES RIGHT IS PRESSED");
-				if (getCurrentQuadMap().equals(quadMap1)) {
-					editView.updateRoom(quadMap2.getMap());
-					setCurrentQuadMap(quadMap2);
-
-
-				} else if (getCurrentQuadMap().equals(quadMap3)) {
-					editView.updateRoom(quadMap4.getMap());
-					setCurrentQuadMap(quadMap4);
-
-				}
-			}
-		}); 
-
-		editView.getLeftButton().setOnAction(new EventHandler<ActionEvent>() {
-			@Override
-			public void handle(ActionEvent e) {
-				System.out.println("YES LEFT IS PRESSED");
-				if (getCurrentQuadMap().equals(quadMap2)) {
-					editView.updateRoom(quadMap1.getMap());
-					setCurrentQuadMap(quadMap1);
-
-
-				} else if (getCurrentQuadMap().equals(quadMap4)) {
-					editView.updateRoom(quadMap3.getMap());
-					setCurrentQuadMap(quadMap3);
-
-				}
-			}
-		}); 
-
-		editView.getDownButton().setOnAction(new EventHandler<ActionEvent>() {
-			@Override
-			public void handle(ActionEvent e) {
-				System.out.println("YES DOWN IS PRESSED");
-				if (getCurrentQuadMap().equals(quadMap1)) {
-					editView.updateRoom(quadMap3.getMap());
-					setCurrentQuadMap(quadMap3);
-
-
-				} else if (getCurrentQuadMap().equals(quadMap2)) {
-					editView.updateRoom(quadMap4.getMap());
-					setCurrentQuadMap(quadMap4);
-
-				}
-			}
-		}); 
-		editView.getUpButton().setOnAction(new EventHandler<ActionEvent>() {
-			@Override
-			public void handle(ActionEvent e) {
-				System.out.println("YES UP IS PRESSED");
-				if (getCurrentQuadMap().equals(quadMap3)) {
-					editView.updateRoom(quadMap1.getMap());
-					setCurrentQuadMap(quadMap1);
-
-
-				} else if (getCurrentQuadMap().equals(quadMap4)) {
-					editView.updateRoom(quadMap2.getMap());
-					setCurrentQuadMap(quadMap2);
-
-				}
-			}
-		}); 
-
-		editView.generateNewMaps();
-
+		AnchorPane.setTopAnchor(worldView, 0.0);
+		AnchorPane.setRightAnchor(worldView, 0.0);
+		AnchorPane.setBottomAnchor(worldView, 0.0);
+		AnchorPane.setLeftAnchor(worldView, 0.0);
+		mainPane.getChildren().add(worldView);
+		
+		
+		createWorldMatrix();
+		worldButtonEvents();
+		worldView.initWorldMap(initMatrix());
 
 		saveItem.setDisable(false);
 		saveAsItem.setDisable(false);
 		exportItem.setDisable(false);
 
-		startView.setActive(false);
-		editView.setActive(true);
+		suggestionsView.setActive(false);
+		roomView.setActive(false);
+		worldView.setActive(true);
+	}
+
+	/**
+	 * Initialises the edit view and starts a new generation run.
+	 */
+	private void initRoomView(MapContainer map) {
+		mainPane.getChildren().clear();
+		AnchorPane.setTopAnchor(roomView, 0.0);
+		AnchorPane.setRightAnchor(roomView, 0.0);
+		AnchorPane.setBottomAnchor(roomView, 0.0);
+		AnchorPane.setLeftAnchor(roomView, 0.0);
+		mainPane.getChildren().add(roomView);
+
+		roomView.updateLargeMap(map.getMap());
+		roomView.updateMap(quadMap1.getMap());	
+		setCurrentQuadMap(quadMap1);
+
+		roomMouseEvents();
+		roomButtonEvents();
+
+		roomView.generateNewMaps();
+
+		saveItem.setDisable(false);
+		saveAsItem.setDisable(false);
+		exportItem.setDisable(false);
+
+		roomView.setActive(false);
+		roomView.setActive(true);
+	}
+
+	/*
+	 * Button methods for controllers
+	 */
+	private void worldButtonEvents() {
+		worldView.getSuggestionsBtn().setOnAction(new EventHandler<ActionEvent>() {
+			@Override
+			public void handle(ActionEvent e) {
+				router.postEvent(new RequestSuggestionsView());
+			}
+
+		}); 
+
+		worldView.getStartEmptyBtn().setOnAction(new EventHandler<ActionEvent>() {
+			@Override
+			public void handle(ActionEvent e) {
+				router.postEvent(new RequestEmptyRoom(null));
+			}
+
+		}); 
+		worldView.getRoomNullBtn().setOnAction(new EventHandler<ActionEvent>() {
+			@Override
+			public void handle(ActionEvent e) {
+			}
+
+		}); 
+	}
+
+	private void roomButtonEvents() {
+		roomView.getRightButton().setOnAction(new EventHandler<ActionEvent>() {
+			@Override
+			public void handle(ActionEvent e) {
+				System.out.println("======GOING RIGHT=======");
+				if (getCurrentQuadMap().equals(quadMap1)) {
+					roomView.updateRoom(quadMap2.getMap());
+					setCurrentQuadMap(quadMap2);
 
 
+				} else if (getCurrentQuadMap().equals(quadMap3)) {
+					roomView.updateRoom(quadMap4.getMap());
+					setCurrentQuadMap(quadMap4);
 
-		if (editView.isMousePressed()) {
-			System.out.println("current quad map");
-			System.out.println(currentQuadMap.getMap().toString());
-			System.out.println("mapview");
-			System.out.println(editView.getCurrentMap().toString());
+				}
+			}
+		}); 
+
+		roomView.getLeftButton().setOnAction(new EventHandler<ActionEvent>() {
+			@Override
+			public void handle(ActionEvent e) {
+				System.out.println("======GOING LEFT=======");
+				if (getCurrentQuadMap().equals(quadMap2)) {
+					roomView.updateRoom(quadMap1.getMap());
+					setCurrentQuadMap(quadMap1);
+
+
+				} else if (getCurrentQuadMap().equals(quadMap4)) {
+					roomView.updateRoom(quadMap3.getMap());
+					setCurrentQuadMap(quadMap3);
+
+				}
+			}
+		}); 
+
+		roomView.getDownButton().setOnAction(new EventHandler<ActionEvent>() {
+			@Override
+			public void handle(ActionEvent e) {
+				System.out.println("======GOING DOWN=======");
+				if (getCurrentQuadMap().equals(quadMap1)) {
+					roomView.updateRoom(quadMap3.getMap());
+					setCurrentQuadMap(quadMap3);
+
+
+				} else if (getCurrentQuadMap().equals(quadMap2)) {
+					roomView.updateRoom(quadMap4.getMap());
+					setCurrentQuadMap(quadMap4);
+
+				}
+			}
+		}); 
+		roomView.getUpButton().setOnAction(new EventHandler<ActionEvent>() {
+			@Override
+			public void handle(ActionEvent e) {
+				System.out.println("======GOING UP=======");
+				if (getCurrentQuadMap().equals(quadMap3)) {
+					roomView.updateRoom(quadMap1.getMap());
+					setCurrentQuadMap(quadMap1);
+
+
+				} else if (getCurrentQuadMap().equals(quadMap4)) {
+					roomView.updateRoom(quadMap2.getMap());
+					setCurrentQuadMap(quadMap2);
+
+				}
+			}
+		}); 
+
+	}
+
+	/*
+	 * Mouse methods for controllers
+	 */
+
+	private void roomMouseEvents() {
+		roomView.getMapView().addEventFilter(MouseEvent.MOUSE_CLICKED, roomView.new EditViewEventHandler());
+		roomView.getMap(0).addEventFilter(MouseEvent.MOUSE_CLICKED, (e) -> {
+			roomView.replaceMap(0);
+			MapContainer selectedMiniCont = new MapContainer();
+			selectedMiniCont.setMap(roomView.getSelectedMiniMap());			
+			if (getCurrentQuadMap().equals(quadMap1)) {
+				quadMap1 = selectedMiniCont;
+				setCurrentQuadMap(quadMap1);
+				roomView.setMousePressed(true);
+			} else if (getCurrentQuadMap().equals(quadMap2)) {
+				quadMap2 = selectedMiniCont;
+				setCurrentQuadMap(quadMap2);
+				roomView.setMousePressed(true);
+			} else if (getCurrentQuadMap().equals(quadMap3)) {
+				quadMap3 = selectedMiniCont;
+				setCurrentQuadMap(quadMap3);
+				roomView.setMousePressed(true);
+			} else if (getCurrentQuadMap().equals(quadMap4)) {
+				quadMap4 = selectedMiniCont;
+				setCurrentQuadMap(quadMap4);
+				roomView.setMousePressed(true);
+			}
+
+		});
+		roomView.getMap(1).addEventFilter(MouseEvent.MOUSE_CLICKED, (e) -> {
+			roomView.replaceMap(1);
+			MapContainer selectedMiniCont = new MapContainer();
+			selectedMiniCont.setMap(roomView.getSelectedMiniMap());
+			if (getCurrentQuadMap().equals(quadMap1)) {
+				quadMap1 = selectedMiniCont;
+				setCurrentQuadMap(quadMap1);
+				roomView.setMousePressed(true);
+			} else if (getCurrentQuadMap().equals(quadMap2)) {
+				quadMap2 = selectedMiniCont;
+				setCurrentQuadMap(quadMap2);
+				roomView.setMousePressed(true);
+			} else if (getCurrentQuadMap().equals(quadMap3)) {
+				quadMap3 = selectedMiniCont;
+				setCurrentQuadMap(quadMap3);
+				roomView.setMousePressed(true);
+			} else if (getCurrentQuadMap().equals(quadMap4)) {
+				quadMap4 = selectedMiniCont;
+				setCurrentQuadMap(quadMap4);
+				roomView.setMousePressed(true);
+			}
+
+		});
+		roomView.getMap(2).addEventFilter(MouseEvent.MOUSE_CLICKED, (e) -> {
+			roomView.replaceMap(2);
+			MapContainer selectedMiniCont = new MapContainer();
+			selectedMiniCont.setMap(roomView.getSelectedMiniMap());
+			if (getCurrentQuadMap().equals(quadMap1)) {
+				quadMap1 = selectedMiniCont;
+				setCurrentQuadMap(quadMap1);
+				roomView.setMousePressed(true);
+			} else if (getCurrentQuadMap().equals(quadMap2)) {
+				quadMap2 = selectedMiniCont;
+				setCurrentQuadMap(quadMap2);
+				roomView.setMousePressed(true);
+			} else if (getCurrentQuadMap().equals(quadMap3)) {
+				quadMap3 = selectedMiniCont;
+				setCurrentQuadMap(quadMap3);
+				roomView.setMousePressed(true);
+			} else if (getCurrentQuadMap().equals(quadMap4)) {
+				quadMap4 = selectedMiniCont;
+				setCurrentQuadMap(quadMap4);
+				roomView.setMousePressed(true);
+			}
+
+		});
+		roomView.getMap(3).addEventFilter(MouseEvent.MOUSE_CLICKED, (e) -> {
+			roomView.replaceMap(3);
+			MapContainer selectedMiniCont = new MapContainer();
+			selectedMiniCont.setMap(roomView.getSelectedMiniMap());
+			if (getCurrentQuadMap().equals(quadMap1)) {
+				quadMap1 = selectedMiniCont;
+				setCurrentQuadMap(quadMap1);
+				roomView.setMousePressed(true);
+			} else if (getCurrentQuadMap().equals(quadMap2)) {
+				quadMap2 = selectedMiniCont;
+				setCurrentQuadMap(quadMap2);
+				roomView.setMousePressed(true);
+			} else if (getCurrentQuadMap().equals(quadMap3)) {
+				quadMap3 = selectedMiniCont;
+				setCurrentQuadMap(quadMap3);
+				roomView.setMousePressed(true);
+			} else if (getCurrentQuadMap().equals(quadMap4)) {
+				quadMap4 = selectedMiniCont;
+				setCurrentQuadMap(quadMap4);
+				roomView.setMousePressed(true);
+			}
+
+		});
+		roomView.resetMiniMaps();
+		roomView.setMousePressed(false);
+	}
+	
+	private MapContainer[][] initMatrix() {
+		//empty room doors thingy
+
+		// South
+		Point south = new Point(11-1, 11/2);
+
+		// East
+		Point east = new Point(11/2, 11-1);
+
+		// North
+		Point north = new Point(0, 11/2);
+
+		// West
+		Point west = new Point(11/2, 0);
+
+		MapContainer[][] worldMapMatrix3 = new MapContainer[size][size];
+		int nbrDoors = 4;
+		for (int rows = 0; rows < size; rows++) {
+			for (int cols = 0; cols < size; cols++) {
+				Map tempMap = null;
+				// 1
+				if (rows == 0 && cols == 0) {
+					tempMap = new Map(11, 11, null, east, south, null);
+					System.out.println("1");
+				}
+				// 3
+				if (rows == 0 && cols == (size - 1)) {
+					tempMap = new Map(11, 11, null, null, south, west);
+					System.out.println("3");
+				}
+				// 7
+				if (rows == (size - 1) && cols == 0) {
+					tempMap = new Map(11, 11, north, east, null, null);
+					System.out.println("7");
+				}
+				// 9
+				if (rows == (size - 1) && cols == (size - 1)) {
+					tempMap = new Map(11, 11, north, null, null, west);
+					System.out.println("9");
+				}
+				// top
+				if (rows == 0 && cols != (size - 1) && cols != 0) {
+					tempMap = new Map(11, 11, null, east, south, west);
+					System.out.println("top");
+				}
+				// left
+				if (rows != 0 && cols == 0 && rows != (size - 1)) {
+					tempMap = new Map(11, 11, north, east, south, null);
+					System.out.println("left");
+				}
+				// right
+				if (rows != 0 && rows != (size - 1) && cols == (size - 1)) {
+					tempMap = new Map(11, 11, north, null, south, west);
+					System.out.println("right");
+				}
+				// bottom
+				if (cols != 0 && cols != (size - 1) && rows == (size - 1)) {
+					tempMap = new Map(11, 11, north, east, null, west);
+					System.out.println("bottom");
+				}
+				// other
+				else if (cols != 0 && cols != (size - 1) && rows != 0 && rows != (size - 1)) {
+					tempMap = new Map(11, 11, north, east, south, west);
+					System.out.println("other");
+				}
+
+				MapContainer temp = new MapContainer();
+				temp.setMap(tempMap);
+				worldMapMatrix3[rows][cols] = temp;
+				
+				
+			}
 		}
+		return worldMapMatrix3;
+	}
+	
+	private void createWorldMatrix() {
+		//START OF MATRIX STUFF		
+				//fill matrix
+				for (MapContainer[] outer : worldMapMatrix) {
+					for (int i = 0; i < outer.length; i++) {
+						outer[i] = quadMap1;
+					}
+				}								
+				
+				//empty room doors thingy
+
+				// South
+				Point south = new Point(11 / 2, 11 - 1);
+
+				// East
+				Point east = new Point(11 - 1, 11 / 2);
+
+				// North
+				Point north = new Point(11 / 2, 0);
+
+				// West
+				Point west = new Point(0, 11 / 2);
+
+				MapContainer[][] worldMapMatrix3 = new MapContainer[size][size];
+				int nbrDoors = 4;
+				for (int rows = 0; rows < size; rows++) {
+					for (int cols = 0; cols < size; cols++) {
+						Map tempMap = null;
+						// 1
+						if (rows == 0 && cols == 0) {
+							tempMap = new Map(11, 11, null, east, south, null);
+							System.out.println("1");
+						}
+						// 3
+						if (rows == 0 && cols == (size - 1)) {
+							tempMap = new Map(11, 11, null, null, south, west);
+							System.out.println("3");
+						}
+						// 7
+						if (rows == (size - 1) && cols == 0) {
+							tempMap = new Map(11, 11, north, east, null, null);
+							System.out.println("7");
+						}
+						// 9
+						if (rows == (size - 1) && cols == (size - 1)) {
+							tempMap = new Map(11, 11, north, null, null, west);
+							System.out.println("9");
+						}
+						// top
+						if (rows == 0 && cols != (size - 1) && cols != 0) {
+							tempMap = new Map(11, 11, null, east, south, west);
+							System.out.println("top");
+						}
+						// left
+						if (rows != 0 && cols == 0 && rows != (size - 1)) {
+							tempMap = new Map(11, 11, north, east, south, null);
+							System.out.println("left");
+						}
+						// right
+						if (rows != 0 && rows != (size - 1) && cols == (size - 1)) {
+							tempMap = new Map(11, 11, north, null, south, west);
+							System.out.println("right");
+						}
+						// bottom
+						if (cols != 0 && cols != (size - 1) && rows == (size - 1)) {
+							tempMap = new Map(11, 11, north, east, null, west);
+							System.out.println("bottom");
+						}
+						// other
+						else if (cols != 0 && cols != (size - 1) && rows != 0 && rows != (size - 1)) {
+							tempMap = new Map(11, 11, north, east, south, west);
+							System.out.println("other");
+						}
+
+						MapContainer temp = new MapContainer();
+						temp.setMap(tempMap);
+						worldMapMatrix3[rows][cols] = temp;
+					}
+				}
+
+				
+				//create large string
+				String largeString = "";
+				int j = 1;
+
+				for (MapContainer[] outer : worldMapMatrix3) {
+
+					for (int k = 0; k < outer[0].getMap().toString().length(); k++) {
+
+						if (outer[0].getMap().toString().charAt(k) != '\n') {
+							largeString += outer[0].getMap().toString().charAt(k);
+
+						}
+						if (outer[0].getMap().toString().charAt(k) == '\n') {
+							while (j < size) {
+
+								for (int i = (k - 11); i < k; i++) {
+									largeString += outer[j].getMap().toString().charAt(i);
+
+								}
+								j++;
+							}
+							j = 1;
+							largeString += outer[0].getMap().toString().charAt(k);
+						}
+
+					}
+
+				}
+				
+				//fill matrix from string
+				int charNbr = 0;
+				while (largeString.charAt(charNbr) != '\n') {
+					charNbr++;
+				}
+				int actualCharNbr = charNbr / 11;
+				MapContainer[][] worldMapMatrix2 = new MapContainer[actualCharNbr][actualCharNbr];
+				String[] stringArray = new String[actualCharNbr];
+
+				for (int s = 0; s < stringArray.length; s++) {
+					stringArray[s] = "";
+				}
+
+				int p = 0;
+				int charAmount = 0;
+				int newLineCount = 0;
+				int q = 0;
+
+				while (q < actualCharNbr) {
+
+					for (int i = 0; i < largeString.length(); i++) {
+
+						if (largeString.charAt(i) == '\n') {
+							newLineCount++;
+							for (int s = 0; s < stringArray.length; s++) {
+								stringArray[s] += largeString.charAt(i);
+							}
+
+							if ((newLineCount%11) == 0) {
+
+								for (int s = 0; s < stringArray.length; s++) {
+									MapContainer helpContainer = new MapContainer();
+									helpContainer.setMap(Map.fromString(stringArray[s]));
+
+									worldMapMatrix2[q][s] = helpContainer;
+									stringArray[s] = "";
+									
+								}
+								q++;
+
+							}
+
+							p = 0;
+							charAmount = 0;
+						}
+
+						if ((charAmount%11) == 0 && charAmount != 0) {
+							p++;
+						}
+						if (largeString.charAt(i) != '\n') {
+						charAmount++;
+
+						stringArray[p] += largeString.charAt(i);
+						}
+
+					}
+				}
+
+				System.out.println(largeString);
+				for (MapContainer[] mc : worldMapMatrix2) {
+					for (MapContainer m : mc) {
+//						System.out.println(m.getMap().toString());
+					}
+
+				}
+				
+				//END OF MATRIX STUFF
 	}
 
 	private MapContainer updateLargeMap() {

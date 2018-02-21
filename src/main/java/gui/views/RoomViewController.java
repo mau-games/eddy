@@ -63,7 +63,7 @@ import util.eventrouting.events.StartMapMutate;
  * 
  * @author Johan Holmberg, Malmö University
  */
-public class EditViewController extends BorderPane implements Listener {
+public class RoomViewController extends BorderPane implements Listener {
 
 	@FXML private List<LabeledCanvas> mapDisplays;
 	@FXML private StackPane mapPane;
@@ -99,16 +99,16 @@ public class EditViewController extends BorderPane implements Listener {
 
 	private MapRenderer renderer = MapRenderer.getInstance();
 	private static EventRouter router = EventRouter.getInstance();
-	private final static Logger logger = LoggerFactory.getLogger(EditViewController.class);
+	private final static Logger logger = LoggerFactory.getLogger(RoomViewController.class);
 	private ApplicationConfig config;
 
 	/**
 	 * Creates an instance of this class.
 	 */
-	public EditViewController() {
+	public RoomViewController() {
 		super();
 		FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource(
-				"/gui/interactive/EditView.fxml"));
+				"/gui/interactive/RoomView.fxml"));
 		fxmlLoader.setRoot(this);
 		fxmlLoader.setController(this);
 
@@ -143,8 +143,6 @@ public class EditViewController extends BorderPane implements Listener {
 	private void initMapView() {
 		int width = 420;
 		int height = 420;
-
-		Pane root = new Pane();
 
 		setMapView(new InteractiveMap());
 		StackPane.setAlignment(getMapView(), Pos.CENTER);

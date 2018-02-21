@@ -7,14 +7,14 @@ import util.eventrouting.PCGEvent;
  * 
  * @author Johan Holmberg, Malmö University
  */
-public class RequestViewSwitch extends PCGEvent{
+public class RequestRoomView extends PCGEvent{
 	
 	/**
 	 * Creates a new event.
 	 * 
 	 * @param payload The map to be worked on.
 	 */
-	public RequestViewSwitch(MapContainer payload) {
+	public RequestRoomView(MapContainer payload) {
 		setPayload(payload);
 	}
 

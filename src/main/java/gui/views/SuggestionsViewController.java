@@ -4,11 +4,8 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import game.Map;
 import game.MapContainer;
 import gui.controls.LabeledCanvas;
 import gui.utils.MapRenderer;
@@ -16,21 +13,25 @@ import javafx.application.Platform;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
+import javafx.geometry.Pos;
+import javafx.scene.canvas.Canvas;
+import javafx.scene.control.Button;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.StackPane;
 import util.eventrouting.EventRouter;
 import util.eventrouting.Listener;
 import util.eventrouting.PCGEvent;
 import util.eventrouting.events.AlgorithmDone;
 import util.eventrouting.events.MapUpdate;
-import util.eventrouting.events.RequestViewSwitch;
+import util.eventrouting.events.RequestRoomView;
 
 /**
  * This class controls the interactive application's start view.
  * 
  * @author Johan Holmberg, Malmö University
  */
-public class StartViewController extends GridPane implements Listener {
+public class SuggestionsViewController extends GridPane implements Listener {
 
 	@FXML private List<LabeledCanvas> mapDisplays;
 	
@@ -38,17 +39,17 @@ public class StartViewController extends GridPane implements Listener {
 	private HashMap<Integer, MapContainer> maps = new HashMap<Integer, MapContainer>();
 	private int nextMap = 0;
 	
+	private Button worldViewButton = new Button();
+	
 	private MapRenderer renderer = MapRenderer.getInstance();
 	private static EventRouter router = EventRouter.getInstance();
-	private final static Logger logger = LoggerFactory.getLogger(StartViewController.class);
-
 	/**
 	 * Creates an instance of this class.
 	 */
-	public StartViewController() {
+	public SuggestionsViewController() {
 		super();
 		FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource(
-				"/gui/interactive/StartView.fxml"));
+				"/gui/interactive/SuggestionsView.fxml"));
 		fxmlLoader.setRoot(this);
 		fxmlLoader.setController(this);
 
@@ -83,6 +84,7 @@ public class StartViewController extends GridPane implements Listener {
 
 		getMapDisplay(5).draw(null);
 		getMapDisplay(5).setText("Waiting for map...");
+	
 	}
 
 	@Override
@@ -127,6 +129,14 @@ public class StartViewController extends GridPane implements Listener {
 		return mapDisplays.get(index);
 	}
 	
+	public Button getWorldViewButton() {
+		return worldViewButton;
+	}
+
+	public void setWorldViewButton(Button worldViewButton) {
+		this.worldViewButton = worldViewButton;
+	}
+
 	private class MouseEventHandler implements EventHandler<MouseEvent> {
 		
 		private MapContainer map;
@@ -138,7 +148,7 @@ public class StartViewController extends GridPane implements Listener {
 		@Override
 		public void handle(MouseEvent event) {
 			nextMap = 0;
-			router.postEvent(new RequestViewSwitch(map));
+			router.postEvent(new RequestRoomView(map));
 		}
 		
 	}
