@@ -9,13 +9,24 @@ import util.eventrouting.PCGEvent;
  */
 public class RequestRoomView extends PCGEvent{
 	
+	private int row;
+	private int col;
+	
 	/**
 	 * Creates a new event.
 	 * 
 	 * @param payload The map to be worked on.
+	 * 
 	 */
+	
+	
 	public RequestRoomView(MapContainer payload) {
 		setPayload(payload);
 	}
-
+	
+	public RequestRoomView(int row, int col) {
+		this.row = row;
+		this.col = col;
+	}
+	
 }

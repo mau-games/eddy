@@ -7,11 +7,15 @@ import game.ApplicationConfig;
 import game.MapContainer;
 import gui.controls.LabeledCanvas;
 import gui.utils.MapRenderer;
+import gui.views.SuggestionsViewController.MouseEventHandler;
+import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Pos;
+import javafx.scene.Node;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.control.Button;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.StackPane;
@@ -20,6 +24,7 @@ import util.eventrouting.EventRouter;
 import util.eventrouting.Listener;
 import util.eventrouting.PCGEvent;
 import util.eventrouting.events.MapUpdate;
+import util.eventrouting.events.RequestRoomView;
 
 public class WorldViewController extends GridPane implements Listener{
 	
@@ -85,7 +90,11 @@ public class WorldViewController extends GridPane implements Listener{
 				}
 				gridPane.add(canvas, i, j);
 				gridPane.setHgap(20);
-
+				
+				canvas.addEventFilter(MouseEvent.MOUSE_CLICKED,
+						new MouseEventHandler());
+				
+				
 				//gridPane.add(new Button(), i, j);
 			}
 		}	
@@ -98,11 +107,11 @@ public class WorldViewController extends GridPane implements Listener{
 		buttonCanvas.setVisible(false);
 		buttonCanvas.setMouseTransparent(true);
 					
-		getStartEmptyBtn().setTranslateX(1500);
-		getStartEmptyBtn().setTranslateY(500);
-		getRoomNullBtn().setTranslateX(1500);
-		getRoomNullBtn().setTranslateY(350);
-		getSuggestionsBtn().setTranslateX(1500);
+		getStartEmptyBtn().setTranslateX(800);
+		getStartEmptyBtn().setTranslateY(-200);
+		getRoomNullBtn().setTranslateX(800);
+		getRoomNullBtn().setTranslateY(0);
+		getSuggestionsBtn().setTranslateX(800);
 		getSuggestionsBtn().setTranslateY(200);
 		
 		getStartEmptyBtn().setMinSize(500, 100);
@@ -149,8 +158,25 @@ public class WorldViewController extends GridPane implements Listener{
 	public void setSuggestionsBtn(Button suggestionsBtn) {
 		this.suggestionsBtn = suggestionsBtn;
 	}
+	private class MouseEventHandler implements EventHandler<MouseEvent> {
 
+//		private MapContainer map;
+//
+//		public MouseEventHandler(MapContainer map) {
+//			this.map = map;
+//		}
 
+		@Override
+		public void handle(MouseEvent event) {
+			Node source = (Node)event.getSource() ;
+	        Integer colIndex = GridPane.getColumnIndex(source);
+	        Integer rowIndex = GridPane.getRowIndex(source);
+	        System.out.printf("Mouse entered cell [%d, %d]%n", colIndex.intValue(), rowIndex.intValue());
+	        source.setStyle("-fx-background-color:#f9f3c5;");
+	        
+		}
 
+	}
 
 }
+

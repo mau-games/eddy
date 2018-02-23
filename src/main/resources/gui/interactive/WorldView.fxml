@@ -17,8 +17,9 @@
 <?import javafx.scene.layout.VBox?>
 
 <fx:root type="javafx.scene.layout.GridPane" stylesheets="@../styling.css"
-	xmlns:fx="http://javafx.com/fxml/1">
+	xmlns:fx="http://javafx.com/fxml/1" 
+	>
 	<StackPane alignment="CENTER" fx:id="buttonPane" /> 
-	<GridPane alignment="CENTER" fx:id="gridPane"/>
+	<GridPane alignment="CENTER" fx:id="gridPane" />
 	
 </fx:root>

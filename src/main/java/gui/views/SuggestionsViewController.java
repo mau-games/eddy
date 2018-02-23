@@ -25,6 +25,7 @@ import util.eventrouting.PCGEvent;
 import util.eventrouting.events.AlgorithmDone;
 import util.eventrouting.events.MapUpdate;
 import util.eventrouting.events.RequestRoomView;
+import util.eventrouting.events.RequestSuggestionsView;
 
 /**
  * This class controls the interactive application's start view.
@@ -34,13 +35,13 @@ import util.eventrouting.events.RequestRoomView;
 public class SuggestionsViewController extends GridPane implements Listener {
 
 	@FXML private List<LabeledCanvas> mapDisplays;
-	
+
 	private boolean isActive = false;
 	private HashMap<Integer, MapContainer> maps = new HashMap<Integer, MapContainer>();
 	private int nextMap = 0;
-	
+
 	private Button worldViewButton = new Button();
-	
+
 	private MapRenderer renderer = MapRenderer.getInstance();
 	private static EventRouter router = EventRouter.getInstance();
 	/**
@@ -60,8 +61,9 @@ public class SuggestionsViewController extends GridPane implements Listener {
 		}
 		router.registerListener(this, new MapUpdate(null));
 		router.registerListener(this, new AlgorithmDone(null));
+		router.registerListener(this, new RequestSuggestionsView());
 	}
-	
+
 	/**
 	 * Initialises the controller for a new run.
 	 */
@@ -84,40 +86,43 @@ public class SuggestionsViewController extends GridPane implements Listener {
 
 		getMapDisplay(5).draw(null);
 		getMapDisplay(5).setText("Waiting for map...");
-	
+
 	}
 
 	@Override
 	public synchronized void ping(PCGEvent e) {
-		if (e instanceof AlgorithmDone) {
+
+		if (e instanceof AlgorithmDone ) {
+			System.out.println("========ALGORITHM DONE=============");
 			if (isActive) {
 				MapContainer container = (MapContainer) ((AlgorithmDone) e).getPayload(); 
 				UUID uuid = ((AlgorithmDone) e).getID();
 				LabeledCanvas canvas = mapDisplays.get(nextMap);
-//				canvas.setText("Got map:\n" + uuid);
+				//				canvas.setText("Got map:\n" + uuid);
 				canvas.setText("");
 				maps.put(nextMap, container);
-				
+
 				Platform.runLater(() -> {
 					int[][] matrix = container.getMap().toMatrix();
 					canvas.draw(renderer.renderMap(matrix));
-//					renderer.renderMap(mapDisplays.get(nextMap++).getGraphicsContext(), matrix);
-//					renderer.drawPatterns(ctx, matrix, activePatterns);
-//					renderer.drawGraph(ctx, matrix, currentMap.getPatternFinder().getPatternGraph());				renderer.drawMesoPatterns(ctx, matrix, currentMap.getPatternFinder().findMesoPatterns());
-//					renderer.drawMesoPatterns(ctx, matrix, currentMap.getPatternFinder().findMesoPatterns());
+					//					renderer.renderMap(mapDisplays.get(nextMap++).getGraphicsContext(), matrix);
+					//					renderer.drawPatterns(ctx, matrix, activePatterns);
+					//					renderer.drawGraph(ctx, matrix, currentMap.getPatternFinder().getPatternGraph());				renderer.drawMesoPatterns(ctx, matrix, currentMap.getPatternFinder().findMesoPatterns());
+					//					renderer.drawMesoPatterns(ctx, matrix, currentMap.getPatternFinder().findMesoPatterns());
 				});
-				
+
 				canvas.addEventFilter(MouseEvent.MOUSE_CLICKED,
 						new MouseEventHandler(maps.get(nextMap)));
 				nextMap++;
 			}
 		}
 	}
-	
+
+
 	public void setActive(boolean state) {
 		isActive = state;
 	}
-	
+
 	/**
 	 * Gets one of the maps (i.e. a labeled view displaying a map) being under
 	 * this object's control.
@@ -128,7 +133,7 @@ public class SuggestionsViewController extends GridPane implements Listener {
 	public LabeledCanvas getMapDisplay(int index) {
 		return mapDisplays.get(index);
 	}
-	
+
 	public Button getWorldViewButton() {
 		return worldViewButton;
 	}
@@ -137,19 +142,19 @@ public class SuggestionsViewController extends GridPane implements Listener {
 		this.worldViewButton = worldViewButton;
 	}
 
-	private class MouseEventHandler implements EventHandler<MouseEvent> {
-		
+	public class MouseEventHandler implements EventHandler<MouseEvent> {
+
 		private MapContainer map;
-		
+
 		public MouseEventHandler(MapContainer map) {
 			this.map = map;
 		}
-		
+
 		@Override
 		public void handle(MouseEvent event) {
 			nextMap = 0;
 			router.postEvent(new RequestRoomView(map));
 		}
-		
+
 	}
 }

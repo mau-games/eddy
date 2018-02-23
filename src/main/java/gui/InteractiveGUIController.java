@@ -355,7 +355,7 @@ public class InteractiveGUIController implements Initializable, Listener {
 		worldView.getSuggestionsBtn().setOnAction(new EventHandler<ActionEvent>() {
 			@Override
 			public void handle(ActionEvent e) {
-				router.postEvent(new RequestSuggestionsView());
+				router.postEvent(new RequestSuggestionsView(6));
 			}
 
 		}); 
@@ -552,13 +552,10 @@ public class InteractiveGUIController implements Initializable, Listener {
 
 		// South
 		Point south = new Point(11-1, 11/2);
-
 		// East
 		Point east = new Point(11/2, 11-1);
-
 		// North
 		Point north = new Point(0, 11/2);
-
 		// West
 		Point west = new Point(11/2, 0);
 
