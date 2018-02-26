@@ -262,7 +262,6 @@ public class Game implements Listener{
 		//			
 		//		}	else
 		if(e instanceof RequestSuggestionsView){ 
-			System.out.println("========REQUEST SUGGESTIONS VIEW=======");
 			readConfiguration();
 			startAll(((RequestSuggestionsView) e).getNbrOfThreads());
 

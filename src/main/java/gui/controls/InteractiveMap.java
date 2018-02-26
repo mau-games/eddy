@@ -87,7 +87,6 @@ public class InteractiveMap extends GridPane {
 		}
 		map.setTile(p.getX(), p.getY(), tileType);
 		drawTile(p.getX(), p.getY(), tileType);
-		System.out.println(map.toString());
 	}
 	
 	/**

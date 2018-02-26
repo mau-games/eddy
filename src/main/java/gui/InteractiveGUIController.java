@@ -108,12 +108,10 @@ public class InteractiveGUIController implements Initializable, Listener {
 		} else if (e instanceof RequestWorldView) {
 			initWorldView();
 		} else if (e instanceof RequestEmptyRoom) {
-			System.out.println("Requested switch");
 			worldMapMatrix = ((RequestEmptyRoom) e).getMatrix();
 			row = ((RequestEmptyRoom) e).getRow();
 			col = ((RequestEmptyRoom) e).getCol();
 			MapContainer container = (MapContainer) e.getPayload();
-			System.out.println(container.getMap().toString());			
 			initRoomView(container);
 		}
 	}
@@ -208,8 +206,6 @@ public class InteractiveGUIController implements Initializable, Listener {
 
 	public void saveMap() {
 		//		tempLargeContainer = updateLargeMap();
-		System.out.println("TEST PRINT");
-		System.out.println(tempLargeContainer.getMap().toString());
 		roomView.updateLargeMap(tempLargeContainer.getMap());
 		DateTimeFormatter format =
 				DateTimeFormatter.ofPattern("yyyy-MM-dd_HH-mm-s-n");
@@ -331,14 +327,12 @@ public class InteractiveGUIController implements Initializable, Listener {
 	 * Initialises the edit view and starts a new generation run.
 	 */
 	private void initRoomView(MapContainer map) {
-		System.out.println("init room view");
 		mainPane.getChildren().clear();
 		AnchorPane.setTopAnchor(roomView, 0.0);
 		AnchorPane.setRightAnchor(roomView, 0.0);
 		AnchorPane.setBottomAnchor(roomView, 0.0);
 		AnchorPane.setLeftAnchor(roomView, 0.0);
 		mainPane.getChildren().add(roomView);
-		System.out.println(map.getMap().toString());
 		roomView.updateLargeMap(map.getMap());
 		roomView.updateMap(map.getMap());	
 		setCurrentQuadMap(map);
@@ -392,12 +386,10 @@ public class InteractiveGUIController implements Initializable, Listener {
 				if (col != (size - 1)) {
 					col++;
 					
-					System.out.println("======GOING RIGHT======" + row + ", " + col);
-					System.out.println(worldMapMatrix[row][col].getMap().toString());
+
 					currentQuadMap = worldMapMatrix[row][col];
 					roomView.updateRoom(currentQuadMap.getMap());
-					System.out.println("middle ");
-					System.out.println(worldMapMatrix[0][1].getMap().toString());
+
 
 				}
 				
@@ -411,8 +403,7 @@ public class InteractiveGUIController implements Initializable, Listener {
 
 				if (col != 0) {
 					col--;
-					System.out.println("======GOING LEFT=======" + row + ", " + col);
-					System.out.println(worldMapMatrix[row][col].getMap().toString());
+
 					currentQuadMap = worldMapMatrix[row][col];
 					roomView.updateRoom(currentQuadMap.getMap());
 					
@@ -430,9 +421,7 @@ public class InteractiveGUIController implements Initializable, Listener {
 
 				if (row != (size - 1)) {
 					row++;
-					
-					System.out.println("======GOING DOWN=======" + row + ", " + col);
-					System.out.println(worldMapMatrix[row][col].getMap().toString());
+
 					currentQuadMap = worldMapMatrix[row][col];
 					roomView.updateRoom(currentQuadMap.getMap());
 
@@ -448,8 +437,7 @@ public class InteractiveGUIController implements Initializable, Listener {
 
 				if (row != 0) {
 					row--;
-					System.out.println("======GOING UP=========" + row + ", " + col);
-					System.out.println(worldMapMatrix[row][col].getMap().toString());
+
 					currentQuadMap = worldMapMatrix[row][col];
 					roomView.updateRoom(currentQuadMap.getMap());
 					
@@ -568,13 +556,13 @@ public class InteractiveGUIController implements Initializable, Listener {
 		//empty room doors thingy
 
 		// South
-		Point south = new Point(11-1, 11/2);
+		Point south = new Point(11/2, 11-1);
 		// East
-		Point east = new Point(11/2, 11-1);
+		Point east = new Point(11-1, 11/2);
 		// North
-		Point north = new Point(0, 11/2);
+		Point north = new Point(11/2, 0);
 		// West
-		Point west = new Point(11/2, 0);
+		Point west = new Point(0, 11/2);
 
 		MapContainer[][] worldMapMatrix3 = new MapContainer[size][size];
 		int nbrDoors = 4;

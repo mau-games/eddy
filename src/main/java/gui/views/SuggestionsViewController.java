@@ -96,7 +96,6 @@ public class SuggestionsViewController extends GridPane implements Listener {
 	public synchronized void ping(PCGEvent e) {
 
 		if (e instanceof AlgorithmDone ) {
-			System.out.println("========ALGORITHM DONE=============");
 			if (isActive) {
 				MapContainer container = (MapContainer) ((AlgorithmDone) e).getPayload(); 
 				UUID uuid = ((AlgorithmDone) e).getID();
@@ -104,9 +103,13 @@ public class SuggestionsViewController extends GridPane implements Listener {
 				//				canvas.setText("Got map:\n" + uuid);
 				canvas.setText("");
 				maps.put(nextMap, container);
-
+				
 				Platform.runLater(() -> {
 					int[][] matrix = container.getMap().toMatrix();
+					for(int[] q : matrix) {
+						for (int f : q) {
+						}
+					}
 					canvas.draw(renderer.renderMap(matrix));
 					//					renderer.renderMap(mapDisplays.get(nextMap++).getGraphicsContext(), matrix);
 					//					renderer.drawPatterns(ctx, matrix, activePatterns);

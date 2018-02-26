@@ -390,8 +390,6 @@ public class RoomViewController extends BorderPane implements Listener {
 	 */
 	public void updateMap(Map map) {
 		getMapView().updateMap(map);
-		System.out.println("CURRENT MAP VIEW: ");
-		System.out.println(getMapView().getMap());
 //		redrawPatterns(map);
 //		mapIsFeasible(map.isFeasible());
 //		resetMiniMaps();
@@ -512,8 +510,6 @@ public class RoomViewController extends BorderPane implements Listener {
 	public void replaceMap(int index) {
 		selectedMiniMap = maps.get(index);
 //		Map map = maps.get(index);
-		System.out.println("SELECTED MINI MAP INSIDE EDITVIEW: ");		
-		System.out.println(selectedMiniMap.toString());
 		if (selectedMiniMap != null) {
 			generateNewMaps(selectedMiniMap);
 			updateMap(selectedMiniMap);
