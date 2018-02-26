@@ -94,6 +94,8 @@ public class InteractiveGUIController implements Initializable, Listener {
 	private int size = 3;
 	// ArrayList<MapContainer> worldMapList = new ArrayList<MapContainer>();
 	private MapContainer[][] worldMapMatrix = new MapContainer[size][size];
+	private int row = 0;
+	private int col = 0;
 
 	@Override
 	public synchronized void ping(PCGEvent e) {
@@ -108,6 +110,8 @@ public class InteractiveGUIController implements Initializable, Listener {
 		} else if (e instanceof RequestEmptyRoom) {
 			System.out.println("Requested switch");
 			worldMapMatrix = ((RequestEmptyRoom) e).getMatrix();
+			row = ((RequestEmptyRoom) e).getRow();
+			col = ((RequestEmptyRoom) e).getCol();
 			MapContainer container = (MapContainer) e.getPayload();
 			System.out.println(container.getMap().toString());			
 			initRoomView(container);
@@ -143,8 +147,8 @@ public class InteractiveGUIController implements Initializable, Listener {
 		});
 
 		initWorldView();
-		
-		
+
+
 	}
 
 	/*
@@ -203,7 +207,7 @@ public class InteractiveGUIController implements Initializable, Listener {
 	}
 
 	public void saveMap() {
-//		tempLargeContainer = updateLargeMap();
+		//		tempLargeContainer = updateLargeMap();
 		System.out.println("TEST PRINT");
 		System.out.println(tempLargeContainer.getMap().toString());
 		roomView.updateLargeMap(tempLargeContainer.getMap());
@@ -308,9 +312,9 @@ public class InteractiveGUIController implements Initializable, Listener {
 		AnchorPane.setBottomAnchor(worldView, 0.0);
 		AnchorPane.setLeftAnchor(worldView, 0.0);
 		mainPane.getChildren().add(worldView);
-		
-		
-//		createWorldMatrix();
+
+
+		//		createWorldMatrix();
 		worldButtonEvents();
 		worldView.initWorldMap(initMatrix());
 
@@ -335,7 +339,7 @@ public class InteractiveGUIController implements Initializable, Listener {
 		AnchorPane.setLeftAnchor(roomView, 0.0);
 		mainPane.getChildren().add(roomView);
 		System.out.println(map.getMap().toString());
-//		roomView.updateLargeMap(map.getMap());
+		roomView.updateLargeMap(map.getMap());
 		roomView.updateMap(map.getMap());	
 		setCurrentQuadMap(map);
 
@@ -364,13 +368,13 @@ public class InteractiveGUIController implements Initializable, Listener {
 
 		}); 
 
-//		worldView.getStartEmptyBtn().setOnAction(new EventHandler<ActionEvent>() {
-//			@Override
-//			public void handle(ActionEvent e) {
-//				router.postEvent(new RequestEmptyRoom(null, 0, 0, null));
-//			}
-//
-//		}); 
+		//		worldView.getStartEmptyBtn().setOnAction(new EventHandler<ActionEvent>() {
+		//			@Override
+		//			public void handle(ActionEvent e) {
+		//				router.postEvent(new RequestEmptyRoom(null, 0, 0, null));
+		//			}
+		//
+		//		}); 
 		worldView.getRoomNullBtn().setOnAction(new EventHandler<ActionEvent>() {
 			@Override
 			public void handle(ActionEvent e) {
@@ -383,67 +387,76 @@ public class InteractiveGUIController implements Initializable, Listener {
 		roomView.getRightButton().setOnAction(new EventHandler<ActionEvent>() {
 			@Override
 			public void handle(ActionEvent e) {
-				System.out.println("======GOING RIGHT=======");
-				if (getCurrentQuadMap().equals(quadMap1)) {
-					roomView.updateRoom(quadMap2.getMap());
-					setCurrentQuadMap(quadMap2);
-
-
-				} else if (getCurrentQuadMap().equals(quadMap3)) {
-					roomView.updateRoom(quadMap4.getMap());
-					setCurrentQuadMap(quadMap4);
+				worldMapMatrix[row][col] = currentQuadMap;
+				
+				if (col != (size - 1)) {
+					col++;
+					
+					System.out.println("======GOING RIGHT======" + row + ", " + col);
+					System.out.println(worldMapMatrix[row][col].getMap().toString());
+					currentQuadMap = worldMapMatrix[row][col];
+					roomView.updateRoom(currentQuadMap.getMap());
+					System.out.println("middle ");
+					System.out.println(worldMapMatrix[0][1].getMap().toString());
 
 				}
+				
 			}
 		}); 
 
 		roomView.getLeftButton().setOnAction(new EventHandler<ActionEvent>() {
 			@Override
 			public void handle(ActionEvent e) {
-				System.out.println("======GOING LEFT=======");
-				if (getCurrentQuadMap().equals(quadMap2)) {
-					roomView.updateRoom(quadMap1.getMap());
-					setCurrentQuadMap(quadMap1);
+				worldMapMatrix[row][col] = currentQuadMap;
 
+				if (col != 0) {
+					col--;
+					System.out.println("======GOING LEFT=======" + row + ", " + col);
+					System.out.println(worldMapMatrix[row][col].getMap().toString());
+					currentQuadMap = worldMapMatrix[row][col];
+					roomView.updateRoom(currentQuadMap.getMap());
+					
 
-				} else if (getCurrentQuadMap().equals(quadMap4)) {
-					roomView.updateRoom(quadMap3.getMap());
-					setCurrentQuadMap(quadMap3);
 
 				}
+
 			}
 		}); 
 
 		roomView.getDownButton().setOnAction(new EventHandler<ActionEvent>() {
 			@Override
 			public void handle(ActionEvent e) {
-				System.out.println("======GOING DOWN=======");
-				if (getCurrentQuadMap().equals(quadMap1)) {
-					roomView.updateRoom(quadMap3.getMap());
-					setCurrentQuadMap(quadMap3);
+				worldMapMatrix[row][col] = currentQuadMap;
 
+				if (row != (size - 1)) {
+					row++;
+					
+					System.out.println("======GOING DOWN=======" + row + ", " + col);
+					System.out.println(worldMapMatrix[row][col].getMap().toString());
+					currentQuadMap = worldMapMatrix[row][col];
+					roomView.updateRoom(currentQuadMap.getMap());
 
-				} else if (getCurrentQuadMap().equals(quadMap2)) {
-					roomView.updateRoom(quadMap4.getMap());
-					setCurrentQuadMap(quadMap4);
 
 				}
 			}
+				
 		}); 
 		roomView.getUpButton().setOnAction(new EventHandler<ActionEvent>() {
 			@Override
 			public void handle(ActionEvent e) {
-				System.out.println("======GOING UP=======");
-				if (getCurrentQuadMap().equals(quadMap3)) {
-					roomView.updateRoom(quadMap1.getMap());
-					setCurrentQuadMap(quadMap1);
+				worldMapMatrix[row][col] = currentQuadMap;
 
+				if (row != 0) {
+					row--;
+					System.out.println("======GOING UP=========" + row + ", " + col);
+					System.out.println(worldMapMatrix[row][col].getMap().toString());
+					currentQuadMap = worldMapMatrix[row][col];
+					roomView.updateRoom(currentQuadMap.getMap());
+					
 
-				} else if (getCurrentQuadMap().equals(quadMap4)) {
-					roomView.updateRoom(quadMap2.getMap());
-					setCurrentQuadMap(quadMap2);
 
 				}
+				
 			}
 		}); 
 
@@ -550,7 +563,7 @@ public class InteractiveGUIController implements Initializable, Listener {
 		roomView.resetMiniMaps();
 		roomView.setMousePressed(false);
 	}
-	
+
 	private MapContainer[][] initMatrix() {
 		//empty room doors thingy
 
@@ -568,6 +581,7 @@ public class InteractiveGUIController implements Initializable, Listener {
 		GeneratorConfig gc = null;
 		try {
 			gc = new GeneratorConfig();
+			
 		} catch (MissingConfigurationException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -624,157 +638,121 @@ public class InteractiveGUIController implements Initializable, Listener {
 				MapContainer temp = new MapContainer();
 				temp.setMap(tempMap);
 				worldMapMatrix3[rows][cols] = temp;
-				
-				
+
+
 			}
 		}
 		return worldMapMatrix3;
 	}
-	
+
 	private void createWorldMatrix() {
 		//START OF MATRIX STUFF		
-				//fill matrix
-				for (MapContainer[] outer : worldMapMatrix) {
-					for (int i = 0; i < outer.length; i++) {
-						outer[i] = quadMap1;
-					}
-				}								
-				
-				
-
-				
-				//create large string
-				String largeString = "";
-				int j = 1;
-
-				for (MapContainer[] outer : worldMapMatrix) {
-
-					for (int k = 0; k < outer[0].getMap().toString().length(); k++) {
-
-						if (outer[0].getMap().toString().charAt(k) != '\n') {
-							largeString += outer[0].getMap().toString().charAt(k);
-
-						}
-						if (outer[0].getMap().toString().charAt(k) == '\n') {
-							while (j < size) {
-
-								for (int i = (k - 11); i < k; i++) {
-									largeString += outer[j].getMap().toString().charAt(i);
-
-								}
-								j++;
-							}
-							j = 1;
-							largeString += outer[0].getMap().toString().charAt(k);
-						}
-
-					}
-
-				}
-				
-				//fill matrix from string
-				int charNbr = 0;
-				while (largeString.charAt(charNbr) != '\n') {
-					charNbr++;
-				}
-				int actualCharNbr = charNbr / 11;
-				MapContainer[][] worldMapMatrix2 = new MapContainer[actualCharNbr][actualCharNbr];
-				String[] stringArray = new String[actualCharNbr];
-
-				for (int s = 0; s < stringArray.length; s++) {
-					stringArray[s] = "";
-				}
-
-				int p = 0;
-				int charAmount = 0;
-				int newLineCount = 0;
-				int q = 0;
-
-				while (q < actualCharNbr) {
-
-					for (int i = 0; i < largeString.length(); i++) {
-
-						if (largeString.charAt(i) == '\n') {
-							newLineCount++;
-							for (int s = 0; s < stringArray.length; s++) {
-								stringArray[s] += largeString.charAt(i);
-							}
-
-							if ((newLineCount%11) == 0) {
-
-								for (int s = 0; s < stringArray.length; s++) {
-									MapContainer helpContainer = new MapContainer();
-									helpContainer.setMap(Map.fromString(stringArray[s]));
-
-									worldMapMatrix2[q][s] = helpContainer;
-									stringArray[s] = "";
-									
-								}
-								q++;
-
-							}
-
-							p = 0;
-							charAmount = 0;
-						}
-
-						if ((charAmount%11) == 0 && charAmount != 0) {
-							p++;
-						}
-						if (largeString.charAt(i) != '\n') {
-						charAmount++;
-
-						stringArray[p] += largeString.charAt(i);
-						}
-
-					}
-				}
-
-				System.out.println(largeString);
-				for (MapContainer[] mc : worldMapMatrix2) {
-					for (MapContainer m : mc) {
-//						System.out.println(m.getMap().toString());
-					}
-
-				}
-				
-				//END OF MATRIX STUFF
+		//fill matrix
+		for (MapContainer[] outer : worldMapMatrix) {
+			for (int i = 0; i < outer.length; i++) {
+				outer[i] = quadMap1;
+			}
+		}								
 	}
 
-//	private MapContainer updateLargeMap() {
-//
-//		String megaString = "";
-//		String tempString = "";
-//		for(int i = 0; i < quadMap1.getMap().toString().length(); i++) {
-//			if(quadMap1.getMap().toString().charAt(i) != '\n') {
-//				megaString += quadMap1.getMap().toString().charAt(i);
-//				tempString += quadMap2.getMap().toString().charAt(i);
-//			}
-//			if(quadMap1.getMap().toString().charAt(i) == '\n') {
-//				megaString += tempString;
-//				megaString += quadMap1.getMap().toString().charAt(i);
-//				tempString = "";
-//			}
-//		}
-//		for(int i = 0; i < quadMap3.getMap().toString().length(); i++) {
-//			if(quadMap3.getMap().toString().charAt(i) != '\n') {
-//				megaString += quadMap3.getMap().toString().charAt(i);
-//				tempString += quadMap4.getMap().toString().charAt(i);
-//			}
-//			if(quadMap3.getMap().toString().charAt(i) == '\n') {
-//				megaString += tempString;
-//				megaString += quadMap4.getMap().toString().charAt(i);
-//				tempString = "";
-//			}
-//		}
-//		System.out.println("megastring!!");
-//		System.out.println(megaString);
-//
-//		MapContainer largeMapCont = new MapContainer();
-//		largeMapCont.setMap(Map.fromString(megaString));
-//
-//		return largeMapCont;
-//	}
+	
+	private String matrixToString() {
+		//create large string
+		String largeString = "";
+		int j = 1;
+
+		for (MapContainer[] outer : worldMapMatrix) {
+
+			for (int k = 0; k < outer[0].getMap().toString().length(); k++) {
+
+				if (outer[0].getMap().toString().charAt(k) != '\n') {
+					largeString += outer[0].getMap().toString().charAt(k);
+
+				}
+				if (outer[0].getMap().toString().charAt(k) == '\n') {
+					while (j < size) {
+
+						for (int i = (k - 11); i < k; i++) {
+							largeString += outer[j].getMap().toString().charAt(i);
+
+						}
+						j++;
+					}
+					j = 1;
+					largeString += outer[0].getMap().toString().charAt(k);
+				}
+
+			}
+
+		}
+		return largeString;
+	}
+	
+	
+	private MapContainer[][] updateLargeMap() {
+
+		
+		String largeString = matrixToString();
+		//fill matrix from string
+		int charNbr = 0;
+		while (largeString.charAt(charNbr) != '\n') {
+			charNbr++;
+		}
+		int actualCharNbr = charNbr / 11;
+		MapContainer[][] worldMapMatrix2 = new MapContainer[actualCharNbr][actualCharNbr];
+		String[] stringArray = new String[actualCharNbr];
+
+		for (int s = 0; s < stringArray.length; s++) {
+			stringArray[s] = "";
+		}
+
+		int p = 0;
+		int charAmount = 0;
+		int newLineCount = 0;
+		int q = 0;
+
+		while (q < actualCharNbr) {
+
+			for (int i = 0; i < largeString.length(); i++) {
+
+				if (largeString.charAt(i) == '\n') {
+					newLineCount++;
+					for (int s = 0; s < stringArray.length; s++) {
+						stringArray[s] += largeString.charAt(i);
+					}
+
+					if ((newLineCount%11) == 0) {
+
+						for (int s = 0; s < stringArray.length; s++) {
+							MapContainer helpContainer = new MapContainer();
+							helpContainer.setMap(Map.fromString(stringArray[s]));
+
+							worldMapMatrix2[q][s] = helpContainer;
+							stringArray[s] = "";
+
+						}
+						q++;
+
+					}
+
+					p = 0;
+					charAmount = 0;
+				}
+
+				if ((charAmount%11) == 0 && charAmount != 0) {
+					p++;
+				}
+				if (largeString.charAt(i) != '\n') {
+					charAmount++;
+
+					stringArray[p] += largeString.charAt(i);
+				}
+
+			}
+		}
+
+		return worldMapMatrix2;
+	}
 
 	private MapContainer getCurrentQuadMap() {
 		return currentQuadMap;

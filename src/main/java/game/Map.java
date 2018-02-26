@@ -88,6 +88,7 @@ public class Map {
         init(rows, cols);
         
         this.config = config;
+        
         boolean entraceSet = false; 
 
         if (p1 != null) {
@@ -159,10 +160,10 @@ public class Map {
 				case TREASURE:
 					treasures.add(new Point(i, j));
 					break;
-				case DOOR:
-				case DOORENTER:
-					doors.add(new Point(i, j));
-					doorCount++;
+//				case DOOR:
+//				case DOORENTER:
+//					doors.add(new Point(i, j));
+//					doorCount++;
 				default:
 					break;
 				}
