@@ -8,6 +8,7 @@ import game.MapContainer;
 import gui.controls.LabeledCanvas;
 import gui.utils.MapRenderer;
 import gui.views.SuggestionsViewController.MouseEventHandler;
+import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -24,7 +25,9 @@ import util.eventrouting.EventRouter;
 import util.eventrouting.Listener;
 import util.eventrouting.PCGEvent;
 import util.eventrouting.events.MapUpdate;
+import util.eventrouting.events.RequestEmptyRoom;
 import util.eventrouting.events.RequestRoomView;
+import util.eventrouting.events.RequestSuggestionsView;
 
 public class WorldViewController extends GridPane implements Listener{
 	
@@ -44,6 +47,10 @@ public class WorldViewController extends GridPane implements Listener{
 	@FXML private StackPane buttonPane;
 	@FXML GridPane gridPane;
 	@FXML private List<LabeledCanvas> mapDisplays;
+	
+	private int row = 0;
+	private int col = 0;
+	private MapContainer[][] matrix;
 
 
 	public WorldViewController() {
@@ -71,11 +78,13 @@ public class WorldViewController extends GridPane implements Listener{
 	}
 	
 	private void initWorldView() {
+		worldButtonEvents();
 		initOptions();	
+		
 	}
 	
 	public void initWorldMap(MapContainer[][] matrix) {
-			
+		this.matrix = matrix;	
 		for (int i = 0; i < matrix.length; i++) {
 			for (int j = 0; j < matrix.length; j++) {
 				LabeledCanvas canvas = new LabeledCanvas();
@@ -171,12 +180,25 @@ public class WorldViewController extends GridPane implements Listener{
 			Node source = (Node)event.getSource() ;
 	        Integer colIndex = GridPane.getColumnIndex(source);
 	        Integer rowIndex = GridPane.getRowIndex(source);
+	        row = rowIndex;
+	        col = colIndex;
+	        
 	        System.out.printf("Mouse entered cell [%d, %d]%n", colIndex.intValue(), rowIndex.intValue());
 	        source.setStyle("-fx-background-color:#f9f3c5;");
 	        
 		}
 
 	}
+	
+	private void worldButtonEvents() {
+		getStartEmptyBtn().setOnAction(new EventHandler<ActionEvent>() {
+			@Override
+			public void handle(ActionEvent e) {
+				router.postEvent(new RequestEmptyRoom(matrix[row][col], row, col, matrix));
+			}
 
+		}); 
+
+}
 }
 

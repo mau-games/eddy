@@ -10,8 +10,29 @@ public class RequestEmptyRoom extends PCGEvent {
 	 * 
 	 * @param payload The map to be worked on.
 	 */
-	public RequestEmptyRoom(MapContainer payload) {
+	
+	private int row;
+	private int col;
+	private MapContainer[][] matrix;
+	
+	public RequestEmptyRoom(MapContainer payload, int row, int col, MapContainer[][] matrix) {
+		this.row = row;
+		this.col = col;
+		this.matrix = matrix;
 		setPayload(payload);
 	}
+
+	public MapContainer[][] getMatrix() {
+		return matrix;
+	}
+
+	public int getCol() {
+		return col;
+	}
+
+	public int getRow() {
+		return row;
+	}
+	
 	
 }

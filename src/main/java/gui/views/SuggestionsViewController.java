@@ -44,6 +44,9 @@ public class SuggestionsViewController extends GridPane implements Listener {
 
 	private MapRenderer renderer = MapRenderer.getInstance();
 	private static EventRouter router = EventRouter.getInstance();
+	
+	
+	
 	/**
 	 * Creates an instance of this class.
 	 */

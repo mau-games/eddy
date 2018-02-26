@@ -106,7 +106,10 @@ public class InteractiveGUIController implements Initializable, Listener {
 		} else if (e instanceof RequestWorldView) {
 			initWorldView();
 		} else if (e instanceof RequestEmptyRoom) {
+			System.out.println("Requested switch");
+			worldMapMatrix = ((RequestEmptyRoom) e).getMatrix();
 			MapContainer container = (MapContainer) e.getPayload();
+			System.out.println(container.getMap().toString());			
 			initRoomView(container);
 		}
 	}
@@ -126,7 +129,7 @@ public class InteractiveGUIController implements Initializable, Listener {
 		router.registerListener(this, new MapLoaded(null));
 		router.registerListener(this, new RequestSuggestionsView());
 		router.registerListener(this, new RequestWorldView());
-		router.registerListener(this, new RequestEmptyRoom(null));
+		router.registerListener(this, new RequestEmptyRoom(null, 0, 0, null));
 		router.registerListener(this, new Stop());
 
 		suggestionsView = new SuggestionsViewController();
@@ -200,7 +203,7 @@ public class InteractiveGUIController implements Initializable, Listener {
 	}
 
 	public void saveMap() {
-		tempLargeContainer = updateLargeMap();
+//		tempLargeContainer = updateLargeMap();
 		System.out.println("TEST PRINT");
 		System.out.println(tempLargeContainer.getMap().toString());
 		roomView.updateLargeMap(tempLargeContainer.getMap());
@@ -307,7 +310,7 @@ public class InteractiveGUIController implements Initializable, Listener {
 		mainPane.getChildren().add(worldView);
 		
 		
-		createWorldMatrix();
+//		createWorldMatrix();
 		worldButtonEvents();
 		worldView.initWorldMap(initMatrix());
 
@@ -324,16 +327,17 @@ public class InteractiveGUIController implements Initializable, Listener {
 	 * Initialises the edit view and starts a new generation run.
 	 */
 	private void initRoomView(MapContainer map) {
+		System.out.println("init room view");
 		mainPane.getChildren().clear();
 		AnchorPane.setTopAnchor(roomView, 0.0);
 		AnchorPane.setRightAnchor(roomView, 0.0);
 		AnchorPane.setBottomAnchor(roomView, 0.0);
 		AnchorPane.setLeftAnchor(roomView, 0.0);
 		mainPane.getChildren().add(roomView);
-
-		roomView.updateLargeMap(map.getMap());
-		roomView.updateMap(quadMap1.getMap());	
-		setCurrentQuadMap(quadMap1);
+		System.out.println(map.getMap().toString());
+//		roomView.updateLargeMap(map.getMap());
+		roomView.updateMap(map.getMap());	
+		setCurrentQuadMap(map);
 
 		roomMouseEvents();
 		roomButtonEvents();
@@ -360,13 +364,13 @@ public class InteractiveGUIController implements Initializable, Listener {
 
 		}); 
 
-		worldView.getStartEmptyBtn().setOnAction(new EventHandler<ActionEvent>() {
-			@Override
-			public void handle(ActionEvent e) {
-				router.postEvent(new RequestEmptyRoom(null));
-			}
-
-		}); 
+//		worldView.getStartEmptyBtn().setOnAction(new EventHandler<ActionEvent>() {
+//			@Override
+//			public void handle(ActionEvent e) {
+//				router.postEvent(new RequestEmptyRoom(null, 0, 0, null));
+//			}
+//
+//		}); 
 		worldView.getRoomNullBtn().setOnAction(new EventHandler<ActionEvent>() {
 			@Override
 			public void handle(ActionEvent e) {
@@ -561,52 +565,59 @@ public class InteractiveGUIController implements Initializable, Listener {
 
 		MapContainer[][] worldMapMatrix3 = new MapContainer[size][size];
 		int nbrDoors = 4;
+		GeneratorConfig gc = null;
+		try {
+			gc = new GeneratorConfig();
+		} catch (MissingConfigurationException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		for (int rows = 0; rows < size; rows++) {
 			for (int cols = 0; cols < size; cols++) {
 				Map tempMap = null;
 				// 1
 				if (rows == 0 && cols == 0) {
-					tempMap = new Map(11, 11, null, east, south, null);
+					tempMap = new Map(gc, 11, 11, null, east, south, null);
 					System.out.println("1");
 				}
 				// 3
 				if (rows == 0 && cols == (size - 1)) {
-					tempMap = new Map(11, 11, null, null, south, west);
+					tempMap = new Map(gc, 11, 11, null, null, south, west);
 					System.out.println("3");
 				}
 				// 7
 				if (rows == (size - 1) && cols == 0) {
-					tempMap = new Map(11, 11, north, east, null, null);
+					tempMap = new Map(gc, 11, 11, north, east, null, null);
 					System.out.println("7");
 				}
 				// 9
 				if (rows == (size - 1) && cols == (size - 1)) {
-					tempMap = new Map(11, 11, north, null, null, west);
+					tempMap = new Map(gc, 11, 11, north, null, null, west);
 					System.out.println("9");
 				}
 				// top
 				if (rows == 0 && cols != (size - 1) && cols != 0) {
-					tempMap = new Map(11, 11, null, east, south, west);
+					tempMap = new Map(gc, 11, 11, null, east, south, west);
 					System.out.println("top");
 				}
 				// left
 				if (rows != 0 && cols == 0 && rows != (size - 1)) {
-					tempMap = new Map(11, 11, north, east, south, null);
+					tempMap = new Map(gc, 11, 11, north, east, south, null);
 					System.out.println("left");
 				}
 				// right
 				if (rows != 0 && rows != (size - 1) && cols == (size - 1)) {
-					tempMap = new Map(11, 11, north, null, south, west);
+					tempMap = new Map(gc, 11, 11, north, null, south, west);
 					System.out.println("right");
 				}
 				// bottom
 				if (cols != 0 && cols != (size - 1) && rows == (size - 1)) {
-					tempMap = new Map(11, 11, north, east, null, west);
+					tempMap = new Map(gc, 11, 11, north, east, null, west);
 					System.out.println("bottom");
 				}
 				// other
 				else if (cols != 0 && cols != (size - 1) && rows != 0 && rows != (size - 1)) {
-					tempMap = new Map(11, 11, north, east, south, west);
+					tempMap = new Map(gc, 11, 11, north, east, south, west);
 					System.out.println("other");
 				}
 
@@ -629,83 +640,14 @@ public class InteractiveGUIController implements Initializable, Listener {
 					}
 				}								
 				
-				//empty room doors thingy
-
-				// South
-				Point south = new Point(11 / 2, 11 - 1);
-
-				// East
-				Point east = new Point(11 - 1, 11 / 2);
-
-				// North
-				Point north = new Point(11 / 2, 0);
-
-				// West
-				Point west = new Point(0, 11 / 2);
-
-				MapContainer[][] worldMapMatrix3 = new MapContainer[size][size];
-				int nbrDoors = 4;
-				for (int rows = 0; rows < size; rows++) {
-					for (int cols = 0; cols < size; cols++) {
-						Map tempMap = null;
-						// 1
-						if (rows == 0 && cols == 0) {
-							tempMap = new Map(11, 11, null, east, south, null);
-							System.out.println("1");
-						}
-						// 3
-						if (rows == 0 && cols == (size - 1)) {
-							tempMap = new Map(11, 11, null, null, south, west);
-							System.out.println("3");
-						}
-						// 7
-						if (rows == (size - 1) && cols == 0) {
-							tempMap = new Map(11, 11, north, east, null, null);
-							System.out.println("7");
-						}
-						// 9
-						if (rows == (size - 1) && cols == (size - 1)) {
-							tempMap = new Map(11, 11, north, null, null, west);
-							System.out.println("9");
-						}
-						// top
-						if (rows == 0 && cols != (size - 1) && cols != 0) {
-							tempMap = new Map(11, 11, null, east, south, west);
-							System.out.println("top");
-						}
-						// left
-						if (rows != 0 && cols == 0 && rows != (size - 1)) {
-							tempMap = new Map(11, 11, north, east, south, null);
-							System.out.println("left");
-						}
-						// right
-						if (rows != 0 && rows != (size - 1) && cols == (size - 1)) {
-							tempMap = new Map(11, 11, north, null, south, west);
-							System.out.println("right");
-						}
-						// bottom
-						if (cols != 0 && cols != (size - 1) && rows == (size - 1)) {
-							tempMap = new Map(11, 11, north, east, null, west);
-							System.out.println("bottom");
-						}
-						// other
-						else if (cols != 0 && cols != (size - 1) && rows != 0 && rows != (size - 1)) {
-							tempMap = new Map(11, 11, north, east, south, west);
-							System.out.println("other");
-						}
-
-						MapContainer temp = new MapContainer();
-						temp.setMap(tempMap);
-						worldMapMatrix3[rows][cols] = temp;
-					}
-				}
+				
 
 				
 				//create large string
 				String largeString = "";
 				int j = 1;
 
-				for (MapContainer[] outer : worldMapMatrix3) {
+				for (MapContainer[] outer : worldMapMatrix) {
 
 					for (int k = 0; k < outer[0].getMap().toString().length(); k++) {
 
@@ -799,40 +741,40 @@ public class InteractiveGUIController implements Initializable, Listener {
 				//END OF MATRIX STUFF
 	}
 
-	private MapContainer updateLargeMap() {
-
-		String megaString = "";
-		String tempString = "";
-		for(int i = 0; i < quadMap1.getMap().toString().length(); i++) {
-			if(quadMap1.getMap().toString().charAt(i) != '\n') {
-				megaString += quadMap1.getMap().toString().charAt(i);
-				tempString += quadMap2.getMap().toString().charAt(i);
-			}
-			if(quadMap1.getMap().toString().charAt(i) == '\n') {
-				megaString += tempString;
-				megaString += quadMap1.getMap().toString().charAt(i);
-				tempString = "";
-			}
-		}
-		for(int i = 0; i < quadMap3.getMap().toString().length(); i++) {
-			if(quadMap3.getMap().toString().charAt(i) != '\n') {
-				megaString += quadMap3.getMap().toString().charAt(i);
-				tempString += quadMap4.getMap().toString().charAt(i);
-			}
-			if(quadMap3.getMap().toString().charAt(i) == '\n') {
-				megaString += tempString;
-				megaString += quadMap4.getMap().toString().charAt(i);
-				tempString = "";
-			}
-		}
-		System.out.println("megastring!!");
-		System.out.println(megaString);
-
-		MapContainer largeMapCont = new MapContainer();
-		largeMapCont.setMap(Map.fromString(megaString));
-
-		return largeMapCont;
-	}
+//	private MapContainer updateLargeMap() {
+//
+//		String megaString = "";
+//		String tempString = "";
+//		for(int i = 0; i < quadMap1.getMap().toString().length(); i++) {
+//			if(quadMap1.getMap().toString().charAt(i) != '\n') {
+//				megaString += quadMap1.getMap().toString().charAt(i);
+//				tempString += quadMap2.getMap().toString().charAt(i);
+//			}
+//			if(quadMap1.getMap().toString().charAt(i) == '\n') {
+//				megaString += tempString;
+//				megaString += quadMap1.getMap().toString().charAt(i);
+//				tempString = "";
+//			}
+//		}
+//		for(int i = 0; i < quadMap3.getMap().toString().length(); i++) {
+//			if(quadMap3.getMap().toString().charAt(i) != '\n') {
+//				megaString += quadMap3.getMap().toString().charAt(i);
+//				tempString += quadMap4.getMap().toString().charAt(i);
+//			}
+//			if(quadMap3.getMap().toString().charAt(i) == '\n') {
+//				megaString += tempString;
+//				megaString += quadMap4.getMap().toString().charAt(i);
+//				tempString = "";
+//			}
+//		}
+//		System.out.println("megastring!!");
+//		System.out.println(megaString);
+//
+//		MapContainer largeMapCont = new MapContainer();
+//		largeMapCont.setMap(Map.fromString(megaString));
+//
+//		return largeMapCont;
+//	}
 
 	private MapContainer getCurrentQuadMap() {
 		return currentQuadMap;

@@ -392,9 +392,9 @@ public class RoomViewController extends BorderPane implements Listener {
 		getMapView().updateMap(map);
 		System.out.println("CURRENT MAP VIEW: ");
 		System.out.println(getMapView().getMap());
-		redrawPatterns(map);
-		mapIsFeasible(map.isFeasible());
-		resetMiniMaps();
+//		redrawPatterns(map);
+//		mapIsFeasible(map.isFeasible());
+//		resetMiniMaps();
 	}
 	
 	public void updateRoom(Map map) {

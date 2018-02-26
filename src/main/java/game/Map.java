@@ -84,8 +84,10 @@ public class Map {
 
 	}
 	
-	public Map(int rows, int cols, Point p1, Point p2, Point p3, Point p4) {
+	public Map(GeneratorConfig config, int rows, int cols, Point p1, Point p2, Point p3, Point p4) {
         init(rows, cols);
+        
+        this.config = config;
         boolean entraceSet = false; 
 
         if (p1 != null) {
