@@ -556,13 +556,13 @@ public class InteractiveGUIController implements Initializable, Listener {
 		//empty room doors thingy
 
 		// South
-		Point south = new Point(11/2, 11-1);
+		Point south = new Point(11-1, 11/2);
 		// East
-		Point east = new Point(11-1, 11/2);
+		Point east = new Point(11/2, 11-1);
 		// North
-		Point north = new Point(11/2, 0);
+		Point north = new Point(0, 11/2);
 		// West
-		Point west = new Point(0, 11/2);
+		Point west = new Point(11/2, 0);
 
 		MapContainer[][] worldMapMatrix3 = new MapContainer[size][size];
 		int nbrDoors = 4;

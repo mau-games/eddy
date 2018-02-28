@@ -87,43 +87,68 @@ public class Map {
 	public Map(GeneratorConfig config, int rows, int cols, Point p1, Point p2, Point p3, Point p4) {
         init(rows, cols);
         
+
         this.config = config;
         
         boolean entraceSet = false; 
 
         if (p1 != null) {
-            if (entraceSet)
+
+            if (entraceSet) {
                 matrix[p1.getX()][p1.getY()] = 4;
+//                doorCount++;
+            }
             else {
                 matrix[p1.getX()][p1.getY()] = 5;
+//                doorCount++;
                 entraceSet = true;
             }
         }
         if (p2 != null) {
-            if (entraceSet)
+
+            if (entraceSet) {
                 matrix[p2.getX()][p2.getY()] = 4;
+//                doorCount++;
+            }
             else {
                 matrix[p2.getX()][p2.getY()] = 5;
+//                doorCount++;
                 entraceSet = true;
             }
         }
         if (p3 != null) {
-            if (entraceSet)
+
+            if (entraceSet) {
                 matrix[p3.getX()][p3.getY()] = 4;
+//                doorCount++;
+                }
             else {
                 matrix[p3.getX()][p3.getY()] = 5;
+//                doorCount++;
                 entraceSet = true;                
             }
         }
         if (p4 != null) {
-            if (entraceSet)
+
+            if (entraceSet) {
                 matrix[p4.getX()][p4.getY()] = 4;
+//                doorCount++;
+            }
             else {
                 matrix[p4.getX()][p4.getY()] = 5;
+//                doorCount++;
                 entraceSet = true;
             }
         }
 
+//        matrix[0][5] = 3;
+//        for (int i = 0; i < matrix.length; i++) {
+//        	for (int j = 0; j < matrix.length; j++) {
+//        		System.out.print(matrix[i][j]);
+//        	}
+//        	System.out.print('\n');
+//        }
+        
         markDoors();
 
         finder = new PatternFinder(this);
@@ -198,7 +223,7 @@ public class Map {
 		this.m = cols;
 		this.n = rows;
 		wallCount = 0;
-		this.doorCount = 0;
+//		this.doorCount = 0;
 
 		matrix = new int[n][m];
 		allocated = new boolean[m][n];

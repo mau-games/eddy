@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.List;
 
 import game.ApplicationConfig;
+import game.Map;
 import game.MapContainer;
 import gui.controls.LabeledCanvas;
 import gui.utils.MapRenderer;
@@ -87,6 +88,47 @@ public class WorldViewController extends GridPane implements Listener{
 		this.matrix = matrix;	
 		for (int i = 0; i < matrix.length; i++) {
 			for (int j = 0; j < matrix.length; j++) {
+				
+//				Map mapStuff = matrix[i][j].getMap();
+//				String stringStuff = mapStuff.toString();
+//				System.out.println(stringStuff);
+//				
+//				int[][] testMatrix = new int[11][11];
+//				int r = 0;
+//				int c = 0;
+//				
+//				for (int p = 0; p < stringStuff.length(); p++) {
+//					
+//					if (stringStuff.charAt(p) != '\n') {
+//						testMatrix [r][c] = Character.getNumericValue(stringStuff.charAt(p));
+//						c++;
+//					}
+//					if (stringStuff.charAt(p) == '\n') {
+//						c = 0;
+//						r++;
+//					}
+//					System.out.println("r: " + r + " c: " + c);
+//					
+//					
+//				}
+//				
+//				for(int[] q : testMatrix) {
+//					for (int f : q) {
+//						System.out.print(f);
+//					}
+//					System.out.println('\n');
+//				}
+				
+				System.out.println("Matrix map below");
+				for (int o = 0; o < matrix[i][j].getMap().toMatrix().length; o++) {
+		        	for (int p = 0; p < matrix[i][j].getMap().toMatrix().length; p++) {
+		        		System.out.print(matrix[i][j].getMap().toMatrix()[o][p]);
+		        	}
+		        	System.out.print('\n');
+		        }
+				System.out.println("String map below");
+				System.out.println(matrix[i][j].getMap().toString());
+				
 				LabeledCanvas canvas = new LabeledCanvas();
 				canvas.setText("");
 				canvas.setPrefSize(250, 250);
@@ -192,13 +234,6 @@ public class WorldViewController extends GridPane implements Listener{
 		getStartEmptyBtn().setOnAction(new EventHandler<ActionEvent>() {
 			@Override
 			public void handle(ActionEvent e) {
-				
-		
-				int tempMat [][] = matrix[0][2].getMap().toMatrix();
-				for(int[] q : tempMat) {
-					for (int f : q) {
-					}
-				}
 				
 				router.postEvent(new RequestEmptyRoom(matrix[row][col], row, col, matrix));
 			}
