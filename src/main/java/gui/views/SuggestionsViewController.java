@@ -44,7 +44,9 @@ public class SuggestionsViewController extends GridPane implements Listener {
 
 	private MapRenderer renderer = MapRenderer.getInstance();
 	private static EventRouter router = EventRouter.getInstance();
-	
+	private MapContainer[][] worldMapMatrix;
+	private int row;
+	private int col;
 	
 	
 	/**
@@ -106,10 +108,7 @@ public class SuggestionsViewController extends GridPane implements Listener {
 				
 				Platform.runLater(() -> {
 					int[][] matrix = container.getMap().toMatrix();
-					for(int[] q : matrix) {
-						for (int f : q) {
-						}
-					}
+
 					canvas.draw(renderer.renderMap(matrix));
 					//					renderer.renderMap(mapDisplays.get(nextMap++).getGraphicsContext(), matrix);
 					//					renderer.drawPatterns(ctx, matrix, activePatterns);
@@ -121,6 +120,11 @@ public class SuggestionsViewController extends GridPane implements Listener {
 						new MouseEventHandler(maps.get(nextMap)));
 				nextMap++;
 			}
+		}
+		else if (e instanceof RequestSuggestionsView) {
+			worldMapMatrix = ((RequestSuggestionsView) e).getMatrix();
+			row = ((RequestSuggestionsView) e).getRow();
+			col = ((RequestSuggestionsView) e).getCol();
 		}
 	}
 
@@ -159,7 +163,8 @@ public class SuggestionsViewController extends GridPane implements Listener {
 		@Override
 		public void handle(MouseEvent event) {
 			nextMap = 0;
-			router.postEvent(new RequestRoomView(map));
+			worldMapMatrix[row][col] = map;
+			router.postEvent(new RequestRoomView(map, row, col, worldMapMatrix));
 		}
 
 	}

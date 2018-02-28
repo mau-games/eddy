@@ -89,36 +89,6 @@ public class WorldViewController extends GridPane implements Listener{
 		for (int i = 0; i < matrix.length; i++) {
 			for (int j = 0; j < matrix.length; j++) {
 				
-//				Map mapStuff = matrix[i][j].getMap();
-//				String stringStuff = mapStuff.toString();
-//				System.out.println(stringStuff);
-//				
-//				int[][] testMatrix = new int[11][11];
-//				int r = 0;
-//				int c = 0;
-//				
-//				for (int p = 0; p < stringStuff.length(); p++) {
-//					
-//					if (stringStuff.charAt(p) != '\n') {
-//						testMatrix [r][c] = Character.getNumericValue(stringStuff.charAt(p));
-//						c++;
-//					}
-//					if (stringStuff.charAt(p) == '\n') {
-//						c = 0;
-//						r++;
-//					}
-//					System.out.println("r: " + r + " c: " + c);
-//					
-//					
-//				}
-//				
-//				for(int[] q : testMatrix) {
-//					for (int f : q) {
-//						System.out.print(f);
-//					}
-//					System.out.println('\n');
-//				}
-				
 				System.out.println("Matrix map below");
 				for (int o = 0; o < matrix[i][j].getMap().toMatrix().length; o++) {
 		        	for (int p = 0; p < matrix[i][j].getMap().toMatrix().length; p++) {
@@ -132,7 +102,7 @@ public class WorldViewController extends GridPane implements Listener{
 				LabeledCanvas canvas = new LabeledCanvas();
 				canvas.setText("");
 				canvas.setPrefSize(250, 250);
-				canvas.draw(renderer.renderMap(matrix[i][j].getMap().toMatrix()));
+				canvas.draw(renderer.renderMap(matrix[j][i].getMap().toMatrix()));
 				for (int outer = 0; outer < matrix[i][j].getMap().toMatrix().length; outer++) {
 					for (int inner = 0; inner < matrix[i][j].getMap().toMatrix().length; inner++) {
 					}
@@ -239,8 +209,26 @@ public class WorldViewController extends GridPane implements Listener{
 			}
 
 		}); 
+		getSuggestionsBtn().setOnAction(new EventHandler<ActionEvent>() {
+			@Override
+			public void handle(ActionEvent e) {
+				router.postEvent(new RequestSuggestionsView(matrix[row][col], row, col, matrix, 6));
+			}
+
+		}); 
+
+
+		getRoomNullBtn().setOnAction(new EventHandler<ActionEvent>() {
+			@Override
+			public void handle(ActionEvent e) {
+			}
+
+		}); 
 
 	}
+	
+	
+	
 	private String matrixToString() {
 		//create large string
 		String largeString = "";

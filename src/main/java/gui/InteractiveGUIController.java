@@ -100,10 +100,16 @@ public class InteractiveGUIController implements Initializable, Listener {
 	@Override
 	public synchronized void ping(PCGEvent e) {
 		if (e instanceof RequestRoomView) {
+			worldMapMatrix = ((RequestRoomView) e).getMatrix();
+			row = ((RequestRoomView) e).getRow();
+			col = ((RequestRoomView) e).getCol();
 			MapContainer container = (MapContainer) e.getPayload();
 			initRoomView(container);						
 		} else if (e instanceof RequestSuggestionsView) {
-			//router.postEvent(new Stop());
+			worldMapMatrix = ((RequestSuggestionsView) e).getMatrix();
+			row = ((RequestSuggestionsView) e).getRow();
+			col = ((RequestSuggestionsView) e).getCol();
+			MapContainer container = (MapContainer) e.getPayload();
 			initSuggestionsView();
 		} else if (e instanceof RequestWorldView) {
 			initWorldView();
@@ -127,11 +133,12 @@ public class InteractiveGUIController implements Initializable, Listener {
 		router.registerListener(this, new StatusMessage(null));
 		router.registerListener(this, new AlgorithmDone(null));
 		router.registerListener(this, new RequestRedraw());
-		router.registerListener(this, new RequestRoomView(null));
+		router.registerListener(this, new RequestRoomView(null, 0, 0, null));
 		router.registerListener(this, new MapLoaded(null));
-		router.registerListener(this, new RequestSuggestionsView());
+		//		router.registerListener(this, new RequestSuggestionsView());
 		router.registerListener(this, new RequestWorldView());
 		router.registerListener(this, new RequestEmptyRoom(null, 0, 0, null));
+		router.registerListener(this, new RequestSuggestionsView(null, 0, 0, null, 0));
 		router.registerListener(this, new Stop());
 
 		suggestionsView = new SuggestionsViewController();
@@ -311,7 +318,7 @@ public class InteractiveGUIController implements Initializable, Listener {
 
 
 		//		createWorldMatrix();
-		worldButtonEvents();
+
 		worldView.initWorldMap(initMatrix());
 
 		saveItem.setDisable(false);
@@ -350,49 +357,24 @@ public class InteractiveGUIController implements Initializable, Listener {
 		roomView.setActive(true);
 	}
 
-	/*
-	 * Button methods for controllers
-	 */
-	private void worldButtonEvents() {
-		worldView.getSuggestionsBtn().setOnAction(new EventHandler<ActionEvent>() {
-			@Override
-			public void handle(ActionEvent e) {
-				router.postEvent(new RequestSuggestionsView(6));
-			}
 
-		}); 
-
-		//		worldView.getStartEmptyBtn().setOnAction(new EventHandler<ActionEvent>() {
-		//			@Override
-		//			public void handle(ActionEvent e) {
-		//				router.postEvent(new RequestEmptyRoom(null, 0, 0, null));
-		//			}
-		//
-		//		}); 
-		worldView.getRoomNullBtn().setOnAction(new EventHandler<ActionEvent>() {
-			@Override
-			public void handle(ActionEvent e) {
-			}
-
-		}); 
-	}
 
 	private void roomButtonEvents() {
 		roomView.getRightButton().setOnAction(new EventHandler<ActionEvent>() {
 			@Override
 			public void handle(ActionEvent e) {
 				worldMapMatrix[row][col] = currentQuadMap;
-				
+
 				if (col != (size - 1)) {
 					col++;
-					
+
 
 					currentQuadMap = worldMapMatrix[row][col];
 					roomView.updateRoom(currentQuadMap.getMap());
 
 
 				}
-				
+
 			}
 		}); 
 
@@ -406,7 +388,7 @@ public class InteractiveGUIController implements Initializable, Listener {
 
 					currentQuadMap = worldMapMatrix[row][col];
 					roomView.updateRoom(currentQuadMap.getMap());
-					
+
 
 
 				}
@@ -428,7 +410,7 @@ public class InteractiveGUIController implements Initializable, Listener {
 
 				}
 			}
-				
+
 		}); 
 		roomView.getUpButton().setOnAction(new EventHandler<ActionEvent>() {
 			@Override
@@ -440,11 +422,11 @@ public class InteractiveGUIController implements Initializable, Listener {
 
 					currentQuadMap = worldMapMatrix[row][col];
 					roomView.updateRoom(currentQuadMap.getMap());
-					
+
 
 
 				}
-				
+
 			}
 		}); 
 
@@ -459,93 +441,45 @@ public class InteractiveGUIController implements Initializable, Listener {
 		roomView.getMap(0).addEventFilter(MouseEvent.MOUSE_CLICKED, (e) -> {
 			roomView.replaceMap(0);
 			MapContainer selectedMiniCont = new MapContainer();
-			selectedMiniCont.setMap(roomView.getSelectedMiniMap());			
-			if (getCurrentQuadMap().equals(quadMap1)) {
-				quadMap1 = selectedMiniCont;
-				setCurrentQuadMap(quadMap1);
-				roomView.setMousePressed(true);
-			} else if (getCurrentQuadMap().equals(quadMap2)) {
-				quadMap2 = selectedMiniCont;
-				setCurrentQuadMap(quadMap2);
-				roomView.setMousePressed(true);
-			} else if (getCurrentQuadMap().equals(quadMap3)) {
-				quadMap3 = selectedMiniCont;
-				setCurrentQuadMap(quadMap3);
-				roomView.setMousePressed(true);
-			} else if (getCurrentQuadMap().equals(quadMap4)) {
-				quadMap4 = selectedMiniCont;
-				setCurrentQuadMap(quadMap4);
-				roomView.setMousePressed(true);
-			}
+			selectedMiniCont.setMap(roomView.getSelectedMiniMap());	
+			currentQuadMap = selectedMiniCont;
+
+			worldMapMatrix[row][col] = selectedMiniCont;
+			roomView.setMousePressed(true);
+
 
 		});
 		roomView.getMap(1).addEventFilter(MouseEvent.MOUSE_CLICKED, (e) -> {
 			roomView.replaceMap(1);
 			MapContainer selectedMiniCont = new MapContainer();
 			selectedMiniCont.setMap(roomView.getSelectedMiniMap());
-			if (getCurrentQuadMap().equals(quadMap1)) {
-				quadMap1 = selectedMiniCont;
-				setCurrentQuadMap(quadMap1);
+			currentQuadMap = selectedMiniCont;
+
+			worldMapMatrix[row][col] = selectedMiniCont;
 				roomView.setMousePressed(true);
-			} else if (getCurrentQuadMap().equals(quadMap2)) {
-				quadMap2 = selectedMiniCont;
-				setCurrentQuadMap(quadMap2);
-				roomView.setMousePressed(true);
-			} else if (getCurrentQuadMap().equals(quadMap3)) {
-				quadMap3 = selectedMiniCont;
-				setCurrentQuadMap(quadMap3);
-				roomView.setMousePressed(true);
-			} else if (getCurrentQuadMap().equals(quadMap4)) {
-				quadMap4 = selectedMiniCont;
-				setCurrentQuadMap(quadMap4);
-				roomView.setMousePressed(true);
-			}
+		
 
 		});
 		roomView.getMap(2).addEventFilter(MouseEvent.MOUSE_CLICKED, (e) -> {
 			roomView.replaceMap(2);
 			MapContainer selectedMiniCont = new MapContainer();
 			selectedMiniCont.setMap(roomView.getSelectedMiniMap());
-			if (getCurrentQuadMap().equals(quadMap1)) {
-				quadMap1 = selectedMiniCont;
-				setCurrentQuadMap(quadMap1);
+			currentQuadMap = selectedMiniCont;
+
+			worldMapMatrix[row][col] = selectedMiniCont;
 				roomView.setMousePressed(true);
-			} else if (getCurrentQuadMap().equals(quadMap2)) {
-				quadMap2 = selectedMiniCont;
-				setCurrentQuadMap(quadMap2);
-				roomView.setMousePressed(true);
-			} else if (getCurrentQuadMap().equals(quadMap3)) {
-				quadMap3 = selectedMiniCont;
-				setCurrentQuadMap(quadMap3);
-				roomView.setMousePressed(true);
-			} else if (getCurrentQuadMap().equals(quadMap4)) {
-				quadMap4 = selectedMiniCont;
-				setCurrentQuadMap(quadMap4);
-				roomView.setMousePressed(true);
-			}
+			
 
 		});
 		roomView.getMap(3).addEventFilter(MouseEvent.MOUSE_CLICKED, (e) -> {
 			roomView.replaceMap(3);
 			MapContainer selectedMiniCont = new MapContainer();
 			selectedMiniCont.setMap(roomView.getSelectedMiniMap());
-			if (getCurrentQuadMap().equals(quadMap1)) {
-				quadMap1 = selectedMiniCont;
-				setCurrentQuadMap(quadMap1);
+
+				currentQuadMap = selectedMiniCont;
+				worldMapMatrix[row][col] = selectedMiniCont;
 				roomView.setMousePressed(true);
-			} else if (getCurrentQuadMap().equals(quadMap2)) {
-				quadMap2 = selectedMiniCont;
-				setCurrentQuadMap(quadMap2);
-				roomView.setMousePressed(true);
-			} else if (getCurrentQuadMap().equals(quadMap3)) {
-				quadMap3 = selectedMiniCont;
-				setCurrentQuadMap(quadMap3);
-				roomView.setMousePressed(true);
-			} else if (getCurrentQuadMap().equals(quadMap4)) {
-				quadMap4 = selectedMiniCont;
-				setCurrentQuadMap(quadMap4);
-				roomView.setMousePressed(true);
-			}
+
 
 		});
 		roomView.resetMiniMaps();
@@ -556,20 +490,20 @@ public class InteractiveGUIController implements Initializable, Listener {
 		//empty room doors thingy
 
 		// South
-		Point south = new Point(11-1, 11/2);
+		Point south = new Point(11/2, 11-1);
 		// East
-		Point east = new Point(11/2, 11-1);
+		Point east = new Point(11-1, 11/2);
 		// North
-		Point north = new Point(0, 11/2);
+		Point north = new Point(11/2, 0);
 		// West
-		Point west = new Point(11/2, 0);
+		Point west = new Point(0, 11/2);
 
 		MapContainer[][] worldMapMatrix3 = new MapContainer[size][size];
 		int nbrDoors = 4;
 		GeneratorConfig gc = null;
 		try {
 			gc = new GeneratorConfig();
-			
+
 		} catch (MissingConfigurationException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -643,7 +577,7 @@ public class InteractiveGUIController implements Initializable, Listener {
 		}								
 	}
 
-	
+
 	private String matrixToString() {
 		//create large string
 		String largeString = "";
@@ -675,11 +609,11 @@ public class InteractiveGUIController implements Initializable, Listener {
 		}
 		return largeString;
 	}
-	
-	
+
+
 	private MapContainer[][] updateLargeMap() {
 
-		
+
 		String largeString = matrixToString();
 		//fill matrix from string
 		int charNbr = 0;

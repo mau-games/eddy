@@ -21,6 +21,7 @@ import gui.InteractiveGUIController;
 import gui.controls.InteractiveMap;
 import gui.controls.LabeledCanvas;
 import gui.utils.MapRenderer;
+import gui.views.RoomViewController.EditViewEventHandler;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;

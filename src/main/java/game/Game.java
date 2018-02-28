@@ -61,7 +61,7 @@ public class Game implements Listener{
 		//EventRouter.getInstance().registerListener(this, new AlgorithmDone(null));
 		EventRouter.getInstance().registerListener(this, new RenderingDone());
 		EventRouter.getInstance().registerListener(this, new StartBatch());
-		EventRouter.getInstance().registerListener(this, new RequestSuggestionsView());
+		EventRouter.getInstance().registerListener(this, new RequestSuggestionsView(null, 0, 0, null, 0));
 	}
 
 	/**
@@ -147,10 +147,10 @@ public class Game implements Listener{
 	/**
 	 *  Kicks the algorithm into action.
 	 */
-	private void startAll(int runCount)
+	private void startAll(int runCount, MapContainer container)
 	{
 
-		reinit();
+		reinit(container);
 		Algorithm geneticAlgorithm = null;
 
 		List<String> configs = new ArrayList<String>();
@@ -236,9 +236,32 @@ public class Game implements Listener{
 	/**
 	 * Set everything back to its initial state before running the genetic algorithm
 	 */
-	private void reinit(){
-		doors.clear();
-		chooseDoorPositions();
+	private void reinit(MapContainer container){
+		if (container == null) {
+			doors.clear();
+			chooseDoorPositions();
+		}
+		else {
+			doors.clear();
+			if (container.getMap().getNorth()) { 	//North
+				doors.add(new Point(sizeM / 2, 0));
+				System.out.println("north");
+			}
+			if (container.getMap().getEast()) {	//East
+				doors.add(new Point(sizeM - 1, sizeN / 2));
+				System.out.println("east");
+			}
+			if (container.getMap().getSouth()) {	//South
+				doors.add(new Point(sizeM / 2, sizeN - 1));
+				System.out.println("south");
+			}
+			if (container.getMap().getWest()) {	//West
+				doors.add(new Point(0, sizeN / 2));
+				System.out.println("west");
+			}
+			System.out.println("end");
+		}
+		System.out.println("???");
 	}
 
 	/**
@@ -263,7 +286,14 @@ public class Game implements Listener{
 		//		}	else
 		if(e instanceof RequestSuggestionsView){ 
 			readConfiguration();
-			startAll(((RequestSuggestionsView) e).getNbrOfThreads());
+			System.out.println("here");
+			MapContainer container = (MapContainer) e.getPayload();
+			System.out.println(container.getMap().toString());
+			doorCount = container.getMap().getNumberOfDoors();
+			sizeM = 11;
+			sizeN = 11;
+			System.out.println(doorCount);
+			startAll(((RequestSuggestionsView) e).getNbrOfThreads(), container);
 
 		}			
 		else if (e instanceof StartMapMutate) {

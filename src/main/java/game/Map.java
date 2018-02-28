@@ -60,6 +60,12 @@ public class Map {
 	private double entranceSafety;
 	private double entranceGreed;
 	private GeneratorConfig config = null;
+	private int numberOfDoors = 0;
+	private boolean north = false;
+	private boolean east = false;
+	private boolean west = false;
+	private boolean south = false;
+
 
 
 	/**
@@ -93,62 +99,54 @@ public class Map {
         boolean entraceSet = false; 
 
         if (p1 != null) {
-
+        	north = true;
             if (entraceSet) {
                 matrix[p1.getX()][p1.getY()] = 4;
-//                doorCount++;
+                numberOfDoors++;
             }
             else {
                 matrix[p1.getX()][p1.getY()] = 5;
-//                doorCount++;
+                numberOfDoors++;
                 entraceSet = true;
             }
         }
         if (p2 != null) {
-
+        	east = true;
             if (entraceSet) {
                 matrix[p2.getX()][p2.getY()] = 4;
-//                doorCount++;
+                numberOfDoors++;
             }
             else {
                 matrix[p2.getX()][p2.getY()] = 5;
-//                doorCount++;
+                numberOfDoors++;
                 entraceSet = true;
             }
         }
         if (p3 != null) {
-
+        	south = true;
             if (entraceSet) {
                 matrix[p3.getX()][p3.getY()] = 4;
-//                doorCount++;
+                numberOfDoors++;
                 }
             else {
                 matrix[p3.getX()][p3.getY()] = 5;
-//                doorCount++;
+                numberOfDoors++;
                 entraceSet = true;                
             }
         }
         if (p4 != null) {
-
+        	west = true;
             if (entraceSet) {
                 matrix[p4.getX()][p4.getY()] = 4;
-//                doorCount++;
+                numberOfDoors++;
             }
             else {
                 matrix[p4.getX()][p4.getY()] = 5;
-//                doorCount++;
+                numberOfDoors++;
                 entraceSet = true;
             }
         }
-
-//        matrix[0][5] = 3;
-//        for (int i = 0; i < matrix.length; i++) {
-//        	for (int j = 0; j < matrix.length; j++) {
-//        		System.out.print(matrix[i][j]);
-//        	}
-//        	System.out.print('\n');
-//        }
-        
+               
         markDoors();
 
         finder = new PatternFinder(this);
@@ -897,5 +895,26 @@ public class Map {
 		return visited.size() == getNonWallTileCount() 
 				&& (treasure + doors + enemies == getTreasureCount() + getDoorCount() + getEnemyCount())
 				&& getTreasureCount() > 0 && getEnemyCount() > 0;
+	}
+
+	public int getNumberOfDoors() {
+		return numberOfDoors;
+	}
+
+	public void setNumberOfDoors(int numberOfDoors) {
+		this.numberOfDoors = numberOfDoors;
+	}
+	
+	public boolean getNorth() {
+		return north;
+	}
+	public boolean getEast() {
+		return east;
+	}
+	public boolean getSouth() {
+		return south;
+	}
+	public boolean getWest() {
+		return west;
 	}
 }

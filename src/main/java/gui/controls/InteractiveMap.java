@@ -129,11 +129,11 @@ public class InteractiveMap extends GridPane {
 		
 		for (int i = 0; i < cols; i++) {
 			for (int j = 0; j < rows; j++) {
-				ImageView iv = new ImageView(getImage(map.getTile(j, i), scale));
+				ImageView iv = new ImageView(getImage(map.getTile(i, j), scale));
 				GridPane.setFillWidth(iv, true);
 				GridPane.setFillHeight(iv, true);
 				add(iv, i, j);
-				coords.put(iv, new Point(j, i));
+				coords.put(iv, new Point(i, j));
 			}
 		}
 	}
