@@ -18,9 +18,6 @@ public class StartMapMutate extends PCGEvent {
 	}
 	
 	public StartMapMutate(Map map, MapMutationType mutationType, int mutations, boolean randomiseConfig) {
-		
-		System.out.println(map.toString());
-
 		setPayload(map);
 		this.mutationType = mutationType;
 		this.mutations = mutations;

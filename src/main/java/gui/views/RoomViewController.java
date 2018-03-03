@@ -36,6 +36,7 @@ import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.control.Slider;
 import javafx.scene.control.ToggleButton;
 import javafx.scene.control.ToggleGroup;
 import javafx.scene.image.Image;
@@ -518,8 +519,8 @@ public class RoomViewController extends BorderPane implements Listener {
 		if (selectedMiniMap != null) {
 			generateNewMaps(selectedMiniMap);
 			updateMap(selectedMiniMap);
-
 		}
+		generateNewMaps();
 	}
 
 	/**

@@ -3,6 +3,7 @@ package game;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.omg.Messaging.SyncScopeHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -115,20 +116,24 @@ public class Game implements Listener{
 				doors.clear();
 				if (map.getNorth()) { 	//North
 					doors.add(new Point(sizeM / 2, 0));
-					System.out.println("north");
 				}
 				if (map.getEast()) {	//East
 					doors.add(new Point(sizeM - 1, sizeN / 2));
-					System.out.println("east");
 				}
 				if (map.getSouth()) {	//South
 					doors.add(new Point(sizeM / 2, sizeN - 1));
-					System.out.println("south");
 				}
 				if (map.getWest()) {	//West
 					doors.add(new Point(0, sizeN / 2));
-					System.out.println("west");
 				}
+				if (doors.isEmpty()) {
+					doors.add(map.getEntrance());
+					for (Point p : map.getDoors()) {
+						doors.add(p);
+					}
+				}
+				System.out.println("computed");
+				System.out.println(doors.size());
 				GeneratorConfig gc = map.getCalculatedConfig();
 				if(randomise)
 					gc.mutate();
@@ -142,20 +147,24 @@ public class Game implements Listener{
 				doors.clear();
 				if (map.getNorth()) { 	//North
 					doors.add(new Point(sizeM / 2, 0));
-					System.out.println("north");
 				}
 				if (map.getEast()) {	//East
 					doors.add(new Point(sizeM - 1, sizeN / 2));
-					System.out.println("east");
 				}
 				if (map.getSouth()) {	//South
 					doors.add(new Point(sizeM / 2, sizeN - 1));
-					System.out.println("south");
 				}
 				if (map.getWest()) {	//West
 					doors.add(new Point(0, sizeN / 2));
-					System.out.println("west");
 				}
+				if (doors.isEmpty()) {
+					doors.add(map.getEntrance());
+					for (Point p : map.getDoors()) {
+						doors.add(p);
+					}
+				}
+				System.out.println("original");
+				System.out.println(doors.size());
 				GeneratorConfig gc = new GeneratorConfig(map.getConfig());
 				if(randomise)
 					gc.mutate();
@@ -169,20 +178,24 @@ public class Game implements Listener{
 				doors.clear();
 				if (map.getNorth()) { 	//North
 					doors.add(new Point(sizeM / 2, 0));
-					System.out.println("north");
 				}
 				if (map.getEast()) {	//East
 					doors.add(new Point(sizeM - 1, sizeN / 2));
-					System.out.println("east");
 				}
 				if (map.getSouth()) {	//South
 					doors.add(new Point(sizeM / 2, sizeN - 1));
-					System.out.println("south");
 				}
 				if (map.getWest()) {	//West
 					doors.add(new Point(0, sizeN / 2));
-					System.out.println("west");
 				}
+				if (doors.isEmpty()) {
+					doors.add(map.getEntrance());
+					for (Point p : map.getDoors()) {
+						doors.add(p);
+					}
+				}
+				System.out.println("preserving");
+				System.out.println(doors.size());
 				Algorithm ga = new Algorithm(map);
 				runs.add(ga);
 				ga.start();
