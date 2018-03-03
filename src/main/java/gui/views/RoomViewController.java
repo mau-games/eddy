@@ -102,7 +102,7 @@ public class RoomViewController extends BorderPane implements Listener {
 	private static EventRouter router = EventRouter.getInstance();
 	private final static Logger logger = LoggerFactory.getLogger(RoomViewController.class);
 	private ApplicationConfig config;
-	private LabeledCanvas canvas = null;
+
 
 
 	/**
@@ -340,14 +340,15 @@ public class RoomViewController extends BorderPane implements Listener {
 			if (isActive) {
 				Map map = (Map) ((MapUpdate) e).getPayload();
 				UUID uuid = ((MapUpdate) e).getID();
+				LabeledCanvas canvas;
 				synchronized (mapDisplays) {
-					if (nextMap < 4) {
+				
 					canvas = mapDisplays.get(nextMap);
 					//					canvas.setText("Got map:\n" + uuid);
 					canvas.setText("");
 					maps.put(nextMap, map);
 					nextMap++;
-					}
+					
 				}
 
 				Platform.runLater(() -> {
