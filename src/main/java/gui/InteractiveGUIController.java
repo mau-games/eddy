@@ -197,6 +197,8 @@ public class InteractiveGUIController implements Initializable, Listener {
 				Map map = worldMapMatrix[col][row].getMap();
 				PatternFinder finder = map.getPatternFinder();
 				MapContainer result = new MapContainer();
+				currentQuadMap = result;
+				roomView.updateMap(map);
 				result.setMap(map);
 				result.setMicroPatterns(finder.findMicroPatterns());
 				result.setMesoPatterns(finder.findMesoPatterns());
