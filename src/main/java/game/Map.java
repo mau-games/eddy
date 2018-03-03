@@ -60,7 +60,7 @@ public class Map {
 	private double entranceSafety;
 	private double entranceGreed;
 	private GeneratorConfig config = null;
-	private int numberOfDoors = 0;
+	public int numberOfDoors = 0;
 	private boolean north = false;
 	private boolean east = false;
 	private boolean west = false;

@@ -52,8 +52,9 @@ public class WorldViewController extends GridPane implements Listener{
 	private int row = 0;
 	private int col = 0;
 	private MapContainer[][] matrix;
-
-
+	private int size;
+	private int viewSize;
+	
 	public WorldViewController() {
 		super();
 		FXMLLoader loader = new FXMLLoader(getClass().getResource("/gui/interactive/WorldView.fxml"));
@@ -86,22 +87,19 @@ public class WorldViewController extends GridPane implements Listener{
 
 	public void initWorldMap(MapContainer[][] matrix) {
 		this.matrix = matrix;	
+		size = matrix.length;
+		viewSize = 750/size;
 		for (int i = 0; i < matrix.length; i++) {
 			for (int j = 0; j < matrix.length; j++) {
 				
-				System.out.println("Matrix map below");
 				for (int o = 0; o < matrix[i][j].getMap().toMatrix().length; o++) {
 		        	for (int p = 0; p < matrix[i][j].getMap().toMatrix().length; p++) {
-		        		System.out.print(matrix[i][j].getMap().toMatrix()[o][p]);
 		        	}
-		        	System.out.print('\n');
 		        }
-				System.out.println("String map below");
-				System.out.println(matrix[i][j].getMap().toString());
 				
 				LabeledCanvas canvas = new LabeledCanvas();
 				canvas.setText("");
-				canvas.setPrefSize(250, 250);
+				canvas.setPrefSize(viewSize, viewSize);
 				canvas.draw(renderer.renderMap(matrix[j][i].getMap().toMatrix()));
 				for (int outer = 0; outer < matrix[i][j].getMap().toMatrix().length; outer++) {
 					for (int inner = 0; inner < matrix[i][j].getMap().toMatrix().length; inner++) {

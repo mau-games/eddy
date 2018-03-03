@@ -112,6 +112,23 @@ public class Game implements Listener{
 			switch(mutationType){
 			case ComputedConfig:
 			{
+				doors.clear();
+				if (map.getNorth()) { 	//North
+					doors.add(new Point(sizeM / 2, 0));
+					System.out.println("north");
+				}
+				if (map.getEast()) {	//East
+					doors.add(new Point(sizeM - 1, sizeN / 2));
+					System.out.println("east");
+				}
+				if (map.getSouth()) {	//South
+					doors.add(new Point(sizeM / 2, sizeN - 1));
+					System.out.println("south");
+				}
+				if (map.getWest()) {	//West
+					doors.add(new Point(0, sizeN / 2));
+					System.out.println("west");
+				}
 				GeneratorConfig gc = map.getCalculatedConfig();
 				if(randomise)
 					gc.mutate();
@@ -122,6 +139,23 @@ public class Game implements Listener{
 			}
 			case OriginalConfig:
 			{
+				doors.clear();
+				if (map.getNorth()) { 	//North
+					doors.add(new Point(sizeM / 2, 0));
+					System.out.println("north");
+				}
+				if (map.getEast()) {	//East
+					doors.add(new Point(sizeM - 1, sizeN / 2));
+					System.out.println("east");
+				}
+				if (map.getSouth()) {	//South
+					doors.add(new Point(sizeM / 2, sizeN - 1));
+					System.out.println("south");
+				}
+				if (map.getWest()) {	//West
+					doors.add(new Point(0, sizeN / 2));
+					System.out.println("west");
+				}
 				GeneratorConfig gc = new GeneratorConfig(map.getConfig());
 				if(randomise)
 					gc.mutate();
@@ -132,6 +166,23 @@ public class Game implements Listener{
 			}
 			case Preserving:
 			{
+				doors.clear();
+				if (map.getNorth()) { 	//North
+					doors.add(new Point(sizeM / 2, 0));
+					System.out.println("north");
+				}
+				if (map.getEast()) {	//East
+					doors.add(new Point(sizeM - 1, sizeN / 2));
+					System.out.println("east");
+				}
+				if (map.getSouth()) {	//South
+					doors.add(new Point(sizeM / 2, sizeN - 1));
+					System.out.println("south");
+				}
+				if (map.getWest()) {	//West
+					doors.add(new Point(0, sizeN / 2));
+					System.out.println("west");
+				}
 				Algorithm ga = new Algorithm(map);
 				runs.add(ga);
 				ga.start();
