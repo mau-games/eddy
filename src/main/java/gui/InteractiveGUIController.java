@@ -193,8 +193,8 @@ public class InteractiveGUIController implements Initializable, Listener {
 
 					mapString += c;
 				}
-
-				Map map = Map.fromString(mapString);
+				worldMapMatrix = updateLargeMap(mapString);
+				Map map = worldMapMatrix[col][row].getMap();
 				PatternFinder finder = map.getPatternFinder();
 				MapContainer result = new MapContainer();
 				result.setMap(map);
@@ -229,7 +229,7 @@ public class InteractiveGUIController implements Initializable, Listener {
 		if (selectedFile != null) {
 			logger.debug("Writing map to " + selectedFile.getPath());
 			try {
-				Files.write(selectedFile.toPath(), roomView.getLargeMap().toString().getBytes());
+				Files.write(selectedFile.toPath(), matrixToString().getBytes());
 			} catch (IOException e) {
 				logger.error("Couldn't write map to " + selectedFile +
 						":\n" + e.getMessage());
@@ -611,10 +611,10 @@ public class InteractiveGUIController implements Initializable, Listener {
 	}
 
 
-	private MapContainer[][] updateLargeMap() {
+	private MapContainer[][] updateLargeMap(String loadedMap) {
 
 
-		String largeString = matrixToString();
+		String largeString = loadedMap;
 		//fill matrix from string
 		int charNbr = 0;
 		while (largeString.charAt(charNbr) != '\n') {
