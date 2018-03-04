@@ -7,6 +7,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import generator.algorithm.Algorithm;
+import generator.algorithm.Algorithm.AlgorithmTypes;
 import generator.config.GeneratorConfig;
 import util.Point;
 import util.Util;
@@ -101,8 +102,8 @@ public class Game implements Listener{
     	OriginalConfig,
     	ComputedConfig
     }
-    
-    private void mutateFromMap(Map map, int mutations, MapMutationType mutationType, boolean randomise){
+
+    private void mutateFromMap(Map map, int mutations, MapMutationType mutationType, AlgorithmTypes AlgoType, boolean randomise){
     	sizeM = map.getColCount();
     	sizeN = map.getRowCount();
 
@@ -130,7 +131,7 @@ public class Game implements Listener{
 			}
 			case Preserving:
 			{
-				Algorithm ga = new Algorithm(map);
+				Algorithm ga = new Algorithm(map, AlgoType);
 				runs.add(ga);
 				ga.start();
 				break;
@@ -261,7 +262,7 @@ public class Game implements Listener{
 			startAll(((Start) e).getNbrOfThreads());
 		} else if (e instanceof StartMapMutate) {
 			StartMapMutate smm = (StartMapMutate)e;
-			mutateFromMap((Map)e.getPayload(),smm.getMutations(),smm.getMutationType(),smm.getRandomiseConfig());
+			mutateFromMap((Map)e.getPayload(),smm.getMutations(),smm.getMutationType(),smm.getAlgorithmTypes(),smm.getRandomiseConfig());
 		} else if (e instanceof StartBatch) {
 			startBatch(((StartBatch)e).getConfig(), ((StartBatch)e).getSize());
 		} else if (e instanceof Stop) {
