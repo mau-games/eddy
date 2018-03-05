@@ -79,7 +79,7 @@ public class Entrance extends InventorialPattern {
 	}
 	
 	private static boolean isEntrance(int[][] map, int x, int y) {
-		return map[x][y] == 5;
+		return map[y][x] == 5;
 	}
 	
 	private static double calculateEntranceQuality(Map map){

@@ -173,7 +173,7 @@ public class Algorithm extends Thread {
 		int i = 0;
 		int j = 0;
 		while((i + j) < populationSize){
-			Individual ind = new Individual(config, Game.sizeN * Game.sizeM, mutationProbability);
+			Individual ind = new Individual(config, Game.sizeHeight * Game.sizeWidth, mutationProbability);
 			ind.initialize();
 			
 			if(checkIndividual(ind)){

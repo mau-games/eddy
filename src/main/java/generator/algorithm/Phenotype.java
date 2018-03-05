@@ -31,7 +31,7 @@ public class Phenotype {
 	public Map getMap() {
 		if(map == null){
 			TileTypes[] tileTypes = Arrays.stream(genotype.getChromosome()).boxed().map(x -> TileTypes.toTileType(x)).toArray(TileTypes[]::new);
-			map = new Map(config, tileTypes, Game.sizeN, Game.sizeM, Game.doorCount);
+			map = new Map(config, tileTypes, Game.sizeHeight, Game.sizeWidth, Game.doorCount);
 		}
 		return map;
 	}

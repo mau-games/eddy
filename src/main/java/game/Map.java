@@ -41,10 +41,11 @@ import generator.config.GeneratorConfig;
  * @author Alexander Baldwin, Malmö University
  */
 public class Map {
+	private TileTypes[] tileMap; //The map in tiletypes.
 	private int[][] matrix; // The actual map
 	private boolean[][] allocated; // A map keeps track of allocated tiles
-	private int m;			// The number of rows in a map
-	private int n;			// The number of columns in a map
+	private int width;			// The number of columns in a map
+	private int height;			// The number of rows in a map
 	private int doorCount;	// The number of doors in a map
 	private int wallCount;	// The number of wall tiles in a map
 	private List<Point> doors = new ArrayList<Point>();
@@ -61,6 +62,9 @@ public class Map {
 	private double entranceGreed;
 	private GeneratorConfig config = null;
 	
+	//NEW THINGS
+	public ZoneNode root;
+	
 	/**
 	 * Creates an instance of map.
 	 * 
@@ -72,6 +76,7 @@ public class Map {
 	public Map(GeneratorConfig config, TileTypes[] types, int rows, int cols, int doorCount) {
 		init(rows, cols);
 		
+		this.tileMap = types;
 		this.config = config;
 		this.doorCount = Game.doors.size();
 		
@@ -80,6 +85,7 @@ public class Map {
 		markDoors();
 		
 		finder = new PatternFinder(this);
+		root = new ZoneNode(null, this, getColCount(), getRowCount());
 		
 	}
 	
@@ -98,11 +104,11 @@ public class Map {
 		treasureSafety = new Hashtable<Point, Double>();
 		wallCount = 0;
 		this.doorCount = 0;
-		allocated = new boolean[m][n];
+		allocated = new boolean[height][width];
 		
-		for (int i = 0; i < m; i++) {
-			for (int j = 0; j < n; j++) {
-				switch (TileTypes.toTileType(matrix[i][j])) {
+		for (int j = 0; j < height; j++){
+			for (int i = 0; i < width; i++) {
+				switch (TileTypes.toTileType(matrix[j][i])) {
 				case WALL:
 					wallCount++;
 					break;
@@ -147,18 +153,18 @@ public class Map {
 	private void init(int rows, int cols) {
 		
 		treasureSafety = new Hashtable<Point, Double>();
-		this.m = cols;
-		this.n = rows;
+		this.width = cols;
+		this.height = rows;
 		wallCount = 0;
 		this.doorCount = 0;
 		
-		matrix = new int[n][m];
-		allocated = new boolean[m][n];
+		matrix = new int[height][width]; //Problem here
+		allocated = new boolean[height][width];
         
 	}
 	
 	public void resetAllocated(){
-		allocated = new boolean[m][n];
+		allocated = new boolean[height][width];
 	}
 	
 	private void markDoors(){
@@ -167,33 +173,33 @@ public class Map {
         {
 			
             // Check if door overrides an enemy
-            if (TileTypes.toTileType(matrix[Game.doors.get(i).getX()][Game.doors.get(i).getY()]).isEnemy())
+            if (TileTypes.toTileType(matrix[Game.doors.get(i).getY()][Game.doors.get(i).getX()]).isEnemy())
             {
             	int ii = i;
             	enemies.removeIf((x)->x.equals(Game.doors.get(ii)));
             }
 
             // Check if door overrides a treasure
-            if (TileTypes.toTileType(matrix[Game.doors.get(i).getX()][Game.doors.get(i).getY()]).isTreasure())
+            if (TileTypes.toTileType(matrix[Game.doors.get(i).getY()][Game.doors.get(i).getX()]).isTreasure())
             {
             	int ii = i;
             	treasures.removeIf((x)->x.equals(Game.doors.get(ii)));
             }
 
             // Check if door overrides a wall
-            if (matrix[Game.doors.get(i).getX()][Game.doors.get(i).getY()] == TileTypes.WALL.getValue())
+            if (matrix[Game.doors.get(i).getY()][Game.doors.get(i).getX()] == TileTypes.WALL.getValue())
             {
                 wallCount--;
             } 
             
             if(i == 0)
             {
-                matrix[Game.doors.get(i).getX()][Game.doors.get(i).getY()] = TileTypes.DOORENTER.getValue();
+            	matrix[Game.doors.get(i).getY()][Game.doors.get(i).getX()] = TileTypes.DOORENTER.getValue();
             }
             else
             {
             	doors.add(Game.doors.get(i));
-            	matrix[Game.doors.get(i).getX()][Game.doors.get(i).getY()] = TileTypes.DOOR.getValue();
+            	matrix[Game.doors.get(i).getY()][Game.doors.get(i).getX()] = TileTypes.DOOR.getValue();
             }
 
 
@@ -211,11 +217,11 @@ public class Map {
 		
 		if(position.getX() > 0 && getTile((int)position.getX() - 1, (int)position.getY()) != TileTypes.WALL)
 			availableCoords.add(new Point(position.getX()-1,position.getY()));
-		if(position.getX() < m - 1 && getTile((int)position.getX() + 1, (int)position.getY()) != TileTypes.WALL)
+		if(position.getX() < width - 1 && getTile((int)position.getX() + 1, (int)position.getY()) != TileTypes.WALL)
 			availableCoords.add(new Point(position.getX()+1,position.getY()));
 		if(position.getY() > 0 && getTile((int)position.getX(), (int)position.getY() - 1) != TileTypes.WALL)
 			availableCoords.add(new Point(position.getX(),position.getY() - 1));
-		if(position.getY() < n - 1 && getTile((int)position.getX(), (int)position.getY() + 1) != TileTypes.WALL)
+		if(position.getY() < height - 1 && getTile((int)position.getX(), (int)position.getY() + 1) != TileTypes.WALL)
 			availableCoords.add(new Point(position.getX(),position.getY() + 1));
 		
 		return availableCoords;
@@ -230,7 +236,7 @@ public class Map {
 	 * @param tile A tile.
 	 */
 	public void setTile(int x, int y, TileTypes tile) {
-		matrix[x][y] = tile.getValue();
+		matrix[y][x] = tile.getValue();
 	}
 	
 	/**
@@ -241,7 +247,7 @@ public class Map {
 	 * @return A tile.
 	 */
 	public TileTypes getTile(int x, int y) {
-		return TileTypes.toTileType(matrix[x][y]);
+		return TileTypes.toTileType(matrix[y][x]);
 	}
 	
 	/**
@@ -255,7 +261,7 @@ public class Map {
 			return null;
 		}
 		
-		return TileTypes.toTileType(matrix[point.getX()][point.getY()]);
+		return TileTypes.toTileType(matrix[point.getY()][point.getX()]);
 	}
 	
 	/**
@@ -264,7 +270,7 @@ public class Map {
 	 * @return The number of columns.
 	 */
 	public int getColCount() {
-		return m;
+		return width;
 	}
 	
 	/**
@@ -273,7 +279,7 @@ public class Map {
 	 * @return The number of rows.
 	 */
 	public int getRowCount() {
-		return n;
+		return height;
 	}
 	
 	/**
@@ -282,7 +288,7 @@ public class Map {
 	 * @return The number of traversable tiles.
 	 */
 	public int countTraversables() {
-		return m * n - wallCount;
+		return width * height - wallCount;
 	}
 	
 	/**
@@ -385,7 +391,7 @@ public class Map {
 	 */
 	public int getNonWallTileCount()
     {
-        return (Game.sizeM * Game.sizeN) - wallCount;
+        return (Game.sizeWidth * Game.sizeHeight) - wallCount;
     }
 	
 	/**
@@ -561,6 +567,11 @@ public class Map {
     	return finder;
     }
     
+    public TileTypes[] getTileBasedMap()
+    {
+    	return tileMap;
+    }
+    
 	/**
 	 * Initialises a map.
 	 * 
@@ -568,8 +579,8 @@ public class Map {
 	 */
 	private void initMapFromTypes(TileTypes[] tiles) {
 		int tile = 0;
-		for (int i = 0; i < m; i++) {
-			for (int j = 0; j < n; j++) {
+		for (int j = 0; j < height; j++) {
+			for (int i = 0; i < width; i++) {
 				switch (tiles[tile]) {
 				case WALL:
 					wallCount++;
@@ -583,7 +594,7 @@ public class Map {
 				default:
 					break;
 				}
-				matrix[i][j] = tiles[tile++].getValue();
+				matrix[j][i] = tiles[tile++].getValue();
 			}
 		}
 	}
@@ -726,8 +737,8 @@ public class Map {
 		
 		Game.doors.clear();
 		
-		for (int i = 0; i < rowCount; i++) {
-			for (int j = 0; j < colCount; j++) {
+		for (int j = 0; j < colCount; j++){
+			 for (int i = 0; i < rowCount; i++) {
 				type = TileTypes.toTileType(Integer.parseInt("" + rows[i].charAt(j), 16));
 				map.setTile(i, j, type);
 				switch (type) {
@@ -761,9 +772,9 @@ public class Map {
 	public String toString() {
 		StringBuilder map = new StringBuilder();
 		
-		for (int i = 0; i < m; i++) {
-			for (int j = 0; j < n; j++) {
-				map.append(Integer.toHexString(matrix[i][j]));
+		for (int j = 0; j < height; j++){
+			for (int i = 0; i < width; i++)  {
+				map.append(Integer.toHexString(matrix[j][i]));
 			}
 			map.append("\n");
 		}

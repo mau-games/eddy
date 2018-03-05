@@ -33,6 +33,7 @@ import javafx.scene.control.ToggleButton;
 import javafx.scene.control.ToggleGroup;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
@@ -58,9 +59,12 @@ public class EditViewController extends BorderPane implements Listener {
 	@FXML private GridPane legend;
 	@FXML private ToggleGroup brushes;
 	@FXML private ToggleButton patternButton;
+	@FXML private ToggleButton zoneButton;
+	
 	private InteractiveMap mapView;
 	private Canvas patternCanvas;
 	private Canvas warningCanvas;
+	private Canvas zoneCanvas;
 	
 	private boolean isActive = false;
 	private boolean isFeasible = true;
@@ -119,6 +123,12 @@ public class EditViewController extends BorderPane implements Listener {
 		mapView.setMinSize(width, height);
 		mapView.setMaxSize(width, height);
 		mapPane.getChildren().add(mapView);
+		
+		zoneCanvas = new Canvas(width, height);
+		StackPane.setAlignment(zoneCanvas, Pos.CENTER);
+		mapPane.getChildren().add(zoneCanvas);
+		zoneCanvas.setVisible(false);
+		zoneCanvas.setMouseTransparent(true);
 		
 		patternCanvas = new Canvas(width, height);
 		StackPane.setAlignment(patternCanvas, Pos.CENTER);
@@ -367,6 +377,18 @@ public class EditViewController extends BorderPane implements Listener {
 	}
 	
 	/**
+	 * Toggles the display of zones on top of the map.
+	 * 
+	 */
+	public void toggleZones() {
+		if (zoneButton.isSelected()) {
+			zoneCanvas.setVisible(true);
+		} else {
+			zoneCanvas.setVisible(false);
+		}
+	}
+	
+	/**
 	 * Generates four new mini maps.
 	 * 
 	 * "Why is this public?",  you ask. Because of FXML's method binding.
@@ -444,7 +466,8 @@ public class EditViewController extends BorderPane implements Listener {
 		renderer.drawPatterns(patternCanvas.getGraphicsContext2D(), map.toMatrix(), colourPatterns(map.getPatternFinder().findMicroPatterns()));
 		renderer.drawGraph(patternCanvas.getGraphicsContext2D(), map.toMatrix(), map.getPatternFinder().getPatternGraph());
 		renderer.drawMesoPatterns(patternCanvas.getGraphicsContext2D(), map.toMatrix(), map.getPatternFinder().getMesoPatterns());
-		}
+		//renderer.drawZones(zoneCanvas.getGraphicsContext2D(), map.toMatrix(), map.root, 1,Color.BLACK);
+	}
 	
 	/*
 	 * Event handlers
@@ -455,7 +478,7 @@ public class EditViewController extends BorderPane implements Listener {
 			if (event.getTarget() instanceof ImageView && brush != null) {
 				// Edit the map
 				ImageView tile = (ImageView) event.getTarget();
-				mapView.updateTile(tile, brush);
+				mapView.updateTile(tile, brush, event.getButton() == MouseButton.SECONDARY);
 				mapView.getMap().forceReevaluation();
 				mapIsFeasible(mapView.getMap().isFeasible());
 				redrawPatterns(mapView.getMap());

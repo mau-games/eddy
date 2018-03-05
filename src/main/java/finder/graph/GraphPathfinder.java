@@ -38,10 +38,16 @@ public class GraphPathfinder {
     	List<Node<Pattern>> path = new ArrayList<Node<Pattern>>();
 
         Queue<PathNode> queue = new LinkedList<PathNode>();
-        queue.add(new PathNode(start,null));
+        
+//        if(start != null)
+        	queue.add(new PathNode(start,null));
 
         while(!queue.isEmpty()){
         	PathNode current = queue.remove();
+        	if(current.graphNode == null)
+        	{
+        		System.out.println("HERE");
+        	}
         	current.graphNode.tryVisit();
         	
         	if(current.graphNode == goal){

@@ -81,7 +81,7 @@ public class Treasure extends InventorialPattern {
 	}
 	
 	private static boolean isTreasure(int[][] map, int x, int y) {
-		return map[x][y] == 2;
+		return map[y][x] == 2;
 	}
 	
 	private static double calculateTreasureQuality(Map map){

@@ -28,7 +28,7 @@
     },
     "game": {
         "dimensions": {
-            "m": 11,
+            "m": 12,
             "n": 11
         },
         "doors": 3

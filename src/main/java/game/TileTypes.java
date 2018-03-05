@@ -6,6 +6,7 @@ package game;
  * 
  * @author Alexander Baldwin, Malmö University
  * @author Johan Holmberg, Malmö University
+ * @modified Alberto Alvarez, Malmö University
  */
 public enum TileTypes {
 	FLOOR(0),
@@ -17,6 +18,10 @@ public enum TileTypes {
     NONE(6);
 	
 	private final int value;
+	
+	//Value set by the user for the tile to don't change
+	private boolean inmutable = false;
+	
 	private TileTypes(int value){
 		this.value = value;
 	}
@@ -36,6 +41,16 @@ public enum TileTypes {
 	
 	public boolean isEnemy(){
 		return value == ENEMY.getValue();
+	}
+	
+	public boolean IsInmutable()
+	{
+		return inmutable;
+	}
+	
+	public void SetInmutable(boolean value)
+	{
+		inmutable = value;
 	}
 	
 	/**

@@ -84,7 +84,7 @@ public class Enemy extends InventorialPattern {
 	}
 	
 	private static boolean isEnemy(int[][] map, int x, int y) {
-		return map[x][y] == 3;
+		return map[y][x] == 3;
 	}
 	
 	private static double calculateEnemyQuality(Map map){

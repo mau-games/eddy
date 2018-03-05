@@ -2,6 +2,7 @@ package gui.controls;
 
 import java.util.HashMap;
 
+import game.Game;
 import game.Map;
 import game.TileTypes;
 import gui.utils.MapRenderer;
@@ -71,12 +72,13 @@ public class InteractiveMap extends GridPane {
 	 * 
 	 * @param tile The tile that we want to update.
 	 * @param tileType The new tile type.
+	 * @param bucket If Right-clicked we perform a bucket filling instead of individual
 	 */
-	public synchronized void updateTile(ImageView tile, TileTypes tileType) {
+	public synchronized void updateTile(ImageView tile, TileTypes tileType, boolean bucket) {
 		if (map == null) {
 			return;
 		}
-		
+
 		Point p = coords.get(tile);
 		
 		// Let's discard any attempts at erasing the doors
@@ -86,8 +88,39 @@ public class InteractiveMap extends GridPane {
 			return;
 		}
 		
+		if(bucket)
+		{
+			BucketFill(p, map.getTile(p), tileType);
+			return;
+		}
+		
 		map.setTile(p.getX(), p.getY(), tileType);
 		drawTile(p.getX(), p.getY(), tileType);
+	}
+	
+	/**
+	 * Flood-fill algorithm to change an area of the same target type for another
+	 * @param p Position in the map
+	 * @param target Target TileType that will be replaced
+	 * @param replacement TileType that will replace the target tile
+	 */
+	public void BucketFill(Point p, TileTypes target, TileTypes replacement)
+	{
+		if(p.getX() < 0 || p.getX() > cols -1 || p.getY() < 0 || p.getY() > rows -1)
+			return;
+		
+		TileTypes prev = map.getTile(p);
+		
+		if(prev != target || prev == replacement)
+			return;
+		
+		map.setTile(p.getX(), p.getY(), replacement);
+		drawTile(p.getX(), p.getY(), replacement);
+		
+		BucketFill(new Point(p.getX() + 1, p.getY()), target, replacement);
+		BucketFill(new Point(p.getX() - 1, p.getY()), target, replacement);
+		BucketFill(new Point(p.getX(), p.getY() + 1), target, replacement);
+		BucketFill(new Point(p.getX(), p.getY() - 1), target, replacement);
 	}
 	
 	/**
@@ -128,8 +161,9 @@ public class InteractiveMap extends GridPane {
 		getChildren().clear();
 		coords.clear();
 		
-		for (int i = 0; i < cols; i++) {
-			for (int j = 0; j < rows; j++) {
+		
+		 for (int j = 0; j < rows; j++){
+			 for (int i = 0; i < cols; i++) {
 				ImageView iv = new ImageView(getImage(map.getTile(i, j), scale));
 				GridPane.setFillWidth(iv, true);
 				GridPane.setFillHeight(iv, true);
@@ -160,7 +194,7 @@ public class InteractiveMap extends GridPane {
 	 * @return The image view in the cell.
 	 */
 	private ImageView getCell(int x, int y) {
-		return (ImageView) getChildren().get(x * cols + y);
+		return (ImageView) getChildren().get(y * cols + x);
 	}
 	
 	/**

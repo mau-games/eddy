@@ -11,6 +11,7 @@ import finder.geometry.Point;
 import finder.geometry.Rectangle;
 import finder.patterns.Pattern;
 import finder.patterns.SpacialPattern;
+import game.Game;
 import game.Map;
 import game.TileTypes;
 
@@ -80,13 +81,13 @@ public class Nothing extends SpacialPattern {
 		}
 
 		boolean[][] allocated = map.getAllocationMatrix();
-		boolean[][] visited = new boolean[allocated.length][allocated[0].length];
+		boolean[][] visited = new boolean[map.getRowCount()][map.getColCount()];
 		
 		//Ignore boundary for now
-		for(int i = 0; i < allocated.length; i++)
-			for(int j = 0; j < allocated[0].length; j++){
+		for(int j = 0; j < map.getRowCount(); j++)
+			for(int i = 0; i < map.getColCount(); i++){
 				
-				if(!allocated[i][j] && !IsWall(map,i,j)){
+				if(!allocated[j][i] && !IsWall(map,i,j)){
 					
 					//This tile is not allocated - search for any adjacent ones and put them all in the same Nothing pattern
 					
@@ -95,8 +96,8 @@ public class Nothing extends SpacialPattern {
 					Queue<SearchNode> queue = new LinkedList<SearchNode>();
 			    	SearchNode root = new SearchNode(new Point(i,j), null);
 			    	queue.add(root);
-			    	visited[i][j] = true;
-			    	allocated[i][j] = true;
+			    	visited[j][i] = true;
+			    	allocated[j][i] = true;
 			    	
 			    	while(!queue.isEmpty()){
 			    		SearchNode current = queue.remove();
@@ -105,25 +106,25 @@ public class Nothing extends SpacialPattern {
 			    		int ii = current.position.getX();
 			    		int jj = current.position.getY();
 			    		
-			    		if(ii > 0 && !visited[ii-1][jj] && !allocated[ii-1][jj] && !IsWall(map,ii-1,jj)){
+			    		if(ii > 0 && !visited[jj][ii-1] && !allocated[jj][ii-1] && !IsWall(map,ii-1,jj)){
 			    			queue.add(new SearchNode(new Point(ii-1,jj), null));
-			    			visited[ii-1][jj] = true;
-							allocated[ii - 1][jj] = true;
+			    			visited[jj][ii-1] = true;
+							allocated[jj][ii - 1] = true;
 			    		}
-			    		if(jj > 0 && !visited[ii][jj - 1] && !allocated[ii][jj - 1] && !IsWall(map,ii,jj - 1)){
+			    		if(jj > 0 && !visited[jj - 1][ii] && !allocated[jj - 1][ii] && !IsWall(map,ii,jj - 1)){
 			    			queue.add(new SearchNode(new Point(ii,jj - 1), null));
-			    			visited[ii][jj - 1] = true;
-							allocated[ii][jj - 1] = true;
+			    			visited[jj - 1][ii] = true;
+							allocated[jj - 1][ii] = true;
 			    		}
-			    		if(ii < map.getColCount() - 1 && !visited[ii+1][jj] && !allocated[ii+1][jj] && !IsWall(map,ii+1,jj)){
+			    		if(ii < map.getColCount() - 1 && !visited[jj][ii+1] && !allocated[jj][ii+1] && !IsWall(map,ii+1,jj)){
 			    			queue.add(new SearchNode(new Point(ii+1,jj), null));
-			    			visited[ii+1][jj] = true;
-							allocated[ii + 1][jj] = true;
+			    			visited[jj][ii+1] = true;
+							allocated[jj][ii+1] = true;
 			    		}
-			    		if(jj < map.getRowCount() - 1 && !visited[ii][jj + 1] && !allocated[ii][jj+1] && !IsWall(map,ii,jj+1)){
+			    		if(jj < map.getRowCount() - 1 && !visited[jj + 1][ii] && !allocated[jj + 1][ii] && !IsWall(map,ii,jj+1)){
 			    			queue.add(new SearchNode(new Point(ii,jj + 1), null));
-			    			visited[ii][jj + 1] = true;
-							allocated[ii][jj + 1] = true;
+			    			visited[jj + 1][ii] = true;
+							allocated[jj + 1][ii] = true;
 			    		}
 			    		
 			    	}
@@ -146,7 +147,7 @@ public class Nothing extends SpacialPattern {
 	}
 	
 	private static boolean isDoor(int[][] map, int x, int y) {
-		return map[x][y] == 4;
+		return map[y][x] == 4;
 	}
 	
 	private static boolean IsWall(Map map, int x, int y){

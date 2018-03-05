@@ -36,8 +36,8 @@ public class Game implements Listener{
 	private static final int batchThreads = 8;
 	
 	//TODO: There must be a better way to handle these public static variables
-	public static int sizeM; //Number of columns
-    public static int sizeN; //Number of rows
+	public static int sizeWidth; //Number of columns
+    public static int sizeHeight; //Number of rows
     public static int doorCount;
     public static List<Point> doors = new ArrayList<Point>();
 
@@ -78,19 +78,19 @@ public class Game implements Listener{
     		switch(walls.remove(Util.getNextInt(0, walls.size()))){
     		case 0: //North
     			//doors.add(new Point(Util.getNextInt(1, sizeM - 1), sizeN - 1));
-    			doors.add(new Point(sizeM / 2, sizeN - 1));
+    			doors.add(new Point(sizeWidth / 2, sizeHeight - 1));
     			break;
     		case 1: //East
     			//doors.add(new Point(sizeM - 1, Util.getNextInt(1, sizeN - 1)));
-    			doors.add(new Point(sizeM - 1, sizeN / 2));
+    			doors.add(new Point(sizeWidth - 1, sizeHeight / 2));
     			break;
     		case 2: //South
     			//doors.add(new Point(Util.getNextInt(1, sizeM - 1), 0));
-    			doors.add(new Point(sizeM / 2, 0));
+    			doors.add(new Point(sizeWidth / 2, 0));
     			break;
     		case 3: //West
     			//doors.add(new Point(0, Util.getNextInt(1, sizeN - 1)));
-    			doors.add(new Point(0, sizeN / 2));
+    			doors.add(new Point(0, sizeHeight / 2));
     			break;
     		}
     	}
@@ -103,8 +103,8 @@ public class Game implements Listener{
     }
     
     private void mutateFromMap(Map map, int mutations, MapMutationType mutationType, boolean randomise){
-    	sizeM = map.getColCount();
-    	sizeN = map.getRowCount();
+    	sizeWidth = map.getColCount();
+    	sizeHeight = map.getRowCount();
 
     	for(int i = 0; i < mutations; i++){
     		switch(mutationType){
@@ -283,8 +283,8 @@ public class Game implements Listener{
 	 * Reads and applies the current configuration.
 	 */
 	private void readConfiguration() {  
-        sizeM = config.getDimensionM();
-        sizeN = config.getDimensionN();
+        sizeWidth = config.getDimensionM();
+        sizeHeight = config.getDimensionN();
         doorCount = config.getDoors();
 	}
 	

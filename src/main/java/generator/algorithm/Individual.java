@@ -118,17 +118,23 @@ public class Individual {
 	
 	public Individual(Map map, float mutationProbability){
 		config = map.getConfig();
-		genotype = new Genotype(config,Game.sizeN * Game.sizeM);
+		genotype = new Genotype(config,Game.sizeHeight * Game.sizeWidth);
 		phenotype = null;
 		fitness = 0.0;
 		evaluate = false;
 		this.mutationProbability = mutationProbability;
 		
-		int[] chromosome = new int[Game.sizeN * Game.sizeM];
+		int[] chromosome = new int[Game.sizeHeight * Game.sizeWidth];
 		int[][] mat = map.toMatrix();
-		for(int i = 0; i < mat.length; i++)
-			for(int j = 0; j < mat[0].length;j++)
-				chromosome[j*mat.length + i] = mat[j][i];
+		
+		for(int i = 0; i < Game.sizeHeight; i++)
+		{
+//			System.out.println();
+			for(int j = 0; j < Game.sizeWidth;j++)
+//				System.out.print(mat[j][i]);
+				chromosome[i*Game.sizeWidth + j] = mat[i][j];
+		}
+			
 		genotype.setChromosome(chromosome);
 	}
 	
@@ -173,16 +179,16 @@ public class Individual {
 		children[0] = new Individual(config, new Genotype(config, genotype.getChromosome().clone()), mutationProbability);
 		children[1] = new Individual(config, new Genotype(config, other.getGenotype().getChromosome().clone()), mutationProbability);
 		
-		int lowerBoundM = Util.getNextInt(0, Game.sizeM);
-		int upperBoundM = Util.getNextInt(lowerBoundM, Game.sizeM);
-		int lowerBoundN = Util.getNextInt(0, Game.sizeN);
-		int upperBoundN = Util.getNextInt(lowerBoundN, Game.sizeN);
+		int lowerBoundM = Util.getNextInt(0, Game.sizeWidth);
+		int upperBoundM = Util.getNextInt(lowerBoundM, Game.sizeWidth);
+		int lowerBoundN = Util.getNextInt(0, Game.sizeHeight);
+		int upperBoundN = Util.getNextInt(lowerBoundN, Game.sizeHeight);
 		
 		for(int i = lowerBoundM; i <= upperBoundM; i++){
 			for(int j = lowerBoundN; j <= upperBoundN; j++){
 				//exchange
-				children[0].getGenotype().getChromosome()[j*Game.sizeM + i] = other.getGenotype().getChromosome()[j*Game.sizeM + i];
-				children[1].getGenotype().getChromosome()[j*Game.sizeM + i] = genotype.getChromosome()[j*Game.sizeM + i];
+				children[0].getGenotype().getChromosome()[j*Game.sizeWidth + i] = other.getGenotype().getChromosome()[j*Game.sizeWidth + i];
+				children[1].getGenotype().getChromosome()[j*Game.sizeWidth + i] = genotype.getChromosome()[j*Game.sizeWidth + i];
 			}
 		}
 		
@@ -216,17 +222,17 @@ public class Individual {
 	public void squareMutation(){
 		double wallChance = 0.1;
 		int size = Util.getNextInt(3, 5);
-		int startX = Util.getNextInt(0, Game.sizeM - size);
-		int startY = Util.getNextInt(0, Game.sizeN - size);
+		int startX = Util.getNextInt(0, Game.sizeWidth - size);
+		int startY = Util.getNextInt(0, Game.sizeHeight - size);
 		if(Util.getNextFloat(0, 1) <= wallChance){
 			for(int i = startX; i < startX + size; i++)
 				for(int j = startY; j < startY + size; j++){
-					if(genotype.getChromosome()[j*Game.sizeM + i] < 4) genotype.getChromosome()[j*Game.sizeM + i] = 1;
+					if(genotype.getChromosome()[j*Game.sizeWidth + i] < 4) genotype.getChromosome()[j*Game.sizeWidth + i] = 1;
 				}
 		} else {
 			for(int i = startX; i < startX + size; i++)
 				for(int j = startY; j < startY + size; j++){
-					if(genotype.getChromosome()[j*Game.sizeM + i] < 4) genotype.getChromosome()[j*Game.sizeM + i] = randomFloorTile();
+					if(genotype.getChromosome()[j*Game.sizeWidth + i] < 4) genotype.getChromosome()[j*Game.sizeWidth + i] = randomFloorTile();
 				}
 		}
 	}
@@ -253,16 +259,16 @@ public class Individual {
 	
 	private void mutateRotate180(){
 		int[] chromosomeCopy = genotype.getChromosome().clone();
-		for(int i = 0; i < Game.sizeM; i++)
-			for(int j = 0; j < Game.sizeN; j++)
-				genotype.getChromosome()[j*Game.sizeM + i] = chromosomeCopy[(Game.sizeN - 1 - j)*Game.sizeM + Game.sizeM - 1 - i];
+		for(int i = 0; i < Game.sizeWidth; i++)
+			for(int j = 0; j < Game.sizeHeight; j++)
+				genotype.getChromosome()[j*Game.sizeWidth + i] = chromosomeCopy[(Game.sizeHeight - 1 - j)*Game.sizeWidth + Game.sizeWidth - 1 - i];
 	}
 	
 	private void mutateRotate90(){
 		int[] chromosomeCopy = genotype.getChromosome().clone();
-		for(int i = 0; i < Game.sizeM; i++)
-			for(int j = 0; j < Game.sizeN; j++)
-				genotype.getChromosome()[j*Game.sizeM + i] = chromosomeCopy[(Game.sizeN - 1 - i)*Game.sizeM + Game.sizeM - 1 - j];
+		for(int i = 0; i < Game.sizeWidth; i++)
+			for(int j = 0; j < Game.sizeHeight; j++)
+				genotype.getChromosome()[j*Game.sizeWidth + i] = chromosomeCopy[(Game.sizeHeight - 1 - i)*Game.sizeWidth + Game.sizeWidth - 1 - j];
 	}
 	
 	

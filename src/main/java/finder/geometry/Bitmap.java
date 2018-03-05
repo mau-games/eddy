@@ -1,5 +1,7 @@
 package finder.geometry;
 
+import java.util.ArrayList;
+
 public class Bitmap extends Polygon {
 	@Override
 	public double getArea() {
@@ -21,6 +23,11 @@ public class Bitmap extends Polygon {
 	 */
 	public boolean contains(Point p) {
 		return points.contains(p);
+	}
+	
+	public void AddAllPoints(ArrayList<Point> otherPoints)
+	{
+		this.points.addAll(otherPoints);
 	}
 	
 }
