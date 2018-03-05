@@ -230,8 +230,8 @@ public class MapRenderer implements Listener {
 			Map<Pattern, Color> patterns) {
 		
 		//TODO: The following calculation should probably be split out into a method
-		int width = Game.sizeWidth;
-		int height = Game.sizeHeight;
+		int width = matrix[0].length;
+		int height = matrix.length;
 		double pWidth = ctx.getCanvas().getWidth() / (double)Math.max(width, height);
 		patternOpacity = config.getPatternOpacity();
 				
@@ -259,8 +259,8 @@ public class MapRenderer implements Listener {
 			Color c) {
 		
 		//TODO: The following calculation should probably be split out into a method
-		int width = Game.sizeWidth;
-		int height = Game.sizeHeight;
+		int width = matrix[0].length;
+		int height = matrix.length;
 		double pWidth = ctx.getCanvas().getWidth() / (double)Math.max(width, height);
 		patternOpacity = config.getPatternOpacity();
 		
@@ -278,8 +278,8 @@ public class MapRenderer implements Listener {
 	
 	public synchronized void drawGraph(GraphicsContext ctx, int[][] matrix, Graph<Pattern> patternGraph){
 
-		int width = Game.sizeWidth;
-		int height = Game.sizeHeight;
+		int width = matrix[0].length;
+		int height = matrix.length;
 		double pWidth = ctx.getCanvas().getWidth() / (double)Math.max(width, height);
 		
 		patternGraph.resetGraph();
@@ -350,8 +350,8 @@ public class MapRenderer implements Listener {
 	}
 	
 	public void drawMesoPatterns(GraphicsContext ctx, int[][] matrix, List<CompositePattern> mesopatterns){
-		int width = Game.sizeWidth;
-		int height = Game.sizeHeight;
+		int width = matrix[0].length;
+		int height = matrix.length;
 		double pWidth = ctx.getCanvas().getWidth() / (double)Math.max(width, height);
 		
 		for(CompositePattern p : mesopatterns){

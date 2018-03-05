@@ -176,18 +176,18 @@ public class SimpleMapGUIController  implements Initializable, Listener
 				}
 			}
 		}
+//		
+//		for(int y = 0; y < Game.sizeHeight; y++)
+//		{
+//			for(int x = 0; x < Game.sizeWidth; x++)
+//			{
+//				System.out.print(ex[y * Game.sizeWidth + x] );
+//			}
+//			
+//			System.out.println();
+//		}
 		
-		for(int y = 0; y < Game.sizeHeight; y++)
-		{
-			for(int x = 0; x < Game.sizeWidth; x++)
-			{
-				System.out.print(ex[y * Game.sizeWidth + x] );
-			}
-			
-			System.out.println();
-		}
-		
-		System.out.println();
+//		System.out.println();
 		currentMap = new Map(basicConfig, ex, Game.sizeHeight, Game.sizeWidth, Game.doorCount);
 		RenderMap(currentMap);
 	}
@@ -210,7 +210,7 @@ public class SimpleMapGUIController  implements Initializable, Listener
 				ImageView iv = new ImageView(getImage(map.getTile(i, j), scale));
 				GridPane.setFillWidth(iv, true);
 				GridPane.setFillHeight(iv, true);
-				mapPane.add(iv, i,j); //TODO: HERE IS WHERE THE MISTAKE WAS MADE WHEN DRAWING!!!
+				mapPane.add(iv, i,j);
 //				coords.put(iv, new Point(i, j));
 			}
 		}

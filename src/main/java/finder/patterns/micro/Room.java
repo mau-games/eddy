@@ -279,8 +279,8 @@ public class Room extends SpacialPattern {
 			}
 		}
 		
-		for (y = 0; y < Game.sizeHeight; y++) {
-			for (x = 0; x <  Game.sizeWidth; x++){
+		for (y = 0; y < map.length; y++) {
+			for (x = 0; x <   map[0].length; x++){
 				if (map[y][x] == room) {
 					polygon.addPoint(new Point(x, y));
 					allocated[y][x] = true;
@@ -310,14 +310,14 @@ public class Room extends SpacialPattern {
 		int x = 0, y = 0;
 		int size = 0;
 		
-		for (y = 0; y < Game.sizeHeight; y++){
-			for (x = 0; x < Game.sizeWidth; x++)  {
+		for (y = 0; y <  map.length; y++){
+			for (x = 0; x <  map[0].length; x++)  {
 				if (map[y][x] == room) {
 					p = new Point(x, y);
 					allocated[y][x] = true;
 					++size;
 					if (!hasEightNeighbours(map, p, room)) {
-						if (x + 1 < Game.sizeWidth && !allocated[y][x + 1]) {
+						if (x + 1 <  map[0].length && !allocated[y][x + 1]) {
 							pq.addLast(new Point(x + 1, y));
 						}
 						if (y - 1 >= 0 && !allocated[y - 1][x]) {
@@ -326,7 +326,7 @@ public class Room extends SpacialPattern {
 						if (x - 1 >= 0 && !allocated[y][x - 1]) {
 							pq.addLast(new Point(x - 1, y));
 						}
-						if (y + 1 < Game.sizeHeight && !allocated[y + 1][x]) {
+						if (y + 1 < map.length && !allocated[y + 1][x]) {
 							pq.addLast(new Point(x, y + 1));
 						}
 					}
@@ -342,7 +342,7 @@ public class Room extends SpacialPattern {
 			if (map[y][x] == 0 && hasThreeNeighbours(map, p, room)) {
 				map[y][x] = room;
 				polygon.addPoint(p);
-				if (x + 1 < Game.sizeWidth && !allocated[y][x + 1]) {
+				if (x + 1 <  map[0].length && !allocated[y][x + 1]) {
 					pq.addLast(new Point(x + 1, y));
 				}
 				if (y - 1 >= 0 && !allocated[y - 1][x]) {
@@ -351,7 +351,7 @@ public class Room extends SpacialPattern {
 				if (x - 1 >= 0 && !allocated[y][x - 1]) {
 					pq.addLast(new Point(x - 1, y));
 				}
-				if (y + 1 < Game.sizeHeight && !allocated[y + 1][x]) {
+				if (y + 1 <  map.length && !allocated[y + 1][x]) {
 					pq.addLast(new Point(x, y + 1));
 				}
 			}
@@ -378,9 +378,9 @@ public class Room extends SpacialPattern {
 		int y = p.getY();
 
 		for (int i = x - 1; i <= x + 1; i++) {
-			if (i >= 0 && i < Game.sizeWidth) {
+			if (i >= 0 && i <  map[0].length) {
 				for (int j = y - 1; j <= y + 1; j++) {
-					if (j >= 0 && j < Game.sizeHeight && map[j][i] == room) {
+					if (j >= 0 && j <  map.length && map[j][i] == room) {
 						neighbours++;
 					}
 				}

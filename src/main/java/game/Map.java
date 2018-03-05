@@ -158,7 +158,7 @@ public class Map {
 		wallCount = 0;
 		this.doorCount = 0;
 		
-		matrix = new int[height][width]; //Problem here
+		matrix = new int[height][width];
 		allocated = new boolean[height][width];
         
 	}
@@ -391,7 +391,7 @@ public class Map {
 	 */
 	public int getNonWallTileCount()
     {
-        return (Game.sizeWidth * Game.sizeHeight) - wallCount;
+        return (width * height) - wallCount;
     }
 	
 	/**
