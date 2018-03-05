@@ -161,8 +161,8 @@ public class InteractiveGUIController implements Initializable, Listener {
 	 */
 
 	public void startNewFlow() {
-		router.postEvent(new Start(6));
-		initSuggestionsView();
+//		router.postEvent(new Start(6));
+		initWorldView();
 	}
 
 	public void goToWorldView() {
