@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.lang.*?>
+<?import javafx.scene.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
+<?import javafx.scene.textfield.*?>
+<?import java.lang.*?>
+<?import java.net.*?>
+<?import java.util.*?>
+<?import javafx.collections.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.image.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.paint.*?>
+<?scenebuilder-stylesheet fruitcombo.css?>
+
+<BorderPane fx:controller="gui.SimpleMapGUIController" xmlns:fx="http://javafx.com/fxml" 
+    prefHeight="200" prefWidth="320">
+	<left>
+		<VBox>
+			<ComboBox fx:id="DisplayCombo" onAction="#OnChange" layoutX="15.0" layoutY="33.0" prefWidth="90.0" promptText="Display">
+		      <items>
+		        <FXCollections fx:factory="observableArrayList">
+		          <String fx:value="Example" />
+		          <String fx:value="RndExample" />
+		          <String fx:value="Grammar" />
+		          <String fx:value="evo" />
+		        </FXCollections>
+		      </items>
+			</ComboBox>
+			<ToggleButton fx:id="patternButton" contentDisplay="TOP" mnemonicParsing="false" wrapText="true" textAlignment="CENTER" text="Show patterns" onAction="#togglePatterns">
+		    </ToggleButton>
+		    <ToggleButton fx:id="zoneButton" contentDisplay="TOP" mnemonicParsing="false" wrapText="true" textAlignment="CENTER" text="Show zones" onAction="#toggleZones">
+		    </ToggleButton>
+		     <Slider fx:id="zoneSlider" blockIncrement="1.0" layoutX="26.0" layoutY="32.0" majorTickUnit="1.0" max="3" minorTickCount="0" snapToTicks="true" showTickLabels="true" showTickMarks="true"/>
+	    </VBox>
+    </left>
+	<center>
+       <StackPane alignment="CENTER" fx:id="mainPane" />
+	</center>
+</BorderPane>
