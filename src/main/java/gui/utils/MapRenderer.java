@@ -265,7 +265,6 @@ public class MapRenderer implements Listener {
 		patternOpacity = config.getPatternOpacity();
 		
 		ArrayList<ZoneNode> children = rootZone.traverseToLayer(layer);
-		System.out.println(children.size());
 		
 		for(ZoneNode zNode : children)
 		{

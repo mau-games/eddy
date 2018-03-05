@@ -29,6 +29,7 @@ import javafx.scene.Cursor;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.Label;
+import javafx.scene.control.Slider;
 import javafx.scene.control.ToggleButton;
 import javafx.scene.control.ToggleGroup;
 import javafx.scene.image.Image;
@@ -60,6 +61,7 @@ public class EditViewController extends BorderPane implements Listener {
 	@FXML private ToggleGroup brushes;
 	@FXML private ToggleButton patternButton;
 	@FXML private ToggleButton zoneButton;
+	@FXML private Slider zoneSlider;
 	
 	private InteractiveMap mapView;
 	private Canvas patternCanvas;
@@ -99,6 +101,10 @@ public class EditViewController extends BorderPane implements Listener {
 		router.registerListener(this, new MapUpdate(null));
 		
 		init();
+		
+		zoneSlider.valueProperty().addListener((obs, oldval, newVal) -> { 
+			redrawPatterns(mapView.getMap());
+			});
 	}
 	
 	/**
@@ -462,11 +468,14 @@ public class EditViewController extends BorderPane implements Listener {
 	 * @param container
 	 */
 	private synchronized void redrawPatterns(Map map) {
+		//Change those 2 width and height hardcoded values (420,420)
 		patternCanvas.getGraphicsContext2D().clearRect(0, 0, 420, 420);
+		zoneCanvas.getGraphicsContext2D().clearRect(0, 0, 420, 420);
+		
 		renderer.drawPatterns(patternCanvas.getGraphicsContext2D(), map.toMatrix(), colourPatterns(map.getPatternFinder().findMicroPatterns()));
 		renderer.drawGraph(patternCanvas.getGraphicsContext2D(), map.toMatrix(), map.getPatternFinder().getPatternGraph());
 		renderer.drawMesoPatterns(patternCanvas.getGraphicsContext2D(), map.toMatrix(), map.getPatternFinder().getMesoPatterns());
-		//renderer.drawZones(zoneCanvas.getGraphicsContext2D(), map.toMatrix(), map.root, 1,Color.BLACK);
+		renderer.drawZones(zoneCanvas.getGraphicsContext2D(), map.toMatrix(), map.root, (int)(zoneSlider.getValue()),Color.BLACK);
 	}
 	
 	/*

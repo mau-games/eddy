@@ -129,6 +129,10 @@ public class Map {
 		}
 		markDoors();
 		finder = new PatternFinder(this);
+		
+		//Update the zones - It could be more efficient by only updating the affected zone
+		//(As we already have separated the map)
+		root = new ZoneNode(null, this, getColCount(), getRowCount());
 	}
 	
 	public GeneratorConfig getConfig(){
@@ -237,6 +241,7 @@ public class Map {
 	 */
 	public void setTile(int x, int y, TileTypes tile) {
 		matrix[y][x] = tile.getValue();
+		tileMap[y * width + x] = tile; //update also the tile in the tilemap
 	}
 	
 	/**
