@@ -4,6 +4,7 @@ import java.util.HashMap;
 
 import game.Game;
 import game.Map;
+import game.Tile;
 import game.TileTypes;
 import gui.utils.MapRenderer;
 import javafx.scene.Group;
@@ -30,18 +31,12 @@ public class InteractiveMap extends GridPane {
 	private final HashMap<ImageView, Point> coords = new HashMap<ImageView, Point>();
 	private final static HashMap<TileTypes, Image> images = new HashMap<TileTypes, Image>();
 	
-	private GridPane immutableGrid;
-	
 	/**
 	 * Creates an empty instance of InteractiveMap.
 	 */
 	public InteractiveMap() {
 		super();
 		
-//		immutableGrid = new GridPane();
-//		immutableGrid.setMinSize(420, 420);
-//		immutableGrid.setMaxSize(420, 420);
-//		this.getChildren().add(immutableGrid);
 	}
 	
 	/**
@@ -89,23 +84,22 @@ public class InteractiveMap extends GridPane {
 		}
 
 		Point p = coords.get(tile);
+		Tile currentTile = map.getTile(p);
 		
 		// Let's discard any attempts at erasing the doors
 		if (p == null
-				|| map.getTile(p) == TileTypes.DOORENTER
-				|| map.getTile(p) == TileTypes.DOOR) {
+				|| currentTile.GetType() == TileTypes.DOORENTER
+				|| currentTile.GetType() == TileTypes.DOOR) {
 			return;
 		}
-		
-		TileTypes tt= map.getTile(p);
-		
+
 		if(bucket)
 		{
 			//BucketFill(p, map.getTile(p), tileType);
 			
-			tt.SetInmutable(true);
-			map.setTile(p.getX(), p.getY(), tt);
-			drawTile(p.getX(), p.getY(), tt);
+			currentTile.ToggleImmutable();
+//			map.setTile(p.getX(), p.getY(), currentTile.GetType());
+//			drawTile(p.getX(), p.getY(), currentTile.GetType());
 			return;
 		}
 		
@@ -124,7 +118,7 @@ public class InteractiveMap extends GridPane {
 		if(p.getX() < 0 || p.getX() > cols -1 || p.getY() < 0 || p.getY() > rows -1)
 			return;
 		
-		TileTypes prev = map.getTile(p);
+		TileTypes prev = map.getTile(p).GetType();
 		
 		if(prev != target || prev == replacement)
 			return;
@@ -179,19 +173,11 @@ public class InteractiveMap extends GridPane {
 		
 		 for (int j = 0; j < rows; j++){
 			 for (int i = 0; i < cols; i++) {
-				ImageView iv = new ImageView(getImage(map.getTile(i, j), scale));
+				ImageView iv = new ImageView(getImage(map.getTile(i, j).GetType(), scale));
 				GridPane.setFillWidth(iv, true);
 				GridPane.setFillHeight(iv, true);
 				add(iv, i, j);
 				coords.put(iv, new Point(i, j));
-				
-//				immutableGrid.add(new ImageView(), i,j);
-				
-//				if(map.getTile(i, j).IsInmutable())
-//				{
-//					ImageView lockView = new ImageView(renderer.GetLock(scale, scale));
-//					add(lockView, i,j);
-//				}
 			}
 		}
 	}
@@ -259,11 +245,6 @@ public class InteractiveMap extends GridPane {
 	 */
 	private void drawTile(int x, int y, TileTypes tile) 
 	{
-//		getCell(x, y).setImage(renderer.renderTile(TileTypes.TREASURE, scale, scale));
 		getCell(x, y).setImage(getImage(tile, scale));
-//		if(tile.IsInmutable())
-//		{
-//			((ImageView)immutableGrid.getChildren().get(y * cols + x)).setImage(renderer.GetLock(scale, scale));
-//		}
 	}
 }

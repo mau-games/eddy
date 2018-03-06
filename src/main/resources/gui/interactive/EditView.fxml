@@ -78,7 +78,7 @@
                   </Insets>
               </VBox.margin>
             </ToggleButton>
-            <Slider fx:id="zoneSlider" blockIncrement="1.0" layoutX="26.0" layoutY="32.0" majorTickUnit="1.0" max="3" minorTickCount="0" snapToTicks="true" showTickLabels="true" showTickMarks="true">
+            <Slider fx:id="zoneSlider" prefWidth="1" blockIncrement="1.0" layoutX="26.0" layoutY="32.0" majorTickUnit="1.0" max="2" minorTickCount="0" snapToTicks="true" showTickLabels="true" showTickMarks="true">
               <VBox.margin>
                   <Insets>
                     <top>20</top>

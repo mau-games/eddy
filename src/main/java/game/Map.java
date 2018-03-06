@@ -42,6 +42,7 @@ import generator.config.GeneratorConfig;
  */
 public class Map {
 	private TileTypes[] tileMap; //The map in tiletypes.
+	private Tile[] TileMap; //This HAVE to be the real tilemap
 	private int[][] matrix; // The actual map
 	private boolean[][] allocated; // A map keeps track of allocated tiles
 	private int width;			// The number of columns in a map
@@ -76,7 +77,19 @@ public class Map {
 	public Map(GeneratorConfig config, TileTypes[] types, int rows, int cols, int doorCount) {
 		init(rows, cols);
 		
-		this.tileMap = types;
+		//TODO: Pass this to another place
+		TileMap = new Tile[rows * cols];
+		
+		for (int j = 0; j < height; j++) 
+		{
+			for (int i = 0; i < width; i++) 
+			{
+				TileMap[j * width + i] = new Tile(i , j, types[j * width + i]);
+			}
+			
+		}
+		
+		//this.tileMap = types;
 		this.config = config;
 		this.doorCount = Game.doors.size();
 		
@@ -222,13 +235,13 @@ public class Map {
 	public List<Point> getAvailableCoords(Point position){
 		List<Point> availableCoords = new ArrayList<Point>();
 		
-		if(position.getX() > 0 && getTile((int)position.getX() - 1, (int)position.getY()) != TileTypes.WALL)
+		if(position.getX() > 0 && getTile((int)position.getX() - 1, (int)position.getY()).GetType() != TileTypes.WALL)
 			availableCoords.add(new Point(position.getX()-1,position.getY()));
-		if(position.getX() < width - 1 && getTile((int)position.getX() + 1, (int)position.getY()) != TileTypes.WALL)
+		if(position.getX() < width - 1 && getTile((int)position.getX() + 1, (int)position.getY()).GetType() != TileTypes.WALL)
 			availableCoords.add(new Point(position.getX()+1,position.getY()));
-		if(position.getY() > 0 && getTile((int)position.getX(), (int)position.getY() - 1) != TileTypes.WALL)
+		if(position.getY() > 0 && getTile((int)position.getX(), (int)position.getY() - 1).GetType() != TileTypes.WALL)
 			availableCoords.add(new Point(position.getX(),position.getY() - 1));
-		if(position.getY() < height - 1 && getTile((int)position.getX(), (int)position.getY() + 1) != TileTypes.WALL)
+		if(position.getY() < height - 1 && getTile((int)position.getX(), (int)position.getY() + 1).GetType() != TileTypes.WALL)
 			availableCoords.add(new Point(position.getX(),position.getY() + 1));
 		
 		return availableCoords;
@@ -244,7 +257,7 @@ public class Map {
 	 */
 	public void setTile(int x, int y, TileTypes tile) {
 		matrix[y][x] = tile.getValue();
-		tileMap[y * width + x] = tile; //update also the tile in the tilemap
+		TileMap[y * width + x].SetType(tile);
 	}
 	
 	/**
@@ -254,9 +267,9 @@ public class Map {
 	 * @param y The Y coordinate.
 	 * @return A tile.
 	 */
-	public TileTypes getTile(int x, int y) {
+	public Tile getTile(int x, int y) {
 		
-		return tileMap[y * width + x];
+		return TileMap[y * width + x];
 
 //		return TileTypes.toTileType(matrix[y][x]);
 	}
@@ -267,12 +280,11 @@ public class Map {
 	 * @param point The position.
 	 * @return A tile.
 	 */
-	public TileTypes getTile(Point point){
+	public Tile getTile(Point point){
 		if (point == null) {
 			return null;
 		}
-		return tileMap[point.getY() * width + point.getX()];
-//		return TileTypes.toTileType(matrix[point.getY()][point.getX()]);
+		return TileMap[point.getY() * width + point.getX()];
 	}
 	
 	/**
@@ -578,9 +590,9 @@ public class Map {
     	return finder;
     }
     
-    public TileTypes[] getTileBasedMap()
+    public Tile[] getTileBasedMap()
     {
-    	return tileMap;
+    	return TileMap;
     }
     
 	/**
@@ -806,11 +818,13 @@ public class Map {
     	while(!queue.isEmpty()){
     		Node current = queue.remove();
     		visited.add(current);
-    		if(getTile(current.position) == TileTypes.DOOR)
+    		Tile currentTile = getTile(current.position);
+    		
+    		if(currentTile.GetType() == TileTypes.DOOR)
     			doors++;
-    		else if (getTile(current.position).isEnemy())
+    		else if (currentTile.GetType().isEnemy())
     			enemies++;
-    		else if (getTile(current.position).isTreasure())
+    		else if (currentTile.GetType().isTreasure())
     			treasure++;
     		
     		List<Point> children = getAvailableCoords(current.position);

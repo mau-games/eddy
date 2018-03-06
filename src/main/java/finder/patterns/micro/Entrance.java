@@ -134,7 +134,7 @@ public class Entrance extends InventorialPattern {
     	while(!queue.isEmpty()){
     		Node current = queue.remove();
     		visited.add(current);
-    		if(map.getTile(current.position).isEnemy())
+    		if(map.getTile(current.position).GetType().isEnemy())
     			break;
     		
     		List<util.Point> children = map.getAvailableCoords(current.position);
@@ -176,7 +176,7 @@ public class Entrance extends InventorialPattern {
     	while(!queue.isEmpty()){
     		Node current = queue.remove();
     		visited.add(current);
-    		if(map.getTile(current.position).isTreasure())
+    		if(map.getTile(current.position).GetType().isTreasure())
     			break;
     		
     		List<util.Point> children = map.getAvailableCoords(current.position);
@@ -224,7 +224,7 @@ public class Entrance extends InventorialPattern {
 	        	while(!queue.isEmpty()){
 	        		Node current = queue.remove();
 	        		visited.add(current);
-	        		if(map.getTile(current.position).isEnemy()){
+	        		if(map.getTile(current.position).GetType().isEnemy()){
 	        			closestEnemy = current.position;
 	        			break;
 	        		}

@@ -509,11 +509,13 @@ public class EditViewController extends BorderPane implements Listener {
 	
 	private void redrawLocks(Map map)
 	{
+		lockCanvas.getGraphicsContext2D().clearRect(0, 0, 420, 420);
+		
 		for(int i = 0; i < map.getRowCount(); ++i)
 		{
 			for(int j = 0; j < map.getColCount(); ++j)
 			{
-				if(map.getTile(j, i).IsInmutable())
+				if(map.getTile(j, i).GetImmutable())
 				{
 					lockCanvas.getGraphicsContext2D().drawImage(renderer.GetLock(mapView.scale * 0.75f, mapView.scale * 0.75f), j * mapView.scale, i * mapView.scale);
 				}

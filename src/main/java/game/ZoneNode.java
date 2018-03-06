@@ -59,37 +59,8 @@ public class ZoneNode
 		this.width = w;
 		this.height = h;
 		this.children = new ArrayList<ZoneNode>();
-		
-//		System.out.println(map.toString());
-//		
-//		for(Point p : this.section.getPoints())
-//		{
-//			System.out.print(map.toMatrix()[p.getY()][p.getX()]);
-//		}
-//		System.out.println();
-//		
-//		
-//		
-//		for (int j = 0; j < map.toMatrix().length; j++){
-//			 for (int i = 0; i < map.toMatrix()[0].length; i++){
-//				if(section.contains(new Point(i, j)))
-//				{
-//					System.out.print(9);
-//				}
-//				else
-//				{
-//					System.out.print(map.toMatrix()[j][i]);
-//				}
-//
-//			}
-//			System.out.println();
-//		}
-//		System.out.println();
 
-		
 		Validation();
-//		if(n > 0)
-//			RectangleDivision(n);
 		
 		//Maybe divide or expand explicit calls instead
 		if(this.parent == null ) //It is the root of a tree
@@ -148,7 +119,7 @@ public class ZoneNode
 	private void Expand()
 	{
 		List<Point> c = section.getPoints();
-		TileTypes[] tileMap = refMap.getTileBasedMap();
+		Tile[] tileMap = refMap.getTileBasedMap();
 		
 		//iterative - send next point
 		int index = 0;
@@ -171,11 +142,11 @@ public class ZoneNode
 		}
 	}
 	
-	private boolean CheckPointsValidity(List<Point> currentPoints, TileTypes[] tileMap)
+	private boolean CheckPointsValidity(List<Point> currentPoints, Tile[] tileMap)
 	{
 		for(Point p : currentPoints)
 		{
-			if(tileMap[p.getY() * refMap.getColCount() + p.getX()] == TileTypes.FLOOR)
+			if(!tileMap[p.getY() * refMap.getColCount() + p.getX()].GetImmutable())
 			{
 				return true;
 			}
@@ -184,14 +155,12 @@ public class ZoneNode
 		return false;
 	}
 	
-	private ArrayList<Point> BucketFill(Point p, ArrayList<Point> currentPoints, TileTypes[] tileMap, List<Point> missingPoints)
+	private ArrayList<Point> BucketFill(Point p, ArrayList<Point> currentPoints, Tile[] tileMap, List<Point> missingPoints)
 	{	
 		if(p.getX() < 0 || p.getX() > refMap.getColCount() -1 || p.getY() < 0 || p.getY() > refMap.getRowCount() -1)
 			return currentPoints;
-		
-		TileTypes tile = tileMap[p.getY() * refMap.getColCount() + p.getX()];
-		
-		if(tile != TileTypes.FLOOR) //Testing
+
+		if(tileMap[p.getY() * refMap.getColCount() + p.getX()].GetImmutable())
 		{
 			return currentPoints;
 		}
@@ -251,19 +220,13 @@ public class ZoneNode
 	 */
 	private boolean Validation()
 	{
-		TileTypes[] tileMap = refMap.getTileBasedMap();
+		Tile[] tileMap = refMap.getTileBasedMap();
 		List<Point> points = section.getPoints();
 		
 		for(Point p : points)
-		{
-			//THIS IS THE CORRECT VALIDATION FORM
-//			if(tileMap[p.getY() * width + p.getX()].IsInmutable())
-//			{
-//				valid = false;
-//				return false;
-//			}
-			
-			if(tileMap[p.getY() * refMap.getColCount() + p.getX()] == TileTypes.WALL) {
+		{	
+			if(tileMap[p.getY() * refMap.getColCount() + p.getX()].GetImmutable())
+			{
 				valid = false;
 				return false;
 			}

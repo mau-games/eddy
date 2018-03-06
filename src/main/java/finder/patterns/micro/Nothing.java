@@ -151,7 +151,7 @@ public class Nothing extends SpacialPattern {
 	}
 	
 	private static boolean IsWall(Map map, int x, int y){
-		return x < 0 || y < 0 || x == map.getColCount() || y == map.getRowCount() || map.getTile(x,y) == TileTypes.WALL;
+		return x < 0 || y < 0 || x == map.getColCount() || y == map.getRowCount() || map.getTile(x,y).GetType() == TileTypes.WALL;
 	}
 	
 }

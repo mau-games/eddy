@@ -208,7 +208,7 @@ public class SimpleMapGUIController  implements Initializable, Listener
 		
 		for (int j = 0; j < rows; j++){ //y
 			for (int i = 0; i < cols; i++)  { //x
-				ImageView iv = new ImageView(getImage(map.getTile(i, j), scale));
+				ImageView iv = new ImageView(getImage(map.getTile(i, j).GetType(), scale));
 				GridPane.setFillWidth(iv, true);
 				GridPane.setFillHeight(iv, true);
 				mapPane.add(iv, i,j);

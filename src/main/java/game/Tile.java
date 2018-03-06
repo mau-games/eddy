@@ -13,6 +13,11 @@ public class Tile
 		return m_type;
 	}
 	
+	public void SetType(TileTypes type)
+	{
+		m_type = type;
+	}
+	
 	public Point GetPosition()
 	{
 		return position;

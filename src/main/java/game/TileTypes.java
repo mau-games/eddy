@@ -19,9 +19,6 @@ public enum TileTypes {
 	
 	private final int value;
 	
-	//Value set by the user for the tile to don't change
-	private boolean inmutable = false;
-	
 	private TileTypes(int value){
 		this.value = value;
 	}
@@ -42,17 +39,7 @@ public enum TileTypes {
 	public boolean isEnemy(){
 		return value == ENEMY.getValue();
 	}
-	
-	public boolean IsInmutable()
-	{
-		return inmutable;
-	}
-	
-	public void SetInmutable(boolean value)
-	{
-		inmutable = value;
-	}
-	
+
 	/**
 	 * Creates a TileType out of an integer value.
 	 * 

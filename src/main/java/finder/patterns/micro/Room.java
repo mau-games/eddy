@@ -144,7 +144,7 @@ public class Room extends SpacialPattern {
 		
 		for (int i = 0; i < map.getRowCount(); i++) {
 			for (int j = 0; j < map.getColCount(); j++) {
-				if (map.getTile(p1.getX() + j, p1.getY() + i) == TileTypes.WALL) {
+				if (map.getTile(p1.getX() + j, p1.getY() + i).GetType() == TileTypes.WALL) {
 					matrix[i][j] = -1;
 				} else {
 					matrix[i][j] = 0;
