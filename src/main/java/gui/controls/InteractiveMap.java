@@ -6,6 +6,8 @@ import game.Game;
 import game.Map;
 import game.TileTypes;
 import gui.utils.MapRenderer;
+import javafx.scene.Group;
+import javafx.scene.effect.BlendMode;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.GridPane;
@@ -15,23 +17,31 @@ import util.Point;
  * InteractiveMap describes a control that may be used to edit maps.
  * 
  * @author Johan Holmberg, Malmö University
+ * @modified Alberto Alvarez, Malmö University
  */
 public class InteractiveMap extends GridPane {
 	
 	private Map map;
 	private int cols = 0;
 	private int rows = 0;
-	private double scale = 0;
+	public double scale = 0;
 	
 	private final MapRenderer renderer = MapRenderer.getInstance();
 	private final HashMap<ImageView, Point> coords = new HashMap<ImageView, Point>();
 	private final static HashMap<TileTypes, Image> images = new HashMap<TileTypes, Image>();
+	
+	private GridPane immutableGrid;
 	
 	/**
 	 * Creates an empty instance of InteractiveMap.
 	 */
 	public InteractiveMap() {
 		super();
+		
+//		immutableGrid = new GridPane();
+//		immutableGrid.setMinSize(420, 420);
+//		immutableGrid.setMaxSize(420, 420);
+//		this.getChildren().add(immutableGrid);
 	}
 	
 	/**
@@ -42,7 +52,6 @@ public class InteractiveMap extends GridPane {
 	 */
 	public InteractiveMap(Map map) {
 		super();
-
 		updateMap(map);
 	}
 	
@@ -88,9 +97,15 @@ public class InteractiveMap extends GridPane {
 			return;
 		}
 		
+		TileTypes tt= map.getTile(p);
+		
 		if(bucket)
 		{
-			BucketFill(p, map.getTile(p), tileType);
+			//BucketFill(p, map.getTile(p), tileType);
+			
+			tt.SetInmutable(true);
+			map.setTile(p.getX(), p.getY(), tt);
+			drawTile(p.getX(), p.getY(), tt);
 			return;
 		}
 		
@@ -104,7 +119,7 @@ public class InteractiveMap extends GridPane {
 	 * @param target Target TileType that will be replaced
 	 * @param replacement TileType that will replace the target tile
 	 */
-	public void BucketFill(Point p, TileTypes target, TileTypes replacement)
+	private void BucketFill(Point p, TileTypes target, TileTypes replacement)
 	{
 		if(p.getX() < 0 || p.getX() > cols -1 || p.getY() < 0 || p.getY() > rows -1)
 			return;
@@ -169,11 +184,49 @@ public class InteractiveMap extends GridPane {
 				GridPane.setFillHeight(iv, true);
 				add(iv, i, j);
 				coords.put(iv, new Point(i, j));
+				
+//				immutableGrid.add(new ImageView(), i,j);
+				
+//				if(map.getTile(i, j).IsInmutable())
+//				{
+//					ImageView lockView = new ImageView(renderer.GetLock(scale, scale));
+//					add(lockView, i,j);
+//				}
 			}
 		}
 	}
 	
-	private Image getImage(TileTypes type, double size) {
+//	private Group getImageView(TileTypes type, double size) 
+//	{
+//		Image basicTile = images.get(type);
+//		ImageView basicIV;
+//		
+//		if (basicTile != null) 
+//		{
+//			basicIV = new ImageView(basicTile);
+//		}
+//		else
+//		{
+//			basicTile = renderer.renderTile(type, size, size);
+//			images.put(type, basicTile);
+//			basicIV = new ImageView(basicTile);
+//		}
+//		
+//		if(type.IsInmutable())
+//		{
+//			ImageView lockIV = new ImageView(renderer.GetLock(size, size));
+//			lockIV.setBlendMode(BlendMode.OVERLAY);
+//			Group blend = new Group(basicIV, lockIV);
+//			return blend;
+//		}
+//		else
+//		{
+//			return basicIV;
+//		}
+//	}
+	
+	private Image getImage(TileTypes type, double size) 
+	{
 		Image tile = images.get(type);
 		
 		if (tile != null) {
@@ -204,7 +257,13 @@ public class InteractiveMap extends GridPane {
 	 * @param y The Y coordinate.
 	 * @param tile The type of tile to draw.
 	 */
-	private void drawTile(int x, int y, TileTypes tile) {
+	private void drawTile(int x, int y, TileTypes tile) 
+	{
+//		getCell(x, y).setImage(renderer.renderTile(TileTypes.TREASURE, scale, scale));
 		getCell(x, y).setImage(getImage(tile, scale));
+//		if(tile.IsInmutable())
+//		{
+//			((ImageView)immutableGrid.getChildren().get(y * cols + x)).setImage(renderer.GetLock(scale, scale));
+//		}
 	}
 }

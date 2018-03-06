@@ -198,12 +198,15 @@ public class Map {
             
             if(i == 0)
             {
-            	matrix[Game.doors.get(i).getY()][Game.doors.get(i).getX()] = TileTypes.DOORENTER.getValue();
+            	setTile(Game.doors.get(i).getX(), Game.doors.get(i).getY(), TileTypes.DOORENTER);
+//            	matrix[Game.doors.get(i).getY()][Game.doors.get(i).getX()] = TileTypes.DOORENTER.getValue();
+//            	tilema
             }
             else
             {
+            	setTile(Game.doors.get(i).getX(), Game.doors.get(i).getY(), TileTypes.DOOR);
             	doors.add(Game.doors.get(i));
-            	matrix[Game.doors.get(i).getY()][Game.doors.get(i).getX()] = TileTypes.DOOR.getValue();
+//            	matrix[Game.doors.get(i).getY()][Game.doors.get(i).getX()] = TileTypes.DOOR.getValue();
             }
 
 
@@ -252,7 +255,10 @@ public class Map {
 	 * @return A tile.
 	 */
 	public TileTypes getTile(int x, int y) {
-		return TileTypes.toTileType(matrix[y][x]);
+		
+		return tileMap[y * width + x];
+
+//		return TileTypes.toTileType(matrix[y][x]);
 	}
 	
 	/**
@@ -265,8 +271,8 @@ public class Map {
 		if (point == null) {
 			return null;
 		}
-		
-		return TileTypes.toTileType(matrix[point.getY()][point.getX()]);
+		return tileMap[point.getY() * width + point.getX()];
+//		return TileTypes.toTileType(matrix[point.getY()][point.getX()]);
 	}
 	
 	/**

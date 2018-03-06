@@ -176,6 +176,7 @@ public class SimpleMapGUIController  implements Initializable, Listener
 				}
 			}
 		}
+
 //		
 //		for(int y = 0; y < Game.sizeHeight; y++)
 //		{

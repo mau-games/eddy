@@ -67,6 +67,7 @@ public class EditViewController extends BorderPane implements Listener {
 	private Canvas patternCanvas;
 	private Canvas warningCanvas;
 	private Canvas zoneCanvas;
+	private Canvas lockCanvas;
 	
 	private boolean isActive = false;
 	private boolean isFeasible = true;
@@ -129,6 +130,15 @@ public class EditViewController extends BorderPane implements Listener {
 		mapView.setMinSize(width, height);
 		mapView.setMaxSize(width, height);
 		mapPane.getChildren().add(mapView);
+		
+		lockCanvas = new Canvas(width, height);
+		StackPane.setAlignment(lockCanvas, Pos.CENTER);
+		mapPane.getChildren().add(lockCanvas);
+		lockCanvas.setVisible(true);
+		lockCanvas.setMouseTransparent(true);
+		lockCanvas.setOpacity(0.5f);
+		
+//		lockCanvas.getGraphicsContext2D().draw
 		
 		zoneCanvas = new Canvas(width, height);
 		StackPane.setAlignment(zoneCanvas, Pos.CENTER);
@@ -491,8 +501,23 @@ public class EditViewController extends BorderPane implements Listener {
 				mapView.getMap().forceReevaluation();
 				mapIsFeasible(mapView.getMap().isFeasible());
 				redrawPatterns(mapView.getMap());
+				redrawLocks(mapView.getMap());
 			}
 		}
 		
+	}
+	
+	private void redrawLocks(Map map)
+	{
+		for(int i = 0; i < map.getRowCount(); ++i)
+		{
+			for(int j = 0; j < map.getColCount(); ++j)
+			{
+				if(map.getTile(j, i).IsInmutable())
+				{
+					lockCanvas.getGraphicsContext2D().drawImage(renderer.GetLock(mapView.scale * 0.75f, mapView.scale * 0.75f), j * mapView.scale, i * mapView.scale);
+				}
+			}
+		}
 	}
 }

@@ -166,6 +166,23 @@ public class MapRenderer implements Listener {
 	 * Renders a single tile.
 	 * 
 	 * @param tile The tile type to render.
+	 * @param width The width of the image.
+	 * @param height The height of the image.
+	 * @return A rendered tile.
+	 */
+	public synchronized Image renderTile(TileTypes tile, double width, double height, boolean searchingInmutable) {
+		return getTileImage(tile.getValue(), width, height);
+	}
+	
+	public synchronized Image GetLock(double width, double height)
+	{
+		return new Image("/" + config.getInternalConfig().getString("map.tiles.lock"), width, height, false, true);
+	}
+	
+	/**
+	 * Renders a single tile.
+	 * 
+	 * @param tile The tile type to render.
 	 * @return A rendered tile.
 	 */
 	public synchronized void renderTile(GraphicsContext ctx, TileTypes tile) {
