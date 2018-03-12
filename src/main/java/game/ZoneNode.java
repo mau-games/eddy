@@ -6,12 +6,6 @@ import java.util.List;
 import finder.geometry.Bitmap;
 import finder.geometry.Point;
 
-//TODO: I THINK THERE IS A VERY BIG PROBLEM RELATED
-// TO THE MAP ITSELF, I THINK THE X AND Y POSITIONS ARE EXCHANGED
-//I WOULD SAY THAT THERE IS A CORE PROBLEM
-//BUT I STILL NEED MORE TIME TO FIGURE OUT
-//IF IT IS IN MY END OR THE OPPOSITE
-
 /**
  * This class represent a section of the map
  * It may be invalid or valid 
@@ -71,6 +65,19 @@ public class ZoneNode
 		{
 			Expand();
 		}
+	}
+	
+	public ZoneNode(ZoneNode copy)
+	{
+		this.parent = copy.parent;
+		this.refMap = new Map(copy.refMap, this);
+		this.width = copy.width;
+		this.height = copy.height;
+		this.section = FillSection();
+		this.children = new ArrayList<ZoneNode>();
+		this.valid = copy.valid;
+		
+		RectangleDivision(-1);
 	}
 	
 	/**
@@ -241,6 +248,11 @@ public class ZoneNode
 		return children.size() < 1;
 	}
 	
+	public Map GetMap()
+	{
+		return refMap;
+	}
+	
 	public Bitmap GetSection()
 	{
 		return section;
@@ -249,6 +261,21 @@ public class ZoneNode
 	public ArrayList<ZoneNode> getChildren()
 	{
 		return children;
+	}
+	
+	public void SetRefMap(Map map)
+	{
+		this.refMap = map;
+		
+		for(ZoneNode child : children)
+		{
+			child.SetRefMap(map);
+		}	
+	}
+	
+	public void UpdateRefMap(int[] updatedMatrix)
+	{
+		this.refMap.Update(updatedMatrix);
 	}
 	
 	public ArrayList<ZoneNode> traverseToLayer(int layer)
@@ -264,6 +291,24 @@ public class ZoneNode
 		for(ZoneNode child : children)
 		{
 			returnNodes.addAll(child.traverseToLayer(layer));
+		}
+		
+		return returnNodes;
+	}
+	
+	public ArrayList<ZoneNode> GetAllValidZones()
+	{
+		ArrayList<ZoneNode> returnNodes = new ArrayList<ZoneNode>();
+		
+		if(isLeaf() || valid)
+		{
+			returnNodes.add(this);
+			return returnNodes;
+		}
+		
+		for(ZoneNode child : children)
+		{
+			returnNodes.addAll(child.GetAllValidZones());
 		}
 		
 		return returnNodes;

@@ -41,8 +41,7 @@ import generator.config.GeneratorConfig;
  * @author Alexander Baldwin, Malmö University
  */
 public class Map {
-	private TileTypes[] tileMap; //The map in tiletypes.
-	private Tile[] TileMap; //This HAVE to be the real tilemap
+	private Tile[] tileMap; //This HAVE to be the real tilemap
 	private int[][] matrix; // The actual map
 	private boolean[][] allocated; // A map keeps track of allocated tiles
 	private int width;			// The number of columns in a map
@@ -78,17 +77,17 @@ public class Map {
 		init(rows, cols);
 		
 		//TODO: Pass this to another place
-		TileMap = new Tile[rows * cols];
-		
-		for (int j = 0; j < height; j++) 
-		{
-			for (int i = 0; i < width; i++) 
-			{
-				TileMap[j * width + i] = new Tile(i , j, types[j * width + i]);
-			}
-			
-		}
-		
+//		tileMap = new Tile[rows * cols];
+//		
+//		for (int j = 0; j < height; j++) 
+//		{
+//			for (int i = 0; i < width; i++) 
+//			{
+//				TileMap[j * width + i] = new Tile(i , j, types[j * width + i]);
+//			}
+//			
+//		}
+//		
 		//this.tileMap = types;
 		this.config = config;
 		this.doorCount = Game.doors.size();
@@ -100,6 +99,135 @@ public class Map {
 		finder = new PatternFinder(this);
 		root = new ZoneNode(null, this, getColCount(), getRowCount());
 		
+	}
+	
+	public Map(Map copyMap, ZoneNode zones)
+	{
+		init(copyMap.getRowCount(), copyMap.getColCount());
+		this.config = copyMap.config;
+		this.doorCount = Game.doors.size();
+		
+		for (int j = 0; j < height; j++)
+		{
+			for (int i = 0; i < width; i++) 
+			{
+				matrix[j][i] = copyMap.matrix[j][i];
+				tileMap[j * width + i] = new Tile(copyMap.tileMap[j * width + i]);
+			}
+		}	
+		
+		for (int j = 0; j < height; j++){
+			for (int i = 0; i < width; i++) {
+				switch (TileTypes.toTileType(matrix[j][i])) {
+				case WALL:
+					wallCount++;
+					break;
+				case ENEMY:
+					enemies.add(new Point(i, j));
+					break;
+				case TREASURE:
+					treasures.add(new Point(i, j));
+					break;
+				default:
+					break;
+				}
+			}
+		}
+		
+		markDoors();
+		finder = new PatternFinder(this);
+		root = zones;	
+	}
+	
+	public Map(GeneratorConfig config, ZoneNode rootCopy, int[] chromosomes, int rows, int cols, int doorCount)
+	{
+		init(rows, cols);
+
+		this.config = config;
+		this.doorCount = Game.doors.size();
+		
+		CloneMap(rootCopy.GetMap(), chromosomes);
+	}
+	
+	private void CloneMap(Map map, int[] chromosomes)
+	{
+		this.tileMap = map.tileMap.clone();
+		this.matrix = map.matrix.clone();
+		
+		for (int j = 0; j < height; j++)
+		{
+			for (int i = 0; i < width; i++) 
+			{
+				if(tileMap[j * width + i].GetType().getValue() != chromosomes[j * width + i])
+				{
+					System.out.println("ELLA SE MARCHO Y NO VOLVERA");
+				}
+			}
+			
+		}
+		
+		
+		for (int j = 0; j < height; j++)
+		{
+			for (int i = 0; i < width; i++) 
+			{
+				if(!map.tileMap[j * width + i].GetImmutable())
+				{
+					setTile(i, j, chromosomes[j * width + i]);
+				}
+				else
+				{
+					tileMap[j * width + i] = new Tile(map.tileMap[j * width + i]);
+					matrix[j][i] = chromosomes[j * width + i];
+				}
+			}
+		}	
+		
+		for (int j = 0; j < height; j++){
+			for (int i = 0; i < width; i++) {
+				switch (TileTypes.toTileType(matrix[j][i])) {
+				case WALL:
+					wallCount++;
+					break;
+				case ENEMY:
+					enemies.add(new Point(i, j));
+					break;
+				case TREASURE:
+					treasures.add(new Point(i, j));
+					break;
+				default:
+					break;
+				}
+			}
+		}
+		
+		markDoors();
+		finder = new PatternFinder(this);
+		root = new ZoneNode(null, this, width, height);
+		
+	}
+	
+	public void Update(int[] updatedMatrix)
+	{
+		int tile = 0;
+		for (int j = 0; j < height; j++) 
+		{
+			for (int i = 0; i < width; i++) 
+			{
+				setTile(i, j, updatedMatrix[tile++]);
+			}
+		}
+	}
+	
+	public void RecreateTileMap()
+	{
+		for (int j = 0; j < height; j++) 
+		{
+			for (int i = 0; i < width; i++) 
+			{
+				tileMap[j * width + i] = new Tile(tileMap[j * width + i]);
+			}
+		}
 	}
 	
 	/**
@@ -177,7 +305,7 @@ public class Map {
 		
 		matrix = new int[height][width];
 		allocated = new boolean[height][width];
-        
+		tileMap = new Tile[rows * cols];
 	}
 	
 	public void resetAllocated(){
@@ -188,6 +316,10 @@ public class Map {
 		entrance = Game.doors.get(0);
 		for(int i = 0; i < doorCount; i++)
         {
+			if(doorCount > 3)
+			{
+				System.out.println();
+			}
 			
             // Check if door overrides an enemy
             if (TileTypes.toTileType(matrix[Game.doors.get(i).getY()][Game.doors.get(i).getX()]).isEnemy())
@@ -212,14 +344,11 @@ public class Map {
             if(i == 0)
             {
             	setTile(Game.doors.get(i).getX(), Game.doors.get(i).getY(), TileTypes.DOORENTER);
-//            	matrix[Game.doors.get(i).getY()][Game.doors.get(i).getX()] = TileTypes.DOORENTER.getValue();
-//            	tilema
             }
             else
             {
             	setTile(Game.doors.get(i).getX(), Game.doors.get(i).getY(), TileTypes.DOOR);
             	doors.add(Game.doors.get(i));
-//            	matrix[Game.doors.get(i).getY()][Game.doors.get(i).getX()] = TileTypes.DOOR.getValue();
             }
 
 
@@ -257,7 +386,31 @@ public class Map {
 	 */
 	public void setTile(int x, int y, TileTypes tile) {
 		matrix[y][x] = tile.getValue();
-		TileMap[y * width + x].SetType(tile);
+		tileMap[y * width + x].SetType(tile);
+	}
+	
+	/**
+	 * Sets a specific tile object.
+	 * 
+	 * @param x The X coordinate.
+	 * @param y The Y coordinate.
+	 * @param tile A tile object.
+	 */
+	public void setTile(int x, int y, Tile tile) {
+		matrix[y][x] = tile.GetType().getValue();
+		tileMap[y * width + x] = new Tile(tile);
+	}
+	
+	/**
+	 * Sets a tile based on a value
+	 * 
+	 * @param x The X coordinate.
+	 * @param y The Y coordinate.
+	 * @param tileValue value of a tiletype.
+	 */
+	public void setTile(int x, int y, int tileValue) {
+		matrix[y][x] = tileValue;
+		tileMap[y * width + x].SetType(TileTypes.toTileType(tileValue));
 	}
 	
 	/**
@@ -269,7 +422,7 @@ public class Map {
 	 */
 	public Tile getTile(int x, int y) {
 		
-		return TileMap[y * width + x];
+		return tileMap[y * width + x];
 
 //		return TileTypes.toTileType(matrix[y][x]);
 	}
@@ -284,7 +437,7 @@ public class Map {
 		if (point == null) {
 			return null;
 		}
-		return TileMap[point.getY() * width + point.getX()];
+		return tileMap[point.getY() * width + point.getX()];
 	}
 	
 	/**
@@ -592,7 +745,7 @@ public class Map {
     
     public Tile[] getTileBasedMap()
     {
-    	return TileMap;
+    	return tileMap;
     }
     
 	/**
@@ -617,7 +770,9 @@ public class Map {
 				default:
 					break;
 				}
+				tileMap[tile] = new Tile(i , j, tiles[tile]);
 				matrix[j][i] = tiles[tile++].getValue();
+
 			}
 		}
 	}
