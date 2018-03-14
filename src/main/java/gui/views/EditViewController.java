@@ -59,7 +59,9 @@ public class EditViewController extends BorderPane implements Listener {
 	@FXML private StackPane mapPane;
 	@FXML private GridPane legend;
 	@FXML private ToggleGroup brushes;
+	@FXML private ToggleButton lockBrush;
 	@FXML private ToggleButton patternButton;
+	@FXML private ToggleButton lockButton;
 	@FXML private ToggleButton zoneButton;
 	@FXML private Slider zoneSlider;
 	
@@ -134,11 +136,9 @@ public class EditViewController extends BorderPane implements Listener {
 		lockCanvas = new Canvas(width, height);
 		StackPane.setAlignment(lockCanvas, Pos.CENTER);
 		mapPane.getChildren().add(lockCanvas);
-		lockCanvas.setVisible(true);
+		lockCanvas.setVisible(false);
 		lockCanvas.setMouseTransparent(true);
-		lockCanvas.setOpacity(0.5f);
-		
-//		lockCanvas.getGraphicsContext2D().draw
+		lockCanvas.setOpacity(0.4f);
 		
 		zoneCanvas = new Canvas(width, height);
 		StackPane.setAlignment(zoneCanvas, Pos.CENTER);
@@ -327,6 +327,7 @@ public class EditViewController extends BorderPane implements Listener {
 	public void updateMap(Map map) {
 		mapView.updateMap(map);
 		redrawPatterns(map);
+		redrawLocks(map);
 		mapIsFeasible(map.isFeasible());
 		resetMiniMaps();
 	}
@@ -401,6 +402,18 @@ public class EditViewController extends BorderPane implements Listener {
 			zoneCanvas.setVisible(true);
 		} else {
 			zoneCanvas.setVisible(false);
+		}
+	}
+	
+	/**
+	 * Toggles the display of zones on top of the map.
+	 * 
+	 */
+	public void toggleLocks() {
+		if (lockButton.isSelected()) {
+			lockCanvas.setVisible(true);
+		} else {
+			lockCanvas.setVisible(false);
 		}
 	}
 	
@@ -497,7 +510,13 @@ public class EditViewController extends BorderPane implements Listener {
 			if (event.getTarget() instanceof ImageView && brush != null) {
 				// Edit the map
 				ImageView tile = (ImageView) event.getTarget();
-				mapView.updateTile(tile, brush, event.getButton() == MouseButton.SECONDARY);
+				
+				//TODO: This should go to its own class or function at least
+//				if(event.isControlDown())
+//					lockBrush.setSelected(true);
+//				else if()
+				
+				mapView.updateTile(tile, brush, event.getButton() == MouseButton.SECONDARY, lockBrush.isSelected() || event.isControlDown());
 				mapView.getMap().forceReevaluation();
 				mapIsFeasible(mapView.getMap().isFeasible());
 				redrawPatterns(mapView.getMap());

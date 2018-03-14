@@ -64,31 +64,47 @@
                   </ImageView>
                </graphic>
             </ToggleButton>
+            <ToggleButton fx:id="lockBrush" prefWidth="1" maxWidth="30" maxHeight="20" contentDisplay="TOP" mnemonicParsing="false" text="" >
+               <graphic>
+                  <ImageView fitWidth="20.0" pickOnBounds="true" preserveRatio="true">
+                     <image>
+                        <Image url="@../../graphics/tiles/lock.png" />
+                     </image>
+                  </ImageView>
+               </graphic>
+            </ToggleButton>
             <ToggleButton fx:id="patternButton" contentDisplay="TOP" mnemonicParsing="false" wrapText="true" textAlignment="CENTER" text="Show patterns" onAction="#togglePatterns">
               <VBox.margin>
                   <Insets>
-                    <top>20</top>
+                    <top>10</top>
+                  </Insets>
+              </VBox.margin>
+            </ToggleButton>
+            <ToggleButton fx:id="lockButton" contentDisplay="TOP" mnemonicParsing="false" wrapText="true" textAlignment="CENTER" text="Show locks" onAction="#toggleLocks">
+              <VBox.margin>
+                  <Insets>
+                    <top>10</top>
                   </Insets>
               </VBox.margin>
             </ToggleButton>
             <ToggleButton fx:id="zoneButton" contentDisplay="TOP" mnemonicParsing="false" wrapText="true" textAlignment="CENTER" text="Show zones" onAction="#toggleZones">
               <VBox.margin>
                   <Insets>
-                    <top>20</top>
+                    <top>10</top>
                   </Insets>
               </VBox.margin>
             </ToggleButton>
             <Slider fx:id="zoneSlider" prefWidth="1" blockIncrement="1.0" layoutX="26.0" layoutY="32.0" majorTickUnit="1.0" max="2" minorTickCount="0" snapToTicks="true" showTickLabels="true" showTickMarks="true">
               <VBox.margin>
                   <Insets>
-                    <top>20</top>
+                    <top>10</top>
                   </Insets>
               </VBox.margin>
             </Slider>
             <Button contentDisplay="TOP" mnemonicParsing="false" wrapText="true" textAlignment="CENTER" text="Generate maps" onAction="#generateNewMaps">
               <VBox.margin>
                   <Insets>
-                      <top>20</top>
+                      <top>10</top>
                   </Insets>
               </VBox.margin>
             </Button>

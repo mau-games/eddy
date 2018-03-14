@@ -78,7 +78,7 @@ public class InteractiveMap extends GridPane {
 	 * @param tileType The new tile type.
 	 * @param bucket If Right-clicked we perform a bucket filling instead of individual
 	 */
-	public synchronized void updateTile(ImageView tile, TileTypes tileType, boolean bucket) {
+	public synchronized void updateTile(ImageView tile, TileTypes tileType, boolean bucket, boolean locked) {
 		if (map == null) {
 			return;
 		}
@@ -95,14 +95,15 @@ public class InteractiveMap extends GridPane {
 
 		if(bucket)
 		{
-			//BucketFill(p, map.getTile(p), tileType);
+			BucketFill(p, map.getTile(p).GetType(), tileType, locked);
 			
-			currentTile.ToggleImmutable();
+//			currentTile.ToggleImmutable();
 //			map.setTile(p.getX(), p.getY(), currentTile.GetType());
 //			drawTile(p.getX(), p.getY(), currentTile.GetType());
 			return;
 		}
 		
+		currentTile.SetImmutable(locked);
 		map.setTile(p.getX(), p.getY(), tileType);
 		drawTile(p.getX(), p.getY(), tileType);
 	}
@@ -113,23 +114,24 @@ public class InteractiveMap extends GridPane {
 	 * @param target Target TileType that will be replaced
 	 * @param replacement TileType that will replace the target tile
 	 */
-	private void BucketFill(Point p, TileTypes target, TileTypes replacement)
+	private void BucketFill(Point p, TileTypes target, TileTypes replacement, boolean locked)
 	{
 		if(p.getX() < 0 || p.getX() > cols -1 || p.getY() < 0 || p.getY() > rows -1)
 			return;
 		
-		TileTypes prev = map.getTile(p).GetType();
+		Tile prev = map.getTile(p);
 		
-		if(prev != target || prev == replacement)
+		if(prev.GetType() != target || prev.GetType() == replacement)
 			return;
 		
+		prev.SetImmutable(locked);
 		map.setTile(p.getX(), p.getY(), replacement);
 		drawTile(p.getX(), p.getY(), replacement);
 		
-		BucketFill(new Point(p.getX() + 1, p.getY()), target, replacement);
-		BucketFill(new Point(p.getX() - 1, p.getY()), target, replacement);
-		BucketFill(new Point(p.getX(), p.getY() + 1), target, replacement);
-		BucketFill(new Point(p.getX(), p.getY() - 1), target, replacement);
+		BucketFill(new Point(p.getX() + 1, p.getY()), target, replacement, locked);
+		BucketFill(new Point(p.getX() - 1, p.getY()), target, replacement, locked);
+		BucketFill(new Point(p.getX(), p.getY() + 1), target, replacement, locked);
+		BucketFill(new Point(p.getX(), p.getY() - 1), target, replacement, locked);
 	}
 	
 	/**

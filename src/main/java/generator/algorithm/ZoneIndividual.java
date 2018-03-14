@@ -1,6 +1,8 @@
 package generator.algorithm;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Random;
 
 import finder.geometry.Point;
@@ -160,14 +162,17 @@ public class ZoneIndividual {
 		
 		//mutate TODO: THIS NEED TO BE ALSO DEPENDABLE ON THE ZONES here is the root of the problem!!!!
 		for(int i = 0; i < 2; i++){
-			if(Util.getNextFloat(0.0f,1.0f) <= mutationProbability){
+			if(Util.getNextFloat(0.0f,1.0f) <= mutationProbability)
+			{
+				//This need to be specifc to each child
+				rndZone = Util.getNextInt(0, myZones.size());
 				float rand = Util.getNextFloat(0, 1);
 				if(rand <= 0.8f)
-					children[i].mutate();
+					children[i].mutate(myZones.get(rndZone));
 				else if  (rand <= 0.8f)
 					children[i].squareMutation();
 				else
-					children[i].mutateRotate180();
+					children[i].mutateRotate180(myZones.get(rndZone));
 			}
 		}
 		
@@ -180,7 +185,7 @@ public class ZoneIndividual {
 		ZoneIndividual[] children = new ZoneIndividual[2];
 		children[0] = new ZoneIndividual(config, new ZoneGenotype(config, genotype.getChromosome().clone(), genotype.GetRootChromosome()), mutationProbability);
 		children[1] = new ZoneIndividual(config, new ZoneGenotype(config, other.getGenotype().getChromosome().clone(), genotype.GetRootChromosome()), mutationProbability);
-		
+
 		int lowerBoundM = Util.getNextInt(0, Game.sizeWidth);
 		int upperBoundM = Util.getNextInt(lowerBoundM, Game.sizeWidth);
 		int lowerBoundN = Util.getNextInt(0, Game.sizeHeight);
@@ -218,6 +223,21 @@ public class ZoneIndividual {
 	 */
 	public void mutate() {
 		int indexToMutate = Util.getNextInt(0,genotype.getSizeChromosome());
+		genotype.getChromosome()[indexToMutate] = (genotype.getChromosome()[indexToMutate] + Util.getNextInt(0, 4)) % 4; //TODO: Change this - hard coding the number of tile types is bad!!!
+	}
+	
+	/**
+	 * Mutate ONE bit of the chromosome
+	 */
+	public void mutate(ZoneNode validZone) 
+	{
+		int indexToMutate = validZone.GetOrderedKeys().get(Util.getNextInt(0,validZone.GetOrderedKeys().size()));
+		
+		if(validZone.GetMap().getTileBasedMap()[indexToMutate].GetImmutable())
+		{
+			System.out.println("THIS CANNOT HAPPEN, MUTATE");
+		}
+		
 		genotype.getChromosome()[indexToMutate] = (genotype.getChromosome()[indexToMutate] + Util.getNextInt(0, 4)) % 4; //TODO: Change this - hard coding the number of tile types is bad!!!
 	}
 	
@@ -259,6 +279,11 @@ public class ZoneIndividual {
 		{
 			for(Point p : validZone.GetSection().getPoints())
 			{
+				if(genotype.GetRootChromosome().GetMap().getTile(p.getX(), p.getY()).GetImmutable())
+				{
+					System.out.println("THIS CANNOT HAPPEN, MUTATE ALL");
+				}
+				
 				if(Math.random() < probability){
 					genotype.getChromosome()[p.getY() * Game.sizeWidth + p.getX()] = (genotype.getChromosome()[p.getY() * Game.sizeWidth + p.getX()] + Util.getNextInt(0, 4)) % 4; //TODO: Change this - hard coding the number of tile types is bad!!!
 				}
@@ -279,6 +304,31 @@ public class ZoneIndividual {
 		for(int i = 0; i < Game.sizeWidth; i++)
 			for(int j = 0; j < Game.sizeHeight; j++)
 				genotype.getChromosome()[j*Game.sizeWidth + i] = chromosomeCopy[(Game.sizeHeight - 1 - j)*Game.sizeWidth + Game.sizeWidth - 1 - i];
+	}
+	
+	private void mutateRotate180(ZoneNode validZone)
+	{
+//		HashMap<Integer, Point> sec = validZone.GetS();
+		List<Integer> sortedKeys = validZone.GetOrderedKeys();
+		int[] chromosomeCopy = genotype.getChromosome().clone();
+		
+		for(int ord = 0, rev = sortedKeys.size() - 1; ord < sortedKeys.size(); ord++, rev--)
+		{
+			if(validZone.GetMap().getTileBasedMap()[sortedKeys.get(ord)].GetImmutable())
+			{
+				System.out.println("THIS CANNOT HAPPEN, MUTATEROTATE180");
+			}
+			genotype.getChromosome()[sortedKeys.get(ord)] = chromosomeCopy[sortedKeys.get(rev)];
+		}
+		
+//		for(int i = 0; i < Game.sizeWidth; i++)
+//		{
+//			for(int j = 0; j < Game.sizeHeight; j++)
+//			{
+//				genotype.getChromosome()[j*Game.sizeWidth + i] = chromosomeCopy[(Game.sizeHeight - 1 - j)*Game.sizeWidth + Game.sizeWidth - 1 - i];
+//			}
+//
+//		}
 	}
 	
 	private void mutateRotate90(){

@@ -1,6 +1,8 @@
 package game;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 
 import finder.geometry.Bitmap;
@@ -15,7 +17,9 @@ import finder.geometry.Point;
 public class ZoneNode 
 {
 	private ZoneNode parent;
-	private Bitmap section; 
+	private Bitmap section;
+	private List<Integer> sortedKeys;
+	private HashMap<Integer, Point> s;
 	private ArrayList<ZoneNode> children;
 	private Map refMap;
 	private int width;
@@ -25,6 +29,7 @@ public class ZoneNode
 
 	public ZoneNode(ZoneNode parent, Map map, int w, int h)
 	{
+		s = new HashMap<Integer, Point>();
 		this.parent = parent;
 		this.refMap = map;
 		this.width = w;
@@ -47,9 +52,16 @@ public class ZoneNode
 	
 	public ZoneNode(int n, Bitmap section, ZoneNode parent, Map map, int w, int h)
 	{
+		s = new HashMap<Integer, Point>();
 		this.parent = parent;
 		this.refMap = map;
 		this.section = section;
+		
+		for(Point p : section.getPoints())
+		{
+			s.put(p.getY() * refMap.getColCount() + p.getX(), p);
+		}
+		
 		this.width = w;
 		this.height = h;
 		this.children = new ArrayList<ZoneNode>();
@@ -69,6 +81,7 @@ public class ZoneNode
 	
 	public ZoneNode(ZoneNode copy)
 	{
+		this.s = new HashMap<Integer, Point>();
 		this.parent = copy.parent;
 		this.refMap = new Map(copy.refMap, this);
 		this.width = copy.width;
@@ -97,6 +110,7 @@ public class ZoneNode
 			for(int x = init_x; x < w; ++x)
 			{
 				sec.addPoint(sectionPoints.get(y * width + x));
+				s.put(y * refMap.getColCount() + x, new Point(x,y));
 			}
 		}
 		
@@ -112,6 +126,7 @@ public class ZoneNode
 			for(int x = 0; x < width; ++x)
 			{
 				sec.addPoint(new Point(x,y));
+				s.put(y * refMap.getColCount() + x, new Point(x,y));
 			}
 		}
 		
@@ -256,6 +271,22 @@ public class ZoneNode
 	public Bitmap GetSection()
 	{
 		return section;
+	}
+	
+	public HashMap<Integer, Point> GetS()
+	{
+		return s;
+	}
+	
+	public List<Integer> GetOrderedKeys()
+	{	
+		if(sortedKeys == null)
+		{
+			sortedKeys=new ArrayList(s.keySet());
+			Collections.sort(sortedKeys);
+		}
+		
+		return sortedKeys;
 	}
 	
 	public ArrayList<ZoneNode> getChildren()
