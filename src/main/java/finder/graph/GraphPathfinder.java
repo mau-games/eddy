@@ -44,10 +44,6 @@ public class GraphPathfinder {
 
         while(!queue.isEmpty()){
         	PathNode current = queue.remove();
-        	if(current.graphNode == null)
-        	{
-        		System.out.println("HERE");
-        	}
         	current.graphNode.tryVisit();
         	
         	if(current.graphNode == goal){

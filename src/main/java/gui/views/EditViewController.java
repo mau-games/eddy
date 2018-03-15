@@ -16,8 +16,10 @@ import game.ApplicationConfig;
 import game.Map;
 import game.TileTypes;
 import game.Game.MapMutationType;
+import gui.controls.Brush;
 import gui.controls.InteractiveMap;
 import gui.controls.LabeledCanvas;
+import gui.controls.Modifier;
 import gui.utils.MapRenderer;
 import javafx.application.Platform;
 import javafx.event.EventHandler;
@@ -70,6 +72,7 @@ public class EditViewController extends BorderPane implements Listener {
 	private Canvas warningCanvas;
 	private Canvas zoneCanvas;
 	private Canvas lockCanvas;
+	private Canvas brushCanvas;
 	
 	private boolean isActive = false;
 	private boolean isFeasible = true;
@@ -81,6 +84,8 @@ public class EditViewController extends BorderPane implements Listener {
 	private static EventRouter router = EventRouter.getInstance();
 	private final static Logger logger = LoggerFactory.getLogger(EditViewController.class);
 	private ApplicationConfig config;
+	
+	public Brush myBrush;
 
 	/**
 	 * Creates an instance of this class.
@@ -102,6 +107,8 @@ public class EditViewController extends BorderPane implements Listener {
 		}
 		
 		router.registerListener(this, new MapUpdate(null));
+		myBrush = new Brush();
+		myBrush.AddmodifierComponent("Lock", new Modifier(lockBrush));
 		
 		init();
 		
@@ -132,6 +139,13 @@ public class EditViewController extends BorderPane implements Listener {
 		mapView.setMinSize(width, height);
 		mapView.setMaxSize(width, height);
 		mapPane.getChildren().add(mapView);
+		
+		brushCanvas = new Canvas(width, height);
+		StackPane.setAlignment(brushCanvas, Pos.CENTER);
+		mapPane.getChildren().add(brushCanvas);
+		brushCanvas.setVisible(false);
+		brushCanvas.setMouseTransparent(true);
+		brushCanvas.setOpacity(1.0f);
 		
 		lockCanvas = new Canvas(width, height);
 		StackPane.setAlignment(lockCanvas, Pos.CENTER);
@@ -188,6 +202,8 @@ public class EditViewController extends BorderPane implements Listener {
 	 */
 	private void initMiniMaps() {
 		mapView.addEventFilter(MouseEvent.MOUSE_CLICKED, new EditViewEventHandler());
+//		mapView.addEventFilter(MouseEvent.MOUSE_ENTERED, new EditViewEventHandler());
+		mapView.addEventFilter(MouseEvent.MOUSE_MOVED, new EditViewMouseHover());
 		getMap(0).addEventFilter(MouseEvent.MOUSE_CLICKED, (e) -> {
 			replaceMap(0);
 		});
@@ -360,6 +376,7 @@ public class EditViewController extends BorderPane implements Listener {
 		if (brushes.getSelectedToggle() == null) {
 			brush = null;
 			mapView.setCursor(Cursor.DEFAULT);
+			
 		} else {
 			mapView.setCursor(Cursor.HAND);
 			
@@ -378,6 +395,9 @@ public class EditViewController extends BorderPane implements Listener {
 				break;
 			}
 		}
+		
+		myBrush.SetMainComponent(brush);
+		
 	}
 	
 	/**
@@ -501,31 +521,10 @@ public class EditViewController extends BorderPane implements Listener {
 		renderer.drawZones(zoneCanvas.getGraphicsContext2D(), map.toMatrix(), map.root, (int)(zoneSlider.getValue()),Color.BLACK);
 	}
 	
-	/*
-	 * Event handlers
+	/***
+	 * Redraw the lock in the map --> TODO: I am afraid this should be in the renderer
+	 * @param map
 	 */
-	private class EditViewEventHandler implements EventHandler<MouseEvent> {
-		@Override
-		public void handle(MouseEvent event) {
-			if (event.getTarget() instanceof ImageView && brush != null) {
-				// Edit the map
-				ImageView tile = (ImageView) event.getTarget();
-				
-				//TODO: This should go to its own class or function at least
-//				if(event.isControlDown())
-//					lockBrush.setSelected(true);
-//				else if()
-				
-				mapView.updateTile(tile, brush, event.getButton() == MouseButton.SECONDARY, lockBrush.isSelected() || event.isControlDown());
-				mapView.getMap().forceReevaluation();
-				mapIsFeasible(mapView.getMap().isFeasible());
-				redrawPatterns(mapView.getMap());
-				redrawLocks(mapView.getMap());
-			}
-		}
-		
-	}
-	
 	private void redrawLocks(Map map)
 	{
 		lockCanvas.getGraphicsContext2D().clearRect(0, 0, 420, 420);
@@ -541,4 +540,59 @@ public class EditViewController extends BorderPane implements Listener {
 			}
 		}
 	}
+	
+	/*
+	 * Event handlers
+	 */
+	private class EditViewEventHandler implements EventHandler<MouseEvent> {
+		@Override
+		public void handle(MouseEvent event) 
+		{
+			
+			if (event.getTarget() instanceof ImageView) {
+				// Edit the map
+				ImageView tile = (ImageView) event.getTarget();
+				
+				//TODO: This should go to its own class or function at least
+//				if(event.isControlDown())
+//					lockBrush.setSelected(true);
+//				else if()
+				myBrush.UpdateModifiers(event);
+//				mapView.updateTile(tile, brush, event.getButton() == MouseButton.SECONDARY, lockBrush.isSelected() || event.isControlDown());
+				mapView.updateTile(tile, myBrush, event.getButton() == MouseButton.SECONDARY);
+				mapView.getMap().forceReevaluation();
+				mapIsFeasible(mapView.getMap().isFeasible());
+				redrawPatterns(mapView.getMap());
+				redrawLocks(mapView.getMap());
+			}
+		}
+		
+	}
+	
+	/*
+	 * Event handlers
+	 */
+	private class EditViewMouseHover implements EventHandler<MouseEvent> {
+		@Override
+		public void handle(MouseEvent event) 
+		{
+			brushCanvas.setVisible(false);
+			
+			if (event.getTarget() instanceof ImageView) 
+			{
+				// Show the brush canvas
+				ImageView tile = (ImageView) event.getTarget();
+				myBrush.SetBrushSize((int)(zoneSlider.getValue()));
+				brushCanvas.getGraphicsContext2D().clearRect(0, 0, 420, 420);
+				brushCanvas.setVisible(true);
+				util.Point p = mapView.CheckTile(tile);
+				if(p != null)
+					myBrush.UpdateDrawableTiles(p.getX(), p.getY(), mapView.getMap().toMatrix());
+				
+				renderer.drawBrush(brushCanvas.getGraphicsContext2D(), mapView.getMap().toMatrix(), myBrush, Color.WHITE);
+			}
+		}
+		
+	}
+	
 }

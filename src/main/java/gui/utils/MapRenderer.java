@@ -41,6 +41,7 @@ import game.MapContainer;
 import game.TileTypes;
 import game.ZoneNode;
 import gui.ParameterGUIController;
+import gui.controls.Brush;
 import javafx.application.Platform;
 import javafx.scene.SnapshotParameters;
 import javafx.scene.canvas.Canvas;
@@ -287,9 +288,30 @@ public class MapRenderer implements Listener {
 		{
 			drawBitmapProperly(ctx, zNode.GetSection(),c,pWidth);
 		}
+	}
+	
+	/**
+	 * Draws the brush size on the map.
+	 * 
+	 * @param ctx The graphics context to draw on.
+	 * @param matrix A rectangular matrix of integers. Each integer corresponds
+	 * 		to some predefined value.
+	 * @param rootZone The starting zone (the whole map).
+	 * @param c The color for the zone
+	 */
+	public synchronized void drawBrush(
+			GraphicsContext ctx,
+			int[][] matrix,
+			Brush brush,
+			Color c) {
 		
-		//TESTING
-//		drawBitmapProperly(ctx, rootZone.GetSection(),c,pWidth);
+		//TODO: The following calculation should probably be split out into a method
+		int width = matrix[0].length;
+		int height = matrix.length;
+		double pWidth = ctx.getCanvas().getWidth() / (double)Math.max(width, height);
+		patternOpacity = config.getPatternOpacity();
+		
+		drawBitmapProperly(ctx, brush.GetDrawableTiles(), c, pWidth);
 	}
 	
 	public synchronized void drawGraph(GraphicsContext ctx, int[][] matrix, Graph<Pattern> patternGraph){

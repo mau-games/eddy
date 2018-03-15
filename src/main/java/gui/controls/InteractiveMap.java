@@ -109,6 +109,47 @@ public class InteractiveMap extends GridPane {
 	}
 	
 	/**
+	 * Updates a tile on the map.
+	 * This, dear reader, is not a beautiful way of doing things, but it works.
+	 * 
+	 * @param tile The tile that we want to update.
+	 * @param tileType The new tile type.
+	 * @param bucket If Right-clicked we perform a bucket filling instead of individual
+	 */
+	public synchronized void updateTile(ImageView tile, Brush brush, boolean bucket) {
+		if (map == null) {
+			return;
+		}
+
+		Point p = coords.get(tile);
+		Tile currentTile = map.getTile(p);
+		
+		// Let's discard any attempts at erasing the doors
+		if (p == null
+				|| currentTile.GetType() == TileTypes.DOORENTER
+				|| currentTile.GetType() == TileTypes.DOOR) {
+			return;
+		}
+
+		if(bucket)
+		{
+			BucketFill(p, map.getTile(p).GetType(), brush.GetMainComponent(), brush.GetModifierValue("Lock"));
+			
+//			currentTile.ToggleImmutable();
+//			map.setTile(p.getX(), p.getY(), currentTile.GetType());
+//			drawTile(p.getX(), p.getY(), currentTile.GetType());
+			return;
+		}
+		
+		currentTile.SetImmutable(brush.GetModifierValue("Lock"));
+		if(brush.GetMainComponent() != null)
+		{
+			map.setTile(p.getX(), p.getY(), brush.GetMainComponent());
+			drawTile(p.getX(), p.getY(), brush.GetMainComponent());
+		}
+	}
+	
+	/**
 	 * Flood-fill algorithm to change an area of the same target type for another
 	 * @param p Position in the map
 	 * @param target Target TileType that will be replaced
@@ -132,6 +173,16 @@ public class InteractiveMap extends GridPane {
 		BucketFill(new Point(p.getX() - 1, p.getY()), target, replacement, locked);
 		BucketFill(new Point(p.getX(), p.getY() + 1), target, replacement, locked);
 		BucketFill(new Point(p.getX(), p.getY() - 1), target, replacement, locked);
+	}
+	
+	public Point CheckTile(ImageView tile)
+	{
+		if (map == null) {
+			return null;
+		}
+
+		Point p = coords.get(tile);
+		return p;
 	}
 	
 	/**
