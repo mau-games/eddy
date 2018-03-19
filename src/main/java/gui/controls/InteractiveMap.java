@@ -95,15 +95,15 @@ public class InteractiveMap extends GridPane {
 
 		if(bucket)
 		{
-			BucketFill(p, map.getTile(p).GetType(), tileType, locked);
+//			BucketFill(p, map.getTile(p).GetType(), tileType, locked);
 			
-//			currentTile.ToggleImmutable();
-//			map.setTile(p.getX(), p.getY(), currentTile.GetType());
-//			drawTile(p.getX(), p.getY(), currentTile.GetType());
+			currentTile.ToggleImmutable();
+			map.setTile(p.getX(), p.getY(), currentTile.GetType());
+			drawTile(p.getX(), p.getY(), currentTile.GetType());
 			return;
 		}
 		
-		currentTile.SetImmutable(locked);
+		//currentTile.SetImmutable(locked);
 		map.setTile(p.getX(), p.getY(), tileType);
 		drawTile(p.getX(), p.getY(), tileType);
 	}
@@ -116,7 +116,7 @@ public class InteractiveMap extends GridPane {
 	 * @param tileType The new tile type.
 	 * @param bucket If Right-clicked we perform a bucket filling instead of individual
 	 */
-	public synchronized void updateTile(ImageView tile, Brush brush, boolean bucket) {
+	public synchronized void updateTile(ImageView tile, Drawer brush) {
 		if (map == null) {
 			return;
 		}
@@ -130,23 +130,35 @@ public class InteractiveMap extends GridPane {
 				|| currentTile.GetType() == TileTypes.DOOR) {
 			return;
 		}
-
-		if(bucket)
+//
+//		if(bucket)
+//		{
+//			BucketFill(p, map.getTile(p).GetType(), brush.GetMainComponent(), brush.GetModifierValue("Lock"));
+//			
+////			currentTile.ToggleImmutable();
+////			map.setTile(p.getX(), p.getY(), currentTile.GetType());
+////			drawTile(p.getX(), p.getY(), currentTile.GetType());
+//			return;
+//		}
+		
+		for(finder.geometry.Point position : brush.GetDrawableTiles().getPoints())
 		{
-			BucketFill(p, map.getTile(p).GetType(), brush.GetMainComponent(), brush.GetModifierValue("Lock"));
+			currentTile = map.getTile(position.getX(), position.getY());
 			
-//			currentTile.ToggleImmutable();
-//			map.setTile(p.getX(), p.getY(), currentTile.GetType());
-//			drawTile(p.getX(), p.getY(), currentTile.GetType());
-			return;
+			// Let's discard any attempts at erasing the doors
+			if(currentTile.GetType() == TileTypes.DOORENTER
+				|| currentTile.GetType() == TileTypes.DOOR)
+				continue;
+			
+			currentTile.SetImmutable(brush.GetModifierValue("Lock"));
+			if(brush.GetMainComponent() != null)
+			{
+				map.setTile(position.getX(), position.getY(), brush.GetMainComponent());
+				drawTile(position.getX(), position.getY(), brush.GetMainComponent());
+			}
 		}
 		
-		currentTile.SetImmutable(brush.GetModifierValue("Lock"));
-		if(brush.GetMainComponent() != null)
-		{
-			map.setTile(p.getX(), p.getY(), brush.GetMainComponent());
-			drawTile(p.getX(), p.getY(), brush.GetMainComponent());
-		}
+		brush.DoneDrawing();
 	}
 	
 	/**

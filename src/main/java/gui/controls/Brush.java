@@ -1,48 +1,28 @@
 package gui.controls;
 
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.Queue;
+import java.util.Arrays;
+import java.util.List;
 
 import finder.geometry.Bitmap;
 import finder.geometry.Point;
-import finder.graph.Edge;
-import finder.patterns.Pattern;
-import game.Tile;
+import game.Map;
 import game.TileTypes;
-import javafx.scene.input.MouseEvent;
 
-public class Brush 
+public abstract class Brush 
 {
-	private TileTypes mainComponent; //Main "Color" of the brush
-	private HashMap<String, Modifier> modifiers; //Side components to add to the brush
-	private Bitmap drawableTiles;
-	private int size;
-	private Point center;
+	protected TileTypes mainComponent; //Main "Color" of the brush
+	protected Bitmap drawableTiles;
+	protected int size;
+	protected Point center;
+	protected boolean drew;
 	
 	public Brush()
 	{
-		mainComponent =  null;
-		modifiers = new HashMap<String, Modifier>();
+		mainComponent = null;
 		drawableTiles = new Bitmap();
+		drew = false;
 		size = 1;
-	}
-	
-	public Brush(TileTypes brushType)
-	{
-		mainComponent = brushType;
-		modifiers = new HashMap<String, Modifier>();
-		drawableTiles = new Bitmap();
-		size = 1;
-	}
-	
-	public Brush(TileTypes brushType, String modifierName, Boolean modifierActivated)
-	{
-		mainComponent = brushType;
-		modifiers = new HashMap<String, Modifier>();
-		modifiers.put(modifierName, new Modifier(modifierActivated));
-		drawableTiles = new Bitmap();
-		size = 1;
+		center = null;
 	}
 	
 	public void SetMainComponent(TileTypes type)
@@ -53,44 +33,6 @@ public class Brush
 	public TileTypes GetMainComponent()
 	{
 		return mainComponent;
-	}
-	
-	public void AddmodifierComponent(String modifierName, Boolean modifierActivated)
-	{
-		modifiers.put(modifierName, new Modifier(modifierActivated));
-	}
-	
-	public void AddmodifierComponent(String modifierName, Modifier modifier)
-	{
-		modifiers.put(modifierName, modifier);
-	}
-	
-	public void ChangeModifierMainValue(String modifierName, Boolean modifierActivated)
-	{
-		if(modifiers.containsKey(modifierName))
-			modifiers.get(modifierName).SetMainActive(modifierActivated);
-	}	
-	
-	public void ChangeModifierAlternateValue(String modifierName, Boolean modifierActivated)
-	{
-		if(modifiers.containsKey(modifierName))
-			modifiers.get(modifierName).SetAlternateActive(modifierActivated);
-	}
-	
-	public Modifier GetModifier(String modifierName)
-	{
-		if(modifiers.containsKey(modifierName))
-			return modifiers.get(modifierName);
-		
-		return null;
-	}
-	
-	public Boolean GetModifierValue(String modifierName)
-	{
-		if(modifiers.containsKey(modifierName))
-			return modifiers.get(modifierName).GetActive();
-		
-		return null;
 	}
 	
 	public int GetBrushSize()
@@ -108,41 +50,56 @@ public class Brush
 		return drawableTiles;
 	}
 	
-	public void UpdateDrawableTiles(int x, int y, int[][] matrix)
+	public void SetDrew()
 	{
-		
-		if(center != null && x == center.getX() && y == center.getY())
-			return;
-		
-		center = new Point(x,y);
-		drawableTiles = new Bitmap();
-//		drawableTiles.addPoint(center); //Add the first point
-		
-		//Update the bitmap depending on the size of the brush
-		FillDrawable(center, matrix[0].length, matrix.length, size);
+		drew = true;
 	}
 	
-	private void FillDrawable(Point p, int width, int height, int layer)
+	/**
+	 * Updates the tiles that are drawable for this brush based
+	 * based on the position of the tile and the brush size
+	 * @param x X position of the hovered tile
+	 * @param y Y position of the hovered tile
+	 * @param map active map
+	 */
+	public abstract void UpdateDrawableTiles(int x, int y, Map map);
+	
+	/**
+	 * Fill the Bitmap based on its neighbors and brush size
+	 * @param p Point to be evaluated
+	 * @param width Width of the map
+	 * @param height Height of the map
+	 * @param layer Current evaluated size (evaluated size - 1)
+	 */
+	abstract protected void FillDrawable(Point p, int width, int height, int layer);
+	
+	/***
+	 * Calculates the neighborhood given a certain point
+	 * @param p Center point of the neighborhood
+	 * @return The North, East, South and West neighbor of the point
+	 */
+	protected List<Point> GetNeumannNeighborhood(Point p)
 	{
-		if(layer == 0 || p.getX() < 0 || p.getX() > width - 1 || p.getY() < 0 || p.getY() > height - 1 || drawableTiles.contains(p))
-			return;
-		
-		drawableTiles.addPoint(p);
-		
-		FillDrawable(new Point(p.getX() + 1, p.getY()), width, height, layer - 1);
-		FillDrawable(new Point(p.getX() - 1, p.getY()), width, height, layer - 1);
-		FillDrawable(new Point(p.getX(), p.getY() + 1), width, height, layer - 1);
-		FillDrawable(new Point(p.getX(), p.getY() - 1), width, height, layer - 1);
+		return Arrays.asList(	new Point(p.getX(), p.getY() + 1),
+								new Point(p.getX() + 1, p.getY()),
+								new Point(p.getX(), p.getY() - 1),
+								new Point(p.getX() - 1, p.getY()));						
 	}
 	
-	public void UpdateModifiers(MouseEvent event)
+	/**
+	 * Calculates the neighborhood given a certain point
+	 * @param p Center point of the neighborhood
+	 * @return N, NE, E, SE, S, SW, W, NW neighbor of the point
+	 */
+	protected List<Point> GetMooreNeighborhood(Point p)
 	{
-		ChangeModifierAlternateValue("Lock", event.isControlDown()); //Just checking
-	}
-	
-	public void Update(MouseEvent event, TileTypes type)
-	{
-		SetMainComponent(type);
-		ChangeModifierAlternateValue("Lock", event.isControlDown()); //Just checking
+		return Arrays.asList(	new Point(p.getX(), p.getY() + 1),
+								new Point(p.getX() + 1, p.getY() + 1),				
+								new Point(p.getX() + 1, p.getY()),
+								new Point(p.getX() + 1, p.getY() - 1),	
+								new Point(p.getX(), p.getY() - 1),
+								new Point(p.getX() - 1, p.getY() - 1),
+								new Point(p.getX() - 1, p.getY()),
+								new Point(p.getX() - 1, p.getY() + 1));		
 	}
 }

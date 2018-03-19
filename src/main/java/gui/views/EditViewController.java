@@ -16,7 +16,7 @@ import game.ApplicationConfig;
 import game.Map;
 import game.TileTypes;
 import game.Game.MapMutationType;
-import gui.controls.Brush;
+import gui.controls.Drawer;
 import gui.controls.InteractiveMap;
 import gui.controls.LabeledCanvas;
 import gui.controls.Modifier;
@@ -85,7 +85,7 @@ public class EditViewController extends BorderPane implements Listener {
 	private final static Logger logger = LoggerFactory.getLogger(EditViewController.class);
 	private ApplicationConfig config;
 	
-	public Brush myBrush;
+	public Drawer myBrush;
 
 	/**
 	 * Creates an instance of this class.
@@ -107,7 +107,7 @@ public class EditViewController extends BorderPane implements Listener {
 		}
 		
 		router.registerListener(this, new MapUpdate(null));
-		myBrush = new Brush();
+		myBrush = new Drawer();
 		myBrush.AddmodifierComponent("Lock", new Modifier(lockBrush));
 		
 		init();
@@ -559,7 +559,7 @@ public class EditViewController extends BorderPane implements Listener {
 //				else if()
 				myBrush.UpdateModifiers(event);
 //				mapView.updateTile(tile, brush, event.getButton() == MouseButton.SECONDARY, lockBrush.isSelected() || event.isControlDown());
-				mapView.updateTile(tile, myBrush, event.getButton() == MouseButton.SECONDARY);
+				mapView.updateTile(tile, myBrush);
 				mapView.getMap().forceReevaluation();
 				mapIsFeasible(mapView.getMap().isFeasible());
 				redrawPatterns(mapView.getMap());
@@ -586,8 +586,7 @@ public class EditViewController extends BorderPane implements Listener {
 				brushCanvas.getGraphicsContext2D().clearRect(0, 0, 420, 420);
 				brushCanvas.setVisible(true);
 				util.Point p = mapView.CheckTile(tile);
-				if(p != null)
-					myBrush.UpdateDrawableTiles(p.getX(), p.getY(), mapView.getMap().toMatrix());
+				myBrush.Update(event, p, mapView.getMap());
 				
 				renderer.drawBrush(brushCanvas.getGraphicsContext2D(), mapView.getMap().toMatrix(), myBrush, Color.WHITE);
 			}

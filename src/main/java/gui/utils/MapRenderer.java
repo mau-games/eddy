@@ -41,7 +41,7 @@ import game.MapContainer;
 import game.TileTypes;
 import game.ZoneNode;
 import gui.ParameterGUIController;
-import gui.controls.Brush;
+import gui.controls.Drawer;
 import javafx.application.Platform;
 import javafx.scene.SnapshotParameters;
 import javafx.scene.canvas.Canvas;
@@ -302,7 +302,7 @@ public class MapRenderer implements Listener {
 	public synchronized void drawBrush(
 			GraphicsContext ctx,
 			int[][] matrix,
-			Brush brush,
+			Drawer brush,
 			Color c) {
 		
 		//TODO: The following calculation should probably be split out into a method
