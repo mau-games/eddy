@@ -58,6 +58,7 @@ import util.eventrouting.EventRouter;
 import util.eventrouting.Listener;
 import util.eventrouting.PCGEvent;
 import util.eventrouting.events.MapUpdate;
+import util.eventrouting.events.RequestWorldView;
 import util.eventrouting.events.StartMapMutate;
 import util.eventrouting.events.Stop;
 import util.eventrouting.events.SuggestedMapsDone;
