@@ -113,7 +113,8 @@ public class InteractiveGUIController implements Initializable, Listener {
 			MapContainer container = (MapContainer) e.getPayload();
 			initSuggestionsView();
 		} else if (e instanceof RequestWorldView) {
-			initWorldView();
+			
+			backToWorldView();
 		} else if (e instanceof RequestEmptyRoom) {
 			worldMapMatrix = ((RequestEmptyRoom) e).getMatrix();
 			row = ((RequestEmptyRoom) e).getRow();
@@ -173,9 +174,9 @@ public class InteractiveGUIController implements Initializable, Listener {
 		initWorldView();
 	}
 
-	public void goToWorldView() {
-		router.postEvent(new RequestWorldView());
-	}
+//	public void goToWorldView() {
+//		router.postEvent(new RequestWorldView());
+//	}
 
 	public void exitApplication() {
 		// TODO: Maybe be a bit more graceful than this...
@@ -330,6 +331,29 @@ public class InteractiveGUIController implements Initializable, Listener {
 		//		createWorldMatrix();
 
 		worldView.initWorldMap(initMatrix());
+
+		saveItem.setDisable(false);
+		saveAsItem.setDisable(false);
+		exportItem.setDisable(false);
+
+		suggestionsView.setActive(false);
+		roomView.setActive(false);
+		worldView.setActive(true);
+	}
+	
+	
+	private void backToWorldView() {
+		mainPane.getChildren().clear();
+		AnchorPane.setTopAnchor(worldView, 0.0);
+		AnchorPane.setRightAnchor(worldView, 0.0);
+		AnchorPane.setBottomAnchor(worldView, 0.0);
+		AnchorPane.setLeftAnchor(worldView, 0.0);
+		mainPane.getChildren().add(worldView);
+
+
+		//		createWorldMatrix();
+
+		worldView.initWorldMap(worldMapMatrix);
 
 		saveItem.setDisable(false);
 		saveAsItem.setDisable(false);

@@ -58,6 +58,7 @@ import util.eventrouting.EventRouter;
 import util.eventrouting.Listener;
 import util.eventrouting.PCGEvent;
 import util.eventrouting.events.MapUpdate;
+import util.eventrouting.events.RequestWorldView;
 import util.eventrouting.events.StartMapMutate;
 import util.eventrouting.events.Stop;
 import util.eventrouting.events.SuggestedMapsDone;
@@ -404,7 +405,7 @@ public class RoomViewController extends BorderPane implements Listener {
 	public void updateMap(Map map) {
 		getMapView().updateMap(map);
 		redrawPatterns(map);
-		mapIsFeasible(map.isFeasible());
+		mapIsFeasible(map.isFeasibleTwo());
 //		resetMiniMaps();
 	}
 	
@@ -412,7 +413,7 @@ public class RoomViewController extends BorderPane implements Listener {
 		getMapView().updateMap(map);
 		
 		redrawPatterns(map);
-		mapIsFeasible(map.isFeasible());
+		mapIsFeasible(map.isFeasibleTwo());
 		//resetMiniMaps();
 	}
 	
@@ -576,7 +577,7 @@ public class RoomViewController extends BorderPane implements Listener {
 				ImageView tile = (ImageView) event.getTarget();
 				getMapView().updateTile(tile, brush);
 				getMapView().getMap().forceReevaluation();
-				mapIsFeasible(getMapView().getMap().isFeasible());
+				mapIsFeasible(getMapView().getMap().isFeasibleTwo());
 				redrawPatterns(getMapView().getMap());
 			}
 		}
@@ -585,16 +586,12 @@ public class RoomViewController extends BorderPane implements Listener {
 
 
 	@FXML
-	private String handleButtonAction(ActionEvent event) throws IOException {
+	private void handleButtonAction(ActionEvent event) throws IOException {
 
-		FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/gui/WorldMap.fxml"));
-		Parent root1 = (Parent) fxmlLoader.load();
-		Stage stage = new Stage();
-		stage.setTitle("ABC");
-		stage.setScene(new Scene(root1));
-		stage.show();
+		
+		router.postEvent(new RequestWorldView());	
 
-		return null;
+		
 
 	}
 	

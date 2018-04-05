@@ -894,6 +894,52 @@ public class Map {
 			addFailedPathToTreasures();
 
 		return visited.size() == getNonWallTileCount() 
+				&& (treasure + enemies + doors == getTreasureCount() + getEnemyCount() + getDoorCount())
+				&& getTreasureCount() > 0 && getEnemyCount() > 0;
+	}
+	
+	
+	public boolean isFeasibleTwo(){
+		List<Node> visited = new ArrayList<Node>();
+		Queue<Node> queue = new LinkedList<Node>();
+		int treasure = 0;
+		int enemies = 0;
+		int doors = 0;
+
+		Node root = new Node(0.0f, getEntrance(), null);
+		queue.add(root);
+
+		while(!queue.isEmpty()){
+			Node current = queue.remove();
+			visited.add(current);
+			if(getTile(current.position).isDoor())
+				doors++;
+			else if (getTile(current.position).isEnemy())
+				enemies++;
+			else if (getTile(current.position).isTreasure())
+				treasure++;
+
+			List<Point> children = getAvailableCoords(current.position);
+			for(Point child : children)
+			{
+				if (visited.stream().filter(x->x.equals(child)).findFirst().isPresent() 
+						|| queue.stream().filter(x->x.equals(child)).findFirst().isPresent()) 
+					continue;
+
+				//Create child node
+				Node n = new Node(0.0f, child, current);
+				queue.add(n);
+			}
+		}
+
+		for(int i = treasure; i < getTreasureCount();i++)
+			addFailedPathToTreasures();
+		for(int i = doors; i < getNumberOfDoors();i++)
+			addFailedPathToTreasures();
+		for(int i = enemies; i < getEnemyCount();i++)
+			addFailedPathToTreasures();
+
+		return visited.size() == getNonWallTileCount() 
 				&& (treasure + enemies == getTreasureCount() + getEnemyCount())
 				&& getTreasureCount() > 0 && getEnemyCount() > 0;
 	}
