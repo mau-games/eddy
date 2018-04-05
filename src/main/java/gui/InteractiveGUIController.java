@@ -52,6 +52,7 @@ import util.eventrouting.events.RequestWorldView;
 import util.eventrouting.events.Start;
 import util.eventrouting.events.StatusMessage;
 import util.eventrouting.events.Stop;
+import util.eventrouting.events.SuggestedMapsDone;
 
 
 
@@ -119,6 +120,12 @@ public class InteractiveGUIController implements Initializable, Listener {
 			col = ((RequestEmptyRoom) e).getCol();
 			MapContainer container = (MapContainer) e.getPayload();
 			initRoomView(container);
+
+		} else if (e instanceof SuggestedMapsDone) {
+			roomView.getRightButton().setDisable(false);
+			roomView.getLeftButton().setDisable(false);
+			roomView.getDownButton().setDisable(false);
+			roomView.getUpButton().setDisable(false);
 		}
 	}
 
@@ -140,6 +147,7 @@ public class InteractiveGUIController implements Initializable, Listener {
 		router.registerListener(this, new RequestEmptyRoom(null, 0, 0, null));
 		router.registerListener(this, new RequestSuggestionsView(null, 0, 0, null, 0));
 		router.registerListener(this, new Stop());
+		router.registerListener(this, new SuggestedMapsDone());
 
 		suggestionsView = new SuggestionsViewController();
 		roomView = new RoomViewController();
@@ -161,7 +169,7 @@ public class InteractiveGUIController implements Initializable, Listener {
 	 */
 
 	public void startNewFlow() {
-//		router.postEvent(new Start(6));
+		//		router.postEvent(new Start(6));
 		initWorldView();
 	}
 
@@ -362,6 +370,8 @@ public class InteractiveGUIController implements Initializable, Listener {
 
 
 	private void roomButtonEvents() {
+		
+	
 		roomView.getRightButton().setOnAction(new EventHandler<ActionEvent>() {
 			@Override
 			public void handle(ActionEvent e) {
@@ -377,6 +387,10 @@ public class InteractiveGUIController implements Initializable, Listener {
 
 
 				}
+				roomView.getRightButton().setDisable(true);
+				roomView.getLeftButton().setDisable(true);
+				roomView.getDownButton().setDisable(true);
+				roomView.getUpButton().setDisable(true);
 
 			}
 		}); 
@@ -396,7 +410,10 @@ public class InteractiveGUIController implements Initializable, Listener {
 
 
 				}
-
+				roomView.getRightButton().setDisable(true);
+				roomView.getLeftButton().setDisable(true);
+				roomView.getDownButton().setDisable(true);
+				roomView.getUpButton().setDisable(true);
 			}
 		}); 
 
@@ -414,6 +431,10 @@ public class InteractiveGUIController implements Initializable, Listener {
 
 
 				}
+				roomView.getRightButton().setDisable(true);
+				roomView.getLeftButton().setDisable(true);
+				roomView.getDownButton().setDisable(true);
+				roomView.getUpButton().setDisable(true);
 			}
 
 		}); 
@@ -432,6 +453,10 @@ public class InteractiveGUIController implements Initializable, Listener {
 
 
 				}
+				roomView.getRightButton().setDisable(true);
+				roomView.getLeftButton().setDisable(true);
+				roomView.getDownButton().setDisable(true);
+				roomView.getUpButton().setDisable(true);
 
 			}
 		}); 
@@ -462,8 +487,8 @@ public class InteractiveGUIController implements Initializable, Listener {
 			currentQuadMap = selectedMiniCont;
 
 			worldMapMatrix[row][col] = selectedMiniCont;
-				roomView.setMousePressed(true);
-		
+			roomView.setMousePressed(true);
+
 
 		});
 		roomView.getMap(2).addEventFilter(MouseEvent.MOUSE_CLICKED, (e) -> {
@@ -473,8 +498,8 @@ public class InteractiveGUIController implements Initializable, Listener {
 			currentQuadMap = selectedMiniCont;
 
 			worldMapMatrix[row][col] = selectedMiniCont;
-				roomView.setMousePressed(true);
-			
+			roomView.setMousePressed(true);
+
 
 		});
 		roomView.getMap(3).addEventFilter(MouseEvent.MOUSE_CLICKED, (e) -> {
@@ -482,9 +507,9 @@ public class InteractiveGUIController implements Initializable, Listener {
 			MapContainer selectedMiniCont = new MapContainer();
 			selectedMiniCont.setMap(roomView.getSelectedMiniMap());
 
-				currentQuadMap = selectedMiniCont;
-				worldMapMatrix[row][col] = selectedMiniCont;
-				roomView.setMousePressed(true);
+			currentQuadMap = selectedMiniCont;
+			worldMapMatrix[row][col] = selectedMiniCont;
+			roomView.setMousePressed(true);
 
 
 		});

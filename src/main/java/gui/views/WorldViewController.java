@@ -54,6 +54,9 @@ public class WorldViewController extends GridPane implements Listener{
 	private MapContainer[][] matrix;
 	private int size;
 	private int viewSize;
+	private Node source;
+	private Node oldNode;
+	private LabeledCanvas canvas;
 	
 	public WorldViewController() {
 		super();
@@ -97,7 +100,7 @@ public class WorldViewController extends GridPane implements Listener{
 		        	}
 		        }
 				
-				LabeledCanvas canvas = new LabeledCanvas();
+				canvas = new LabeledCanvas();
 				canvas.setText("");
 				canvas.setPrefSize(viewSize, viewSize);
 				canvas.draw(renderer.renderMap(matrix[j][i].getMap().toMatrix()));
@@ -110,8 +113,7 @@ public class WorldViewController extends GridPane implements Listener{
 
 				canvas.addEventFilter(MouseEvent.MOUSE_CLICKED,
 						new MouseEventHandler());
-
-
+				
 				//gridPane.add(new Button(), i, j);
 			}
 		}	
@@ -175,7 +177,7 @@ public class WorldViewController extends GridPane implements Listener{
 	public void setSuggestionsBtn(Button suggestionsBtn) {
 		this.suggestionsBtn = suggestionsBtn;
 	}
-	private class MouseEventHandler implements EventHandler<MouseEvent> {
+	public class MouseEventHandler implements EventHandler<MouseEvent> {
 
 		//		private MapContainer map;
 		//
@@ -185,14 +187,35 @@ public class WorldViewController extends GridPane implements Listener{
 
 		@Override
 		public void handle(MouseEvent event) {
-			Node source = (Node)event.getSource() ;
+			source = (Node)event.getSource() ;
 			Integer colIndex = GridPane.getColumnIndex(source);
 			Integer rowIndex = GridPane.getRowIndex(source);
 			row = rowIndex;
 			col = colIndex;
 
 			System.out.printf("Mouse entered cell [%d, %d]%n", colIndex.intValue(), rowIndex.intValue());
-			source.setStyle("-fx-background-color:#f9f3c5;");
+
+			source.setOnMouseClicked(new EventHandler<MouseEvent>() {
+
+	            @Override
+	            public void handle(MouseEvent event) {
+	    			source.setStyle("-fx-background-color:#f9f3c5;");
+	    			if (oldNode != null) {
+	    				oldNode.setStyle("-fx-background-color:#f4f4f4;");
+	    			}	 
+	    			oldNode = source;
+
+	            }
+	        });
+			
+			source.setOnMouseExited(new EventHandler<MouseEvent>() {
+
+	            @Override
+	            public void handle(MouseEvent event) {
+	    			source.setStyle("-fx-background-color:#f9f3c5;");
+
+	            }
+	        });
 
 		}
 
@@ -210,7 +233,7 @@ public class WorldViewController extends GridPane implements Listener{
 		getSuggestionsBtn().setOnAction(new EventHandler<ActionEvent>() {
 			@Override
 			public void handle(ActionEvent e) {
-				router.postEvent(new RequestSuggestionsView(matrix[row][col], row, col, matrix, 6));
+				router.postEvent(new RequestSuggestionsView(matrix[row][col], row, col, matrix, 3));
 			}
 
 		}); 

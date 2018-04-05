@@ -59,6 +59,8 @@ import util.eventrouting.Listener;
 import util.eventrouting.PCGEvent;
 import util.eventrouting.events.MapUpdate;
 import util.eventrouting.events.StartMapMutate;
+import util.eventrouting.events.Stop;
+import util.eventrouting.events.SuggestedMapsDone;
 
 /**
  * his class controls the interactive application's edit view.
@@ -96,7 +98,7 @@ public class RoomViewController extends BorderPane implements Listener {
 	private boolean isActive = false;
 	private boolean isFeasible = true;
 	private TileTypes brush = null;
-	private HashMap<Integer, Map> maps = new HashMap<Integer, Map>();
+	public HashMap<Integer, Map> maps = new HashMap<Integer, Map>();
 	private int nextMap = 0;
 
 	private MapRenderer renderer = MapRenderer.getInstance();
@@ -338,7 +340,9 @@ public class RoomViewController extends BorderPane implements Listener {
 	@Override
 	public void ping(PCGEvent e) {
 		if (e instanceof MapUpdate) {
+
 			if (isActive) {
+
 				Map map = (Map) ((MapUpdate) e).getPayload();
 				UUID uuid = ((MapUpdate) e).getID();
 				LabeledCanvas canvas;
@@ -347,9 +351,12 @@ public class RoomViewController extends BorderPane implements Listener {
 					canvas = mapDisplays.get(nextMap);
 					//					canvas.setText("Got map:\n" + uuid);
 					canvas.setText("");
-					maps.put(nextMap, map);
+				maps.put(nextMap, map);
 					nextMap++;
-					
+					if (nextMap == 4) {
+						router.postEvent(new Stop());	
+						router.postEvent(new SuggestedMapsDone());
+					}
 				}
 
 				Platform.runLater(() -> {
@@ -396,8 +403,8 @@ public class RoomViewController extends BorderPane implements Listener {
 	 */
 	public void updateMap(Map map) {
 		getMapView().updateMap(map);
-//		redrawPatterns(map);
-//		mapIsFeasible(map.isFeasible());
+		redrawPatterns(map);
+		mapIsFeasible(map.isFeasible());
 //		resetMiniMaps();
 	}
 	

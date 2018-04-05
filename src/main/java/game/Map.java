@@ -866,7 +866,7 @@ public class Map {
 		while(!queue.isEmpty()){
 			Node current = queue.remove();
 			visited.add(current);
-			if(getTile(current.position) == TileTypes.DOOR)
+			if(getTile(current.position).isDoor())
 				doors++;
 			else if (getTile(current.position).isEnemy())
 				enemies++;
@@ -888,13 +888,13 @@ public class Map {
 
 		for(int i = treasure; i < getTreasureCount();i++)
 			addFailedPathToTreasures();
-		for(int i = doors; i < getDoorCount();i++)
+		for(int i = doors; i < getNumberOfDoors();i++)
 			addFailedPathToTreasures();
 		for(int i = enemies; i < getEnemyCount();i++)
 			addFailedPathToTreasures();
 
 		return visited.size() == getNonWallTileCount() 
-				&& (treasure + doors + enemies == getTreasureCount() + getDoorCount() + getEnemyCount())
+				&& (treasure + enemies == getTreasureCount() + getEnemyCount())
 				&& getTreasureCount() > 0 && getEnemyCount() > 0;
 	}
 

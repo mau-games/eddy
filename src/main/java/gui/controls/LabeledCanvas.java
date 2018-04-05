@@ -2,6 +2,7 @@ package gui.controls;
 
 import java.io.IOException;
 
+import gui.views.WorldViewController.MouseEventHandler;
 import javafx.animation.Animation;
 import javafx.animation.Interpolator;
 import javafx.animation.RotateTransition;
@@ -11,12 +12,14 @@ import javafx.beans.property.StringProperty;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
+import javafx.scene.Node;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.GridPane;
 import javafx.util.Duration;
 
 /**
@@ -170,6 +173,7 @@ public class LabeledCanvas extends BorderPane {
     		setStyle("-fx-border-width: 0px");
     	}
     }
+    
     
     /**
      * Waits for a new image and displays a rotating wheel.
