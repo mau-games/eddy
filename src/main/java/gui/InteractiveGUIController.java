@@ -53,6 +53,7 @@ import util.eventrouting.events.Start;
 import util.eventrouting.events.StatusMessage;
 import util.eventrouting.events.Stop;
 import util.eventrouting.events.SuggestedMapsDone;
+import util.eventrouting.events.SuggestedMapsLoading;
 
 
 
@@ -127,6 +128,11 @@ public class InteractiveGUIController implements Initializable, Listener {
 			roomView.getLeftButton().setDisable(false);
 			roomView.getDownButton().setDisable(false);
 			roomView.getUpButton().setDisable(false);
+		} else if (e instanceof SuggestedMapsLoading) {
+			roomView.getRightButton().setDisable(true);
+			roomView.getLeftButton().setDisable(true);
+			roomView.getDownButton().setDisable(true);
+			roomView.getUpButton().setDisable(true);
 		}
 	}
 
@@ -149,6 +155,7 @@ public class InteractiveGUIController implements Initializable, Listener {
 		router.registerListener(this, new RequestSuggestionsView(null, 0, 0, null, 0));
 		router.registerListener(this, new Stop());
 		router.registerListener(this, new SuggestedMapsDone());
+		router.registerListener(this, new SuggestedMapsLoading());
 
 		suggestionsView = new SuggestionsViewController();
 		roomView = new RoomViewController();

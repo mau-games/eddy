@@ -87,6 +87,8 @@ public class WorldViewController extends GridPane implements Listener{
 		initOptions();	
 
 	}
+	
+	
 
 	public void initWorldMap(MapContainer[][] matrix) {
 		this.matrix = matrix;	

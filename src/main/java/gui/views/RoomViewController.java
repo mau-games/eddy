@@ -58,10 +58,10 @@ import util.eventrouting.EventRouter;
 import util.eventrouting.Listener;
 import util.eventrouting.PCGEvent;
 import util.eventrouting.events.MapUpdate;
-import util.eventrouting.events.RequestWorldView;
 import util.eventrouting.events.StartMapMutate;
 import util.eventrouting.events.Stop;
 import util.eventrouting.events.SuggestedMapsDone;
+import util.eventrouting.events.SuggestedMapsLoading;
 
 /**
  * his class controls the interactive application's edit view.
@@ -490,6 +490,7 @@ public class RoomViewController extends BorderPane implements Listener {
 	 * "Why is this public?",  you ask. Because of FXML's method binding.
 	 */
 	public void generateNewMaps() {
+		router.postEvent(new SuggestedMapsLoading());
 		resetMiniMaps();
 		generateNewMaps(getMapView().getMap());
 	}
