@@ -87,6 +87,8 @@ public class WorldViewController extends GridPane implements Listener{
 		initOptions();	
 
 	}
+	
+	
 
 	public void initWorldMap(MapContainer[][] matrix) {
 		this.matrix = matrix;	
@@ -141,7 +143,7 @@ public class WorldViewController extends GridPane implements Listener{
 		buttonPane.getChildren().add(getRoomNullBtn());
 		buttonPane.getChildren().add(getSuggestionsBtn());
 
-		getStartEmptyBtn().setText("Start with empty room");
+		getStartEmptyBtn().setText("Open room");
 		getRoomNullBtn().setText("Make room null");
 		getSuggestionsBtn().setText("Start with our suggestions");
 	}

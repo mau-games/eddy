@@ -61,6 +61,7 @@ import util.eventrouting.events.MapUpdate;
 import util.eventrouting.events.StartMapMutate;
 import util.eventrouting.events.Stop;
 import util.eventrouting.events.SuggestedMapsDone;
+import util.eventrouting.events.SuggestedMapsLoading;
 
 /**
  * his class controls the interactive application's edit view.
@@ -489,6 +490,7 @@ public class RoomViewController extends BorderPane implements Listener {
 	 * "Why is this public?",  you ask. Because of FXML's method binding.
 	 */
 	public void generateNewMaps() {
+		router.postEvent(new SuggestedMapsLoading());
 		resetMiniMaps();
 		generateNewMaps(getMapView().getMap());
 	}
@@ -587,23 +589,11 @@ public class RoomViewController extends BorderPane implements Listener {
 	@FXML
 	private String handleButtonAction(ActionEvent event) throws IOException {
 
-		FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/gui/WorldMap.fxml"));
-		Parent root1 = (Parent) fxmlLoader.load();
-		Stage stage = new Stage();
-		stage.setTitle("ABC");
-		stage.setScene(new Scene(root1));
-		stage.show();
+
 
 		return null;
 
 	}
-	
-	
-	
-
-
-
-
 
 	public void testMethod() {
 		System.out.println("hello");
