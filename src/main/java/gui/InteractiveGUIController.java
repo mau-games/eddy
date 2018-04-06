@@ -45,6 +45,7 @@ import util.eventrouting.PCGEvent;
 import util.eventrouting.events.AlgorithmDone;
 import util.eventrouting.events.MapLoaded;
 import util.eventrouting.events.RequestEmptyRoom;
+import util.eventrouting.events.RequestNullRoom;
 import util.eventrouting.events.RequestRedraw;
 import util.eventrouting.events.RequestRoomView;
 import util.eventrouting.events.RequestSuggestionsView;
@@ -133,7 +134,19 @@ public class InteractiveGUIController implements Initializable, Listener {
 			roomView.getLeftButton().setDisable(true);
 			roomView.getDownButton().setDisable(true);
 			roomView.getUpButton().setDisable(true);
+		} else if (e instanceof RequestNullRoom) {
+			worldMapMatrix = ((RequestNullRoom) e).getMatrix();
+			row = ((RequestNullRoom) e).getRow();
+			col = ((RequestNullRoom) e).getCol();
+			MapContainer container = (MapContainer) e.getPayload();
+			Map nullMap = new Map(11, 11, 0);
+			MapContainer nullCont = new MapContainer();
+			nullCont.setMap(nullMap);
+			worldMapMatrix[row][col] = nullCont;
+			evaluateNullChange();
+			backToWorldView();
 		}
+		
 	}
 
 	@Override
@@ -156,6 +169,7 @@ public class InteractiveGUIController implements Initializable, Listener {
 		router.registerListener(this, new Stop());
 		router.registerListener(this, new SuggestedMapsDone());
 		router.registerListener(this, new SuggestedMapsLoading());
+		router.registerListener(this, new RequestNullRoom(null, 0, 0, null));
 
 		suggestionsView = new SuggestionsViewController();
 		roomView = new RoomViewController();
@@ -360,6 +374,7 @@ public class InteractiveGUIController implements Initializable, Listener {
 
 		//		createWorldMatrix();
 
+		//evaluateNullChange();
 		worldView.initWorldMap(worldMapMatrix);
 
 		saveItem.setDisable(false);
@@ -547,7 +562,73 @@ public class InteractiveGUIController implements Initializable, Listener {
 		roomView.resetMiniMaps();
 		roomView.setMousePressed(false);
 	}
+	
+	private void evaluateNullChange() {
+		// South
+		Point south = new Point(11/2, 11-1);
+		// East
+		Point east = new Point(11-1, 11/2);
+		// North
+		Point north = new Point(11/2, 0);
+		// West
+		Point west = new Point(0, 11/2);
+		System.out.println("evalue start");
+		for (int rows = 0; rows < size; rows++) {
+			for (int cols = 0; cols < size; cols++) {
+				if (!worldMapMatrix[rows][cols].getMap().getNull()) {
+					if (rows != 0) {
+						//north
+						if (worldMapMatrix[rows - 1][cols].getMap().getNull()) {
+							worldMapMatrix[rows][cols].getMap().matrix[north.getX()][north.getY()] = 0;
+							worldMapMatrix[rows][cols].getMap().setNumberOfDoors(worldMapMatrix[rows][cols].getMap().getNumberOfDoors());
+							System.out.println("north change for row, col: " + rows + ", " + cols);
+							worldMapMatrix[rows][cols].getMap().setNorth();
+							
+						}
+					}
+					if (cols != (size - 1)) {
+						//east
+						System.out.println("east test");
+						if (worldMapMatrix[rows][cols + 1].getMap().getNull()) {
+							worldMapMatrix[rows][cols].getMap().matrix[east.getX()][east.getY()] = 0;
+							worldMapMatrix[rows][cols].getMap().setNumberOfDoors(worldMapMatrix[rows][cols].getMap().getNumberOfDoors());
+							System.out.println("east change for row, col: " + rows + ", " + cols);
+							worldMapMatrix[rows][cols].getMap().setEast();
+						}
+						
+					}
+					if (rows != (size - 1)) {
+						//south
+						System.out.println("south test");
+						if (worldMapMatrix[rows + 1][cols].getMap().getNull()) {
+							worldMapMatrix[rows][cols].getMap().matrix[south.getX()][south.getY()] = 0;
+							worldMapMatrix[rows][cols].getMap().setNumberOfDoors(worldMapMatrix[rows][cols].getMap().getNumberOfDoors());
+							System.out.println("south change for row, col: " + rows + ", " + cols);
+							worldMapMatrix[rows][cols].getMap().setSouth();
+						}
+						
+					}
+					if (cols != 0) {
+						//west
+						if (worldMapMatrix[rows][cols - 1].getMap().getNull()) {
+							worldMapMatrix[rows][cols].getMap().matrix[west.getX()][west.getY()] = 0;
+							worldMapMatrix[rows][cols].getMap().setNumberOfDoors(worldMapMatrix[rows][cols].getMap().getNumberOfDoors());
+							System.out.println("west change for row, col: " + rows + ", " + cols);
+							worldMapMatrix[rows][cols].getMap().setWest();
 
+						}
+						
+					}
+				}
+				
+				
+				
+			}
+		}
+		
+	}
+	
+	
 	private MapContainer[][] initMatrix() {
 		//empty room doors thingy
 

@@ -27,6 +27,7 @@ import util.eventrouting.Listener;
 import util.eventrouting.PCGEvent;
 import util.eventrouting.events.MapUpdate;
 import util.eventrouting.events.RequestEmptyRoom;
+import util.eventrouting.events.RequestNullRoom;
 import util.eventrouting.events.RequestRoomView;
 import util.eventrouting.events.RequestSuggestionsView;
 
@@ -85,6 +86,7 @@ public class WorldViewController extends GridPane implements Listener{
 	private void initWorldView() {
 		worldButtonEvents();
 		initOptions();	
+		
 
 	}
 	
@@ -118,7 +120,19 @@ public class WorldViewController extends GridPane implements Listener{
 				
 				//gridPane.add(new Button(), i, j);
 			}
-		}	
+		}
+		if (matrix[row][col].getMap().getNull()) {
+			//disable
+			System.out.println("disable");
+			getSuggestionsBtn().setDisable(true);
+			getStartEmptyBtn().setDisable(true);
+		}
+		else {
+			//enable
+			System.out.println("enable");
+			getSuggestionsBtn().setDisable(false);
+			getStartEmptyBtn().setDisable(false);	
+		}
 	}
 
 	private void initOptions() {				
@@ -146,6 +160,7 @@ public class WorldViewController extends GridPane implements Listener{
 		getStartEmptyBtn().setText("Open room");
 		getRoomNullBtn().setText("Make room null");
 		getSuggestionsBtn().setText("Start with our suggestions");
+		
 	}
 
 
@@ -194,7 +209,20 @@ public class WorldViewController extends GridPane implements Listener{
 			Integer rowIndex = GridPane.getRowIndex(source);
 			row = rowIndex;
 			col = colIndex;
-
+			
+			if (matrix[row][col].getMap().getNull()) {
+				//disable
+				System.out.println("disable");
+				getSuggestionsBtn().setDisable(true);
+				getStartEmptyBtn().setDisable(true);
+			}
+			else {
+				//enable
+				System.out.println("enable");
+				getSuggestionsBtn().setDisable(false);
+				getStartEmptyBtn().setDisable(false);	
+			}
+			
 			System.out.printf("Mouse entered cell [%d, %d]%n", colIndex.intValue(), rowIndex.intValue());
 
 			source.setOnMouseClicked(new EventHandler<MouseEvent>() {
@@ -206,6 +234,7 @@ public class WorldViewController extends GridPane implements Listener{
 	    				oldNode.setStyle("-fx-background-color:#f4f4f4;");
 	    			}	 
 	    			oldNode = source;
+	    			
 
 	            }
 	        });
@@ -215,7 +244,7 @@ public class WorldViewController extends GridPane implements Listener{
 	            @Override
 	            public void handle(MouseEvent event) {
 	    			source.setStyle("-fx-background-color:#f9f3c5;");
-
+	    			
 	            }
 	        });
 
@@ -244,6 +273,7 @@ public class WorldViewController extends GridPane implements Listener{
 		getRoomNullBtn().setOnAction(new EventHandler<ActionEvent>() {
 			@Override
 			public void handle(ActionEvent e) {
+				router.postEvent(new RequestNullRoom(matrix[row][col], row, col, matrix));
 			}
 
 		}); 

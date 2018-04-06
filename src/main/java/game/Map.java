@@ -41,7 +41,7 @@ import generator.config.GeneratorConfig;
  * @author Alexander Baldwin, Malmö University
  */
 public class Map {
-	private int[][] matrix; // The actual map
+	public int[][] matrix; // The actual map
 	private boolean[][] allocated; // A map keeps track of allocated tiles
 	private int m;			// The number of rows in a map
 	private int n;			// The number of columns in a map
@@ -65,6 +65,7 @@ public class Map {
 	private boolean east = false;
 	private boolean west = false;
 	private boolean south = false;
+	private boolean isNull = false;
 
 
 
@@ -88,6 +89,23 @@ public class Map {
 
 		finder = new PatternFinder(this);
 
+	}
+	
+	public boolean getNull() {
+		return isNull;
+	}
+	
+	
+	public Map(int rows, int cols, int doorCount) {
+		
+		init(rows, cols);
+		isNull = true;
+
+		for (int i = 0; i < matrix.length; i++) {
+			for (int j = 0; j < matrix.length; j++) {
+				matrix[i][j] = 1;
+			}
+		}
 	}
 	
 	
@@ -963,5 +981,17 @@ public class Map {
 	}
 	public boolean getWest() {
 		return west;
+	}
+	public void setNorth() {
+		north = !north;
+	}
+	public void setEast() {
+		east = !east;
+	}
+	public void setSouth() {
+		south = !south;
+	}
+	public void setWest() {
+		west = !west;
 	}
 }

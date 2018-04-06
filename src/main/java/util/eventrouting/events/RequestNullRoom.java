@@ -1,0 +1,38 @@
+package util.eventrouting.events;
+
+import game.MapContainer;
+import util.eventrouting.PCGEvent;
+
+public class RequestNullRoom extends PCGEvent {
+	
+	/**
+	 * Creates a new event.
+	 * 
+	 * @param payload The map to be worked on.
+	 */
+	
+	private int row;
+	private int col;
+	private MapContainer[][] matrix;
+	
+	public RequestNullRoom(MapContainer payload, int row, int col, MapContainer[][] matrix) {
+		this.row = row;
+		this.col = col;
+		this.matrix = matrix;
+		setPayload(payload);
+	}
+
+	public MapContainer[][] getMatrix() {
+		return matrix;
+	}
+
+	public int getCol() {
+		return col;
+	}
+
+	public int getRow() {
+		return row;
+	}
+	
+	
+}
