@@ -88,6 +88,7 @@ public class Map {
 		markDoors();
 
 		finder = new PatternFinder(this);
+		setNumberOfDoors(doorCount + 1);
 
 	}
 	

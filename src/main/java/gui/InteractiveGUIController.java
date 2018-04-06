@@ -115,7 +115,7 @@ public class InteractiveGUIController implements Initializable, Listener {
 			MapContainer container = (MapContainer) e.getPayload();
 			initSuggestionsView();
 		} else if (e instanceof RequestWorldView) {
-			
+
 			backToWorldView();
 		} else if (e instanceof RequestEmptyRoom) {
 			worldMapMatrix = ((RequestEmptyRoom) e).getMatrix();
@@ -139,14 +139,85 @@ public class InteractiveGUIController implements Initializable, Listener {
 			row = ((RequestNullRoom) e).getRow();
 			col = ((RequestNullRoom) e).getCol();
 			MapContainer container = (MapContainer) e.getPayload();
-			Map nullMap = new Map(11, 11, 0);
-			MapContainer nullCont = new MapContainer();
-			nullCont.setMap(nullMap);
-			worldMapMatrix[row][col] = nullCont;
+
+			if (!worldMapMatrix[row][col].getMap().getNull()) {
+				Map nullMap = new Map(11, 11, 0);
+				MapContainer nullCont = new MapContainer();
+				nullCont.setMap(nullMap);
+				worldMapMatrix[row][col] = nullCont;
+			}
+			else {
+				// South
+				Point south = new Point(11/2, 11-1);
+				// East
+				Point east = new Point(11-1, 11/2);
+				// North
+				Point north = new Point(11/2, 0);
+				// West
+				Point west = new Point(0, 11/2);
+				System.out.println("else");
+				GeneratorConfig gc = null;
+				try {
+					gc = new GeneratorConfig();
+
+				} catch (MissingConfigurationException ex) {
+					// TODO Auto-generated catch block
+					ex.printStackTrace();
+				}
+				Map tempMap = null;
+				// 1
+				if (row == 0 && col == 0) {
+					tempMap = new Map(gc, 11, 11, null, east, south, null);
+					System.out.println("1");
+				}
+				// 3
+				if (row == 0 && col == (size - 1)) {
+					tempMap = new Map(gc, 11, 11, null, null, south, west);
+					System.out.println("3");
+				}
+				// 7
+				if (row == (size - 1) && col == 0) {
+					tempMap = new Map(gc, 11, 11, north, east, null, null);
+					System.out.println("7");
+				}
+				// 9
+				if (row == (size - 1) && col == (size - 1)) {
+					tempMap = new Map(gc, 11, 11, north, null, null, west);
+					System.out.println("9");
+				}
+				// top
+				if (row == 0 && col != (size - 1) && col != 0) {
+					tempMap = new Map(gc, 11, 11, null, east, south, west);
+					System.out.println("top");
+				}
+				// left
+				if (row != 0 && col == 0 && row != (size - 1)) {
+					tempMap = new Map(gc, 11, 11, north, east, south, null);
+					System.out.println("left");
+				}
+				// right
+				if (row != 0 && row != (size - 1) && col == (size - 1)) {
+					tempMap = new Map(gc, 11, 11, north, null, south, west);
+					System.out.println("right");
+				}
+				// bottom
+				if (col != 0 && col != (size - 1) && row == (size - 1)) {
+					tempMap = new Map(gc, 11, 11, north, east, null, west);
+					System.out.println("bottom");
+				}
+				// other
+				else if (col != 0 && col != (size - 1) && row != 0 && row != (size - 1)) {
+					tempMap = new Map(gc, 11, 11, north, east, south, west);
+					System.out.println("other");
+				}
+				MapContainer revertCont = new MapContainer();
+				revertCont.setMap(tempMap);
+				worldMapMatrix[row][col] = revertCont;
+			}
 			evaluateNullChange();
 			backToWorldView();
 		}
-		
+
 	}
 
 	@Override
@@ -195,9 +266,9 @@ public class InteractiveGUIController implements Initializable, Listener {
 		initWorldView();
 	}
 
-//	public void goToWorldView() {
-//		router.postEvent(new RequestWorldView());
-//	}
+	//	public void goToWorldView() {
+	//		router.postEvent(new RequestWorldView());
+	//	}
 
 	public void exitApplication() {
 		// TODO: Maybe be a bit more graceful than this...
@@ -361,8 +432,8 @@ public class InteractiveGUIController implements Initializable, Listener {
 		roomView.setActive(false);
 		worldView.setActive(true);
 	}
-	
-	
+
+
 	private void backToWorldView() {
 		mainPane.getChildren().clear();
 		AnchorPane.setTopAnchor(worldView, 0.0);
@@ -416,8 +487,8 @@ public class InteractiveGUIController implements Initializable, Listener {
 
 
 	private void roomButtonEvents() {
-		
-	
+
+
 		roomView.getRightButton().setOnAction(new EventHandler<ActionEvent>() {
 			@Override
 			public void handle(ActionEvent e) {
@@ -562,7 +633,7 @@ public class InteractiveGUIController implements Initializable, Listener {
 		roomView.resetMiniMaps();
 		roomView.setMousePressed(false);
 	}
-	
+
 	private void evaluateNullChange() {
 		// South
 		Point south = new Point(11/2, 11-1);
@@ -582,7 +653,12 @@ public class InteractiveGUIController implements Initializable, Listener {
 							worldMapMatrix[rows][cols].getMap().matrix[north.getX()][north.getY()] = 0;
 							worldMapMatrix[rows][cols].getMap().setNumberOfDoors(worldMapMatrix[rows][cols].getMap().getNumberOfDoors() - 1);
 							worldMapMatrix[rows][cols].getMap().setNorth(false);
-							
+						}
+						else if (!worldMapMatrix[rows - 1][cols].getMap().getNull() && !(worldMapMatrix[rows][cols].getMap().matrix[north.getX()][north.getY()] == 5 || 
+								worldMapMatrix[rows][cols].getMap().matrix[north.getX()][north.getY()] == 4)) {
+							worldMapMatrix[rows][cols].getMap().matrix[north.getX()][north.getY()] = 4;
+							worldMapMatrix[rows][cols].getMap().setNumberOfDoors(worldMapMatrix[rows][cols].getMap().getNumberOfDoors() + 1);
+							worldMapMatrix[rows][cols].getMap().setNorth(true);
 						}
 					}
 					if (cols != (size - 1)) {
@@ -592,9 +668,14 @@ public class InteractiveGUIController implements Initializable, Listener {
 							worldMapMatrix[rows][cols].getMap().matrix[east.getX()][east.getY()] = 0;
 							worldMapMatrix[rows][cols].getMap().setNumberOfDoors(worldMapMatrix[rows][cols].getMap().getNumberOfDoors() - 1);
 							worldMapMatrix[rows][cols].getMap().setEast(false);
-							
 						}
-						
+						else if (!worldMapMatrix[rows][cols + 1].getMap().getNull() && !(worldMapMatrix[rows][cols].getMap().matrix[east.getX()][east.getY()] == 5 || 
+								worldMapMatrix[rows][cols].getMap().matrix[east.getX()][east.getY()] == 4)) {
+							worldMapMatrix[rows][cols].getMap().matrix[east.getX()][east.getY()] = 4;
+							worldMapMatrix[rows][cols].getMap().setNumberOfDoors(worldMapMatrix[rows][cols].getMap().getNumberOfDoors() + 1);
+							worldMapMatrix[rows][cols].getMap().setEast(true);
+						}
+
 					}
 					if (rows != (size - 1)) {
 						//south
@@ -603,9 +684,14 @@ public class InteractiveGUIController implements Initializable, Listener {
 							worldMapMatrix[rows][cols].getMap().matrix[south.getX()][south.getY()] = 0;
 							worldMapMatrix[rows][cols].getMap().setNumberOfDoors(worldMapMatrix[rows][cols].getMap().getNumberOfDoors() - 1);
 							worldMapMatrix[rows][cols].getMap().setSouth(false);
-							
 						}
-						
+						else if (!worldMapMatrix[rows + 1][cols].getMap().getNull() && !(worldMapMatrix[rows][cols].getMap().matrix[south.getX()][south.getY()] == 5 || 
+								worldMapMatrix[rows][cols].getMap().matrix[south.getX()][south.getY()] == 4)) {
+							worldMapMatrix[rows][cols].getMap().matrix[south.getX()][south.getY()] = 4;
+							worldMapMatrix[rows][cols].getMap().setNumberOfDoors(worldMapMatrix[rows][cols].getMap().getNumberOfDoors() + 1);
+							worldMapMatrix[rows][cols].getMap().setSouth(true);
+						}
+
 					}
 					if (cols != 0) {
 						//west
@@ -614,11 +700,16 @@ public class InteractiveGUIController implements Initializable, Listener {
 							worldMapMatrix[rows][cols].getMap().matrix[west.getX()][west.getY()] = 0;
 							worldMapMatrix[rows][cols].getMap().setNumberOfDoors(worldMapMatrix[rows][cols].getMap().getNumberOfDoors() - 1);
 							worldMapMatrix[rows][cols].getMap().setWest(false);
-
 						}
-						
+						else if (!worldMapMatrix[rows][cols - 1].getMap().getNull() && !(worldMapMatrix[rows][cols].getMap().matrix[west.getX()][west.getY()] == 5 || 
+								worldMapMatrix[rows][cols].getMap().matrix[west.getX()][west.getY()] == 4)) {
+							worldMapMatrix[rows][cols].getMap().matrix[west.getX()][west.getY()] = 4;
+							worldMapMatrix[rows][cols].getMap().setNumberOfDoors(worldMapMatrix[rows][cols].getMap().getNumberOfDoors() + 1);
+							worldMapMatrix[rows][cols].getMap().setWest(true);
+						}
+
 					}
-					System.out.println(worldMapMatrix[rows][cols].getMap().getNumberOfDoors() + " doors for: " + rows + ", " + cols);
+					//System.out.println(worldMapMatrix[rows][cols].getMap().getNumberOfDoors() + " doors for: " + rows + ", " + cols);
 					if (worldMapMatrix[rows][cols].getMap().getNumberOfDoors() == 0) {
 						Map nullMap = new Map(11, 11, 0);
 						MapContainer nullCont = new MapContainer();
@@ -626,15 +717,13 @@ public class InteractiveGUIController implements Initializable, Listener {
 						worldMapMatrix[rows][cols] = nullCont;
 					}
 				}
-				
-				
-				
+				System.out.println(worldMapMatrix[rows][cols].getMap().getNumberOfDoors());
 			}
 		}
-		
+
 	}
-	
-	
+
+
 	private MapContainer[][] initMatrix() {
 		//empty room doors thingy
 
