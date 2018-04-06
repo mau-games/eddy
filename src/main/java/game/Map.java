@@ -982,16 +982,16 @@ public class Map {
 	public boolean getWest() {
 		return west;
 	}
-	public void setNorth() {
-		north = !north;
+	public void setNorth(boolean state) {
+		north = state;
 	}
-	public void setEast() {
-		east = !east;
+	public void setEast(boolean state) {
+		east = state;
 	}
-	public void setSouth() {
-		south = !south;
+	public void setSouth(boolean state) {
+		south = state;
 	}
-	public void setWest() {
-		west = !west;
+	public void setWest(boolean state) {
+		west = state;
 	}
 }
