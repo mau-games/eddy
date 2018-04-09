@@ -81,6 +81,7 @@ public class RoomViewController extends BorderPane implements Listener {
 	private Button rightButton = new Button();
 	private Button leftButton = new Button();
 	private Button upButton = new Button();
+//	private Button upButton;
 	private Button downButton = new Button();
 	
 	private boolean mousePressed = false;
@@ -623,7 +624,9 @@ public class RoomViewController extends BorderPane implements Listener {
 	public Button getUpButton() {
 		return upButton;
 	}
-
+	public void setUpButton(Button btn) {
+		upButton = btn;
+	}
 	
 
 	public Button getDownButton() {

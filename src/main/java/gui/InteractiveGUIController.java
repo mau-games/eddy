@@ -19,6 +19,7 @@ import game.Map;
 import game.MapContainer;
 import game.TileTypes;
 import generator.config.GeneratorConfig;
+import gui.utils.MapRenderer;
 import gui.views.RoomViewController;
 import gui.views.SuggestionsViewController;
 import gui.views.WorldViewController;
@@ -28,10 +29,12 @@ import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.scene.control.Button;
 import javafx.scene.control.MenuButton;
 //import javafx.scene.control.Alert;
 //import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.MenuItem;
+import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.stage.FileChooser;
@@ -222,25 +225,79 @@ public class InteractiveGUIController implements Initializable, Listener {
 	}
 	
 	private void restrictNav() {
+		MapRenderer renderer = MapRenderer.getInstance();
 		if (row != 0) {
 			if (!worldMapMatrix[row - 1][col].getMap().getNull()) {
+				Platform.runLater(() -> {
+				ImageView image = new ImageView(renderer.renderMap(worldMapMatrix[row - 1][col].getMap().toMatrix()));
+				image.setScaleX(0.85);
+				image.setScaleY(0.85);
+				roomView.getUpButton().setGraphic(image);
+				roomView.getUpButton().setScaleX(0.15);
+				roomView.getUpButton().setScaleY(0.15);
+				});
 				roomView.getUpButton().setDisable(false);
+				
 			}
+		}
+		else {
+			Platform.runLater(() -> {
+			roomView.getUpButton().setGraphic(null);
+			});
 		}
 		if (row != (size-1)) {
 			if (!worldMapMatrix[row + 1][col].getMap().getNull()) {
+				Platform.runLater(() -> {
+					ImageView image = new ImageView(renderer.renderMap(worldMapMatrix[row + 1][col].getMap().toMatrix()));
+					image.setScaleX(0.85);
+					image.setScaleY(0.85);
+					roomView.getDownButton().setGraphic(image);
+					roomView.getDownButton().setScaleX(0.15);
+					roomView.getDownButton().setScaleY(0.15);
+					});
 				roomView.getDownButton().setDisable(false);
 			}
 		}
+		else {
+			Platform.runLater(() -> {
+			roomView.getDownButton().setGraphic(null);
+			});
+		}
 		if (col != 0) {
 			if (!worldMapMatrix[row][col - 1].getMap().getNull()) {
+				Platform.runLater(() -> {
+					ImageView image = new ImageView(renderer.renderMap(worldMapMatrix[row][col - 1].getMap().toMatrix()));
+					image.setScaleX(0.85);
+					image.setScaleY(0.85);
+					roomView.getLeftButton().setGraphic(image);
+					roomView.getLeftButton().setScaleX(0.15);
+					roomView.getLeftButton().setScaleY(0.15);
+					});
 				roomView.getLeftButton().setDisable(false);
 			}
 		}
+		else {
+			Platform.runLater(() -> {
+			roomView.getLeftButton().setGraphic(null);
+			});
+		}
 		if (col != (size-1)) {
 			if (!worldMapMatrix[row][col + 1].getMap().getNull()) {
+				Platform.runLater(() -> {
+					ImageView image = new ImageView(renderer.renderMap(worldMapMatrix[row][col + 1].getMap().toMatrix()));
+					image.setScaleX(0.85);
+					image.setScaleY(0.85);
+					roomView.getRightButton().setGraphic(image);
+					roomView.getRightButton().setScaleX(0.15);
+					roomView.getRightButton().setScaleY(0.15);
+					});
 				roomView.getRightButton().setDisable(false);
 			}
+		}
+		else {
+			Platform.runLater(() -> {
+			roomView.getRightButton().setGraphic(null);
+			});
 		}
 	}
 
