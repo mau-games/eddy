@@ -31,6 +31,7 @@ import javafx.fxml.FXMLLoader;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Cursor;
+import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
@@ -112,6 +113,9 @@ public class RoomViewController extends BorderPane implements Listener {
 	private static EventRouter router = EventRouter.getInstance();
 	private final static Logger logger = LoggerFactory.getLogger(RoomViewController.class);
 	private ApplicationConfig config;
+	
+	private int prevRow;
+	private int prevCol;
 
 
 
@@ -260,6 +264,9 @@ public class RoomViewController extends BorderPane implements Listener {
 				}
 				minimap.add(canvas, i, j);
 				minimap.setHgap(0);
+				
+			
+				
 
 //				canvas.addEventFilter(MouseEvent.MOUSE_CLICKED,
 //						new MouseEventHandler());
@@ -267,6 +274,25 @@ public class RoomViewController extends BorderPane implements Listener {
 				//gridPane.add(new Button(), i, j);
 			}
 		}
+	}
+	
+	public void updatePosition(int row, int col) {
+		for (Node node : minimap.getChildren()) {
+	        if (GridPane.getColumnIndex(node) == prevCol && GridPane.getRowIndex(node) == prevRow) {
+    			node.setStyle("-fx-background-color:#f4f4f4;");
+
+	        }
+	    }
+				
+		prevRow = row;
+		prevCol = col;
+		System.out.println(col + "   " + row);
+		for (Node node : minimap.getChildren()) {
+	        if (GridPane.getColumnIndex(node) == col && GridPane.getRowIndex(node) == row) {
+    			node.setStyle("-fx-background-color:#2c3f8c;");
+
+	        }
+	    }
 	}
 
 	/**

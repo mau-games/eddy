@@ -560,6 +560,7 @@ public class InteractiveGUIController implements Initializable, Listener {
 		roomButtonEvents();
 		
 		roomView.updateMiniMap(worldMapMatrix);
+		roomView.updatePosition(row, col);
 
 		roomView.generateNewMaps();
 
@@ -584,6 +585,8 @@ public class InteractiveGUIController implements Initializable, Listener {
 				if (col != (size - 1)) {
 					col++;
 
+					roomView.updatePosition(row, col);
+					roomView.updateMiniMap(worldMapMatrix);
 
 					currentQuadMap = worldMapMatrix[row][col];
 					roomView.updateRoom(currentQuadMap.getMap());
@@ -606,6 +609,8 @@ public class InteractiveGUIController implements Initializable, Listener {
 
 				if (col != 0) {
 					col--;
+					roomView.updatePosition(row, col);
+					roomView.updateMiniMap(worldMapMatrix);
 
 					currentQuadMap = worldMapMatrix[row][col];
 					roomView.updateRoom(currentQuadMap.getMap());
@@ -628,6 +633,8 @@ public class InteractiveGUIController implements Initializable, Listener {
 
 				if (row != (size - 1)) {
 					row++;
+					roomView.updatePosition(row, col);
+					roomView.updateMiniMap(worldMapMatrix);
 
 					currentQuadMap = worldMapMatrix[row][col];
 					roomView.updateRoom(currentQuadMap.getMap());
@@ -649,6 +656,8 @@ public class InteractiveGUIController implements Initializable, Listener {
 
 				if (row != 0) {
 					row--;
+					roomView.updatePosition(row, col);
+					roomView.updateMiniMap(worldMapMatrix);
 
 					currentQuadMap = worldMapMatrix[row][col];
 					roomView.updateRoom(currentQuadMap.getMap());
