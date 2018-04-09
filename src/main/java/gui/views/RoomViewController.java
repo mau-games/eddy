@@ -189,10 +189,10 @@ public class RoomViewController extends BorderPane implements Listener {
 		//leftButton.setTranslateY(-100);
 
 		//upButton.setTranslateX(300);
-		getUpButton().setTranslateY(-250);
+		getUpButton().setTranslateY(-300);
 
 		//botButton.setTranslateX(300);
-		getDownButton().setTranslateY(250);
+		getDownButton().setTranslateY(300);
 
 
 

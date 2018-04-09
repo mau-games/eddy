@@ -110,7 +110,8 @@ public class InteractiveGUIController implements Initializable, Listener {
 			row = ((RequestRoomView) e).getRow();
 			col = ((RequestRoomView) e).getCol();
 			MapContainer container = (MapContainer) e.getPayload();
-			initRoomView(container);						
+			initRoomView(container);	
+			
 		} else if (e instanceof RequestSuggestionsView) {
 			worldMapMatrix = ((RequestSuggestionsView) e).getMatrix();
 			row = ((RequestSuggestionsView) e).getRow();
@@ -134,6 +135,7 @@ public class InteractiveGUIController implements Initializable, Listener {
 //			roomView.getDownButton().setDisable(false);
 //			roomView.getUpButton().setDisable(false);
 		} else if (e instanceof SuggestedMapsLoading) {
+
 			roomView.getRightButton().setDisable(true);
 			roomView.getLeftButton().setDisable(true);
 			roomView.getDownButton().setDisable(true);
