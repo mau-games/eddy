@@ -125,10 +125,11 @@ public class InteractiveGUIController implements Initializable, Listener {
 			initRoomView(container);
 
 		} else if (e instanceof SuggestedMapsDone) {
-			roomView.getRightButton().setDisable(false);
-			roomView.getLeftButton().setDisable(false);
-			roomView.getDownButton().setDisable(false);
-			roomView.getUpButton().setDisable(false);
+			restrictNav();
+//			roomView.getRightButton().setDisable(false);
+//			roomView.getLeftButton().setDisable(false);
+//			roomView.getDownButton().setDisable(false);
+//			roomView.getUpButton().setDisable(false);
 		} else if (e instanceof SuggestedMapsLoading) {
 			roomView.getRightButton().setDisable(true);
 			roomView.getLeftButton().setDisable(true);
@@ -219,6 +220,29 @@ public class InteractiveGUIController implements Initializable, Listener {
 		}
 
 	}
+	
+	private void restrictNav() {
+		if (row != 0) {
+			if (!worldMapMatrix[row - 1][col].getMap().getNull()) {
+				roomView.getUpButton().setDisable(false);
+			}
+		}
+		if (row != (size-1)) {
+			if (!worldMapMatrix[row + 1][col].getMap().getNull()) {
+				roomView.getDownButton().setDisable(false);
+			}
+		}
+		if (col != 0) {
+			if (!worldMapMatrix[row][col - 1].getMap().getNull()) {
+				roomView.getLeftButton().setDisable(false);
+			}
+		}
+		if (col != (size-1)) {
+			if (!worldMapMatrix[row][col + 1].getMap().getNull()) {
+				roomView.getRightButton().setDisable(false);
+			}
+		}
+	}
 
 	@Override
 	public void initialize(URL location, ResourceBundle resources) {
@@ -295,15 +319,15 @@ public class InteractiveGUIController implements Initializable, Listener {
 					mapString += c;
 				}
 				worldMapMatrix = updateLargeMap(mapString);
-//				Map map = worldMapMatrix[col][row].getMap();
-//				PatternFinder finder = map.getPatternFinder();
-//				MapContainer result = new MapContainer();
-//				currentQuadMap = result;
-//				roomView.updateMap(map);
-//				result.setMap(map);
-//				result.setMicroPatterns(finder.findMicroPatterns());
-//				result.setMesoPatterns(finder.findMesoPatterns());
-//				result.setMacroPatterns(finder.findMacroPatterns());
+				Map map = worldMapMatrix[col][row].getMap();
+				PatternFinder finder = map.getPatternFinder();
+				MapContainer result = new MapContainer();
+				currentQuadMap = result;
+				roomView.updateMap(map);
+				result.setMap(map);
+				result.setMicroPatterns(finder.findMicroPatterns());
+				result.setMesoPatterns(finder.findMesoPatterns());
+				result.setMacroPatterns(finder.findMacroPatterns());
 				//EventRouter.getInstance().postEvent(new MapLoaded(result));
 				router.postEvent(new RequestWorldView());
 				//Map.LoadMap(selectedFile);
