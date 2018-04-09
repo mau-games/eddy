@@ -243,7 +243,7 @@ public class WorldViewController extends GridPane implements Listener{
 
 	            @Override
 	            public void handle(MouseEvent event) {
-	    			source.setStyle("-fx-background-color:#f9f3c5;");
+	    			source.setStyle("-fx-background-color:#2c3f8c;");
 	    			
 	            }
 	        });
