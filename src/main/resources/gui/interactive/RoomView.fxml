@@ -19,18 +19,19 @@
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
 
-<fx:root type="javafx.scene.layout.BorderPane" stylesheets="@../styling.css"
-	xmlns:fx="http://javafx.com/fxml/1">
+<fx:root type="javafx.scene.layout.BorderPane"
+	stylesheets="@../styling.css" xmlns:fx="http://javafx.com/fxml/1">
 	<left>
 		<fx:define>
 			<ToggleGroup fx:id="brushes" />
 		</fx:define>
-		<ToolBar id="toolbox" orientation="VERTICAL" prefHeight="400.0"
-			prefWidth="95.0" BorderPane.alignment="TOP_CENTER">
+		<ToolBar id="toolbox" orientation="VERTICAL"
+			prefHeight="400.0" prefWidth="95.0" BorderPane.alignment="TOP_CENTER">
 			<items>
 				<Label text="Editor tools" />
-				<ToggleButton contentDisplay="TOP" mnemonicParsing="false"
-					text="Floor" toggleGroup="$brushes" onAction="#selectBrush">
+				<ToggleButton contentDisplay="TOP"
+					mnemonicParsing="false" text="Floor" toggleGroup="$brushes"
+					onAction="#selectBrush">
 					<graphic>
 						<ImageView fitWidth="40.0" pickOnBounds="true"
 							preserveRatio="true">
@@ -40,8 +41,9 @@
 						</ImageView>
 					</graphic>
 				</ToggleButton>
-				<ToggleButton contentDisplay="TOP" mnemonicParsing="false"
-					text="Wall" toggleGroup="$brushes" onAction="#selectBrush">
+				<ToggleButton contentDisplay="TOP"
+					mnemonicParsing="false" text="Wall" toggleGroup="$brushes"
+					onAction="#selectBrush">
 					<graphic>
 						<ImageView fitWidth="40.0" pickOnBounds="true"
 							preserveRatio="true">
@@ -51,8 +53,9 @@
 						</ImageView>
 					</graphic>
 				</ToggleButton>
-				<ToggleButton contentDisplay="TOP" mnemonicParsing="false"
-					text="Treasure" toggleGroup="$brushes" onAction="#selectBrush">
+				<ToggleButton contentDisplay="TOP"
+					mnemonicParsing="false" text="Treasure" toggleGroup="$brushes"
+					onAction="#selectBrush">
 					<graphic>
 						<ImageView fitWidth="40.0" pickOnBounds="true"
 							preserveRatio="true">
@@ -62,8 +65,9 @@
 						</ImageView>
 					</graphic>
 				</ToggleButton>
-				<ToggleButton contentDisplay="TOP" mnemonicParsing="false"
-					text="Enemy" toggleGroup="$brushes" onAction="#selectBrush">
+				<ToggleButton contentDisplay="TOP"
+					mnemonicParsing="false" text="Enemy" toggleGroup="$brushes"
+					onAction="#selectBrush">
 					<graphic>
 						<ImageView fitWidth="40.0" pickOnBounds="true"
 							preserveRatio="true">
@@ -73,9 +77,10 @@
 						</ImageView>
 					</graphic>
 				</ToggleButton>
-				<ToggleButton fx:id="patternButton" contentDisplay="TOP"
-					mnemonicParsing="false" wrapText="true" textAlignment="CENTER"
-					text="Show patterns" onAction="#togglePatterns">
+				<ToggleButton fx:id="patternButton"
+					contentDisplay="TOP" mnemonicParsing="false" wrapText="true"
+					textAlignment="CENTER" text="Show patterns"
+					onAction="#togglePatterns">
 					<VBox.margin>
 						<Insets>
 							<top>20</top>
@@ -105,39 +110,40 @@
 	</left>
 	<center>
 		<BorderPane>
+
+
 			<center>
 
 				<BorderPane>
+
 					<center>
 						<StackPane alignment="CENTER" fx:id="mapPane" />
 
 					</center>
 					<right>
-						<GridPane fx:id="legend" id="legend" />
+					
+						<VBox> 
+						<HBox spacing="350">								
+						<GridPane alignment="CENTER" fx:id="space" />
+												
+					<GridPane fx:id="legend" id="legend" />
+					</HBox>
+							<GridPane alignment="CENTER" fx:id="minimap" hgap="0" vgap="0" />
 
+
+						</VBox>
+						
 					</right>
-<!-- 					<top>
-						<BorderPane>
-							<center>
-								<Button contentDisplay="TOP" fx:id="rightButton" mnemonicParsing="false"
-									wrapText="true" textAlignment="CENTER" text="right"
-									onAction="#handleButtonAction">
-								</Button>
-								<Button contentDisplay="TOP" fx:id="leftButton" mnemonicParsing="false"
-									wrapText="true" textAlignment="CENTER" text="left"
-									onAction="#handleButtonAction">
-								</Button>
-								<Button contentDisplay="TOP" fx:id="upButton" mnemonicParsing="false"
-									wrapText="true" textAlignment="CENTER" text="up"
-									onAction="#handleButtonAction">
-								</Button>
-								<Button contentDisplay="TOP" fx:id="botButton" mnemonicParsing="false"
-									wrapText="true" textAlignment="CENTER" text="bot"
-									onAction="#handleButtonAction">
-								</Button>
-							</center>
-						</BorderPane>
-					</top> -->
+
+					<!-- <top> <BorderPane> <center> <Button contentDisplay="TOP" fx:id="rightButton" 
+						mnemonicParsing="false" wrapText="true" textAlignment="CENTER" text="right" 
+						onAction="#handleButtonAction"> </Button> <Button contentDisplay="TOP" fx:id="leftButton" 
+						mnemonicParsing="false" wrapText="true" textAlignment="CENTER" text="left" 
+						onAction="#handleButtonAction"> </Button> <Button contentDisplay="TOP" fx:id="upButton" 
+						mnemonicParsing="false" wrapText="true" textAlignment="CENTER" text="up" 
+						onAction="#handleButtonAction"> </Button> <Button contentDisplay="TOP" fx:id="botButton" 
+						mnemonicParsing="false" wrapText="true" textAlignment="CENTER" text="bot" 
+						onAction="#handleButtonAction"> </Button> </center> </BorderPane> </top> -->
 				</BorderPane>
 
 			</center>

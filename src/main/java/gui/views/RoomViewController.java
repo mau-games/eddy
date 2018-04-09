@@ -22,6 +22,7 @@ import gui.controls.InteractiveMap;
 import gui.controls.LabeledCanvas;
 import gui.utils.MapRenderer;
 import gui.views.RoomViewController.EditViewEventHandler;
+import gui.views.WorldViewController.MouseEventHandler;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
@@ -77,6 +78,9 @@ public class RoomViewController extends BorderPane implements Listener {
 	@FXML private GridPane legend;
 	@FXML private ToggleGroup brushes;
 	@FXML private ToggleButton patternButton;
+	
+	@FXML GridPane minimap;
+
 	
 	private Button rightButton = new Button();
 	private Button leftButton = new Button();
@@ -235,6 +239,35 @@ public class RoomViewController extends BorderPane implements Listener {
 
 	}
 	
+	public void updateMiniMap(MapContainer[][] minimapMatrix) {
+		int size = minimapMatrix.length;
+		int viewSize = 450/size;
+		for (int i = 0; i < minimapMatrix.length; i++) {
+			for (int j = 0; j < minimapMatrix.length; j++) {
+				
+				for (int o = 0; o < minimapMatrix[i][j].getMap().toMatrix().length; o++) {
+		        	for (int p = 0; p < minimapMatrix[i][j].getMap().toMatrix().length; p++) {
+		        	}
+		        }
+				
+				LabeledCanvas canvas = new LabeledCanvas();
+				canvas.setText("");
+				canvas.setPrefSize(viewSize, viewSize);
+				canvas.draw(renderer.renderMap(minimapMatrix[j][i].getMap().toMatrix()));
+				for (int outer = 0; outer < minimapMatrix[i][j].getMap().toMatrix().length; outer++) {
+					for (int inner = 0; inner < minimapMatrix[i][j].getMap().toMatrix().length; inner++) {
+					}
+				}
+				minimap.add(canvas, i, j);
+				minimap.setHgap(0);
+
+//				canvas.addEventFilter(MouseEvent.MOUSE_CLICKED,
+//						new MouseEventHandler());
+//				
+				//gridPane.add(new Button(), i, j);
+			}
+		}
+	}
 
 	/**
 	 * Intialises the mini map view.
