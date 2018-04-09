@@ -66,6 +66,7 @@ import util.eventrouting.events.StartMapMutate;
 import util.eventrouting.events.Stop;
 import util.eventrouting.events.SuggestedMapsDone;
 import util.eventrouting.events.SuggestedMapsLoading;
+import util.eventrouting.events.UpdateMiniMap;
 
 /**
  * his class controls the interactive application's edit view.
@@ -660,7 +661,12 @@ public class RoomViewController extends BorderPane implements Listener {
 	}
 
 
+	@FXML
+	private void updateMiniMap(ActionEvent event) throws IOException {
 
+		router.postEvent(new UpdateMiniMap());
+
+	}
 
 
 

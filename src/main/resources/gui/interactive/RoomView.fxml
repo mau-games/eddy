@@ -123,8 +123,14 @@
 					<right>
 					
 						<VBox> 
-						<HBox spacing="350">								
-						<GridPane alignment="CENTER" fx:id="space" />
+						<HBox spacing="100">		
+											
+						<BorderPane fx:id="space" >
+						<bottom>
+						<Button contentDisplay="TOP" mnemonicParsing="false"
+					wrapText="true" textAlignment="CENTER" text="Update Minimap"
+					onAction="#updateMiniMap"/></bottom>
+							</BorderPane>
 												
 					<GridPane fx:id="legend" id="legend" />
 					</HBox>

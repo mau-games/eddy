@@ -58,6 +58,7 @@ import util.eventrouting.events.StatusMessage;
 import util.eventrouting.events.Stop;
 import util.eventrouting.events.SuggestedMapsDone;
 import util.eventrouting.events.SuggestedMapsLoading;
+import util.eventrouting.events.UpdateMiniMap;
 
 
 
@@ -150,6 +151,8 @@ public class InteractiveGUIController implements Initializable, Listener {
 			roomView.getLeftButton().setDisable(true);
 			roomView.getDownButton().setDisable(true);
 			roomView.getUpButton().setDisable(true);
+		} else if (e instanceof UpdateMiniMap) {
+			roomView.updateMiniMap(worldMapMatrix);
 		} else if (e instanceof RequestNullRoom) {
 			worldMapMatrix = ((RequestNullRoom) e).getMatrix();
 			row = ((RequestNullRoom) e).getRow();
@@ -334,6 +337,7 @@ public class InteractiveGUIController implements Initializable, Listener {
 		router.registerListener(this, new SuggestedMapsDone());
 		router.registerListener(this, new SuggestedMapsLoading());
 		router.registerListener(this, new RequestNullRoom(null, 0, 0, null));
+		router.registerListener(this, new UpdateMiniMap());
 
 		suggestionsView = new SuggestionsViewController();
 		roomView = new RoomViewController();
