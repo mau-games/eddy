@@ -60,6 +60,7 @@ import util.eventrouting.EventRouter;
 import util.eventrouting.Listener;
 import util.eventrouting.PCGEvent;
 import util.eventrouting.events.MapUpdate;
+import util.eventrouting.events.RequestRoomView;
 import util.eventrouting.events.RequestWorldView;
 import util.eventrouting.events.StartMapMutate;
 import util.eventrouting.events.Stop;
@@ -79,16 +80,16 @@ public class RoomViewController extends BorderPane implements Listener {
 	@FXML private GridPane legend;
 	@FXML private ToggleGroup brushes;
 	@FXML private ToggleButton patternButton;
-	
+
 	@FXML GridPane minimap;
 
-	
+
 	private Button rightButton = new Button();
 	private Button leftButton = new Button();
 	private Button upButton = new Button();
-//	private Button upButton;
+	//	private Button upButton;
 	private Button downButton = new Button();
-	
+
 	private boolean mousePressed = false;
 	private Map selectedMiniMap;
 
@@ -100,7 +101,7 @@ public class RoomViewController extends BorderPane implements Listener {
 	private Canvas patternCanvas;
 	private Canvas warningCanvas;
 	private Canvas buttonCanvas;
-	
+
 	private MapContainer map;
 
 	private boolean isActive = false;
@@ -113,7 +114,7 @@ public class RoomViewController extends BorderPane implements Listener {
 	private static EventRouter router = EventRouter.getInstance();
 	private final static Logger logger = LoggerFactory.getLogger(RoomViewController.class);
 	private ApplicationConfig config;
-	
+
 	private int prevRow;
 	private int prevCol;
 
@@ -167,7 +168,7 @@ public class RoomViewController extends BorderPane implements Listener {
 		getMapView().setMaxSize(width, height);
 		mapPane.getChildren().add(getMapView());
 
-		
+
 		patternCanvas = new Canvas(width, height);
 		StackPane.setAlignment(patternCanvas, Pos.CENTER);
 		mapPane.getChildren().add(patternCanvas);
@@ -180,15 +181,15 @@ public class RoomViewController extends BorderPane implements Listener {
 		buttonCanvas.setVisible(false);
 		buttonCanvas.setMouseTransparent(true);
 
-	
+
 
 		getRightButton().setText("right");
 		getLeftButton().setText("left");
 		getUpButton().setText("up");
 		getDownButton().setText("bot");
-		
-		
-		
+
+
+
 
 		getRightButton().setTranslateX(300);
 		//rightButton.setTranslateY(100);
@@ -242,18 +243,18 @@ public class RoomViewController extends BorderPane implements Listener {
 
 
 	}
-	
+
 	public void updateMiniMap(MapContainer[][] minimapMatrix) {
 		int size = minimapMatrix.length;
 		int viewSize = 450/size;
 		for (int i = 0; i < minimapMatrix.length; i++) {
 			for (int j = 0; j < minimapMatrix.length; j++) {
-				
+
 				for (int o = 0; o < minimapMatrix[i][j].getMap().toMatrix().length; o++) {
-		        	for (int p = 0; p < minimapMatrix[i][j].getMap().toMatrix().length; p++) {
-		        	}
-		        }
-				
+					for (int p = 0; p < minimapMatrix[i][j].getMap().toMatrix().length; p++) {
+					}
+				}
+
 				LabeledCanvas canvas = new LabeledCanvas();
 				canvas.setText("");
 				canvas.setPrefSize(viewSize, viewSize);
@@ -264,73 +265,74 @@ public class RoomViewController extends BorderPane implements Listener {
 				}
 				minimap.add(canvas, i, j);
 				minimap.setHgap(0);
-				
-			
-				
+				canvas.addEventFilter(MouseEvent.MOUSE_CLICKED,
+						new MouseEventHandler());
 
-//				canvas.addEventFilter(MouseEvent.MOUSE_CLICKED,
-//						new MouseEventHandler());
-//				
+
+
+				//				canvas.addEventFilter(MouseEvent.MOUSE_CLICKED,
+				//						new MouseEventHandler());
+				//				
 				//gridPane.add(new Button(), i, j);
 			}
 		}
 	}
-	
+
 	public void updatePosition(int row, int col) {
 		for (Node node : minimap.getChildren()) {
-	        if (GridPane.getColumnIndex(node) == prevCol && GridPane.getRowIndex(node) == prevRow) {
-    			node.setStyle("-fx-background-color:#f4f4f4;");
+			if (GridPane.getColumnIndex(node) == prevCol && GridPane.getRowIndex(node) == prevRow) {
+				node.setStyle("-fx-background-color:#f4f4f4;");
 
-	        }
-	    }
-				
+			}
+		}
+
 		prevRow = row;
 		prevCol = col;
 		System.out.println(col + "   " + row);
 		for (Node node : minimap.getChildren()) {
-	        if (GridPane.getColumnIndex(node) == col && GridPane.getRowIndex(node) == row) {
-    			node.setStyle("-fx-background-color:#2c3f8c;");
+			if (GridPane.getColumnIndex(node) == col && GridPane.getRowIndex(node) == row) {
+				node.setStyle("-fx-background-color:#2c3f8c;");
 
-	        }
-	    }
+			}
+		}
 	}
 
 	/**
 	 * Intialises the mini map view.
 	 */
-//	private void initMiniMaps() {
-//		getMapView().addEventFilter(MouseEvent.MOUSE_CLICKED, new EditViewEventHandler());
-//		getMap(0).addEventFilter(MouseEvent.MOUSE_CLICKED, (e) -> {
-//			replaceMap(0);
-//			setMousePressed(true);
-//			System.out.println("THE MOUSE IS PRESSED: " + mousePressed);
-//		});
-//		getMap(1).addEventFilter(MouseEvent.MOUSE_CLICKED, (e) -> {
-//			replaceMap(1);
-//			setMousePressed(true);
-//			System.out.println("THE MOUSE IS PRESSED: " + mousePressed);
-//
-//
-//		});
-//		getMap(2).addEventFilter(MouseEvent.MOUSE_CLICKED, (e) -> {
-//			replaceMap(2);
-//			setMousePressed(true);
-//			System.out.println("THE MOUSE IS PRESSED: " + mousePressed);
-//
-//
-//		});
-//		getMap(3).addEventFilter(MouseEvent.MOUSE_CLICKED, (e) -> {
-//			replaceMap(3);
-//			setMousePressed(true);
-//			System.out.println("THE MOUSE IS PRESSED: " + mousePressed);
-//
-//
-//		});
-//		resetMiniMaps();
-//		setMousePressed(false);
-//
-//	}
-	
+	//	private void initMiniMaps() {
+	//		getMapView().addEventFilter(MouseEvent.MOUSE_CLICKED, new EditViewEventHandler());
+	//		getMap(0).addEventFilter(MouseEvent.MOUSE_CLICKED, (e) -> {
+	//			replaceMap(0);
+	//			setMousePressed(true);
+	//			System.out.println("THE MOUSE IS PRESSED: " + mousePressed);
+	//		});
+	//		getMap(1).addEventFilter(MouseEvent.MOUSE_CLICKED, (e) -> {
+	//			replaceMap(1);
+	//			setMousePressed(true);
+	//			System.out.println("THE MOUSE IS PRESSED: " + mousePressed);
+	//
+	//
+	//		});
+	//		getMap(2).addEventFilter(MouseEvent.MOUSE_CLICKED, (e) -> {
+	//			replaceMap(2);
+	//			setMousePressed(true);
+	//			System.out.println("THE MOUSE IS PRESSED: " + mousePressed);
+	//
+	//
+	//		});
+	//		getMap(3).addEventFilter(MouseEvent.MOUSE_CLICKED, (e) -> {
+	//			replaceMap(3);
+	//			setMousePressed(true);
+	//			System.out.println("THE MOUSE IS PRESSED: " + mousePressed);
+	//
+	//
+	//		});
+	//		resetMiniMaps();
+	//		setMousePressed(false);
+	//
+	//	}
+
 	public void setContainer(MapContainer map) {
 		map = this.map;
 	}
@@ -409,11 +411,11 @@ public class RoomViewController extends BorderPane implements Listener {
 				UUID uuid = ((MapUpdate) e).getID();
 				LabeledCanvas canvas;
 				synchronized (mapDisplays) {
-				
+
 					canvas = mapDisplays.get(nextMap);
 					//					canvas.setText("Got map:\n" + uuid);
 					canvas.setText("");
-				maps.put(nextMap, map);
+					maps.put(nextMap, map);
 					nextMap++;
 					if (nextMap == 4) {
 						router.postEvent(new Stop());	
@@ -467,17 +469,17 @@ public class RoomViewController extends BorderPane implements Listener {
 		getMapView().updateMap(map);
 		redrawPatterns(map);
 		mapIsFeasible(map.isFeasibleTwo());
-//		resetMiniMaps();
+		//		resetMiniMaps();
 	}
-	
+
 	public void updateRoom(Map map) {
 		getMapView().updateMap(map);
-		
+
 		redrawPatterns(map);
 		mapIsFeasible(map.isFeasibleTwo());
 		//resetMiniMaps();
 	}
-	
+
 	public void updateLargeMap(Map map) {
 		setLargeMap(map);				
 	}
@@ -489,7 +491,7 @@ public class RoomViewController extends BorderPane implements Listener {
 	 * @return The current map.
 	 */
 	public Map getCurrentMap() {
-		
+
 		return getMapView().getMap();
 	}
 
@@ -585,7 +587,7 @@ public class RoomViewController extends BorderPane implements Listener {
 	 */
 	public void replaceMap(int index) {
 		selectedMiniMap = maps.get(index);
-//		Map map = maps.get(index);
+		//		Map map = maps.get(index);
 		if (selectedMiniMap != null) {
 			generateNewMaps(selectedMiniMap);
 			updateMap(selectedMiniMap);
@@ -650,15 +652,15 @@ public class RoomViewController extends BorderPane implements Listener {
 	@FXML
 	private void handleButtonAction(ActionEvent event) throws IOException {
 
-		
+
 		router.postEvent(new RequestWorldView());	
 
-		
+
 
 	}
-	
-	
-	
+
+
+
 
 
 
@@ -672,13 +674,13 @@ public class RoomViewController extends BorderPane implements Listener {
 		return rightButton;
 	}
 
-	
+
 
 	public Button getLeftButton() {
 		return leftButton;
 	}
 
-	
+
 
 	public Button getUpButton() {
 		return upButton;
@@ -686,7 +688,7 @@ public class RoomViewController extends BorderPane implements Listener {
 	public void setUpButton(Button btn) {
 		upButton = btn;
 	}
-	
+
 
 	public Button getDownButton() {
 		return downButton;
@@ -724,5 +726,37 @@ public class RoomViewController extends BorderPane implements Listener {
 		this.largeMap = largeMap;
 	}
 
-	
+
+	public class MouseEventHandler implements EventHandler<MouseEvent> {
+
+		//		private MapContainer map;
+		//
+		//		public MouseEventHandler(MapContainer map) {
+		//			this.map = map;
+		//		}
+
+		@Override
+		public void handle(MouseEvent event) {
+			Node source = (Node)event.getSource();
+			Integer colIndex = GridPane.getColumnIndex(source);
+			Integer rowIndex = GridPane.getRowIndex(source);
+			System.out.println(colIndex + "   " + rowIndex);
+
+			source.setOnMouseClicked(new EventHandler<MouseEvent>() {
+
+				@Override
+				public void handle(MouseEvent event) {
+
+					int row = rowIndex;
+					int col = colIndex;
+					router.postEvent(new RequestRoomView(null, row, col, null));
+
+				}
+
+			});
+		}
+
+	}
+
+
 }

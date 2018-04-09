@@ -105,14 +105,23 @@ public class InteractiveGUIController implements Initializable, Listener {
 
 	@Override
 	public synchronized void ping(PCGEvent e) {
-		
+
 		if (e instanceof RequestRoomView) {
-			worldMapMatrix = ((RequestRoomView) e).getMatrix();
-			row = ((RequestRoomView) e).getRow();
-			col = ((RequestRoomView) e).getCol();
-			MapContainer container = (MapContainer) e.getPayload();
-			initRoomView(container);	
-			
+			if (((RequestRoomView) e).getMatrix() != null) {
+				worldMapMatrix = ((RequestRoomView) e).getMatrix();
+				row = ((RequestRoomView) e).getRow();
+				col = ((RequestRoomView) e).getCol();
+				MapContainer container = (MapContainer) e.getPayload();
+				initRoomView(container);
+			}
+			else if (!worldMapMatrix[((RequestRoomView) e).getRow()][((RequestRoomView) e).getCol()].getMap().getNull()) { 
+				row = ((RequestRoomView) e).getRow();
+				col = ((RequestRoomView) e).getCol();
+				MapContainer container = worldMapMatrix[row][col];
+				initRoomView(container);
+				
+			}
+
 		} else if (e instanceof RequestSuggestionsView) {
 			worldMapMatrix = ((RequestSuggestionsView) e).getMatrix();
 			row = ((RequestSuggestionsView) e).getRow();
@@ -131,10 +140,10 @@ public class InteractiveGUIController implements Initializable, Listener {
 
 		} else if (e instanceof SuggestedMapsDone) {
 			restrictNav();
-//			roomView.getRightButton().setDisable(false);
-//			roomView.getLeftButton().setDisable(false);
-//			roomView.getDownButton().setDisable(false);
-//			roomView.getUpButton().setDisable(false);
+			//			roomView.getRightButton().setDisable(false);
+			//			roomView.getLeftButton().setDisable(false);
+			//			roomView.getDownButton().setDisable(false);
+			//			roomView.getUpButton().setDisable(false);
 		} else if (e instanceof SuggestedMapsLoading) {
 
 			roomView.getRightButton().setDisable(true);
@@ -226,26 +235,26 @@ public class InteractiveGUIController implements Initializable, Listener {
 		}
 
 	}
-	
+
 	private void restrictNav() {
 		MapRenderer renderer = MapRenderer.getInstance();
 		if (row != 0) {
 			if (!worldMapMatrix[row - 1][col].getMap().getNull()) {
 				Platform.runLater(() -> {
-				ImageView image = new ImageView(renderer.renderMap(worldMapMatrix[row - 1][col].getMap().toMatrix()));
-				image.setScaleX(0.85);
-				image.setScaleY(0.85);
-				roomView.getUpButton().setGraphic(image);
-				roomView.getUpButton().setScaleX(0.15);
-				roomView.getUpButton().setScaleY(0.15);
+					ImageView image = new ImageView(renderer.renderMap(worldMapMatrix[row - 1][col].getMap().toMatrix()));
+					image.setScaleX(0.85);
+					image.setScaleY(0.85);
+					roomView.getUpButton().setGraphic(image);
+					roomView.getUpButton().setScaleX(0.15);
+					roomView.getUpButton().setScaleY(0.15);
 				});
 				roomView.getUpButton().setDisable(false);
-				
+
 			}
 		}
 		else {
 			Platform.runLater(() -> {
-			roomView.getUpButton().setGraphic(null);
+				roomView.getUpButton().setGraphic(null);
 			});
 		}
 		if (row != (size-1)) {
@@ -257,13 +266,13 @@ public class InteractiveGUIController implements Initializable, Listener {
 					roomView.getDownButton().setGraphic(image);
 					roomView.getDownButton().setScaleX(0.15);
 					roomView.getDownButton().setScaleY(0.15);
-					});
+				});
 				roomView.getDownButton().setDisable(false);
 			}
 		}
 		else {
 			Platform.runLater(() -> {
-			roomView.getDownButton().setGraphic(null);
+				roomView.getDownButton().setGraphic(null);
 			});
 		}
 		if (col != 0) {
@@ -275,13 +284,13 @@ public class InteractiveGUIController implements Initializable, Listener {
 					roomView.getLeftButton().setGraphic(image);
 					roomView.getLeftButton().setScaleX(0.15);
 					roomView.getLeftButton().setScaleY(0.15);
-					});
+				});
 				roomView.getLeftButton().setDisable(false);
 			}
 		}
 		else {
 			Platform.runLater(() -> {
-			roomView.getLeftButton().setGraphic(null);
+				roomView.getLeftButton().setGraphic(null);
 			});
 		}
 		if (col != (size-1)) {
@@ -293,13 +302,13 @@ public class InteractiveGUIController implements Initializable, Listener {
 					roomView.getRightButton().setGraphic(image);
 					roomView.getRightButton().setScaleX(0.15);
 					roomView.getRightButton().setScaleY(0.15);
-					});
+				});
 				roomView.getRightButton().setDisable(false);
 			}
 		}
 		else {
 			Platform.runLater(() -> {
-			roomView.getRightButton().setGraphic(null);
+				roomView.getRightButton().setGraphic(null);
 			});
 		}
 	}
@@ -558,7 +567,7 @@ public class InteractiveGUIController implements Initializable, Listener {
 
 		roomMouseEvents();
 		roomButtonEvents();
-		
+
 		roomView.updateMiniMap(worldMapMatrix);
 		roomView.updatePosition(row, col);
 
