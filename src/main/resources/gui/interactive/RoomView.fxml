@@ -146,7 +146,7 @@
 
 
 
-			<bottom>
+			<left>
 				<VBox>
 					<children>
 						<StackPane alignment="CENTER" fx:id="generatedMapsLabel"
@@ -163,19 +163,19 @@
 								</ArrayList>
 							</fx:define>
 							<children>
-								<HBox alignment="CENTER" spacing="15">
+								<VBox alignment="CENTER" spacing="15">
 									<children>
 										<fx:reference source="map0" />
 										<fx:reference source="map1" />
 										<fx:reference source="map2" />
 										<fx:reference source="map3" />
 									</children>
-								</HBox>
+								</VBox>
 							</children>
 						</StackPane>
 					</children>
 				</VBox>
-			</bottom>
+			</left>
 		</BorderPane>
 	</center>
 </fx:root>
