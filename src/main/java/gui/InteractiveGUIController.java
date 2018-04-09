@@ -105,6 +105,7 @@ public class InteractiveGUIController implements Initializable, Listener {
 
 	@Override
 	public synchronized void ping(PCGEvent e) {
+		
 		if (e instanceof RequestRoomView) {
 			worldMapMatrix = ((RequestRoomView) e).getMatrix();
 			row = ((RequestRoomView) e).getRow();
@@ -333,9 +334,10 @@ public class InteractiveGUIController implements Initializable, Listener {
 			if (newScene != null) {
 				stage = (Stage) newScene.getWindow();
 			}
-		});
 
+		});
 		initWorldView();
+
 
 
 	}
