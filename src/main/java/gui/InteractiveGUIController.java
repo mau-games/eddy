@@ -295,17 +295,17 @@ public class InteractiveGUIController implements Initializable, Listener {
 					mapString += c;
 				}
 				worldMapMatrix = updateLargeMap(mapString);
-				Map map = worldMapMatrix[col][row].getMap();
-				PatternFinder finder = map.getPatternFinder();
-				MapContainer result = new MapContainer();
-				currentQuadMap = result;
-				roomView.updateMap(map);
-				result.setMap(map);
-				result.setMicroPatterns(finder.findMicroPatterns());
-				result.setMesoPatterns(finder.findMesoPatterns());
-				result.setMacroPatterns(finder.findMacroPatterns());
-				EventRouter.getInstance().postEvent(new MapLoaded(result));
-
+//				Map map = worldMapMatrix[col][row].getMap();
+//				PatternFinder finder = map.getPatternFinder();
+//				MapContainer result = new MapContainer();
+//				currentQuadMap = result;
+//				roomView.updateMap(map);
+//				result.setMap(map);
+//				result.setMicroPatterns(finder.findMicroPatterns());
+//				result.setMesoPatterns(finder.findMesoPatterns());
+//				result.setMacroPatterns(finder.findMacroPatterns());
+				//EventRouter.getInstance().postEvent(new MapLoaded(result));
+				router.postEvent(new RequestWorldView());
 				//Map.LoadMap(selectedFile);
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
