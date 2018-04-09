@@ -556,6 +556,8 @@ public class InteractiveGUIController implements Initializable, Listener {
 
 		roomMouseEvents();
 		roomButtonEvents();
+		
+		roomView.updateMiniMap(worldMapMatrix);
 
 		roomView.generateNewMaps();
 
