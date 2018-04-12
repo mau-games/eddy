@@ -20,6 +20,7 @@ import game.MapContainer;
 import game.TileTypes;
 import generator.config.GeneratorConfig;
 import gui.utils.MapRenderer;
+import gui.views.LaunchViewController;
 import gui.views.RoomViewController;
 import gui.views.SuggestionsViewController;
 import gui.views.WorldViewController;
@@ -54,6 +55,7 @@ import util.eventrouting.events.RequestRoomView;
 import util.eventrouting.events.RequestSuggestionsView;
 import util.eventrouting.events.RequestWorldView;
 import util.eventrouting.events.Start;
+import util.eventrouting.events.StartWorld;
 import util.eventrouting.events.StatusMessage;
 import util.eventrouting.events.Stop;
 import util.eventrouting.events.SuggestedMapsDone;
@@ -84,6 +86,7 @@ public class InteractiveGUIController implements Initializable, Listener {
 	SuggestionsViewController suggestionsView = null;
 	RoomViewController roomView = null;
 	WorldViewController worldView = null;
+	LaunchViewController launchView = null;
 	EventHandler<MouseEvent> mouseEventHandler = null;
 
 	final static Logger logger = LoggerFactory.getLogger(InteractiveGUIController.class);
@@ -139,7 +142,11 @@ public class InteractiveGUIController implements Initializable, Listener {
 			MapContainer container = (MapContainer) e.getPayload();
 			initRoomView(container);
 
-		} else if (e instanceof SuggestedMapsDone) {
+		} else if (e instanceof StartWorld) {
+			size = ((StartWorld) e).getSize();
+			initWorldView();
+		}
+			else if (e instanceof SuggestedMapsDone) {
 			restrictNav();
 			//			roomView.getRightButton().setDisable(false);
 			//			roomView.getLeftButton().setDisable(false);
@@ -338,10 +345,12 @@ public class InteractiveGUIController implements Initializable, Listener {
 		router.registerListener(this, new SuggestedMapsLoading());
 		router.registerListener(this, new RequestNullRoom(null, 0, 0, null));
 		router.registerListener(this, new UpdateMiniMap());
+		router.registerListener(this, new StartWorld(0));
 
 		suggestionsView = new SuggestionsViewController();
 		roomView = new RoomViewController();
 		worldView = new WorldViewController();
+		launchView = new LaunchViewController();
 
 		mainPane.sceneProperty().addListener((observableScene, oldScene, newScene) -> {
 			if (newScene != null) {
@@ -349,8 +358,8 @@ public class InteractiveGUIController implements Initializable, Listener {
 			}
 
 		});
-		initWorldView();
-
+		//initWorldView();
+		initLaunchView();
 
 
 	}
@@ -361,7 +370,8 @@ public class InteractiveGUIController implements Initializable, Listener {
 
 	public void startNewFlow() {
 		//		router.postEvent(new Start(6));
-		initWorldView();
+		//initWorldView();
+		initLaunchView();
 	}
 
 	//	public void goToWorldView() {
@@ -501,6 +511,8 @@ public class InteractiveGUIController implements Initializable, Listener {
 		suggestionsView.setActive(true);
 		roomView.setActive(false);
 		worldView.setActive(false);
+		launchView.setActive(false);
+
 
 		suggestionsView.initialise();
 	}
@@ -529,6 +541,24 @@ public class InteractiveGUIController implements Initializable, Listener {
 		suggestionsView.setActive(false);
 		roomView.setActive(false);
 		worldView.setActive(true);
+		launchView.setActive(false);
+
+	}
+	
+	private void initLaunchView() {
+		mainPane.getChildren().clear();
+		AnchorPane.setTopAnchor(launchView, 0.0);
+		AnchorPane.setRightAnchor(launchView, 0.0);
+		AnchorPane.setBottomAnchor(launchView, 0.0);
+		AnchorPane.setLeftAnchor(launchView, 0.0);
+		mainPane.getChildren().add(launchView);
+		
+		launchView.initGui();
+		suggestionsView.setActive(false);
+		roomView.setActive(false);
+		worldView.setActive(false);
+		launchView.setActive(true);
+		
 	}
 
 
@@ -553,6 +583,8 @@ public class InteractiveGUIController implements Initializable, Listener {
 		suggestionsView.setActive(false);
 		roomView.setActive(false);
 		worldView.setActive(true);
+		launchView.setActive(false);
+
 	}
 
 	/**
@@ -581,8 +613,12 @@ public class InteractiveGUIController implements Initializable, Listener {
 		saveAsItem.setDisable(false);
 		exportItem.setDisable(false);
 
-		roomView.setActive(false);
-		roomView.setActive(true);
+		worldView.setActive(false);
+		roomView.setActive(true);		
+		launchView.setActive(false);
+		suggestionsView.setActive(false);
+
+
 	}
 
 

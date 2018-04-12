@@ -246,6 +246,7 @@ public class RoomViewController extends BorderPane implements Listener {
 	}
 
 	public void updateMiniMap(MapContainer[][] minimapMatrix) {
+		minimap.getChildren().clear();
 		int size = minimapMatrix.length;
 		int viewSize = 450/size;
 		for (int i = 0; i < minimapMatrix.length; i++) {

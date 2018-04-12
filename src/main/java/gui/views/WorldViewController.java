@@ -93,6 +93,7 @@ public class WorldViewController extends GridPane implements Listener{
 	
 
 	public void initWorldMap(MapContainer[][] matrix) {
+		gridPane.getChildren().clear();
 		this.matrix = matrix;	
 		size = matrix.length;
 		viewSize = 750/size;
