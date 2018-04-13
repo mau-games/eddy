@@ -12,9 +12,6 @@ import java.util.ResourceBundle;
 import javax.imageio.ImageIO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.guigarage.flatterfx.FlatterFX;
-
 import finder.PatternFinder;
 import game.ApplicationConfig;
 import game.Game;
@@ -669,8 +666,8 @@ public class InteractiveGUIController implements Initializable, Listener {
 				if (col != (size - 1)) {
 					col++;
 
-					roomView.updatePosition(row, col);
 					roomView.updateMiniMap(worldMapMatrix);
+					roomView.updatePosition(row, col);
 
 					currentQuadMap = worldMapMatrix[row][col];
 					roomView.updateRoom(currentQuadMap.getMap());
@@ -693,8 +690,8 @@ public class InteractiveGUIController implements Initializable, Listener {
 
 				if (col != 0) {
 					col--;
-					roomView.updatePosition(row, col);
 					roomView.updateMiniMap(worldMapMatrix);
+					roomView.updatePosition(row, col);
 
 					currentQuadMap = worldMapMatrix[row][col];
 					roomView.updateRoom(currentQuadMap.getMap());
@@ -717,8 +714,8 @@ public class InteractiveGUIController implements Initializable, Listener {
 
 				if (row != (size - 1)) {
 					row++;
-					roomView.updatePosition(row, col);
 					roomView.updateMiniMap(worldMapMatrix);
+					roomView.updatePosition(row, col);
 
 					currentQuadMap = worldMapMatrix[row][col];
 					roomView.updateRoom(currentQuadMap.getMap());
@@ -740,8 +737,8 @@ public class InteractiveGUIController implements Initializable, Listener {
 
 				if (row != 0) {
 					row--;
-					roomView.updatePosition(row, col);
 					roomView.updateMiniMap(worldMapMatrix);
+					roomView.updatePosition(row, col);
 
 					currentQuadMap = worldMapMatrix[row][col];
 					roomView.updateRoom(currentQuadMap.getMap());

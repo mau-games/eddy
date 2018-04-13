@@ -293,7 +293,22 @@ public class RoomViewController extends BorderPane implements Listener {
 		for (Node node : minimap.getChildren()) {
 			if (GridPane.getColumnIndex(node) == col && GridPane.getRowIndex(node) == row) {
 				node.setStyle("-fx-background-color:#2c3f8c;");
+				node.setOnMouseExited(new EventHandler<MouseEvent>() {
 
+		            @Override
+		            public void handle(MouseEvent event) {
+		    			node.setStyle("-fx-background-color:#2c3f8c;");
+		    			
+		            }
+		        });
+				node.setOnMouseEntered(new EventHandler<MouseEvent>() {
+
+		            @Override
+		            public void handle(MouseEvent event) {
+		    			node.setStyle("-fx-background-color:#2c3f8c;");
+		    			
+		            }
+		        });
 			}
 		}
 	}
