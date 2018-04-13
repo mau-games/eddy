@@ -147,7 +147,9 @@ public class InteractiveGUIController implements Initializable, Listener {
 
 		} else if (e instanceof StartWorld) {
 			size = ((StartWorld) e).getSize();
+			if (size != 0) {
 			initWorldView();
+			}
 		}
 			else if (e instanceof SuggestedMapsDone) {
 			restrictNav();
@@ -161,6 +163,10 @@ public class InteractiveGUIController implements Initializable, Listener {
 			roomView.getLeftButton().setDisable(true);
 			roomView.getDownButton().setDisable(true);
 			roomView.getUpButton().setDisable(true);
+			roomView.getRightButton().setOpacity(0);
+			roomView.getLeftButton().setOpacity(0);
+			roomView.getDownButton().setOpacity(0);
+			roomView.getUpButton().setOpacity(0);
 		} else if (e instanceof UpdateMiniMap) {
 			roomView.updateMiniMap(worldMapMatrix);
 		} else if (e instanceof RequestNullRoom) {
@@ -254,6 +260,7 @@ public class InteractiveGUIController implements Initializable, Listener {
 		if (row != 0) {
 			if (!worldMapMatrix[row - 1][col].getMap().getNull()) {
 				Platform.runLater(() -> {
+					roomView.getUpButton().setOpacity(1);
 					ImageView image = new ImageView(renderer.renderMap(worldMapMatrix[row - 1][col].getMap().toMatrix()));
 					image.setScaleX(0.85);
 					image.setScaleY(0.85);
@@ -264,15 +271,21 @@ public class InteractiveGUIController implements Initializable, Listener {
 				roomView.getUpButton().setDisable(false);
 
 			}
+			else {
+				Platform.runLater(() -> {
+					roomView.getUpButton().setOpacity(0);
+				});
+			}
 		}
 		else {
 			Platform.runLater(() -> {
-				roomView.getUpButton().setGraphic(null);
+				roomView.getUpButton().setOpacity(0);
 			});
 		}
 		if (row != (size-1)) {
 			if (!worldMapMatrix[row + 1][col].getMap().getNull()) {
 				Platform.runLater(() -> {
+					roomView.getDownButton().setOpacity(1);
 					ImageView image = new ImageView(renderer.renderMap(worldMapMatrix[row + 1][col].getMap().toMatrix()));
 					image.setScaleX(0.85);
 					image.setScaleY(0.85);
@@ -282,15 +295,21 @@ public class InteractiveGUIController implements Initializable, Listener {
 				});
 				roomView.getDownButton().setDisable(false);
 			}
+			else {
+				Platform.runLater(() -> {
+					roomView.getDownButton().setOpacity(0);
+				});
+			}
 		}
 		else {
 			Platform.runLater(() -> {
-				roomView.getDownButton().setGraphic(null);
+				roomView.getDownButton().setOpacity(0);
 			});
 		}
 		if (col != 0) {
 			if (!worldMapMatrix[row][col - 1].getMap().getNull()) {
 				Platform.runLater(() -> {
+					roomView.getLeftButton().setOpacity(1);
 					ImageView image = new ImageView(renderer.renderMap(worldMapMatrix[row][col - 1].getMap().toMatrix()));
 					image.setScaleX(0.85);
 					image.setScaleY(0.85);
@@ -300,15 +319,21 @@ public class InteractiveGUIController implements Initializable, Listener {
 				});
 				roomView.getLeftButton().setDisable(false);
 			}
+			else {
+				Platform.runLater(() -> {
+					roomView.getLeftButton().setOpacity(0);
+				});
+			}
 		}
 		else {
 			Platform.runLater(() -> {
-				roomView.getLeftButton().setGraphic(null);
+				roomView.getLeftButton().setOpacity(0);
 			});
 		}
 		if (col != (size-1)) {
 			if (!worldMapMatrix[row][col + 1].getMap().getNull()) {
 				Platform.runLater(() -> {
+					roomView.getRightButton().setOpacity(1);
 					ImageView image = new ImageView(renderer.renderMap(worldMapMatrix[row][col + 1].getMap().toMatrix()));
 					image.setScaleX(0.85);
 					image.setScaleY(0.85);
@@ -318,10 +343,15 @@ public class InteractiveGUIController implements Initializable, Listener {
 				});
 				roomView.getRightButton().setDisable(false);
 			}
+			else {
+				Platform.runLater(() -> {
+					roomView.getRightButton().setOpacity(0);
+				});
+			}
 		}
 		else {
 			Platform.runLater(() -> {
-				roomView.getRightButton().setGraphic(null);
+				roomView.getRightButton().setOpacity(0);
 			});
 		}
 	}
