@@ -12,6 +12,9 @@ import java.util.ResourceBundle;
 import javax.imageio.ImageIO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.guigarage.flatterfx.FlatterFX;
+
 import finder.PatternFinder;
 import game.ApplicationConfig;
 import game.Game;
@@ -355,9 +358,11 @@ public class InteractiveGUIController implements Initializable, Listener {
 		mainPane.sceneProperty().addListener((observableScene, oldScene, newScene) -> {
 			if (newScene != null) {
 				stage = (Stage) newScene.getWindow();
+
 			}
 
 		});
+
 		//initWorldView();
 		initLaunchView();
 

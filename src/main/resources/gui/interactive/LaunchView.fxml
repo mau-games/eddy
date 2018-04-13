@@ -23,11 +23,11 @@
 <fx:root type="javafx.scene.layout.BorderPane"
 	stylesheets="@../styling.css" xmlns:fx="http://javafx.com/fxml/1">
 
-	<right>
+	<center>
 		<BorderPane fx:id="buttonPane2">
-			<right>
+			<center>
 				<Label text="Evolutionary Dungeon Designer" />
-			</right>
+			</center>
 			<center>
 				<VBox>
 					<Label text="Select your World size!" />
@@ -36,5 +36,5 @@
 				</VBox>
 			</center>
 		</BorderPane>
-	</right>
+	</center>
 </fx:root>

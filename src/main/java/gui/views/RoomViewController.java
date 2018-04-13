@@ -284,10 +284,9 @@ public class RoomViewController extends BorderPane implements Listener {
 		for (Node node : minimap.getChildren()) {
 			if (GridPane.getColumnIndex(node) == prevCol && GridPane.getRowIndex(node) == prevRow) {
 				node.setStyle("-fx-background-color:#f4f4f4;");
-
+				
 			}
 		}
-
 		prevRow = row;
 		prevCol = col;
 		System.out.println(col + "   " + row);
@@ -298,42 +297,6 @@ public class RoomViewController extends BorderPane implements Listener {
 			}
 		}
 	}
-
-	/**
-	 * Intialises the mini map view.
-	 */
-	//	private void initMiniMaps() {
-	//		getMapView().addEventFilter(MouseEvent.MOUSE_CLICKED, new EditViewEventHandler());
-	//		getMap(0).addEventFilter(MouseEvent.MOUSE_CLICKED, (e) -> {
-	//			replaceMap(0);
-	//			setMousePressed(true);
-	//			System.out.println("THE MOUSE IS PRESSED: " + mousePressed);
-	//		});
-	//		getMap(1).addEventFilter(MouseEvent.MOUSE_CLICKED, (e) -> {
-	//			replaceMap(1);
-	//			setMousePressed(true);
-	//			System.out.println("THE MOUSE IS PRESSED: " + mousePressed);
-	//
-	//
-	//		});
-	//		getMap(2).addEventFilter(MouseEvent.MOUSE_CLICKED, (e) -> {
-	//			replaceMap(2);
-	//			setMousePressed(true);
-	//			System.out.println("THE MOUSE IS PRESSED: " + mousePressed);
-	//
-	//
-	//		});
-	//		getMap(3).addEventFilter(MouseEvent.MOUSE_CLICKED, (e) -> {
-	//			replaceMap(3);
-	//			setMousePressed(true);
-	//			System.out.println("THE MOUSE IS PRESSED: " + mousePressed);
-	//
-	//
-	//		});
-	//		resetMiniMaps();
-	//		setMousePressed(false);
-	//
-	//	}
 
 	public void setContainer(MapContainer map) {
 		map = this.map;
