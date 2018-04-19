@@ -20,18 +20,22 @@
 <?import javafx.scene.layout.VBox?>
 
 <fx:root type="javafx.scene.layout.BorderPane"
-	stylesheets="@../styling.css" xmlns:fx="http://javafx.com/fxml/1">
+	stylesheets="@../styling.css" fx:id="mainBorderPane"
+	xmlns:fx="http://javafx.com/fxml/1">
+	<padding><Insets top="0" right="15" bottom="0" left="0" /></padding>
+	
 	<left>
 		<fx:define>
 			<ToggleGroup fx:id="brushes" />
 		</fx:define>
 		<ToolBar id="toolbox" orientation="VERTICAL"
-			prefHeight="400.0" prefWidth="95.0" BorderPane.alignment="TOP_CENTER">
+			prefHeight="400.0" prefWidth="135.0"
+			BorderPane.alignment="TOP_CENTER">
 			<items>
-				<Label text="Editor tools" />
-				<ToggleButton contentDisplay="TOP"
+				<Label text="Editor tools" fx:id="editorToolsLbl" />
+				<ToggleButton contentDisplay="TOP" prefWidth="75.0"
 					mnemonicParsing="false" text="Floor" toggleGroup="$brushes"
-					onAction="#selectBrush">
+					onAction="#selectBrush" fx:id="floorBtn">
 					<graphic>
 						<ImageView fitWidth="40.0" pickOnBounds="true"
 							preserveRatio="true">
@@ -41,9 +45,9 @@
 						</ImageView>
 					</graphic>
 				</ToggleButton>
-				<ToggleButton contentDisplay="TOP"
+				<ToggleButton contentDisplay="TOP" prefWidth="75.0"
 					mnemonicParsing="false" text="Wall" toggleGroup="$brushes"
-					onAction="#selectBrush">
+					onAction="#selectBrush" fx:id="wallBtn">
 					<graphic>
 						<ImageView fitWidth="40.0" pickOnBounds="true"
 							preserveRatio="true">
@@ -53,9 +57,9 @@
 						</ImageView>
 					</graphic>
 				</ToggleButton>
-				<ToggleButton contentDisplay="TOP"
+				<ToggleButton contentDisplay="TOP" prefWidth="75.0"
 					mnemonicParsing="false" text="Treasure" toggleGroup="$brushes"
-					onAction="#selectBrush">
+					onAction="#selectBrush" fx:id="treasureBtn">
 					<graphic>
 						<ImageView fitWidth="40.0" pickOnBounds="true"
 							preserveRatio="true">
@@ -65,9 +69,9 @@
 						</ImageView>
 					</graphic>
 				</ToggleButton>
-				<ToggleButton contentDisplay="TOP"
+				<ToggleButton contentDisplay="TOP" prefWidth="75.0"
 					mnemonicParsing="false" text="Enemy" toggleGroup="$brushes"
-					onAction="#selectBrush">
+					onAction="#selectBrush" fx:id="enemyBtn">
 					<graphic>
 						<ImageView fitWidth="40.0" pickOnBounds="true"
 							preserveRatio="true">
@@ -77,7 +81,7 @@
 						</ImageView>
 					</graphic>
 				</ToggleButton>
-				<ToggleButton fx:id="patternButton"
+				<ToggleButton fx:id="patternButton" prefWidth="75.0"
 					contentDisplay="TOP" mnemonicParsing="false" wrapText="true"
 					textAlignment="CENTER" text="Show patterns"
 					onAction="#togglePatterns">
@@ -131,7 +135,7 @@
 					<Button contentDisplay="TOP" mnemonicParsing="false"
 						wrapText="true" textAlignment="CENTER" text="Update Minimap"
 						onAction="#updateMiniMap" />
-					
+
 					<Button contentDisplay="TOP" mnemonicParsing="false"
 						wrapText="true" textAlignment="CENTER" text="Go To World Grid"
 						onAction="#handleButtonAction">
@@ -139,11 +143,11 @@
 					</Button>
 					<Button contentDisplay="TOP" mnemonicParsing="false"
 						wrapText="true" textAlignment="CENTER" text="Generate Suggestions"
-						onAction="#generateNewMaps"/>
+						onAction="#generateNewMaps" />
 					<Button contentDisplay="TOP" mnemonicParsing="false"
 						wrapText="true" textAlignment="CENTER" text="Apply Suggestion"
-						onAction="#selectSuggestion"/>
-					
+						onAction="#selectSuggestion" />
+
 				</HBox>
 				<GridPane alignment="CENTER" fx:id="minimap" hgap="0"
 					vgap="0" />

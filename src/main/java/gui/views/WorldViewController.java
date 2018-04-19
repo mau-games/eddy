@@ -154,6 +154,7 @@ public class WorldViewController extends GridPane implements Listener{
 		getRoomNullBtn().setMinSize(500, 100);
 		getSuggestionsBtn().setMinSize(500, 100);
 
+
 		buttonPane.getChildren().add(getStartEmptyBtn());
 		buttonPane.getChildren().add(getRoomNullBtn());
 		buttonPane.getChildren().add(getSuggestionsBtn());
@@ -161,6 +162,7 @@ public class WorldViewController extends GridPane implements Listener{
 		getStartEmptyBtn().setText("Open room");
 		getRoomNullBtn().setText("Make room null");
 		getSuggestionsBtn().setText("Start with our suggestions");
+		
 		
 	}
 
@@ -225,9 +227,9 @@ public class WorldViewController extends GridPane implements Listener{
 
 	            @Override
 	            public void handle(MouseEvent event) {
-	    			source.setStyle("-fx-background-color:#2c3f8c;");
+	    			source.setStyle("-fx-background-color:#7c7c7c;");
 	    			if (oldNode != null) {
-	    				oldNode.setStyle("-fx-background-color:#f4f4f4;");
+	    				oldNode.setStyle("-fx-background-color:#2c2f33;");
 	    			}	 
 	    			oldNode = source;
 	    			
@@ -239,7 +241,7 @@ public class WorldViewController extends GridPane implements Listener{
 
 	            @Override
 	            public void handle(MouseEvent event) {
-	    			source.setStyle("-fx-background-color:#2c3f8c;");
+	    			source.setStyle("-fx-background-color:#7c7c7c;");
 	    			
 	            }
 	        });
@@ -248,7 +250,7 @@ public class WorldViewController extends GridPane implements Listener{
 
 	            @Override
 	            public void handle(MouseEvent event) {
-	    			source.setStyle("-fx-background-color:#2c3f8c;");
+	    			source.setStyle("-fx-background-color:#7c7c7c;");
 	    			
 	            }
 	        });

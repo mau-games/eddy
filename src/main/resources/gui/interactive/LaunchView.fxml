@@ -21,20 +21,46 @@
 
 
 <fx:root type="javafx.scene.layout.BorderPane"
-	stylesheets="@../styling.css" xmlns:fx="http://javafx.com/fxml/1">
+	stylesheets="@../styling.css" fx:id="mainBorderPane"
+	xmlns:fx="http://javafx.com/fxml/1">
 
 	<center>
 		<BorderPane fx:id="buttonPane2">
-			<center>
-				<Label text="Evolutionary Dungeon Designer" />
-			</center>
-			<center>
+							    <padding><Insets top="300" right="25" bottom="25" left="250" /></padding>
+		
+			<top>
+				
+			</top>
+			<left>
 				<VBox>
-					<Label text="Select your World size!" />
-					<ComboBox value="World size..." fx:id="worldSizeBox" />
-					<Button fx:id="createWorldBtn" text="Create Your World" onAction="#createWorld" />
+					<ImageView fx:id="imageView" fitHeight="500.0"
+						fitWidth="500.0" layoutX="500.0" layoutY="500.0"
+						pickOnBounds="true" preserveRatio="true">
+						<image>
+							<Image url="graphics/mesopatterns/ambush.png"
+								backgroundLoading="true" />
+						</image>
+					</ImageView>
+					
+				</VBox>
+			</left>
+			<center>
+			
+				<VBox spacing="30">
+<Label text="Evolutionary Dungeon"
+					fx:id="programTitle" />
+					<Label text="Designer"
+					fx:id="programTitle" />
+					<Label text="Select your World size!" layoutX="0.0"
+						layoutY="0.0" fx:id="selectWorldLabel" />
+					<ComboBox value="World size..." fx:id="worldSizeBox" minWidth="400"/>
+					<Button fx:id="createWorldBtn" text="Create Your World" minWidth="400"
+						onAction="#createWorld" />
 				</VBox>
 			</center>
+			<right>
+
+			</right>
 		</BorderPane>
 	</center>
 </fx:root>

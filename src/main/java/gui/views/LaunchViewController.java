@@ -59,7 +59,8 @@ public class LaunchViewController extends BorderPane implements Listener{
 	
 	public void initGui() {
 		worldSizeBox.getItems().clear();
-		createWorldBtn.setMinSize(500, 100);
+		createWorldBtn.setMinSize(400, 100);
+		
 		ObservableList<String> options = 
 			    FXCollections.observableArrayList(
 			        "1x1",

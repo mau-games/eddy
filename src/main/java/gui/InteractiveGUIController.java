@@ -163,6 +163,12 @@ public class InteractiveGUIController implements Initializable, Listener {
 			//			roomView.getDownButton().setDisable(false);
 			//			roomView.getUpButton().setDisable(false);
 		} else if (e instanceof SuggestedMapsLoading) {
+			
+			firstIsClicked = false;
+			secondIsClicked = false;
+			thirdIsClicked = false;
+			fourthIsClicked = false;
+
 
 			roomView.getRightButton().setDisable(true);
 			roomView.getLeftButton().setDisable(true);
@@ -783,10 +789,10 @@ public class InteractiveGUIController implements Initializable, Listener {
 	            public void handle(MouseEvent event) {
 	    			router.postEvent(new ApplySuggestion(0));
 
-	             	roomView.getMap(0).setStyle("-fx-background-color:#2c3f8c;");
-	            	roomView.getMap(1).setStyle("-fx-background-color:#f4f4f4;");
-	            	roomView.getMap(2).setStyle("-fx-background-color:#f4f4f4;");
-	            	roomView.getMap(3).setStyle("-fx-background-color:#f4f4f4;");
+	             	roomView.getMap(0).setStyle("-fx-background-color:#7c7c7c;");
+	            	roomView.getMap(1).setStyle("-fx-background-color:#2c2f33;");
+	            	roomView.getMap(2).setStyle("-fx-background-color:#2c2f33;");
+	            	roomView.getMap(3).setStyle("-fx-background-color:#2c2f33;");
 	            	firstIsClicked = true;
 	            	secondIsClicked = false;
 	            	thirdIsClicked = false;
@@ -799,10 +805,10 @@ public class InteractiveGUIController implements Initializable, Listener {
 	            @Override
 	            public void handle(MouseEvent event) {
 	            	if (firstIsClicked) {
-	            	roomView.getMap(0).setStyle("-fx-background-color:#2c3f8c;");
-	            	roomView.getMap(1).setStyle("-fx-background-color:#f4f4f4;");
-	            	roomView.getMap(2).setStyle("-fx-background-color:#f4f4f4;");
-	            	roomView.getMap(3).setStyle("-fx-background-color:#f4f4f4;");
+	            	roomView.getMap(0).setStyle("-fx-background-color:#7c7c7c;");
+	            	roomView.getMap(1).setStyle("-fx-background-color:#2c2f33;");
+	            	roomView.getMap(2).setStyle("-fx-background-color:#2c2f33;");
+	            	roomView.getMap(3).setStyle("-fx-background-color:#2c2f33;");
 	            	}
 //	    			
 	            }
@@ -814,10 +820,10 @@ public class InteractiveGUIController implements Initializable, Listener {
 	            public void handle(MouseEvent event) {
 	            	if (firstIsClicked) {
 
-	            	roomView.getMap(0).setStyle("-fx-background-color:#2c3f8c;");
-	            	roomView.getMap(1).setStyle("-fx-background-color:#f4f4f4;");
-	            	roomView.getMap(2).setStyle("-fx-background-color:#f4f4f4;");
-	            	roomView.getMap(3).setStyle("-fx-background-color:#f4f4f4;");
+	            	roomView.getMap(0).setStyle("-fx-background-color:#7c7c7c;");
+	            	roomView.getMap(1).setStyle("-fx-background-color:#2c2f33;");
+	            	roomView.getMap(2).setStyle("-fx-background-color:#2c2f33;");
+	            	roomView.getMap(3).setStyle("-fx-background-color:#2c2f33;");
 	            	}
 	            }
 	        });
@@ -832,10 +838,10 @@ public class InteractiveGUIController implements Initializable, Listener {
 	            public void handle(MouseEvent event) {
 	    			router.postEvent(new ApplySuggestion(1));
 
-	            	roomView.getMap(1).setStyle("-fx-background-color:#2c3f8c;");
-	            	roomView.getMap(0).setStyle("-fx-background-color:#f4f4f4;");
-	            	roomView.getMap(2).setStyle("-fx-background-color:#f4f4f4;");
-	            	roomView.getMap(3).setStyle("-fx-background-color:#f4f4f4;");
+	            	roomView.getMap(1).setStyle("-fx-background-color:#7c7c7c;");
+	            	roomView.getMap(0).setStyle("-fx-background-color:#2c2f33;");
+	            	roomView.getMap(2).setStyle("-fx-background-color:#2c2f33;");
+	            	roomView.getMap(3).setStyle("-fx-background-color:#2c2f33;");
 	            	firstIsClicked = false;
 	            	secondIsClicked = true;
 	            	thirdIsClicked = false;
@@ -848,10 +854,10 @@ public class InteractiveGUIController implements Initializable, Listener {
 	            @Override
 	            public void handle(MouseEvent event) {
 	            	if (secondIsClicked ) {
-	            	roomView.getMap(1).setStyle("-fx-background-color:#2c3f8c;");
-	            	roomView.getMap(0).setStyle("-fx-background-color:#f4f4f4;");
-	            	roomView.getMap(2).setStyle("-fx-background-color:#f4f4f4;");
-	            	roomView.getMap(3).setStyle("-fx-background-color:#f4f4f4;");
+	            	roomView.getMap(1).setStyle("-fx-background-color:#7c7c7c;");
+	            	roomView.getMap(0).setStyle("-fx-background-color:#2c2f33;");
+	            	roomView.getMap(2).setStyle("-fx-background-color:#2c2f33;");
+	            	roomView.getMap(3).setStyle("-fx-background-color:#2c2f33;");
 	            	}
 //	    			
 	            }
@@ -863,10 +869,10 @@ public class InteractiveGUIController implements Initializable, Listener {
 	            public void handle(MouseEvent event) {
 	            	if (secondIsClicked ) {
 
-	            	roomView.getMap(1).setStyle("-fx-background-color:#2c3f8c;");
-	            	roomView.getMap(0).setStyle("-fx-background-color:#f4f4f4;");
-	            	roomView.getMap(2).setStyle("-fx-background-color:#f4f4f4;");
-	            	roomView.getMap(3).setStyle("-fx-background-color:#f4f4f4;");
+	            	roomView.getMap(1).setStyle("-fx-background-color:#7c7c7c;");
+	            	roomView.getMap(0).setStyle("-fx-background-color:#2c2f33;");
+	            	roomView.getMap(2).setStyle("-fx-background-color:#2c2f33;");
+	            	roomView.getMap(3).setStyle("-fx-background-color:#2c2f33;");
 	            	}
 	            }
 	        });
@@ -879,10 +885,10 @@ public class InteractiveGUIController implements Initializable, Listener {
 	            public void handle(MouseEvent event) {
 	    			router.postEvent(new ApplySuggestion(2));
 
-	            	roomView.getMap(2).setStyle("-fx-background-color:#2c3f8c;");
-	            	roomView.getMap(0).setStyle("-fx-background-color:#f4f4f4;");
-	            	roomView.getMap(1).setStyle("-fx-background-color:#f4f4f4;");
-	            	roomView.getMap(3).setStyle("-fx-background-color:#f4f4f4;");
+	            	roomView.getMap(2).setStyle("-fx-background-color:#7c7c7c;");
+	            	roomView.getMap(0).setStyle("-fx-background-color:#2c2f33;");
+	            	roomView.getMap(1).setStyle("-fx-background-color:#2c2f33;");
+	            	roomView.getMap(3).setStyle("-fx-background-color:#2c2f33;");
 	            	firstIsClicked = false;
 	            	secondIsClicked = false;
 	            	thirdIsClicked = true;
@@ -895,10 +901,10 @@ public class InteractiveGUIController implements Initializable, Listener {
 	            @Override
 	            public void handle(MouseEvent event) {
 	            	if (thirdIsClicked) {
-	            	roomView.getMap(2).setStyle("-fx-background-color:#2c3f8c;");
-	            	roomView.getMap(0).setStyle("-fx-background-color:#f4f4f4;");
-	            	roomView.getMap(1).setStyle("-fx-background-color:#f4f4f4;");
-	            	roomView.getMap(3).setStyle("-fx-background-color:#f4f4f4;");
+	            	roomView.getMap(2).setStyle("-fx-background-color:#7c7c7c;");
+	            	roomView.getMap(0).setStyle("-fx-background-color:#2c2f33;");
+	            	roomView.getMap(1).setStyle("-fx-background-color:#2c2f33;");
+	            	roomView.getMap(3).setStyle("-fx-background-color:#2c2f33;");
 	            }
 	            }
 	        });
@@ -908,10 +914,10 @@ public class InteractiveGUIController implements Initializable, Listener {
 	            @Override
 	            public void handle(MouseEvent event) {
 	            	if (thirdIsClicked) {
-	            	roomView.getMap(2).setStyle("-fx-background-color:#2c3f8c;");
-	            	roomView.getMap(0).setStyle("-fx-background-color:#f4f4f4;");
-	            	roomView.getMap(1).setStyle("-fx-background-color:#f4f4f4;");
-	            	roomView.getMap(3).setStyle("-fx-background-color:#f4f4f4;");
+	            	roomView.getMap(2).setStyle("-fx-background-color:#7c7c7c;");
+	            	roomView.getMap(0).setStyle("-fx-background-color:#2c2f33;");
+	            	roomView.getMap(1).setStyle("-fx-background-color:#2c2f33;");
+	            	roomView.getMap(3).setStyle("-fx-background-color:#2c2f33;");
 	            	}
 	            }
 	        });
@@ -924,10 +930,10 @@ public class InteractiveGUIController implements Initializable, Listener {
 	            public void handle(MouseEvent event) {
 	    			router.postEvent(new ApplySuggestion(3));
 
-	            	roomView.getMap(3).setStyle("-fx-background-color:#2c3f8c;");
-	            	roomView.getMap(0).setStyle("-fx-background-color:#f4f4f4;");
-	            	roomView.getMap(2).setStyle("-fx-background-color:#f4f4f4;");
-	            	roomView.getMap(1).setStyle("-fx-background-color:#f4f4f4;");
+	            	roomView.getMap(3).setStyle("-fx-background-color:#7c7c7c;");
+	            	roomView.getMap(0).setStyle("-fx-background-color:#2c2f33;");
+	            	roomView.getMap(2).setStyle("-fx-background-color:#2c2f33;");
+	            	roomView.getMap(1).setStyle("-fx-background-color:#2c2f33;");
 	            	firstIsClicked = false;
 	            	secondIsClicked = false;
 	            	thirdIsClicked = false;
@@ -940,10 +946,10 @@ public class InteractiveGUIController implements Initializable, Listener {
 	            @Override
 	            public void handle(MouseEvent event) {
 	            	if (fourthIsClicked) {
-	            	roomView.getMap(3).setStyle("-fx-background-color:#2c3f8c;");
-	            	roomView.getMap(0).setStyle("-fx-background-color:#f4f4f4;");
-	            	roomView.getMap(2).setStyle("-fx-background-color:#f4f4f4;");
-	            	roomView.getMap(1).setStyle("-fx-background-color:#f4f4f4;");
+	            	roomView.getMap(3).setStyle("-fx-background-color:#7c7c7c;");
+	            	roomView.getMap(0).setStyle("-fx-background-color:#2c2f33;");
+	            	roomView.getMap(2).setStyle("-fx-background-color:#2c2f33;");
+	            	roomView.getMap(1).setStyle("-fx-background-color:#2c2f33;");
 	            }
 //	    			
 	            }
@@ -954,10 +960,10 @@ public class InteractiveGUIController implements Initializable, Listener {
 	            @Override
 	            public void handle(MouseEvent event) {
 	            	if (fourthIsClicked) {
-	            	roomView.getMap(3).setStyle("-fx-background-color:#2c3f8c;");
-	            	roomView.getMap(0).setStyle("-fx-background-color:#f4f4f4;");
-	            	roomView.getMap(2).setStyle("-fx-background-color:#f4f4f4;");
-	            	roomView.getMap(1).setStyle("-fx-background-color:#f4f4f4;");
+	            	roomView.getMap(3).setStyle("-fx-background-color:#7c7c7c;");
+	            	roomView.getMap(0).setStyle("-fx-background-color:#2c2f33;");
+	            	roomView.getMap(2).setStyle("-fx-background-color:#2c2f33;");
+	            	roomView.getMap(1).setStyle("-fx-background-color:#2c2f33;");
 	            	}
 	            }
 	        });
