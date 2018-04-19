@@ -197,11 +197,6 @@ public class WorldViewController extends GridPane implements Listener{
 	}
 	public class MouseEventHandler implements EventHandler<MouseEvent> {
 
-		//		private MapContainer map;
-		//
-		//		public MouseEventHandler(MapContainer map) {
-		//			this.map = map;
-		//		}
 
 		@Override
 		public void handle(MouseEvent event) {

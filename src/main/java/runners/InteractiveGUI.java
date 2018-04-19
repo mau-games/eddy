@@ -7,7 +7,6 @@ import collectors.GenerationCollector;
 import collectors.MapCollector;
 import collectors.RenderedMapCollector;
 import game.Game;
-import gui.InteractiveGUIController;
 import gui.utils.MapRenderer;
 import javafx.application.Application;
 import javafx.application.Platform;
@@ -17,7 +16,6 @@ import javafx.scene.Scene;
 import javafx.scene.image.Image;
 import javafx.stage.Stage;
 import util.config.ConfigurationUtility;
-import util.config.MissingConfigurationException;
 import util.eventrouting.EventRouter;
 import util.eventrouting.events.Start;
 

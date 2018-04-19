@@ -87,107 +87,76 @@
 						</Insets>
 					</VBox.margin>
 				</ToggleButton>
-				<Button contentDisplay="TOP" mnemonicParsing="false"
-					wrapText="true" textAlignment="CENTER" text="Generate maps"
-					onAction="#generateNewMaps">
-					<VBox.margin>
-						<Insets>
-							<top>20</top>
-						</Insets>
-					</VBox.margin>
-				</Button>
-				<Button contentDisplay="TOP" mnemonicParsing="false"
-					wrapText="true" textAlignment="CENTER" text="Display whole map"
-					onAction="#handleButtonAction">
-					<VBox.margin>
-						<Insets>
-							<top>20</top>
-						</Insets>
-					</VBox.margin>
-				</Button>
+				<GridPane fx:id="legend" id="legend" />
+
+
 			</items>
 		</ToolBar>
 	</left>
 	<center>
-		<BorderPane>
 
+		<StackPane alignment="CENTER" fx:id="mapPane" />
 
-			<center>
-
-				<BorderPane>
-
-					<center>
-						<StackPane alignment="CENTER" fx:id="mapPane" />
-
-					</center>
-					<right>
-					
-						<VBox> 
-						<HBox spacing="100">		
-											
-						<BorderPane fx:id="space" >
-						<bottom>
-						<Button contentDisplay="TOP" mnemonicParsing="false"
-					wrapText="true" textAlignment="CENTER" text="Update Minimap"
-					onAction="#updateMiniMap"/></bottom>
-							</BorderPane>
-												
-					<GridPane fx:id="legend" id="legend" />
-					</HBox>
-							<GridPane alignment="CENTER" fx:id="minimap" hgap="0" vgap="0" />
-
-
-						</VBox>
-						
-					</right>
-
-					<!-- <top> <BorderPane> <center> <Button contentDisplay="TOP" fx:id="rightButton" 
-						mnemonicParsing="false" wrapText="true" textAlignment="CENTER" text="right" 
-						onAction="#handleButtonAction"> </Button> <Button contentDisplay="TOP" fx:id="leftButton" 
-						mnemonicParsing="false" wrapText="true" textAlignment="CENTER" text="left" 
-						onAction="#handleButtonAction"> </Button> <Button contentDisplay="TOP" fx:id="upButton" 
-						mnemonicParsing="false" wrapText="true" textAlignment="CENTER" text="up" 
-						onAction="#handleButtonAction"> </Button> <Button contentDisplay="TOP" fx:id="botButton" 
-						mnemonicParsing="false" wrapText="true" textAlignment="CENTER" text="bot" 
-						onAction="#handleButtonAction"> </Button> </center> </BorderPane> </top> -->
-				</BorderPane>
-
-			</center>
-
-
-
-
-
-			<left>
-				<VBox>
-					<children>
-						<StackPane alignment="CENTER" fx:id="generatedMapsLabel"
-							id="generatedMapsLabel">
-							<Label text="Generated maps" />
-						</StackPane>
-						<StackPane alignment="CENTER">
-							<fx:define>
-								<ArrayList fx:id="mapDisplays">
-									<LabeledCanvas fx:id="map0" />
-									<LabeledCanvas fx:id="map1" />
-									<LabeledCanvas fx:id="map2" />
-									<LabeledCanvas fx:id="map3" />
-								</ArrayList>
-							</fx:define>
-							<children>
-								<VBox alignment="CENTER" spacing="15">
-									<children>
-										<fx:reference source="map0" />
-										<fx:reference source="map1" />
-										<fx:reference source="map2" />
-										<fx:reference source="map3" />
-									</children>
-								</VBox>
-							</children>
-						</StackPane>
-					</children>
-				</VBox>
-			</left>
-		</BorderPane>
 	</center>
+
+	<right>
+
+		<HBox>
+			<VBox>
+				<StackPane alignment="CENTER" fx:id="generatedMapsLabel"
+					id="generatedMapsLabel">
+					<Label text="Generated maps" />
+				</StackPane>
+				<StackPane alignment="CENTER">
+					<fx:define>
+						<ArrayList fx:id="mapDisplays">
+							<LabeledCanvas fx:id="map0" />
+							<LabeledCanvas fx:id="map1" />
+							<LabeledCanvas fx:id="map2" />
+							<LabeledCanvas fx:id="map3" />
+						</ArrayList>
+					</fx:define>
+					<children>
+						<HBox alignment="CENTER" spacing="15">
+							<children>
+								<fx:reference source="map0" />
+								<fx:reference source="map1" />
+								<fx:reference source="map2" />
+								<fx:reference source="map3" />
+							</children>
+						</HBox>
+					</children>
+				</StackPane>
+				<HBox>
+					<Button contentDisplay="TOP" mnemonicParsing="false"
+						wrapText="true" textAlignment="CENTER" text="Update Minimap"
+						onAction="#updateMiniMap" />
+					
+					<Button contentDisplay="TOP" mnemonicParsing="false"
+						wrapText="true" textAlignment="CENTER" text="Go To World Grid"
+						onAction="#handleButtonAction">
+
+					</Button>
+					<Button contentDisplay="TOP" mnemonicParsing="false"
+						wrapText="true" textAlignment="CENTER" text="Generate Suggestions"
+						onAction="#generateNewMaps"/>
+					<Button contentDisplay="TOP" mnemonicParsing="false"
+						wrapText="true" textAlignment="CENTER" text="Apply Suggestion"
+						onAction="#selectSuggestion"/>
+					
+				</HBox>
+				<GridPane alignment="CENTER" fx:id="minimap" hgap="0"
+					vgap="0" />
+			</VBox>
+			<HBox.margin>
+				<Insets>
+					<right>20</right>
+				</Insets>
+			</HBox.margin>
+		</HBox>
+	</right>
+
+	<bottom>
+
+	</bottom>
 </fx:root>

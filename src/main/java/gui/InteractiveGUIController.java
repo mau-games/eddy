@@ -30,6 +30,7 @@ import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.MenuButton;
 //import javafx.scene.control.Alert;
@@ -47,6 +48,7 @@ import util.eventrouting.EventRouter;
 import util.eventrouting.Listener;
 import util.eventrouting.PCGEvent;
 import util.eventrouting.events.AlgorithmDone;
+import util.eventrouting.events.ApplySuggestion;
 import util.eventrouting.events.MapLoaded;
 import util.eventrouting.events.RequestEmptyRoom;
 import util.eventrouting.events.RequestNullRoom;
@@ -78,7 +80,10 @@ public class InteractiveGUIController implements Initializable, Listener {
 	//	@FXML private MenuItem saveWorldItem;
 	//	@FXML private MenuItem openWorldItem;
 	//	@FXML private MenuButton roomSizeBtn;
-
+	public boolean firstIsClicked = false;
+	public boolean secondIsClicked = false;
+	public boolean thirdIsClicked = false;
+	public boolean fourthIsClicked = false;
 	Stage stage = null;
 
 	Game game = new Game();
@@ -106,6 +111,9 @@ public class InteractiveGUIController implements Initializable, Listener {
 	private MapContainer[][] worldMapMatrix = new MapContainer[size][size];
 	private int row = 0;
 	private int col = 0;
+	
+	private Node oldNode;
+
 
 	@Override
 	public synchronized void ping(PCGEvent e) {
@@ -289,6 +297,7 @@ public class InteractiveGUIController implements Initializable, Listener {
 					roomView.getDownButton().setGraphic(image);
 					roomView.getDownButton().setScaleX(0.15);
 					roomView.getDownButton().setScaleY(0.15);
+					
 				});
 				roomView.getDownButton().setDisable(false);
 			}
@@ -351,6 +360,7 @@ public class InteractiveGUIController implements Initializable, Listener {
 				roomView.getRightButton().setOpacity(0);
 			});
 		}
+
 	}
 
 	@Override
@@ -763,50 +773,194 @@ public class InteractiveGUIController implements Initializable, Listener {
 
 	private void roomMouseEvents() {
 		roomView.getMapView().addEventFilter(MouseEvent.MOUSE_CLICKED, roomView.new EditViewEventHandler());
-		roomView.getMap(0).addEventFilter(MouseEvent.MOUSE_CLICKED, (e) -> {
-			roomView.replaceMap(0);
-			MapContainer selectedMiniCont = new MapContainer();
-			selectedMiniCont.setMap(roomView.getSelectedMiniMap());	
-			currentQuadMap = selectedMiniCont;
-
-			worldMapMatrix[row][col] = selectedMiniCont;
-			roomView.setMousePressed(true);
 
 
-		});
-		roomView.getMap(1).addEventFilter(MouseEvent.MOUSE_CLICKED, (e) -> {
-			roomView.replaceMap(1);
-			MapContainer selectedMiniCont = new MapContainer();
-			selectedMiniCont.setMap(roomView.getSelectedMiniMap());
-			currentQuadMap = selectedMiniCont;
+		
+			//roomView.replaceMap(0);
+			roomView.getMap(0).setOnMouseClicked(new EventHandler<MouseEvent>() {
 
-			worldMapMatrix[row][col] = selectedMiniCont;
-			roomView.setMousePressed(true);
+	            @Override
+	            public void handle(MouseEvent event) {
+	    			router.postEvent(new ApplySuggestion(0));
+
+	             	roomView.getMap(0).setStyle("-fx-background-color:#2c3f8c;");
+	            	roomView.getMap(1).setStyle("-fx-background-color:#f4f4f4;");
+	            	roomView.getMap(2).setStyle("-fx-background-color:#f4f4f4;");
+	            	roomView.getMap(3).setStyle("-fx-background-color:#f4f4f4;");
+	            	firstIsClicked = true;
+	            	secondIsClicked = false;
+	            	thirdIsClicked = false;
+	            	fourthIsClicked = false;
+
+	            }
+			});
+			roomView.getMap(0).setOnMouseExited(new EventHandler<MouseEvent>() {
+
+	            @Override
+	            public void handle(MouseEvent event) {
+	            	if (firstIsClicked) {
+	            	roomView.getMap(0).setStyle("-fx-background-color:#2c3f8c;");
+	            	roomView.getMap(1).setStyle("-fx-background-color:#f4f4f4;");
+	            	roomView.getMap(2).setStyle("-fx-background-color:#f4f4f4;");
+	            	roomView.getMap(3).setStyle("-fx-background-color:#f4f4f4;");
+	            	}
+//	    			
+	            }
+	        });
+//			
+			roomView.getMap(0).setOnMouseEntered(new EventHandler<MouseEvent>() {
+
+	            @Override
+	            public void handle(MouseEvent event) {
+	            	if (firstIsClicked) {
+
+	            	roomView.getMap(0).setStyle("-fx-background-color:#2c3f8c;");
+	            	roomView.getMap(1).setStyle("-fx-background-color:#f4f4f4;");
+	            	roomView.getMap(2).setStyle("-fx-background-color:#f4f4f4;");
+	            	roomView.getMap(3).setStyle("-fx-background-color:#f4f4f4;");
+	            	}
+	            }
+	        });
 
 
-		});
-		roomView.getMap(2).addEventFilter(MouseEvent.MOUSE_CLICKED, (e) -> {
-			roomView.replaceMap(2);
-			MapContainer selectedMiniCont = new MapContainer();
-			selectedMiniCont.setMap(roomView.getSelectedMiniMap());
-			currentQuadMap = selectedMiniCont;
 
-			worldMapMatrix[row][col] = selectedMiniCont;
-			roomView.setMousePressed(true);
+		
+			//roomView.replaceMap(1);
+			roomView.getMap(1).setOnMouseClicked(new EventHandler<MouseEvent>() {
 
+	            @Override
+	            public void handle(MouseEvent event) {
+	    			router.postEvent(new ApplySuggestion(1));
 
-		});
-		roomView.getMap(3).addEventFilter(MouseEvent.MOUSE_CLICKED, (e) -> {
-			roomView.replaceMap(3);
-			MapContainer selectedMiniCont = new MapContainer();
-			selectedMiniCont.setMap(roomView.getSelectedMiniMap());
+	            	roomView.getMap(1).setStyle("-fx-background-color:#2c3f8c;");
+	            	roomView.getMap(0).setStyle("-fx-background-color:#f4f4f4;");
+	            	roomView.getMap(2).setStyle("-fx-background-color:#f4f4f4;");
+	            	roomView.getMap(3).setStyle("-fx-background-color:#f4f4f4;");
+	            	firstIsClicked = false;
+	            	secondIsClicked = true;
+	            	thirdIsClicked = false;
+	            	fourthIsClicked = false;
+	            }
+			});
+						
+			roomView.getMap(1).setOnMouseExited(new EventHandler<MouseEvent>() {
 
-			currentQuadMap = selectedMiniCont;
-			worldMapMatrix[row][col] = selectedMiniCont;
-			roomView.setMousePressed(true);
+	            @Override
+	            public void handle(MouseEvent event) {
+	            	if (secondIsClicked ) {
+	            	roomView.getMap(1).setStyle("-fx-background-color:#2c3f8c;");
+	            	roomView.getMap(0).setStyle("-fx-background-color:#f4f4f4;");
+	            	roomView.getMap(2).setStyle("-fx-background-color:#f4f4f4;");
+	            	roomView.getMap(3).setStyle("-fx-background-color:#f4f4f4;");
+	            	}
+//	    			
+	            }
+	        });
+			
+			roomView.getMap(1).setOnMouseEntered(new EventHandler<MouseEvent>() {
 
+	            @Override
+	            public void handle(MouseEvent event) {
+	            	if (secondIsClicked ) {
 
-		});
+	            	roomView.getMap(1).setStyle("-fx-background-color:#2c3f8c;");
+	            	roomView.getMap(0).setStyle("-fx-background-color:#f4f4f4;");
+	            	roomView.getMap(2).setStyle("-fx-background-color:#f4f4f4;");
+	            	roomView.getMap(3).setStyle("-fx-background-color:#f4f4f4;");
+	            	}
+	            }
+	        });
+
+			//roomView.replaceMap(2);
+
+			roomView.getMap(2).setOnMouseClicked(new EventHandler<MouseEvent>() {
+
+	            @Override
+	            public void handle(MouseEvent event) {
+	    			router.postEvent(new ApplySuggestion(2));
+
+	            	roomView.getMap(2).setStyle("-fx-background-color:#2c3f8c;");
+	            	roomView.getMap(0).setStyle("-fx-background-color:#f4f4f4;");
+	            	roomView.getMap(1).setStyle("-fx-background-color:#f4f4f4;");
+	            	roomView.getMap(3).setStyle("-fx-background-color:#f4f4f4;");
+	            	firstIsClicked = false;
+	            	secondIsClicked = false;
+	            	thirdIsClicked = true;
+	            	fourthIsClicked = false;
+	            }
+			});
+					
+			roomView.getMap(2).setOnMouseExited(new EventHandler<MouseEvent>() {
+
+	            @Override
+	            public void handle(MouseEvent event) {
+	            	if (thirdIsClicked) {
+	            	roomView.getMap(2).setStyle("-fx-background-color:#2c3f8c;");
+	            	roomView.getMap(0).setStyle("-fx-background-color:#f4f4f4;");
+	            	roomView.getMap(1).setStyle("-fx-background-color:#f4f4f4;");
+	            	roomView.getMap(3).setStyle("-fx-background-color:#f4f4f4;");
+	            }
+	            }
+	        });
+//			
+			roomView.getMap(2).setOnMouseEntered(new EventHandler<MouseEvent>() {
+
+	            @Override
+	            public void handle(MouseEvent event) {
+	            	if (thirdIsClicked) {
+	            	roomView.getMap(2).setStyle("-fx-background-color:#2c3f8c;");
+	            	roomView.getMap(0).setStyle("-fx-background-color:#f4f4f4;");
+	            	roomView.getMap(1).setStyle("-fx-background-color:#f4f4f4;");
+	            	roomView.getMap(3).setStyle("-fx-background-color:#f4f4f4;");
+	            	}
+	            }
+	        });
+
+			//roomView.replaceMap(3);
+
+			roomView.getMap(3).setOnMouseClicked(new EventHandler<MouseEvent>() {
+
+	            @Override
+	            public void handle(MouseEvent event) {
+	    			router.postEvent(new ApplySuggestion(3));
+
+	            	roomView.getMap(3).setStyle("-fx-background-color:#2c3f8c;");
+	            	roomView.getMap(0).setStyle("-fx-background-color:#f4f4f4;");
+	            	roomView.getMap(2).setStyle("-fx-background-color:#f4f4f4;");
+	            	roomView.getMap(1).setStyle("-fx-background-color:#f4f4f4;");
+	            	firstIsClicked = false;
+	            	secondIsClicked = false;
+	            	thirdIsClicked = false;
+	            	fourthIsClicked = true;
+	            }
+			});
+
+			roomView.getMap(3).setOnMouseExited(new EventHandler<MouseEvent>() {
+
+	            @Override
+	            public void handle(MouseEvent event) {
+	            	if (fourthIsClicked) {
+	            	roomView.getMap(3).setStyle("-fx-background-color:#2c3f8c;");
+	            	roomView.getMap(0).setStyle("-fx-background-color:#f4f4f4;");
+	            	roomView.getMap(2).setStyle("-fx-background-color:#f4f4f4;");
+	            	roomView.getMap(1).setStyle("-fx-background-color:#f4f4f4;");
+	            }
+//	    			
+	            }
+	        });
+//			
+			roomView.getMap(3).setOnMouseEntered(new EventHandler<MouseEvent>() {
+
+	            @Override
+	            public void handle(MouseEvent event) {
+	            	if (fourthIsClicked) {
+	            	roomView.getMap(3).setStyle("-fx-background-color:#2c3f8c;");
+	            	roomView.getMap(0).setStyle("-fx-background-color:#f4f4f4;");
+	            	roomView.getMap(2).setStyle("-fx-background-color:#f4f4f4;");
+	            	roomView.getMap(1).setStyle("-fx-background-color:#f4f4f4;");
+	            	}
+	            }
+	        });
 		roomView.resetMiniMaps();
 		roomView.setMousePressed(false);
 	}

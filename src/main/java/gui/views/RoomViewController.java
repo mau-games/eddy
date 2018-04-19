@@ -59,6 +59,7 @@ import util.config.MissingConfigurationException;
 import util.eventrouting.EventRouter;
 import util.eventrouting.Listener;
 import util.eventrouting.PCGEvent;
+import util.eventrouting.events.ApplySuggestion;
 import util.eventrouting.events.MapUpdate;
 import util.eventrouting.events.RequestRoomView;
 import util.eventrouting.events.RequestWorldView;
@@ -69,14 +70,16 @@ import util.eventrouting.events.SuggestedMapsLoading;
 import util.eventrouting.events.UpdateMiniMap;
 
 /**
- * his class controls the interactive application's edit view.
+ * This class controls the interactive application's edit view.
  * 
  * @author Johan Holmberg, Malmö University
  */
 public class RoomViewController extends BorderPane implements Listener {
 
 	@FXML private List<LabeledCanvas> mapDisplays;
-	@FXML private StackPane mapPane;
+	@FXML public StackPane mapPane;
+	@FXML private StackPane buttonsPane;
+
 	//@FXML private Pane root;
 	@FXML private GridPane legend;
 	@FXML private ToggleGroup brushes;
@@ -84,6 +87,7 @@ public class RoomViewController extends BorderPane implements Listener {
 
 	@FXML GridPane minimap;
 
+	private Node oldNode;
 
 	private Button rightButton = new Button();
 	private Button leftButton = new Button();
@@ -101,7 +105,6 @@ public class RoomViewController extends BorderPane implements Listener {
 	private Map largeMap;
 	private Canvas patternCanvas;
 	private Canvas warningCanvas;
-	private Canvas buttonCanvas;
 
 	private MapContainer map;
 
@@ -118,6 +121,10 @@ public class RoomViewController extends BorderPane implements Listener {
 
 	private int prevRow;
 	private int prevCol;
+	
+	private int requestedSuggestion;
+	
+	
 
 
 
@@ -141,6 +148,7 @@ public class RoomViewController extends BorderPane implements Listener {
 		}
 
 		router.registerListener(this, new MapUpdate(null));
+		router.registerListener(this, new ApplySuggestion(0));
 
 		init();
 	}
@@ -162,7 +170,7 @@ public class RoomViewController extends BorderPane implements Listener {
 	private void initMapView() {
 		int width = 420;
 		int height = 420;
-
+				
 		setMapView(new InteractiveMap());
 		StackPane.setAlignment(getMapView(), Pos.CENTER);
 		getMapView().setMinSize(width, height);
@@ -176,41 +184,32 @@ public class RoomViewController extends BorderPane implements Listener {
 		patternCanvas.setVisible(false);
 		patternCanvas.setMouseTransparent(true);
 
-		buttonCanvas = new Canvas(width + 120, height + 120);
-		StackPane.setAlignment(buttonCanvas, Pos.CENTER);
-		mapPane.getChildren().add(buttonCanvas);
-		buttonCanvas.setVisible(false);
-		buttonCanvas.setMouseTransparent(true);
-
-
 
 		getRightButton().setText("right");
 		getLeftButton().setText("left");
 		getUpButton().setText("up");
 		getDownButton().setText("bot");
 
-
-
-
+		
+		
 		getRightButton().setTranslateX(300);
-		//rightButton.setTranslateY(100);
-
+		
 		getLeftButton().setTranslateX(-300);
-		//leftButton.setTranslateY(-100);
 
-		//upButton.setTranslateX(300);
 		getUpButton().setTranslateY(-300);
 
-		//botButton.setTranslateX(300);
 		getDownButton().setTranslateY(300);
 
-
-
-
+		StackPane.setAlignment(getUpButton(), Pos.CENTER);
+		StackPane.setAlignment(getDownButton(), Pos.CENTER);
+		StackPane.setAlignment(getRightButton(), Pos.CENTER);
+		StackPane.setAlignment(getLeftButton(), Pos.CENTER);
+		
 		mapPane.getChildren().add(getUpButton());
 		mapPane.getChildren().add(getDownButton());
 		mapPane.getChildren().add(getRightButton());
 		mapPane.getChildren().add(getLeftButton());
+		
 
 		warningCanvas = new Canvas(width, height);
 		StackPane.setAlignment(warningCanvas, Pos.CENTER);
@@ -269,13 +268,6 @@ public class RoomViewController extends BorderPane implements Listener {
 				minimap.setHgap(0);
 				canvas.addEventFilter(MouseEvent.MOUSE_CLICKED,
 						new MouseEventHandler());
-
-
-
-				//				canvas.addEventFilter(MouseEvent.MOUSE_CLICKED,
-				//						new MouseEventHandler());
-				//				
-				//gridPane.add(new Button(), i, j);
 			}
 		}
 	}
@@ -408,6 +400,9 @@ public class RoomViewController extends BorderPane implements Listener {
 					canvas.draw(renderer.renderMap(matrix));
 				});
 			}
+		} else if (e instanceof ApplySuggestion ) {
+			requestedSuggestion = (int) ((ApplySuggestion) e).getPayload();
+			
 		}
 	}
 
@@ -646,14 +641,13 @@ public class RoomViewController extends BorderPane implements Listener {
 		router.postEvent(new UpdateMiniMap());
 
 	}
+	
+	@FXML
+	private void selectSuggestion(ActionEvent event) throws IOException {
 
-
-
-
-
-	public void testMethod() {
-		System.out.println("hello");
+		replaceMap(requestedSuggestion);
 	}
+
 
 	public Button getRightButton() {
 		return rightButton;
@@ -714,12 +708,6 @@ public class RoomViewController extends BorderPane implements Listener {
 
 	public class MouseEventHandler implements EventHandler<MouseEvent> {
 
-		//		private MapContainer map;
-		//
-		//		public MouseEventHandler(MapContainer map) {
-		//			this.map = map;
-		//		}
-
 		@Override
 		public void handle(MouseEvent event) {
 			Node source = (Node)event.getSource();
@@ -739,6 +727,8 @@ public class RoomViewController extends BorderPane implements Listener {
 				}
 
 			});
+			
+			
 		}
 
 	}
