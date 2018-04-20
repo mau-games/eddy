@@ -293,7 +293,6 @@ public class RoomViewController extends BorderPane implements Listener {
 					}
 				}
 				minimap.add(canvas, i, j);
-				minimap.setHgap(0);
 				canvas.addEventFilter(MouseEvent.MOUSE_CLICKED,
 						new MouseEventHandler());
 			}
@@ -312,12 +311,12 @@ public class RoomViewController extends BorderPane implements Listener {
 		System.out.println(col + "   " + row);
 		for (Node node : minimap.getChildren()) {
 			if (GridPane.getColumnIndex(node) == col && GridPane.getRowIndex(node) == row) {
-				node.setStyle("-fx-background-color:#7c7c7c;");
+				node.setStyle("-fx-background-color:#fcdf3c;");
 				node.setOnMouseExited(new EventHandler<MouseEvent>() {
 
 					@Override
 					public void handle(MouseEvent event) {
-						node.setStyle("-fx-background-color:#7c7c7c;");
+						node.setStyle("-fx-background-color:#fcdf3c;");
 
 					}
 				});
@@ -325,7 +324,7 @@ public class RoomViewController extends BorderPane implements Listener {
 
 					@Override
 					public void handle(MouseEvent event) {
-						node.setStyle("-fx-background-color:#7c7c7c;");
+						node.setStyle("-fx-background-color:#fcdf3c;");
 
 					}
 				});
@@ -645,7 +644,9 @@ public class RoomViewController extends BorderPane implements Listener {
 	public static double round(double value, int places) {
 		if (places < 0) {
 			throw new IllegalArgumentException();
-		} 
+		} else if (value == 0) {
+			return 0;
+		}
 		
 		BigDecimal bd = new BigDecimal(value);
 		bd = bd.setScale(places, RoundingMode.HALF_UP);

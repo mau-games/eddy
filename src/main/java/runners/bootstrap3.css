@@ -13,11 +13,27 @@
 	-fx-effect: none;
 }
 
-.button,.menu-button,.toggle-button,.split-menu-button {
-	-fx-font-size: 14;
+.button {
+	-fx-font-size: 16;
 	-fx-background-radius: 4;
 	-fx-border-radius: 4;
 	-fx-pref-height: 30;
+	
+}
+
+.menu-button,.split-menu-button {
+	-fx-font-size: 20;
+	-fx-background-radius: 4;
+	-fx-border-radius: 4;
+	-fx-pref-height: 30;
+}
+
+.toggle-button {
+	-fx-font-size: 16;
+	-fx-background-radius: 4;
+	-fx-border-radius: 4;
+	-fx-pref-height: 30;
+	-fx-min-width: 135;
 }
 .button,.menu-button,.split-menu-button,.toggle-button,.number-button {
 	-fx-background-insets: 0, 0, -1, 0;

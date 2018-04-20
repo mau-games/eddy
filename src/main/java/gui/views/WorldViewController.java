@@ -114,7 +114,6 @@ public class WorldViewController extends GridPane implements Listener{
 					}
 				}
 				gridPane.add(canvas, i, j);
-				gridPane.setHgap(20);
 
 				canvas.addEventFilter(MouseEvent.MOUSE_CLICKED,
 						new MouseEventHandler());
@@ -227,7 +226,7 @@ public class WorldViewController extends GridPane implements Listener{
 
 	            @Override
 	            public void handle(MouseEvent event) {
-	    			source.setStyle("-fx-background-color:#7c7c7c;");
+	    			source.setStyle("-fx-background-color:#fcdf3c;");
 	    			if (oldNode != null) {
 	    				oldNode.setStyle("-fx-background-color:#2c2f33;");
 	    			}	 
@@ -241,7 +240,7 @@ public class WorldViewController extends GridPane implements Listener{
 
 	            @Override
 	            public void handle(MouseEvent event) {
-	    			source.setStyle("-fx-background-color:#7c7c7c;");
+	    			source.setStyle("-fx-background-color:#fcdf3c;");
 	    			
 	            }
 	        });
@@ -250,7 +249,7 @@ public class WorldViewController extends GridPane implements Listener{
 
 	            @Override
 	            public void handle(MouseEvent event) {
-	    			source.setStyle("-fx-background-color:#7c7c7c;");
+	    			source.setStyle("-fx-background-color:#fcdf3c;");
 	    			
 	            }
 	        });

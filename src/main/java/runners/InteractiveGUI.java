@@ -62,7 +62,7 @@ public class InteractiveGUI extends Application {
 			stage.setScene(scene);
 			stage.show();
 			scene.getStylesheets().add(this.getClass().getResource("bootstrap3.css").toExternalForm());
-
+			stage.setMaximized(true);
 			EventRouter router = EventRouter.getInstance();
 			
 			// Set up a new game

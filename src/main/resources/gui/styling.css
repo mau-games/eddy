@@ -64,6 +64,10 @@
 	
 }
 
+#worldSizeBox {
+	
+}
+
 #enemyNumbr, #treasureNmbr, #treasurePercent, #enemyPercent, #entranceSafety, #treasureSafety, #generatedMapsLabel .label {
 	-fx-font-weight: bold;
 		-fx-text-fill: white;
