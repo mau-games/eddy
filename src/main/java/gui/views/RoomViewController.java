@@ -1,6 +1,8 @@
 package gui.views;
 
 import java.io.IOException;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
@@ -89,8 +91,21 @@ public class RoomViewController extends BorderPane implements Listener {
 	@FXML private ToggleButton wallBtn;
 	@FXML private ToggleButton treasureBtn;
 	@FXML private ToggleButton enemyBtn;
-	
-	
+
+	@FXML private Label enemyNumbr;
+	@FXML private Label enemyNumbr2;
+	@FXML private Label treasureNmbr;
+	@FXML private Label treasureNmbr2;
+	@FXML private Label treasurePercent;
+	@FXML private Label treasurePercent2;
+	@FXML private Label enemyPercent;
+	@FXML private Label enemyPercent2;
+	@FXML private Label entranceSafety;
+	@FXML private Label entranceSafety2;
+	@FXML private Label treasureSafety;
+	@FXML private Label treasureSafety2;
+
+
 	@FXML GridPane minimap;
 
 	private Node oldNode;
@@ -127,10 +142,10 @@ public class RoomViewController extends BorderPane implements Listener {
 
 	private int prevRow;
 	private int prevCol;
-	
+
 	private int requestedSuggestion;
-	
-	
+
+
 
 
 
@@ -176,7 +191,7 @@ public class RoomViewController extends BorderPane implements Listener {
 	private void initMapView() {
 		int width = 420;
 		int height = 420;
-				
+
 		setMapView(new InteractiveMap());
 		StackPane.setAlignment(getMapView(), Pos.CENTER);
 		getMapView().setMinSize(width, height);
@@ -196,15 +211,15 @@ public class RoomViewController extends BorderPane implements Listener {
 		getUpButton().setText("up");
 		getDownButton().setText("bot");
 
-		
+
 		getRightButton().setTranslateX(300);
-		
+
 		getLeftButton().setTranslateX(-300);
 
 		getUpButton().setTranslateY(-300);
 
 		getDownButton().setTranslateY(300);
-		
+
 		patternButton.setMinWidth(75);
 		floorBtn.setMinWidth(75);
 		wallBtn.setMinWidth(75);
@@ -216,13 +231,13 @@ public class RoomViewController extends BorderPane implements Listener {
 		StackPane.setAlignment(getDownButton(), Pos.CENTER);
 		StackPane.setAlignment(getRightButton(), Pos.CENTER);
 		StackPane.setAlignment(getLeftButton(), Pos.CENTER);
-		
+
 		mapPane.getChildren().add(getUpButton());
 		mapPane.getChildren().add(getDownButton());
 		mapPane.getChildren().add(getRightButton());
 		mapPane.getChildren().add(getLeftButton());
-		
-		
+
+
 
 		warningCanvas = new Canvas(width, height);
 		StackPane.setAlignment(warningCanvas, Pos.CENTER);
@@ -289,7 +304,7 @@ public class RoomViewController extends BorderPane implements Listener {
 		for (Node node : minimap.getChildren()) {
 			if (GridPane.getColumnIndex(node) == prevCol && GridPane.getRowIndex(node) == prevRow) {
 				node.setStyle("-fx-background-color:#2c2f33;");
-				
+
 			}
 		}
 		prevRow = row;
@@ -300,20 +315,20 @@ public class RoomViewController extends BorderPane implements Listener {
 				node.setStyle("-fx-background-color:#7c7c7c;");
 				node.setOnMouseExited(new EventHandler<MouseEvent>() {
 
-		            @Override
-		            public void handle(MouseEvent event) {
-		    			node.setStyle("-fx-background-color:#7c7c7c;");
-		    			
-		            }
-		        });
+					@Override
+					public void handle(MouseEvent event) {
+						node.setStyle("-fx-background-color:#7c7c7c;");
+
+					}
+				});
 				node.setOnMouseEntered(new EventHandler<MouseEvent>() {
 
-		            @Override
-		            public void handle(MouseEvent event) {
-		    			node.setStyle("-fx-background-color:#7c7c7c;");
-		    			
-		            }
-		        });
+					@Override
+					public void handle(MouseEvent event) {
+						node.setStyle("-fx-background-color:#7c7c7c;");
+
+					}
+				});
 			}
 		}
 	}
@@ -346,47 +361,47 @@ public class RoomViewController extends BorderPane implements Listener {
 		Label door = new Label("Door");
 		door.setStyle("-fx-text-fill: white;");
 		legend.add(door, 1, 2);
-		
+
 		legend.add(new ImageView(new Image(c.getString("map.mesopatterns.ambush"), 40, 40, false, false)), 0, 3);
 		Label ambush = new Label("Ambush");
 		ambush.setStyle("-fx-text-fill: white;");
 		legend.add(ambush, 1, 3);
-		
+
 		legend.add(new ImageView(new Image(c.getString("map.mesopatterns.guard_room"), 40, 40, false, false)), 0, 4);
 		Label guardChamber = new Label("Guard chamber");
 		guardChamber.setStyle("-fx-text-fill: white;");
 		legend.add(guardChamber, 1, 4);
-		
+
 		legend.add(new ImageView(new Image(c.getString("map.mesopatterns.guarded_treasure"), 40, 40, false, false)), 0, 5);
 		Label guardTreasure = new Label("Guarded treasure");
 		guardTreasure.setStyle("-fx-text-fill: white;");
 		legend.add(guardTreasure, 1, 5);
-		
+
 		legend.add(new ImageView(new Image(c.getString("map.mesopatterns.treasure_room"), 40, 40, false, false)), 0, 6);
 		Label treasureChamber = new Label("Treasure Chamber");
 		treasureChamber.setStyle("-fx-text-fill: white;");
 		legend.add(treasureChamber, 1, 6);
-		
+
 		legend.add(new ImageView(new Image(c.getString("map.examples.chamber"), 40, 40, true, true)), 0, 7);
 		Label chamber = new Label("Chamber");
 		chamber.setStyle("-fx-text-fill: white;");
 		legend.add(chamber, 1, 7);
-		
+
 		legend.add(new ImageView(new Image(c.getString("map.examples.corridor"), 40, 40, true, true)), 0, 8);
 		Label corridor = new Label("Corridor");
 		corridor.setStyle("-fx-text-fill: white;");
 		legend.add(corridor, 1, 8);
-		
+
 		legend.add(new ImageView(new Image(c.getString("map.examples.connector"), 40, 40, true, true)), 0, 9);
 		Label connector = new Label("Connector");
 		connector.setStyle("-fx-text-fill: white;");
 		legend.add(connector, 1, 9);
-		
+
 		legend.add(new ImageView(new Image(c.getString("map.examples.dead_end"), 40, 40, true, true)), 0, 10);
 		Label deadEnd = new Label("Dead end");
 		deadEnd.setStyle("-fx-text-fill: white;");
 		legend.add(deadEnd, 1, 10);
-			}
+	}
 
 	/**
 	 * Resets the mini maps for a new run of map generation.
@@ -436,7 +451,7 @@ public class RoomViewController extends BorderPane implements Listener {
 			}
 		} else if (e instanceof ApplySuggestion ) {
 			requestedSuggestion = (int) ((ApplySuggestion) e).getPayload();
-			
+
 		}
 	}
 
@@ -626,6 +641,16 @@ public class RoomViewController extends BorderPane implements Listener {
 
 		return patternMap;
 	}
+	
+	public static double round(double value, int places) {
+		if (places < 0) {
+			throw new IllegalArgumentException();
+		} 
+		
+		BigDecimal bd = new BigDecimal(value);
+		bd = bd.setScale(places, RoundingMode.HALF_UP);
+		return bd.doubleValue();
+	}
 
 	/**
 	 * Redraws the pattern, based on the current map layout.
@@ -637,6 +662,202 @@ public class RoomViewController extends BorderPane implements Listener {
 		renderer.drawPatterns(patternCanvas.getGraphicsContext2D(), map.toMatrix(), colourPatterns(map.getPatternFinder().findMicroPatterns()));
 		renderer.drawGraph(patternCanvas.getGraphicsContext2D(), map.toMatrix(), map.getPatternFinder().getPatternGraph());
 		renderer.drawMesoPatterns(patternCanvas.getGraphicsContext2D(), map.toMatrix(), map.getPatternFinder().getMesoPatterns());
+	}
+
+	@FXML
+	public void clearStats() {
+		enemyNumbr.setText("");
+		enemyNumbr2.setText("");
+		treasureNmbr.setText("");
+		treasureNmbr2.setText("");
+		treasurePercent.setText("");
+		treasurePercent2.setText("");
+		enemyPercent.setText("");
+		enemyPercent2.setText("");
+		entranceSafety.setText("");
+		entranceSafety2.setText("");
+		treasureSafety.setText("");
+		treasureSafety2.setText("");	
+		
+	}
+	
+	@FXML
+	public void displayStats() {
+		StringBuilder str = new StringBuilder();
+		str.append("Number of enemies: ");
+
+		str.append(getMapView().getMap().getEnemyCount());
+		str.append(" ➤  ");
+		enemyNumbr.setText(str.toString());	
+		str = new StringBuilder();
+
+		str.append(selectedMiniMap.getEnemyCount());
+		if (getMapView().getMap().getEnemyCount() > selectedMiniMap.getEnemyCount()) {
+			str.append(" ▼");
+			enemyNumbr2.setText(str.toString());
+			enemyNumbr2.setStyle("-fx-text-fill: red");
+		} else if (getMapView().getMap().getEnemyCount() < selectedMiniMap.getEnemyCount()) {			
+			str.append(" ▲");
+			enemyNumbr2.setText(str.toString());
+			enemyNumbr2.setStyle("-fx-text-fill: green");
+		} else {
+			enemyNumbr2.setText(str.toString());
+			enemyNumbr2.setStyle("-fx-text-fill: white");
+		}
+
+		str = new StringBuilder();
+
+
+		str.append("Number of treasures: ");
+
+		str.append(getMapView().getMap().getTreasureCount());
+		str.append(" ➤  ");
+		treasureNmbr.setText(str.toString());	
+		str = new StringBuilder();
+
+		str.append(selectedMiniMap.getTreasureCount());
+		if (getMapView().getMap().getTreasureCount() > selectedMiniMap.getTreasureCount()) {
+			str.append(" ▼");
+			treasureNmbr2.setText(str.toString());
+			treasureNmbr2.setStyle("-fx-text-fill: red");
+		} else if (getMapView().getMap().getTreasureCount() < selectedMiniMap.getTreasureCount()) {			
+			str.append(" ▲");
+			treasureNmbr2.setText(str.toString());
+			treasureNmbr2.setStyle("-fx-text-fill: green");
+		} else {
+			treasureNmbr2.setText(str.toString());
+			treasureNmbr2.setStyle("-fx-text-fill: white");
+		}
+
+		str = new StringBuilder();
+
+
+		str.append("Treasure percentage: ");
+
+		str.append(round(getMapView().getMap().getTreasurePercentage()* 100, 2 ));
+		str.append("%");
+
+		str.append(" ➤  ");
+		treasurePercent.setText(str.toString());	
+		str = new StringBuilder();
+
+		str.append(round(selectedMiniMap.getTreasurePercentage()* 100, 2 ));
+		str.append("%");
+
+		if (getMapView().getMap().getTreasurePercentage() > selectedMiniMap.getTreasurePercentage()) {
+			str.append(" ▼");
+			treasurePercent2.setText(str.toString());
+			treasurePercent2.setStyle("-fx-text-fill: red");
+		} else if (getMapView().getMap().getTreasurePercentage() < selectedMiniMap.getTreasurePercentage()) {			
+			str.append(" ▲");
+			treasurePercent2.setText(str.toString());
+			treasurePercent2.setStyle("-fx-text-fill: green");
+		} else {
+			treasurePercent2.setText(str.toString());
+			treasurePercent2.setStyle("-fx-text-fill: white");
+		}
+
+		str = new StringBuilder();
+
+
+		str.append("Enemy percentage: ");
+
+		str.append(round(getMapView().getMap().getEnemyPercentage()* 100, 2 ));
+		str.append("%");
+
+		str.append(" ➤  ");
+		enemyPercent.setText(str.toString());	
+		str = new StringBuilder();
+
+		str.append(round(selectedMiniMap.getEnemyPercentage()* 100, 2 ));
+		str.append("%");
+
+		if (getMapView().getMap().getEnemyPercentage() > selectedMiniMap.getEnemyPercentage()) {
+			str.append(" ▼");
+			enemyPercent2.setText(str.toString());
+			enemyPercent2.setStyle("-fx-text-fill: red");
+		} else if (getMapView().getMap().getEnemyPercentage() < selectedMiniMap.getEnemyPercentage()) {			
+			str.append(" ▲");
+			enemyPercent2.setText(str.toString());
+			enemyPercent2.setStyle("-fx-text-fill: green");
+		} else {
+			enemyPercent2.setText(str.toString());
+			enemyPercent2.setStyle("-fx-text-fill: white");
+		}
+
+		str = new StringBuilder();
+
+
+		str.append("Entrance safety: ");
+
+		str.append(round(getMapView().getMap().getEntranceSafety()* 100, 2 ));
+		str.append("%");
+
+		str.append(" ➤  ");
+		entranceSafety.setText(str.toString());	
+		str = new StringBuilder();
+
+		str.append(round(selectedMiniMap.getEntranceSafety()* 100, 2 ));
+		str.append("%");
+
+		if (getMapView().getMap().getEntranceSafety() > selectedMiniMap.getEntranceSafety()) {
+			str.append(" ▼");
+			entranceSafety2.setText(str.toString());
+			entranceSafety2.setStyle("-fx-text-fill: red");
+		} else if (getMapView().getMap().getEntranceSafety() < selectedMiniMap.getEntranceSafety()) {			
+			str.append(" ▲");
+			entranceSafety2.setText(str.toString());
+			entranceSafety2.setStyle("-fx-text-fill: green");
+		} else {
+			entranceSafety2.setText(str.toString());
+			entranceSafety2.setStyle("-fx-text-fill: white");
+		}
+
+		str = new StringBuilder();
+
+
+		str.append("Treasure safety: ");
+
+		Double[] safeties =getMapView().getMap().getAllTreasureSafeties();
+
+		double totalSafety = 0;
+
+		for (double d : safeties) {
+			totalSafety += d;
+		}
+		totalSafety = totalSafety/safeties.length;
+
+		safeties = selectedMiniMap.getAllTreasureSafeties();
+
+		double totalSafety2 = 0;
+
+		for (double d : safeties) {
+			totalSafety2 += d;
+		}
+		totalSafety2 = totalSafety2/safeties.length;
+
+		str.append(round(totalSafety * 100, 2));
+		str.append("%");
+
+		str.append(" ➤  ");
+		treasureSafety.setText(str.toString());	
+		str = new StringBuilder();
+
+		str.append(round(totalSafety2 * 100, 2));
+		str.append("%");
+		if (totalSafety > totalSafety2) {
+			str.append(" ▼");
+			treasureSafety2.setText(str.toString());
+			treasureSafety2.setStyle("-fx-text-fill: red");
+		} else if (totalSafety < totalSafety2) {			
+			str.append(" ▲");
+			treasureSafety2.setText(str.toString());
+			treasureSafety2.setStyle("-fx-text-fill: green");
+		} else {
+			treasureSafety2.setText(str.toString());
+			treasureSafety2.setStyle("-fx-text-fill: white");
+		}
+
 	}
 
 	/*
@@ -675,10 +896,10 @@ public class RoomViewController extends BorderPane implements Listener {
 		router.postEvent(new UpdateMiniMap());
 
 	}
-	
+
 	@FXML
 	private void selectSuggestion(ActionEvent event) throws IOException {
-		
+
 		replaceMap(requestedSuggestion);
 		router.postEvent(new RequestAppliedMap(selectedMiniMap, prevRow, prevCol));
 		getMap(0).setStyle("-fx-background-color:#2c2f33");
@@ -767,8 +988,8 @@ public class RoomViewController extends BorderPane implements Listener {
 				}
 
 			});
-			
-			
+
+
 		}
 
 	}

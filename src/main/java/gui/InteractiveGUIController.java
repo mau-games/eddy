@@ -177,8 +177,10 @@ public class InteractiveGUIController implements Initializable, Listener {
 			secondIsClicked = false;
 			thirdIsClicked = false;
 			fourthIsClicked = false;
+			
+			roomView.clearStats();
 
-
+			
 			roomView.getRightButton().setDisable(true);
 			roomView.getLeftButton().setDisable(true);
 			roomView.getDownButton().setDisable(true);
@@ -798,7 +800,9 @@ public class InteractiveGUIController implements Initializable, Listener {
 	            @Override
 	            public void handle(MouseEvent event) {
 	    			router.postEvent(new ApplySuggestion(0));
-	    
+	    			roomView.setSelectedMiniMap(roomView.maps.get(0));
+
+	    			roomView.displayStats();
 	             	roomView.getMap(0).setStyle("-fx-background-color:#7c7c7c;");
 	            	roomView.getMap(1).setStyle("-fx-background-color:#2c2f33;");
 	            	roomView.getMap(2).setStyle("-fx-background-color:#2c2f33;");
@@ -847,7 +851,10 @@ public class InteractiveGUIController implements Initializable, Listener {
 	            @Override
 	            public void handle(MouseEvent event) {
 	    			router.postEvent(new ApplySuggestion(1));
-	    			
+	    			roomView.setSelectedMiniMap(roomView.maps.get(1));
+
+	    			roomView.displayStats();
+
 	            	roomView.getMap(1).setStyle("-fx-background-color:#7c7c7c;");
 	            	roomView.getMap(0).setStyle("-fx-background-color:#2c2f33;");
 	            	roomView.getMap(2).setStyle("-fx-background-color:#2c2f33;");
@@ -894,7 +901,10 @@ public class InteractiveGUIController implements Initializable, Listener {
 	            @Override
 	            public void handle(MouseEvent event) {
 	    			router.postEvent(new ApplySuggestion(2));
-	    			
+	    			roomView.setSelectedMiniMap(roomView.maps.get(2));
+
+	    			roomView.displayStats();
+
 	            	roomView.getMap(2).setStyle("-fx-background-color:#7c7c7c;");
 	            	roomView.getMap(0).setStyle("-fx-background-color:#2c2f33;");
 	            	roomView.getMap(1).setStyle("-fx-background-color:#2c2f33;");
@@ -940,7 +950,10 @@ public class InteractiveGUIController implements Initializable, Listener {
 	            @Override
 	            public void handle(MouseEvent event) {
 	    			router.postEvent(new ApplySuggestion(3));
-	    			
+	    			roomView.setSelectedMiniMap(roomView.maps.get(3));
+
+	    			roomView.displayStats();
+
 	            	roomView.getMap(3).setStyle("-fx-background-color:#7c7c7c;");
 	            	roomView.getMap(0).setStyle("-fx-background-color:#2c2f33;");
 	            	roomView.getMap(2).setStyle("-fx-background-color:#2c2f33;");

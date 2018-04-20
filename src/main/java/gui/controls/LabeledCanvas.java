@@ -44,7 +44,7 @@ public class LabeledCanvas extends BorderPane {
 	 */
 	public LabeledCanvas() {
 		super();
-		init("default");
+		init("");
 	}
 	
 	/**
