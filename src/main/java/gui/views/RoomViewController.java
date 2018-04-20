@@ -61,6 +61,7 @@ import util.eventrouting.Listener;
 import util.eventrouting.PCGEvent;
 import util.eventrouting.events.ApplySuggestion;
 import util.eventrouting.events.MapUpdate;
+import util.eventrouting.events.RequestAppliedMap;
 import util.eventrouting.events.RequestRoomView;
 import util.eventrouting.events.RequestWorldView;
 import util.eventrouting.events.StartMapMutate;
@@ -679,6 +680,7 @@ public class RoomViewController extends BorderPane implements Listener {
 	private void selectSuggestion(ActionEvent event) throws IOException {
 		
 		replaceMap(requestedSuggestion);
+		router.postEvent(new RequestAppliedMap(selectedMiniMap, prevRow, prevCol));
 		getMap(0).setStyle("-fx-background-color:#2c2f33");
 		getMap(1).setStyle("-fx-background-color:#2c2f33");
 		getMap(2).setStyle("-fx-background-color:#2c2f33");

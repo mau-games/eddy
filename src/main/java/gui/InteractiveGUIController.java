@@ -50,6 +50,7 @@ import util.eventrouting.PCGEvent;
 import util.eventrouting.events.AlgorithmDone;
 import util.eventrouting.events.ApplySuggestion;
 import util.eventrouting.events.MapLoaded;
+import util.eventrouting.events.RequestAppliedMap;
 import util.eventrouting.events.RequestEmptyRoom;
 import util.eventrouting.events.RequestNullRoom;
 import util.eventrouting.events.RequestRedraw;
@@ -134,6 +135,14 @@ public class InteractiveGUIController implements Initializable, Listener {
 				
 			}
 
+		} else if (e instanceof RequestAppliedMap) {
+			Map map = (Map) ((RequestAppliedMap) e).getPayload();
+			MapContainer mapCont = new MapContainer();
+			row = ((RequestAppliedMap) e).getRow();
+			col = ((RequestAppliedMap) e).getCol(); 
+			mapCont.setMap(map);
+			worldMapMatrix[row][col] = mapCont;
+			initRoomView(mapCont);
 		} else if (e instanceof RequestSuggestionsView) {
 			worldMapMatrix = ((RequestSuggestionsView) e).getMatrix();
 			row = ((RequestSuggestionsView) e).getRow();
@@ -392,6 +401,7 @@ public class InteractiveGUIController implements Initializable, Listener {
 		router.registerListener(this, new RequestNullRoom(null, 0, 0, null));
 		router.registerListener(this, new UpdateMiniMap());
 		router.registerListener(this, new StartWorld(0));
+		router.registerListener(this, new RequestAppliedMap(null, 0, 0));
 
 		suggestionsView = new SuggestionsViewController();
 		roomView = new RoomViewController();
@@ -780,7 +790,7 @@ public class InteractiveGUIController implements Initializable, Listener {
 	private void roomMouseEvents() {
 		roomView.getMapView().addEventFilter(MouseEvent.MOUSE_CLICKED, roomView.new EditViewEventHandler());
 
-
+		roomView.getMap(0).addEventFilter(MouseEvent.MOUSE_CLICKED, (e) -> {
 		
 			//roomView.replaceMap(0);
 			roomView.getMap(0).setOnMouseClicked(new EventHandler<MouseEvent>() {
@@ -788,7 +798,7 @@ public class InteractiveGUIController implements Initializable, Listener {
 	            @Override
 	            public void handle(MouseEvent event) {
 	    			router.postEvent(new ApplySuggestion(0));
-
+	    
 	             	roomView.getMap(0).setStyle("-fx-background-color:#7c7c7c;");
 	            	roomView.getMap(1).setStyle("-fx-background-color:#2c2f33;");
 	            	roomView.getMap(2).setStyle("-fx-background-color:#2c2f33;");
@@ -828,16 +838,16 @@ public class InteractiveGUIController implements Initializable, Listener {
 	            }
 	        });
 
+		});
 
-
-		
+		roomView.getMap(1).addEventFilter(MouseEvent.MOUSE_CLICKED, (e) -> {
 			//roomView.replaceMap(1);
 			roomView.getMap(1).setOnMouseClicked(new EventHandler<MouseEvent>() {
 
 	            @Override
 	            public void handle(MouseEvent event) {
 	    			router.postEvent(new ApplySuggestion(1));
-
+	    			
 	            	roomView.getMap(1).setStyle("-fx-background-color:#7c7c7c;");
 	            	roomView.getMap(0).setStyle("-fx-background-color:#2c2f33;");
 	            	roomView.getMap(2).setStyle("-fx-background-color:#2c2f33;");
@@ -876,15 +886,15 @@ public class InteractiveGUIController implements Initializable, Listener {
 	            	}
 	            }
 	        });
-
+		});
 			//roomView.replaceMap(2);
-
+		roomView.getMap(2).addEventFilter(MouseEvent.MOUSE_CLICKED, (e) -> {
 			roomView.getMap(2).setOnMouseClicked(new EventHandler<MouseEvent>() {
 
 	            @Override
 	            public void handle(MouseEvent event) {
 	    			router.postEvent(new ApplySuggestion(2));
-
+	    			
 	            	roomView.getMap(2).setStyle("-fx-background-color:#7c7c7c;");
 	            	roomView.getMap(0).setStyle("-fx-background-color:#2c2f33;");
 	            	roomView.getMap(1).setStyle("-fx-background-color:#2c2f33;");
@@ -923,13 +933,14 @@ public class InteractiveGUIController implements Initializable, Listener {
 	        });
 
 			//roomView.replaceMap(3);
-
+		});
+		roomView.getMap(3).addEventFilter(MouseEvent.MOUSE_CLICKED, (e) -> {
 			roomView.getMap(3).setOnMouseClicked(new EventHandler<MouseEvent>() {
 
 	            @Override
 	            public void handle(MouseEvent event) {
 	    			router.postEvent(new ApplySuggestion(3));
-
+	    			
 	            	roomView.getMap(3).setStyle("-fx-background-color:#7c7c7c;");
 	            	roomView.getMap(0).setStyle("-fx-background-color:#2c2f33;");
 	            	roomView.getMap(2).setStyle("-fx-background-color:#2c2f33;");
@@ -967,6 +978,7 @@ public class InteractiveGUIController implements Initializable, Listener {
 	            	}
 	            }
 	        });
+		});
 		roomView.resetMiniMaps();
 		roomView.setMousePressed(false);
 	}
