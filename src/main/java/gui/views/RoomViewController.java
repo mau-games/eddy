@@ -43,6 +43,7 @@ import javafx.scene.control.Label;
 import javafx.scene.control.Slider;
 import javafx.scene.control.ToggleButton;
 import javafx.scene.control.ToggleGroup;
+import javafx.scene.control.Tooltip;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
@@ -225,7 +226,7 @@ public class RoomViewController extends BorderPane implements Listener {
 
 		getDownButton().setTranslateY(300);
 
-		patternButton.setMinWidth(75);
+		getPatternButton().setMinWidth(75);
 		floorBtn.setMinWidth(75);
 		wallBtn.setMinWidth(75);
 		enemyBtn.setMinWidth(75);
@@ -242,7 +243,12 @@ public class RoomViewController extends BorderPane implements Listener {
 		mapPane.getChildren().add(getRightButton());
 		mapPane.getChildren().add(getLeftButton());
 
+		getWorldGridBtn().setTooltip(new Tooltip("View your world map"));
+		getGenSuggestionsBtn().setTooltip(new Tooltip("Generate new maps according to the current map view"));
+		getAppSuggestionsBtn().setTooltip(new Tooltip("Change the current map view with your selected generated map"));
+		getUpdateMiniMapBtn().setTooltip(new Tooltip("Refresh your minimap view"));
 
+		getPatternButton().setTooltip(new Tooltip("Toggle the game design patterns for the current map"));
 
 		warningCanvas = new Canvas(width, height);
 		StackPane.setAlignment(warningCanvas, Pos.CENTER);
@@ -568,7 +574,7 @@ public class RoomViewController extends BorderPane implements Listener {
 	 * "Why is this public?",  you ask. Because of FXML's method binding.
 	 */
 	public void togglePatterns() {
-		if (patternButton.isSelected()) {
+		if (getPatternButton().isSelected()) {
 			patternCanvas.setVisible(true);
 		} else {
 			patternCanvas.setVisible(false);
@@ -1005,6 +1011,14 @@ public class RoomViewController extends BorderPane implements Listener {
 
 	public void setAppSuggestionsBtn(Button appSuggestionsBtn) {
 		this.appSuggestionsBtn = appSuggestionsBtn;
+	}
+
+	public ToggleButton getPatternButton() {
+		return patternButton;
+	}
+
+	public void setPatternButton(ToggleButton patternButton) {
+		this.patternButton = patternButton;
 	}
 
 	public class MouseEventHandler implements EventHandler<MouseEvent> {

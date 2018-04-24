@@ -14,7 +14,7 @@
 }
 
 .button {
-	-fx-font-size: 16;
+	-fx-font-size: 15;
 	-fx-background-radius: 4;
 	-fx-border-radius: 4;
 	-fx-pref-height: 30;
@@ -22,14 +22,14 @@
 }
 
 .menu-button,.split-menu-button {
-	-fx-font-size: 20;
+	-fx-font-size: 15;
 	-fx-background-radius: 4;
 	-fx-border-radius: 4;
 	-fx-pref-height: 30;
 }
 
 .toggle-button {
-	-fx-font-size: 16;
+	-fx-font-size: 15;
 	-fx-background-radius: 4;
 	-fx-border-radius: 4;
 	-fx-pref-height: 30;
