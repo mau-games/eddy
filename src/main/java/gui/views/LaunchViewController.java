@@ -10,6 +10,7 @@ import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
+import javafx.scene.control.Tooltip;
 import javafx.scene.layout.BorderPane;
 import util.config.MissingConfigurationException;
 import util.eventrouting.EventRouter;
@@ -72,6 +73,7 @@ public class LaunchViewController extends BorderPane implements Listener{
 			        "7x7"
 			    );
 		worldSizeBox.getItems().addAll(options);
+		worldSizeBox.setValue("World size...");
 		//selectedSize = worldSizeBox.getValue();	
 		
 	}

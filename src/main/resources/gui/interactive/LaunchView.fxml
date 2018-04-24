@@ -53,7 +53,7 @@
 					fx:id="programTitle" />
 					<Label text="Select your World size!" layoutX="0.0"
 						layoutY="0.0" fx:id="selectWorldLabel" />
-					<ComboBox value="World size..." fx:id="worldSizeBox" minWidth="400"/>
+					<ComboBox fx:id="worldSizeBox" minWidth="400"/>
 					<Button fx:id="createWorldBtn" text="Create Your World" minWidth="400"
 						onAction="#createWorld" />
 				</VBox>

@@ -109,7 +109,7 @@
 	<right>
 
 		<HBox>
-			<VBox spacing="20">
+			<VBox spacing="15">
 			
 
 				<StackPane alignment="CENTER" fx:id="generatedMapsLabel"
@@ -159,19 +159,19 @@
 				</HBox>
 				
 				<HBox spacing="10">
-					<Button contentDisplay="TOP" mnemonicParsing="false"
+					<Button fx:id="updateMiniMapBtn" contentDisplay="TOP" mnemonicParsing="false"
 						wrapText="true" textAlignment="CENTER" text="Update Minimap"
 						onAction="#updateMiniMap" />
 
-					<Button contentDisplay="TOP" mnemonicParsing="false"
+					<Button fx:id="worldGridBtn" contentDisplay="TOP" mnemonicParsing="false"
 						wrapText="true" textAlignment="CENTER" text="Go To World Grid"
 						onAction="#handleButtonAction">
 
 					</Button>
-					<Button contentDisplay="TOP" mnemonicParsing="false"
+					<Button fx:id="genSuggestionsBtn" contentDisplay="TOP" mnemonicParsing="false"
 						wrapText="true" textAlignment="CENTER" text="Generate Suggestions"
 						onAction="#generateNewMaps" />
-					<Button contentDisplay="TOP" mnemonicParsing="false"
+					<Button fx:id="appSuggestionsBtn" contentDisplay="TOP" mnemonicParsing="false"
 						wrapText="true" textAlignment="CENTER" text="Apply Suggestion"
 						onAction="#selectSuggestion" />
 

@@ -105,6 +105,11 @@ public class RoomViewController extends BorderPane implements Listener {
 	@FXML private Label treasureSafety;
 	@FXML private Label treasureSafety2;
 
+	@FXML private Button updateMiniMapBtn;
+	@FXML private Button worldGridBtn;
+	@FXML private Button genSuggestionsBtn;
+	@FXML private Button appSuggestionsBtn;
+
 
 	@FXML GridPane minimap;
 
@@ -640,14 +645,14 @@ public class RoomViewController extends BorderPane implements Listener {
 
 		return patternMap;
 	}
-	
+
 	public static double round(double value, int places) {
 		if (places < 0) {
 			throw new IllegalArgumentException();
 		} else if (value == 0) {
 			return 0;
 		}
-		
+
 		BigDecimal bd = new BigDecimal(value);
 		bd = bd.setScale(places, RoundingMode.HALF_UP);
 		return bd.doubleValue();
@@ -679,9 +684,9 @@ public class RoomViewController extends BorderPane implements Listener {
 		entranceSafety2.setText("");
 		treasureSafety.setText("");
 		treasureSafety2.setText("");	
-		
+
 	}
-	
+
 	@FXML
 	public void displayStats() {
 		StringBuilder str = new StringBuilder();
@@ -819,15 +824,17 @@ public class RoomViewController extends BorderPane implements Listener {
 
 		str.append("Treasure safety: ");
 
-		Double[] safeties =getMapView().getMap().getAllTreasureSafeties();
+		Double[] safeties = getMapView().getMap().getAllTreasureSafeties();
 
 		double totalSafety = 0;
 
 		for (double d : safeties) {
 			totalSafety += d;
 		}
-		totalSafety = totalSafety/safeties.length;
 
+		if (safeties.length != 0) {
+			totalSafety = totalSafety/safeties.length;
+		}
 		safeties = selectedMiniMap.getAllTreasureSafeties();
 
 		double totalSafety2 = 0;
@@ -967,6 +974,38 @@ public class RoomViewController extends BorderPane implements Listener {
 		this.largeMap = largeMap;
 	}
 
+
+	public Button getUpdateMiniMapBtn() {
+		return updateMiniMapBtn;
+	}
+
+	public void setUpdateMiniMapBtn(Button updateMiniMapBtn) {
+		this.updateMiniMapBtn = updateMiniMapBtn;
+	}
+
+	public Button getWorldGridBtn() {
+		return worldGridBtn;
+	}
+
+	public void setWorldGridBtn(Button worldGridBtn) {
+		this.worldGridBtn = worldGridBtn;
+	}
+
+	public Button getGenSuggestionsBtn() {
+		return genSuggestionsBtn;
+	}
+
+	public void setGenSuggestionsBtn(Button genSuggestionsBtn) {
+		this.genSuggestionsBtn = genSuggestionsBtn;
+	}
+
+	public Button getAppSuggestionsBtn() {
+		return appSuggestionsBtn;
+	}
+
+	public void setAppSuggestionsBtn(Button appSuggestionsBtn) {
+		this.appSuggestionsBtn = appSuggestionsBtn;
+	}
 
 	public class MouseEventHandler implements EventHandler<MouseEvent> {
 
