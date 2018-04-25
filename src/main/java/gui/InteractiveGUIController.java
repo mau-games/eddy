@@ -483,15 +483,18 @@ public class InteractiveGUIController implements Initializable, Listener {
 					mapString += c;
 				}
 				worldMapMatrix = updateLargeMap(mapString);
-				Map map = worldMapMatrix[col][row].getMap();
-				PatternFinder finder = map.getPatternFinder();
-				MapContainer result = new MapContainer();
-				currentQuadMap = result;
-				roomView.updateMap(map);
-				result.setMap(map);
-				result.setMicroPatterns(finder.findMicroPatterns());
-				result.setMesoPatterns(finder.findMesoPatterns());
-				result.setMacroPatterns(finder.findMacroPatterns());
+				
+				
+				
+//				Map map = worldMapMatrix[col][row].getMap();
+//				PatternFinder finder = map.getPatternFinder();
+//				MapContainer result = new MapContainer();
+//				currentQuadMap = result;
+//				roomView.updateMap(map);
+//				result.setMap(map);
+//				result.setMicroPatterns(finder.findMicroPatterns());
+//				result.setMesoPatterns(finder.findMesoPatterns());
+//				result.setMacroPatterns(finder.findMacroPatterns());
 				//EventRouter.getInstance().postEvent(new MapLoaded(result));
 				router.postEvent(new RequestWorldView());
 				//Map.LoadMap(selectedFile);
@@ -1270,6 +1273,16 @@ public class InteractiveGUIController implements Initializable, Listener {
 						for (int s = 0; s < stringArray.length; s++) {
 							MapContainer helpContainer = new MapContainer();
 							helpContainer.setMap(Map.fromString(stringArray[s]));
+							
+							
+							int counter = 0;
+							for (int j = 0; j < stringArray[s].length(); j++) {
+								if (stringArray[s].charAt(j) == '4' || stringArray[s].charAt(j) == '5') {
+									counter++;
+								}
+							}
+							System.out.println(counter);
+							helpContainer.getMap().setNumberOfDoors(counter);
 
 							worldMapMatrix2[q][s] = helpContainer;
 							stringArray[s] = "";
@@ -1294,6 +1307,18 @@ public class InteractiveGUIController implements Initializable, Listener {
 
 			}
 		}
+		
+		
+		
+		for (MapContainer[] mc : worldMapMatrix2) {
+			for (MapContainer mc2 : mc) {
+				if (mc2.getMap().getNumberOfDoors() == 0) {
+					mc2.getMap().setNull();
+				}
+			}
+		}
+		
+		
 
 		return worldMapMatrix2;
 	}

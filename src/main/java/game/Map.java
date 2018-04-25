@@ -96,6 +96,10 @@ public class Map {
 		return isNull;
 	}
 	
+	public void setNull() {
+		isNull = true;
+	}
+	
 	
 	public Map(int rows, int cols, int doorCount) {
 		
