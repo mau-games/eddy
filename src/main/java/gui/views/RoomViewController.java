@@ -151,6 +151,8 @@ public class RoomViewController extends BorderPane implements Listener {
 
 	private int requestedSuggestion;
 
+	private boolean minimapBoolean = false;
+
 
 
 
@@ -1025,27 +1027,33 @@ public class RoomViewController extends BorderPane implements Listener {
 
 		@Override
 		public void handle(MouseEvent event) {
-			Node source = (Node)event.getSource();
-			Integer colIndex = GridPane.getColumnIndex(source);
-			Integer rowIndex = GridPane.getRowIndex(source);
-			System.out.println(colIndex + "   " + rowIndex);
 
-			source.setOnMouseClicked(new EventHandler<MouseEvent>() {
+			if (minimapBoolean) {
 
-				@Override
-				public void handle(MouseEvent event) {
+				Node source = (Node)event.getSource();
+				Integer colIndex = GridPane.getColumnIndex(source);
+				Integer rowIndex = GridPane.getRowIndex(source);
+				System.out.println(colIndex + "   " + rowIndex);
 
-					int row = rowIndex;
-					int col = colIndex;
-					router.postEvent(new RequestRoomView(null, row, col, null));
+				source.setOnMouseClicked(new EventHandler<MouseEvent>() {
 
-				}
+					@Override
+					public void handle(MouseEvent event) {
 
-			});
+						int row = rowIndex;
+						int col = colIndex;
+						router.postEvent(new RequestRoomView(null, row, col, null));
 
+					}
+
+				});
+			}
 
 		}
 
+	}
+	public void setMinimapBoolean(boolean bool) {
+		minimapBoolean = bool;
 	}
 
 

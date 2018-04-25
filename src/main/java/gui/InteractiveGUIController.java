@@ -182,7 +182,9 @@ public class InteractiveGUIController implements Initializable, Listener {
 			roomView.getUpdateMiniMapBtn().setDisable(false);
 			roomView.getWorldGridBtn().setDisable(false);
 			roomView.getGenSuggestionsBtn().setDisable(false);
-			roomView.getAppSuggestionsBtn().setDisable(false);
+			//roomView.getAppSuggestionsBtn().setDisable(false);
+			
+			roomView.setMinimapBoolean(true);
 		} else if (e instanceof SuggestedMapsLoading) {
 
 			firstIsClicked = false;
@@ -200,6 +202,7 @@ public class InteractiveGUIController implements Initializable, Listener {
 			roomView.getGenSuggestionsBtn().setDisable(true);
 			roomView.getAppSuggestionsBtn().setDisable(true);
 
+			roomView.getAppSuggestionsBtn().setDisable(true);
 			roomView.getRightButton().setDisable(true);
 			roomView.getLeftButton().setDisable(true);
 			roomView.getDownButton().setDisable(true);
@@ -208,6 +211,8 @@ public class InteractiveGUIController implements Initializable, Listener {
 			roomView.getLeftButton().setOpacity(0);
 			roomView.getDownButton().setOpacity(0);
 			roomView.getUpButton().setOpacity(0);
+			
+			roomView.setMinimapBoolean(false);
 
 		} else if (e instanceof UpdateMiniMap) {
 			roomView.updateMiniMap(worldMapMatrix);
@@ -816,6 +821,7 @@ public class InteractiveGUIController implements Initializable, Listener {
 		roomView.getMapView().addEventFilter(MouseEvent.MOUSE_CLICKED, roomView.new EditViewEventHandler());
 
 		roomView.getMap(0).addEventFilter(MouseEvent.MOUSE_CLICKED, (e) -> {
+			roomView.getAppSuggestionsBtn().setDisable(false);
 
 			//roomView.replaceMap(0);
 
