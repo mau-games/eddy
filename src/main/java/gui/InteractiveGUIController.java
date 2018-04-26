@@ -490,7 +490,7 @@ public class InteractiveGUIController implements Initializable, Listener {
 				worldMapMatrix = updateLargeMap(mapString);
 				
 				
-				
+//				
 //				Map map = worldMapMatrix[col][row].getMap();
 //				PatternFinder finder = map.getPatternFinder();
 //				MapContainer result = new MapContainer();

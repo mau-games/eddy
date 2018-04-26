@@ -21,11 +21,11 @@
 						<!-- <Menu mnemonicParsing="false" text="Open Recent" /> -->
 						<SeparatorMenuItem mnemonicParsing="false" />
 						<MenuItem fx:id="saveItem" mnemonicParsing="false"
-							onAction="#saveMap" text="Save" />
-						<MenuItem fx:id="saveAsItem" mnemonicParsing="false"
-							onAction="#saveMap" text="Save As…" />
+							onAction="#saveMap" text="Save Dungeon" />
+					<MenuItem fx:id="saveAsItem" mnemonicParsing="false"
+							onAction="#saveMap" text="Save As…" /> 
 						<MenuItem fx:id="exportItem" mnemonicParsing="false"
-							onAction="#exportImage" text="Export image" />
+							onAction="#exportImage" text="Export map's image" />
 						<!-- <SeparatorMenuItem mnemonicParsing="false" /> <MenuItem mnemonicParsing="false" 
 							fx:id="prefsItem" onAction="#openPreferences" text="Preferences…" /> -->
 						<SeparatorMenuItem mnemonicParsing="false" />
