@@ -132,8 +132,6 @@ public class Game implements Listener{
 						doors.add(p);
 					}
 				}
-				System.out.println("computed");
-				System.out.println(doors.size());
 				GeneratorConfig gc = map.getCalculatedConfig();
 				if(randomise)
 					gc.mutate();
@@ -163,8 +161,6 @@ public class Game implements Listener{
 						doors.add(p);
 					}
 				}
-				System.out.println("original");
-				System.out.println(doors.size());
 				GeneratorConfig gc = new GeneratorConfig(map.getConfig());
 				if(randomise)
 					gc.mutate();
@@ -194,8 +190,6 @@ public class Game implements Listener{
 						doors.add(p);
 					}
 				}
-				System.out.println("preserving");
-				System.out.println(doors.size());
 				Algorithm ga = new Algorithm(map);
 				runs.add(ga);
 				ga.start();
@@ -309,23 +303,17 @@ public class Game implements Listener{
 			doors.clear();
 			if (container.getMap().getNorth()) { 	//North
 				doors.add(new Point(sizeM / 2, 0));
-				System.out.println("north");
 			}
 			if (container.getMap().getEast()) {	//East
 				doors.add(new Point(sizeM - 1, sizeN / 2));
-				System.out.println("east");
 			}
 			if (container.getMap().getSouth()) {	//South
 				doors.add(new Point(sizeM / 2, sizeN - 1));
-				System.out.println("south");
 			}
 			if (container.getMap().getWest()) {	//West
 				doors.add(new Point(0, sizeN / 2));
-				System.out.println("west");
 			}
-			System.out.println("end");
 		}
-		System.out.println("???");
 	}
 
 	/**
@@ -350,13 +338,10 @@ public class Game implements Listener{
 		//		}	else
 		if(e instanceof RequestSuggestionsView){ 
 			readConfiguration();
-			System.out.println("here");
 			MapContainer container = (MapContainer) e.getPayload();
-			System.out.println(container.getMap().toString());
 			doorCount = container.getMap().getNumberOfDoors();
 			sizeM = 11;
 			sizeN = 11;
-			System.out.println(doorCount);
 			startAll(((RequestSuggestionsView) e).getNbrOfThreads(), container);
 
 		}			

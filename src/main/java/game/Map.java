@@ -91,18 +91,18 @@ public class Map {
 		setNumberOfDoors(doorCount + 1);
 
 	}
-	
+
 	public boolean getNull() {
 		return isNull;
 	}
-	
+
 	public void setNull() {
 		isNull = true;
 	}
-	
-	
+
+
 	public Map(int rows, int cols, int doorCount) {
-		
+
 		init(rows, cols);
 		isNull = true;
 
@@ -112,74 +112,74 @@ public class Map {
 			}
 		}
 	}
-	
-	
+
+
 	public Map(GeneratorConfig config, int rows, int cols, Point p1, Point p2, Point p3, Point p4) {
-        init(rows, cols);
-        
+		init(rows, cols);
 
-        this.config = config;
-        
-        boolean entraceSet = false; 
 
-        if (p1 != null) {
-        	north = true;
-            if (entraceSet) {
-                matrix[p1.getX()][p1.getY()] = 4;
-                numberOfDoors++;
-            }
-            else {
-                matrix[p1.getX()][p1.getY()] = 5;
-                numberOfDoors++;
-                entraceSet = true;
-                Game.doors.add(p1);
-            }
-        }
-        if (p2 != null) {
-        	east = true;
-            if (entraceSet) {
-                matrix[p2.getX()][p2.getY()] = 4;
-                numberOfDoors++;
-            }
-            else {
-                matrix[p2.getX()][p2.getY()] = 5;
-                numberOfDoors++;
-                entraceSet = true;
-                Game.doors.add(p2);
-            }
-        }
-        if (p3 != null) {
-        	south = true;
-            if (entraceSet) {
-                matrix[p3.getX()][p3.getY()] = 4;
-                numberOfDoors++;
-                }
-            else {
-                matrix[p3.getX()][p3.getY()] = 5;
-                numberOfDoors++;
-                entraceSet = true; 
-                Game.doors.add(p3);
-            }
-        }
-        if (p4 != null) {
-        	west = true;
-            if (entraceSet) {
-                matrix[p4.getX()][p4.getY()] = 4;
-                numberOfDoors++;
-            }
-            else {
-                matrix[p4.getX()][p4.getY()] = 5;
-                numberOfDoors++;
-                entraceSet = true;
-                Game.doors.add(p4);
-            }
-        }
-               
-        markDoors();
+		this.config = config;
 
-        finder = new PatternFinder(this);
+		boolean entraceSet = false; 
 
-    }
+		if (p1 != null) {
+			north = true;
+			if (entraceSet) {
+				matrix[p1.getX()][p1.getY()] = 4;
+				numberOfDoors++;
+			}
+			else {
+				matrix[p1.getX()][p1.getY()] = 5;
+				numberOfDoors++;
+				entraceSet = true;
+				Game.doors.add(p1);
+			}
+		}
+		if (p2 != null) {
+			east = true;
+			if (entraceSet) {
+				matrix[p2.getX()][p2.getY()] = 4;
+				numberOfDoors++;
+			}
+			else {
+				matrix[p2.getX()][p2.getY()] = 5;
+				numberOfDoors++;
+				entraceSet = true;
+				Game.doors.add(p2);
+			}
+		}
+		if (p3 != null) {
+			south = true;
+			if (entraceSet) {
+				matrix[p3.getX()][p3.getY()] = 4;
+				numberOfDoors++;
+			}
+			else {
+				matrix[p3.getX()][p3.getY()] = 5;
+				numberOfDoors++;
+				entraceSet = true; 
+				Game.doors.add(p3);
+			}
+		}
+		if (p4 != null) {
+			west = true;
+			if (entraceSet) {
+				matrix[p4.getX()][p4.getY()] = 4;
+				numberOfDoors++;
+			}
+			else {
+				matrix[p4.getX()][p4.getY()] = 5;
+				numberOfDoors++;
+				entraceSet = true;
+				Game.doors.add(p4);
+			}
+		}
+
+		markDoors();
+
+		finder = new PatternFinder(this);
+
+	}
 
 
 	/**
@@ -211,10 +211,10 @@ public class Map {
 				case TREASURE:
 					treasures.add(new Point(i, j));
 					break;
-//				case DOOR:
-//				case DOORENTER:
-//					doors.add(new Point(i, j));
-//					doorCount++;
+					//				case DOOR:
+					//				case DOORENTER:
+					//					doors.add(new Point(i, j));
+					//					doorCount++;
 				default:
 					break;
 				}
@@ -249,7 +249,7 @@ public class Map {
 		this.m = cols;
 		this.n = rows;
 		wallCount = 0;
-//		this.doorCount = 0;
+		//		this.doorCount = 0;
 
 		matrix = new int[n][m];
 		allocated = new boolean[m][n];
@@ -826,6 +826,8 @@ public class Map {
 		int colCount = rows[0].length();
 		TileTypes type = null;
 
+
+
 		Map map = new Map(rowCount, colCount);
 		try {
 			map.setConfig(new GeneratorConfig());
@@ -834,6 +836,52 @@ public class Map {
 		}
 
 		Game.doors.clear();
+		/*
+				// South
+				Point south = new Point(11/2, 11-1);
+				// East
+				Point east = new Point(11-1, 11/2);
+				// North
+				Point north = new Point(11/2, 0);
+				// West
+				Point west = new Point(0, 11/2);
+				for (int j = 0; j < string.length(); j++) {
+					if (string.charAt(j) == '5') {
+						System.out.println("char is 5: " + j);
+						if (j == 5) {
+							Game.doors.add(north);
+							System.out.println("north: " + string.charAt(j));
+						}
+						if (j == 60) {
+							Game.doors.add(west);
+							System.out.println("west: " + string.charAt(j));
+						}
+						if (j == 70) {
+							Game.doors.add(east);
+							System.out.println("east: " + string.charAt(j));
+						}
+						if (j == 125) {
+							Game.doors.add(south);
+							System.out.println("south: " + string.charAt(j));
+						}
+					}
+
+				}
+		 */
+
+		Point p1 = null;
+		Point p2 = null;
+		Point p3 = null;
+		Point p4 = null;
+
+		// South
+		Point south = new Point(11/2, 11-1);
+		// East
+		Point east = new Point(11-1, 11/2);
+		// North
+		Point north = new Point(11/2, 0);
+		// West
+		Point west = new Point(0, 11/2);
 
 		for (int i = 0; i < rowCount; i++) {
 			for (int j = 0; j < colCount; j++) {
@@ -851,17 +899,99 @@ public class Map {
 					break;
 				case DOOR:
 					map.addDoor(new Point(i, j));
+					Point temp = new Point(i, j);
+
+					if(temp.equals(north)) {
+						p1 = temp;
+					}
+					if(temp.equals(east)) {
+						p2 = temp;
+					}
+					if(temp.equals(south)) {
+						p3 = temp;
+					}
+					if(temp.equals(west)) {
+						p4 = temp;
+					}
+
 					Game.doors.add(new Point(i,j));
 					break;
 				case DOORENTER:
 					map.setEntrance(new Point(i, j));
+					Point temp2 = new Point(i, j);
+
+					if(temp2.equals(north)) {
+						p1 = temp2;
+					}
+					if(temp2.equals(east)) {
+						p2 = temp2;
+					}
+					if(temp2.equals(south)) {
+						p3 = temp2;
+					}
+					if(temp2.equals(west)) {
+						p4 = temp2;
+					}
 					map.addDoor(new Point(i, j));
 					Game.doors.add(0, new Point(i,j));
 					break;
 				default:
 				}
+
+			}
+
+		}
+		if (Game.doors.isEmpty()) {
+			map = new Map(11, 11, 0);
+		}
+		else {
+			GeneratorConfig gc;
+			try {
+				gc = new GeneratorConfig();
+				Map newMap = new Map (gc, 11, 11, p1, p2, p3, p4);
+
+				for (int i = 0; i < rowCount; i++) {
+					for (int j = 0; j < colCount; j++) {
+						type = TileTypes.toTileType(Integer.parseInt("" + rows[i].charAt(j), 16));
+						map.setTile(i, j, type);
+						switch (type) {
+						case WALL:
+							map.wallCount++;
+							Point temp = new Point(i, j);
+							newMap.matrix[temp.getX()][temp.getY()] = 1;
+							break;
+						case ENEMY:
+							map.enemies.add(new Point(i, j));
+							Point temp2 = new Point(i, j);
+							newMap.matrix[temp2.getX()][temp2.getY()] = 3;
+							break;
+						case TREASURE:
+							map.treasures.add(new Point(i, j));
+							Point temp3 = new Point(i, j);
+							newMap.matrix[temp3.getX()][temp3.getY()] = 2;
+							break;
+						default:
+						}
+
+					}
+
+				}
+
+
+				map = newMap;
+			} catch (MissingConfigurationException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
 			}
 		}
+
+		for (Point p : Game.doors) {
+			System.out.println(p.getX() + ", " + p.getY());
+		}
+
+		//		System.out.println(Game.doors.get(0).getX() + ", " + Game.doors.get(0).getY());
+
+		System.out.println("---------");
 
 		return map;
 	}
@@ -924,8 +1054,8 @@ public class Map {
 				&& (treasure + enemies + doors == getTreasureCount() + getEnemyCount() + getDoorCount())
 				&& getTreasureCount() > 0 && getEnemyCount() > 0;
 	}
-	
-	
+
+
 	public boolean isFeasibleTwo(){
 		List<Node> visited = new ArrayList<Node>();
 		Queue<Node> queue = new LinkedList<Node>();
@@ -978,7 +1108,7 @@ public class Map {
 	public void setNumberOfDoors(int numberOfDoors) {
 		this.numberOfDoors = numberOfDoors;
 	}
-	
+
 	public boolean getNorth() {
 		return north;
 	}
