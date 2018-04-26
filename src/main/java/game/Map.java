@@ -60,7 +60,7 @@ public class Map {
 	private double entranceSafety;
 	private double entranceGreed;
 	private GeneratorConfig config = null;
-	public int numberOfDoors = 0;
+	private int numberOfDoors = 0;
 	private boolean north = false;
 	private boolean east = false;
 	private boolean west = false;
@@ -132,6 +132,7 @@ public class Map {
                 matrix[p1.getX()][p1.getY()] = 5;
                 numberOfDoors++;
                 entraceSet = true;
+                Game.doors.add(p1);
             }
         }
         if (p2 != null) {
@@ -144,6 +145,7 @@ public class Map {
                 matrix[p2.getX()][p2.getY()] = 5;
                 numberOfDoors++;
                 entraceSet = true;
+                Game.doors.add(p2);
             }
         }
         if (p3 != null) {
@@ -155,7 +157,8 @@ public class Map {
             else {
                 matrix[p3.getX()][p3.getY()] = 5;
                 numberOfDoors++;
-                entraceSet = true;                
+                entraceSet = true; 
+                Game.doors.add(p3);
             }
         }
         if (p4 != null) {
@@ -168,6 +171,7 @@ public class Map {
                 matrix[p4.getX()][p4.getY()] = 5;
                 numberOfDoors++;
                 entraceSet = true;
+                Game.doors.add(p4);
             }
         }
                

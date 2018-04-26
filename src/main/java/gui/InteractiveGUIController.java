@@ -1324,7 +1324,7 @@ public class InteractiveGUIController implements Initializable, Listener {
 			}
 		}
 		
-		
+		size = worldMapMatrix2.length;
 
 		return worldMapMatrix2;
 	}
