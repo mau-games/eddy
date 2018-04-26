@@ -956,17 +956,17 @@ public class Map {
 						map.setTile(i, j, type);
 						switch (type) {
 						case WALL:
-							map.wallCount++;
+							newMap.wallCount++;
 							Point temp = new Point(i, j);
 							newMap.matrix[temp.getX()][temp.getY()] = 1;
 							break;
 						case ENEMY:
-							map.enemies.add(new Point(i, j));
+							newMap.enemies.add(new Point(i, j));
 							Point temp2 = new Point(i, j);
 							newMap.matrix[temp2.getX()][temp2.getY()] = 3;
 							break;
 						case TREASURE:
-							map.treasures.add(new Point(i, j));
+							newMap.treasures.add(new Point(i, j));
 							Point temp3 = new Point(i, j);
 							newMap.matrix[temp3.getX()][temp3.getY()] = 2;
 							break;
