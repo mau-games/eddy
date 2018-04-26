@@ -237,7 +237,6 @@ public class InteractiveGUIController implements Initializable, Listener {
 				Point north = new Point(11/2, 0);
 				// West
 				Point west = new Point(0, 11/2);
-				System.out.println("else");
 				GeneratorConfig gc = null;
 				try {
 					gc = new GeneratorConfig();
@@ -250,47 +249,38 @@ public class InteractiveGUIController implements Initializable, Listener {
 				// 1
 				if (row == 0 && col == 0) {
 					tempMap = new Map(gc, 11, 11, null, east, south, null);
-					System.out.println("1");
 				}
 				// 3
 				if (row == 0 && col == (size - 1)) {
 					tempMap = new Map(gc, 11, 11, null, null, south, west);
-					System.out.println("3");
 				}
 				// 7
 				if (row == (size - 1) && col == 0) {
 					tempMap = new Map(gc, 11, 11, north, east, null, null);
-					System.out.println("7");
 				}
 				// 9
 				if (row == (size - 1) && col == (size - 1)) {
 					tempMap = new Map(gc, 11, 11, north, null, null, west);
-					System.out.println("9");
 				}
 				// top
 				if (row == 0 && col != (size - 1) && col != 0) {
 					tempMap = new Map(gc, 11, 11, null, east, south, west);
-					System.out.println("top");
 				}
 				// left
 				if (row != 0 && col == 0 && row != (size - 1)) {
 					tempMap = new Map(gc, 11, 11, north, east, south, null);
-					System.out.println("left");
 				}
 				// right
 				if (row != 0 && row != (size - 1) && col == (size - 1)) {
 					tempMap = new Map(gc, 11, 11, north, null, south, west);
-					System.out.println("right");
 				}
 				// bottom
 				if (col != 0 && col != (size - 1) && row == (size - 1)) {
 					tempMap = new Map(gc, 11, 11, north, east, null, west);
-					System.out.println("bottom");
 				}
 				// other
 				else if (col != 0 && col != (size - 1) && row != 0 && row != (size - 1)) {
 					tempMap = new Map(gc, 11, 11, north, east, south, west);
-					System.out.println("other");
 				}
 				MapContainer revertCont = new MapContainer();
 				revertCont.setMap(tempMap);
@@ -1110,7 +1100,6 @@ public class InteractiveGUIController implements Initializable, Listener {
 						worldMapMatrix[rows][cols] = nullCont;
 					}
 				}
-				System.out.println(worldMapMatrix[rows][cols].getMap().getNumberOfDoors());
 			}
 		}
 
@@ -1145,47 +1134,38 @@ public class InteractiveGUIController implements Initializable, Listener {
 				// 1
 				if (rows == 0 && cols == 0) {
 					tempMap = new Map(gc, 11, 11, null, east, south, null);
-					System.out.println("1");
 				}
 				// 3
 				if (rows == 0 && cols == (size - 1)) {
 					tempMap = new Map(gc, 11, 11, null, null, south, west);
-					System.out.println("3");
 				}
 				// 7
 				if (rows == (size - 1) && cols == 0) {
 					tempMap = new Map(gc, 11, 11, north, east, null, null);
-					System.out.println("7");
 				}
 				// 9
 				if (rows == (size - 1) && cols == (size - 1)) {
 					tempMap = new Map(gc, 11, 11, north, null, null, west);
-					System.out.println("9");
 				}
 				// top
 				if (rows == 0 && cols != (size - 1) && cols != 0) {
 					tempMap = new Map(gc, 11, 11, null, east, south, west);
-					System.out.println("top");
 				}
 				// left
 				if (rows != 0 && cols == 0 && rows != (size - 1)) {
 					tempMap = new Map(gc, 11, 11, north, east, south, null);
-					System.out.println("left");
 				}
 				// right
 				if (rows != 0 && rows != (size - 1) && cols == (size - 1)) {
 					tempMap = new Map(gc, 11, 11, north, null, south, west);
-					System.out.println("right");
 				}
 				// bottom
 				if (cols != 0 && cols != (size - 1) && rows == (size - 1)) {
 					tempMap = new Map(gc, 11, 11, north, east, null, west);
-					System.out.println("bottom");
 				}
 				// other
 				else if (cols != 0 && cols != (size - 1) && rows != 0 && rows != (size - 1)) {
 					tempMap = new Map(gc, 11, 11, north, east, south, west);
-					System.out.println("other");
 				}
 
 				MapContainer temp = new MapContainer();
@@ -1286,8 +1266,8 @@ public class InteractiveGUIController implements Initializable, Listener {
 								if (stringArray[s].charAt(j) == '4' || stringArray[s].charAt(j) == '5') {
 									counter++;
 								}
+								
 							}
-							System.out.println(counter);
 							helpContainer.getMap().setNumberOfDoors(counter);
 
 							worldMapMatrix2[q][s] = helpContainer;
@@ -1323,6 +1303,7 @@ public class InteractiveGUIController implements Initializable, Listener {
 				}
 			}
 		}
+		
 		
 		size = worldMapMatrix2.length;
 

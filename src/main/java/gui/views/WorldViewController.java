@@ -124,13 +124,11 @@ public class WorldViewController extends GridPane implements Listener{
 		}
 		if (matrix[row][col].getMap().getNull()) {
 			//disable
-			System.out.println("disable");
 			getSuggestionsBtn().setDisable(true);
 			getStartEmptyBtn().setDisable(true);
 		}
 		else {
 			//enable
-			System.out.println("enable");
 			getSuggestionsBtn().setDisable(false);
 			getStartEmptyBtn().setDisable(false);	
 		}
@@ -215,18 +213,15 @@ public class WorldViewController extends GridPane implements Listener{
 			getRoomNullBtn().setDisable(false);
 			if (matrix[row][col].getMap().getNull()) {
 				//disable
-				System.out.println("disable");
 				getSuggestionsBtn().setDisable(true);
 				getStartEmptyBtn().setDisable(true);
 			}
 			else {
 				//enable
-				System.out.println("enable");
 				getSuggestionsBtn().setDisable(false);
 				getStartEmptyBtn().setDisable(false);	
 			}
 			
-			System.out.printf("Mouse entered cell [%d, %d]%n", colIndex.intValue(), rowIndex.intValue());
 
 			source.setOnMouseClicked(new EventHandler<MouseEvent>() {
 

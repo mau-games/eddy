@@ -321,7 +321,6 @@ public class RoomViewController extends BorderPane implements Listener {
 		}
 		prevRow = row;
 		prevCol = col;
-		System.out.println(col + "   " + row);
 		for (Node node : minimap.getChildren()) {
 			if (GridPane.getColumnIndex(node) == col && GridPane.getRowIndex(node) == row) {
 				node.setStyle("-fx-background-color:#fcdf3c;");
@@ -1033,7 +1032,6 @@ public class RoomViewController extends BorderPane implements Listener {
 				Node source = (Node)event.getSource();
 				Integer colIndex = GridPane.getColumnIndex(source);
 				Integer rowIndex = GridPane.getRowIndex(source);
-				System.out.println(colIndex + "   " + rowIndex);
 
 				source.setOnMouseClicked(new EventHandler<MouseEvent>() {
 
