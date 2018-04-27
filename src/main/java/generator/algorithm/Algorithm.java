@@ -62,12 +62,44 @@ public class Algorithm extends Thread {
 	private int feasibleAmount;
 	private double roomTarget;
 	private double corridorTarget;
+
+	private Map oldMap = null;
 	
 	private int infeasiblesMoved = 0;
 	private int movedInfeasiblesKept = 0;
 
+	private AlgorithmTypes algorithmTypes;
+
+	public enum AlgorithmTypes
+	{
+		Native,
+		Symmetry,
+		Similarity,
+		SymmetryAndSimilarity
+	}
+	
 	public Algorithm(GeneratorConfig config){
 		this.config = config;
+		id = UUID.randomUUID();
+		populationSize = config.getPopulationSize();
+		mutationProbability = (float)config.getMutationProbability();
+		offspringSize = (float)config.getOffspringSize();
+		feasibleAmount = (int)((double)populationSize * config.getFeasibleProportion());
+		roomTarget = config.getRoomProportion();
+		corridorTarget = config.getCorridorProportion();
+
+		// Uncomment this for silly debugging
+//		System.out.println("Starting run #" + id);
+		initPopulations();
+	}
+	public Algorithm(GeneratorConfig config, AlgorithmTypes algorithmTypes){
+		this.config = config;
+		this.algorithmTypes = algorithmTypes;
+		if(algorithmTypes == AlgorithmTypes.Similarity)
+			this.algorithmTypes = AlgorithmTypes.Native;
+		if(algorithmTypes == AlgorithmTypes.SymmetryAndSimilarity)
+			this.algorithmTypes = AlgorithmTypes.Symmetry;
+			
 		id = UUID.randomUUID();
 		populationSize = config.getPopulationSize();
 		mutationProbability = (float)config.getMutationProbability();
@@ -85,8 +117,9 @@ public class Algorithm extends Thread {
 	 * Create an Algorithm run using mutations of a given map
 	 * @param map
 	 */
-	public Algorithm(Map map){
+	public Algorithm(Map map, AlgorithmTypes algorithmTypes){
 		this.config = map.getCalculatedConfig();
+		this.algorithmTypes = algorithmTypes;
 		map.setConfig(this.config);
 		id = UUID.randomUUID();
 		populationSize = config.getPopulationSize();
@@ -130,7 +163,8 @@ public class Algorithm extends Thread {
 
 	private void initPopulations(Map map){
 		broadcastStatusUpdate("Initialising...");
-		
+		oldMap = map;
+				
 		feasiblePool = new ArrayList<Individual>();
 		infeasiblePool = new ArrayList<Individual>();
 		feasiblePopulation = new ArrayList<Individual>();
@@ -476,12 +510,26 @@ public class Algorithm extends Thread {
     	
     	double roomFitness = roomArea/passableTiles;
     	roomFitness = 1 - Math.abs(roomFitness - roomTarget)/Math.max(roomTarget, 1.0 - roomTarget);
-    	
+
+    	// Similarity Fitness 
+    	double similarityFitness = 1.0;
+    	if(algorithmTypes == AlgorithmTypes.Similarity ||
+    			algorithmTypes == AlgorithmTypes.SymmetryAndSimilarity)
+    	{
+        	similarityFitness = evaluateSimilarityFitnessValue(oldMap, map, 0.95);    		
+    	}
+    	// Symmetry Fitness
+    	double symmetricFitnessValue = 1.0;
+    	if(algorithmTypes == AlgorithmTypes.Symmetry ||
+    			algorithmTypes == AlgorithmTypes.SymmetryAndSimilarity)
+    	{
+    		symmetricFitnessValue = evaluateSymmetryFitnessValue(map);
+    	}
     	
     	//Total fitness
-    	double fitness = 0.5 * treasureAndEnemyFitness
-    			+  0.5 * (0.3 * roomFitness + 0.7 * corridorFitness);
-    	
+    	double fitness = ((0.35 * treasureAndEnemyFitness
+    			+  0.35 * (0.3 * roomFitness + 0.7 * corridorFitness) + (0.3 * symmetricFitnessValue))
+    			* similarityFitness);  	
     	
     	
         //set final fitness
@@ -492,6 +540,150 @@ public class Algorithm extends Thread {
     	ind.setRoomArea(rawRoomArea);
     	ind.setCorridorArea(rawCorridorArea);
         ind.setEvaluate(true);
+    }
+    
+    /**
+     * Evaluates the percent similarity between the old map with the new individual map and calculates with the ideal percent to give the fitness function
+     * 
+     * double procentSimilar = similarTiles / totalTiles;
+     * 
+     * double similarityFitness = procentSimilar / idealProcentSimilarity;
+     * 
+     * OR (depends on if the procentSimilar is over or under idealProcentSimilarity)
+     * 
+     * double similarityFitness = (1 - procentSimilar) / (1 - idealProcentSimilarity);   
+     * 
+     * @param oldMap the map that the new generations take their values from
+     * @param newMap the newly created individual map
+     * @param idealProcentSimilarity determines how much similar the two maps should be to be ideal.
+     */
+	private double evaluateSimilarityFitnessValue(Map oldMap, Map newMap, double idealProcentSimilarity)
+    {
+    	int[][] oldMatrix = oldMap.toMatrix();
+    	int[][] newMatrix = newMap.toMatrix();
+    	double totalTiles = oldMap.getColCount() * oldMap.getRowCount();
+    	double similarTiles = totalTiles;
+    	
+    	// Calculates how many tiles that are similar between the two maps
+    	for(int i = 0; i < oldMap.getColCount(); ++i)
+    	{
+    		for(int j = 0; j < oldMap.getRowCount(); ++j)
+    		{
+    			switch (oldMatrix[i][j])
+    			{
+	    			case 1: // Just walls. Checking if both maps have a wall in the same place.
+	        			if(newMatrix[i][j] != 1)
+	        			{
+	        				similarTiles--;
+	        			}
+	        			break;
+        			default: // Every other floor tile. Checking if that there is no wall.
+        				if(newMatrix[i][j] == 1)
+	        			{
+	        				similarTiles--;
+	        			}
+        				break;
+    			}
+    		}
+    	}
+    	double procentSimilar = similarTiles / totalTiles;
+    	
+    	// Calculates the simularityFitness with the idealProcentSimilarity to be able to control how much they change
+    	double similarityFitness = 1.0;    	
+    	if(procentSimilar < idealProcentSimilarity)
+		{
+    		similarityFitness = procentSimilar / idealProcentSimilarity;
+		}
+    	else
+    	{
+    		similarityFitness = (1 - procentSimilar) / (1 - idealProcentSimilarity);    	
+    	}
+    	return similarityFitness;
+    }
+	
+	/**
+     * Evaluates the how much symmetry in the map. It is done four times, Horizontal, Vertical, Frontslash Diagonal and Backslash Diagonal. All passing through the middle of the map
+     *
+     * @param Map the map that is evaluated
+     */
+    private double evaluateSymmetryFitnessValue(Map map)
+    {
+    	int rowCounter = map.getRowCount();
+    	int colCounter = map.getColCount();
+    	int totalWalls = map.getWallCount();
+    	int[][] mapMatrix = map.toMatrix();
+    	
+    	
+    	// Vertical Symmetry Check
+    	int middlePoint = rowCounter / 2;
+    	int identicalVerticalSplit = 0;
+    	for(int i = 0; i < middlePoint; ++i)
+    	{
+    		for(int j = 0; j < colCounter; ++j)
+    		{
+    			if(mapMatrix[i][j] == 1 && mapMatrix[rowCounter - 1 - i][j] == 1)
+    			{
+    				identicalVerticalSplit += 2;
+    			}
+    		}
+    	}
+    	
+    	// Horizontal Symmetry Check
+    	middlePoint = colCounter / 2;
+    	int identicalHorizontalSplit = 0;
+    	for(int i = 0; i < rowCounter; ++i)
+    	{
+    		for(int j = 0; j < middlePoint; ++j)
+    		{
+    			if(mapMatrix[i][j] == 1 && mapMatrix[i][colCounter - 1 - j] == 1)
+    			{
+    				identicalHorizontalSplit += 2;
+    			}
+    		}
+    	}
+
+    	// Frontslash Diagonal Symmetry Check
+    	int identicalFrontslashDiagonalSplit = 0;
+    	double k = colCounter / rowCounter;
+    	for(int i = 0; i < rowCounter; ++i)
+    	{
+    		middlePoint = (int)(k * i);
+    		for(int j = 0; j < middlePoint; ++j)
+    		{
+    			if(mapMatrix[i][j] == 1 && mapMatrix[colCounter - 1 - i][rowCounter - 1 - j] == 1)
+    			{
+    				identicalFrontslashDiagonalSplit += 2;
+    			}
+    		}
+    	}
+    	
+    	// Backslash Diagonal Symmetry Check
+    	int identicalBackslashDiagonalSplit = 0;
+    	k = colCounter / rowCounter;
+    	for(int i = 0; i < rowCounter; ++i)
+    	{
+    		middlePoint = (int)(k * i);
+    		for(int j = 0; j < middlePoint; ++j)
+    		{
+    			if(mapMatrix[i][j] == 1 && mapMatrix[colCounter - 1 - i][rowCounter - 1 - j] == 1)
+    			{
+    				identicalBackslashDiagonalSplit += 2;
+    			}
+    		}
+    	}
+    	
+    	// Find the highest symmetry
+    	int highestSymmetric = 0;
+    	highestSymmetric = highestSymmetric < identicalVerticalSplit ? identicalVerticalSplit : highestSymmetric;
+    	highestSymmetric = highestSymmetric < identicalHorizontalSplit ? identicalHorizontalSplit : highestSymmetric;
+    	highestSymmetric = highestSymmetric < identicalFrontslashDiagonalSplit ? identicalFrontslashDiagonalSplit : highestSymmetric;
+    	highestSymmetric = highestSymmetric < identicalBackslashDiagonalSplit ? identicalBackslashDiagonalSplit : highestSymmetric;
+    	
+    	double symmetricFitness = (double)highestSymmetric / (double)totalWalls;
+    	
+		//logger.info("rowCounter " + rowCounter + " colCounter " + colCounter + " middlePoint " + middlePoint + " highestSymmetric " + highestSymmetric + " totalWalls " + totalWalls + " symmetricFitness " + symmetricFitness);
+    	
+		return symmetricFitness;
     }
 
     /**

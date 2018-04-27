@@ -3,12 +3,10 @@ package runners;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import collectors.GenerationCollector;
 import collectors.MapCollector;
 import collectors.RenderedMapCollector;
 import game.Game;
-import gui.InteractiveGUIController;
 import gui.utils.MapRenderer;
 import javafx.application.Application;
 import javafx.application.Platform;
@@ -18,7 +16,6 @@ import javafx.scene.Scene;
 import javafx.scene.image.Image;
 import javafx.stage.Stage;
 import util.config.ConfigurationUtility;
-import util.config.MissingConfigurationException;
 import util.eventrouting.EventRouter;
 import util.eventrouting.events.Start;
 
@@ -26,6 +23,8 @@ import util.eventrouting.events.Start;
  * This class launches an interactive GUI.
  * 
  * @author Johan Holmberg, Malmö University
+ * @author Chelsi Nolasco, Malmö University
+ * @author Axel Österman, Malmö University
  */
 public class InteractiveGUI extends Application {
 
@@ -59,12 +58,13 @@ public class InteractiveGUI extends Application {
 		try {
 			root = FXMLLoader.load(getClass().getResource("/gui/interactive/InteractiveGUI.fxml"));
 
-			Scene scene = new Scene(root, 1024, 768);
+			Scene scene = new Scene(root, 1900, 1060);
 			stage.getIcons().add(new Image(getClass().getResourceAsStream("/graphics/icon.png"))); 
 			stage.setTitle("Eddy - Evolutionary Dungeon Designer");
 			stage.setScene(scene);
 			stage.show();
-
+			scene.getStylesheets().add(this.getClass().getResource("bootstrap3.css").toExternalForm());
+			stage.setMaximized(true);
 			EventRouter router = EventRouter.getInstance();
 			
 			// Set up a new game
@@ -72,6 +72,7 @@ public class InteractiveGUI extends Application {
 			router.postEvent(new Start(6));
 
 			MapRenderer.getInstance();
+
 
 		} catch (Exception e) {
 			logger.error("Couldn't load GUI: " + e.getMessage(), e);
