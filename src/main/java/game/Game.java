@@ -136,7 +136,7 @@ public class Game implements Listener{
 				GeneratorConfig gc = map.getCalculatedConfig();
 				if(randomise)
 					gc.mutate();
-				Algorithm ga = new Algorithm(gc);
+				Algorithm ga = new Algorithm(gc, AlgoType);
 				runs.add(ga);
 				ga.start();
 				break;
@@ -165,7 +165,7 @@ public class Game implements Listener{
 				GeneratorConfig gc = new GeneratorConfig(map.getConfig());
 				if(randomise)
 					gc.mutate();
-				Algorithm ga = new Algorithm(gc);
+				Algorithm ga = new Algorithm(gc, AlgoType);
 				runs.add(ga);
 				ga.start();
 				break;

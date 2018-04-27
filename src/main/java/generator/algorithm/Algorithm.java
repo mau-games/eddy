@@ -92,6 +92,26 @@ public class Algorithm extends Thread {
 //		System.out.println("Starting run #" + id);
 		initPopulations();
 	}
+	public Algorithm(GeneratorConfig config, AlgorithmTypes algorithmTypes){
+		this.config = config;
+		this.algorithmTypes = algorithmTypes;
+		if(algorithmTypes == AlgorithmTypes.Similarity)
+			this.algorithmTypes = AlgorithmTypes.Native;
+		if(algorithmTypes == AlgorithmTypes.SymmetryAndSimilarity)
+			this.algorithmTypes = AlgorithmTypes.Symmetry;
+			
+		id = UUID.randomUUID();
+		populationSize = config.getPopulationSize();
+		mutationProbability = (float)config.getMutationProbability();
+		offspringSize = (float)config.getOffspringSize();
+		feasibleAmount = (int)((double)populationSize * config.getFeasibleProportion());
+		roomTarget = config.getRoomProportion();
+		corridorTarget = config.getCorridorProportion();
+
+		// Uncomment this for silly debugging
+//		System.out.println("Starting run #" + id);
+		initPopulations();
+	}
 	
 	/**
 	 * Create an Algorithm run using mutations of a given map
@@ -496,7 +516,7 @@ public class Algorithm extends Thread {
     	if(algorithmTypes == AlgorithmTypes.Similarity ||
     			algorithmTypes == AlgorithmTypes.SymmetryAndSimilarity)
     	{
-        	similarityFitness = evaluateSimilarityFitnessValue(oldMap, map, 0.95);    		
+        	similarityFitness = evaluateSimilarityFitnessValue(oldMap, map, 0.93);    		
     	}
     	// Symmetry Fitness
     	double symmetricFitnessValue = 1.0;
