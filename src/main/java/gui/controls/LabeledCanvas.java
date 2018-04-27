@@ -2,6 +2,7 @@ package gui.controls;
 
 import java.io.IOException;
 
+import gui.views.WorldViewController.MouseEventHandler;
 import javafx.animation.Animation;
 import javafx.animation.Interpolator;
 import javafx.animation.RotateTransition;
@@ -11,24 +12,26 @@ import javafx.beans.property.StringProperty;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
+import javafx.scene.Node;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.GridPane;
 import javafx.util.Duration;
 
 /**
  * This control is used to display a labeled image.
  * 
  * @author Johan Holmberg, Malmö University
+ * @author Chelsi Nolasco, Malmö University
+ * @author Axel Österman, Malmö University
  */
 public class LabeledCanvas extends BorderPane {
-	@FXML private Label label;
 	@FXML private ResizableCanvas canvas;
 	@FXML private AnchorPane canvasPane;
-	@FXML private AnchorPane labelPane;
 	@FXML private BorderPane rootPane;
 	private Image rotatingThingie;
 	private RotateTransition transition;
@@ -41,7 +44,7 @@ public class LabeledCanvas extends BorderPane {
 	 */
 	public LabeledCanvas() {
 		super();
-		init("default");
+		init("");
 	}
 	
 	/**
@@ -68,15 +71,13 @@ public class LabeledCanvas extends BorderPane {
 		
 		rootPane.setMinSize(0, 0);
 		canvasPane.setMinSize(0, 0);
-		labelPane.setMinSize(0, 0);
 		
 		canvas.widthProperty().bind(canvasPane.widthProperty());
 		canvas.heightProperty().bind(canvasPane.heightProperty());
 		canvasPane.setPrefSize(rootPane.widthProperty().doubleValue(), rootPane.heightProperty().doubleValue());
 
 		getStyleClass().add("labeled-canvas");
-		this.label.setLabelFor(this.canvas);
-		this.label.setText(label);
+
 		gc = canvas.getGraphicsContext2D();
 		
 		rotatingThingie = new Image("/graphics/waiting.png");
@@ -135,7 +136,7 @@ public class LabeledCanvas extends BorderPane {
 	 * @return The label's text value.
 	 */
     public String getText() {
-        return label.getText();
+        return null;
     }
 	
 	/**
@@ -144,9 +145,7 @@ public class LabeledCanvas extends BorderPane {
 	 * @param label The text to display.
 	 */
     public void setText(String value) {
-    	Platform.runLater(() -> {
-    		label.setText(value);
-    	});
+
     }
 
     /**
@@ -155,7 +154,7 @@ public class LabeledCanvas extends BorderPane {
      * @return The label's text property.
      */
     public StringProperty textProperty() {
-        return label.textProperty();
+        return  null;
     }
     
     /**
@@ -170,6 +169,7 @@ public class LabeledCanvas extends BorderPane {
     		setStyle("-fx-border-width: 0px");
     	}
     }
+    
     
     /**
      * Waits for a new image and displays a rotating wheel.

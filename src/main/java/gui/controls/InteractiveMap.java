@@ -85,7 +85,6 @@ public class InteractiveMap extends GridPane {
 				|| map.getTile(p) == TileTypes.DOOR) {
 			return;
 		}
-		
 		map.setTile(p.getX(), p.getY(), tileType);
 		drawTile(p.getX(), p.getY(), tileType);
 	}

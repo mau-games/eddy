@@ -17,9 +17,29 @@
 	-fx-padding: 5, 0, 0, 0;
 }
 
-#patternLabel {
+#mainBorderPane, #suggestionsView, #worldViewPane {
+		-fx-background-color: #2c2f33;
+	
+}
+
+#programTitle {
+	-fx-font: 72px "Consolas";
+	-fx-text-fill: #7c7c7c;
+}
+
+#selectWorldLabel {
+	-fx-font: 55px "Consolas";
+	-fx-text-fill: #7c7c7c;
+}
+.menu, .context-menu, .menu-bar {
+					-fx-background-color: #828282;
+				
+}
+#patternLabel, #editorToolsLbl {
 	-fx-padding: 15 0 0 0;
 	-fx-font-weight: bold;
+	-fx-text-fill: white;
+	
 }
 
 #centralCanvas {
@@ -40,21 +60,35 @@
 
 #generatedMapsLabel {
 	-fx-padding: 10 10 10 10;
+		-fx-text-fill: white;
+	
 }
 
-#generatedMapsLabel .label {
+#worldSizeBox {
+	
+}
+
+#enemyNumbr, #treasureNmbr, #treasurePercent, #enemyPercent, #entranceSafety, #treasureSafety, #generatedMapsLabel .label {
 	-fx-font-weight: bold;
+		-fx-text-fill: white;
+	
 }
 
 .labeled-canvas .label {
 	-fx-text-alignment: center;
+		-fx-text-fill: white;
+	
 }
 
 .labeled-text-field .label {
 	-fx-pref-width: 200;
+		-fx-text-fill: white;
+	
 }
 
 #toolbox .button,
 #toolbox .toggle-button {
 	-fx-pref-width: 80;
 }
+
+

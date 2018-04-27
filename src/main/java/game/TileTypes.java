@@ -38,6 +38,9 @@ public enum TileTypes {
 		return value == ENEMY.getValue();
 	}
 	
+	public boolean isDoor(){
+		return value == DOOR.getValue();
+	}	
 	/**
 	 * Creates a TileType out of an integer value.
 	 * 

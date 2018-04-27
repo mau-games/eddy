@@ -3,6 +3,7 @@ package util.eventrouting.events;
 import game.Game.MapMutationType;
 import game.Map;
 import generator.algorithm.Algorithm.AlgorithmTypes;
+import util.Point;
 import util.eventrouting.PCGEvent;
 
 public class StartMapMutate extends PCGEvent {
