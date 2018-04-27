@@ -64,7 +64,6 @@ public class LaunchViewController extends BorderPane implements Listener{
 		
 		ObservableList<String> options = 
 			    FXCollections.observableArrayList(
-			        "1x1",
 			        "2x2",
 			        "3x3",
 			        "4x4",
@@ -85,9 +84,7 @@ public class LaunchViewController extends BorderPane implements Listener{
 	
 	public int getWorldSize() {
       
-        if (worldSizeBox.getValue().equals("1x1")) {
-        	selectedSize = 1;
-        } else if (worldSizeBox.getValue().equals("2x2")) {
+        if (worldSizeBox.getValue().equals("2x2")) {
         	selectedSize = 2;
         } else if (worldSizeBox.getValue().equals("3x3")) {
         	selectedSize = 3;

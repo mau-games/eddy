@@ -811,7 +811,6 @@ public class InteractiveGUIController implements Initializable, Listener {
 		roomView.getMapView().addEventFilter(MouseEvent.MOUSE_CLICKED, roomView.new EditViewEventHandler());
 
 		roomView.getMap(0).addEventFilter(MouseEvent.MOUSE_CLICKED, (e) -> {
-			roomView.getAppSuggestionsBtn().setDisable(false);
 
 			//roomView.replaceMap(0);
 
@@ -819,6 +818,8 @@ public class InteractiveGUIController implements Initializable, Listener {
 
 				@Override
 				public void handle(MouseEvent event) {
+					roomView.getAppSuggestionsBtn().setDisable(false);
+
 					router.postEvent(new ApplySuggestion(0));
 					roomView.setSelectedMiniMap(roomView.maps.get(0));
 
@@ -871,6 +872,8 @@ public class InteractiveGUIController implements Initializable, Listener {
 
 				@Override
 				public void handle(MouseEvent event) {
+					roomView.getAppSuggestionsBtn().setDisable(false);
+
 					router.postEvent(new ApplySuggestion(1));
 					roomView.setSelectedMiniMap(roomView.maps.get(1));
 
@@ -921,6 +924,8 @@ public class InteractiveGUIController implements Initializable, Listener {
 
 				@Override
 				public void handle(MouseEvent event) {
+					roomView.getAppSuggestionsBtn().setDisable(false);
+
 					router.postEvent(new ApplySuggestion(2));
 					roomView.setSelectedMiniMap(roomView.maps.get(2));
 
@@ -970,6 +975,8 @@ public class InteractiveGUIController implements Initializable, Listener {
 
 				@Override
 				public void handle(MouseEvent event) {
+					roomView.getAppSuggestionsBtn().setDisable(false);
+
 					router.postEvent(new ApplySuggestion(3));
 					roomView.setSelectedMiniMap(roomView.maps.get(3));
 
