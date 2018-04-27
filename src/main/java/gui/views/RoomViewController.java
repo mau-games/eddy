@@ -623,7 +623,6 @@ public class RoomViewController extends BorderPane implements Listener {
 			updateMap(selectedMiniMap);
 		}
 		generateNewMaps();
-		
 	}
 
 	/**
