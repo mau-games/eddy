@@ -68,7 +68,7 @@
 	
 }
 
-#enemyNumbr, #treasureNmbr, #treasurePercent, #enemyPercent, #entranceSafety, #treasureSafety, #generatedMapsLabel .label {
+#label1, #label2, #label3, #enemyNumbr, #treasureNmbr, #treasurePercent, #enemyPercent, #entranceSafety, #treasureSafety, #generatedMapsLabel .label {
 	-fx-font-weight: bold;
 		-fx-text-fill: white;
 	

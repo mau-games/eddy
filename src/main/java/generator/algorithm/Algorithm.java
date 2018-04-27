@@ -516,7 +516,7 @@ public class Algorithm extends Thread {
     	if(algorithmTypes == AlgorithmTypes.Similarity ||
     			algorithmTypes == AlgorithmTypes.SymmetryAndSimilarity)
     	{
-        	similarityFitness = evaluateSimilarityFitnessValue(oldMap, map, 0.93);    		
+        	similarityFitness = evaluateSimilarityFitnessValue(oldMap, map, 0.95);    		
     	}
     	// Symmetry Fitness
     	double symmetricFitnessValue = 1.0;
