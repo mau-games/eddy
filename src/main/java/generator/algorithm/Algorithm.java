@@ -92,7 +92,21 @@ public class Algorithm extends Thread {
 //		System.out.println("Starting run #" + id);
 		initPopulations();
 	}
-	
+	public Algorithm(GeneratorConfig config,  AlgorithmTypes algorithmTypes){
+		this.config = config;
+		this.algorithmTypes = algorithmTypes;
+		id = UUID.randomUUID();
+		populationSize = config.getPopulationSize();
+		mutationProbability = (float)config.getMutationProbability();
+		offspringSize = (float)config.getOffspringSize();
+		feasibleAmount = (int)((double)populationSize * config.getFeasibleProportion());
+		roomTarget = config.getRoomProportion();
+		corridorTarget = config.getCorridorProportion();
+
+		// Uncomment this for silly debugging
+//		System.out.println("Starting run #" + id);
+		initPopulations();
+	}
 	/**
 	 * Create an Algorithm run using mutations of a given map
 	 * @param map

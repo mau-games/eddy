@@ -27,6 +27,8 @@ import gui.utils.MapRenderer;
 import gui.views.RoomViewController.EditViewEventHandler;
 import gui.views.WorldViewController.MouseEventHandler;
 import javafx.application.Platform;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
@@ -40,6 +42,7 @@ import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.Button;
+import javafx.scene.control.CheckBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.Slider;
 import javafx.scene.control.ToggleButton;
@@ -112,11 +115,18 @@ public class RoomViewController extends BorderPane implements Listener {
 	@FXML private Button worldGridBtn;
 	@FXML private Button genSuggestionsBtn;
 	@FXML private Button appSuggestionsBtn;
+	
+	@FXML private CheckBox symmetryChoicebox;
+	@FXML private CheckBox similarChoicebox;
+
 
 
 	@FXML GridPane minimap;
 
 	private Node oldNode;
+	
+	private boolean symmetry = false;
+	private boolean similarity = false;
 
 	private Button rightButton = new Button();
 	private Button leftButton = new Button();
@@ -279,6 +289,27 @@ public class RoomViewController extends BorderPane implements Listener {
 		gc.strokeRect(10, 10, width - 20, height - 20);
 		gc.setStroke(Color.rgb(255, 0, 0, 0.1));
 		gc.strokeRect(11, 11, width - 22, height - 22);
+		
+		
+		symmetryChoicebox.selectedProperty().addListener(new ChangeListener<Boolean>() {
+
+			@Override
+			public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
+				symmetry = !symmetry;
+			}
+		}
+			
+		);
+		
+		similarChoicebox.selectedProperty().addListener(new ChangeListener<Boolean>() {
+
+			@Override
+			public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
+				similarity = !similarity;
+			}
+		}
+			
+		);
 
 
 	}
@@ -607,9 +638,26 @@ public class RoomViewController extends BorderPane implements Listener {
 	 */
 	public void generateNewMaps(Map map) {
 		// TODO: If we want more diversity in the generated maps, then send more StartMapMutate events.
-		router.postEvent(new StartMapMutate(map, MapMutationType.Preserving, AlgorithmTypes.Symmetry, 2, true)); //TODO: Move some of this hard coding to ApplicationConfig
-		router.postEvent(new StartMapMutate(map, MapMutationType.ComputedConfig, AlgorithmTypes.Symmetry, 2, true)); //TODO: Move some of this hard coding to ApplicationConfig
+		
+
+		
+		if (!similarity && !symmetry ) {
+		router.postEvent(new StartMapMutate(map, MapMutationType.Preserving, AlgorithmTypes.Native, 2, true)); //TODO: Move some of this hard coding to ApplicationConfig
+		router.postEvent(new StartMapMutate(map, MapMutationType.ComputedConfig, AlgorithmTypes.Native, 2, true)); //TODO: Move some of this hard coding to ApplicationConfig
+		}
+		else if (similarity && !symmetry) {
+			router.postEvent(new StartMapMutate(map, MapMutationType.Preserving, AlgorithmTypes.Similarity, 4, true));
+		}
+		else if (!similarity && symmetry) {
+			router.postEvent(new StartMapMutate(map, MapMutationType.Preserving, AlgorithmTypes.Symmetry, 2, true));
+			router.postEvent(new StartMapMutate(map, MapMutationType.ComputedConfig, AlgorithmTypes.Symmetry, 2, true));
+		}
+		else if (similarity && symmetry) {
+			router.postEvent(new StartMapMutate(map, MapMutationType.Preserving, AlgorithmTypes.Similarity, 2, true));
+			router.postEvent(new StartMapMutate(map, MapMutationType.ComputedConfig, AlgorithmTypes.Symmetry, 2, true));
+		}
 	}
+	
 
 	/**
 	 * Replaces the map with one of the generated ones.

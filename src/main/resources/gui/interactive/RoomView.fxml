@@ -19,6 +19,7 @@
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Text?>
+<?import javafx.scene.control.CheckBox?>
 
 <fx:root type="javafx.scene.layout.BorderPane"
 	stylesheets="@../styling.css" fx:id="mainBorderPane"
@@ -110,7 +111,7 @@
 
 		<HBox>
 			<VBox spacing="15">
-			
+
 
 				<StackPane alignment="CENTER" fx:id="generatedMapsLabel"
 					id="generatedMapsLabel">
@@ -126,7 +127,7 @@
 						</ArrayList>
 					</fx:define>
 					<children>
-						<HBox alignment="CENTER" >
+						<HBox alignment="CENTER">
 							<children>
 								<fx:reference source="map0" />
 								<fx:reference source="map1" />
@@ -136,44 +137,70 @@
 						</HBox>
 					</children>
 				</StackPane>
-				<HBox><Label fx:id="enemyNumbr"></Label>
-				<Label fx:id="enemyNumbr2"></Label>
-				
-				</HBox>
-				<HBox><Label fx:id="treasureNmbr"></Label>
-				<Label fx:id="treasureNmbr2"></Label>
-				
-				</HBox>
-				<HBox><Label fx:id="enemyPercent"></Label>
-				<Label fx:id="enemyPercent2"></Label>
-				
-				</HBox><HBox><Label fx:id="treasurePercent"></Label>
-				<Label fx:id="treasurePercent2"></Label>
-				
-				</HBox><HBox><Label fx:id="entranceSafety"></Label>
-				<Label fx:id="entranceSafety2"></Label>
-				
-				</HBox><HBox><Label fx:id="treasureSafety"></Label>
-				<Label fx:id="treasureSafety2"></Label>
-				
-				</HBox>
-				
-				<HBox spacing="10">
-					<Button fx:id="updateMiniMapBtn" contentDisplay="TOP" mnemonicParsing="false"
-						wrapText="true" textAlignment="CENTER" text="Update Minimap"
-						onAction="#updateMiniMap" />
+				<HBox spacing="20">
+					<VBox>
+						<CheckBox fx:id="symmetryChoicebox"
+							text="Symmetrical patterns" />
+						<CheckBox fx:id="similarChoicebox"
+							text="Similarity preserved" />
+					</VBox>
+					<VBox>
+						<Label fx:id="label1" text="Configurations For Suggestions" ></Label>
+						<Label fx:id="label2" text="Choose if you want symmetry"></Label>
+						<Label fx:id="label3" text="and/or to preserve similarities."></Label>						
+						
+					</VBox>
+					<VBox>
+						<HBox>
+							<Label fx:id="enemyNumbr"></Label>
+							<Label fx:id="enemyNumbr2"></Label>
 
-					<Button fx:id="worldGridBtn" contentDisplay="TOP" mnemonicParsing="false"
-						wrapText="true" textAlignment="CENTER" text="Go To World Grid"
-						onAction="#handleButtonAction">
+						</HBox>
+						<HBox>
+							<Label fx:id="treasureNmbr"></Label>
+							<Label fx:id="treasureNmbr2"></Label>
+
+						</HBox>
+						<HBox>
+							<Label fx:id="enemyPercent"></Label>
+							<Label fx:id="enemyPercent2"></Label>
+
+						</HBox>
+						<HBox>
+							<Label fx:id="treasurePercent"></Label>
+							<Label fx:id="treasurePercent2"></Label>
+
+						</HBox>
+						<HBox>
+							<Label fx:id="entranceSafety"></Label>
+							<Label fx:id="entranceSafety2"></Label>
+
+						</HBox>
+						<HBox>
+							<Label fx:id="treasureSafety"></Label>
+							<Label fx:id="treasureSafety2"></Label>
+
+						</HBox>
+					</VBox>
+
+				</HBox>
+
+				<HBox spacing="10">
+					<Button fx:id="updateMiniMapBtn" contentDisplay="TOP"
+						mnemonicParsing="false" wrapText="true" textAlignment="CENTER"
+						text="Update Minimap" onAction="#updateMiniMap" />
+
+					<Button fx:id="worldGridBtn" contentDisplay="TOP"
+						mnemonicParsing="false" wrapText="true" textAlignment="CENTER"
+						text="Go To World Grid" onAction="#handleButtonAction">
 
 					</Button>
-					<Button fx:id="genSuggestionsBtn" contentDisplay="TOP" mnemonicParsing="false"
-						wrapText="true" textAlignment="CENTER" text="Generate Suggestions"
-						onAction="#generateNewMaps" />
-					<Button fx:id="appSuggestionsBtn" contentDisplay="TOP" mnemonicParsing="false"
-						wrapText="true" textAlignment="CENTER" text="Apply Suggestion"
-						onAction="#selectSuggestion" />
+					<Button fx:id="genSuggestionsBtn" contentDisplay="TOP"
+						mnemonicParsing="false" wrapText="true" textAlignment="CENTER"
+						text="Generate Suggestions" onAction="#generateNewMaps" />
+					<Button fx:id="appSuggestionsBtn" contentDisplay="TOP"
+						mnemonicParsing="false" wrapText="true" textAlignment="CENTER"
+						text="Apply Suggestion" onAction="#selectSuggestion" />
 
 				</HBox>
 				<GridPane alignment="CENTER" fx:id="minimap" hgap="0"
