@@ -6,6 +6,8 @@ import util.eventrouting.PCGEvent;
  * This event is used to request a view switch.
  * 
  * @author Johan Holmberg, Malmö University
+ * @author Chelsi Nolasco, Malmö University
+ * @author Axel Österman, Malmö University
  */
 public class RequestRoomView extends PCGEvent{
 	

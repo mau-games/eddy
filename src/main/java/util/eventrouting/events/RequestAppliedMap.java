@@ -4,6 +4,11 @@ import game.Map;
 import game.MapContainer;
 import util.eventrouting.PCGEvent;
 
+/* 
+ *  @author Chelsi Nolasco, Malmö University
+ * @author Axel Österman, Malmö University
+*/
+
 public class RequestAppliedMap extends PCGEvent{
 
 	private int row;

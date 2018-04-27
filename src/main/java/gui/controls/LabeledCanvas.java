@@ -26,6 +26,8 @@ import javafx.util.Duration;
  * This control is used to display a labeled image.
  * 
  * @author Johan Holmberg, Malmö University
+ * @author Chelsi Nolasco, Malmö University
+ * @author Axel Österman, Malmö University
  */
 public class LabeledCanvas extends BorderPane {
 	@FXML private ResizableCanvas canvas;

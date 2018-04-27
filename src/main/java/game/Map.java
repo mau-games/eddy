@@ -39,6 +39,8 @@ import generator.config.GeneratorConfig;
  * 
  * @author Johan Holmberg, Malmö University
  * @author Alexander Baldwin, Malmö University
+ * @author Chelsi Nolasco, Malmö University
+ * @author Axel Österman, Malmö University
  */
 public class Map {
 	public int[][] matrix; // The actual map
@@ -789,15 +791,7 @@ public class Map {
 		int charCounter = 0;
 		while(reader.ready()){
 			char c = (char) reader.read();
-			//			if ((charCounter < 11 || c == '\n') && lineCounter < 11){
 			mapString += c;
-			//				charCounter++;
-			//				if (c == '\n') {
-			//					charCounter = 0;
-			//					lineCounter++;
-			//				}
-			//			}
-
 		}
 		Map map = fromString(mapString);
 		PatternFinder finder = map.getPatternFinder();
@@ -836,38 +830,7 @@ public class Map {
 		}
 
 		Game.doors.clear();
-		/*
-				// South
-				Point south = new Point(11/2, 11-1);
-				// East
-				Point east = new Point(11-1, 11/2);
-				// North
-				Point north = new Point(11/2, 0);
-				// West
-				Point west = new Point(0, 11/2);
-				for (int j = 0; j < string.length(); j++) {
-					if (string.charAt(j) == '5') {
-						System.out.println("char is 5: " + j);
-						if (j == 5) {
-							Game.doors.add(north);
-							System.out.println("north: " + string.charAt(j));
-						}
-						if (j == 60) {
-							Game.doors.add(west);
-							System.out.println("west: " + string.charAt(j));
-						}
-						if (j == 70) {
-							Game.doors.add(east);
-							System.out.println("east: " + string.charAt(j));
-						}
-						if (j == 125) {
-							Game.doors.add(south);
-							System.out.println("south: " + string.charAt(j));
-						}
-					}
-
-				}
-		 */
+		
 
 		Point p1 = null;
 		Point p2 = null;
@@ -984,14 +947,6 @@ public class Map {
 				e.printStackTrace();
 			}
 		}
-
-		for (Point p : Game.doors) {
-			System.out.println(p.getX() + ", " + p.getY());
-		}
-
-		//		System.out.println(Game.doors.get(0).getX() + ", " + Game.doors.get(0).getY());
-
-		System.out.println("---------");
 
 		return map;
 	}

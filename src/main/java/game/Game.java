@@ -227,7 +227,6 @@ public class Game implements Listener{
 		configs.add("config/mediumrooms.json");
 		configs.add("config/bigrooms.json");
 		configs.add("config/roomsandcorridorssquare.json");
-		//    	
 		for(int i = 0; i < runCount; i++){
 			String c = "config/generator_config.json";
 			if(!configs.isEmpty())
@@ -330,12 +329,6 @@ public class Game implements Listener{
 
 	@Override
 	public synchronized void ping(PCGEvent e) {
-		//		if(e instanceof Start){ 
-		//				System.out.println("========STARTING=======");
-		//				readConfiguration();
-		//				startAll(((Start) e).getNbrOfThreads());
-		//			
-		//		}	else
 		if(e instanceof RequestSuggestionsView){ 
 			readConfiguration();
 			MapContainer container = (MapContainer) e.getPayload();

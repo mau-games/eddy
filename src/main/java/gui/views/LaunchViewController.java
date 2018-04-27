@@ -18,6 +18,11 @@ import util.eventrouting.Listener;
 import util.eventrouting.PCGEvent;
 import util.eventrouting.events.StartWorld;
 
+/*  
+ * @author Chelsi Nolasco, Malmö University
+ * @author Axel Österman, Malmö University
+ */
+
 public class LaunchViewController extends BorderPane implements Listener{
 
 	private ApplicationConfig config;
@@ -73,7 +78,6 @@ public class LaunchViewController extends BorderPane implements Listener{
 			    );
 		worldSizeBox.getItems().addAll(options);
 		worldSizeBox.setValue("World size...");
-		//selectedSize = worldSizeBox.getValue();	
 		
 	}
 	

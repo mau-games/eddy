@@ -23,6 +23,8 @@ import util.eventrouting.events.Start;
  * This class launches an interactive GUI.
  * 
  * @author Johan Holmberg, Malmö University
+ * @author Chelsi Nolasco, Malmö University
+ * @author Axel Österman, Malmö University
  */
 public class InteractiveGUI extends Application {
 
@@ -70,7 +72,6 @@ public class InteractiveGUI extends Application {
 			router.postEvent(new Start(6));
 
 			MapRenderer.getInstance();
-	        //FlatterFX.style();
 
 
 		} catch (Exception e) {

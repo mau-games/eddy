@@ -77,6 +77,8 @@ import util.eventrouting.events.UpdateMiniMap;
  * This class controls the interactive application's edit view.
  * 
  * @author Johan Holmberg, Malmö University
+ * @author Chelsi Nolasco, Malmö University
+ * @author Axel Österman, Malmö University
  */
 public class RoomViewController extends BorderPane implements Listener {
 
@@ -84,7 +86,6 @@ public class RoomViewController extends BorderPane implements Listener {
 	@FXML public StackPane mapPane;
 	@FXML private StackPane buttonsPane;
 
-	//@FXML private Pane root;
 	@FXML private GridPane legend;
 	@FXML private ToggleGroup brushes;
 	@FXML private ToggleButton patternButton;
@@ -119,13 +120,10 @@ public class RoomViewController extends BorderPane implements Listener {
 	private Button rightButton = new Button();
 	private Button leftButton = new Button();
 	private Button upButton = new Button();
-	//	private Button upButton;
 	private Button downButton = new Button();
 
 	private boolean mousePressed = false;
 	private Map selectedMiniMap;
-
-	//@FXML private AnchorPane interactivePane;
 
 
 	private InteractiveMap mapView;
@@ -187,7 +185,6 @@ public class RoomViewController extends BorderPane implements Listener {
 	 */
 	private void init() {
 		initMapView();
-		//initMiniMaps();
 		initLegend();
 
 	}
@@ -504,7 +501,6 @@ public class RoomViewController extends BorderPane implements Listener {
 		getMapView().updateMap(map);
 		redrawPatterns(map);
 		mapIsFeasible(map.isFeasibleTwo());
-		//		resetMiniMaps();
 	}
 
 	public void updateRoom(Map map) {
@@ -512,7 +508,6 @@ public class RoomViewController extends BorderPane implements Listener {
 
 		redrawPatterns(map);
 		mapIsFeasible(map.isFeasibleTwo());
-		//resetMiniMaps();
 	}
 
 	public void updateLargeMap(Map map) {
@@ -622,7 +617,6 @@ public class RoomViewController extends BorderPane implements Listener {
 	 */
 	public void replaceMap(int index) {
 		selectedMiniMap = maps.get(index);
-		//		Map map = maps.get(index);
 		if (selectedMiniMap != null) {
 			generateNewMaps(selectedMiniMap);
 			updateMap(selectedMiniMap);

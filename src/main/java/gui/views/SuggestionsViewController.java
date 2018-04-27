@@ -31,6 +31,8 @@ import util.eventrouting.events.RequestSuggestionsView;
  * This class controls the interactive application's start view.
  * 
  * @author Johan Holmberg, Malmö University
+ * @author Chelsi Nolasco, Malmö University
+ * @author Axel Österman, Malmö University
  */
 public class SuggestionsViewController extends GridPane implements Listener {
 

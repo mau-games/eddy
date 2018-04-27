@@ -65,7 +65,10 @@ import util.eventrouting.events.SuggestedMapsDone;
 import util.eventrouting.events.SuggestedMapsLoading;
 import util.eventrouting.events.UpdateMiniMap;
 
-
+/*
+ * @author Chelsi Nolasco, Malmö University
+ * @author Axel Österman, Malmö University
+ */
 
 public class InteractiveGUIController implements Initializable, Listener {
 
@@ -78,9 +81,6 @@ public class InteractiveGUIController implements Initializable, Listener {
 	@FXML private MenuItem prefsItem;
 	@FXML private MenuItem exitItem;
 	@FXML private MenuItem aboutItem;
-	//	@FXML private MenuItem saveWorldItem;
-	//	@FXML private MenuItem openWorldItem;
-	//	@FXML private MenuButton roomSizeBtn;
 	public boolean firstIsClicked = false;
 	public boolean secondIsClicked = false;
 	public boolean thirdIsClicked = false;
@@ -108,7 +108,6 @@ public class InteractiveGUIController implements Initializable, Listener {
 
 	// VARIABLE FOR PICKING THE SIZE OF THE WORLD MAP (3 = 3x3 map)
 	private int size = 3;
-	// ArrayList<MapContainer> worldMapList = new ArrayList<MapContainer>();
 	private MapContainer[][] worldMapMatrix = new MapContainer[size][size];
 	private int row = 0;
 	private int col = 0;
@@ -175,15 +174,9 @@ public class InteractiveGUIController implements Initializable, Listener {
 		}
 		else if (e instanceof SuggestedMapsDone) {
 			restrictNav();
-			//			roomView.getRightButton().setDisable(false);
-			//			roomView.getLeftButton().setDisable(false);
-			//			roomView.getDownButton().setDisable(false);
-			//			roomView.getUpButton().setDisable(false);
 			roomView.getUpdateMiniMapBtn().setDisable(false);
 			roomView.getWorldGridBtn().setDisable(false);
-			roomView.getGenSuggestionsBtn().setDisable(false);
-			//roomView.getAppSuggestionsBtn().setDisable(false);
-			
+			roomView.getGenSuggestionsBtn().setDisable(false);			
 			roomView.setMinimapBoolean(true);
 		} else if (e instanceof SuggestedMapsLoading) {
 
@@ -408,7 +401,6 @@ public class InteractiveGUIController implements Initializable, Listener {
 		router.registerListener(this, new RequestRedraw());
 		router.registerListener(this, new RequestRoomView(null, 0, 0, null));
 		router.registerListener(this, new MapLoaded(null));
-		//		router.registerListener(this, new RequestSuggestionsView());
 		router.registerListener(this, new RequestWorldView());
 		router.registerListener(this, new RequestEmptyRoom(null, 0, 0, null));
 		router.registerListener(this, new RequestSuggestionsView(null, 0, 0, null, 0));
@@ -433,7 +425,6 @@ public class InteractiveGUIController implements Initializable, Listener {
 
 		});
 
-		//initWorldView();
 		initLaunchView();
 
 
@@ -444,14 +435,8 @@ public class InteractiveGUIController implements Initializable, Listener {
 	 */
 
 	public void startNewFlow() {
-		//		router.postEvent(new Start(6));
-		//initWorldView();
 		initLaunchView();
 	}
-
-	//	public void goToWorldView() {
-	//		router.postEvent(new RequestWorldView());
-	//	}
 
 	public void exitApplication() {
 		// TODO: Maybe be a bit more graceful than this...
@@ -478,21 +463,8 @@ public class InteractiveGUIController implements Initializable, Listener {
 					mapString += c;
 				}
 				worldMapMatrix = updateLargeMap(mapString);
-				
-				
-//				
-//				Map map = worldMapMatrix[col][row].getMap();
-//				PatternFinder finder = map.getPatternFinder();
-//				MapContainer result = new MapContainer();
-//				currentQuadMap = result;
-//				roomView.updateMap(map);
-//				result.setMap(map);
-//				result.setMicroPatterns(finder.findMicroPatterns());
-//				result.setMesoPatterns(finder.findMesoPatterns());
-//				result.setMacroPatterns(finder.findMacroPatterns());
-				//EventRouter.getInstance().postEvent(new MapLoaded(result));
+
 				router.postEvent(new RequestWorldView());
-				//Map.LoadMap(selectedFile);
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -501,7 +473,6 @@ public class InteractiveGUIController implements Initializable, Listener {
 	}
 
 	public void saveMap() {
-		//		tempLargeContainer = updateLargeMap();
 		roomView.updateLargeMap(tempLargeContainer.getMap());
 		DateTimeFormatter format =
 				DateTimeFormatter.ofPattern("yyyy-MM-dd_HH-mm-s-n");
@@ -607,9 +578,6 @@ public class InteractiveGUIController implements Initializable, Listener {
 		AnchorPane.setLeftAnchor(worldView, 0.0);
 		mainPane.getChildren().add(worldView);
 
-
-		//		createWorldMatrix();
-
 		worldView.initWorldMap(initMatrix());
 
 		saveItem.setDisable(false);
@@ -648,10 +616,6 @@ public class InteractiveGUIController implements Initializable, Listener {
 		AnchorPane.setLeftAnchor(worldView, 0.0);
 		mainPane.getChildren().add(worldView);
 
-
-		//		createWorldMatrix();
-
-		//evaluateNullChange();
 		worldView.initWorldMap(worldMapMatrix);
 
 		saveItem.setDisable(false);
@@ -812,8 +776,6 @@ public class InteractiveGUIController implements Initializable, Listener {
 
 		roomView.getMap(0).addEventFilter(MouseEvent.MOUSE_CLICKED, (e) -> {
 
-			//roomView.replaceMap(0);
-
 			roomView.getMap(0).setOnMouseClicked(new EventHandler<MouseEvent>() {
 
 				@Override
@@ -846,10 +808,8 @@ public class InteractiveGUIController implements Initializable, Listener {
 						roomView.getMap(2).setStyle("-fx-background-color:#2c2f33;");
 						roomView.getMap(3).setStyle("-fx-background-color:#2c2f33;");
 					}
-					//	    			
 				}
 			});
-			//			
 			roomView.getMap(0).setOnMouseEntered(new EventHandler<MouseEvent>() {
 
 				@Override
@@ -867,7 +827,6 @@ public class InteractiveGUIController implements Initializable, Listener {
 		});
 
 		roomView.getMap(1).addEventFilter(MouseEvent.MOUSE_CLICKED, (e) -> {
-			//roomView.replaceMap(1);
 			roomView.getMap(1).setOnMouseClicked(new EventHandler<MouseEvent>() {
 
 				@Override
@@ -900,7 +859,6 @@ public class InteractiveGUIController implements Initializable, Listener {
 						roomView.getMap(2).setStyle("-fx-background-color:#2c2f33;");
 						roomView.getMap(3).setStyle("-fx-background-color:#2c2f33;");
 					}
-					//	    			
 				}
 			});
 
@@ -918,7 +876,6 @@ public class InteractiveGUIController implements Initializable, Listener {
 				}
 			});
 		});
-		//roomView.replaceMap(2);
 		roomView.getMap(2).addEventFilter(MouseEvent.MOUSE_CLICKED, (e) -> {
 			roomView.getMap(2).setOnMouseClicked(new EventHandler<MouseEvent>() {
 
@@ -954,7 +911,6 @@ public class InteractiveGUIController implements Initializable, Listener {
 					}
 				}
 			});
-			//			
 			roomView.getMap(2).setOnMouseEntered(new EventHandler<MouseEvent>() {
 
 				@Override
@@ -968,7 +924,6 @@ public class InteractiveGUIController implements Initializable, Listener {
 				}
 			});
 
-			//roomView.replaceMap(3);
 		});
 		roomView.getMap(3).addEventFilter(MouseEvent.MOUSE_CLICKED, (e) -> {
 			roomView.getMap(3).setOnMouseClicked(new EventHandler<MouseEvent>() {
@@ -1003,10 +958,8 @@ public class InteractiveGUIController implements Initializable, Listener {
 						roomView.getMap(2).setStyle("-fx-background-color:#2c2f33;");
 						roomView.getMap(1).setStyle("-fx-background-color:#2c2f33;");
 					}
-					//	    			
 				}
 			});
-			//			
 			roomView.getMap(3).setOnMouseEntered(new EventHandler<MouseEvent>() {
 
 				@Override
@@ -1099,7 +1052,6 @@ public class InteractiveGUIController implements Initializable, Listener {
 						}
 
 					}
-					//System.out.println(worldMapMatrix[rows][cols].getMap().getNumberOfDoors() + " doors for: " + rows + ", " + cols);
 					if (worldMapMatrix[rows][cols].getMap().getNumberOfDoors() == 0) {
 						Map nullMap = new Map(11, 11, 0);
 						MapContainer nullCont = new MapContainer();

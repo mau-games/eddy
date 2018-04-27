@@ -32,6 +32,10 @@ import util.eventrouting.events.RequestNullRoom;
 import util.eventrouting.events.RequestRoomView;
 import util.eventrouting.events.RequestSuggestionsView;
 
+/*  
+ * @author Chelsi Nolasco, Malmö University
+ * @author Axel Österman, Malmö University*/
+
 public class WorldViewController extends GridPane implements Listener{
 
 	private ApplicationConfig config;
@@ -119,7 +123,6 @@ public class WorldViewController extends GridPane implements Listener{
 				canvas.addEventFilter(MouseEvent.MOUSE_CLICKED,
 						new MouseEventHandler());
 				
-				//gridPane.add(new Button(), i, j);
 			}
 		}
 		if (matrix[row][col].getMap().getNull()) {
