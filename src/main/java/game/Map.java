@@ -995,12 +995,13 @@ public class Map {
             }
     	}
     	
+    	//TODO: I think there is a problem here of not updating the correct values ----- maybe change back?
     	for(int i = treasure; i < getTreasureCount();i++)
     		addFailedPathToTreasures();
     	for(int i = doors; i < getDoorCount();i++)
-    		addFailedPathToTreasures();
+    		addFailedPathToDoors();
     	for(int i = enemies; i < getEnemyCount();i++)
-    		addFailedPathToTreasures();
+    		addFailedPathToEnemies();
     	
     	return visited.size() == getNonWallTileCount() 
     			&& (treasure + doors + enemies == getTreasureCount() + getDoorCount() + getEnemyCount())

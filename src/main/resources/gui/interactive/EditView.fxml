@@ -64,7 +64,7 @@
                   </ImageView>
                </graphic>
             </ToggleButton>
-            <ToggleButton fx:id="lockBrush" prefWidth="1" maxWidth="30" maxHeight="20" contentDisplay="TOP" mnemonicParsing="false" text="" >
+            <ToggleButton fx:id="lockBrush" prefWidth="1" maxWidth="30" maxHeight="20" contentDisplay="TOP" mnemonicParsing="false" text=""  onAction="#selectLockModifier">
                <graphic>
                   <ImageView fitWidth="20.0" pickOnBounds="true" preserveRatio="true">
                      <image>

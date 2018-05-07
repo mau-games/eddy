@@ -508,6 +508,9 @@ public class Algorithm extends Thread {
 		double fitness = 0.0;
 		Map map = ind.getPhenotype().getMap();
 
+		System.out.println(map.getFailedPathsToAnotherDoor() + " ," + map.getFailedPathsToEnemies() + " , "
+				+ map.getFailedPathsToTreasures());
+
 		double enemies = (map.getFailedPathsToEnemies() / (double) map.getEnemyCount());
 		if (Double.isNaN(enemies))
 			enemies = 1.0;

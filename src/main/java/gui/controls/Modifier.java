@@ -65,11 +65,7 @@ public class Modifier
 		
 		if(button != null)
 		{
-			button.setSelected(value);
-			if(!value)
-			{
-				button.setSelected(mainActivation);
-			}
+			button.setSelected(value == false ? mainActivation : value);
 		}
 	}
 }

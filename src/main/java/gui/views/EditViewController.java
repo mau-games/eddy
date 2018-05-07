@@ -1,6 +1,7 @@
 package gui.views;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
@@ -8,6 +9,7 @@ import java.util.UUID;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import finder.geometry.Point;
 import finder.patterns.Pattern;
 import finder.patterns.micro.Connector;
 import finder.patterns.micro.Corridor;
@@ -73,6 +75,8 @@ public class EditViewController extends BorderPane implements Listener {
 	private Canvas zoneCanvas;
 	private Canvas lockCanvas;
 	private Canvas brushCanvas;
+	//test canvas
+	private Canvas heatMapCanvas;
 	
 	private boolean isActive = false;
 	private boolean isFeasible = true;
@@ -107,6 +111,7 @@ public class EditViewController extends BorderPane implements Listener {
 		}
 		
 		router.registerListener(this, new MapUpdate(null));
+		
 		myBrush = new Drawer();
 		myBrush.AddmodifierComponent("Lock", new Modifier(lockBrush));
 		
@@ -139,6 +144,13 @@ public class EditViewController extends BorderPane implements Listener {
 		mapView.setMinSize(width, height);
 		mapView.setMaxSize(width, height);
 		mapPane.getChildren().add(mapView);
+		
+		heatMapCanvas = new Canvas(width, height);
+		StackPane.setAlignment(heatMapCanvas, Pos.CENTER);
+		mapPane.getChildren().add(heatMapCanvas);
+		heatMapCanvas.setVisible(true);
+		heatMapCanvas.setMouseTransparent(true);
+		heatMapCanvas.setOpacity(0.8f);
 		
 		brushCanvas = new Canvas(width, height);
 		StackPane.setAlignment(brushCanvas, Pos.CENTER);
@@ -401,6 +413,14 @@ public class EditViewController extends BorderPane implements Listener {
 	}
 	
 	/**
+	 * Toggles the main use of the lock modifier in the brush
+	 */
+	public void selectLockModifier()
+	{
+		myBrush.ChangeModifierMainValue("Lock", lockBrush.isSelected());
+	}
+	
+	/**
 	 * Toggles the display of patterns on top of the map.
 	 * 
 	 * "Why is this public?",  you ask. Because of FXML's method binding.
@@ -541,6 +561,104 @@ public class EditViewController extends BorderPane implements Listener {
 		}
 	}
 	
+	private void redrawHeatMap(Map map)
+	{
+		int width = map.getColCount();
+		int height = map.getRowCount();
+		double pWidth = heatMapCanvas.getGraphicsContext2D().getCanvas().getWidth() / (double)Math.max(width, height);
+		
+		Color danger = Color.RED;
+		Color treasure = Color.BLUE;
+		Color unpassable = Color.CYAN;
+		Color nothing = Color.GREEN;
+
+		heatMapCanvas.getGraphicsContext2D().clearRect(0, 0, 420, 420);
+		
+		for(int i = 0; i < map.getRowCount(); ++i)
+		{
+			for(int j = 0; j < map.getColCount(); ++j)
+			{
+				float analyzed_cells = 0.0f;
+				Point p = new Point(j,i);
+				List<Point> neighbors = Arrays.asList(	p,
+														new Point(p.getX(), p.getY() + 1),
+														new Point(p.getX() + 1, p.getY()),
+														new Point(p.getX(), p.getY() - 1),
+														new Point(p.getX() - 1, p.getY()));	
+//				Point p0 = new Point(j, i + 1);
+//				Point p1 = new Point(j + 1, i);
+//				Point p2 = new Point(j, i- 1);
+//				Point p3 = new Point(j - 1, i);
+//				
+				Color final_color = Color.BLACK;
+				float danger_percent = 0.0f;
+				float resource_percent = 0.0f;
+				float nothing_percent = 0.0f;
+				float unpassable_percent = 0.0f;
+				
+//				for(Point neighbor: neighbors)
+//				{
+//					if(neighbor.getX() > -1 && neighbor.getX() < width && neighbor.getY() > -1 && neighbor.getY() < height)
+//					{
+//						analyzed_cells++;
+//						TileTypes til = map.getTile(neighbor.getX(), neighbor.getY()).GetType();
+//						
+//						if(til == TileTypes.ENEMY) danger_percent += 1;
+//						else if(til == TileTypes.TREASURE) resource_percent += 1;
+//						else if(til == TileTypes.WALL) unpassable_percent += 1;
+//						else nothing_percent += 1;
+//					}
+//				}
+				
+				analyzed_cells++;
+				TileTypes til = map.getTile(p.getX(), p.getY()).GetType();
+				
+				if(til == TileTypes.ENEMY) danger_percent += 1;
+				else if(til == TileTypes.TREASURE) resource_percent += 1;
+				else if(til == TileTypes.WALL) unpassable_percent += 1;
+				else nothing_percent += 1;
+				
+				danger_percent = danger_percent/analyzed_cells;
+				resource_percent = resource_percent/analyzed_cells;
+				nothing_percent = nothing_percent/analyzed_cells;
+				unpassable_percent = unpassable_percent/analyzed_cells;
+				
+				final_color = final_color.interpolate(danger, danger_percent);
+				final_color = final_color.interpolate(treasure, resource_percent);
+				final_color = final_color.interpolate(nothing, nothing_percent);
+				final_color = final_color.interpolate(unpassable, unpassable_percent);
+				
+				//final_color = helperPlus4(helperMultiplier(unpassable, unpassable_percent), helperMultiplier(danger, danger_percent), helperMultiplier(treasure, resource_percent), helperMultiplier(nothing, nothing_percent));
+				
+				heatMapCanvas.getGraphicsContext2D().setFill(final_color);
+				heatMapCanvas.getGraphicsContext2D().fillRect(p.getX() * pWidth, p.getY() * pWidth, pWidth, pWidth);
+//				if(map.getTile(j, i).GetImmutable())
+//				{
+//					heatMapCanvas.getGraphicsContext2D().drawImage(renderer.GetLock(mapView.scale * 0.75f, mapView.scale * 0.75f), j * mapView.scale, i * mapView.scale);
+//				}
+			}
+		}
+	}
+	
+	private Color helperMultiplier(Color c, float multiplier)
+	{
+		return new Color(c.getRed() * multiplier, c.getGreen() * multiplier, c.getBlue() * multiplier, 1.0f);
+	}
+	
+	private Color helperPlus4(Color c, Color c1, Color c2, Color c3)
+	{
+		return new Color(c.getRed() + c1.getRed() + c2.getRed() + c3.getRed(), 
+						c.getGreen() + c1.getGreen() + c2.getGreen() +  c3.getGreen(),
+						c.getBlue() + c1.getBlue() + c2.getBlue() + c3.getBlue(), 1.0f)	;
+	}
+	
+	private Color helperPlus(Color c, Color c1, Color c2)
+	{
+		return new Color(c.getRed() + c1.getRed() + c2.getRed(), 
+						c.getGreen() + c1.getGreen() + c2.getGreen(),
+						c.getBlue() + c1.getBlue() + c2.getBlue(), 1.0f)	;
+	}
+	
 	/*
 	 * Event handlers
 	 */
@@ -564,6 +682,7 @@ public class EditViewController extends BorderPane implements Listener {
 				mapIsFeasible(mapView.getMap().isFeasible());
 				redrawPatterns(mapView.getMap());
 				redrawLocks(mapView.getMap());
+//				redrawHeatMap(mapView.getMap());
 			}
 		}
 		

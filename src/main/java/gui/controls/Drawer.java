@@ -95,7 +95,11 @@ public class Drawer
 	
 	public void DoneDrawing()
 	{
-		brush.SetDrew();
+		for(Brush b : brushes)
+		{
+			b.SetDrew();
+		}
+//		brush.SetDrew();
 	}
 	
 	/**
