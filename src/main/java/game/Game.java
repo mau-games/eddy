@@ -3,10 +3,12 @@ package game;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.omg.Messaging.SyncScopeHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import generator.algorithm.Algorithm;
+import generator.algorithm.Algorithm.AlgorithmTypes;
 import generator.config.GeneratorConfig;
 import util.Point;
 import util.Util;
@@ -19,6 +21,7 @@ import util.eventrouting.events.AlgorithmDone;
 import util.eventrouting.events.AlgorithmStarted;
 import util.eventrouting.events.BatchDone;
 import util.eventrouting.events.RenderingDone;
+import util.eventrouting.events.RequestSuggestionsView;
 import util.eventrouting.events.Start;
 import util.eventrouting.events.StartBatch;
 import util.eventrouting.events.StartMapMutate;
@@ -34,16 +37,15 @@ public class Game implements Listener{
 	private boolean batch = false;
 	private String batchConfig = "";
 	private static final int batchThreads = 8;
-	
+
 	//TODO: There must be a better way to handle these public static variables
 	public static int sizeWidth; //Number of columns
     public static int sizeHeight; //Number of rows
     public static int doorCount;
     public static List<Point> doors = new ArrayList<Point>();
 
-   
-
-    public Game() {
+	public Game() {
+		
 
 		try {
 			config = ApplicationConfig.getInstance();
@@ -51,8 +53,8 @@ public class Game implements Listener{
 			logger.error("Couldn't read configuration file:\n" + e.getMessage());
 		}
 
-        readConfiguration();
-        chooseDoorPositions();
+		readConfiguration();
+		chooseDoorPositions();
 
         EventRouter.getInstance().registerListener(this, new Start());
         EventRouter.getInstance().registerListener(this, new StartMapMutate(null));
@@ -60,7 +62,8 @@ public class Game implements Listener{
         //EventRouter.getInstance().registerListener(this, new AlgorithmDone(null));
         EventRouter.getInstance().registerListener(this, new RenderingDone());
         EventRouter.getInstance().registerListener(this, new StartBatch());
-    }
+        EventRouter.getInstance().registerListener(this, new RequestSuggestionsView(null, 0, 0, null, 0));
+	}
     
     /**
      * Selects positions for between 1 and 4 doors. 
@@ -77,127 +80,188 @@ public class Game implements Listener{
     	for(int i = 0; i < doorCount; i++){
     		switch(walls.remove(Util.getNextInt(0, walls.size()))){
     		case 0: //North
-    			//doors.add(new Point(Util.getNextInt(1, sizeM - 1), sizeN - 1));
+    			//doors.add(new Point(Util.getNextInt(1, sizeWidth - 1), sizeHeight - 1));
     			doors.add(new Point(sizeWidth / 2, sizeHeight - 1));
     			break;
     		case 1: //East
-    			//doors.add(new Point(sizeM - 1, Util.getNextInt(1, sizeN - 1)));
+    			//doors.add(new Point(sizeWidth - 1, Util.getNextInt(1, sizeHeight - 1)));
     			doors.add(new Point(sizeWidth - 1, sizeHeight / 2));
     			break;
     		case 2: //South
-    			//doors.add(new Point(Util.getNextInt(1, sizeM - 1), 0));
+    			//doors.add(new Point(Util.getNextInt(1, sizeWidth - 1), 0));
     			doors.add(new Point(sizeWidth / 2, 0));
     			break;
     		case 3: //West
-    			//doors.add(new Point(0, Util.getNextInt(1, sizeN - 1)));
+    			//doors.add(new Point(0, Util.getNextInt(1, sizeHeight - 1)));
     			doors.add(new Point(0, sizeHeight / 2));
     			break;
     		}
     	}
     }
 
+
     public enum MapMutationType {
     	Preserving,
     	OriginalConfig,
     	ComputedConfig
     }
-    
-    private void mutateFromMap(Map map, int mutations, MapMutationType mutationType, boolean randomise){
+
+    private void mutateFromMap(Map map, int mutations, MapMutationType mutationType, AlgorithmTypes AlgoType, boolean randomise){
+
     	sizeWidth = map.getColCount();
     	sizeHeight = map.getRowCount();
+    	
+    	//System.out.println("LETS CREATE!, mutation: " + mutations + ", algorithmTypes: " + AlgoType);
 
-    	for(int i = 0; i < mutations; i++){
-    		switch(mutationType){
+		for(int i = 0; i < mutations; i++){
+			switch(mutationType){
 			case ComputedConfig:
 			{
+				doors.clear();
+				if (map.getNorth()) { 	//North
+					doors.add(new Point(sizeWidth / 2, 0));
+				}
+				if (map.getEast()) {	//East
+					doors.add(new Point(sizeWidth - 1, sizeHeight / 2));
+				}
+				if (map.getSouth()) {	//South
+					doors.add(new Point(sizeWidth / 2, sizeHeight - 1));
+				}
+				if (map.getWest()) {	//West
+					doors.add(new Point(0, sizeHeight / 2));
+				}
+				if (doors.isEmpty()) {
+					doors.add(map.getEntrance());
+					for (Point p : map.getDoors()) {
+						doors.add(p);
+					}
+				}
 				GeneratorConfig gc = map.getCalculatedConfig();
 				if(randomise)
 					gc.mutate();
-				Algorithm ga = new Algorithm(gc);
+				Algorithm ga = new Algorithm(gc, AlgoType);
 				runs.add(ga);
 				ga.start();
 				break;
 			}
 			case OriginalConfig:
 			{
+				doors.clear();
+				if (map.getNorth()) { 	//North
+					doors.add(new Point(sizeWidth / 2, 0));
+				}
+				if (map.getEast()) {	//East
+					doors.add(new Point(sizeWidth - 1, sizeHeight / 2));
+				}
+				if (map.getSouth()) {	//South
+					doors.add(new Point(sizeWidth / 2, sizeHeight - 1));
+				}
+				if (map.getWest()) {	//West
+					doors.add(new Point(0, sizeHeight / 2));
+				}
+				if (doors.isEmpty()) {
+					doors.add(map.getEntrance());
+					for (Point p : map.getDoors()) {
+						doors.add(p);
+					}
+				}
 				GeneratorConfig gc = new GeneratorConfig(map.getConfig());
 				if(randomise)
 					gc.mutate();
-				Algorithm ga = new Algorithm(gc);
+				Algorithm ga = new Algorithm(gc, AlgoType);
 				runs.add(ga);
 				ga.start();
 				break;
 			}
 			case Preserving:
 			{
-				Algorithm ga = new Algorithm(map);
+				doors.clear();
+				if (map.getNorth()) { 	//North
+					doors.add(new Point(sizeWidth / 2, 0));
+				}
+				if (map.getEast()) {	//East
+					doors.add(new Point(sizeWidth - 1, sizeHeight / 2));
+				}
+				if (map.getSouth()) {	//South
+					doors.add(new Point(sizeWidth / 2, sizeHeight - 1));
+				}
+				if (map.getWest()) {	//West
+					doors.add(new Point(0, sizeHeight / 2));
+				}
+				if (doors.isEmpty()) {
+					doors.add(map.getEntrance());
+					for (Point p : map.getDoors()) {
+						doors.add(p);
+					}
+				}
+				Algorithm ga = new Algorithm(map, AlgoType);
 				runs.add(ga);
 				ga.start();
 				break;
 			}
 			default:
 				break;
-        	}
+			}
 		}
-    	
-    }
-    
+
+	}
+
 	/**
 	 *  Kicks the algorithm into action.
 	 */
-    private void startAll(int runCount)
-    {
-    	reinit();
-    	Algorithm geneticAlgorithm = null;
-    	
-    	List<String> configs = new ArrayList<String>();
-    	if(Math.random() < 0.5)
-    		configs.add("config/bendycorridors.json");
-    	else
-    		configs.add("config/bendycorridors_nodeadends.json");
-    	if(Math.random() < 0.5)
-    		configs.add("config/straightcorridors.json");
-    	else
-    		configs.add("config/straightcorridors_nodeadends.json");
-    	if(Math.random() < 0.5)
-    		configs.add("config/smallrooms.json");
-    	else
-    		configs.add("config/smallrooms_nodeadends.json");
-    	configs.add("config/mediumrooms.json");
-    	configs.add("config/bigrooms.json");
-    	configs.add("config/roomsandcorridorssquare.json");
-//    	
-    	for(int i = 0; i < runCount; i++){
-    		String c = "config/generator_config.json";
-    		if(!configs.isEmpty())
-    			c = configs.remove(Util.getNextInt(0, configs.size()));
-    		
-    		try {
-    			geneticAlgorithm = new Algorithm(new GeneratorConfig(c));
-    			runs.add(geneticAlgorithm);
-    			geneticAlgorithm.start();
-    		} catch (MissingConfigurationException e) {
-    			logger.error("Couldn't read generator configuration file:\n" + e.getMessage());
-    		}
-    	}
-    	
-    }
-    
-    private void startBatch(String config, int size){
-    	batch = true;
-    	batchRunsLeft = size;
-    	batchRunsStillToFinish = size;
-    	batchConfig = config;
-    	
-    	runs.clear();
-    	
-    	for(int i = 0; i < batchThreads; i++){
-    		startBatchRun();
-    	}
-    	
-    }
-    
-    private void startBatchRun(){
+	private void startAll(int runCount, MapContainer container)
+	{
+
+		reinit(container);
+		Algorithm geneticAlgorithm = null;
+
+		List<String> configs = new ArrayList<String>();
+		if(Math.random() < 0.5)
+			configs.add("config/bendycorridors.json");
+		else
+			configs.add("config/bendycorridors_nodeadends.json");
+		if(Math.random() < 0.5)
+			configs.add("config/straightcorridors.json");
+		else
+			configs.add("config/straightcorridors_nodeadends.json");
+		if(Math.random() < 0.5)
+			configs.add("config/smallrooms.json");
+		else
+			configs.add("config/smallrooms_nodeadends.json");
+		configs.add("config/mediumrooms.json");
+		configs.add("config/bigrooms.json");
+		configs.add("config/roomsandcorridorssquare.json");
+		for(int i = 0; i < runCount; i++){
+			String c = "config/generator_config.json";
+			if(!configs.isEmpty())
+				c = configs.remove(Util.getNextInt(0, configs.size()));
+
+			try {
+				geneticAlgorithm = new Algorithm(new GeneratorConfig(c));
+				runs.add(geneticAlgorithm);
+				geneticAlgorithm.start();
+			} catch (MissingConfigurationException e) {
+				logger.error("Couldn't read generator configuration file:\n" + e.getMessage());
+			}
+		}
+
+	}
+
+	private void startBatch(String config, int size){
+		batch = true;
+		batchRunsLeft = size;
+		batchRunsStillToFinish = size;
+		batchConfig = config;
+
+		runs.clear();
+
+		for(int i = 0; i < batchThreads; i++){
+			startBatchRun();
+		}
+
+	}
+
+	private void startBatchRun(){
 		try {
 			Algorithm geneticAlgorithm = new Algorithm(new GeneratorConfig(batchConfig));
 			geneticAlgorithm.start();
@@ -206,62 +270,83 @@ public class Game implements Listener{
 		} catch (MissingConfigurationException e) {
 			e.printStackTrace();
 		}
-    }
-    
-  
-    
-    
-    
-//    public void batchRun(){
-//    	readConfiguration();
-//    	chooseDoorPositions();
-//    	batch = true;
-//    	runCount = 0;
-//    	batchStep();
-//    	
-//    }
-    
-//    private void batchStep(){
-//    	
-//		EventRouter.getInstance().postEvent(new AlgorithmStarted("" + runCount));
-//		try {
-//			geneticAlgorithm = new Algorithm(new GeneratorConfig());
-//		} catch (MissingConfigurationException e) {
-//			logger.error("Couldn't read generator configuration file:\n" + e.getMessage());
-//		}
-//    	//Start the algorithm on a new thread.
-//    	geneticAlgorithm.start();
-//    	runCount++;
-//    }
-    
-    /**
-     * Set everything back to its initial state before running the genetic algorithm
-     */
-    private void reinit(){
-    	doors.clear();
-    	chooseDoorPositions();
-    }
-    
-    /**
-     * Stop the algorithm. Used in the case that the application window is closed.
-     */
-    public void stop(){
-    	for(Algorithm a : runs){
-    		if(a.isAlive()) a.terminate();
-    	}
-//    	if(geneticAlgorithm != null && geneticAlgorithm.isAlive()){
-//    		geneticAlgorithm.terminate();
-//    	}
-    }
+	}   
+
+	//    public void batchRun(){
+	//    	readConfiguration();
+	//    	chooseDoorPositions();
+	//    	batch = true;
+	//    	runCount = 0;
+	//    	batchStep();
+	//    	
+	//    }
+
+	//    private void batchStep(){
+	//    	
+	//		EventRouter.getInstance().postEvent(new AlgorithmStarted("" + runCount));
+	//		try {
+	//			geneticAlgorithm = new Algorithm(new GeneratorConfig());
+	//		} catch (MissingConfigurationException e) {
+	//			logger.error("Couldn't read generator configuration file:\n" + e.getMessage());
+	//		}
+	//    	//Start the algorithm on a new thread.
+	//    	geneticAlgorithm.start();
+	//    	runCount++;
+	//    }
+
+	/**
+	 * Set everything back to its initial state before running the genetic algorithm
+	 */
+	private void reinit(MapContainer container){
+		if (container == null) {
+			doors.clear();
+			chooseDoorPositions();
+		}
+		else {
+			doors.clear();
+			if (container.getMap().getNorth()) { 	//North
+				doors.add(new Point(sizeWidth / 2, 0));
+			}
+			if (container.getMap().getEast()) {	//East
+				doors.add(new Point(sizeWidth - 1, sizeHeight / 2));
+			}
+			if (container.getMap().getSouth()) {	//South
+				doors.add(new Point(sizeWidth / 2, sizeHeight - 1));
+			}
+			if (container.getMap().getWest()) {	//West
+				doors.add(new Point(0, sizeHeight / 2));
+			}
+		}
+	}
+
+	/**
+	 * Stop the algorithm. Used in the case that the application window is closed.
+	 */
+	public void stop(){
+		for(Algorithm a : runs){
+			if(a.isAlive()) a.terminate();
+		}
+		//    	if(geneticAlgorithm != null && geneticAlgorithm.isAlive()){
+		//    		geneticAlgorithm.terminate();
+		//    	}
+	}
 
 	@Override
 	public synchronized void ping(PCGEvent e) {
-		if(e instanceof Start){
+		if(e instanceof RequestSuggestionsView){ 
 			readConfiguration();
-			startAll(((Start) e).getNbrOfThreads());
-		} else if (e instanceof StartMapMutate) {
+			MapContainer container = (MapContainer) e.getPayload();
+			doorCount = container.getMap().getNumberOfDoors();
+			sizeWidth = 11; // TODO: Why is this hardcoded here?
+			sizeHeight = 11; //TODO: ?
+			startAll(((RequestSuggestionsView) e).getNbrOfThreads(), container);
+
+		}			
+		else if (e instanceof StartMapMutate) {
+			
 			StartMapMutate smm = (StartMapMutate)e;
-			mutateFromMap((Map)e.getPayload(),smm.getMutations(),smm.getMutationType(),smm.getRandomiseConfig());
+			System.out.println("LETS CREATE!, mutation: " + smm.getMutations() + ", algorithmTypes: " + smm.getAlgorithmTypes());
+			mutateFromMap((Map)e.getPayload(),smm.getMutations(),smm.getMutationType(),smm.getAlgorithmTypes(),smm.getRandomiseConfig());
 		} else if (e instanceof StartBatch) {
 			startBatch(((StartBatch)e).getConfig(), ((StartBatch)e).getSize());
 		} else if (e instanceof Stop) {
@@ -283,9 +368,11 @@ public class Game implements Listener{
 	 * Reads and applies the current configuration.
 	 */
 	private void readConfiguration() {  
+
         sizeWidth = config.getDimensionM();
         sizeHeight = config.getDimensionN();
         doorCount = config.getDoors();
+
 	}
-	
+
 }

@@ -103,7 +103,6 @@ public class InteractiveMap extends GridPane {
 			return;
 		}
 		
-		//currentTile.SetImmutable(locked);
 		map.setTile(p.getX(), p.getY(), tileType);
 		drawTile(p.getX(), p.getY(), tileType);
 	}

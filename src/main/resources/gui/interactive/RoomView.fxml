@@ -1,0 +1,251 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import gui.controls.LabeledCanvas?>
+
+<?import java.util.ArrayList?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.canvas.Canvas?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.Slider?>
+<?import javafx.scene.control.ToggleButton?>
+<?import javafx.scene.control.ToggleGroup?>
+<?import javafx.scene.control.ToolBar?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Text?>
+<?import javafx.scene.control.CheckBox?>
+
+<fx:root type="javafx.scene.layout.BorderPane"
+	stylesheets="@../styling.css" fx:id="mainBorderPane"
+	xmlns:fx="http://javafx.com/fxml/1">
+	<padding>
+		<Insets top="0" right="15" bottom="0" left="0" />
+	</padding>
+
+	<left>
+		<fx:define>
+			<ToggleGroup fx:id="brushes" />
+		</fx:define>
+		<ToolBar id="toolbox" orientation="VERTICAL"
+			prefHeight="400.0" prefWidth="135.0"
+			BorderPane.alignment="TOP_CENTER">
+			<items>
+				<Label text="Editor tools" fx:id="editorToolsLbl" />
+				<ToggleButton contentDisplay="TOP" prefWidth="75.0"
+					mnemonicParsing="false" text="Floor" toggleGroup="$brushes"
+					onAction="#selectBrush" fx:id="floorBtn">
+					<graphic>
+						<ImageView fitWidth="40.0" pickOnBounds="true"
+							preserveRatio="true">
+							<image>
+								<Image url="@../../graphics/tiles/floor.png" />
+							</image>
+						</ImageView>
+					</graphic>
+				</ToggleButton>
+				<ToggleButton contentDisplay="TOP" prefWidth="75.0"
+					mnemonicParsing="false" text="Wall" toggleGroup="$brushes"
+					onAction="#selectBrush" fx:id="wallBtn">
+					<graphic>
+						<ImageView fitWidth="40.0" pickOnBounds="true"
+							preserveRatio="true">
+							<image>
+								<Image url="@../../graphics/tiles/wall.png" />
+							</image>
+						</ImageView>
+					</graphic>
+				</ToggleButton>
+				<ToggleButton contentDisplay="TOP" prefWidth="75.0"
+					mnemonicParsing="false" text="Treasure" toggleGroup="$brushes"
+					onAction="#selectBrush" fx:id="treasureBtn">
+					<graphic>
+						<ImageView fitWidth="40.0" pickOnBounds="true"
+							preserveRatio="true">
+							<image>
+								<Image url="@../../graphics/tiles/treasure.png" />
+							</image>
+						</ImageView>
+					</graphic>
+				</ToggleButton>
+				<ToggleButton contentDisplay="TOP" prefWidth="75.0"
+					mnemonicParsing="false" text="Enemy" toggleGroup="$brushes"
+					onAction="#selectBrush" fx:id="enemyBtn">
+					<graphic>
+						<ImageView fitWidth="40.0" pickOnBounds="true"
+							preserveRatio="true">
+							<image>
+								<Image url="@../../graphics/tiles/enemy.png" />
+							</image>
+						</ImageView>
+					</graphic>
+				</ToggleButton>
+				<ToggleButton fx:id="lockBrush" prefWidth="1" maxWidth="30" maxHeight="20" contentDisplay="TOP" mnemonicParsing="false" text=""  onAction="#selectLockModifier">
+	               <graphic>
+	                  <ImageView fitWidth="20.0" pickOnBounds="true" preserveRatio="true">
+	                     <image>
+	                        <Image url="@../../graphics/tiles/lock.png" />
+	                     </image>
+	                  </ImageView>
+	               </graphic>
+            	</ToggleButton>
+				<ToggleButton fx:id="patternButton" prefWidth="75.0"
+					contentDisplay="TOP" mnemonicParsing="false" wrapText="true"
+					textAlignment="CENTER" text="Show patterns"
+					onAction="#togglePatterns">
+					<VBox.margin>
+						<Insets>
+							<top>20</top>
+						</Insets>
+					</VBox.margin>
+				</ToggleButton>
+				<ToggleButton fx:id="lockButton" contentDisplay="TOP" mnemonicParsing="false" wrapText="true" textAlignment="CENTER" text="Show locks" onAction="#toggleLocks">
+              <VBox.margin>
+                  <Insets>
+                    <top>10</top>
+                  </Insets>
+              </VBox.margin>
+            </ToggleButton>
+            <ToggleButton fx:id="zoneButton" contentDisplay="TOP" mnemonicParsing="false" wrapText="true" textAlignment="CENTER" text="Show zones" onAction="#toggleZones">
+              <VBox.margin>
+                  <Insets>
+                    <top>10</top>
+                  </Insets>
+              </VBox.margin>
+            </ToggleButton>
+            <Slider fx:id="zoneSlider" prefWidth="1" blockIncrement="1.0" layoutX="26.0" layoutY="32.0" majorTickUnit="1.0" max="2" minorTickCount="0" snapToTicks="true" showTickLabels="true" showTickMarks="true">
+              <VBox.margin>
+                  <Insets>
+                    <top>10</top>
+                  </Insets>
+              </VBox.margin>
+            </Slider>
+				<GridPane fx:id="legend" id="legend" />
+
+
+			</items>
+		</ToolBar>
+	</left>
+	<center>
+
+		<StackPane alignment="CENTER" fx:id="mapPane" />
+
+	</center>
+
+	<right>
+
+		<HBox>
+			<VBox spacing="15">
+
+
+				<StackPane alignment="CENTER" fx:id="generatedMapsLabel"
+					id="generatedMapsLabel">
+					<Label text="Generated Suggestions" />
+				</StackPane>
+				<StackPane alignment="CENTER">
+					<fx:define>
+						<ArrayList fx:id="mapDisplays">
+							<LabeledCanvas fx:id="map0" />
+							<LabeledCanvas fx:id="map1" />
+							<LabeledCanvas fx:id="map2" />
+							<LabeledCanvas fx:id="map3" />
+						</ArrayList>
+					</fx:define>
+					<children>
+						<HBox alignment="CENTER">
+							<children>
+								<fx:reference source="map0" />
+								<fx:reference source="map1" />
+								<fx:reference source="map2" />
+								<fx:reference source="map3" />
+							</children>
+						</HBox>
+					</children>
+				</StackPane>
+				<HBox spacing="20">
+					<VBox>
+						<CheckBox fx:id="symmetryChoicebox"
+							text="Symmetrical patterns" />
+						<CheckBox fx:id="similarChoicebox"
+							text="Similarity preserved" />
+					</VBox>
+					<VBox>
+						<Label fx:id="label1" text="Configurations For Suggestions" ></Label>
+						<Label fx:id="label2" text="Choose if you want symmetry"></Label>
+						<Label fx:id="label3" text="and/or to preserve similarities."></Label>						
+						
+					</VBox>
+					<VBox>
+						<HBox>
+							<Label fx:id="enemyNumbr"></Label>
+							<Label fx:id="enemyNumbr2"></Label>
+
+						</HBox>
+						<HBox>
+							<Label fx:id="treasureNmbr"></Label>
+							<Label fx:id="treasureNmbr2"></Label>
+
+						</HBox>
+						<HBox>
+							<Label fx:id="enemyPercent"></Label>
+							<Label fx:id="enemyPercent2"></Label>
+
+						</HBox>
+						<HBox>
+							<Label fx:id="treasurePercent"></Label>
+							<Label fx:id="treasurePercent2"></Label>
+
+						</HBox>
+						<HBox>
+							<Label fx:id="entranceSafety"></Label>
+							<Label fx:id="entranceSafety2"></Label>
+
+						</HBox>
+						<HBox>
+							<Label fx:id="treasureSafety"></Label>
+							<Label fx:id="treasureSafety2"></Label>
+
+						</HBox>
+					</VBox>
+
+				</HBox>
+
+				<HBox spacing="10">
+					<Button fx:id="updateMiniMapBtn" contentDisplay="TOP"
+						mnemonicParsing="false" wrapText="true" textAlignment="CENTER"
+						text="Update Minimap" onAction="#updateMiniMap" />
+
+					<Button fx:id="worldGridBtn" contentDisplay="TOP"
+						mnemonicParsing="false" wrapText="true" textAlignment="CENTER"
+						text="Go To World Grid" onAction="#handleButtonAction">
+
+					</Button>
+					<Button fx:id="genSuggestionsBtn" contentDisplay="TOP"
+						mnemonicParsing="false" wrapText="true" textAlignment="CENTER"
+						text="Generate Suggestions" onAction="#generateNewMaps" />
+					<Button fx:id="appSuggestionsBtn" contentDisplay="TOP"
+						mnemonicParsing="false" wrapText="true" textAlignment="CENTER"
+						text="Apply Suggestion" onAction="#selectSuggestion" />
+
+				</HBox>
+				<GridPane alignment="CENTER" fx:id="minimap" hgap="0"
+					vgap="0" />
+			</VBox>
+			<HBox.margin>
+				<Insets>
+					<right>20</right>
+				</Insets>
+			</HBox.margin>
+		</HBox>
+	</right>
+
+	<bottom>
+
+	</bottom>
+</fx:root>

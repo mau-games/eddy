@@ -19,6 +19,7 @@ import game.Map;
 import game.TileTypes;
 import game.Game.MapMutationType;
 import gui.controls.Drawer;
+import generator.algorithm.Algorithm.AlgorithmTypes;
 import gui.controls.InteractiveMap;
 import gui.controls.LabeledCanvas;
 import gui.controls.Modifier;
@@ -485,8 +486,10 @@ public class EditViewController extends BorderPane implements Listener {
 	 */
 	public void generateNewMaps(Map map) {
 		// TODO: If we want more diversity in the generated maps, then send more StartMapMutate events.
-		router.postEvent(new StartMapMutate(map, MapMutationType.Preserving, 2, true)); //TODO: Move some of this hard coding to ApplicationConfig
-		router.postEvent(new StartMapMutate(map, MapMutationType.ComputedConfig, 2, true)); //TODO: Move some of this hard coding to ApplicationConfig
+		//router.postEvent(new StartMapMutate(map, MapMutationType.Preserving, AlgorithmTypes.Similarity, 2, true)); //TODO: Move some of this hard coding to ApplicationConfig
+		router.postEvent(new StartMapMutate(map, MapMutationType.Preserving, AlgorithmTypes.Symmetry, 4, true)); //TODO: Move some of this hard coding to ApplicationConfig
+		//router.postEvent(new StartMapMutate(map, MapMutationType.Preserving, AlgorithmTypes.SymmetryAndSimilarity, 2, true)); //TODO: Move some of this hard coding to ApplicationConfig
+		//router.postEvent(new StartMapMutate(map, MapMutationType.ComputedConfig, AlgorithmTypes.Native, 2, true)); //TODO: Move some of this hard coding to ApplicationConfig
 	}
 	
 	/**

@@ -20,7 +20,6 @@ import generator.algorithm.Algorithm;
 import generator.config.GeneratorConfig;
 import gui.utils.MapRenderer;
 import gui.views.EditViewController;
-import gui.views.StartViewController;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.control.ComboBox;
 import javafx.event.EventHandler;
@@ -47,7 +46,6 @@ import util.eventrouting.PCGEvent;
 import util.eventrouting.events.AlgorithmDone;
 import util.eventrouting.events.MapLoaded;
 import util.eventrouting.events.RequestRedraw;
-import util.eventrouting.events.RequestViewSwitch;
 import util.eventrouting.events.StatusMessage;
 
 public class SimpleMapGUIController  implements Initializable, Listener 

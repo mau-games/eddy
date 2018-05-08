@@ -3,9 +3,9 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>se.mah.ts.edd</groupId>
 	<artifactId>eddy</artifactId>
-	<version>2.0.0</version>
+	<version>3.0.0</version>
 	<name>Evolutionary Dungeon Designer</name>
-	<description>This project was developed as part of a Master's thesis. It aims to provide a mixed-initiative procedural dungeon generator.</description>
+	<description>This project was developed as part of a series of Master's thesis projects. It aims to provide a mixed-initiative procedural dungeon generator.</description>
 	<organization>
 		<url>https://www.mah.se/</url>
 		<name>Malmö University</name>
