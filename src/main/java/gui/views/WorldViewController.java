@@ -102,39 +102,29 @@ public class WorldViewController extends GridPane implements Listener{
 		this.matrix = matrix;	
 		size = matrix.length;
 		viewSize = 750/size;
-		for (int i = 0; i < matrix.length; i++) {
-			for (int j = 0; j < matrix.length; j++) {
-				
-				for (int o = 0; o < matrix[i][j].getMap().toMatrix().length; o++) {
-		        	for (int p = 0; p < matrix[i][j].getMap().toMatrix().length; p++) {
-		        	}
-		        }
-				
+		
+		for (int i = 0; i < matrix.length; i++) 
+		{
+			for (int j = 0; j < matrix.length; j++)
+			{
+
 				canvas = new LabeledCanvas();
 				canvas.setText("");
 				canvas.setPrefSize(viewSize, viewSize);
 				canvas.draw(renderer.renderMap(matrix[j][i].getMap().toMatrix()));
-				for (int outer = 0; outer < matrix[i][j].getMap().toMatrix().length; outer++) {
-					for (int inner = 0; inner < matrix[i][j].getMap().toMatrix().length; inner++) {
-					}
-				}
-				gridPane.add(canvas, j, i);
+
+				gridPane.add(canvas, i, j);
 
 				canvas.addEventFilter(MouseEvent.MOUSE_CLICKED,
 						new MouseEventHandler());
 				
 			}
 		}
-		if (matrix[row][col].getMap().getNull()) {
-			//disable
-			getSuggestionsBtn().setDisable(true);
-			getStartEmptyBtn().setDisable(true);
-		}
-		else {
-			//enable
-			getSuggestionsBtn().setDisable(false);
-			getStartEmptyBtn().setDisable(false);	
-		}
+		
+		boolean voidRoom = matrix[row][col].getMap().getNull();
+		getSuggestionsBtn().setDisable(voidRoom);
+		getStartEmptyBtn().setDisable(voidRoom);
+
 	}
 
 	private void initOptions() {				

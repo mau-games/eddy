@@ -169,7 +169,7 @@ public class Algorithm extends Thread {
 		infeasiblePool = new ArrayList<ZoneIndividual>();
 		feasiblePopulation = new ArrayList<ZoneIndividual>();
 		infeasiblePopulation = new ArrayList<ZoneIndividual>();
-		
+		int c = 0;
 		int i = 0;
 		int j = 0;
 		while((i + j) < populationSize){
@@ -188,6 +188,8 @@ public class Algorithm extends Thread {
 					j++;
 				}
 			}
+			
+			System.out.println(c++);
 		}
 		
 		broadcastStatusUpdate("Population generated.");
@@ -355,7 +357,7 @@ public class Algorithm extends Thread {
     */
 	private boolean checkZoneIndividual(ZoneIndividual ind){
 		Map map = ind.getPhenotype().getMap();
-		return map.isFeasible();
+		return map.isFeasibleTwo();
 	}
 	
 	/**

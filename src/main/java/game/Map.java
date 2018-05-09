@@ -247,11 +247,11 @@ public class Map {
 		if (p1 != null) {
 			north = true;
 			if (entraceSet) {
-				matrix[p1.getX()][p1.getY()] = 4;
+				matrix[p1.getY()][p1.getX()] = 4;
 				numberOfDoors++;
 			}
 			else {
-				matrix[p1.getX()][p1.getY()] = 5;
+				matrix[p1.getY()][p1.getX()] = 5;
 				numberOfDoors++;
 				entraceSet = true;
 				Game.doors.add(p1);
@@ -260,11 +260,11 @@ public class Map {
 		if (p2 != null) {
 			east = true;
 			if (entraceSet) {
-				matrix[p2.getX()][p2.getY()] = 4;
+				matrix[p2.getY()][p2.getX()] = 4;
 				numberOfDoors++;
 			}
 			else {
-				matrix[p2.getX()][p2.getY()] = 5;
+				matrix[p2.getY()][p2.getX()] = 5;
 				numberOfDoors++;
 				entraceSet = true;
 				Game.doors.add(p2);
@@ -273,11 +273,11 @@ public class Map {
 		if (p3 != null) {
 			south = true;
 			if (entraceSet) {
-				matrix[p3.getX()][p3.getY()] = 4;
+				matrix[p3.getY()][p3.getX()] = 4;
 				numberOfDoors++;
 			}
 			else {
-				matrix[p3.getX()][p3.getY()] = 5;
+				matrix[p3.getY()][p3.getX()] = 5;
 				numberOfDoors++;
 				entraceSet = true; 
 				Game.doors.add(p3);
@@ -286,11 +286,11 @@ public class Map {
 		if (p4 != null) {
 			west = true;
 			if (entraceSet) {
-				matrix[p4.getX()][p4.getY()] = 4;
+				matrix[p4.getY()][p4.getX()] = 4;
 				numberOfDoors++;
 			}
 			else {
-				matrix[p4.getX()][p4.getY()] = 5;
+				matrix[p4.getY()][p4.getX()] = 5;
 				numberOfDoors++;
 				entraceSet = true;
 				Game.doors.add(p4);
@@ -321,7 +321,7 @@ public class Map {
 	 * to warrant any particular worry. Maybe replace it with a more granular
 	 * approach sometime?
 	 * 
-	 * TODO: He the cases of door and doorenter are being disable probably part of the problem with the doors
+	 * TODO: Here the cases of door and doorenter are being disable probably part of the problem with the doors
 	 */
 	public void forceReevaluation() {
 		treasures.clear();
@@ -344,10 +344,10 @@ public class Map {
 				case TREASURE:
 					treasures.add(new Point(i, j));
 					break;
-					//				case DOOR:
-					//				case DOORENTER:
-					//					doors.add(new Point(i, j));
-					//					doorCount++;
+					case DOOR:
+					case DOORENTER:
+						doors.add(new Point(i, j));
+						doorCount++;
 				default:
 					break;
 				}
