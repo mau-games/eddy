@@ -107,7 +107,7 @@ public class SuggestionsViewController extends GridPane implements Listener {
 				//				canvas.setText("Got map:\n" + uuid);
 				canvas.setText("");
 				maps.put(nextMap, container);
-				
+				System.out.println("MAPS = " + nextMap);
 				Platform.runLater(() -> {
 					int[][] matrix = container.getMap().toMatrix();
 

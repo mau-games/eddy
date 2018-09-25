@@ -339,6 +339,7 @@ public class Game implements Listener{
 			doorCount = container.getMap().getNumberOfDoors();
 			sizeWidth = 11; // TODO: Why is this hardcoded here?
 			sizeHeight = 11; //TODO: ?
+			System.out.println("IS THIS THE ONE?" + ((RequestSuggestionsView) e).getNbrOfThreads());
 			startAll(((RequestSuggestionsView) e).getNbrOfThreads(), container);
 
 		}			

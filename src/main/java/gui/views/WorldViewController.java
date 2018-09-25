@@ -264,7 +264,7 @@ public class WorldViewController extends GridPane implements Listener{
 		getSuggestionsBtn().setOnAction(new EventHandler<ActionEvent>() {
 			@Override
 			public void handle(ActionEvent e) {
-				router.postEvent(new RequestSuggestionsView(matrix[row][col], row, col, matrix, 3));
+				router.postEvent(new RequestSuggestionsView(matrix[row][col], row, col, matrix, 6));
 			}
 
 		}); 

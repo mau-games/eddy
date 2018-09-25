@@ -674,6 +674,10 @@ public class EditViewController extends BorderPane implements Listener {
 				// Edit the map
 				ImageView tile = (ImageView) event.getTarget();
 				
+//				//TODO: Super hack
+//				if(!mapView.getMap().EveryRoomVisitable() && myBrush.GetModifierValue("Lock"))
+//					return;
+				
 				//TODO: This should go to its own class or function at least
 //				if(event.isControlDown())
 //					lockBrush.setSelected(true);

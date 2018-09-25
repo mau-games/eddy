@@ -378,6 +378,16 @@ public class Map {
 	private Map(int rows, int cols) {
 		init(rows, cols);
 		finder = new PatternFinder(this);
+		
+		for (int j = 0; j < height; j++)
+		{
+			for (int i = 0; i < width; i++) 
+			{
+				tileMap[j * width + i] = new Tile(i, j, matrix[j][i]);
+			}
+		}
+		
+		root = new ZoneNode(null, this, getColCount(), getRowCount());
 	}
 
 	private void init(int rows, int cols) {
@@ -1186,7 +1196,45 @@ public class Map {
     			&& getTreasureCount() > 0 && getEnemyCount() > 0;
 }
 
+	public boolean EveryRoomVisitable(){
+		List<Node> visited = new ArrayList<Node>();
+    	Queue<Node> queue = new LinkedList<Node>();
+    	int treasure = 0;
+    	int enemies = 0;
+    	int doors = 0;
+    	
+    	Node root = new Node(0.0f, getEntrance(), null);
+    	queue.add(root);
+    	
+    	while(!queue.isEmpty()){
+    		Node current = queue.remove();
+    		visited.add(current);
+    		Tile currentTile = getTile(current.position);
+    		
+    		if(currentTile.GetType() == TileTypes.DOOR)
+    			doors++;
+    		else if (currentTile.GetType().isEnemy())
+    			enemies++;
+    		else if (currentTile.GetType().isTreasure())
+    			treasure++;
+    		
+    		List<Point> children = getAvailableCoords(current.position);
+            for(Point child : children)
+            {
+                if (visited.stream().filter(x->x.equals(child)).findFirst().isPresent() 
+                		|| queue.stream().filter(x->x.equals(child)).findFirst().isPresent()) 
+                	continue;
 
+                //Create child node
+                Node n = new Node(0.0f, child, current);
+                queue.add(n);
+            }
+    	}
+
+    	
+    	return visited.size() == getNonWallTileCount();
+}
+	
 	public boolean isFeasibleTwo(){
 		List<Node> visited = new ArrayList<Node>();
 		Queue<Node> queue = new LinkedList<Node>();
