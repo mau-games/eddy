@@ -65,6 +65,7 @@ public class Game implements Listener{
         EventRouter.getInstance().registerListener(this, new RequestSuggestionsView(null, 0, 0, null, 0));
 	}
     
+	//TODO: why does this constraint even exist??
     /**
      * Selects positions for between 1 and 4 doors. 
      * The first door is the main entrance. 
@@ -111,8 +112,10 @@ public class Game implements Listener{
     	sizeWidth = map.getColCount();
     	sizeHeight = map.getRowCount();
     	
-    	//System.out.println("LETS CREATE!, mutation: " + mutations + ", algorithmTypes: " + AlgoType);
+    	System.out.println("LETS CREATE!, mutation TYPE: " + mutationType + ", algorithmTypes: " + AlgoType);
 
+//    	mutationType = MapMutationType.ComputedConfig;
+//    	randomise = false;
 		for(int i = 0; i < mutations; i++){
 			switch(mutationType){
 			case ComputedConfig:
@@ -175,25 +178,25 @@ public class Game implements Listener{
 			}
 			case Preserving:
 			{
-				doors.clear();
-				if (map.getNorth()) { 	//North
-					doors.add(new Point(sizeWidth / 2, 0));
-				}
-				if (map.getEast()) {	//East
-					doors.add(new Point(sizeWidth - 1, sizeHeight / 2));
-				}
-				if (map.getSouth()) {	//South
-					doors.add(new Point(sizeWidth / 2, sizeHeight - 1));
-				}
-				if (map.getWest()) {	//West
-					doors.add(new Point(0, sizeHeight / 2));
-				}
-				if (doors.isEmpty()) {
-					doors.add(map.getEntrance());
-					for (Point p : map.getDoors()) {
-						doors.add(p);
-					}
-				}
+//				doors.clear();
+//				if (map.getNorth()) { 	//North
+//					doors.add(new Point(sizeWidth / 2, 0));
+//				}
+//				if (map.getEast()) {	//East
+//					doors.add(new Point(sizeWidth - 1, sizeHeight / 2));
+//				}
+//				if (map.getSouth()) {	//South
+//					doors.add(new Point(sizeWidth / 2, sizeHeight - 1));
+//				}
+//				if (map.getWest()) {	//West
+//					doors.add(new Point(0, sizeHeight / 2));
+//				}
+//				if (doors.isEmpty()) {
+//					doors.add(map.getEntrance());
+//					for (Point p : map.getDoors()) {
+//						doors.add(p);
+//					}
+//				}
 				Algorithm ga = new Algorithm(map, AlgoType);
 				runs.add(ga);
 				ga.start();
@@ -216,6 +219,7 @@ public class Game implements Listener{
 		Algorithm geneticAlgorithm = null;
 
 		List<String> configs = new ArrayList<String>();
+		
 		if(Math.random() < 0.5)
 			configs.add("config/bendycorridors.json");
 		else

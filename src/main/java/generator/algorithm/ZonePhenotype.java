@@ -44,6 +44,8 @@ public class ZonePhenotype {
 				map = new Map(config, tileTypes, Game.sizeHeight, Game.sizeWidth, Game.doorCount);
 				genotype.SetRootChromosome(map.root);
 			}
+			
+			genotype.ProduceGenotype(map);
 		}
 		
 		return map;

@@ -87,7 +87,7 @@ public class Algorithm extends Thread {
 		feasibleAmount = (int)((double)populationSize * config.getFeasibleProportion());
 		roomTarget = config.getRoomProportion();
 		corridorTarget = config.getCorridorProportion();
-
+		System.out.println(this.algorithmTypes);
 		// Uncomment this for silly debugging
 //		System.out.println("Starting run #" + id);
 		initPopulations();
@@ -107,7 +107,7 @@ public class Algorithm extends Thread {
 		feasibleAmount = (int)((double)populationSize * config.getFeasibleProportion());
 		roomTarget = config.getRoomProportion();
 		corridorTarget = config.getCorridorProportion();
-
+		
 		// Uncomment this for silly debugging
 //		System.out.println("Starting run #" + id);
 		initPopulations();
@@ -128,6 +128,8 @@ public class Algorithm extends Thread {
 		feasibleAmount = (int)((double)populationSize * config.getFeasibleProportion());
 		roomTarget = config.getRoomProportion();
 		corridorTarget = config.getCorridorProportion();
+		
+		System.out.println("I AM PASSING THE MAP!!");
 
 		// Uncomment this for silly debugging
 //		System.out.println("Starting run #" + id);
@@ -256,8 +258,10 @@ public class Algorithm extends Thread {
             double[] dataValid = infoGenerational(feasiblePopulation, true);
             
 //            broadcastStatusUpdate("BEST fitness: " + best.getFitness());
+//            System.out.println("DOORS: " + best.getPhenotype().getMap().getDoorCount());
             
             map = best.getPhenotype().getMap();
+           
             //broadcastMapUpdate(map);
             
           
@@ -272,7 +276,7 @@ public class Algorithm extends Thread {
 //        	
         	breedFeasibleZoneIndividuals();
         	breedInfeasibleZoneIndividuals();
-//        	
+
 //        	
 //        	//Check diversity:
 //        	double distance = 0.0;
@@ -357,7 +361,7 @@ public class Algorithm extends Thread {
     */
 	private boolean checkZoneIndividual(ZoneIndividual ind){
 		Map map = ind.getPhenotype().getMap();
-		return map.isFeasibleTwo();
+		return map.isFeasible();
 	}
 	
 	/**

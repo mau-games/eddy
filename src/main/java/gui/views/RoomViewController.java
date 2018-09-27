@@ -411,61 +411,61 @@ public class RoomViewController extends BorderPane implements Listener {
 	private void initLegend() {
 		ConfigurationUtility c = config.getInternalConfig();
 
-		legend.setVgap(10);
+		legend.setVgap(5);
 		legend.setHgap(10);
-		legend.setPadding(new Insets(10, 10, 10, 10));
+		legend.setPadding(new Insets(5, 10, 5, 10));
 
 		Label title = new Label("Pattern legend");
 		title.setStyle("-fx-font-weight: bold");
 		title.setStyle("-fx-text-fill: white;");
 		legend.add(title, 0, 0, 2, 1);
 
-		legend.add(new ImageView(new Image(c.getString("map.tiles.doorenter"), 40, 40, false, false)), 0, 1);
+		legend.add(new ImageView(new Image(c.getString("map.tiles.doorenter"), 20, 20, false, false)), 0, 1);
 		Label entrance = new Label("Entrance door");
 		entrance.setStyle("-fx-text-fill: white;");
 		legend.add(entrance, 1, 1);
 
-		legend.add(new ImageView(new Image(c.getString("map.tiles.door"), 40, 40, false, false)), 0, 2);
+		legend.add(new ImageView(new Image(c.getString("map.tiles.door"), 20, 20, false, false)), 0, 2);
 		Label door = new Label("Door");
 		door.setStyle("-fx-text-fill: white;");
 		legend.add(door, 1, 2);
 
-		legend.add(new ImageView(new Image(c.getString("map.mesopatterns.ambush"), 40, 40, false, false)), 0, 3);
+		legend.add(new ImageView(new Image(c.getString("map.mesopatterns.ambush"), 20, 20, false, false)), 0, 3);
 		Label ambush = new Label("Ambush");
 		ambush.setStyle("-fx-text-fill: white;");
 		legend.add(ambush, 1, 3);
 
-		legend.add(new ImageView(new Image(c.getString("map.mesopatterns.guard_room"), 40, 40, false, false)), 0, 4);
+		legend.add(new ImageView(new Image(c.getString("map.mesopatterns.guard_room"), 20, 20, false, false)), 0, 4);
 		Label guardChamber = new Label("Guard chamber");
 		guardChamber.setStyle("-fx-text-fill: white;");
 		legend.add(guardChamber, 1, 4);
 
-		legend.add(new ImageView(new Image(c.getString("map.mesopatterns.guarded_treasure"), 40, 40, false, false)), 0, 5);
+		legend.add(new ImageView(new Image(c.getString("map.mesopatterns.guarded_treasure"), 20, 20, false, false)), 0, 5);
 		Label guardTreasure = new Label("Guarded treasure");
 		guardTreasure.setStyle("-fx-text-fill: white;");
 		legend.add(guardTreasure, 1, 5);
 
-		legend.add(new ImageView(new Image(c.getString("map.mesopatterns.treasure_room"), 40, 40, false, false)), 0, 6);
+		legend.add(new ImageView(new Image(c.getString("map.mesopatterns.treasure_room"), 20, 20, false, false)), 0, 6);
 		Label treasureChamber = new Label("Treasure Chamber");
 		treasureChamber.setStyle("-fx-text-fill: white;");
 		legend.add(treasureChamber, 1, 6);
 
-		legend.add(new ImageView(new Image(c.getString("map.examples.chamber"), 40, 40, true, true)), 0, 7);
+		legend.add(new ImageView(new Image(c.getString("map.examples.chamber"), 20, 20, true, true)), 0, 7);
 		Label chamber = new Label("Chamber");
 		chamber.setStyle("-fx-text-fill: white;");
 		legend.add(chamber, 1, 7);
 
-		legend.add(new ImageView(new Image(c.getString("map.examples.corridor"), 40, 40, true, true)), 0, 8);
+		legend.add(new ImageView(new Image(c.getString("map.examples.corridor"), 20, 20, true, true)), 0, 8);
 		Label corridor = new Label("Corridor");
 		corridor.setStyle("-fx-text-fill: white;");
 		legend.add(corridor, 1, 8);
 
-		legend.add(new ImageView(new Image(c.getString("map.examples.connector"), 40, 40, true, true)), 0, 9);
+		legend.add(new ImageView(new Image(c.getString("map.examples.connector"), 20, 20, true, true)), 0, 9);
 		Label connector = new Label("Connector");
 		connector.setStyle("-fx-text-fill: white;");
 		legend.add(connector, 1, 9);
 
-		legend.add(new ImageView(new Image(c.getString("map.examples.dead_end"), 40, 40, true, true)), 0, 10);
+		legend.add(new ImageView(new Image(c.getString("map.examples.dead_end"), 20, 20, true, true)), 0, 10);
 		Label deadEnd = new Label("Dead end");
 		deadEnd.setStyle("-fx-text-fill: white;");
 		legend.add(deadEnd, 1, 10);
@@ -608,7 +608,7 @@ public class RoomViewController extends BorderPane implements Listener {
 			
 		} else {
 			mapView.setCursor(Cursor.HAND);
-			
+			System.out.println(getMapView().getMap().toString());
 			switch (((ToggleButton) brushes.getSelectedToggle()).getText()) {
 			case "Floor":
 				brush = TileTypes.FLOOR;

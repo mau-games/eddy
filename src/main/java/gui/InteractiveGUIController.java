@@ -979,6 +979,7 @@ public class InteractiveGUIController implements Initializable, Listener {
 		roomView.setMousePressed(false);
 	}
 
+	//TODO: this method...
 	private void evaluateNullChange() {
 		// South
 		Point south = new Point(11/2, 11-1);
@@ -995,13 +996,15 @@ public class InteractiveGUIController implements Initializable, Listener {
 						//north
 						if (worldMapMatrix[rows - 1][cols].getMap().getNull() && (worldMapMatrix[rows][cols].getMap().matrix[north.getY()][north.getX()] == 5 || 
 								worldMapMatrix[rows][cols].getMap().matrix[north.getY()][north.getX()] == 4)) {
-							worldMapMatrix[rows][cols].getMap().matrix[north.getY()][north.getX()] = 0;
+							worldMapMatrix[rows][cols].getMap().setTile(north.getX(), north.getY(), 0);
+//							worldMapMatrix[rows][cols].getMap().matrix[north.getY()][north.getX()] = 0;
 							worldMapMatrix[rows][cols].getMap().setNumberOfDoors(worldMapMatrix[rows][cols].getMap().getNumberOfDoors() - 1);
 							worldMapMatrix[rows][cols].getMap().setNorth(false);
 						}
 						else if (!worldMapMatrix[rows - 1][cols].getMap().getNull() && !(worldMapMatrix[rows][cols].getMap().matrix[north.getY()][north.getX()] == 5 || 
 								worldMapMatrix[rows][cols].getMap().matrix[north.getY()][north.getX()] == 4)) {
-							worldMapMatrix[rows][cols].getMap().matrix[north.getY()][north.getX()] = 4;
+							worldMapMatrix[rows][cols].getMap().setTile(north.getX(), north.getY(), 4);
+//							worldMapMatrix[rows][cols].getMap().matrix[north.getY()][north.getX()] = 4;
 							worldMapMatrix[rows][cols].getMap().setNumberOfDoors(worldMapMatrix[rows][cols].getMap().getNumberOfDoors() + 1);
 							worldMapMatrix[rows][cols].getMap().setNorth(true);
 						}
@@ -1010,13 +1013,15 @@ public class InteractiveGUIController implements Initializable, Listener {
 						//east
 						if (worldMapMatrix[rows][cols + 1].getMap().getNull() && (worldMapMatrix[rows][cols].getMap().matrix[east.getY()][east.getX()] == 5 || 
 								worldMapMatrix[rows][cols].getMap().matrix[east.getY()][east.getX()] == 4)) {
-							worldMapMatrix[rows][cols].getMap().matrix[east.getY()][east.getX()] = 0;
+							worldMapMatrix[rows][cols].getMap().setTile(east.getX(), east.getY(), 0);
+//							worldMapMatrix[rows][cols].getMap().matrix[east.getY()][east.getX()] = 0;
 							worldMapMatrix[rows][cols].getMap().setNumberOfDoors(worldMapMatrix[rows][cols].getMap().getNumberOfDoors() - 1);
 							worldMapMatrix[rows][cols].getMap().setEast(false);
 						}
 						else if (!worldMapMatrix[rows][cols + 1].getMap().getNull() && !(worldMapMatrix[rows][cols].getMap().matrix[east.getY()][east.getX()] == 5 || 
 								worldMapMatrix[rows][cols].getMap().matrix[east.getY()][east.getX()] == 4)) {
-							worldMapMatrix[rows][cols].getMap().matrix[east.getY()][east.getX()] = 4;
+							worldMapMatrix[rows][cols].getMap().setTile(east.getX(), east.getY(), 4);
+//							worldMapMatrix[rows][cols].getMap().matrix[east.getY()][east.getX()] = 4;
 							worldMapMatrix[rows][cols].getMap().setNumberOfDoors(worldMapMatrix[rows][cols].getMap().getNumberOfDoors() + 1);
 							worldMapMatrix[rows][cols].getMap().setEast(true);
 						}
@@ -1026,13 +1031,15 @@ public class InteractiveGUIController implements Initializable, Listener {
 						//south
 						if (worldMapMatrix[rows + 1][cols].getMap().getNull() && (worldMapMatrix[rows][cols].getMap().matrix[south.getY()][south.getX()] == 5 || 
 								worldMapMatrix[rows][cols].getMap().matrix[south.getY()][south.getX()] == 4)) {
-							worldMapMatrix[rows][cols].getMap().matrix[south.getY()][south.getX()] = 0;
+							worldMapMatrix[rows][cols].getMap().setTile(south.getX(), south.getY(), 0);
+//							worldMapMatrix[rows][cols].getMap().matrix[south.getY()][south.getX()] = 0;
 							worldMapMatrix[rows][cols].getMap().setNumberOfDoors(worldMapMatrix[rows][cols].getMap().getNumberOfDoors() - 1);
 							worldMapMatrix[rows][cols].getMap().setSouth(false);
 						}
 						else if (!worldMapMatrix[rows + 1][cols].getMap().getNull() && !(worldMapMatrix[rows][cols].getMap().matrix[south.getY()][south.getX()] == 5 || 
 								worldMapMatrix[rows][cols].getMap().matrix[south.getY()][south.getX()] == 4)) {
-							worldMapMatrix[rows][cols].getMap().matrix[south.getY()][south.getX()] = 4;
+							worldMapMatrix[rows][cols].getMap().setTile(south.getX(), south.getY(), 4);
+//							worldMapMatrix[rows][cols].getMap().matrix[south.getY()][south.getX()] = 4;
 							worldMapMatrix[rows][cols].getMap().setNumberOfDoors(worldMapMatrix[rows][cols].getMap().getNumberOfDoors() + 1);
 							worldMapMatrix[rows][cols].getMap().setSouth(true);
 						}
@@ -1042,13 +1049,15 @@ public class InteractiveGUIController implements Initializable, Listener {
 						//west
 						if (worldMapMatrix[rows][cols - 1].getMap().getNull() && (worldMapMatrix[rows][cols].getMap().matrix[west.getY()][west.getX()] == 5 || 
 								worldMapMatrix[rows][cols].getMap().matrix[west.getY()][west.getX()] == 4)) {
-							worldMapMatrix[rows][cols].getMap().matrix[west.getY()][west.getX()] = 0;
+							worldMapMatrix[rows][cols].getMap().setTile(west.getX(), west.getY(), 0);
+//							worldMapMatrix[rows][cols].getMap().matrix[west.getY()][west.getX()] = 0;
 							worldMapMatrix[rows][cols].getMap().setNumberOfDoors(worldMapMatrix[rows][cols].getMap().getNumberOfDoors() - 1);
 							worldMapMatrix[rows][cols].getMap().setWest(false);
 						}
 						else if (!worldMapMatrix[rows][cols - 1].getMap().getNull() && !(worldMapMatrix[rows][cols].getMap().matrix[west.getY()][west.getX()] == 5 || 
 								worldMapMatrix[rows][cols].getMap().matrix[west.getY()][west.getX()] == 4)) {
-							worldMapMatrix[rows][cols].getMap().matrix[west.getY()][west.getX()] = 4;
+							worldMapMatrix[rows][cols].getMap().setTile(west.getX(), west.getY(), 4);
+//							worldMapMatrix[rows][cols].getMap().matrix[west.getY()][west.getX()] = 4;
 							worldMapMatrix[rows][cols].getMap().setNumberOfDoors(worldMapMatrix[rows][cols].getMap().getNumberOfDoors() + 1);
 							worldMapMatrix[rows][cols].getMap().setWest(true);
 						}
@@ -1059,6 +1068,10 @@ public class InteractiveGUIController implements Initializable, Listener {
 						MapContainer nullCont = new MapContainer();
 						nullCont.setMap(nullMap);
 						worldMapMatrix[rows][cols] = nullCont;
+					}
+					else
+					{
+						worldMapMatrix[rows][cols].getMap().RecalculateEntrance();
 					}
 				}
 			}

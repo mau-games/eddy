@@ -147,17 +147,23 @@ public class PatternFinder {
 		//Do a flood fill from this pattern to find all patterns
 		Queue<Node<Pattern>> patternQueue = new LinkedList<Node<Pattern>>();
 		
+		if(entrance == null || entrancePosition == null)
+		{
+			System.out.println("ATRACANDO");
+		}
+		
 //		if(start.getValue() != null)
 			patternQueue.add(start);
 	
 		
 		while(!patternQueue.isEmpty()){
-			
+			//TODO: PROBLEM IS HERE
 			Node<Pattern> currentPattern = patternQueue.remove();
 			//currentPattern.tryVisit();
 			
 			//Do a flood fill from a point in this pattern to find adjacent patterns
 			Queue<Point> tileQueue = new LinkedList<Point>();
+			
 			tileQueue.add(((Bitmap)currentPattern.getValue().getGeometry()).getPoint(0));
 			visitedTiles[((Bitmap)currentPattern.getValue().getGeometry()).getPoint(0).getY()][((Bitmap)currentPattern.getValue().getGeometry()).getPoint(0).getX()] = true;
 			

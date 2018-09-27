@@ -156,8 +156,12 @@ public class ZoneIndividual {
 		{
 			Point p = myZones.get(rndZone).GetSection().getPoint(i);
 			//exchange
-			children[0].getGenotype().getChromosome()[p.getY() * Game.sizeWidth + p.getX()] = other.getGenotype().getChromosome()[p.getY() * Game.sizeWidth + p.getX()];
-			children[1].getGenotype().getChromosome()[p.getY() * Game.sizeWidth + p.getX()] = genotype.getChromosome()[p.getY() * Game.sizeWidth + p.getX()];
+			if(children[0].getGenotype().getChromosome()[p.getY() * Game.sizeWidth + p.getX()] < 4 && children[1].getGenotype().getChromosome()[p.getY() * Game.sizeWidth + p.getX()] < 4)
+			{
+				children[0].getGenotype().getChromosome()[p.getY() * Game.sizeWidth + p.getX()] = other.getGenotype().getChromosome()[p.getY() * Game.sizeWidth + p.getX()];
+				children[1].getGenotype().getChromosome()[p.getY() * Game.sizeWidth + p.getX()] = genotype.getChromosome()[p.getY() * Game.sizeWidth + p.getX()];
+			}
+
 		}
 		
 		//mutate TODO: THIS NEED TO BE ALSO DEPENDABLE ON THE ZONES here is the root of the problem!!!!
@@ -169,8 +173,8 @@ public class ZoneIndividual {
 				float rand = Util.getNextFloat(0, 1);
 				if(rand <= 0.8f)
 					children[i].mutate(myZones.get(rndZone));
-				else if  (rand <= 0.8f)
-					children[i].squareMutation();
+//				else if  (rand <= 0.8f)
+//					children[i].squareMutation();
 				else
 					children[i].mutateRotate180(myZones.get(rndZone));
 			}
@@ -223,7 +227,13 @@ public class ZoneIndividual {
 	 */
 	public void mutate() {
 		int indexToMutate = Util.getNextInt(0,genotype.getSizeChromosome());
-		genotype.getChromosome()[indexToMutate] = (genotype.getChromosome()[indexToMutate] + Util.getNextInt(0, 4)) % 4; //TODO: Change this - hard coding the number of tile types is bad!!!
+		if(genotype.getChromosome()[indexToMutate] < 4)
+		{
+			//genotype.getChromosome()[indexToMutate] = (genotype.getChromosome()[indexToMutate] + Util.getNextInt(0, 4)) % 4; //TODO: Change this - hard coding the number of tile types is bad!!!
+			int v = Util.getNextInt(0, TileTypes.DOOR.getValue());
+			genotype.getChromosome()[indexToMutate] =v;
+		}
+			
 	}
 	
 	/**
@@ -238,10 +248,18 @@ public class ZoneIndividual {
 			System.out.println("THIS CANNOT HAPPEN, MUTATE");
 		}
 		
-		genotype.getChromosome()[indexToMutate] = (genotype.getChromosome()[indexToMutate] + Util.getNextInt(0, 4)) % 4; //TODO: Change this - hard coding the number of tile types is bad!!!
+		if(genotype.getChromosome()[indexToMutate] < 4)
+		{
+//			genotype.getChromosome()[indexToMutate] = (genotype.getChromosome()[indexToMutate] + Util.getNextInt(0, 4)) % 4; //TODO: Change this - hard coding the number of tile types is bad!!!
+			int v = Util.getNextInt(0, TileTypes.DOOR.getValue());
+			genotype.getChromosome()[indexToMutate] =v;
+//			genotype.getChromosome()[indexToMutate] = Util.getNextInt(0, TileTypes.DOOR.getValue());
+		}
+			
 	}
 	
 	public void squareMutation(){
+		System.out.println("DOES THIS EVEN HAPPENS`??");
 		double wallChance = 0.1;
 		int size = Util.getNextInt(3, 5);
 		int startX = Util.getNextInt(0, Game.sizeWidth - size);
@@ -284,8 +302,15 @@ public class ZoneIndividual {
 					System.out.println("THIS CANNOT HAPPEN, MUTATE ALL");
 				}
 				
-				if(Math.random() < probability){
-					genotype.getChromosome()[p.getY() * Game.sizeWidth + p.getX()] = (genotype.getChromosome()[p.getY() * Game.sizeWidth + p.getX()] + Util.getNextInt(0, 4)) % 4; //TODO: Change this - hard coding the number of tile types is bad!!!
+				if(Math.random() < probability)
+				{
+					if(genotype.getChromosome()[p.getY() * Game.sizeWidth + p.getX()] < 4)
+					{
+//						genotype.getChromosome()[p.getY() * Game.sizeWidth + p.getX()] = (genotype.getChromosome()[p.getY() * Game.sizeWidth + p.getX()] + Util.getNextInt(0, 4)) % 4; //TODO: Change this - hard coding the number of tile types is bad!!!
+//						genotype.getChromosome()[indexToMutate] = Util.getNextInt(0, TileTypes.DOOR.getValue());
+						genotype.getChromosome()[p.getY() * Game.sizeWidth + p.getX()] = Util.getNextInt(0, TileTypes.DOOR.getValue());
+					}
+						
 				}
 			}
 		}
@@ -318,7 +343,12 @@ public class ZoneIndividual {
 			{
 				System.out.println("THIS CANNOT HAPPEN, MUTATEROTATE180");
 			}
-			genotype.getChromosome()[sortedKeys.get(ord)] = chromosomeCopy[sortedKeys.get(rev)];
+			
+			if(genotype.getChromosome()[sortedKeys.get(ord)] < TileTypes.DOOR.getValue() && chromosomeCopy[sortedKeys.get(rev)] < TileTypes.DOOR.getValue())
+			{
+				genotype.getChromosome()[sortedKeys.get(ord)] = chromosomeCopy[sortedKeys.get(rev)];
+			}
+
 		}
 		
 //		for(int i = 0; i < Game.sizeWidth; i++)
