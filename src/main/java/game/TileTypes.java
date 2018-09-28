@@ -6,6 +6,7 @@ package game;
  * 
  * @author Alexander Baldwin, Malmö University
  * @author Johan Holmberg, Malmö University
+ * @modified Alberto Alvarez, Malmö University
  */
 public enum TileTypes {
 	FLOOR(0),
@@ -17,6 +18,7 @@ public enum TileTypes {
     NONE(6);
 	
 	private final int value;
+	
 	private TileTypes(int value){
 		this.value = value;
 	}
@@ -37,10 +39,11 @@ public enum TileTypes {
 	public boolean isEnemy(){
 		return value == ENEMY.getValue();
 	}
-	
+
 	public boolean isDoor(){
 		return value == DOOR.getValue();
 	}	
+
 	/**
 	 * Creates a TileType out of an integer value.
 	 * 

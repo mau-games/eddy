@@ -10,6 +10,7 @@ import finder.geometry.Geometry;
 import finder.patterns.Pattern;
 import finder.patterns.SpacialPattern;
 import finder.patterns.micro.Connector.ConnectorType;
+import game.Game;
 import game.Map;
 import game.TileTypes;
 import generator.config.GeneratorConfig;
@@ -65,29 +66,29 @@ public class Corridor extends SpacialPattern {
 	public static List<Pattern> matches(Map map, Geometry boundary){
 		List<Pattern> results = new ArrayList<Pattern>();
 		
-		boolean[][] corridorTiles = new boolean[map.getColCount()][map.getRowCount()];
-		boolean[][] visited = new boolean[map.getColCount()][map.getRowCount()];
+		boolean[][] corridorTiles = new boolean[map.getRowCount()][map.getColCount()];
+		boolean[][] visited = new boolean[map.getRowCount()][map.getColCount()];
 		boolean[][] allocated = map.getAllocationMatrix();
 		
-		for(int i = 0; i < map.getColCount(); i++)
-			for(int j = 0; j < map.getRowCount(); j++)
+		for(int j = 0; j < map.getRowCount(); j++)
+			for(int i = 0; i < map.getColCount(); i++)
 				if(IsCorridorTile(map,i,j))
-					corridorTiles[i][j] = true;
+					corridorTiles[j][i] = true;
 
 		List<List<SearchNode>> candidateCorridors = new ArrayList<List<SearchNode>>();
     	
-    	for(int i = 0; i < map.getColCount(); i++)
+    	for(int j = 0; j < map.getRowCount(); j++)
     	{
-			for(int j = 0; j < map.getRowCount(); j++)
+    		for(int i = 0; i < map.getColCount(); i++)
 			{
-				if(!visited[i][j] && corridorTiles[i][j]){
+				if(!visited[j][i] && corridorTiles[j][i]){
 					List<SearchNode> c = new ArrayList<SearchNode>();
 					
 					Queue<SearchNode> queue = new LinkedList<SearchNode>();
 			    	SearchNode root = new SearchNode(new Point(i,j), null);
 			    	queue.add(root);
-			    	visited[i][j] = true;
-			    	allocated[i][j] = true;
+			    	visited[j][i] = true;
+			    	allocated[j][i] = true;
 			    	
 			    	while(!queue.isEmpty()){
 			    		SearchNode current = queue.remove();
@@ -96,33 +97,33 @@ public class Corridor extends SpacialPattern {
 			    		int ii = current.position.getX();
 			    		int jj = current.position.getY();
 			    		
-			    		if(ii > 0 && !visited[ii-1][jj] && corridorTiles[ii-1][jj]){
+			    		if(ii > 0 && !visited[jj][ii-1] && corridorTiles[jj][ii-1]){
 			    			queue.add(new SearchNode(new Point(ii-1,jj), null));
-			    			visited[ii-1][jj] = true;
-							allocated[ii - 1][jj] = true;
+			    			visited[jj][ii-1] = true;
+							allocated[jj][ii-1] = true;
 			    		}
-			    		if(jj > 0 && !visited[ii][jj - 1] && corridorTiles[ii][jj - 1]){
-			    			queue.add(new SearchNode(new Point(ii,jj - 1), null));
-			    			visited[ii][jj - 1] = true;
-							allocated[ii][jj - 1] = true;
+			    		if(jj > 0 && !visited[jj - 1][ii] && corridorTiles[jj -1][ii]){
+			    			queue.add(new SearchNode(new Point(ii ,jj -1), null));
+			    			visited[jj - 1][ii] = true;
+							allocated[jj - 1][ii] = true;
 			    		}
-			    		if(ii < map.getColCount() - 1 && !visited[ii+1][jj] && corridorTiles[ii+1][jj]){
+			    		if(ii < map.getColCount() - 1 && !visited[jj][ii+1] && corridorTiles[jj][ii+1]){
 			    			queue.add(new SearchNode(new Point(ii+1,jj), null));
-			    			visited[ii+1][jj] = true;
-							allocated[ii + 1][jj] = true;
+			    			visited[jj][ii+1] = true;
+							allocated[jj][ii+1] = true;
 			    		}
-			    		if(jj < map.getRowCount() - 1 && !visited[ii][jj + 1] && corridorTiles[ii][jj + 1]){
-			    			queue.add(new SearchNode(new Point(ii,jj + 1), null));
-			    			visited[ii][jj + 1] = true;
-							allocated[ii][jj + 1] = true;
+			    		if(jj < map.getRowCount() - 1 && !visited[jj+1][ii] && corridorTiles[jj+1][ii]){
+			    			queue.add(new SearchNode(new Point(ii,jj+1), null));
+			    			visited[jj+1][ii] = true;
+							allocated[jj+1][ii] = true;
 			    		}
 			    		
 			    	}
 			    	
 			    	if(c.size() < 2){
 			    		for(SearchNode sn : c){
-			    			corridorTiles[sn.position.getX()][sn.position.getY()] = false;
-							allocated[sn.position.getX()][sn.position.getY()] = false;
+			    			corridorTiles[sn.position.getY()][sn.position.getX()] = false;
+							allocated[sn.position.getY()][sn.position.getX()] = false;
 			    		}
 			    	} else {
 			    		candidateCorridors.add(c);
@@ -130,27 +131,27 @@ public class Corridor extends SpacialPattern {
 			    		//candidateCorridors.add(c);
 		
 				} else {
-					visited[i][j] = true;
+					visited[j][i] = true;
 				}
 
 			}
     	}
     	
     	//For all the remaining floor tiles, if check if they are connectors
-    	for(int i = 0; i < map.getColCount(); i++)
-			for(int j = 0; j < map.getRowCount(); j++)
-				if(!corridorTiles[i][j] && !allocated[i][j])
+    	for(int j = 0; j < map.getRowCount(); j++)
+    		for(int i = 0; i < map.getColCount(); i++)
+				if(!corridorTiles[j][i] && !allocated[j][i])
 				{
 					if(isTurnConnector(map,i,j)){
 						Bitmap b = new Bitmap();
 						b.addPoint(new finder.geometry.Point(i,j));
 						results.add(new Connector(map.getConfig(),b, ConnectorType.TURN));
-						allocated[i][j] = true;
+						allocated[j][i] = true;
 					} else if (isIntersectionConnector(map,i,j)){
 						Bitmap b = new Bitmap();
 						b.addPoint(new finder.geometry.Point(i,j));
 						results.add(new Connector(map.getConfig(),b, ConnectorType.INTERSECTION));
-						allocated[i][j] = true;
+						allocated[j][i] = true;
 					}
 					
 				}
@@ -168,11 +169,11 @@ public class Corridor extends SpacialPattern {
 	}
 	
 	private static boolean IsWall(Map map, int x, int y){
-		return x < 0 || y < 0 || x == map.getColCount() || y == map.getRowCount() || map.getTile(x,y) == TileTypes.WALL;
+		return x < 0 || y < 0 || x == map.getColCount() || y == map.getRowCount() || map.getTile(x,y).GetType() == TileTypes.WALL;
 	}
 	
 	private static boolean isFloor(Map map, int x, int y){
-		return x >= 0 && y >= 0 && x < map.getColCount() && y < map.getRowCount() && map.getTile(x,y) != TileTypes.WALL;
+		return x >= 0 && y >= 0 && x < map.getColCount() && y < map.getRowCount() && map.getTile(x,y).GetType() != TileTypes.WALL;
 	}
 	
 	private static boolean MightAsWellBeAWall(Map map,int x, int y, int i, int j){

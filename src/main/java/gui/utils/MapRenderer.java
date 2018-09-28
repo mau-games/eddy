@@ -36,9 +36,12 @@ import finder.patterns.micro.Enemy;
 import finder.patterns.micro.Nothing;
 import finder.patterns.micro.Room;
 import game.ApplicationConfig;
+import game.Game;
 import game.MapContainer;
 import game.TileTypes;
+import game.ZoneNode;
 import gui.ParameterGUIController;
+import gui.controls.Drawer;
 import javafx.application.Platform;
 import javafx.scene.SnapshotParameters;
 import javafx.scene.canvas.Canvas;
@@ -164,6 +167,23 @@ public class MapRenderer implements Listener {
 	 * Renders a single tile.
 	 * 
 	 * @param tile The tile type to render.
+	 * @param width The width of the image.
+	 * @param height The height of the image.
+	 * @return A rendered tile.
+	 */
+	public synchronized Image renderTile(TileTypes tile, double width, double height, boolean searchingInmutable) {
+		return getTileImage(tile.getValue(), width, height);
+	}
+	
+	public synchronized Image GetLock(double width, double height)
+	{
+		return new Image("/" + config.getInternalConfig().getString("map.tiles.lock"), width, height, false, true);
+	}
+	
+	/**
+	 * Renders a single tile.
+	 * 
+	 * @param tile The tile type to render.
 	 * @return A rendered tile.
 	 */
 	public synchronized void renderTile(GraphicsContext ctx, TileTypes tile) {
@@ -201,14 +221,14 @@ public class MapRenderer implements Listener {
 	 */
 	public synchronized void renderMap(GraphicsContext ctx, int[][] matrix) {
 		ctx.clearRect(0, 0, ctx.getCanvas().getWidth(), ctx.getCanvas().getHeight());
-		int m = matrix.length;
-		int n = matrix[0].length;
-		double pWidth = ctx.getCanvas().getWidth() / (double)Math.max(m, n);
+		int width = matrix[0].length;
+		int height = matrix.length;
+		double pWidth = ctx.getCanvas().getWidth() / (double)Math.max(width, height);
 		Image image = null;
 
-		for (int i = 0; i < m; i++) {
-			for (int j = 0; j < n; j++) {
-				image = getTileImage(matrix[i][j]);
+		for (int j = 0; j < height; j++) {
+			 for (int i = 0; i < width; i++){
+				image = getTileImage(matrix[j][i]);
 				ctx.drawImage(image, i * pWidth, j * pWidth, pWidth, pWidth);
 			}
 		}
@@ -228,9 +248,9 @@ public class MapRenderer implements Listener {
 			Map<Pattern, Color> patterns) {
 		
 		//TODO: The following calculation should probably be split out into a method
-		int m = matrix.length;
-		int n = matrix[0].length;
-		double pWidth = ctx.getCanvas().getWidth() / (double)Math.max(m, n);
+		int width = matrix[0].length;
+		int height = matrix.length;
+		double pWidth = ctx.getCanvas().getWidth() / (double)Math.max(width, height);
 		patternOpacity = config.getPatternOpacity();
 				
 		for (Entry<Pattern, Color> e : patterns.entrySet()) {
@@ -240,11 +260,65 @@ public class MapRenderer implements Listener {
 		}
 	}
 	
+	/**
+	 * Draws the zone division on the map.
+	 * 
+	 * @param ctx The graphics context to draw on.
+	 * @param matrix A rectangular matrix of integers. Each integer corresponds
+	 * 		to some predefined value.
+	 * @param rootZone The starting zone (the whole map).
+	 * @param c The color for the zone
+	 */
+	public synchronized void drawZones(
+			GraphicsContext ctx,
+			int[][] matrix,
+			ZoneNode rootZone,
+			int layer,
+			Color c) {
+		
+		//TODO: The following calculation should probably be split out into a method
+		int width = matrix[0].length;
+		int height = matrix.length;
+		double pWidth = ctx.getCanvas().getWidth() / (double)Math.max(width, height);
+		patternOpacity = config.getPatternOpacity();
+		
+		ArrayList<ZoneNode> children = rootZone.traverseToLayer(layer);
+		
+		for(ZoneNode zNode : children)
+		{
+			drawBitmapProperly(ctx, zNode.GetSection(),c,pWidth);
+		}
+	}
+	
+	/**
+	 * Draws the brush size on the map.
+	 * 
+	 * @param ctx The graphics context to draw on.
+	 * @param matrix A rectangular matrix of integers. Each integer corresponds
+	 * 		to some predefined value.
+	 * @param rootZone The starting zone (the whole map).
+	 * @param c The color for the zone
+	 */
+	public synchronized void drawBrush(
+			GraphicsContext ctx,
+			int[][] matrix,
+			Drawer brush,
+			Color c) {
+		
+		//TODO: The following calculation should probably be split out into a method
+		int width = matrix[0].length;
+		int height = matrix.length;
+		double pWidth = ctx.getCanvas().getWidth() / (double)Math.max(width, height);
+		patternOpacity = config.getPatternOpacity();
+		
+		drawBitmapProperly(ctx, brush.GetDrawableTiles(), c, pWidth);
+	}
+	
 	public synchronized void drawGraph(GraphicsContext ctx, int[][] matrix, Graph<Pattern> patternGraph){
 
-		int m = matrix.length;
-		int n = matrix[0].length;
-		double pWidth = ctx.getCanvas().getWidth() / (double)Math.max(m, n);
+		int width = matrix[0].length;
+		int height = matrix.length;
+		double pWidth = ctx.getCanvas().getWidth() / (double)Math.max(width, height);
 		
 		patternGraph.resetGraph();
 		
@@ -314,9 +388,9 @@ public class MapRenderer implements Listener {
 	}
 	
 	public void drawMesoPatterns(GraphicsContext ctx, int[][] matrix, List<CompositePattern> mesopatterns){
-		int m = matrix.length;
-		int n = matrix[0].length;
-		double pWidth = ctx.getCanvas().getWidth() / (double)Math.max(m, n);
+		int width = matrix[0].length;
+		int height = matrix.length;
+		double pWidth = ctx.getCanvas().getWidth() / (double)Math.max(width, height);
 		
 		for(CompositePattern p : mesopatterns){
 			if(p instanceof ChokePoint){

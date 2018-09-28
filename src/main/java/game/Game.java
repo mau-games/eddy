@@ -39,14 +39,13 @@ public class Game implements Listener{
 	private static final int batchThreads = 8;
 
 	//TODO: There must be a better way to handle these public static variables
-	public static int sizeM; //Number of columns
-	public static int sizeN; //Number of rows
-	public static int doorCount;
-	public static List<Point> doors = new ArrayList<Point>();
-
-
+	public static int sizeWidth; //Number of columns
+    public static int sizeHeight; //Number of rows
+    public static int doorCount;
+    public static List<Point> doors = new ArrayList<Point>();
 
 	public Game() {
+		
 
 		try {
 			config = ApplicationConfig.getInstance();
@@ -57,48 +56,50 @@ public class Game implements Listener{
 		readConfiguration();
 		chooseDoorPositions();
 
-		EventRouter.getInstance().registerListener(this, new Start());
-		EventRouter.getInstance().registerListener(this, new StartMapMutate(null));
-		EventRouter.getInstance().registerListener(this, new Stop());
-		//EventRouter.getInstance().registerListener(this, new AlgorithmDone(null));
-		EventRouter.getInstance().registerListener(this, new RenderingDone());
-		EventRouter.getInstance().registerListener(this, new StartBatch());
-		EventRouter.getInstance().registerListener(this, new RequestSuggestionsView(null, 0, 0, null, 0));
+        EventRouter.getInstance().registerListener(this, new Start());
+        EventRouter.getInstance().registerListener(this, new StartMapMutate(null));
+        EventRouter.getInstance().registerListener(this, new Stop());
+        //EventRouter.getInstance().registerListener(this, new AlgorithmDone(null));
+        EventRouter.getInstance().registerListener(this, new RenderingDone());
+        EventRouter.getInstance().registerListener(this, new StartBatch());
+        EventRouter.getInstance().registerListener(this, new RequestSuggestionsView(null, 0, 0, null, 0));
 	}
+    
+	//TODO: why does this constraint even exist??
+    /**
+     * Selects positions for between 1 and 4 doors. 
+     * The first door is the main entrance. 
+     * Doors can't be in corners.
+     */
+    private void chooseDoorPositions(){
+    	doors.clear();
+    	List<Integer> walls = new ArrayList<Integer>();
+    	walls.add(0);
+    	walls.add(1);
+    	walls.add(2);
+    	walls.add(3);
+    	for(int i = 0; i < doorCount; i++){
+    		switch(walls.remove(Util.getNextInt(0, walls.size()))){
+    		case 0: //North
+    			//doors.add(new Point(Util.getNextInt(1, sizeWidth - 1), sizeHeight - 1));
+    			doors.add(new Point(sizeWidth / 2, sizeHeight - 1));
+    			break;
+    		case 1: //East
+    			//doors.add(new Point(sizeWidth - 1, Util.getNextInt(1, sizeHeight - 1)));
+    			doors.add(new Point(sizeWidth - 1, sizeHeight / 2));
+    			break;
+    		case 2: //South
+    			//doors.add(new Point(Util.getNextInt(1, sizeWidth - 1), 0));
+    			doors.add(new Point(sizeWidth / 2, 0));
+    			break;
+    		case 3: //West
+    			//doors.add(new Point(0, Util.getNextInt(1, sizeHeight - 1)));
+    			doors.add(new Point(0, sizeHeight / 2));
+    			break;
+    		}
+    	}
+    }
 
-	/**
-	 * Selects positions for between 1 and 4 doors. 
-	 * The first door is the main entrance. 
-	 * Doors can't be in corners.
-	 */
-	private void chooseDoorPositions(){
-		doors.clear();
-		List<Integer> walls = new ArrayList<Integer>();
-		walls.add(0);
-		walls.add(1);
-		walls.add(2);
-		walls.add(3);
-		for(int i = 0; i < doorCount; i++){
-			switch(walls.remove(Util.getNextInt(0, walls.size()))){
-			case 0: //North
-				//doors.add(new Point(Util.getNextInt(1, sizeM - 1), sizeN - 1));
-				doors.add(new Point(sizeM / 2, sizeN - 1));
-				break;
-			case 1: //East
-				//doors.add(new Point(sizeM - 1, Util.getNextInt(1, sizeN - 1)));
-				doors.add(new Point(sizeM - 1, sizeN / 2));
-				break;
-			case 2: //South
-				//doors.add(new Point(Util.getNextInt(1, sizeM - 1), 0));
-				doors.add(new Point(sizeM / 2, 0));
-				break;
-			case 3: //West
-				//doors.add(new Point(0, Util.getNextInt(1, sizeN - 1)));
-				doors.add(new Point(0, sizeN / 2));
-				break;
-			}
-		}
-	}
 
     public enum MapMutationType {
     	Preserving,
@@ -107,25 +108,30 @@ public class Game implements Listener{
     }
 
     private void mutateFromMap(Map map, int mutations, MapMutationType mutationType, AlgorithmTypes AlgoType, boolean randomise){
-    	sizeM = map.getColCount();
-    	sizeN = map.getRowCount();
 
+    	sizeWidth = map.getColCount();
+    	sizeHeight = map.getRowCount();
+    	
+    	System.out.println("LETS CREATE!, mutation TYPE: " + mutationType + ", algorithmTypes: " + AlgoType);
+
+//    	mutationType = MapMutationType.ComputedConfig;
+//    	randomise = false;
 		for(int i = 0; i < mutations; i++){
 			switch(mutationType){
 			case ComputedConfig:
 			{
 				doors.clear();
 				if (map.getNorth()) { 	//North
-					doors.add(new Point(sizeM / 2, 0));
+					doors.add(new Point(sizeWidth / 2, 0));
 				}
 				if (map.getEast()) {	//East
-					doors.add(new Point(sizeM - 1, sizeN / 2));
+					doors.add(new Point(sizeWidth - 1, sizeHeight / 2));
 				}
 				if (map.getSouth()) {	//South
-					doors.add(new Point(sizeM / 2, sizeN - 1));
+					doors.add(new Point(sizeWidth / 2, sizeHeight - 1));
 				}
 				if (map.getWest()) {	//West
-					doors.add(new Point(0, sizeN / 2));
+					doors.add(new Point(0, sizeHeight / 2));
 				}
 				if (doors.isEmpty()) {
 					doors.add(map.getEntrance());
@@ -145,16 +151,16 @@ public class Game implements Listener{
 			{
 				doors.clear();
 				if (map.getNorth()) { 	//North
-					doors.add(new Point(sizeM / 2, 0));
+					doors.add(new Point(sizeWidth / 2, 0));
 				}
 				if (map.getEast()) {	//East
-					doors.add(new Point(sizeM - 1, sizeN / 2));
+					doors.add(new Point(sizeWidth - 1, sizeHeight / 2));
 				}
 				if (map.getSouth()) {	//South
-					doors.add(new Point(sizeM / 2, sizeN - 1));
+					doors.add(new Point(sizeWidth / 2, sizeHeight - 1));
 				}
 				if (map.getWest()) {	//West
-					doors.add(new Point(0, sizeN / 2));
+					doors.add(new Point(0, sizeHeight / 2));
 				}
 				if (doors.isEmpty()) {
 					doors.add(map.getEntrance());
@@ -172,25 +178,25 @@ public class Game implements Listener{
 			}
 			case Preserving:
 			{
-				doors.clear();
-				if (map.getNorth()) { 	//North
-					doors.add(new Point(sizeM / 2, 0));
-				}
-				if (map.getEast()) {	//East
-					doors.add(new Point(sizeM - 1, sizeN / 2));
-				}
-				if (map.getSouth()) {	//South
-					doors.add(new Point(sizeM / 2, sizeN - 1));
-				}
-				if (map.getWest()) {	//West
-					doors.add(new Point(0, sizeN / 2));
-				}
-				if (doors.isEmpty()) {
-					doors.add(map.getEntrance());
-					for (Point p : map.getDoors()) {
-						doors.add(p);
-					}
-				}
+//				doors.clear();
+//				if (map.getNorth()) { 	//North
+//					doors.add(new Point(sizeWidth / 2, 0));
+//				}
+//				if (map.getEast()) {	//East
+//					doors.add(new Point(sizeWidth - 1, sizeHeight / 2));
+//				}
+//				if (map.getSouth()) {	//South
+//					doors.add(new Point(sizeWidth / 2, sizeHeight - 1));
+//				}
+//				if (map.getWest()) {	//West
+//					doors.add(new Point(0, sizeHeight / 2));
+//				}
+//				if (doors.isEmpty()) {
+//					doors.add(map.getEntrance());
+//					for (Point p : map.getDoors()) {
+//						doors.add(p);
+//					}
+//				}
 				Algorithm ga = new Algorithm(map, AlgoType);
 				runs.add(ga);
 				ga.start();
@@ -213,6 +219,7 @@ public class Game implements Listener{
 		Algorithm geneticAlgorithm = null;
 
 		List<String> configs = new ArrayList<String>();
+		
 		if(Math.random() < 0.5)
 			configs.add("config/bendycorridors.json");
 		else
@@ -302,16 +309,16 @@ public class Game implements Listener{
 		else {
 			doors.clear();
 			if (container.getMap().getNorth()) { 	//North
-				doors.add(new Point(sizeM / 2, 0));
+				doors.add(new Point(sizeWidth / 2, 0));
 			}
 			if (container.getMap().getEast()) {	//East
-				doors.add(new Point(sizeM - 1, sizeN / 2));
+				doors.add(new Point(sizeWidth - 1, sizeHeight / 2));
 			}
 			if (container.getMap().getSouth()) {	//South
-				doors.add(new Point(sizeM / 2, sizeN - 1));
+				doors.add(new Point(sizeWidth / 2, sizeHeight - 1));
 			}
 			if (container.getMap().getWest()) {	//West
-				doors.add(new Point(0, sizeN / 2));
+				doors.add(new Point(0, sizeHeight / 2));
 			}
 		}
 	}
@@ -334,13 +341,15 @@ public class Game implements Listener{
 			readConfiguration();
 			MapContainer container = (MapContainer) e.getPayload();
 			doorCount = container.getMap().getNumberOfDoors();
-			sizeM = 11;
-			sizeN = 11;
+			sizeWidth = 11; // TODO: Why is this hardcoded here?
+			sizeHeight = 11; //TODO: ?
 			startAll(((RequestSuggestionsView) e).getNbrOfThreads(), container);
 
 		}			
 		else if (e instanceof StartMapMutate) {
+			
 			StartMapMutate smm = (StartMapMutate)e;
+//			System.out.println("LETS CREATE!, mutation: " + smm.getMutations() + ", algorithmTypes: " + smm.getAlgorithmTypes());
 			mutateFromMap((Map)e.getPayload(),smm.getMutations(),smm.getMutationType(),smm.getAlgorithmTypes(),smm.getRandomiseConfig());
 		} else if (e instanceof StartBatch) {
 			startBatch(((StartBatch)e).getConfig(), ((StartBatch)e).getSize());
@@ -363,9 +372,11 @@ public class Game implements Listener{
 	 * Reads and applies the current configuration.
 	 */
 	private void readConfiguration() {  
-		sizeM = config.getDimensionM();
-		sizeN = config.getDimensionN();
-		doorCount = config.getDoors();
+
+        sizeWidth = config.getDimensionM();
+        sizeHeight = config.getDimensionN();
+        doorCount = config.getDoors();
+
 	}
 
 }

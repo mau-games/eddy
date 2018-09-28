@@ -88,6 +88,7 @@ public class DeadEnd extends CompositePattern {
 		GraphPathfinder pathfinder = new GraphPathfinder(patternGraph);
 		HashSet<Node<Pattern>> criticalPath = new HashSet<Node<Pattern>>();
 		for(Door d : doors){
+
 			for(Node<Pattern> n : pathfinder.find(patternGraph.getNode(entrance.getParent()), patternGraph.getNode(d.getParent()))){
 				if(!criticalPath.contains(n))
 					criticalPath.add(n);

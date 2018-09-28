@@ -43,10 +43,12 @@ import generator.config.GeneratorConfig;
  * @author Axel Österman, Malmö University
  */
 public class Map {
+
+	private Tile[] tileMap; //This HAVE to be the real tilemap
 	public int[][] matrix; // The actual map
 	private boolean[][] allocated; // A map keeps track of allocated tiles
-	private int m;			// The number of rows in a map
-	private int n;			// The number of columns in a map
+	private int width;			// The number of columns in a map
+	private int height;			// The number of rows in a map
 	private int doorCount;	// The number of doors in a map
 	private int wallCount;	// The number of wall tiles in a map
 	private List<Point> doors = new ArrayList<Point>();
@@ -62,14 +64,15 @@ public class Map {
 	private double entranceSafety;
 	private double entranceGreed;
 	private GeneratorConfig config = null;
+	
+	//NEW THINGS
+	public ZoneNode root;
 	private int numberOfDoors = 0;
 	private boolean north = false;
 	private boolean east = false;
 	private boolean west = false;
 	private boolean south = false;
 	private boolean isNull = false;
-
-
 
 	/**
 	 * Creates an instance of map.
@@ -86,14 +89,15 @@ public class Map {
 		this.doorCount = Game.doors.size();
 
 		initMapFromTypes(types);
-
 		markDoors();
 
 		finder = new PatternFinder(this);
-		setNumberOfDoors(doorCount + 1);
+
+		setNumberOfDoors(this.doorCount);
+		root = new ZoneNode(null, this, getColCount(), getRowCount());
 
 	}
-
+	
 	public boolean getNull() {
 		return isNull;
 	}
@@ -101,21 +105,174 @@ public class Map {
 	public void setNull() {
 		isNull = true;
 	}
+	
+	
+	public Map(Map copyMap, ZoneNode zones)
+	{
+		init(copyMap.getRowCount(), copyMap.getColCount());
+		this.config = copyMap.config;
+		this.doorCount = copyMap.getNumberOfDoors();
+		
+		for (int j = 0; j < height; j++)
+		{
+			for (int i = 0; i < width; i++) 
+			{
+				matrix[j][i] = copyMap.matrix[j][i];
+				tileMap[j * width + i] = new Tile(copyMap.tileMap[j * width + i]);
+			}
+		}	
+		
+		for (int j = 0; j < height; j++){
+			for (int i = 0; i < width; i++) {
+				switch (TileTypes.toTileType(matrix[j][i])) {
+				case WALL:
+					wallCount++;
+					break;
+				case ENEMY:
+					enemies.add(new Point(i, j));
+					break;
+				case TREASURE:
+					treasures.add(new Point(i, j));
+					break;
+				default:
+					break;
+				}
+			}
+		}
+		
+//		markDoors();
+		this.doors = copyMap.doors;
+		this.setEntrance(copyMap.getEntrance());
+		this.setNumberOfDoors(copyMap.getNumberOfDoors());
+		this.setNorth(copyMap.getNorth());
+		this.setEast(copyMap.getEast());
+		this.setSouth(copyMap.getSouth());
+		this.setWest(copyMap.getWest());
+		
+		finder = new PatternFinder(this);
+		root = zones;	
+	}
+	
+	public Map(GeneratorConfig config, ZoneNode rootCopy, int[] chromosomes, int rows, int cols, int doorCount)
+	{
+		init(rows, cols);
 
+		this.config = config;
+//		this.doorCount = Game.doors.size();
+		
+		CloneMap(rootCopy.GetMap(), chromosomes);
+	}
+	
+	private void CloneMap(Map map, int[] chromosomes)
+	{
+		this.tileMap = map.tileMap.clone();
+		this.matrix = map.matrix.clone();
+		this.doorCount = map.getNumberOfDoors();
+
+		for (int j = 0; j < height; j++)
+		{
+			for (int i = 0; i < width; i++) 
+			{
+				if(!map.tileMap[j * width + i].GetImmutable())
+				{
+					setTile(i, j, chromosomes[j * width + i]);
+				}
+				else
+				{
+					tileMap[j * width + i] = new Tile(map.tileMap[j * width + i]);
+					matrix[j][i] = chromosomes[j * width + i];
+				}
+			}
+		}	
+		
+		for (int j = 0; j < height; j++){
+			for (int i = 0; i < width; i++) {
+				switch (TileTypes.toTileType(matrix[j][i])) {
+				case WALL:
+					wallCount++;
+					break;
+				case ENEMY:
+					enemies.add(new Point(i, j));
+					break;
+				case TREASURE:
+					treasures.add(new Point(i, j));
+					break;
+				default:
+					break;
+				}
+			}
+		}
+		
+//		markDoors();
+		this.doors = map.doors;
+		this.setEntrance(map.getEntrance());
+		this.setNumberOfDoors(map.getNumberOfDoors());
+		this.setNorth(map.getNorth());
+		this.setEast(map.getEast());
+		this.setSouth(map.getSouth());
+		this.setWest(map.getWest());
+//		
+		finder = new PatternFinder(this);
+		root = new ZoneNode(null, this, width, height);
+		
+	}
+	
+	public void Update(int[] updatedMatrix)
+	{
+		int tile = 0;
+		wallCount = 0;
+		enemies.clear();
+		treasures.clear();
+		
+		for (int j = 0; j < height; j++) 
+		{
+			for (int i = 0; i < width; i++) 
+			{
+				setTile(i, j, updatedMatrix[tile++]);
+				
+				switch (TileTypes.toTileType(matrix[j][i])) {
+				case WALL:
+					wallCount++;
+					break;
+				case ENEMY:
+					enemies.add(new Point(i, j));
+					break;
+				case TREASURE:
+					treasures.add(new Point(i, j));
+					break;
+				default:
+					break;
+				}
+			}
+		}
+		
+		finder = new PatternFinder(this);
+	}
+	
+	public void RecreateTileMap()
+	{
+		for (int j = 0; j < height; j++) 
+		{
+			for (int i = 0; i < width; i++) 
+			{
+				tileMap[j * width + i] = new Tile(tileMap[j * width + i]);
+			}
+		}
+	}
 
 	public Map(int rows, int cols, int doorCount) {
 
 		init(rows, cols);
 		isNull = true;
 
-		for (int i = 0; i < matrix.length; i++) {
-			for (int j = 0; j < matrix.length; j++) {
+		for (int i = 0; i < cols; i++) {
+			for (int j = 0; j < rows; j++) {
 				matrix[i][j] = 1;
 			}
 		}
 	}
 
-
+	//TODO THIS p---.getX and getY can be wrong, it will need to be check
 	public Map(GeneratorConfig config, int rows, int cols, Point p1, Point p2, Point p3, Point p4) {
 		init(rows, cols);
 
@@ -127,62 +284,81 @@ public class Map {
 		if (p1 != null) {
 			north = true;
 			if (entraceSet) {
-				matrix[p1.getX()][p1.getY()] = 4;
+				matrix[p1.getY()][p1.getX()] = 4;
 				numberOfDoors++;
+				doors.add(p1);
 			}
 			else {
-				matrix[p1.getX()][p1.getY()] = 5;
+				matrix[p1.getY()][p1.getX()] = 5;
 				numberOfDoors++;
 				entraceSet = true;
-				Game.doors.add(p1);
+				setEntrance(p1);
+				//Game.doors.add(p1);
 			}
 		}
 		if (p2 != null) {
 			east = true;
 			if (entraceSet) {
-				matrix[p2.getX()][p2.getY()] = 4;
+				matrix[p2.getY()][p2.getX()] = 4;
 				numberOfDoors++;
+				doors.add(p2);
 			}
 			else {
-				matrix[p2.getX()][p2.getY()] = 5;
+				matrix[p2.getY()][p2.getX()] = 5;
 				numberOfDoors++;
 				entraceSet = true;
-				Game.doors.add(p2);
+				setEntrance(p2);
+				//Game.doors.add(p2);
 			}
 		}
 		if (p3 != null) {
 			south = true;
 			if (entraceSet) {
-				matrix[p3.getX()][p3.getY()] = 4;
+				matrix[p3.getY()][p3.getX()] = 4;
 				numberOfDoors++;
+				doors.add(p3);
 			}
 			else {
-				matrix[p3.getX()][p3.getY()] = 5;
+				matrix[p3.getY()][p3.getX()] = 5;
 				numberOfDoors++;
 				entraceSet = true; 
-				Game.doors.add(p3);
+				setEntrance(p3);
+				//Game.doors.add(p3);
 			}
 		}
 		if (p4 != null) {
 			west = true;
 			if (entraceSet) {
-				matrix[p4.getX()][p4.getY()] = 4;
+				matrix[p4.getY()][p4.getX()] = 4;
 				numberOfDoors++;
+				doors.add(p4);
 			}
 			else {
-				matrix[p4.getX()][p4.getY()] = 5;
+				matrix[p4.getY()][p4.getX()] = 5;
 				numberOfDoors++;
 				entraceSet = true;
-				Game.doors.add(p4);
+				setEntrance(p4);
+				//Game.doors.add(p4);
 			}
 		}
 
-		markDoors();
+//		markDoors();
+		
+		this.doorCount = numberOfDoors;
+		
+		for (int j = 0; j < height; j++) {
+			for (int i = 0; i < width; i++) {
+
+				tileMap[j * width + i] = new Tile(i , j, TileTypes.toTileType(matrix[j][i]));
+
+			}
+		}
 
 		finder = new PatternFinder(this);
+		
+		root = new ZoneNode(null, this, getColCount(), getRowCount());
 
 	}
-
 
 	/**
 	 * Invalidates the current calculations and forces a re-evaluation of the
@@ -191,6 +367,8 @@ public class Map {
 	 * TODO: This isn't very efficient, but shouldn't be so frequently used, as
 	 * to warrant any particular worry. Maybe replace it with a more granular
 	 * approach sometime?
+	 * 
+	 * TODO: Here the cases of door and doorenter are being disable probably part of the problem with the doors
 	 */
 	public void forceReevaluation() {
 		treasures.clear();
@@ -198,12 +376,13 @@ public class Map {
 		doors.clear();
 		treasureSafety = new Hashtable<Point, Double>();
 		wallCount = 0;
+		this.numberOfDoors = 0;
 		this.doorCount = 0;
-		allocated = new boolean[m][n];
-
-		for (int i = 0; i < m; i++) {
-			for (int j = 0; j < n; j++) {
-				switch (TileTypes.toTileType(matrix[i][j])) {
+		allocated = new boolean[height][width];
+		
+		for (int j = 0; j < height; j++){
+			for (int i = 0; i < width; i++) {
+				switch (TileTypes.toTileType(matrix[j][i])) {
 				case WALL:
 					wallCount++;
 					break;
@@ -213,17 +392,29 @@ public class Map {
 				case TREASURE:
 					treasures.add(new Point(i, j));
 					break;
-					//				case DOOR:
-					//				case DOORENTER:
-					//					doors.add(new Point(i, j));
-					//					doorCount++;
+				case DOOR:
+					doors.add(new Point(i, j));
+					doorCount++;
+					numberOfDoors++;
+					break;
+				case DOORENTER:
+					setEntrance(new Point(i, j));
+					doors.add(new Point(i, j));
+					doorCount++;
+					numberOfDoors++;
+					break;
 				default:
 					break;
 				}
 			}
 		}
-		markDoors();
+		
+		//markDoors();
 		finder = new PatternFinder(this);
+		
+		//Update the zones - It could be more efficient by only updating the affected zone
+		//(As we already have separated the map)
+		root = new ZoneNode(null, this, getColCount(), getRowCount());
 	}
 
 	public GeneratorConfig getConfig(){
@@ -243,60 +434,70 @@ public class Map {
 	private Map(int rows, int cols) {
 		init(rows, cols);
 		finder = new PatternFinder(this);
+		
+		for (int j = 0; j < height; j++)
+		{
+			for (int i = 0; i < width; i++) 
+			{
+				tileMap[j * width + i] = new Tile(i, j, matrix[j][i]);
+			}
+		}
+		
+		root = new ZoneNode(null, this, getColCount(), getRowCount());
 	}
 
 	private void init(int rows, int cols) {
 
 		treasureSafety = new Hashtable<Point, Double>();
-		this.m = cols;
-		this.n = rows;
+		this.width = cols;
+		this.height = rows;
 		wallCount = 0;
-		//		this.doorCount = 0;
-
-		matrix = new int[n][m];
-		allocated = new boolean[m][n];
+		this.doorCount = 0;
+		
+		matrix = new int[height][width];
+		allocated = new boolean[height][width];
+		tileMap = new Tile[rows * cols];
 
 	}
 
 	public void resetAllocated(){
-		allocated = new boolean[m][n];
+		allocated = new boolean[height][width];
 	}
 
+	//TODO: ...???
 	private void markDoors(){
 		entrance = Game.doors.get(0);
 		for(int i = 0; i < doorCount; i++)
-		{
+        {
+            // Check if door overrides an enemy
+            if (TileTypes.toTileType(matrix[Game.doors.get(i).getY()][Game.doors.get(i).getX()]).isEnemy())
+            {
+            	int ii = i;
+            	enemies.removeIf((x)->x.equals(Game.doors.get(ii)));
+            }
 
-			// Check if door overrides an enemy
-			if (TileTypes.toTileType(matrix[Game.doors.get(i).getX()][Game.doors.get(i).getY()]).isEnemy())
-			{
-				int ii = i;
-				enemies.removeIf((x)->x.equals(Game.doors.get(ii)));
-			}
+            // Check if door overrides a treasure
+            if (TileTypes.toTileType(matrix[Game.doors.get(i).getY()][Game.doors.get(i).getX()]).isTreasure())
+            {
+            	int ii = i;
+            	treasures.removeIf((x)->x.equals(Game.doors.get(ii)));
+            }
 
-			// Check if door overrides a treasure
-			if (TileTypes.toTileType(matrix[Game.doors.get(i).getX()][Game.doors.get(i).getY()]).isTreasure())
-			{
-				int ii = i;
-				treasures.removeIf((x)->x.equals(Game.doors.get(ii)));
-			}
-
-			// Check if door overrides a wall
-			if (matrix[Game.doors.get(i).getX()][Game.doors.get(i).getY()] == TileTypes.WALL.getValue())
-			{
-				wallCount--;
-			} 
-
-			if(i == 0)
-			{
-				matrix[Game.doors.get(i).getX()][Game.doors.get(i).getY()] = TileTypes.DOORENTER.getValue();
-			}
-			else
-			{
-				doors.add(Game.doors.get(i));
-				matrix[Game.doors.get(i).getX()][Game.doors.get(i).getY()] = TileTypes.DOOR.getValue();
-			}
-
+            // Check if door overrides a wall
+            if (matrix[Game.doors.get(i).getY()][Game.doors.get(i).getX()] == TileTypes.WALL.getValue())
+            {
+                wallCount--;
+            } 
+            
+            if(i == 0)
+            {
+            	setTile(Game.doors.get(i).getX(), Game.doors.get(i).getY(), TileTypes.DOORENTER);
+            }
+            else
+            {
+            	setTile(Game.doors.get(i).getX(), Game.doors.get(i).getY(), TileTypes.DOOR);
+            	doors.add(Game.doors.get(i));
+            }
 
 		}
 	}
@@ -310,13 +511,13 @@ public class Map {
 	public List<Point> getAvailableCoords(Point position){
 		List<Point> availableCoords = new ArrayList<Point>();
 
-		if(position.getX() > 0 && getTile((int)position.getX() - 1, (int)position.getY()) != TileTypes.WALL)
+		if(position.getX() > 0 && getTile((int)position.getX() - 1, (int)position.getY()).GetType() != TileTypes.WALL)
 			availableCoords.add(new Point(position.getX()-1,position.getY()));
-		if(position.getX() < m - 1 && getTile((int)position.getX() + 1, (int)position.getY()) != TileTypes.WALL)
+		if(position.getX() < width - 1 && getTile((int)position.getX() + 1, (int)position.getY()).GetType() != TileTypes.WALL)
 			availableCoords.add(new Point(position.getX()+1,position.getY()));
-		if(position.getY() > 0 && getTile((int)position.getX(), (int)position.getY() - 1) != TileTypes.WALL)
+		if(position.getY() > 0 && getTile((int)position.getX(), (int)position.getY() - 1).GetType() != TileTypes.WALL)
 			availableCoords.add(new Point(position.getX(),position.getY() - 1));
-		if(position.getY() < n - 1 && getTile((int)position.getX(), (int)position.getY() + 1) != TileTypes.WALL)
+		if(position.getY() < height - 1 && getTile((int)position.getX(), (int)position.getY() + 1).GetType() != TileTypes.WALL)
 			availableCoords.add(new Point(position.getX(),position.getY() + 1));
 
 		return availableCoords;
@@ -331,7 +532,32 @@ public class Map {
 	 * @param tile A tile.
 	 */
 	public void setTile(int x, int y, TileTypes tile) {
-		matrix[x][y] = tile.getValue();
+		matrix[y][x] = tile.getValue();
+		tileMap[y * width + x].SetType(tile);
+	}
+	
+	/**
+	 * Sets a specific tile object.
+	 * 
+	 * @param x The X coordinate.
+	 * @param y The Y coordinate.
+	 * @param tile A tile object.
+	 */
+	public void setTile(int x, int y, Tile tile) {
+		matrix[y][x] = tile.GetType().getValue();
+		tileMap[y * width + x] = new Tile(tile);
+	}
+	
+	/**
+	 * Sets a tile based on a value
+	 * 
+	 * @param x The X coordinate.
+	 * @param y The Y coordinate.
+	 * @param tileValue value of a tiletype.
+	 */
+	public void setTile(int x, int y, int tileValue) {
+		matrix[y][x] = tileValue;
+		tileMap[y * width + x].SetType(TileTypes.toTileType(tileValue));
 	}
 
 	/**
@@ -341,8 +567,11 @@ public class Map {
 	 * @param y The Y coordinate.
 	 * @return A tile.
 	 */
-	public TileTypes getTile(int x, int y) {
-		return TileTypes.toTileType(matrix[x][y]);
+	public Tile getTile(int x, int y) {
+		
+		return tileMap[y * width + x];
+
+//		return TileTypes.toTileType(matrix[y][x]);
 	}
 
 	/**
@@ -351,12 +580,13 @@ public class Map {
 	 * @param point The position.
 	 * @return A tile.
 	 */
-	public TileTypes getTile(Point point){
+	public Tile getTile(Point point){
 		if (point == null) {
 			return null;
 		}
 
-		return TileTypes.toTileType(matrix[point.getX()][point.getY()]);
+		return tileMap[point.getY() * width + point.getX()];
+
 	}
 
 	/**
@@ -365,7 +595,7 @@ public class Map {
 	 * @return The number of columns.
 	 */
 	public int getColCount() {
-		return m;
+		return width;
 	}
 
 	/**
@@ -374,7 +604,7 @@ public class Map {
 	 * @return The number of rows.
 	 */
 	public int getRowCount() {
-		return n;
+		return height;
 	}
 
 	/**
@@ -383,7 +613,7 @@ public class Map {
 	 * @return The number of traversable tiles.
 	 */
 	public int countTraversables() {
-		return m * n - wallCount;
+		return width * height - wallCount;
 	}
 
 	/**
@@ -485,9 +715,9 @@ public class Map {
 	 * @return The number of non-wall tiles.
 	 */
 	public int getNonWallTileCount()
-	{
-		return (Game.sizeM * Game.sizeN) - wallCount;
-	}
+    {
+        return (width * height) - wallCount;
+    }
 
 	/**
 	 * Get the ratio of enemy tiles to non-wall tiles.
@@ -559,109 +789,114 @@ public class Map {
 		return failedPathsToTreasures;
 	}
 
-	/**
-	 * Gets the number of failed path searches for enemies.
-	 * 
-	 * @return The number of failed path searches.
-	 */
-	public int getFailedPathsToEnemies() {
-		return failedPathsToEnemies;
-	}
-
-	/**
-	 * Sets the safety value for a treasure.
-	 * 
-	 * @param treasure The position of the treasure.
-	 * @param safety The safety value.
-	 */
-	public void setTreasureSafety(Point treasure, double safety) {
-		treasureSafety.put(treasure, safety);
-	}
-
-	/**
-	 * Gets the safety value for at treasure.
-	 * 
-	 * @param treasure The position of the treasure.
-	 * @return The safety value.
-	 */
-	public double getTreasureSafety(Point treasure) {
-		return (double) treasureSafety.get(treasure);
-	}
-
-	/**
-	 * Gets the complete list of treasure safety values.
-	 * 
-	 * @return A dictionary containing all treasures and their safety values.
-	 */
-	public Dictionary<Point, Double> getTreasureSafety() {
-		return treasureSafety;
-	}
-
-	/**
-	 * Gets the complete array of treasure safety values.
-	 * 
-	 * @return An array of Doubles containing all treasures safety values.
-	 */
-	public Double[] getAllTreasureSafeties()
-	{
-		return Collections.list(treasureSafety.elements()).stream().toArray(Double[]::new);
-	}
-
-
-	/**
-	 * Gets a list of all enemies in a map.
-	 * 
-	 * @return A list of enemies.
-	 */
-	public List<Point> getEnemies() {
-		return enemies;
-	}
-
-	/**
-	 * Sets the safety value for the map's entry point.
-	 * 
-	 * @param safety A safety value.
-	 */
-	public void setEntranceSafety(double safety) {
-		entranceSafety = safety;
-	}
-
-	/**
-	 * Sets the map's entrance "greed" (that is, how close is the nearest treasure?).
-	 * 
-	 * @param safety A safety value.
-	 */
-	public void setEntranceGreed(double greed) {
-		entranceGreed = greed;
-	}
-
-	/**
-	 * Gets the safety value for the map's entry point.
-	 * 
-	 * @return The safety value.
-	 */
-	public double getEntranceSafety() {
-		return entranceSafety;
-	}
-
-	/**
-	 * Gets the allocation matrix.
-	 * 
-	 * @return The allocation matrix.
-	 */
-	public boolean[][] getAllocationMatrix() {
-		return allocated;
-	}
-
-	/**
-	 * Gets the pattern finder associated with this map.
-	 * 
-	 * @return A pattern finder.
-	 */
-	public PatternFinder getPatternFinder() {
-		return finder;
-	}
-
+    /**
+     * Gets the number of failed path searches for enemies.
+     * 
+     * @return The number of failed path searches.
+     */
+    public int getFailedPathsToEnemies() {
+        return failedPathsToEnemies;
+    }
+    
+    /**
+     * Sets the safety value for a treasure.
+     * 
+     * @param treasure The position of the treasure.
+     * @param safety The safety value.
+     */
+    public void setTreasureSafety(Point treasure, double safety) {
+    	treasureSafety.put(treasure, safety);
+    }
+    
+    /**
+     * Gets the safety value for at treasure.
+     * 
+     * @param treasure The position of the treasure.
+     * @return The safety value.
+     */
+    public double getTreasureSafety(Point treasure) {
+    	return (double) treasureSafety.get(treasure);
+    }
+    
+    /**
+     * Gets the complete list of treasure safety values.
+     * 
+     * @return A dictionary containing all treasures and their safety values.
+     */
+    public Dictionary<Point, Double> getTreasureSafety() {
+    	return treasureSafety;
+    }
+    
+    /**
+     * Gets the complete array of treasure safety values.
+     * 
+     * @return An array of Doubles containing all treasures safety values.
+     */
+    public Double[] getAllTreasureSafeties()
+    {
+    	return Collections.list(treasureSafety.elements()).stream().toArray(Double[]::new);
+    }
+    
+    
+    /**
+     * Gets a list of all enemies in a map.
+     * 
+     * @return A list of enemies.
+     */
+    public List<Point> getEnemies() {
+    	return enemies;
+    }
+    
+    /**
+     * Sets the safety value for the map's entry point.
+     * 
+     * @param safety A safety value.
+     */
+    public void setEntranceSafety(double safety) {
+    	entranceSafety = safety;
+    }
+    
+    /**
+     * Sets the map's entrance "greed" (that is, how close is the nearest treasure?).
+     * 
+     * @param safety A safety value.
+     */
+    public void setEntranceGreed(double greed) {
+    	entranceGreed = greed;
+    }
+    
+    /**
+     * Gets the safety value for the map's entry point.
+     * 
+     * @return The safety value.
+     */
+    public double getEntranceSafety() {
+    	return entranceSafety;
+    }
+    
+    /**
+     * Gets the allocation matrix.
+     * 
+     * @return The allocation matrix.
+     */
+    public boolean[][] getAllocationMatrix() {
+    	return allocated;
+    }
+    
+    /**
+     * Gets the pattern finder associated with this map.
+     * 
+     * @return A pattern finder.
+     */
+    public PatternFinder getPatternFinder() {
+    	return finder;
+    }
+    
+    public Tile[] getTileBasedMap()
+    {
+    	return tileMap;
+    }
+    
 	/**
 	 * Initialises a map.
 	 * 
@@ -669,8 +904,8 @@ public class Map {
 	 */
 	private void initMapFromTypes(TileTypes[] tiles) {
 		int tile = 0;
-		for (int i = 0; i < m; i++) {
-			for (int j = 0; j < n; j++) {
+		for (int j = 0; j < height; j++) {
+			for (int i = 0; i < width; i++) {
 				switch (tiles[tile]) {
 				case WALL:
 					wallCount++;
@@ -684,7 +919,9 @@ public class Map {
 				default:
 					break;
 				}
-				matrix[i][j] = tiles[tile++].getValue();
+				tileMap[tile] = new Tile(i , j, tiles[tile]);
+				matrix[j][i] = tiles[tile++].getValue();
+
 			}
 		}
 	}
@@ -831,12 +1068,15 @@ public class Map {
 
 		Game.doors.clear();
 		
+//		for (int j = 0; j < colCount; j++){
+//			 for (int i = 0; i < rowCount; i++) {
 
 		Point p1 = null;
 		Point p2 = null;
 		Point p3 = null;
 		Point p4 = null;
-
+		
+		//TODO: CHANGE THIS, Is too hardcoded, why use this values when we have the columns and rows?
 		// South
 		Point south = new Point(11/2, 11-1);
 		// East
@@ -905,7 +1145,7 @@ public class Map {
 
 		}
 		if (Game.doors.isEmpty()) {
-			map = new Map(11, 11, 0);
+			map = new Map(11, 11, 0); //TODO: ??
 		}
 		else {
 			GeneratorConfig gc;
@@ -955,9 +1195,9 @@ public class Map {
 	public String toString() {
 		StringBuilder map = new StringBuilder();
 
-		for (int i = 0; i < m; i++) {
-			for (int j = 0; j < n; j++) {
-				map.append(Integer.toHexString(matrix[i][j]));
+		for (int j = 0; j < height; j++){
+			for (int i = 0; i < width; i++)  {
+				map.append(Integer.toHexString(matrix[j][i]));
 			}
 			map.append("\n");
 		}
@@ -967,50 +1207,91 @@ public class Map {
 
 	public boolean isFeasible(){
 		List<Node> visited = new ArrayList<Node>();
-		Queue<Node> queue = new LinkedList<Node>();
-		int treasure = 0;
-		int enemies = 0;
-		int doors = 0;
+    	Queue<Node> queue = new LinkedList<Node>();
+    	int treasure = 0;
+    	int enemies = 0;
+    	int doors = 0;
+    	
+    	Node root = new Node(0.0f, getEntrance(), null);
+    	queue.add(root);
+    	
+    	while(!queue.isEmpty()){
+    		Node current = queue.remove();
+    		visited.add(current);
+    		Tile currentTile = getTile(current.position);
+    		
+    		if(currentTile.GetType() == TileTypes.DOOR)
+    			doors++;
+    		else if (currentTile.GetType().isEnemy())
+    			enemies++;
+    		else if (currentTile.GetType().isTreasure())
+    			treasure++;
+    		
+    		List<Point> children = getAvailableCoords(current.position);
+            for(Point child : children)
+            {
+                if (visited.stream().filter(x->x.equals(child)).findFirst().isPresent() 
+                		|| queue.stream().filter(x->x.equals(child)).findFirst().isPresent()) 
+                	continue;
 
-		Node root = new Node(0.0f, getEntrance(), null);
-		queue.add(root);
+                //Create child node
+                Node n = new Node(0.0f, child, current);
+                queue.add(n);
+            }
+    	}
+    	
+    	//TODO: I think there is a problem here of not updating the correct values ----- maybe change back?
+    	for(int i = treasure; i < getTreasureCount();i++)
+    		addFailedPathToTreasures();
+    	for(int i = doors; i < getDoorCount();i++)
+    		addFailedPathToDoors();
+    	for(int i = enemies; i < getEnemyCount();i++)
+    		addFailedPathToEnemies();
 
-		while(!queue.isEmpty()){
-			Node current = queue.remove();
-			visited.add(current);
-			if(getTile(current.position).isDoor())
-				doors++;
-			else if (getTile(current.position).isEnemy())
-				enemies++;
-			else if (getTile(current.position).isTreasure())
-				treasure++;
+    	return visited.size() == getNonWallTileCount() 
+    			&& (treasure + doors + enemies == getTreasureCount() + getDoorCount() + getEnemyCount())
+    			&& getTreasureCount() > 0 && getEnemyCount() > 0;
+}
 
-			List<Point> children = getAvailableCoords(current.position);
-			for(Point child : children)
-			{
-				if (visited.stream().filter(x->x.equals(child)).findFirst().isPresent() 
-						|| queue.stream().filter(x->x.equals(child)).findFirst().isPresent()) 
-					continue;
+	public boolean EveryRoomVisitable(){
+		List<Node> visited = new ArrayList<Node>();
+    	Queue<Node> queue = new LinkedList<Node>();
+    	int treasure = 0;
+    	int enemies = 0;
+    	int doors = 0;
+    	
+    	Node root = new Node(0.0f, getEntrance(), null);
+    	queue.add(root);
+    	
+    	while(!queue.isEmpty()){
+    		Node current = queue.remove();
+    		visited.add(current);
+    		Tile currentTile = getTile(current.position);
+    		
+    		if(currentTile.GetType() == TileTypes.DOOR)
+    			doors++;
+    		else if (currentTile.GetType().isEnemy())
+    			enemies++;
+    		else if (currentTile.GetType().isTreasure())
+    			treasure++;
+    		
+    		List<Point> children = getAvailableCoords(current.position);
+            for(Point child : children)
+            {
+                if (visited.stream().filter(x->x.equals(child)).findFirst().isPresent() 
+                		|| queue.stream().filter(x->x.equals(child)).findFirst().isPresent()) 
+                	continue;
 
-				//Create child node
-				Node n = new Node(0.0f, child, current);
-				queue.add(n);
-			}
-		}
+                //Create child node
+                Node n = new Node(0.0f, child, current);
+                queue.add(n);
+            }
+    	}
 
-		for(int i = treasure; i < getTreasureCount();i++)
-			addFailedPathToTreasures();
-		for(int i = doors; i < getNumberOfDoors();i++)
-			addFailedPathToTreasures();
-		for(int i = enemies; i < getEnemyCount();i++)
-			addFailedPathToTreasures();
-
-		return visited.size() == getNonWallTileCount() 
-				&& (treasure + enemies + doors == getTreasureCount() + getEnemyCount() + getDoorCount())
-				&& getTreasureCount() > 0 && getEnemyCount() > 0;
-	}
-
-
+    	
+    	return visited.size() == getNonWallTileCount();
+}
+	
 	public boolean isFeasibleTwo(){
 		List<Node> visited = new ArrayList<Node>();
 		Queue<Node> queue = new LinkedList<Node>();
@@ -1024,12 +1305,16 @@ public class Map {
 		while(!queue.isEmpty()){
 			Node current = queue.remove();
 			visited.add(current);
-			if(getTile(current.position).isDoor())
+			
+			if(getTile(current.position).GetType().isDoor())
+			{
 				doors++;
-			else if (getTile(current.position).isEnemy())
+			}
+			else if (getTile(current.position).GetType().isEnemy())
 				enemies++;
-			else if (getTile(current.position).isTreasure())
+			else if (getTile(current.position).GetType().isTreasure())
 				treasure++;
+
 
 			List<Point> children = getAvailableCoords(current.position);
 			for(Point child : children)
@@ -1047,15 +1332,16 @@ public class Map {
 		for(int i = treasure; i < getTreasureCount();i++)
 			addFailedPathToTreasures();
 		for(int i = doors; i < getNumberOfDoors();i++)
-			addFailedPathToTreasures();
+			addFailedPathToDoors();
 		for(int i = enemies; i < getEnemyCount();i++)
-			addFailedPathToTreasures();
+			addFailedPathToEnemies();
 
 		return visited.size() == getNonWallTileCount() 
 				&& (treasure + enemies == getTreasureCount() + getEnemyCount())
 				&& getTreasureCount() > 0 && getEnemyCount() > 0;
 	}
 
+	//TODO: ...
 	public int getNumberOfDoors() {
 		return numberOfDoors;
 	}
@@ -1087,5 +1373,43 @@ public class Map {
 	}
 	public void setWest(boolean state) {
 		west = state;
+	}
+	
+	//TODO: WORKAROUND while I change the whole door system and how the rooms are interconnected
+	public void RecalculateEntrance()
+	{
+		//So basically if entrance does not exist --> Analyze the map and if none of the tiles is
+		//DOORENTRANCE, change one of the doors to be the entrance. --> And settheEntrance!!
+		//So ridiculous that I have to do this..............................................
+		
+		ArrayList<Point> d = new ArrayList<Point>();
+		
+		doors.clear();
+		boolean found = false;
+		for (int j = 0; j < height; j++)
+		{
+			for (int i = 0; i < width; i++) 
+			{
+				switch (TileTypes.toTileType(matrix[j][i])) 
+				{
+				case DOOR:
+					doors.add(new Point(i, j));
+					break;
+				case DOORENTER: //IF DOOR ENTER EXISTS THEB WE DONT NEED TO RECALCULATE
+					found = true;
+					break;
+				default:
+					break;
+				}
+			}
+		}
+		if(found) return;
+		
+		//IF WE HAVE REACH HERE IS BECAUSE THERE IS NO DOOR CATEGORIZED AS DOORENTER
+		setEntrance(doors.get(0));
+		setTile(doors.get(0).getX(), doors.get(0).getY(), TileTypes.DOORENTER);
+		setNumberOfDoors(doors.size());
+		doorCount = doors.size();
+		doors.remove(0);
 	}
 }

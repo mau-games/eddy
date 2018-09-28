@@ -12,6 +12,7 @@ import finder.geometry.Polygon;
 import finder.geometry.Rectangle;
 import finder.patterns.Pattern;
 import finder.patterns.SpacialPattern;
+import game.Game;
 import game.Map;
 import game.TileTypes;
 import generator.config.GeneratorConfig;
@@ -138,12 +139,12 @@ public class Room extends SpacialPattern {
 			return results;
 		}
 		
-		int[][] matrix = new int[p2.getX() - p1.getX() + 1][p2.getY() - p1.getY() + 1];
+		int[][] matrix = new int[p2.getY() - p1.getY() + 1][p2.getX() - p1.getX() + 1];
 		boolean[][] allocated = map.getAllocationMatrix();
 		
-		for (int i = 0; i < matrix.length; i++) {
-			for (int j = 0; j < matrix[0].length; j++) {
-				if (map.getTile(p1.getX() + i, p1.getY() + j) == TileTypes.WALL) {
+		for (int i = 0; i < map.getRowCount(); i++) {
+			for (int j = 0; j < map.getColCount(); j++) {
+				if (map.getTile(p1.getX() + j, p1.getY() + i).GetType() == TileTypes.WALL) {
 					matrix[i][j] = -1;
 				} else {
 					matrix[i][j] = 0;
@@ -161,10 +162,10 @@ public class Room extends SpacialPattern {
 
 		
 		int roomCounter = 0;
-		for (int i = 1; i < matrix.length - 1; i++) {
-			for (int j = 1; j < matrix[0].length - 1; j++) {
-				if (isRoom(matrix, allocated, i, j)) {
-					results.add(new Room(map.getConfig(),growRoom(matrix, allocated, i, j, ++roomCounter)));
+		for (int i = 1; i < map.getRowCount() - 1; i++) {
+			for (int j = 1; j < map.getColCount() - 1; j++) {
+				if (isRoom(matrix, allocated, j, i)) {
+					results.add(new Room(map.getConfig(),growRoom(matrix, allocated, j, i, ++roomCounter)));
 				}
 			}
 		}
@@ -181,12 +182,12 @@ public class Room extends SpacialPattern {
 	}
 	
 	private static boolean isRoom(int[][] map, boolean[][] allocated, int x, int y) {
-		if (map[x][y] != 0) {
+		if (map[y][x] != 0) {
 			return false;
 		}
 		
-		for (int i = x - 1; i <= x + 1; i++) {
-			for (int j = y - 1; j <= y + 1; j++) {
+		for (int i = y - 1; i <= y + 1; i++) {
+			for (int j = x - 1; j <= x + 1; j++) {
 				if (map[i][j] != 0 || allocated[i][j]) {
 					return false;
 				}
@@ -203,53 +204,53 @@ public class Room extends SpacialPattern {
 		Point p;
 		
 		// The core will never be allocated, no need to check for that
-		for (int i = x - 1; i < x + 2; i++) {
-			for (int j = y - 1; j < y + 2; j++) {
+		for (int i = y - 1; i < y + 2; i++) {
+			for (int j = x - 1; j < x + 2; j++) {
 				map[i][j] = room;
 				allocated[i][j] = true;
 			}
 		}
-		if (x + 2 < map.length) {
-			if (!allocated[x + 2][y]) {
+		if (x + 2 < map[0].length) {
+			if (!allocated[y][x + 2]) {
 				pq.addLast(new Point(x + 2, y));
 			}
-			if (!allocated[x + 2][y + 1]) {
+			if (!allocated[y + 1][x + 2]) {
 				pq.addLast(new Point(x + 2, y + 1));
 			}
-			if (!allocated[x + 2][y - 1]) {
+			if (!allocated[y - 1][x + 2]) {
 				pq.addLast(new Point(x + 2, y - 1));
 			}
 		}
 		if (y - 2 >= 0) {
-			if (!allocated[x][y - 2]) {
+			if (!allocated[y - 2][x]) {
 				pq.addLast(new Point(x, y - 2));
 			}
-			if (!allocated[x + 1][y - 2]) {
+			if (!allocated[y - 2][x + 1]) {
 				pq.addLast(new Point(x + 1, y - 2));
 			}
-			if (!allocated[x - 1][y - 2]) {
+			if (!allocated[y - 2][x - 1]) {
 				pq.addLast(new Point(x - 1, y - 2));
 			}
 		}
 		if (x - 2 >= 0) {
-			if (!allocated[x - 2][y]) {
+			if (!allocated[y][x - 2]) {
 				pq.addLast(new Point(x - 2, y));
 			}
-			if (!allocated[x - 2][y - 1]) {
+			if (!allocated[y - 1][x - 2]) {
 				pq.addLast(new Point(x - 2, y - 1));
 			}
-			if (!allocated[x - 2][y + 1]) {
+			if (!allocated[y + 1][x - 2]) {
 				pq.addLast(new Point(x - 2, y + 1));
 			}
 		}
-		if (y + 2 < map[0].length) {
-			if (!allocated[x][y + 2]) {
+		if (y + 2 < map.length) {
+			if (!allocated[y + 2][x]) {
 				pq.addLast(new Point(x, y + 2));
 			}
-			if (!allocated[x - 1][y + 2]) {
+			if (!allocated[y + 2][x - 1]) {
 				pq.addLast(new Point(x - 1, y + 2));
 			}
-			if (!allocated[x + 1][y + 2]) {
+			if (!allocated[y + 2][x + 1]) {
 				pq.addLast(new Point(x + 1, y + 2));
 			}
 		}
@@ -260,29 +261,29 @@ public class Room extends SpacialPattern {
 			x = p.getX();
 			y = p.getY();
 			
-			if (map[x][y] == 0 && hasThreeNeighbours(map, p, room)) {
-				map[x][y] = room;
+			if (map[y][x] == 0 && hasThreeNeighbours(map, p, room)) {
+				map[y][x] = room;
 //				cloud.addLast(p); // poly
-				if (x + 1 < map.length && !allocated[x + 1][y]) {
+				if (x + 1 < map[0].length && !allocated[y][x + 1]) {
 					pq.addLast(new Point(x + 1, y));
 				}
-				if (y - 1 >= 0 && !allocated[x][y - 1]) {
+				if (y - 1 >= 0 && !allocated[y - 1][x]) {
 					pq.addLast(new Point(x, y - 1));
 				}
-				if (x - 1 >= 0 && !allocated[x - 1][y]) {
+				if (x - 1 >= 0 && !allocated[y][x - 1]) {
 					pq.addLast(new Point(x - 1, y));
 				}
-				if (y + 1 < map[0].length && !allocated[x][y + 1]) {
+				if (y + 1 <  map.length && !allocated[y + 1][x]) {
 					pq.addLast(new Point(x, y + 1));
 				}
 			}
 		}
 		
-		for (x = 0; x < map.length; x++) {
-			for (y = 0; y < map[0].length; y++) {
-				if (map[x][y] == room) {
+		for (y = 0; y < map.length; y++) {
+			for (x = 0; x <   map[0].length; x++){
+				if (map[y][x] == room) {
 					polygon.addPoint(new Point(x, y));
-					allocated[x][y] = true;
+					allocated[y][x] = true;
 				}
 			}
 		}
@@ -309,23 +310,23 @@ public class Room extends SpacialPattern {
 		int x = 0, y = 0;
 		int size = 0;
 		
-		for (x = 0; x < map.length; x++) {
-			for (y = 0; y < map[0].length; y++) {
-				if (map[x][y] == room) {
+		for (y = 0; y <  map.length; y++){
+			for (x = 0; x <  map[0].length; x++)  {
+				if (map[y][x] == room) {
 					p = new Point(x, y);
-					allocated[x][y] = true;
+					allocated[y][x] = true;
 					++size;
 					if (!hasEightNeighbours(map, p, room)) {
-						if (x + 1 < map.length && !allocated[x + 1][y]) {
+						if (x + 1 <  map[0].length && !allocated[y][x + 1]) {
 							pq.addLast(new Point(x + 1, y));
 						}
-						if (y - 1 >= 0 && !allocated[x][y - 1]) {
+						if (y - 1 >= 0 && !allocated[y - 1][x]) {
 							pq.addLast(new Point(x, y - 1));
 						}
-						if (x - 1 >= 0 && !allocated[x - 1][y]) {
+						if (x - 1 >= 0 && !allocated[y][x - 1]) {
 							pq.addLast(new Point(x - 1, y));
 						}
-						if (y + 1 < map[0].length && !allocated[x][y + 1]) {
+						if (y + 1 < map.length && !allocated[y + 1][x]) {
 							pq.addLast(new Point(x, y + 1));
 						}
 					}
@@ -338,19 +339,19 @@ public class Room extends SpacialPattern {
 			x = p.getX();
 			y = p.getY();
 			
-			if (map[x][y] == 0 && hasThreeNeighbours(map, p, room)) {
-				map[x][y] = room;
+			if (map[y][x] == 0 && hasThreeNeighbours(map, p, room)) {
+				map[y][x] = room;
 				polygon.addPoint(p);
-				if (x + 1 < map.length && !allocated[x + 1][y]) {
+				if (x + 1 <  map[0].length && !allocated[y][x + 1]) {
 					pq.addLast(new Point(x + 1, y));
 				}
-				if (y - 1 >= 0 && !allocated[x][y - 1]) {
+				if (y - 1 >= 0 && !allocated[y - 1][x]) {
 					pq.addLast(new Point(x, y - 1));
 				}
-				if (x - 1 >= 0 && !allocated[x - 1][y]) {
+				if (x - 1 >= 0 && !allocated[y][x - 1]) {
 					pq.addLast(new Point(x - 1, y));
 				}
-				if (y + 1 < map[0].length && !allocated[x][y + 1]) {
+				if (y + 1 <  map.length && !allocated[y + 1][x]) {
 					pq.addLast(new Point(x, y + 1));
 				}
 			}
@@ -377,9 +378,9 @@ public class Room extends SpacialPattern {
 		int y = p.getY();
 
 		for (int i = x - 1; i <= x + 1; i++) {
-			if (i >= 0 && i < map.length) {
+			if (i >= 0 && i <  map[0].length) {
 				for (int j = y - 1; j <= y + 1; j++) {
-					if (j >= 0 && j < map[0].length && map[i][j] == room) {
+					if (j >= 0 && j <  map.length && map[j][i] == room) {
 						neighbours++;
 					}
 				}

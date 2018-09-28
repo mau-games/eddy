@@ -20,8 +20,10 @@ import game.MapContainer;
 import game.TileTypes;
 import generator.algorithm.Algorithm.AlgorithmTypes;
 import game.Game.MapMutationType;
+import gui.controls.Drawer;
 import gui.controls.InteractiveMap;
 import gui.controls.LabeledCanvas;
+import gui.controls.Modifier;
 import gui.utils.MapRenderer;
 import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
@@ -39,6 +41,7 @@ import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.Label;
+import javafx.scene.control.Slider;
 import javafx.scene.control.ToggleButton;
 import javafx.scene.control.ToggleGroup;
 import javafx.scene.control.Tooltip;
@@ -80,12 +83,18 @@ public class RoomViewController extends BorderPane implements Listener {
 
 	@FXML private GridPane legend;
 	@FXML private ToggleGroup brushes;
+	
 	@FXML private ToggleButton patternButton;
+	@FXML private ToggleButton lockBrush;
+	@FXML private ToggleButton lockButton;
+	@FXML private ToggleButton zoneButton;
 	@FXML private ToggleButton floorBtn;
 	@FXML private ToggleButton wallBtn;
 	@FXML private ToggleButton treasureBtn;
 	@FXML private ToggleButton enemyBtn;
 
+	@FXML private Slider zoneSlider;
+	
 	@FXML private Label enemyNumbr;
 	@FXML private Label enemyNumbr2;
 	@FXML private Label treasureNmbr;
@@ -128,6 +137,9 @@ public class RoomViewController extends BorderPane implements Listener {
 	private Map largeMap;
 	private Canvas patternCanvas;
 	private Canvas warningCanvas;
+	private Canvas zoneCanvas;
+	private Canvas lockCanvas;
+	private Canvas brushCanvas;
 
 	private MapContainer map;
 
@@ -149,9 +161,8 @@ public class RoomViewController extends BorderPane implements Listener {
 
 	private boolean minimapBoolean = false;
 
-
-
-
+	private int RequestCounter = 0;
+	public Drawer myBrush;
 
 	/**
 	 * Creates an instance of this class.
@@ -175,6 +186,14 @@ public class RoomViewController extends BorderPane implements Listener {
 		router.registerListener(this, new MapUpdate(null));
 		router.registerListener(this, new ApplySuggestion(0));
 
+		myBrush = new Drawer();
+		myBrush.AddmodifierComponent("Lock", new Modifier(lockBrush));
+
+		zoneSlider.valueProperty().addListener((obs, oldval, newVal) -> { 
+			redrawPatterns(mapView.getMap());
+			});
+		
+		
 		init();
 	}
 
@@ -200,6 +219,26 @@ public class RoomViewController extends BorderPane implements Listener {
 		getMapView().setMinSize(width, height);
 		getMapView().setMaxSize(width, height);
 		mapPane.getChildren().add(getMapView());
+		
+		brushCanvas = new Canvas(width, height);
+		StackPane.setAlignment(brushCanvas, Pos.CENTER);
+		mapPane.getChildren().add(brushCanvas);
+		brushCanvas.setVisible(false);
+		brushCanvas.setMouseTransparent(true);
+		brushCanvas.setOpacity(1.0f);
+		
+		lockCanvas = new Canvas(width, height);
+		StackPane.setAlignment(lockCanvas, Pos.CENTER);
+		mapPane.getChildren().add(lockCanvas);
+		lockCanvas.setVisible(false);
+		lockCanvas.setMouseTransparent(true);
+		lockCanvas.setOpacity(0.4f);
+		
+		zoneCanvas = new Canvas(width, height);
+		StackPane.setAlignment(zoneCanvas, Pos.CENTER);
+		mapPane.getChildren().add(zoneCanvas);
+		zoneCanvas.setVisible(false);
+		zoneCanvas.setMouseTransparent(true);
 
 
 		patternCanvas = new Canvas(width, height);
@@ -297,6 +336,9 @@ public class RoomViewController extends BorderPane implements Listener {
 		}
 			
 		);
+//		
+//		mapView.addEventFilter(MouseEvent.MOUSE_CLICKED, new EditViewEventHandler());
+//		mapView.addEventFilter(MouseEvent.MOUSE_MOVED, new EditViewMouseHover());
 
 	}
 
@@ -369,61 +411,61 @@ public class RoomViewController extends BorderPane implements Listener {
 	private void initLegend() {
 		ConfigurationUtility c = config.getInternalConfig();
 
-		legend.setVgap(10);
+		legend.setVgap(5);
 		legend.setHgap(10);
-		legend.setPadding(new Insets(10, 10, 10, 10));
+		legend.setPadding(new Insets(5, 10, 5, 10));
 
 		Label title = new Label("Pattern legend");
 		title.setStyle("-fx-font-weight: bold");
 		title.setStyle("-fx-text-fill: white;");
 		legend.add(title, 0, 0, 2, 1);
 
-		legend.add(new ImageView(new Image(c.getString("map.tiles.doorenter"), 40, 40, false, false)), 0, 1);
+		legend.add(new ImageView(new Image(c.getString("map.tiles.doorenter"), 20, 20, false, false)), 0, 1);
 		Label entrance = new Label("Entrance door");
 		entrance.setStyle("-fx-text-fill: white;");
 		legend.add(entrance, 1, 1);
 
-		legend.add(new ImageView(new Image(c.getString("map.tiles.door"), 40, 40, false, false)), 0, 2);
+		legend.add(new ImageView(new Image(c.getString("map.tiles.door"), 20, 20, false, false)), 0, 2);
 		Label door = new Label("Door");
 		door.setStyle("-fx-text-fill: white;");
 		legend.add(door, 1, 2);
 
-		legend.add(new ImageView(new Image(c.getString("map.mesopatterns.ambush"), 40, 40, false, false)), 0, 3);
+		legend.add(new ImageView(new Image(c.getString("map.mesopatterns.ambush"), 20, 20, false, false)), 0, 3);
 		Label ambush = new Label("Ambush");
 		ambush.setStyle("-fx-text-fill: white;");
 		legend.add(ambush, 1, 3);
 
-		legend.add(new ImageView(new Image(c.getString("map.mesopatterns.guard_room"), 40, 40, false, false)), 0, 4);
+		legend.add(new ImageView(new Image(c.getString("map.mesopatterns.guard_room"), 20, 20, false, false)), 0, 4);
 		Label guardChamber = new Label("Guard chamber");
 		guardChamber.setStyle("-fx-text-fill: white;");
 		legend.add(guardChamber, 1, 4);
 
-		legend.add(new ImageView(new Image(c.getString("map.mesopatterns.guarded_treasure"), 40, 40, false, false)), 0, 5);
+		legend.add(new ImageView(new Image(c.getString("map.mesopatterns.guarded_treasure"), 20, 20, false, false)), 0, 5);
 		Label guardTreasure = new Label("Guarded treasure");
 		guardTreasure.setStyle("-fx-text-fill: white;");
 		legend.add(guardTreasure, 1, 5);
 
-		legend.add(new ImageView(new Image(c.getString("map.mesopatterns.treasure_room"), 40, 40, false, false)), 0, 6);
+		legend.add(new ImageView(new Image(c.getString("map.mesopatterns.treasure_room"), 20, 20, false, false)), 0, 6);
 		Label treasureChamber = new Label("Treasure Chamber");
 		treasureChamber.setStyle("-fx-text-fill: white;");
 		legend.add(treasureChamber, 1, 6);
 
-		legend.add(new ImageView(new Image(c.getString("map.examples.chamber"), 40, 40, true, true)), 0, 7);
+		legend.add(new ImageView(new Image(c.getString("map.examples.chamber"), 20, 20, true, true)), 0, 7);
 		Label chamber = new Label("Chamber");
 		chamber.setStyle("-fx-text-fill: white;");
 		legend.add(chamber, 1, 7);
 
-		legend.add(new ImageView(new Image(c.getString("map.examples.corridor"), 40, 40, true, true)), 0, 8);
+		legend.add(new ImageView(new Image(c.getString("map.examples.corridor"), 20, 20, true, true)), 0, 8);
 		Label corridor = new Label("Corridor");
 		corridor.setStyle("-fx-text-fill: white;");
 		legend.add(corridor, 1, 8);
 
-		legend.add(new ImageView(new Image(c.getString("map.examples.connector"), 40, 40, true, true)), 0, 9);
+		legend.add(new ImageView(new Image(c.getString("map.examples.connector"), 20, 20, true, true)), 0, 9);
 		Label connector = new Label("Connector");
 		connector.setStyle("-fx-text-fill: white;");
 		legend.add(connector, 1, 9);
 
-		legend.add(new ImageView(new Image(c.getString("map.examples.dead_end"), 40, 40, true, true)), 0, 10);
+		legend.add(new ImageView(new Image(c.getString("map.examples.dead_end"), 20, 20, true, true)), 0, 10);
 		Label deadEnd = new Label("Dead end");
 		deadEnd.setStyle("-fx-text-fill: white;");
 		legend.add(deadEnd, 1, 10);
@@ -453,7 +495,7 @@ public class RoomViewController extends BorderPane implements Listener {
 		if (e instanceof MapUpdate) {
 
 			if (isActive) {
-
+				//System.out.println(nextMap);
 				Map map = (Map) ((MapUpdate) e).getPayload();
 				UUID uuid = ((MapUpdate) e).getID();
 				LabeledCanvas canvas;
@@ -464,7 +506,7 @@ public class RoomViewController extends BorderPane implements Listener {
 					canvas.setText("");
 					maps.put(nextMap, map);
 					nextMap++;
-					if (nextMap == 4) {
+					if (nextMap == 4) { //TODO: This is a hack to overcome a real problem
 						router.postEvent(new Stop());	
 						router.postEvent(new SuggestedMapsDone());
 					}
@@ -518,6 +560,7 @@ public class RoomViewController extends BorderPane implements Listener {
 	public void updateMap(Map map) {
 		getMapView().updateMap(map);
 		redrawPatterns(map);
+		redrawLocks(map);
 		mapIsFeasible(map.isFeasibleTwo());
 	}
 
@@ -561,10 +604,11 @@ public class RoomViewController extends BorderPane implements Listener {
 	public void selectBrush() {
 		if (brushes.getSelectedToggle() == null) {
 			brush = null;
-			getMapView().setCursor(Cursor.DEFAULT);
+			mapView.setCursor(Cursor.DEFAULT);
+			
 		} else {
-			getMapView().setCursor(Cursor.HAND);
-
+			mapView.setCursor(Cursor.HAND);
+//			System.out.println(getMapView().getMap().toString());
 			switch (((ToggleButton) brushes.getSelectedToggle()).getText()) {
 			case "Floor":
 				brush = TileTypes.FLOOR;
@@ -580,8 +624,20 @@ public class RoomViewController extends BorderPane implements Listener {
 				break;
 			}
 		}
+		
+		myBrush.SetMainComponent(brush);
+		
 	}
 
+	
+	/**
+	 * Toggles the main use of the lock modifier in the brush
+	 */
+	public void selectLockModifier()
+	{
+		myBrush.ChangeModifierMainValue("Lock", lockBrush.isSelected());
+	}	
+	
 	/**
 	 * Toggles the display of patterns on top of the map.
 	 * 
@@ -594,13 +650,39 @@ public class RoomViewController extends BorderPane implements Listener {
 			patternCanvas.setVisible(false);
 		}
 	}
+	
+	/**
+	 * Toggles the display of zones on top of the map.
+	 * 
+	 */
+	public void toggleZones() {
+		if (zoneButton.isSelected()) {
+			zoneCanvas.setVisible(true);
+		} else {
+			zoneCanvas.setVisible(false);
+		}
+	}
+	
+	/**
+	 * Toggles the display of zones on top of the map.
+	 * 
+	 */
+	public void toggleLocks() {
+		if (lockButton.isSelected()) {
+			lockCanvas.setVisible(true);
+		} else {
+			lockCanvas.setVisible(false);
+		}
+	}
+
 
 	/**
 	 * Generates four new mini maps.
 	 * 
 	 * "Why is this public?",  you ask. Because of FXML's method binding.
 	 */
-	public void generateNewMaps() {
+	public void generateNewMaps()
+	{	
 		router.postEvent(new SuggestedMapsLoading());
 		resetMiniMaps();
 		generateNewMaps(getMapView().getMap());
@@ -624,7 +706,7 @@ public class RoomViewController extends BorderPane implements Listener {
 	 */
 	public void generateNewMaps(Map map) {
 		// TODO: If we want more diversity in the generated maps, then send more StartMapMutate events.
-		
+
 		if (!similarity && !symmetry ) {
 		router.postEvent(new StartMapMutate(map, MapMutationType.Preserving, AlgorithmTypes.Native, 2, true)); //TODO: Move some of this hard coding to ApplicationConfig
 		router.postEvent(new StartMapMutate(map, MapMutationType.ComputedConfig, AlgorithmTypes.Native, 2, true)); //TODO: Move some of this hard coding to ApplicationConfig
@@ -697,12 +779,37 @@ public class RoomViewController extends BorderPane implements Listener {
 	 * @param container
 	 */
 	private synchronized void redrawPatterns(Map map) {
+		//Change those 2 width and height hardcoded values (420,420)
+		//And change zone to its own method
 		patternCanvas.getGraphicsContext2D().clearRect(0, 0, 420, 420);
+		zoneCanvas.getGraphicsContext2D().clearRect(0, 0, 420, 420);
+
 		renderer.drawPatterns(patternCanvas.getGraphicsContext2D(), map.toMatrix(), colourPatterns(map.getPatternFinder().findMicroPatterns()));
 		renderer.drawGraph(patternCanvas.getGraphicsContext2D(), map.toMatrix(), map.getPatternFinder().getPatternGraph());
 		renderer.drawMesoPatterns(patternCanvas.getGraphicsContext2D(), map.toMatrix(), map.getPatternFinder().getMesoPatterns());
+		renderer.drawZones(zoneCanvas.getGraphicsContext2D(), map.toMatrix(), map.root, (int)(zoneSlider.getValue()),Color.BLACK);
 	}
 
+	/***
+	 * Redraw the lock in the map --> TODO: I am afraid this should be in the renderer
+	 * @param map
+	 */
+	private void redrawLocks(Map map)
+	{
+		lockCanvas.getGraphicsContext2D().clearRect(0, 0, 420, 420);
+		
+		for(int i = 0; i < map.getRowCount(); ++i)
+		{
+			for(int j = 0; j < map.getColCount(); ++j)
+			{
+				if(map.getTile(j, i).GetImmutable())
+				{
+					lockCanvas.getGraphicsContext2D().drawImage(renderer.GetLock(mapView.scale * 0.75f, mapView.scale * 0.75f), j * mapView.scale, i * mapView.scale);
+				}
+			}
+		}
+	}
+	
 	@FXML
 	public void clearStats() {
 		enemyNumbr.setText("");
@@ -901,24 +1008,79 @@ public class RoomViewController extends BorderPane implements Listener {
 
 	}
 
+
+//	/*
+//	 * Event handlers
+//	 */
+//	public class EditViewEventHandler implements EventHandler<MouseEvent> {
+//		@Override
+//		public void handle(MouseEvent event) {
+//			if (event.getTarget() instanceof ImageView && brush != null) {
+//				// Edit the map
+//				ImageView tile = (ImageView) event.getTarget();
+//				getMapView().updateTile(tile, brush, false, false);
+//				getMapView().getMap().forceReevaluation();
+//				mapIsFeasible(getMapView().getMap().isFeasibleTwo());
+//				redrawPatterns(getMapView().getMap());
+//			}
+//		}
+//
+//	}
+
 	/*
 	 * Event handlers
 	 */
 	public class EditViewEventHandler implements EventHandler<MouseEvent> {
 		@Override
-		public void handle(MouseEvent event) {
-			if (event.getTarget() instanceof ImageView && brush != null) {
+		public void handle(MouseEvent event) 
+		{
+			
+			if (event.getTarget() instanceof ImageView) {
 				// Edit the map
 				ImageView tile = (ImageView) event.getTarget();
-				getMapView().updateTile(tile, brush);
-				getMapView().getMap().forceReevaluation();
-				mapIsFeasible(getMapView().getMap().isFeasibleTwo());
-				redrawPatterns(getMapView().getMap());
+				
+				//TODO: This should go to its own class or function at least
+//				if(event.isControlDown())
+//					lockBrush.setSelected(true);
+//				else if()
+				myBrush.UpdateModifiers(event);
+//				mapView.updateTile(tile, brush, event.getButton() == MouseButton.SECONDARY, lockBrush.isSelected() || event.isControlDown());
+				mapView.updateTile(tile, myBrush);
+				mapView.getMap().forceReevaluation();
+				mapIsFeasible(mapView.getMap().isFeasibleTwo());
+				redrawPatterns(mapView.getMap());
+				redrawLocks(mapView.getMap());
+//				redrawHeatMap(mapView.getMap());
 			}
 		}
-
+		
 	}
-
+	
+	/*
+	 * Event handlers
+	 */
+	public class EditViewMouseHover implements EventHandler<MouseEvent> {
+		@Override
+		public void handle(MouseEvent event) 
+		{
+			brushCanvas.setVisible(false);
+			
+			if (event.getTarget() instanceof ImageView) 
+			{
+				// Show the brush canvas
+				ImageView tile = (ImageView) event.getTarget();
+				myBrush.SetBrushSize((int)(zoneSlider.getValue()));
+				brushCanvas.getGraphicsContext2D().clearRect(0, 0, 420, 420);
+				brushCanvas.setVisible(true);
+				util.Point p = mapView.CheckTile(tile);
+				myBrush.Update(event, p, mapView.getMap());
+				
+				renderer.drawBrush(brushCanvas.getGraphicsContext2D(), mapView.getMap().toMatrix(), myBrush, Color.WHITE);
+			}
+		}
+		
+	}
+	
 
 	@FXML
 	private void handleButtonAction(ActionEvent event) throws IOException {

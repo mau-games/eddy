@@ -79,7 +79,7 @@ public class Entrance extends InventorialPattern {
 	}
 	
 	private static boolean isEntrance(int[][] map, int x, int y) {
-		return map[x][y] == 5;
+		return map[y][x] == 5;
 	}
 	
 	private static double calculateEntranceQuality(Map map){
@@ -134,7 +134,7 @@ public class Entrance extends InventorialPattern {
     	while(!queue.isEmpty()){
     		Node current = queue.remove();
     		visited.add(current);
-    		if(map.getTile(current.position).isEnemy())
+    		if(map.getTile(current.position).GetType().isEnemy())
     			break;
     		
     		List<util.Point> children = map.getAvailableCoords(current.position);
@@ -176,7 +176,7 @@ public class Entrance extends InventorialPattern {
     	while(!queue.isEmpty()){
     		Node current = queue.remove();
     		visited.add(current);
-    		if(map.getTile(current.position).isTreasure())
+    		if(map.getTile(current.position).GetType().isTreasure())
     			break;
     		
     		List<util.Point> children = map.getAvailableCoords(current.position);
@@ -224,7 +224,7 @@ public class Entrance extends InventorialPattern {
 	        	while(!queue.isEmpty()){
 	        		Node current = queue.remove();
 	        		visited.add(current);
-	        		if(map.getTile(current.position).isEnemy()){
+	        		if(map.getTile(current.position).GetType().isEnemy()){
 	        			closestEnemy = current.position;
 	        			break;
 	        		}

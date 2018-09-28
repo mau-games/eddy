@@ -50,7 +50,7 @@ public class PatternFinder {
 	 */
 	public PatternFinder(Map map) {
 		this.map = map;
-		spacialPatternGrid = new SpacialPattern[map.getColCount()][map.getRowCount()];
+		spacialPatternGrid = new SpacialPattern[map.getRowCount()][map.getColCount()];
 	}
 	
 	// TODO: Implement this
@@ -136,27 +136,31 @@ public class PatternFinder {
 		//Build the pattern graph
 		assignSpacialPatternsToGrid();
 		
-		boolean visitedTiles[][] = new boolean[map.getColCount()][map.getRowCount()];
+		boolean visitedTiles[][] = new boolean[map.getRowCount()][map.getColCount()];
 		
 		patternGraph = new Graph<Pattern>();
 		Entrance entrance = (Entrance)micropatterns.stream().filter((Pattern p) -> {return p instanceof Entrance;}).findFirst().get();
 		Point entrancePosition = (Point)entrance.getGeometry();		
 		
-		Node<Pattern> start = patternGraph.addNode(spacialPatternGrid[entrancePosition.getX()][entrancePosition.getY()]);
+		Node<Pattern> start = patternGraph.addNode(spacialPatternGrid[entrancePosition.getY()][entrancePosition.getX()]);
 		
 		//Do a flood fill from this pattern to find all patterns
 		Queue<Node<Pattern>> patternQueue = new LinkedList<Node<Pattern>>();
-		patternQueue.add(start);
+
+//		if(start.getValue() != null)
+			patternQueue.add(start);
+	
 		
 		while(!patternQueue.isEmpty()){
-			
+			//TODO: PROBLEM IS HERE
 			Node<Pattern> currentPattern = patternQueue.remove();
 			//currentPattern.tryVisit();
 			
 			//Do a flood fill from a point in this pattern to find adjacent patterns
 			Queue<Point> tileQueue = new LinkedList<Point>();
+			
 			tileQueue.add(((Bitmap)currentPattern.getValue().getGeometry()).getPoint(0));
-			visitedTiles[((Bitmap)currentPattern.getValue().getGeometry()).getPoint(0).getX()][((Bitmap)currentPattern.getValue().getGeometry()).getPoint(0).getY()] = true;
+			visitedTiles[((Bitmap)currentPattern.getValue().getGeometry()).getPoint(0).getY()][((Bitmap)currentPattern.getValue().getGeometry()).getPoint(0).getX()] = true;
 			
 			List<Point> adjacentTiles = new ArrayList<Point>();
 			
@@ -168,44 +172,44 @@ public class PatternFinder {
 				int y = currentPoint.getY();
 				
 				//Add neighbouring tiles
-				if(x > 0 && !visitedTiles[x-1][y]){
-					if(spacialPatternGrid[x-1][y] == currentPattern.getValue()){
+				if(x > 0 && !visitedTiles[y][x-1]){
+					if(spacialPatternGrid[y][x-1] == currentPattern.getValue()){
 						tileQueue.add(new Point(x-1,y));
-						visitedTiles[x-1][y] = true;
-					} else if(spacialPatternGrid[x-1][y] != null){
+						visitedTiles[y][x-1] = true;
+					} else if(spacialPatternGrid[y][x-1] != null){
 						Point adjacentPoint = new Point(x-1,y);
 						if(adjacentTiles.stream().noneMatch((Point p) -> {return p.equals(adjacentPoint);})){
 							adjacentTiles.add(adjacentPoint);
 						}
 					}
 				}
-				if(x < map.getColCount() - 1 && !visitedTiles[x+1][y]){
-					if(spacialPatternGrid[x+1][y] == currentPattern.getValue()){
+				if(x < map.getColCount() - 1 && !visitedTiles[y][x+1]){
+					if(spacialPatternGrid[y][x+1] == currentPattern.getValue()){
 						tileQueue.add(new Point(x+1,y));
-						visitedTiles[x+1][y] = true;
-					} else if (spacialPatternGrid[x+1][y] != null){
+						visitedTiles[y][x+1] = true;
+					} else if (spacialPatternGrid[y][x+1] != null){
 						Point adjacentPoint = new Point(x+1,y);
 						if(adjacentTiles.stream().noneMatch((Point p) -> {return p.equals(adjacentPoint);})){
 							adjacentTiles.add(adjacentPoint);
 						}
 					}
 				}
-				if(y > 0 && !visitedTiles[x][y-1]){
-					if(spacialPatternGrid[x][y-1] == currentPattern.getValue()){
+				if(y > 0 && !visitedTiles[y-1][x]){
+					if(spacialPatternGrid[y-1][x] == currentPattern.getValue()){
 						tileQueue.add(new Point(x,y-1));
-						visitedTiles[x][y-1] = true;
-					} else if (spacialPatternGrid[x][y-1] != null){
+						visitedTiles[y-1][x] = true;
+					} else if (spacialPatternGrid[y-1][x] != null){
 						Point adjacentPoint = new Point(x,y-1);
 						if(adjacentTiles.stream().noneMatch((Point p) -> {return p.equals(adjacentPoint);})){
 							adjacentTiles.add(adjacentPoint);
 						}
 					}
 				}
-				if(y < map.getRowCount() - 1 && !visitedTiles[x][y+1]){
-					if(spacialPatternGrid[x][y+1] == currentPattern.getValue()){
+				if(y < map.getRowCount() - 1 && !visitedTiles[y+1][x]){
+					if(spacialPatternGrid[y+1][x] == currentPattern.getValue()){
 						tileQueue.add(new Point(x,y+1));
-						visitedTiles[x][y+1] = true;
-					} else if (spacialPatternGrid[x][y+1] != null){
+						visitedTiles[y+1][x] = true;
+					} else if (spacialPatternGrid[y+1][x] != null){
 						Point adjacentPoint = new Point(x,y+1);
 						if(adjacentTiles.stream().noneMatch((Point p) -> {return p.equals(adjacentPoint);})){
 							adjacentTiles.add(adjacentPoint);
@@ -217,7 +221,7 @@ public class PatternFinder {
 			
 			//Create the new nodes
 			for(Point p : adjacentTiles){
-				Node<Pattern> n = patternGraph.addNode(spacialPatternGrid[p.getX()][p.getY()]);
+				Node<Pattern> n = patternGraph.addNode(spacialPatternGrid[p.getY()][p.getX()]);
 				if(n != null){
 					patternQueue.add(n);
 				}
@@ -236,7 +240,7 @@ public class PatternFinder {
 					adjacentTiles.removeIf((Point p)->{return adjacent(currentPoint,p) && samePattern(currentPoint,p);});
 				}
 				
-				currentPattern.forciblyConnectTo(patternGraph.getNode(spacialPatternGrid[visited.get(0).getX()][visited.get(0).getY()]), visited.size());
+				currentPattern.forciblyConnectTo(patternGraph.getNode(spacialPatternGrid[visited.get(0).getY()][visited.get(0).getX()]), visited.size());
 				
 			}
 			
@@ -246,7 +250,7 @@ public class PatternFinder {
 	}
 	
 	private boolean samePattern(Point a, Point b){
-		return spacialPatternGrid[a.getX()][a.getY()] == spacialPatternGrid[b.getX()][b.getY()];
+		return spacialPatternGrid[a.getY()][a.getX()] == spacialPatternGrid[b.getY()][b.getX()];
 	}
 	
 	private boolean adjacent(Point a, Point b){
@@ -262,7 +266,7 @@ public class PatternFinder {
 		for(Pattern p : micropatterns){
 			if (p instanceof SpacialPattern){
 				for(Point point : ((Bitmap)p.getGeometry()).getPoints()){
-					spacialPatternGrid[point.getX()][point.getY()] = (SpacialPattern)p;
+					spacialPatternGrid[point.getY()][point.getX()] = (SpacialPattern)p;
 				}
 				
 			}

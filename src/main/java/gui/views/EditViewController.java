@@ -1,6 +1,7 @@
 package gui.views;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
@@ -8,6 +9,7 @@ import java.util.UUID;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import finder.geometry.Point;
 import finder.patterns.Pattern;
 import finder.patterns.micro.Connector;
 import finder.patterns.micro.Corridor;
@@ -16,9 +18,11 @@ import game.ApplicationConfig;
 import game.Map;
 import game.TileTypes;
 import game.Game.MapMutationType;
+import gui.controls.Drawer;
 import generator.algorithm.Algorithm.AlgorithmTypes;
 import gui.controls.InteractiveMap;
 import gui.controls.LabeledCanvas;
+import gui.controls.Modifier;
 import gui.utils.MapRenderer;
 import javafx.application.Platform;
 import javafx.event.EventHandler;
@@ -30,10 +34,12 @@ import javafx.scene.Cursor;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.Label;
+import javafx.scene.control.Slider;
 import javafx.scene.control.ToggleButton;
 import javafx.scene.control.ToggleGroup;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
@@ -58,10 +64,20 @@ public class EditViewController extends BorderPane implements Listener {
 	@FXML private StackPane mapPane;
 	@FXML private GridPane legend;
 	@FXML private ToggleGroup brushes;
+	@FXML private ToggleButton lockBrush;
 	@FXML private ToggleButton patternButton;
+	@FXML private ToggleButton lockButton;
+	@FXML private ToggleButton zoneButton;
+	@FXML private Slider zoneSlider;
+	
 	private InteractiveMap mapView;
 	private Canvas patternCanvas;
 	private Canvas warningCanvas;
+	private Canvas zoneCanvas;
+	private Canvas lockCanvas;
+	private Canvas brushCanvas;
+	//test canvas
+	private Canvas heatMapCanvas;
 	
 	private boolean isActive = false;
 	private boolean isFeasible = true;
@@ -73,6 +89,8 @@ public class EditViewController extends BorderPane implements Listener {
 	private static EventRouter router = EventRouter.getInstance();
 	private final static Logger logger = LoggerFactory.getLogger(EditViewController.class);
 	private ApplicationConfig config;
+	
+	public Drawer myBrush;
 
 	/**
 	 * Creates an instance of this class.
@@ -95,7 +113,14 @@ public class EditViewController extends BorderPane implements Listener {
 		
 		router.registerListener(this, new MapUpdate(null));
 		
+		myBrush = new Drawer();
+		myBrush.AddmodifierComponent("Lock", new Modifier(lockBrush));
+		
 		init();
+		
+		zoneSlider.valueProperty().addListener((obs, oldval, newVal) -> { 
+			redrawPatterns(mapView.getMap());
+			});
 	}
 	
 	/**
@@ -120,6 +145,33 @@ public class EditViewController extends BorderPane implements Listener {
 		mapView.setMinSize(width, height);
 		mapView.setMaxSize(width, height);
 		mapPane.getChildren().add(mapView);
+		
+		heatMapCanvas = new Canvas(width, height);
+		StackPane.setAlignment(heatMapCanvas, Pos.CENTER);
+		mapPane.getChildren().add(heatMapCanvas);
+		heatMapCanvas.setVisible(true);
+		heatMapCanvas.setMouseTransparent(true);
+		heatMapCanvas.setOpacity(0.8f);
+		
+		brushCanvas = new Canvas(width, height);
+		StackPane.setAlignment(brushCanvas, Pos.CENTER);
+		mapPane.getChildren().add(brushCanvas);
+		brushCanvas.setVisible(false);
+		brushCanvas.setMouseTransparent(true);
+		brushCanvas.setOpacity(1.0f);
+		
+		lockCanvas = new Canvas(width, height);
+		StackPane.setAlignment(lockCanvas, Pos.CENTER);
+		mapPane.getChildren().add(lockCanvas);
+		lockCanvas.setVisible(false);
+		lockCanvas.setMouseTransparent(true);
+		lockCanvas.setOpacity(0.4f);
+		
+		zoneCanvas = new Canvas(width, height);
+		StackPane.setAlignment(zoneCanvas, Pos.CENTER);
+		mapPane.getChildren().add(zoneCanvas);
+		zoneCanvas.setVisible(false);
+		zoneCanvas.setMouseTransparent(true);
 		
 		patternCanvas = new Canvas(width, height);
 		StackPane.setAlignment(patternCanvas, Pos.CENTER);
@@ -163,6 +215,8 @@ public class EditViewController extends BorderPane implements Listener {
 	 */
 	private void initMiniMaps() {
 		mapView.addEventFilter(MouseEvent.MOUSE_CLICKED, new EditViewEventHandler());
+//		mapView.addEventFilter(MouseEvent.MOUSE_ENTERED, new EditViewEventHandler());
+		mapView.addEventFilter(MouseEvent.MOUSE_MOVED, new EditViewMouseHover());
 		getMap(0).addEventFilter(MouseEvent.MOUSE_CLICKED, (e) -> {
 			replaceMap(0);
 		});
@@ -302,6 +356,7 @@ public class EditViewController extends BorderPane implements Listener {
 	public void updateMap(Map map) {
 		mapView.updateMap(map);
 		redrawPatterns(map);
+		redrawLocks(map);
 		mapIsFeasible(map.isFeasible());
 		resetMiniMaps();
 	}
@@ -334,6 +389,7 @@ public class EditViewController extends BorderPane implements Listener {
 		if (brushes.getSelectedToggle() == null) {
 			brush = null;
 			mapView.setCursor(Cursor.DEFAULT);
+			
 		} else {
 			mapView.setCursor(Cursor.HAND);
 			
@@ -352,6 +408,17 @@ public class EditViewController extends BorderPane implements Listener {
 				break;
 			}
 		}
+		
+		myBrush.SetMainComponent(brush);
+		
+	}
+	
+	/**
+	 * Toggles the main use of the lock modifier in the brush
+	 */
+	public void selectLockModifier()
+	{
+		myBrush.ChangeModifierMainValue("Lock", lockBrush.isSelected());
 	}
 	
 	/**
@@ -364,6 +431,30 @@ public class EditViewController extends BorderPane implements Listener {
 			patternCanvas.setVisible(true);
 		} else {
 			patternCanvas.setVisible(false);
+		}
+	}
+	
+	/**
+	 * Toggles the display of zones on top of the map.
+	 * 
+	 */
+	public void toggleZones() {
+		if (zoneButton.isSelected()) {
+			zoneCanvas.setVisible(true);
+		} else {
+			zoneCanvas.setVisible(false);
+		}
+	}
+	
+	/**
+	 * Toggles the display of zones on top of the map.
+	 * 
+	 */
+	public void toggleLocks() {
+		if (lockButton.isSelected()) {
+			lockCanvas.setVisible(true);
+		} else {
+			lockCanvas.setVisible(false);
 		}
 	}
 	
@@ -443,27 +534,190 @@ public class EditViewController extends BorderPane implements Listener {
 	 * @param container
 	 */
 	private synchronized void redrawPatterns(Map map) {
+		//Change those 2 width and height hardcoded values (420,420)
 		patternCanvas.getGraphicsContext2D().clearRect(0, 0, 420, 420);
+		zoneCanvas.getGraphicsContext2D().clearRect(0, 0, 420, 420);
+		
 		renderer.drawPatterns(patternCanvas.getGraphicsContext2D(), map.toMatrix(), colourPatterns(map.getPatternFinder().findMicroPatterns()));
 		renderer.drawGraph(patternCanvas.getGraphicsContext2D(), map.toMatrix(), map.getPatternFinder().getPatternGraph());
 		renderer.drawMesoPatterns(patternCanvas.getGraphicsContext2D(), map.toMatrix(), map.getPatternFinder().getMesoPatterns());
+		renderer.drawZones(zoneCanvas.getGraphicsContext2D(), map.toMatrix(), map.root, (int)(zoneSlider.getValue()),Color.BLACK);
+	}
+	
+	/***
+	 * Redraw the lock in the map --> TODO: I am afraid this should be in the renderer
+	 * @param map
+	 */
+	private void redrawLocks(Map map)
+	{
+		lockCanvas.getGraphicsContext2D().clearRect(0, 0, 420, 420);
+		
+		for(int i = 0; i < map.getRowCount(); ++i)
+		{
+			for(int j = 0; j < map.getColCount(); ++j)
+			{
+				if(map.getTile(j, i).GetImmutable())
+				{
+					lockCanvas.getGraphicsContext2D().drawImage(renderer.GetLock(mapView.scale * 0.75f, mapView.scale * 0.75f), j * mapView.scale, i * mapView.scale);
+				}
+			}
 		}
+	}
+	
+	private void redrawHeatMap(Map map)
+	{
+		int width = map.getColCount();
+		int height = map.getRowCount();
+		double pWidth = heatMapCanvas.getGraphicsContext2D().getCanvas().getWidth() / (double)Math.max(width, height);
+		
+		Color danger = Color.RED;
+		Color treasure = Color.BLUE;
+		Color unpassable = Color.CYAN;
+		Color nothing = Color.GREEN;
+
+		heatMapCanvas.getGraphicsContext2D().clearRect(0, 0, 420, 420);
+		
+		for(int i = 0; i < map.getRowCount(); ++i)
+		{
+			for(int j = 0; j < map.getColCount(); ++j)
+			{
+				float analyzed_cells = 0.0f;
+				Point p = new Point(j,i);
+				List<Point> neighbors = Arrays.asList(	p,
+														new Point(p.getX(), p.getY() + 1),
+														new Point(p.getX() + 1, p.getY()),
+														new Point(p.getX(), p.getY() - 1),
+														new Point(p.getX() - 1, p.getY()));	
+//				Point p0 = new Point(j, i + 1);
+//				Point p1 = new Point(j + 1, i);
+//				Point p2 = new Point(j, i- 1);
+//				Point p3 = new Point(j - 1, i);
+//				
+				Color final_color = Color.BLACK;
+				float danger_percent = 0.0f;
+				float resource_percent = 0.0f;
+				float nothing_percent = 0.0f;
+				float unpassable_percent = 0.0f;
+				
+//				for(Point neighbor: neighbors)
+//				{
+//					if(neighbor.getX() > -1 && neighbor.getX() < width && neighbor.getY() > -1 && neighbor.getY() < height)
+//					{
+//						analyzed_cells++;
+//						TileTypes til = map.getTile(neighbor.getX(), neighbor.getY()).GetType();
+//						
+//						if(til == TileTypes.ENEMY) danger_percent += 1;
+//						else if(til == TileTypes.TREASURE) resource_percent += 1;
+//						else if(til == TileTypes.WALL) unpassable_percent += 1;
+//						else nothing_percent += 1;
+//					}
+//				}
+				
+				analyzed_cells++;
+				TileTypes til = map.getTile(p.getX(), p.getY()).GetType();
+				
+				if(til == TileTypes.ENEMY) danger_percent += 1;
+				else if(til == TileTypes.TREASURE) resource_percent += 1;
+				else if(til == TileTypes.WALL) unpassable_percent += 1;
+				else nothing_percent += 1;
+				
+				danger_percent = danger_percent/analyzed_cells;
+				resource_percent = resource_percent/analyzed_cells;
+				nothing_percent = nothing_percent/analyzed_cells;
+				unpassable_percent = unpassable_percent/analyzed_cells;
+				
+				final_color = final_color.interpolate(danger, danger_percent);
+				final_color = final_color.interpolate(treasure, resource_percent);
+				final_color = final_color.interpolate(nothing, nothing_percent);
+				final_color = final_color.interpolate(unpassable, unpassable_percent);
+				
+				//final_color = helperPlus4(helperMultiplier(unpassable, unpassable_percent), helperMultiplier(danger, danger_percent), helperMultiplier(treasure, resource_percent), helperMultiplier(nothing, nothing_percent));
+				
+				heatMapCanvas.getGraphicsContext2D().setFill(final_color);
+				heatMapCanvas.getGraphicsContext2D().fillRect(p.getX() * pWidth, p.getY() * pWidth, pWidth, pWidth);
+//				if(map.getTile(j, i).GetImmutable())
+//				{
+//					heatMapCanvas.getGraphicsContext2D().drawImage(renderer.GetLock(mapView.scale * 0.75f, mapView.scale * 0.75f), j * mapView.scale, i * mapView.scale);
+//				}
+			}
+		}
+	}
+	
+	private Color helperMultiplier(Color c, float multiplier)
+	{
+		return new Color(c.getRed() * multiplier, c.getGreen() * multiplier, c.getBlue() * multiplier, 1.0f);
+	}
+	
+	private Color helperPlus4(Color c, Color c1, Color c2, Color c3)
+	{
+		return new Color(c.getRed() + c1.getRed() + c2.getRed() + c3.getRed(), 
+						c.getGreen() + c1.getGreen() + c2.getGreen() +  c3.getGreen(),
+						c.getBlue() + c1.getBlue() + c2.getBlue() + c3.getBlue(), 1.0f)	;
+	}
+	
+	private Color helperPlus(Color c, Color c1, Color c2)
+	{
+		return new Color(c.getRed() + c1.getRed() + c2.getRed(), 
+						c.getGreen() + c1.getGreen() + c2.getGreen(),
+						c.getBlue() + c1.getBlue() + c2.getBlue(), 1.0f)	;
+	}
 	
 	/*
 	 * Event handlers
 	 */
 	private class EditViewEventHandler implements EventHandler<MouseEvent> {
 		@Override
-		public void handle(MouseEvent event) {
-			if (event.getTarget() instanceof ImageView && brush != null) {
+		public void handle(MouseEvent event) 
+		{
+			
+			if (event.getTarget() instanceof ImageView) {
 				// Edit the map
 				ImageView tile = (ImageView) event.getTarget();
-				mapView.updateTile(tile, brush);
+				
+//				//TODO: Super hack
+//				if(!mapView.getMap().EveryRoomVisitable() && myBrush.GetModifierValue("Lock"))
+//					return;
+				
+				//TODO: This should go to its own class or function at least
+//				if(event.isControlDown())
+//					lockBrush.setSelected(true);
+//				else if()
+				myBrush.UpdateModifiers(event);
+//				mapView.updateTile(tile, brush, event.getButton() == MouseButton.SECONDARY, lockBrush.isSelected() || event.isControlDown());
+				mapView.updateTile(tile, myBrush);
 				mapView.getMap().forceReevaluation();
 				mapIsFeasible(mapView.getMap().isFeasible());
 				redrawPatterns(mapView.getMap());
+				redrawLocks(mapView.getMap());
+//				redrawHeatMap(mapView.getMap());
 			}
 		}
 		
 	}
+	
+	/*
+	 * Event handlers
+	 */
+	private class EditViewMouseHover implements EventHandler<MouseEvent> {
+		@Override
+		public void handle(MouseEvent event) 
+		{
+			brushCanvas.setVisible(false);
+			
+			if (event.getTarget() instanceof ImageView) 
+			{
+				// Show the brush canvas
+				ImageView tile = (ImageView) event.getTarget();
+				myBrush.SetBrushSize((int)(zoneSlider.getValue()));
+				brushCanvas.getGraphicsContext2D().clearRect(0, 0, 420, 420);
+				brushCanvas.setVisible(true);
+				util.Point p = mapView.CheckTile(tile);
+				myBrush.Update(event, p, mapView.getMap());
+				
+				renderer.drawBrush(brushCanvas.getGraphicsContext2D(), mapView.getMap().toMatrix(), myBrush, Color.WHITE);
+			}
+		}
+		
+	}
+	
 }

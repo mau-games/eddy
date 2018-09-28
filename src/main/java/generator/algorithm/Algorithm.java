@@ -53,11 +53,11 @@ public class Algorithm extends Thread {
 	private float mutationProbability;
 	private float offspringSize;
 	
-	private List<Individual> feasiblePopulation;
-	private List<Individual> infeasiblePopulation;
-	private Individual best;
-	private List<Individual> feasiblePool;
-	private List<Individual> infeasiblePool;
+	private List<ZoneIndividual> feasiblePopulation;
+	private List<ZoneIndividual> infeasiblePopulation;
+	private ZoneIndividual best;
+	private List<ZoneIndividual> feasiblePool;
+	private List<ZoneIndividual> infeasiblePool;
 	private boolean stop = false;
 	private int feasibleAmount;
 	private double roomTarget;
@@ -107,7 +107,7 @@ public class Algorithm extends Thread {
 		feasibleAmount = (int)((double)populationSize * config.getFeasibleProportion());
 		roomTarget = config.getRoomProportion();
 		corridorTarget = config.getCorridorProportion();
-
+		
 		// Uncomment this for silly debugging
 //		System.out.println("Starting run #" + id);
 		initPopulations();
@@ -128,6 +128,8 @@ public class Algorithm extends Thread {
 		feasibleAmount = (int)((double)populationSize * config.getFeasibleProportion());
 		roomTarget = config.getRoomProportion();
 		corridorTarget = config.getCorridorProportion();
+		
+//		System.out.println("I AM PASSING THE MAP!!");
 
 		// Uncomment this for silly debugging
 //		System.out.println("Starting run #" + id);
@@ -165,18 +167,18 @@ public class Algorithm extends Thread {
 		broadcastStatusUpdate("Initialising...");
 		oldMap = map;
 				
-		feasiblePool = new ArrayList<Individual>();
-		infeasiblePool = new ArrayList<Individual>();
-		feasiblePopulation = new ArrayList<Individual>();
-		infeasiblePopulation = new ArrayList<Individual>();
-		
+		feasiblePool = new ArrayList<ZoneIndividual>();
+		infeasiblePool = new ArrayList<ZoneIndividual>();
+		feasiblePopulation = new ArrayList<ZoneIndividual>();
+		infeasiblePopulation = new ArrayList<ZoneIndividual>();
+
 		int i = 0;
 		int j = 0;
 		while((i + j) < populationSize){
-			Individual ind = new Individual(map, mutationProbability);
+			ZoneIndividual ind = new ZoneIndividual(map, mutationProbability);
 			ind.mutateAll(0.4);
 			
-			if(checkIndividual(ind)){
+			if(checkZoneIndividual(ind)){
 				if(i < feasibleAmount){
 					feasiblePool.add(ind);
 					i++;
@@ -194,23 +196,23 @@ public class Algorithm extends Thread {
 	}
 	
 	/**
-	 * Creates lists for the valid and invalid populations and populates them with individuals.
+	 * Creates lists for the valid and invalid populations and populates them with ZoneIndividuals.
 	 */
 	private void initPopulations(){
 		broadcastStatusUpdate("Initialising...");
 		
-		feasiblePool = new ArrayList<Individual>();
-		infeasiblePool = new ArrayList<Individual>();
-		feasiblePopulation = new ArrayList<Individual>();
-		infeasiblePopulation = new ArrayList<Individual>();
+		feasiblePool = new ArrayList<ZoneIndividual>();
+		infeasiblePool = new ArrayList<ZoneIndividual>();
+		feasiblePopulation = new ArrayList<ZoneIndividual>();
+		infeasiblePopulation = new ArrayList<ZoneIndividual>();
 		
 		int i = 0;
 		int j = 0;
 		while((i + j) < populationSize){
-			Individual ind = new Individual(config, Game.sizeN * Game.sizeM, mutationProbability);
+			ZoneIndividual ind = new ZoneIndividual(config, Game.sizeHeight * Game.sizeWidth, mutationProbability);
 			ind.initialize();
 			
-			if(checkIndividual(ind)){
+			if(checkZoneIndividual(ind)){
 				if(i < feasibleAmount){
 					feasiblePool.add(ind);
 					i++;
@@ -231,7 +233,6 @@ public class Algorithm extends Thread {
 	 * Starts the algorithm. Called when the thread starts.
 	 */
 	public void run(){
-		
 		AlgorithmStarted as = new AlgorithmStarted();
 		as.setID(id);
 		EventRouter.getInstance().postEvent(as);
@@ -255,8 +256,10 @@ public class Algorithm extends Thread {
             double[] dataValid = infoGenerational(feasiblePopulation, true);
             
 //            broadcastStatusUpdate("BEST fitness: " + best.getFitness());
+//            System.out.println("DOORS: " + best.getPhenotype().getMap().getDoorCount());
             
             map = best.getPhenotype().getMap();
+           
             //broadcastMapUpdate(map);
             
           
@@ -269,9 +272,9 @@ public class Algorithm extends Thread {
 //        	broadcastStatusUpdate("Infeasibles moved: " + infeasiblesMoved);
 //        	broadcastStatusUpdate("Moved infeasibles kept: " + movedInfeasiblesKept);
 //        	
-        	breedFeasibleIndividuals();
-        	breedInfeasibleIndividuals();
-//        	
+        	breedFeasibleZoneIndividuals();
+        	breedInfeasibleZoneIndividuals();
+
 //        	
 //        	//Check diversity:
 //        	double distance = 0.0;
@@ -280,7 +283,7 @@ public class Algorithm extends Thread {
 //        			distance += best.getDistance(feasiblePopulation.get(i));
 //        	}
 //        	double averageDistance = distance / (double)(feasiblePopulation.size() - 1);
-//        	broadcastStatusUpdate("Average distance from best individual: " + averageDistance);
+//        	broadcastStatusUpdate("Average distance from best ZoneIndividual: " + averageDistance);
 //        	
 //        	double passableTiles = map.getNonWallTileCount();
         	
@@ -296,7 +299,7 @@ public class Algorithm extends Thread {
         	//String generation = "" + best.getFitness() + "," + dataValid[0] + "," + best.getCorridorFitness() + "," + best.getRoomFitness() + "," + best.getCorridorArea()/passableTiles + "," + best.getRoomArea()/passableTiles + "," + best.getTreasureAndEnemyFitness();
         	//EventRouter.getInstance().postEvent(new GenerationDone(generation));
         }
-        broadcastMapUpdate(map);
+        broadcastMapUpdate(map); //TODO: SOMETHING HERE
         PatternFinder finder = map.getPatternFinder();
 		MapContainer result = new MapContainer();
 		result.setMap(map);
@@ -309,67 +312,67 @@ public class Algorithm extends Thread {
 	}
 	
 	/**
-	 * Evaluates the fitness of all individuals in pools and trims them down to the desired sizes
+	 * Evaluates the fitness of all ZoneIndividuals in pools and trims them down to the desired sizes
 	 */
 	private void evaluateAndTrimPools(){
-        //Evaluate valid individuals
-        for(Individual ind : feasiblePool)
+        //Evaluate valid ZoneIndividuals
+        for(ZoneIndividual ind : feasiblePool)
         {
             if (!ind.isEvaluated())
-                evaluateFeasibleIndividual(ind);
+                evaluateFeasibleZoneIndividual(ind);
         }
         this.sortPopulation(feasiblePool, false);
         feasiblePool = feasiblePool.stream().limit(feasibleAmount).collect(Collectors.toList());
-        feasiblePool.forEach(individual -> {if(((Individual)individual).isChildOfInfeasibles()) movedInfeasiblesKept++; individual.setChildOfInfeasibles(false);});
+        feasiblePool.forEach(ZoneIndividual -> {if(((ZoneIndividual)ZoneIndividual).isChildOfInfeasibles()) movedInfeasiblesKept++; ZoneIndividual.setChildOfInfeasibles(false);});
 
-        //Evaluate invalid individuals
-        for(Individual ind : infeasiblePool)
+        //Evaluate invalid ZoneIndividuals
+        for(ZoneIndividual ind : infeasiblePool)
         {
             if (!ind.isEvaluated())
-                evaluateInfeasibleIndividual(ind);
+                evaluateInfeasibleZoneIndividual(ind);
         }
         this.sortPopulation(infeasiblePool, false);
         infeasiblePool = infeasiblePool.stream().limit(populationSize - feasibleAmount).collect(Collectors.toList());
 	}
 	
 	/**
-	 * Copy individuals from pools to populations for breeding etc.
+	 * Copy ZoneIndividuals from pools to populations for breeding etc.
 	 */
 	private void copyPoolsToPopulations(){
 		feasiblePopulation.clear();
-		feasiblePool.forEach(individual -> feasiblePopulation.add(individual));
+		feasiblePool.forEach(ZoneIndividual -> feasiblePopulation.add(ZoneIndividual));
 		
 		infeasiblePopulation.clear();
-		infeasiblePool.forEach(individual -> infeasiblePopulation.add(individual));
+		infeasiblePool.forEach(ZoneIndividual -> infeasiblePopulation.add(ZoneIndividual));
 	}
 	
 	/**
-	 * Checks if an individual is valid (feasible), that is:
+	 * Checks if an ZoneIndividual is valid (feasible), that is:
 	 * 1. There exist paths between the entrance and all other doors
 	 * 2. There exist paths between the entrance and all enemies
 	 * 3. There exist paths between the entrance and all treasures
 	 * 4. There is at least one enemy
 	 * 5. There is at least one treasure
 	 * 
-	 * @param ind The individual to check
-	 * @return Return true if individual is valid, otherwise return false
+	 * @param ind The ZoneIndividual to check
+	 * @return Return true if ZoneIndividual is valid, otherwise return false
     */
-	private boolean checkIndividual(Individual ind){
+	private boolean checkZoneIndividual(ZoneIndividual ind){
 		Map map = ind.getPhenotype().getMap();
 		return map.isFeasible();
 	}
 	
 	/**
-	 * Evaluates the fitness of a valid individual using the following factors:
+	 * Evaluates the fitness of a valid ZoneIndividual using the following factors:
 	 *  1. Entrance safety (how close are enemies to the entrance)
 	 *  2. Proportion of tiles that are enemies
 	 *  3. Average treasure safety (Are treasures closer to the door or enemies?)
 	 *  4. Proportion of tiles that are treasure
 	 *  5. Treasure safety variance (whatever this is!)
 	 * 
-	 * @param ind The valid individual to evaluate
+	 * @param ind The valid ZoneIndividual to evaluate
 	 */
-    public void evaluateFeasibleIndividual(Individual ind)
+    public void evaluateFeasibleZoneIndividual(ZoneIndividual ind)
     {
         Map map = ind.getPhenotype().getMap();
         PatternFinder finder = map.getPatternFinder();
@@ -543,7 +546,7 @@ public class Algorithm extends Thread {
     }
     
     /**
-     * Evaluates the percent similarity between the old map with the new individual map and calculates with the ideal percent to give the fitness function
+     * Evaluates the percent similarity between the old map with the new ZoneIndividual map and calculates with the ideal percent to give the fitness function
      * 
      * double procentSimilar = similarTiles / totalTiles;
      * 
@@ -554,7 +557,7 @@ public class Algorithm extends Thread {
      * double similarityFitness = (1 - procentSimilar) / (1 - idealProcentSimilarity);   
      * 
      * @param oldMap the map that the new generations take their values from
-     * @param newMap the newly created individual map
+     * @param newMap the newly created ZoneIndividual map
      * @param idealProcentSimilarity determines how much similar the two maps should be to be ideal.
      */
 	private double evaluateSimilarityFitnessValue(Map oldMap, Map newMap, double idealProcentSimilarity)
@@ -589,15 +592,16 @@ public class Algorithm extends Thread {
     	double procentSimilar = similarTiles / totalTiles;
     	
     	// Calculates the simularityFitness with the idealProcentSimilarity to be able to control how much they change
-    	double similarityFitness = 1.0;    	
-    	if(procentSimilar < idealProcentSimilarity)
-		{
-    		similarityFitness = procentSimilar / idealProcentSimilarity;
-		}
-    	else
-    	{
-    		similarityFitness = (1 - procentSimilar) / (1 - idealProcentSimilarity);    	
-    	}
+    	double similarityFitness = 1.0;
+    	similarityFitness = 1.0 - Math.abs(idealProcentSimilarity - procentSimilar);
+//    	if(procentSimilar < idealProcentSimilarity)
+//		{
+//    		similarityFitness = procentSimilar / idealProcentSimilarity;
+//		}
+//    	else
+//    	{
+//    		similarityFitness = (1 - procentSimilar) / (1 - idealProcentSimilarity);    	
+//    	}
     	return similarityFitness;
     }
 	
@@ -687,15 +691,15 @@ public class Algorithm extends Thread {
     }
 
     /**
-     * Evaluates an invalid individual's fitness according the following formula:
+     * Evaluates an invalid ZoneIndividual's fitness according the following formula:
      * 
      * fitness = 1 - ((1/3) * (pathToEnemiesFail/enemiesCount) +
      *				  (1/3) * (pathToTreasuresFail/treasuresCount) +
      *                (1/3) * (pathToDoorsFail/doorsCount))
      * 
-     * @param ind The invalid individual to evaluate
+     * @param ind The invalid ZoneIndividual to evaluate
      */
-	public void evaluateInfeasibleIndividual(Individual ind)
+	public void evaluateInfeasibleZoneIndividual(ZoneIndividual ind)
 	{
 		double fitness = 0.0;
 	    Map map = ind.getPhenotype().getMap();
@@ -727,49 +731,49 @@ public class Algorithm extends Thread {
 	 */
 	public void evaluateGeneration()
     {
-        //Evaluate valid individuals
-        for(Individual ind : feasiblePopulation)
+        //Evaluate valid ZoneIndividuals
+        for(ZoneIndividual ind : feasiblePopulation)
         {
             if (!ind.isEvaluated())
-                evaluateFeasibleIndividual(ind);
+                evaluateFeasibleZoneIndividual(ind);
         }
 
-        //Evaluate invalid individuals
-        for(Individual ind : infeasiblePopulation)
+        //Evaluate invalid ZoneIndividuals
+        for(ZoneIndividual ind : infeasiblePopulation)
         {
             if (!ind.isEvaluated())
-                evaluateInfeasibleIndividual(ind);
+                evaluateInfeasibleZoneIndividual(ind);
         }
     }
 
     /**
      * Produces a new valid generation according to the following procedure:
-     *  1. Select individuals from the valid population to breed
-     *  2. Crossover these individuals
+     *  1. Select ZoneIndividuals from the valid population to breed
+     *  2. Crossover these ZoneIndividuals
      *  3. Add them back into the population
      */
-    private void breedFeasibleIndividuals()
+    private void breedFeasibleZoneIndividuals()
     {
         //Select parents for crossover
-        List<Individual> parents = tournamentSelection(feasiblePopulation);
+        List<ZoneIndividual> parents = tournamentSelection(feasiblePopulation);
         //Crossover parents
-        List<Individual> children = crossOverBetweenProgenitors(parents);
+        List<ZoneIndividual> children = crossOverBetweenProgenitors(parents);
         //Assign to a pool based on feasibility
         assignToPool(children, false);
     }
 
     /**
      * Produces a new invalid generation according to the following procedure:
-     *  1. Select individuals from the invalid population to breed
-     *  2. Crossover these individuals
+     *  1. Select ZoneIndividuals from the invalid population to breed
+     *  2. Crossover these ZoneIndividuals
      *  3. Add them back into the population
      */
-    private void breedInfeasibleIndividuals()
+    private void breedInfeasibleZoneIndividuals()
     {
         //Select parents for crossover
-        List<Individual> parents = tournamentSelection(infeasiblePopulation);
+        List<ZoneIndividual> parents = tournamentSelection(infeasiblePopulation);
         //Crossover parents
-        List<Individual> children = crossOverBetweenProgenitors(parents);
+        List<ZoneIndividual> children = crossOverBetweenProgenitors(parents);
         //Assign to a pool based on feasibility
         infeasiblesMoved = 0;
         assignToPool(children, true);
@@ -778,19 +782,19 @@ public class Algorithm extends Thread {
     /**
      * Crossover 
      * 
-     * @param progenitors A List of Individuals to be reproduced
-     * @return A List of Individuals
+     * @param progenitors A List of ZoneIndividuals to be reproduced
+     * @return A List of ZoneIndividuals
      */
-    private List<Individual> crossOverBetweenProgenitors(List<Individual> progenitors)
+    private List<ZoneIndividual> crossOverBetweenProgenitors(List<ZoneIndividual> progenitors)
     {
-        List<Individual> sons = new ArrayList<Individual>();
+        List<ZoneIndividual> sons = new ArrayList<ZoneIndividual>();
         int sizeProgenitors = progenitors.size();
         int countSons = 0;
         int sonSize = sizeProgenitors * 2;
 
         while (countSons < sonSize)
         {
-            Individual[] offspring = progenitors.get(Util.getNextInt(0, sizeProgenitors)).twoPointCrossover(progenitors.get(Util.getNextInt(0, sizeProgenitors)));
+            ZoneIndividual[] offspring = progenitors.get(Util.getNextInt(0, sizeProgenitors)).twoPointCrossover(progenitors.get(Util.getNextInt(0, sizeProgenitors)));
             sons.addAll(Arrays.asList(offspring));
             countSons += 2;
         }
@@ -800,32 +804,32 @@ public class Algorithm extends Thread {
 
     
     /**
-     * Selects parents from a population using (deterministic) tournament selection - i.e. the winner is always the individual with the "best" fitness.
+     * Selects parents from a population using (deterministic) tournament selection - i.e. the winner is always the ZoneIndividual with the "best" fitness.
      * See: https://en.wikipedia.org/wiki/Tournament_selection
      * 
-     * @param population A whole population of individuals
+     * @param population A whole population of ZoneIndividuals
      * @return A list of chosen progenitors
      */
-    private List<Individual> tournamentSelection(List<Individual> population)
+    private List<ZoneIndividual> tournamentSelection(List<ZoneIndividual> population)
     { 
-        List<Individual> parents = new ArrayList<Individual>();
+        List<ZoneIndividual> parents = new ArrayList<ZoneIndividual>();
         int numberOfParents = (int)(offspringSize * population.size()) / 2;
 
         while(parents.size() < numberOfParents)
         {
-        	//Select at least one individual to "fight" in the tournament
+        	//Select at least one ZoneIndividual to "fight" in the tournament
             int tournamentSize = Util.getNextInt(1, population.size());
 
-            Individual winner = null;
+            ZoneIndividual winner = null;
             for(int i = 0; i < tournamentSize; i++)
             {
                 int progenitorIndex = Util.getNextInt(0, population.size());
-                Individual individual = population.get(progenitorIndex);
+                ZoneIndividual ZoneIndividual = population.get(progenitorIndex);
 
-                //select the individual with the highest fitness
-                if(winner == null || (winner.getFitness() < individual.getFitness()))
+                //select the ZoneIndividual with the highest fitness
+                if(winner == null || (winner.getFitness() < ZoneIndividual.getFitness()))
                 {
-                	winner = individual;
+                	winner = ZoneIndividual;
                 }
             }
 
@@ -843,10 +847,10 @@ public class Algorithm extends Thread {
      * @param population
      * @return
      */
-    private List<Individual> fitnessProportionateRouletteWheelSelection(List<Individual> population){
+    private List<ZoneIndividual> fitnessProportionateRouletteWheelSelection(List<ZoneIndividual> population){
     	sortPopulation(population, false);
     	
-    	List<Individual> parents = new ArrayList<Individual>();
+    	List<ZoneIndividual> parents = new ArrayList<ZoneIndividual>();
     	int numberOfParents = (int)(offspringSize * population.size()) / 2;
     	
     	//Calculate sum of fitnesses:
@@ -871,19 +875,19 @@ public class Algorithm extends Thread {
     
 
     /**
-     * Assign the given individuals to either the feasible or infeasible pools
+     * Assign the given ZoneIndividuals to either the feasible or infeasible pools
      * depending on whether or not they are feasible.
      * 
-     * @param sons Individuals to add
-     * @param infeasible Are the individuals the offspring of infeasible parents?
+     * @param sons ZoneIndividuals to add
+     * @param infeasible Are the ZoneIndividuals the offspring of infeasible parents?
      */
-    private void assignToPool(List<Individual> sons, boolean infeasible)
+    private void assignToPool(List<ZoneIndividual> sons, boolean infeasible)
     {
-        for (Individual son : sons)
+        for (ZoneIndividual son : sons)
         {
         	if(infeasible)
         		son.setChildOfInfeasibles(true);
-            if(checkIndividual(son))
+            if(checkZoneIndividual(son))
             {
             	if(infeasible)
             		infeasiblesMoved++;
@@ -900,22 +904,22 @@ public class Algorithm extends Thread {
     /**
      * Sorts a population according to fitness
      * 
-     * @param population A List of Individuals to sort
+     * @param population A List of ZoneIndividuals to sort
      * @param ascending true for ascending order, false for descending
      */
-    private void sortPopulation(List<Individual> population, boolean ascending)
+    private void sortPopulation(List<ZoneIndividual> population, boolean ascending)
     {
         population.sort((x, y) -> (ascending ? 1 : -1) * Double.compare(x.getFitness(),y.getFitness()));
     }
  	
     /**
-     * Calculates some statistics about a population and (optionally) saves the "best" individual.
+     * Calculates some statistics about a population and (optionally) saves the "best" ZoneIndividual.
      * 
      * @param population The population to analyse
-     * @param saveBest Should the best individual be saved? True should only be used for the valid population
+     * @param saveBest Should the best ZoneIndividual be saved? True should only be used for the valid population
      * @return An array of doubles. Index 0 contain the average fitness. Index 1 contains the minimum fitness. Index 2 contains the maximum fitness.
      */
-	private double[] infoGenerational(List<Individual> population, boolean saveBest) //default for saveBest was false
+	private double[] infoGenerational(List<ZoneIndividual> population, boolean saveBest) //default for saveBest was false
     {
         //avg, min, max
         double[] data = new double[3];
@@ -958,11 +962,11 @@ public class Algorithm extends Thread {
     }
 
 	/**
-	 * Add an individual to the valid population if the population size is less than POPULATION_SIZE.
+	 * Add an ZoneIndividual to the valid population if the population size is less than POPULATION_SIZE.
 	 * 
-	 * @param valid A valid individual.
+	 * @param valid A valid ZoneIndividual.
 	 */
-    private void addValidIndividual(Individual valid)
+    private void addValidZoneIndividual(ZoneIndividual valid)
     {
         if (feasiblePopulation.size() < populationSize)
         {
@@ -971,11 +975,11 @@ public class Algorithm extends Thread {
     }
 
 	/**
-	 * Add an individual to the invalid population if the population size is less than POPULATION_SIZE.
+	 * Add an ZoneIndividual to the invalid population if the population size is less than POPULATION_SIZE.
 	 * 
-	 * @param invalid An invalid individual.
+	 * @param invalid An invalid ZoneIndividual.
 	 */
-    private void addInvalidIndividual(Individual invalid)
+    private void addInvalidZoneIndividual(ZoneIndividual invalid)
     {
         if (infeasiblePopulation.size() < populationSize)
         {

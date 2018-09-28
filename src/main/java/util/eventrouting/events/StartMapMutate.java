@@ -11,6 +11,7 @@ public class StartMapMutate extends PCGEvent {
 	private int mutations;
 	private boolean randomiseConfig;
 	private AlgorithmTypes algorithmTypes;
+	static int count = 0;
 	
 	
 	public StartMapMutate(Map map){
