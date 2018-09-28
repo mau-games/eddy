@@ -146,12 +146,7 @@ public class PatternFinder {
 		
 		//Do a flood fill from this pattern to find all patterns
 		Queue<Node<Pattern>> patternQueue = new LinkedList<Node<Pattern>>();
-		
-		if(entrance == null || entrancePosition == null)
-		{
-			System.out.println("ATRACANDO");
-		}
-		
+
 //		if(start.getValue() != null)
 			patternQueue.add(start);
 	

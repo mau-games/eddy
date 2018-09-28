@@ -608,7 +608,7 @@ public class RoomViewController extends BorderPane implements Listener {
 			
 		} else {
 			mapView.setCursor(Cursor.HAND);
-			System.out.println(getMapView().getMap().toString());
+//			System.out.println(getMapView().getMap().toString());
 			switch (((ToggleButton) brushes.getSelectedToggle()).getText()) {
 			case "Floor":
 				brush = TileTypes.FLOOR;

@@ -1247,39 +1247,7 @@ public class Map {
     		addFailedPathToDoors();
     	for(int i = enemies; i < getEnemyCount();i++)
     		addFailedPathToEnemies();
-    	
-    	//TODO: ERASE THIS WHEN IS NOT USABLE ANYMORE
-//    	System.out.println("Counted doors (in type): " + doors + ", Door count: " + getDoorCount());
-    	
-//    	if(doors != getDoorCount())
-//    	{
-//    		System.out.println("CHECK IT BOIIIII");
-//    	}
-//    	
-    	
-    	boolean foundEntrance = false;
-    	int counterDoors = 0;
-		for (int j = 0; j < height; j++)
-		{
-			for (int i = 0; i < width; i++) 
-			{
-				switch (TileTypes.toTileType(matrix[j][i])) 
-				{
-				case DOOR:
-				case DOORENTER: //IF DOOR ENTER EXISTS THEB WE DONT NEED TO RECALCULATE
-					counterDoors++;
-					break;
-				default:
-					break;
-				}
-			}
-		}
-    	
-		if(counterDoors == 0)
-		{
-			System.out.println("DA FUCK");
-		}
-    	
+
     	return visited.size() == getNonWallTileCount() 
     			&& (treasure + doors + enemies == getTreasureCount() + getDoorCount() + getEnemyCount())
     			&& getTreasureCount() > 0 && getEnemyCount() > 0;
@@ -1337,20 +1305,16 @@ public class Map {
 		while(!queue.isEmpty()){
 			Node current = queue.remove();
 			visited.add(current);
-			try {
-				if(getTile(current.position).GetType().isDoor())
-				{
-					doors++;
-				}
-				else if (getTile(current.position).GetType().isEnemy())
-					enemies++;
-				else if (getTile(current.position).GetType().isTreasure())
-					treasure++;
-			}catch(Exception e)
-			{
-				System.out.println("PROBLEM!");
-			}
 			
+			if(getTile(current.position).GetType().isDoor())
+			{
+				doors++;
+			}
+			else if (getTile(current.position).GetType().isEnemy())
+				enemies++;
+			else if (getTile(current.position).GetType().isTreasure())
+				treasure++;
+
 
 			List<Point> children = getAvailableCoords(current.position);
 			for(Point child : children)

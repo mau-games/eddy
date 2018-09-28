@@ -154,12 +154,6 @@ public class InteractiveMap extends GridPane {
 		 {
 			 for (int i = 0; i < cols; i++) 
 			 {
-				
-				if(j == 5)
-				{
-					System.out.println(map.getTile(i, j).GetType());
-				}
-				 
 				ImageView iv = new ImageView(getImage(map.getTile(i, j).GetType(), scale));
 				GridPane.setFillWidth(iv, true);
 				GridPane.setFillHeight(iv, true);

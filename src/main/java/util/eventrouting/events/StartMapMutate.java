@@ -28,7 +28,6 @@ public class StartMapMutate extends PCGEvent {
 		this.mutations = mutations;
 		this.randomiseConfig = randomiseConfig;
 		this.algorithmTypes = algorithmTypes;
-		System.out.println("here");
 	}
 
 	public MapMutationType getMutationType(){

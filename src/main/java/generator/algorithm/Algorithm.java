@@ -87,7 +87,7 @@ public class Algorithm extends Thread {
 		feasibleAmount = (int)((double)populationSize * config.getFeasibleProportion());
 		roomTarget = config.getRoomProportion();
 		corridorTarget = config.getCorridorProportion();
-		System.out.println(this.algorithmTypes);
+
 		// Uncomment this for silly debugging
 //		System.out.println("Starting run #" + id);
 		initPopulations();
@@ -129,7 +129,7 @@ public class Algorithm extends Thread {
 		roomTarget = config.getRoomProportion();
 		corridorTarget = config.getCorridorProportion();
 		
-		System.out.println("I AM PASSING THE MAP!!");
+//		System.out.println("I AM PASSING THE MAP!!");
 
 		// Uncomment this for silly debugging
 //		System.out.println("Starting run #" + id);
@@ -171,7 +171,7 @@ public class Algorithm extends Thread {
 		infeasiblePool = new ArrayList<ZoneIndividual>();
 		feasiblePopulation = new ArrayList<ZoneIndividual>();
 		infeasiblePopulation = new ArrayList<ZoneIndividual>();
-		int c = 0;
+
 		int i = 0;
 		int j = 0;
 		while((i + j) < populationSize){
@@ -190,8 +190,6 @@ public class Algorithm extends Thread {
 					j++;
 				}
 			}
-			
-			System.out.println(c++);
 		}
 		
 		broadcastStatusUpdate("Population generated.");

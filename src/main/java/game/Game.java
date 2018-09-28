@@ -343,14 +343,13 @@ public class Game implements Listener{
 			doorCount = container.getMap().getNumberOfDoors();
 			sizeWidth = 11; // TODO: Why is this hardcoded here?
 			sizeHeight = 11; //TODO: ?
-			System.out.println("IS THIS THE ONE?" + ((RequestSuggestionsView) e).getNbrOfThreads());
 			startAll(((RequestSuggestionsView) e).getNbrOfThreads(), container);
 
 		}			
 		else if (e instanceof StartMapMutate) {
 			
 			StartMapMutate smm = (StartMapMutate)e;
-			System.out.println("LETS CREATE!, mutation: " + smm.getMutations() + ", algorithmTypes: " + smm.getAlgorithmTypes());
+//			System.out.println("LETS CREATE!, mutation: " + smm.getMutations() + ", algorithmTypes: " + smm.getAlgorithmTypes());
 			mutateFromMap((Map)e.getPayload(),smm.getMutations(),smm.getMutationType(),smm.getAlgorithmTypes(),smm.getRandomiseConfig());
 		} else if (e instanceof StartBatch) {
 			startBatch(((StartBatch)e).getConfig(), ((StartBatch)e).getSize());

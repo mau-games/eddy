@@ -83,16 +83,12 @@ public class ZoneGenotype
 	 */
 	public void randomSupervisedChromosome() {
 		int i = 0;
-		int enemyCounter = 0;
+
 		while(i < chromosome.length)
 		{
-			int value = config.getSupervisedRandomType().getValue();
-			if(value == TileTypes.ENEMY.getValue())
-				enemyCounter++;
 			chromosome[i++] = config.getSupervisedRandomType().getValue();
 		}
 		
-		System.out.println("ENEMIES: " + enemyCounter);
 //		
 //		//THERE NEED TO BE NICER WAYS TO DO SUCH A THING
 //		TileTypes[] tileTypes = Arrays.stream(getChromosome()).boxed().map(x -> TileTypes.toTileType(x)).toArray(TileTypes[]::new);
