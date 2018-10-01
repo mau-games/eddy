@@ -10,8 +10,8 @@ import finder.graph.Graph;
 import finder.graph.Node;
 import finder.patterns.CompositePattern;
 import finder.patterns.Pattern;
-import finder.patterns.micro.Room;
-import game.Map;
+import finder.patterns.micro.Chamber;
+import game.Room;
 import generator.config.GeneratorConfig;
 
 /**
@@ -28,7 +28,7 @@ public class ChokePoint extends CompositePattern {
 	private double roomCorridorQuality = 1.0;
 	
 	public double getQuality(){
-		if(getPatterns().get(0) instanceof Room && getPatterns().get(1) instanceof Room)
+		if(getPatterns().get(0) instanceof Chamber && getPatterns().get(1) instanceof Chamber)
 			return roomRoomQuality;
 		else
 			return roomCorridorQuality;
@@ -43,11 +43,11 @@ public class ChokePoint extends CompositePattern {
 	 * Searches a map for instances of this pattern and returns a list of found
 	 * instances.
 	 * 
-	 * @param map The map to search for patterns in.
+	 * @param room The map to search for patterns in.
 	 * @param boundary A boundary in which the pattern is searched for.
 	 * @return A list of found instances.
 	 */
-	public static List<CompositePattern> matches(Map map, Graph<Pattern> patternGraph) {
+	public static List<CompositePattern> matches(Room room, Graph<Pattern> patternGraph) {
 		
 		// How to find a choke point:
 		// Look at boundaries between patterns where: one or both of the patterns are rooms.
@@ -81,7 +81,7 @@ public class ChokePoint extends CompositePattern {
 		}
 		
 		for(Edge<Pattern> e : potentialChokeEdges){
-			ChokePoint cp = new ChokePoint(map.getConfig());
+			ChokePoint cp = new ChokePoint(room.getConfig());
 			cp.patterns.add(e.getNodeA().getValue());
 			cp.patterns.add(e.getNodeB().getValue());
 			chokePoints.add(cp);
@@ -91,7 +91,7 @@ public class ChokePoint extends CompositePattern {
 	}
 	
 	private static boolean potentialChokeEdge(Graph<Pattern> patternGraph, Edge<Pattern> edge){
-		return (edge.getNodeA().getValue() instanceof Room || edge.getNodeB().getValue() instanceof Room) && edge.getWidth() == 1 && !patternGraph.isEdgeInCycle(edge);
+		return (edge.getNodeA().getValue() instanceof Chamber || edge.getNodeB().getValue() instanceof Chamber) && edge.getWidth() == 1 && !patternGraph.isEdgeInCycle(edge);
 	}
 	
 }

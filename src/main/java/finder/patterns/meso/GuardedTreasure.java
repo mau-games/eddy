@@ -13,8 +13,8 @@ import finder.patterns.CompositePattern;
 import finder.patterns.Pattern;
 import finder.patterns.SpacialPattern;
 import finder.patterns.micro.Enemy;
-import finder.patterns.micro.Room;
-import game.Map;
+import finder.patterns.micro.Chamber;
+import game.Room;
 import generator.config.GeneratorConfig;
 
 /**
@@ -37,13 +37,13 @@ public class GuardedTreasure extends CompositePattern {
 		quality = Math.min((double)enemies/config.getGuardedTreasureEnemies(),1.0);
 	}
 	
-	public static List<CompositePattern> matches(Map map, Graph<Pattern> patternGraph) {
+	public static List<CompositePattern> matches(Room room, Graph<Pattern> patternGraph) {
 		List<CompositePattern> guardedTreasures = new ArrayList<CompositePattern>();
 		
 		List<TreasureRoom> treasureRooms = new ArrayList<TreasureRoom>();
 		List<GuardRoom> guardRooms = new ArrayList<GuardRoom>();
 		List<DeadEnd> deadEnds = new ArrayList<DeadEnd>();
-		for(CompositePattern p : map.getPatternFinder().getMesoPatterns()){
+		for(CompositePattern p : room.getPatternFinder().getMesoPatterns()){
 			if (p instanceof GuardRoom)
 				guardRooms.add((GuardRoom)p);
 			else if (p instanceof TreasureRoom)
@@ -52,19 +52,19 @@ public class GuardedTreasure extends CompositePattern {
 				deadEnds.add((DeadEnd)p);
 		}
 		
-		List<Room> treasureRoomRooms = treasureRooms.stream().map(tr->{return (Room)tr.getPatterns().get(0);}).collect(Collectors.toList());
-		List<Room> guardRoomRooms = guardRooms.stream().map(gr->{return (Room)gr.getPatterns().get(0);}).collect(Collectors.toList());
+		List<Chamber> treasureRoomRooms = treasureRooms.stream().map(tr->{return (Chamber)tr.getPatterns().get(0);}).collect(Collectors.toList());
+		List<Chamber> guardRoomRooms = guardRooms.stream().map(gr->{return (Chamber)gr.getPatterns().get(0);}).collect(Collectors.toList());
 		
 		//For each dead end, see if it contains both treasure rooms and guard rooms
 		for(DeadEnd de : deadEnds){
-			List<Room> deTreasure = new ArrayList<Room>();
-			List<Room> deGuard = new ArrayList<Room>();
+			List<Chamber> deTreasure = new ArrayList<Chamber>();
+			List<Chamber> deGuard = new ArrayList<Chamber>();
 			for(Pattern p : de.getPatterns()){
-				if(p instanceof Room && treasureRoomRooms.contains(p)){
-					deTreasure.add((Room)p);
+				if(p instanceof Chamber && treasureRoomRooms.contains(p)){
+					deTreasure.add((Chamber)p);
 				}
-				else if(p instanceof Room && guardRoomRooms.contains(p)){
-					deGuard.add((Room)p);
+				else if(p instanceof Chamber && guardRoomRooms.contains(p)){
+					deGuard.add((Chamber)p);
 				}
 			}
 			
@@ -74,7 +74,7 @@ public class GuardedTreasure extends CompositePattern {
 				
 				//If there is a path from each treasure room to the exit that does not pass through a guard room, that treasure room is a not guarded treasure
 				//Otherwise, it is.
-				for(Room r : deTreasure){
+				for(Chamber r : deTreasure){
 					patternGraph.resetGraph();
 					List<Pattern> foundGuards = new ArrayList<Pattern>();
 					
@@ -111,7 +111,7 @@ public class GuardedTreasure extends CompositePattern {
 								enemyCount += ((SpacialPattern)p).getContainedPatterns().stream().filter(ip -> ip instanceof Enemy).count();
 							}
 						}
-						GuardedTreasure gt = new GuardedTreasure(map.getConfig(),enemyCount);
+						GuardedTreasure gt = new GuardedTreasure(room.getConfig(),enemyCount);
 						gt.getPatterns().add(r);
 						for(TreasureRoom tr : treasureRooms){
 							if(tr.getPatterns().contains(r))

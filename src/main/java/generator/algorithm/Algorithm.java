@@ -25,10 +25,10 @@ import finder.patterns.meso.TreasureRoom;
 import finder.patterns.micro.Connector;
 import finder.patterns.micro.Corridor;
 import finder.patterns.micro.Enemy;
-import finder.patterns.micro.Room;
+import finder.patterns.micro.Chamber;
 import finder.patterns.micro.Treasure;
 import game.Game;
-import game.Map;
+import game.Room;
 import game.MapContainer;
 import game.TileTypes;
 import generator.config.GeneratorConfig;
@@ -63,7 +63,7 @@ public class Algorithm extends Thread {
 	private double roomTarget;
 	private double corridorTarget;
 
-	private Map oldMap = null;
+	private Room oldMap = null;
 	
 	private int infeasiblesMoved = 0;
 	private int movedInfeasiblesKept = 0;
@@ -115,12 +115,12 @@ public class Algorithm extends Thread {
 	
 	/**
 	 * Create an Algorithm run using mutations of a given map
-	 * @param map
+	 * @param room
 	 */
-	public Algorithm(Map map, AlgorithmTypes algorithmTypes){
-		this.config = map.getCalculatedConfig();
+	public Algorithm(Room room, AlgorithmTypes algorithmTypes){
+		this.config = room.getCalculatedConfig();
 		this.algorithmTypes = algorithmTypes;
-		map.setConfig(this.config);
+		room.setConfig(this.config);
 		id = UUID.randomUUID();
 		populationSize = config.getPopulationSize();
 		mutationProbability = (float)config.getMutationProbability();
@@ -133,7 +133,7 @@ public class Algorithm extends Thread {
 
 		// Uncomment this for silly debugging
 //		System.out.println("Starting run #" + id);
-		initPopulations(map);
+		initPopulations(room);
 	}
 	
 	
@@ -155,7 +155,7 @@ public class Algorithm extends Thread {
 	 * 
 	 * @param best The best map from the current generation.
 	 */
-	private synchronized void broadcastMapUpdate(Map best){
+	private synchronized void broadcastMapUpdate(Room best){
 		MapUpdate ev = new MapUpdate(best);
         ev.setID(id);
 		EventRouter.getInstance().postEvent(ev);
@@ -163,9 +163,9 @@ public class Algorithm extends Thread {
 	
 	
 
-	private void initPopulations(Map map){
+	private void initPopulations(Room room){
 		broadcastStatusUpdate("Initialising...");
-		oldMap = map;
+		oldMap = room;
 				
 		feasiblePool = new ArrayList<ZoneIndividual>();
 		infeasiblePool = new ArrayList<ZoneIndividual>();
@@ -175,7 +175,7 @@ public class Algorithm extends Thread {
 		int i = 0;
 		int j = 0;
 		while((i + j) < populationSize){
-			ZoneIndividual ind = new ZoneIndividual(map, mutationProbability);
+			ZoneIndividual ind = new ZoneIndividual(room, mutationProbability);
 			ind.mutateAll(0.4);
 			
 			if(checkZoneIndividual(ind)){
@@ -240,7 +240,7 @@ public class Algorithm extends Thread {
 		broadcastStatusUpdate("Evolving...");
         int generations = config.getGenerations();
         
-        Map map = null;
+        Room room = null;
 
         for(int generationCount = 1; generationCount <= generations; generationCount++) {
         	if(stop)
@@ -258,7 +258,7 @@ public class Algorithm extends Thread {
 //            broadcastStatusUpdate("BEST fitness: " + best.getFitness());
 //            System.out.println("DOORS: " + best.getPhenotype().getMap().getDoorCount());
             
-            map = best.getPhenotype().getMap();
+            room = best.getPhenotype().getMap();
            
             //broadcastMapUpdate(map);
             
@@ -299,10 +299,10 @@ public class Algorithm extends Thread {
         	//String generation = "" + best.getFitness() + "," + dataValid[0] + "," + best.getCorridorFitness() + "," + best.getRoomFitness() + "," + best.getCorridorArea()/passableTiles + "," + best.getRoomArea()/passableTiles + "," + best.getTreasureAndEnemyFitness();
         	//EventRouter.getInstance().postEvent(new GenerationDone(generation));
         }
-        broadcastMapUpdate(map); //TODO: SOMETHING HERE
-        PatternFinder finder = map.getPatternFinder();
+        broadcastMapUpdate(room); //TODO: SOMETHING HERE
+        PatternFinder finder = room.getPatternFinder();
 		MapContainer result = new MapContainer();
-		result.setMap(map);
+		result.setMap(room);
 		result.setMicroPatterns(finder.findMicroPatterns());
 		result.setMesoPatterns(finder.findMesoPatterns());
 		result.setMacroPatterns(finder.findMacroPatterns());
@@ -358,8 +358,8 @@ public class Algorithm extends Thread {
 	 * @return Return true if ZoneIndividual is valid, otherwise return false
     */
 	private boolean checkZoneIndividual(ZoneIndividual ind){
-		Map map = ind.getPhenotype().getMap();
-		return map.isFeasible();
+		Room room = ind.getPhenotype().getMap();
+		return room.isFeasible();
 	}
 	
 	/**
@@ -374,13 +374,13 @@ public class Algorithm extends Thread {
 	 */
     public void evaluateFeasibleZoneIndividual(ZoneIndividual ind)
     {
-        Map map = ind.getPhenotype().getMap();
-        PatternFinder finder = map.getPatternFinder();
+        Room room = ind.getPhenotype().getMap();
+        PatternFinder finder = room.getPatternFinder();
         List<Enemy> enemies = new ArrayList<Enemy>();
         List<Treasure> treasures = new ArrayList<Treasure>();
         List<Corridor> corridors = new ArrayList<Corridor>();
         List<Connector> connectors = new ArrayList<Connector>();
-        List<Room> rooms = new ArrayList<Room>();
+        List<Chamber> chambers = new ArrayList<Chamber>();
         
         for (Pattern p : finder.findMicroPatterns()) {
         	if (p instanceof Enemy) {
@@ -391,8 +391,8 @@ public class Algorithm extends Thread {
         		corridors.add((Corridor) p);
         	} else if (p instanceof Connector) {
         		connectors.add((Connector) p);
-        	} else if (p instanceof Room) {
-        		rooms.add((Room) p);
+        	} else if (p instanceof Chamber) {
+        		chambers.add((Chamber) p);
         	}
         }
         
@@ -449,7 +449,7 @@ public class Algorithm extends Thread {
     	
         
     	//Corridor fitness
-    	double passableTiles = map.getNonWallTileCount();
+    	double passableTiles = room.getNonWallTileCount();
     	double corridorArea = 0;	
     	double rawCorridorArea = 0;
     	for(Pattern p : corridors){
@@ -475,7 +475,7 @@ public class Algorithm extends Thread {
     	double rawRoomArea = 0;
     	
     	//Room fitness
-    	for(Pattern p : rooms){
+    	for(Pattern p : chambers){
     		rawRoomArea += ((Polygon)p.getGeometry()).getArea();
     		double mesoContribution = 0.0;
     		for(DeadEnd de : deadEnds){
@@ -519,14 +519,14 @@ public class Algorithm extends Thread {
     	if(algorithmTypes == AlgorithmTypes.Similarity ||
     			algorithmTypes == AlgorithmTypes.SymmetryAndSimilarity)
     	{
-        	similarityFitness = evaluateSimilarityFitnessValue(oldMap, map, 0.95);    		
+        	similarityFitness = evaluateSimilarityFitnessValue(oldMap, room, 0.95);    		
     	}
     	// Symmetry Fitness
     	double symmetricFitnessValue = 1.0;
     	if(algorithmTypes == AlgorithmTypes.Symmetry ||
     			algorithmTypes == AlgorithmTypes.SymmetryAndSimilarity)
     	{
-    		symmetricFitnessValue = evaluateSymmetryFitnessValue(map);
+    		symmetricFitnessValue = evaluateSymmetryFitnessValue(room);
     	}
     	
     	//Total fitness
@@ -560,7 +560,7 @@ public class Algorithm extends Thread {
      * @param newMap the newly created ZoneIndividual map
      * @param idealProcentSimilarity determines how much similar the two maps should be to be ideal.
      */
-	private double evaluateSimilarityFitnessValue(Map oldMap, Map newMap, double idealProcentSimilarity)
+	private double evaluateSimilarityFitnessValue(Room oldMap, Room newMap, double idealProcentSimilarity)
     {
     	int[][] oldMatrix = oldMap.toMatrix();
     	int[][] newMatrix = newMap.toMatrix();
@@ -608,14 +608,14 @@ public class Algorithm extends Thread {
 	/**
      * Evaluates the how much symmetry in the map. It is done four times, Horizontal, Vertical, Frontslash Diagonal and Backslash Diagonal. All passing through the middle of the map
      *
-     * @param Map the map that is evaluated
+     * @param Room the map that is evaluated
      */
-    private double evaluateSymmetryFitnessValue(Map map)
+    private double evaluateSymmetryFitnessValue(Room room)
     {
-    	int rowCounter = map.getRowCount();
-    	int colCounter = map.getColCount();
-    	int totalWalls = map.getWallCount();
-    	int[][] mapMatrix = map.toMatrix();
+    	int rowCounter = room.getRowCount();
+    	int colCounter = room.getColCount();
+    	int totalWalls = room.getWallCount();
+    	int[][] mapMatrix = room.toMatrix();
     	
     	
     	// Vertical Symmetry Check
@@ -702,17 +702,17 @@ public class Algorithm extends Thread {
 	public void evaluateInfeasibleZoneIndividual(ZoneIndividual ind)
 	{
 		double fitness = 0.0;
-	    Map map = ind.getPhenotype().getMap();
+	    Room room = ind.getPhenotype().getMap();
 	
-	    double enemies = (map.getFailedPathsToEnemies() / (double)map.getEnemyCount());
+	    double enemies = (room.getFailedPathsToEnemies() / (double)room.getEnemyCount());
 	    if (Double.isNaN(enemies)) 
 	    	enemies = 1.0;
 	    
-	    double treasures = (map.getFailedPathsToTreasures() / (double)map.getTreasureCount());
+	    double treasures = (room.getFailedPathsToTreasures() / (double)room.getTreasureCount());
 	    if (Double.isNaN(treasures)) 
 	    	treasures = 1.0;
 	    
-	    double doors = (map.getFailedPathsToAnotherDoor() / (double)map.getDoorCount());
+	    double doors = (room.getFailedPathsToAnotherDoor() / (double)room.getDoorCount());
 	    if (Double.isNaN(doors)) 
 	    	doors = 1.0;
 	

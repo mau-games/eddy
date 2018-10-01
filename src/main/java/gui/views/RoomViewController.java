@@ -13,9 +13,9 @@ import org.slf4j.LoggerFactory;
 import finder.patterns.Pattern;
 import finder.patterns.micro.Connector;
 import finder.patterns.micro.Corridor;
-import finder.patterns.micro.Room;
+import finder.patterns.micro.Chamber;
 import game.ApplicationConfig;
-import game.Map;
+import game.Room;
 import game.MapContainer;
 import game.TileTypes;
 import generator.algorithm.Algorithm.AlgorithmTypes;
@@ -130,11 +130,11 @@ public class RoomViewController extends BorderPane implements Listener {
 	private Button downButton = new Button();
 
 	private boolean mousePressed = false;
-	private Map selectedMiniMap;
+	private Room selectedMiniMap;
 
 
 	private InteractiveMap mapView;
-	private Map largeMap;
+	private Room largeMap;
 	private Canvas patternCanvas;
 	private Canvas warningCanvas;
 	private Canvas zoneCanvas;
@@ -146,7 +146,7 @@ public class RoomViewController extends BorderPane implements Listener {
 	private boolean isActive = false;
 	private boolean isFeasible = true;
 	private TileTypes brush = null;
-	public HashMap<Integer, Map> maps = new HashMap<Integer, Map>();
+	public HashMap<Integer, Room> rooms = new HashMap<Integer, Room>();
 	private int nextMap = 0;
 
 	private MapRenderer renderer = MapRenderer.getInstance();
@@ -496,7 +496,7 @@ public class RoomViewController extends BorderPane implements Listener {
 
 			if (isActive) {
 				//System.out.println(nextMap);
-				Map map = (Map) ((MapUpdate) e).getPayload();
+				Room room = (Room) ((MapUpdate) e).getPayload();
 				UUID uuid = ((MapUpdate) e).getID();
 				LabeledCanvas canvas;
 				synchronized (mapDisplays) {
@@ -504,7 +504,7 @@ public class RoomViewController extends BorderPane implements Listener {
 					canvas = mapDisplays.get(nextMap);
 					//					canvas.setText("Got map:\n" + uuid);
 					canvas.setText("");
-					maps.put(nextMap, map);
+					rooms.put(nextMap, room);
 					nextMap++;
 					if (nextMap == 4) { //TODO: This is a hack to overcome a real problem
 						router.postEvent(new Stop());	
@@ -513,7 +513,7 @@ public class RoomViewController extends BorderPane implements Listener {
 				}
 
 				Platform.runLater(() -> {
-					int[][] matrix = map.toMatrix();
+					int[][] matrix = room.toMatrix();
 					canvas.draw(renderer.renderMap(matrix));
 				});
 			}
@@ -555,24 +555,24 @@ public class RoomViewController extends BorderPane implements Listener {
 	/**
 	 * Updates this control's map.
 	 * 
-	 * @param map The new map.
+	 * @param room The new map.
 	 */
-	public void updateMap(Map map) {
-		getMapView().updateMap(map);
-		redrawPatterns(map);
-		redrawLocks(map);
-		mapIsFeasible(map.isFeasibleTwo());
+	public void updateMap(Room room) {
+		getMapView().updateMap(room);
+		redrawPatterns(room);
+		redrawLocks(room);
+		mapIsFeasible(room.isFeasibleTwo());
 	}
 
-	public void updateRoom(Map map) {
-		getMapView().updateMap(map);
+	public void updateRoom(Room room) {
+		getMapView().updateMap(room);
 
-		redrawPatterns(map);
-		mapIsFeasible(map.isFeasibleTwo());
+		redrawPatterns(room);
+		mapIsFeasible(room.isFeasibleTwo());
 	}
 
-	public void updateLargeMap(Map map) {
-		setLargeMap(map);				
+	public void updateLargeMap(Room room) {
+		setLargeMap(room);				
 	}
 
 
@@ -581,7 +581,7 @@ public class RoomViewController extends BorderPane implements Listener {
 	 * 
 	 * @return The current map.
 	 */
-	public Map getCurrentMap() {
+	public Room getCurrentMap() {
 
 		return getMapView().getMap();
 	}
@@ -704,23 +704,23 @@ public class RoomViewController extends BorderPane implements Listener {
 	 * 
 	 * "Why is this public?",  you ask. Because of FXML's method binding.
 	 */
-	public void generateNewMaps(Map map) {
+	public void generateNewMaps(Room room) {
 		// TODO: If we want more diversity in the generated maps, then send more StartMapMutate events.
 
 		if (!similarity && !symmetry ) {
-		router.postEvent(new StartMapMutate(map, MapMutationType.Preserving, AlgorithmTypes.Native, 2, true)); //TODO: Move some of this hard coding to ApplicationConfig
-		router.postEvent(new StartMapMutate(map, MapMutationType.ComputedConfig, AlgorithmTypes.Native, 2, true)); //TODO: Move some of this hard coding to ApplicationConfig
+		router.postEvent(new StartMapMutate(room, MapMutationType.Preserving, AlgorithmTypes.Native, 2, true)); //TODO: Move some of this hard coding to ApplicationConfig
+		router.postEvent(new StartMapMutate(room, MapMutationType.ComputedConfig, AlgorithmTypes.Native, 2, true)); //TODO: Move some of this hard coding to ApplicationConfig
 		}
 		else if (similarity && !symmetry) {
-			router.postEvent(new StartMapMutate(map, MapMutationType.Preserving, AlgorithmTypes.Similarity, 4, true));
+			router.postEvent(new StartMapMutate(room, MapMutationType.Preserving, AlgorithmTypes.Similarity, 4, true));
 		}
 		else if (!similarity && symmetry) {
-			router.postEvent(new StartMapMutate(map, MapMutationType.Preserving, AlgorithmTypes.Symmetry, 2, true));
-			router.postEvent(new StartMapMutate(map, MapMutationType.ComputedConfig, AlgorithmTypes.Symmetry, 2, true));
+			router.postEvent(new StartMapMutate(room, MapMutationType.Preserving, AlgorithmTypes.Symmetry, 2, true));
+			router.postEvent(new StartMapMutate(room, MapMutationType.ComputedConfig, AlgorithmTypes.Symmetry, 2, true));
 		}
 		else if (similarity && symmetry) {
-			router.postEvent(new StartMapMutate(map, MapMutationType.Preserving, AlgorithmTypes.Similarity, 2, true));
-			router.postEvent(new StartMapMutate(map, MapMutationType.ComputedConfig, AlgorithmTypes.Symmetry, 2, true));
+			router.postEvent(new StartMapMutate(room, MapMutationType.Preserving, AlgorithmTypes.Similarity, 2, true));
+			router.postEvent(new StartMapMutate(room, MapMutationType.ComputedConfig, AlgorithmTypes.Symmetry, 2, true));
 		}
 	}
 
@@ -730,7 +730,7 @@ public class RoomViewController extends BorderPane implements Listener {
 	 * @param index The new map's index.
 	 */
 	public void replaceMap(int index) {
-		selectedMiniMap = maps.get(index);
+		selectedMiniMap = rooms.get(index);
 		if (selectedMiniMap != null) {
 			generateNewMaps(selectedMiniMap);
 			updateMap(selectedMiniMap);
@@ -749,7 +749,7 @@ public class RoomViewController extends BorderPane implements Listener {
 		HashMap<Pattern, Color> patternMap = new HashMap<Pattern, Color>();
 
 		patterns.forEach((pattern) -> {
-			if (pattern instanceof Room) {
+			if (pattern instanceof Chamber) {
 				patternMap.put(pattern, Color.BLUE);
 			} else if (pattern instanceof Corridor) {
 				patternMap.put(pattern, Color.RED);
@@ -778,31 +778,31 @@ public class RoomViewController extends BorderPane implements Listener {
 	 * 
 	 * @param container
 	 */
-	private synchronized void redrawPatterns(Map map) {
+	private synchronized void redrawPatterns(Room room) {
 		//Change those 2 width and height hardcoded values (420,420)
 		//And change zone to its own method
 		patternCanvas.getGraphicsContext2D().clearRect(0, 0, 420, 420);
 		zoneCanvas.getGraphicsContext2D().clearRect(0, 0, 420, 420);
 
-		renderer.drawPatterns(patternCanvas.getGraphicsContext2D(), map.toMatrix(), colourPatterns(map.getPatternFinder().findMicroPatterns()));
-		renderer.drawGraph(patternCanvas.getGraphicsContext2D(), map.toMatrix(), map.getPatternFinder().getPatternGraph());
-		renderer.drawMesoPatterns(patternCanvas.getGraphicsContext2D(), map.toMatrix(), map.getPatternFinder().getMesoPatterns());
-		renderer.drawZones(zoneCanvas.getGraphicsContext2D(), map.toMatrix(), map.root, (int)(zoneSlider.getValue()),Color.BLACK);
+		renderer.drawPatterns(patternCanvas.getGraphicsContext2D(), room.toMatrix(), colourPatterns(room.getPatternFinder().findMicroPatterns()));
+		renderer.drawGraph(patternCanvas.getGraphicsContext2D(), room.toMatrix(), room.getPatternFinder().getPatternGraph());
+		renderer.drawMesoPatterns(patternCanvas.getGraphicsContext2D(), room.toMatrix(), room.getPatternFinder().getMesoPatterns());
+		renderer.drawZones(zoneCanvas.getGraphicsContext2D(), room.toMatrix(), room.root, (int)(zoneSlider.getValue()),Color.BLACK);
 	}
 
 	/***
 	 * Redraw the lock in the map --> TODO: I am afraid this should be in the renderer
-	 * @param map
+	 * @param room
 	 */
-	private void redrawLocks(Map map)
+	private void redrawLocks(Room room)
 	{
 		lockCanvas.getGraphicsContext2D().clearRect(0, 0, 420, 420);
 		
-		for(int i = 0; i < map.getRowCount(); ++i)
+		for(int i = 0; i < room.getRowCount(); ++i)
 		{
-			for(int j = 0; j < map.getColCount(); ++j)
+			for(int j = 0; j < room.getColCount(); ++j)
 			{
-				if(map.getTile(j, i).GetImmutable())
+				if(room.getTile(j, i).GetImmutable())
 				{
 					lockCanvas.getGraphicsContext2D().drawImage(renderer.GetLock(mapView.scale * 0.75f, mapView.scale * 0.75f), j * mapView.scale, i * mapView.scale);
 				}
@@ -1145,11 +1145,11 @@ public class RoomViewController extends BorderPane implements Listener {
 		this.mousePressed = mousePressed;
 	}
 
-	public Map getSelectedMiniMap() {
+	public Room getSelectedMiniMap() {
 		return selectedMiniMap;
 	}
 
-	public void setSelectedMiniMap(Map selectedMiniMap) {
+	public void setSelectedMiniMap(Room selectedMiniMap) {
 		this.selectedMiniMap = selectedMiniMap;
 	}
 
@@ -1161,11 +1161,11 @@ public class RoomViewController extends BorderPane implements Listener {
 		this.mapView = mapView;
 	}
 
-	public Map getLargeMap() {
+	public Room getLargeMap() {
 		return largeMap;
 	}
 
-	public void setLargeMap(Map largeMap) {
+	public void setLargeMap(Room largeMap) {
 		this.largeMap = largeMap;
 	}
 

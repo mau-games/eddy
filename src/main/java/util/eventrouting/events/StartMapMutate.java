@@ -1,7 +1,7 @@
 package util.eventrouting.events;
 
 import game.Game.MapMutationType;
-import game.Map;
+import game.Room;
 import generator.algorithm.Algorithm.AlgorithmTypes;
 import util.Point;
 import util.eventrouting.PCGEvent;
@@ -14,16 +14,16 @@ public class StartMapMutate extends PCGEvent {
 	static int count = 0;
 	
 	
-	public StartMapMutate(Map map){
-		setPayload(map);
+	public StartMapMutate(Room room){
+		setPayload(room);
 		mutationType = MapMutationType.OriginalConfig;
 		mutations = 1;
 		randomiseConfig = false;
 		algorithmTypes = algorithmTypes.Native;
 	}
 
-	public StartMapMutate(Map map, MapMutationType mutationType, AlgorithmTypes algorithmTypes, int mutations, boolean randomiseConfig) {
-		setPayload(map);
+	public StartMapMutate(Room room, MapMutationType mutationType, AlgorithmTypes algorithmTypes, int mutations, boolean randomiseConfig) {
+		setPayload(room);
 		this.mutationType = mutationType;
 		this.mutations = mutations;
 		this.randomiseConfig = randomiseConfig;

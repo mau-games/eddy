@@ -1,7 +1,7 @@
 package generator.algorithm;
 
 import game.Game;
-import game.Map;
+import game.Room;
 import game.TileTypes;
 import generator.config.GeneratorConfig;
 import game.ZoneNode;
@@ -26,19 +26,19 @@ public class ZoneGenotype
 		chromosome = new int[size];
 	}
 	
-	public void ProduceGenotype(Map map)
+	public void ProduceGenotype(Room room)
 	{
-		int[][] mat = map.toMatrix();
+		int[][] mat = room.toMatrix();
 		
-		for(int i = 0; i < map.getRowCount(); i++)
+		for(int i = 0; i < room.getRowCount(); i++)
 		{
-			for(int j = 0; j <map.getColCount();j++)
+			for(int j = 0; j <room.getColCount();j++)
 			{
 				chromosome[i*Game.sizeWidth + j] = mat[i][j];
 			}
 		}
 		
-		m = new ZoneNode(map.root);
+		m = new ZoneNode(room.root);
 	}
 	
 	public ZoneNode GetRootChromosome()

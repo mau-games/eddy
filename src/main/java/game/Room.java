@@ -24,7 +24,7 @@ import finder.patterns.SpacialPattern;
 import finder.patterns.micro.Connector;
 import finder.patterns.micro.Corridor;
 import finder.patterns.micro.Enemy;
-import finder.patterns.micro.Room;
+import finder.patterns.micro.Chamber;
 import finder.patterns.micro.Treasure;
 import util.Point;
 import util.config.MissingConfigurationException;
@@ -42,7 +42,7 @@ import generator.config.GeneratorConfig;
  * @author Chelsi Nolasco, Malmö University
  * @author Axel Österman, Malmö University
  */
-public class Map {
+public class Room {
 
 	private Tile[] tileMap; //This HAVE to be the real tilemap
 	public int[][] matrix; // The actual map
@@ -82,7 +82,7 @@ public class Map {
 	 * @param cols The number of columns in a map.
 	 * @param doorCount The number of doors to be seeded in a map.
 	 */
-	public Map(GeneratorConfig config, TileTypes[] types, int rows, int cols, int doorCount) {
+	public Room(GeneratorConfig config, TileTypes[] types, int rows, int cols, int doorCount) {
 		init(rows, cols);
 
 		this.config = config;
@@ -107,7 +107,7 @@ public class Map {
 	}
 	
 	
-	public Map(Map copyMap, ZoneNode zones)
+	public Room(Room copyMap, ZoneNode zones)
 	{
 		init(copyMap.getRowCount(), copyMap.getColCount());
 		this.config = copyMap.config;
@@ -153,7 +153,7 @@ public class Map {
 		root = zones;	
 	}
 	
-	public Map(GeneratorConfig config, ZoneNode rootCopy, int[] chromosomes, int rows, int cols, int doorCount)
+	public Room(GeneratorConfig config, ZoneNode rootCopy, int[] chromosomes, int rows, int cols, int doorCount)
 	{
 		init(rows, cols);
 
@@ -163,23 +163,23 @@ public class Map {
 		CloneMap(rootCopy.GetMap(), chromosomes);
 	}
 	
-	private void CloneMap(Map map, int[] chromosomes)
+	private void CloneMap(Room room, int[] chromosomes)
 	{
-		this.tileMap = map.tileMap.clone();
-		this.matrix = map.matrix.clone();
-		this.doorCount = map.getNumberOfDoors();
+		this.tileMap = room.tileMap.clone();
+		this.matrix = room.matrix.clone();
+		this.doorCount = room.getNumberOfDoors();
 
 		for (int j = 0; j < height; j++)
 		{
 			for (int i = 0; i < width; i++) 
 			{
-				if(!map.tileMap[j * width + i].GetImmutable())
+				if(!room.tileMap[j * width + i].GetImmutable())
 				{
 					setTile(i, j, chromosomes[j * width + i]);
 				}
 				else
 				{
-					tileMap[j * width + i] = new Tile(map.tileMap[j * width + i]);
+					tileMap[j * width + i] = new Tile(room.tileMap[j * width + i]);
 					matrix[j][i] = chromosomes[j * width + i];
 				}
 			}
@@ -204,13 +204,13 @@ public class Map {
 		}
 		
 //		markDoors();
-		this.doors = map.doors;
-		this.setEntrance(map.getEntrance());
-		this.setNumberOfDoors(map.getNumberOfDoors());
-		this.setNorth(map.getNorth());
-		this.setEast(map.getEast());
-		this.setSouth(map.getSouth());
-		this.setWest(map.getWest());
+		this.doors = room.doors;
+		this.setEntrance(room.getEntrance());
+		this.setNumberOfDoors(room.getNumberOfDoors());
+		this.setNorth(room.getNorth());
+		this.setEast(room.getEast());
+		this.setSouth(room.getSouth());
+		this.setWest(room.getWest());
 //		
 		finder = new PatternFinder(this);
 		root = new ZoneNode(null, this, width, height);
@@ -260,7 +260,7 @@ public class Map {
 		}
 	}
 
-	public Map(int rows, int cols, int doorCount) {
+	public Room(int rows, int cols, int doorCount) {
 
 		init(rows, cols);
 		isNull = true;
@@ -273,7 +273,7 @@ public class Map {
 	}
 
 	//TODO THIS p---.getX and getY can be wrong, it will need to be check
-	public Map(GeneratorConfig config, int rows, int cols, Point p1, Point p2, Point p3, Point p4) {
+	public Room(GeneratorConfig config, int rows, int cols, Point p1, Point p2, Point p3, Point p4) {
 		init(rows, cols);
 
 
@@ -431,7 +431,7 @@ public class Map {
 	 * @param rows The number of rows in a map.
 	 * @param cols The number of columns in a map.
 	 */
-	private Map(int rows, int cols) {
+	private Room(int rows, int cols) {
 		init(rows, cols);
 		finder = new PatternFinder(this);
 		
@@ -935,7 +935,7 @@ public class Map {
 		List<Treasure> treasures = new ArrayList<Treasure>();
 		List<Corridor> corridors = new ArrayList<Corridor>();
 		List<Connector> connectors = new ArrayList<Connector>();
-		List<Room> rooms = new ArrayList<Room>();
+		List<Chamber> chambers = new ArrayList<Chamber>();
 
 		for (Pattern p : finder.findMicroPatterns()) {
 			if (p instanceof Enemy) {
@@ -946,8 +946,8 @@ public class Map {
 				corridors.add((Corridor) p);
 			} else if (p instanceof Connector) {
 				connectors.add((Connector) p);
-			} else if (p instanceof Room) {
-				rooms.add((Room) p);
+			} else if (p instanceof Chamber) {
+				chambers.add((Chamber) p);
 			}
 		}
 
@@ -970,9 +970,9 @@ public class Map {
 		double rawRoomArea = 0.0;
 		double totalSquareness = 0.0;
 
-		for(Pattern p : rooms){
+		for(Pattern p : chambers){
 			rawRoomArea += ((Polygon)p.getGeometry()).getArea();
-			totalSquareness += ((Room)p).getSquareness();
+			totalSquareness += ((Chamber)p).getSquareness();
 		}
 
 		double roomProportion = rawRoomArea / passableTiles;
@@ -982,8 +982,8 @@ public class Map {
 
 		//CHAMBER AREA
 
-		if(rooms.size() > 0){
-			int avgArea = (int)Math.ceil(rawRoomArea/rooms.size());
+		if(chambers.size() > 0){
+			int avgArea = (int)Math.ceil(rawRoomArea/chambers.size());
 			newConfig.setChamberTargetArea(avgArea);
 		}
 		//CHAMBER SQUARENESS AND SIZE
@@ -1030,10 +1030,10 @@ public class Map {
 			char c = (char) reader.read();
 			mapString += c;
 		}
-		Map map = fromString(mapString);
-		PatternFinder finder = map.getPatternFinder();
+		Room room = fromString(mapString);
+		PatternFinder finder = room.getPatternFinder();
 		MapContainer result = new MapContainer();
-		result.setMap(map);
+		result.setMap(room);
 		result.setMicroPatterns(finder.findMicroPatterns());
 		result.setMesoPatterns(finder.findMesoPatterns());
 		result.setMacroPatterns(finder.findMacroPatterns());
@@ -1047,7 +1047,7 @@ public class Map {
 	 * 
 	 * @param string A string
 	 */
-	public static Map fromString(String string) {
+	public static Room fromString(String string) {
 		String[] rows = string.split("[\\r\\n]+");
 		// Had we just stuck to the specs, this wouldn't have been necessary...
 		if (rows.length < 2) {
@@ -1059,9 +1059,9 @@ public class Map {
 
 
 
-		Map map = new Map(rowCount, colCount);
+		Room room = new Room(rowCount, colCount);
 		try {
-			map.setConfig(new GeneratorConfig());
+			room.setConfig(new GeneratorConfig());
 		} catch (MissingConfigurationException e) {
 			e.printStackTrace();
 		}
@@ -1089,19 +1089,19 @@ public class Map {
 		for (int i = 0; i < rowCount; i++) {
 			for (int j = 0; j < colCount; j++) {
 				type = TileTypes.toTileType(Integer.parseInt("" + rows[i].charAt(j), 16));
-				map.setTile(i, j, type);
+				room.setTile(i, j, type);
 				switch (type) {
 				case WALL:
-					map.wallCount++;
+					room.wallCount++;
 					break;
 				case ENEMY:
-					map.enemies.add(new Point(i, j));
+					room.enemies.add(new Point(i, j));
 					break;
 				case TREASURE:
-					map.treasures.add(new Point(i, j));
+					room.treasures.add(new Point(i, j));
 					break;
 				case DOOR:
-					map.addDoor(new Point(i, j));
+					room.addDoor(new Point(i, j));
 					Point temp = new Point(i, j);
 
 					if(temp.equals(north)) {
@@ -1120,7 +1120,7 @@ public class Map {
 					Game.doors.add(new Point(i,j));
 					break;
 				case DOORENTER:
-					map.setEntrance(new Point(i, j));
+					room.setEntrance(new Point(i, j));
 					Point temp2 = new Point(i, j);
 
 					if(temp2.equals(north)) {
@@ -1135,7 +1135,7 @@ public class Map {
 					if(temp2.equals(west)) {
 						p4 = temp2;
 					}
-					map.addDoor(new Point(i, j));
+					room.addDoor(new Point(i, j));
 					Game.doors.add(0, new Point(i,j));
 					break;
 				default:
@@ -1145,18 +1145,18 @@ public class Map {
 
 		}
 		if (Game.doors.isEmpty()) {
-			map = new Map(11, 11, 0); //TODO: ??
+			room = new Room(11, 11, 0); //TODO: ??
 		}
 		else {
 			GeneratorConfig gc;
 			try {
 				gc = new GeneratorConfig();
-				Map newMap = new Map (gc, 11, 11, p1, p2, p3, p4);
+				Room newMap = new Room (gc, 11, 11, p1, p2, p3, p4);
 
 				for (int i = 0; i < rowCount; i++) {
 					for (int j = 0; j < colCount; j++) {
 						type = TileTypes.toTileType(Integer.parseInt("" + rows[i].charAt(j), 16));
-						map.setTile(i, j, type);
+						room.setTile(i, j, type);
 						switch (type) {
 						case WALL:
 							newMap.wallCount++;
@@ -1181,14 +1181,14 @@ public class Map {
 				}
 
 
-				map = newMap;
+				room = newMap;
 			} catch (MissingConfigurationException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 		}
 
-		return map;
+		return room;
 	}
 
 	@Override

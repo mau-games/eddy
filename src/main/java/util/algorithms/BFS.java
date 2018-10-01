@@ -5,16 +5,16 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
 
-import game.Map;
+import game.Room;
 import util.Point;
 
 public class BFS {
 
-	private Map mMap;
+	private Room mMap;
 
-    public BFS(Map map)
+    public BFS(Room room)
     {
-        mMap = map;
+        mMap = room;
     }
 
     /**
@@ -56,9 +56,9 @@ public class BFS {
     	return new Node[0];	    	
     }
 
-    public void setMap(Map map)
+    public void setMap(Room room)
     {
-        mMap = map;
+        mMap = room;
     }
 
 }

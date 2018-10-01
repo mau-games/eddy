@@ -3,7 +3,7 @@ package generator.algorithm;
 import java.util.Random;
 
 import game.Game;
-import game.Map;
+import game.Room;
 import game.TileTypes;
 import generator.config.GeneratorConfig;
 import util.Util;
@@ -116,8 +116,8 @@ public class Individual {
 		genotype.randomSupervisedChromosome();
 	}
 	
-	public Individual(Map map, float mutationProbability){
-		config = map.getConfig();
+	public Individual(Room room, float mutationProbability){
+		config = room.getConfig();
 		genotype = new Genotype(config,Game.sizeHeight * Game.sizeWidth);
 		phenotype = null;
 		fitness = 0.0;
@@ -125,7 +125,7 @@ public class Individual {
 		this.mutationProbability = mutationProbability;
 		
 		int[] chromosome = new int[Game.sizeHeight * Game.sizeWidth];
-		int[][] mat = map.toMatrix();
+		int[][] mat = room.toMatrix();
 		
 		for(int i = 0; i < Game.sizeHeight; i++)
 		{

@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.Queue;
 import java.util.stream.Collectors;
 
-import game.Map;
+import game.Room;
 import finder.graph.Graph;
 import finder.graph.Node;
 import finder.patterns.CompositePattern;
@@ -24,7 +24,7 @@ import finder.patterns.micro.Door;
 import finder.patterns.micro.Enemy;
 import finder.patterns.micro.Entrance;
 import finder.patterns.micro.Nothing;
-import finder.patterns.micro.Room;
+import finder.patterns.micro.Chamber;
 import finder.patterns.micro.Treasure;
 import finder.geometry.Bitmap;
 import finder.geometry.Point;
@@ -36,7 +36,7 @@ import finder.geometry.Point;
  */
 public class PatternFinder {
 	
-	private Map map;
+	private Room room;
 	private List<Pattern> micropatterns = null;
 	private List<CompositePattern> mesopatterns = null;
 	private List<CompositePattern> macropatterns = null;
@@ -46,11 +46,11 @@ public class PatternFinder {
 	/**
 	 * Creates a pattern finder instance.
 	 * 
-	 * @param map The map to search in.
+	 * @param room The map to search in.
 	 */
-	public PatternFinder(Map map) {
-		this.map = map;
-		spacialPatternGrid = new SpacialPattern[map.getRowCount()][map.getColCount()];
+	public PatternFinder(Room room) {
+		this.room = room;
+		spacialPatternGrid = new SpacialPattern[room.getRowCount()][room.getColCount()];
 	}
 	
 	// TODO: Implement this
@@ -78,13 +78,13 @@ public class PatternFinder {
 		 * 
 		 * For now, let's just implicitly call each pattern.
 		 */
-		micropatterns.addAll(Corridor.matches(map, null)); // This also finds connectors
-		micropatterns.addAll(Room.matches(map, null));
-		micropatterns.addAll(Treasure.matches(map, null));
-		micropatterns.addAll(Enemy.matches(map, null));
-		micropatterns.addAll(Door.matches(map, null));
-		micropatterns.addAll(Entrance.matches(map, null));
-		micropatterns.addAll(Nothing.matches(map, null)); // This MUST come last
+		micropatterns.addAll(Corridor.matches(room, null)); // This also finds connectors
+		micropatterns.addAll(Chamber.matches(room, null));
+		micropatterns.addAll(Treasure.matches(room, null));
+		micropatterns.addAll(Enemy.matches(room, null));
+		micropatterns.addAll(Door.matches(room, null));
+		micropatterns.addAll(Entrance.matches(room, null));
+		micropatterns.addAll(Nothing.matches(room, null)); // This MUST come last
 		
 		return micropatterns;
 	}
@@ -119,12 +119,12 @@ public class PatternFinder {
 		Populator.populate(micropatterns);
 		buildPatternGraph();
 		
-		mesopatterns.addAll(ChokePoint.matches(map, patternGraph));
-		mesopatterns.addAll(DeadEnd.matches(map, patternGraph));
-		mesopatterns.addAll(GuardRoom.matches(map, patternGraph));
-		mesopatterns.addAll(TreasureRoom.matches(map, patternGraph));
-		mesopatterns.addAll(Ambush.matches(map, patternGraph));
-		mesopatterns.addAll(GuardedTreasure.matches(map, patternGraph)); //Do this last!
+		mesopatterns.addAll(ChokePoint.matches(room, patternGraph));
+		mesopatterns.addAll(DeadEnd.matches(room, patternGraph));
+		mesopatterns.addAll(GuardRoom.matches(room, patternGraph));
+		mesopatterns.addAll(TreasureRoom.matches(room, patternGraph));
+		mesopatterns.addAll(Ambush.matches(room, patternGraph));
+		mesopatterns.addAll(GuardedTreasure.matches(room, patternGraph)); //Do this last!
 		return mesopatterns;
 	}
 	
@@ -136,7 +136,7 @@ public class PatternFinder {
 		//Build the pattern graph
 		assignSpacialPatternsToGrid();
 		
-		boolean visitedTiles[][] = new boolean[map.getRowCount()][map.getColCount()];
+		boolean visitedTiles[][] = new boolean[room.getRowCount()][room.getColCount()];
 		
 		patternGraph = new Graph<Pattern>();
 		Entrance entrance = (Entrance)micropatterns.stream().filter((Pattern p) -> {return p instanceof Entrance;}).findFirst().get();
@@ -183,7 +183,7 @@ public class PatternFinder {
 						}
 					}
 				}
-				if(x < map.getColCount() - 1 && !visitedTiles[y][x+1]){
+				if(x < room.getColCount() - 1 && !visitedTiles[y][x+1]){
 					if(spacialPatternGrid[y][x+1] == currentPattern.getValue()){
 						tileQueue.add(new Point(x+1,y));
 						visitedTiles[y][x+1] = true;
@@ -205,7 +205,7 @@ public class PatternFinder {
 						}
 					}
 				}
-				if(y < map.getRowCount() - 1 && !visitedTiles[y+1][x]){
+				if(y < room.getRowCount() - 1 && !visitedTiles[y+1][x]){
 					if(spacialPatternGrid[y+1][x] == currentPattern.getValue()){
 						tileQueue.add(new Point(x,y+1));
 						visitedTiles[y+1][x] = true;

@@ -13,7 +13,7 @@ import finder.geometry.Rectangle;
 import finder.patterns.Pattern;
 import finder.patterns.SpacialPattern;
 import game.Game;
-import game.Map;
+import game.Room;
 import game.TileTypes;
 import generator.config.GeneratorConfig;
 import util.config.ConfigurationUtility;
@@ -24,7 +24,7 @@ import util.config.MissingConfigurationException;
  * 
  * @author Johan Holmberg
  */
-public class Room extends SpacialPattern {
+public class Chamber extends SpacialPattern {
 	
 	private ConfigurationUtility config;
 	
@@ -32,7 +32,7 @@ public class Room extends SpacialPattern {
 	double floorRatioWeight = 0.8;
 	double areaDeviationWeight = 0.2;
 	
-	public Room(GeneratorConfig config, Geometry geometry) {
+	public Chamber(GeneratorConfig config, Geometry geometry) {
 		boundaries = geometry;
 
 		desiredRectangleArea = config.getChamberTargetArea();
@@ -108,43 +108,43 @@ public class Room extends SpacialPattern {
 	 * boundaries. If these boundaries are invalid, no search will be
 	 * performed.
 	 * 
-	 * @param map The map to search.
+	 * @param room The map to search.
 	 * @param boundary The boundary that limits the searchable area.
 	 * @return A list of found room pattern instances.
 	 */
-	public static List<Pattern> matches(Map map, Geometry boundary) {
+	public static List<Pattern> matches(Room room, Geometry boundary) {
 
 		ArrayList<Pattern> results = new ArrayList<Pattern>();
 		
-		if (map == null) {
+		if (room == null) {
 			return results;
 		}
 		
 		if (boundary == null) {
 			boundary = new Rectangle(new Point(0, 0),
-					new Point(map.getColCount() -1 , map.getRowCount() - 1));
+					new Point(room.getColCount() -1 , room.getRowCount() - 1));
 		}
 
 		// Check boundary sanity.
 		Point p1 = ((Rectangle) boundary).getTopLeft();
 		Point p2 = ((Rectangle) boundary).getBottomRight();
-		if (map.getRowCount() < 3 ||
-				map.getColCount() < 3 ||
+		if (room.getRowCount() < 3 ||
+				room.getColCount() < 3 ||
 				p2.getX() - p1.getX() < 2 ||
 				p2.getY() - p1.getY() < 2 ||
-				p1.getX() >= map.getColCount() ||
-				p2.getX() >= map.getColCount() ||
-				p1.getY() >= map.getRowCount() ||
-				p2.getY() >= map.getRowCount()) {
+				p1.getX() >= room.getColCount() ||
+				p2.getX() >= room.getColCount() ||
+				p1.getY() >= room.getRowCount() ||
+				p2.getY() >= room.getRowCount()) {
 			return results;
 		}
 		
 		int[][] matrix = new int[p2.getY() - p1.getY() + 1][p2.getX() - p1.getX() + 1];
-		boolean[][] allocated = map.getAllocationMatrix();
+		boolean[][] allocated = room.getAllocationMatrix();
 		
-		for (int i = 0; i < map.getRowCount(); i++) {
-			for (int j = 0; j < map.getColCount(); j++) {
-				if (map.getTile(p1.getX() + j, p1.getY() + i).GetType() == TileTypes.WALL) {
+		for (int i = 0; i < room.getRowCount(); i++) {
+			for (int j = 0; j < room.getColCount(); j++) {
+				if (room.getTile(p1.getX() + j, p1.getY() + i).GetType() == TileTypes.WALL) {
 					matrix[i][j] = -1;
 				} else {
 					matrix[i][j] = 0;
@@ -162,10 +162,10 @@ public class Room extends SpacialPattern {
 
 		
 		int roomCounter = 0;
-		for (int i = 1; i < map.getRowCount() - 1; i++) {
-			for (int j = 1; j < map.getColCount() - 1; j++) {
+		for (int i = 1; i < room.getRowCount() - 1; i++) {
+			for (int j = 1; j < room.getColCount() - 1; j++) {
 				if (isRoom(matrix, allocated, j, i)) {
-					results.add(new Room(map.getConfig(),growRoom(matrix, allocated, j, i, ++roomCounter)));
+					results.add(new Chamber(room.getConfig(),growRoom(matrix, allocated, j, i, ++roomCounter)));
 				}
 			}
 		}

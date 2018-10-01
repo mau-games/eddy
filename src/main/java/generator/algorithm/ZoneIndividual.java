@@ -7,7 +7,7 @@ import java.util.Random;
 
 import finder.geometry.Point;
 import game.Game;
-import game.Map;
+import game.Room;
 import game.Tile;
 import game.TileTypes;
 import game.ZoneNode;
@@ -122,15 +122,15 @@ public class ZoneIndividual {
 		genotype.randomSupervisedChromosome();
 	}
 	
-	public ZoneIndividual(Map map, float mutationProbability){
-		config = map.getConfig();
+	public ZoneIndividual(Room room, float mutationProbability){
+		config = room.getConfig();
 		genotype = new ZoneGenotype(config,Game.sizeHeight * Game.sizeWidth);
 		phenotype = null;
 		fitness = 0.0;
 		evaluate = false;
 		this.mutationProbability = mutationProbability;
 		
-		genotype.ProduceGenotype(map);
+		genotype.ProduceGenotype(room);
 	}
 	
 	/**

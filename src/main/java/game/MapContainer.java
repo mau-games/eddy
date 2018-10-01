@@ -11,7 +11,7 @@ import finder.patterns.Pattern;
  * @author Johan Holmberg, Malmö University
  */
 public class MapContainer {
-	private Map map;
+	private Room room;
 	private List<Pattern> microPatterns;
 	private List<CompositePattern> mesoPatterns;
 	private List<CompositePattern> macroPatterns;
@@ -29,17 +29,17 @@ public class MapContainer {
 	 * 
 	 * @return A map.
 	 */
-	public Map getMap() {
-		return map;
+	public Room getMap() {
+		return room;
 	}
 
 	/**
 	 * Associates a map with this container.
 	 * 
-	 * @param map A map.
+	 * @param room A map.
 	 */
-	public void setMap(Map map) {
-		this.map = map;
+	public void setMap(Room room) {
+		this.room = room;
 	}
 
 	/**

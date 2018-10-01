@@ -10,7 +10,7 @@ import java.util.stream.Collectors;
 import finder.patterns.InventorialPattern;
 import finder.patterns.Pattern;
 import finder.patterns.meso.TreasureRoom;
-import finder.patterns.micro.Room;
+import finder.patterns.micro.Chamber;
 import finder.patterns.micro.Treasure;
 
 /**

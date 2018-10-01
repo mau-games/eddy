@@ -6,7 +6,7 @@ import java.util.List;
 
 import finder.geometry.Bitmap;
 import finder.geometry.Point;
-import game.Map;
+import game.Room;
 import game.Tile;
 import game.TileTypes;
 import javafx.scene.input.MouseEvent;
@@ -207,7 +207,7 @@ public class Drawer
 	 * Update the modifiers based on the alternate mouse events and changes the main brush tile
 	 * @param event Mouse event over the map
 	 */
-	public void Update(MouseEvent event, util.Point p, Map map)
+	public void Update(MouseEvent event, util.Point p, Room room)
 	{
 		if(event.isShiftDown())
 			brush = brushes.get(1);
@@ -215,7 +215,7 @@ public class Drawer
 			brush = brushes.get(0);
 		 
 		if(p != null)
-			brush.UpdateDrawableTiles(p.getX(), p.getY(), map);
+			brush.UpdateDrawableTiles(p.getX(), p.getY(), room);
 
 		ChangeModifierAlternateValue("Lock", event.isControlDown()); //Just checking
 	}

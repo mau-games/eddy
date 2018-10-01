@@ -34,7 +34,7 @@ import finder.patterns.micro.Connector;
 import finder.patterns.micro.Corridor;
 import finder.patterns.micro.Enemy;
 import finder.patterns.micro.Nothing;
-import finder.patterns.micro.Room;
+import finder.patterns.micro.Chamber;
 import game.ApplicationConfig;
 import game.Game;
 import game.MapContainer;
@@ -116,7 +116,7 @@ public class MapRenderer implements Listener {
 			MapContainer result = (MapContainer) ((AlgorithmDone) e).getPayload();
 			Platform.runLater(() -> {
 				// We might as well see if anyone is interested in our rendered map
-				sendRenderedMap(((AlgorithmDone)e).getID(), (game.Map) result.getMap());
+				sendRenderedMap(((AlgorithmDone)e).getID(), (game.Room) result.getMap());
 			});
 		}
 	}
@@ -449,7 +449,7 @@ public class MapRenderer implements Listener {
 	}
 	
 	private double getNodeRadius(SpacialPattern p, double pWidth){
-		if(p instanceof Room)
+		if(p instanceof Chamber)
 			return (pWidth * 0.25);
 		if(p instanceof Corridor)
 			return (pWidth * 0.25);
@@ -461,7 +461,7 @@ public class MapRenderer implements Listener {
 	}
 	
 	private Color getNodeColor(SpacialPattern p){
-		if(p instanceof Room)
+		if(p instanceof Chamber)
 			return Color.BLUE;
 		if(p instanceof Corridor)
 			return Color.RED;
@@ -475,11 +475,11 @@ public class MapRenderer implements Listener {
 	/**
 	 * Publishes a rendered map.
 	 */
-	private synchronized void sendRenderedMap(UUID runID, game.Map map) {
+	private synchronized void sendRenderedMap(UUID runID, game.Room room) {
 		finalMapHeight = config.getMapRenderHeight();
 		finalMapWidth = config.getMapRenderWidth();
 		Canvas canvas = new Canvas(finalMapWidth, finalMapHeight);
-		renderMap(canvas.getGraphicsContext2D(), map.toMatrix());
+		renderMap(canvas.getGraphicsContext2D(), room.toMatrix());
 		Image image = canvas.snapshot(new SnapshotParameters(), null);
 		MapRendered mr = new MapRendered(image);
 		mr.setID(runID);

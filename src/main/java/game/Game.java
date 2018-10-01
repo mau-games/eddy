@@ -107,10 +107,10 @@ public class Game implements Listener{
     	ComputedConfig
     }
 
-    private void mutateFromMap(Map map, int mutations, MapMutationType mutationType, AlgorithmTypes AlgoType, boolean randomise){
+    private void mutateFromMap(Room room, int mutations, MapMutationType mutationType, AlgorithmTypes AlgoType, boolean randomise){
 
-    	sizeWidth = map.getColCount();
-    	sizeHeight = map.getRowCount();
+    	sizeWidth = room.getColCount();
+    	sizeHeight = room.getRowCount();
     	
     	System.out.println("LETS CREATE!, mutation TYPE: " + mutationType + ", algorithmTypes: " + AlgoType);
 
@@ -121,25 +121,25 @@ public class Game implements Listener{
 			case ComputedConfig:
 			{
 				doors.clear();
-				if (map.getNorth()) { 	//North
+				if (room.getNorth()) { 	//North
 					doors.add(new Point(sizeWidth / 2, 0));
 				}
-				if (map.getEast()) {	//East
+				if (room.getEast()) {	//East
 					doors.add(new Point(sizeWidth - 1, sizeHeight / 2));
 				}
-				if (map.getSouth()) {	//South
+				if (room.getSouth()) {	//South
 					doors.add(new Point(sizeWidth / 2, sizeHeight - 1));
 				}
-				if (map.getWest()) {	//West
+				if (room.getWest()) {	//West
 					doors.add(new Point(0, sizeHeight / 2));
 				}
 				if (doors.isEmpty()) {
-					doors.add(map.getEntrance());
-					for (Point p : map.getDoors()) {
+					doors.add(room.getEntrance());
+					for (Point p : room.getDoors()) {
 						doors.add(p);
 					}
 				}
-				GeneratorConfig gc = map.getCalculatedConfig();
+				GeneratorConfig gc = room.getCalculatedConfig();
 				if(randomise)
 					gc.mutate();
 				Algorithm ga = new Algorithm(gc, AlgoType);
@@ -150,25 +150,25 @@ public class Game implements Listener{
 			case OriginalConfig:
 			{
 				doors.clear();
-				if (map.getNorth()) { 	//North
+				if (room.getNorth()) { 	//North
 					doors.add(new Point(sizeWidth / 2, 0));
 				}
-				if (map.getEast()) {	//East
+				if (room.getEast()) {	//East
 					doors.add(new Point(sizeWidth - 1, sizeHeight / 2));
 				}
-				if (map.getSouth()) {	//South
+				if (room.getSouth()) {	//South
 					doors.add(new Point(sizeWidth / 2, sizeHeight - 1));
 				}
-				if (map.getWest()) {	//West
+				if (room.getWest()) {	//West
 					doors.add(new Point(0, sizeHeight / 2));
 				}
 				if (doors.isEmpty()) {
-					doors.add(map.getEntrance());
-					for (Point p : map.getDoors()) {
+					doors.add(room.getEntrance());
+					for (Point p : room.getDoors()) {
 						doors.add(p);
 					}
 				}
-				GeneratorConfig gc = new GeneratorConfig(map.getConfig());
+				GeneratorConfig gc = new GeneratorConfig(room.getConfig());
 				if(randomise)
 					gc.mutate();
 				Algorithm ga = new Algorithm(gc, AlgoType);
@@ -197,7 +197,7 @@ public class Game implements Listener{
 //						doors.add(p);
 //					}
 //				}
-				Algorithm ga = new Algorithm(map, AlgoType);
+				Algorithm ga = new Algorithm(room, AlgoType);
 				runs.add(ga);
 				ga.start();
 				break;
@@ -350,7 +350,7 @@ public class Game implements Listener{
 			
 			StartMapMutate smm = (StartMapMutate)e;
 //			System.out.println("LETS CREATE!, mutation: " + smm.getMutations() + ", algorithmTypes: " + smm.getAlgorithmTypes());
-			mutateFromMap((Map)e.getPayload(),smm.getMutations(),smm.getMutationType(),smm.getAlgorithmTypes(),smm.getRandomiseConfig());
+			mutateFromMap((Room)e.getPayload(),smm.getMutations(),smm.getMutationType(),smm.getAlgorithmTypes(),smm.getRandomiseConfig());
 		} else if (e instanceof StartBatch) {
 			startBatch(((StartBatch)e).getConfig(), ((StartBatch)e).getSize());
 		} else if (e instanceof Stop) {

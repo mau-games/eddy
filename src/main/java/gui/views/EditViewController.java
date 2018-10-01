@@ -13,9 +13,9 @@ import finder.geometry.Point;
 import finder.patterns.Pattern;
 import finder.patterns.micro.Connector;
 import finder.patterns.micro.Corridor;
-import finder.patterns.micro.Room;
+import finder.patterns.micro.Chamber;
 import game.ApplicationConfig;
-import game.Map;
+import game.Room;
 import game.TileTypes;
 import game.Game.MapMutationType;
 import gui.controls.Drawer;
@@ -82,7 +82,7 @@ public class EditViewController extends BorderPane implements Listener {
 	private boolean isActive = false;
 	private boolean isFeasible = true;
 	private TileTypes brush = null;
-	private HashMap<Integer, Map> maps = new HashMap<Integer, Map>();
+	private HashMap<Integer, Room> rooms = new HashMap<Integer, Room>();
 	private int nextMap = 0;
 	
 	private MapRenderer renderer = MapRenderer.getInstance();
@@ -300,19 +300,19 @@ public class EditViewController extends BorderPane implements Listener {
 	public void ping(PCGEvent e) {
 		if (e instanceof MapUpdate) {
 			if (isActive) {
-				Map map = (Map) ((MapUpdate) e).getPayload();
+				Room room = (Room) ((MapUpdate) e).getPayload();
 				UUID uuid = ((MapUpdate) e).getID();
 				LabeledCanvas canvas;
 				synchronized (mapDisplays) {
 					canvas = mapDisplays.get(nextMap);
 //					canvas.setText("Got map:\n" + uuid);
 					canvas.setText("");
-					maps.put(nextMap, map);
+					rooms.put(nextMap, room);
 					nextMap++;
 				}
 				
 				Platform.runLater(() -> {
-					int[][] matrix = map.toMatrix();
+					int[][] matrix = room.toMatrix();
 					canvas.draw(renderer.renderMap(matrix));
 				});
 			}
@@ -351,13 +351,13 @@ public class EditViewController extends BorderPane implements Listener {
 	/**
 	 * Updates this control's map.
 	 * 
-	 * @param map The new map.
+	 * @param room The new map.
 	 */
-	public void updateMap(Map map) {
-		mapView.updateMap(map);
-		redrawPatterns(map);
-		redrawLocks(map);
-		mapIsFeasible(map.isFeasible());
+	public void updateMap(Room room) {
+		mapView.updateMap(room);
+		redrawPatterns(room);
+		redrawLocks(room);
+		mapIsFeasible(room.isFeasible());
 		resetMiniMaps();
 	}
 	
@@ -366,7 +366,7 @@ public class EditViewController extends BorderPane implements Listener {
 	 * 
 	 * @return The current map.
 	 */
-	public Map getCurrentMap() {
+	public Room getCurrentMap() {
 		return mapView.getMap();
 	}
 	
@@ -484,10 +484,10 @@ public class EditViewController extends BorderPane implements Listener {
 	 * 
 	 * "Why is this public?",  you ask. Because of FXML's method binding.
 	 */
-	public void generateNewMaps(Map map) {
+	public void generateNewMaps(Room room) {
 		// TODO: If we want more diversity in the generated maps, then send more StartMapMutate events.
 		//router.postEvent(new StartMapMutate(map, MapMutationType.Preserving, AlgorithmTypes.Similarity, 2, true)); //TODO: Move some of this hard coding to ApplicationConfig
-		router.postEvent(new StartMapMutate(map, MapMutationType.Preserving, AlgorithmTypes.Symmetry, 4, true)); //TODO: Move some of this hard coding to ApplicationConfig
+		router.postEvent(new StartMapMutate(room, MapMutationType.Preserving, AlgorithmTypes.Symmetry, 4, true)); //TODO: Move some of this hard coding to ApplicationConfig
 		//router.postEvent(new StartMapMutate(map, MapMutationType.Preserving, AlgorithmTypes.SymmetryAndSimilarity, 2, true)); //TODO: Move some of this hard coding to ApplicationConfig
 		//router.postEvent(new StartMapMutate(map, MapMutationType.ComputedConfig, AlgorithmTypes.Native, 2, true)); //TODO: Move some of this hard coding to ApplicationConfig
 	}
@@ -498,10 +498,10 @@ public class EditViewController extends BorderPane implements Listener {
 	 * @param index The new map's index.
 	 */
 	private void replaceMap(int index) {
-		Map map = maps.get(index);
-		if (map != null) {
-			generateNewMaps(map);
-			updateMap(map);
+		Room room = rooms.get(index);
+		if (room != null) {
+			generateNewMaps(room);
+			updateMap(room);
 		}
 	}
 	
@@ -516,7 +516,7 @@ public class EditViewController extends BorderPane implements Listener {
 		HashMap<Pattern, Color> patternMap = new HashMap<Pattern, Color>();
 		
 		patterns.forEach((pattern) -> {
-			if (pattern instanceof Room) {
+			if (pattern instanceof Chamber) {
 				patternMap.put(pattern, Color.BLUE);
 			} else if (pattern instanceof Corridor) {
 				patternMap.put(pattern, Color.RED);
@@ -533,30 +533,30 @@ public class EditViewController extends BorderPane implements Listener {
 	 * 
 	 * @param container
 	 */
-	private synchronized void redrawPatterns(Map map) {
+	private synchronized void redrawPatterns(Room room) {
 		//Change those 2 width and height hardcoded values (420,420)
 		patternCanvas.getGraphicsContext2D().clearRect(0, 0, 420, 420);
 		zoneCanvas.getGraphicsContext2D().clearRect(0, 0, 420, 420);
 		
-		renderer.drawPatterns(patternCanvas.getGraphicsContext2D(), map.toMatrix(), colourPatterns(map.getPatternFinder().findMicroPatterns()));
-		renderer.drawGraph(patternCanvas.getGraphicsContext2D(), map.toMatrix(), map.getPatternFinder().getPatternGraph());
-		renderer.drawMesoPatterns(patternCanvas.getGraphicsContext2D(), map.toMatrix(), map.getPatternFinder().getMesoPatterns());
-		renderer.drawZones(zoneCanvas.getGraphicsContext2D(), map.toMatrix(), map.root, (int)(zoneSlider.getValue()),Color.BLACK);
+		renderer.drawPatterns(patternCanvas.getGraphicsContext2D(), room.toMatrix(), colourPatterns(room.getPatternFinder().findMicroPatterns()));
+		renderer.drawGraph(patternCanvas.getGraphicsContext2D(), room.toMatrix(), room.getPatternFinder().getPatternGraph());
+		renderer.drawMesoPatterns(patternCanvas.getGraphicsContext2D(), room.toMatrix(), room.getPatternFinder().getMesoPatterns());
+		renderer.drawZones(zoneCanvas.getGraphicsContext2D(), room.toMatrix(), room.root, (int)(zoneSlider.getValue()),Color.BLACK);
 	}
 	
 	/***
 	 * Redraw the lock in the map --> TODO: I am afraid this should be in the renderer
-	 * @param map
+	 * @param room
 	 */
-	private void redrawLocks(Map map)
+	private void redrawLocks(Room room)
 	{
 		lockCanvas.getGraphicsContext2D().clearRect(0, 0, 420, 420);
 		
-		for(int i = 0; i < map.getRowCount(); ++i)
+		for(int i = 0; i < room.getRowCount(); ++i)
 		{
-			for(int j = 0; j < map.getColCount(); ++j)
+			for(int j = 0; j < room.getColCount(); ++j)
 			{
-				if(map.getTile(j, i).GetImmutable())
+				if(room.getTile(j, i).GetImmutable())
 				{
 					lockCanvas.getGraphicsContext2D().drawImage(renderer.GetLock(mapView.scale * 0.75f, mapView.scale * 0.75f), j * mapView.scale, i * mapView.scale);
 				}
@@ -564,10 +564,10 @@ public class EditViewController extends BorderPane implements Listener {
 		}
 	}
 	
-	private void redrawHeatMap(Map map)
+	private void redrawHeatMap(Room room)
 	{
-		int width = map.getColCount();
-		int height = map.getRowCount();
+		int width = room.getColCount();
+		int height = room.getRowCount();
 		double pWidth = heatMapCanvas.getGraphicsContext2D().getCanvas().getWidth() / (double)Math.max(width, height);
 		
 		Color danger = Color.RED;
@@ -577,9 +577,9 @@ public class EditViewController extends BorderPane implements Listener {
 
 		heatMapCanvas.getGraphicsContext2D().clearRect(0, 0, 420, 420);
 		
-		for(int i = 0; i < map.getRowCount(); ++i)
+		for(int i = 0; i < room.getRowCount(); ++i)
 		{
-			for(int j = 0; j < map.getColCount(); ++j)
+			for(int j = 0; j < room.getColCount(); ++j)
 			{
 				float analyzed_cells = 0.0f;
 				Point p = new Point(j,i);
@@ -614,7 +614,7 @@ public class EditViewController extends BorderPane implements Listener {
 //				}
 				
 				analyzed_cells++;
-				TileTypes til = map.getTile(p.getX(), p.getY()).GetType();
+				TileTypes til = room.getTile(p.getX(), p.getY()).GetType();
 				
 				if(til == TileTypes.ENEMY) danger_percent += 1;
 				else if(til == TileTypes.TREASURE) resource_percent += 1;

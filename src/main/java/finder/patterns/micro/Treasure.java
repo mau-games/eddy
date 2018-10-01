@@ -8,7 +8,7 @@ import finder.geometry.Point;
 import finder.geometry.Rectangle;
 import finder.patterns.InventorialPattern;
 import finder.patterns.Pattern;
-import game.Map;
+import game.Room;
 
 /**
  * This class represents the dungeon game design pattern called Treasure.
@@ -19,9 +19,9 @@ public class Treasure extends InventorialPattern {
 	
 	private double quality = 0.0;
 	
-	public Treasure(Geometry geometry, Map map) {
+	public Treasure(Geometry geometry, Room room) {
 		boundaries = geometry;
-		this.map = map;
+		this.room = room;
 	}
 	
 	@Override
@@ -40,38 +40,38 @@ public class Treasure extends InventorialPattern {
 	 * boundaries. If these boundaries are invalid, no search will be
 	 * performed.
 	 * 
-	 * @param map The map to search.
+	 * @param room The map to search.
 	 * @param boundary The boundary that limits the searchable area.
 	 * @return A list of found room pattern instances.
 	 */
-	public static List<Pattern> matches(Map map, Geometry boundary) {
+	public static List<Pattern> matches(Room room, Geometry boundary) {
 		ArrayList<Pattern> results = new ArrayList<Pattern>();
 		
-		if (map == null) {
+		if (room == null) {
 			return results;
 		}
 		
 		if (boundary == null) {
 			boundary = new Rectangle(new Point(0, 0),
-					new Point(map.getColCount() -1 , map.getRowCount() - 1));
+					new Point(room.getColCount() -1 , room.getRowCount() - 1));
 		}
 
 		// Check boundary sanity.
 		Point p1 = ((Rectangle) boundary).getTopLeft();
 		Point p2 = ((Rectangle) boundary).getBottomRight();
-		if (p1.getX() >= map.getColCount() ||
-				p2.getX() >= map.getColCount() ||
-				p1.getY() >= map.getRowCount() ||
-				p2.getY() >= map.getRowCount()) {
+		if (p1.getX() >= room.getColCount() ||
+				p2.getX() >= room.getColCount() ||
+				p1.getY() >= room.getRowCount() ||
+				p2.getY() >= room.getRowCount()) {
 			return results;
 		}
 
-		double quality = calculateTreasureQuality(map);
+		double quality = calculateTreasureQuality(room);
 		
-		for(util.Point p : map.getTreasures()){
+		for(util.Point p : room.getTreasures()){
 			Point p_ = new Point(p.getX(),p.getY());
 			if(((Rectangle)boundary).contains(p_)){
-				Treasure t = new Treasure(p_,map);
+				Treasure t = new Treasure(p_,room);
 				t.quality = quality;
 				results.add(t);
 			}
@@ -84,10 +84,10 @@ public class Treasure extends InventorialPattern {
 		return map[y][x] == 2;
 	}
 	
-	private static double calculateTreasureQuality(Map map){
-		double[] expectedTreasuresRange = expectedTreasuresRange = map.getConfig().getTreasureQuantityRange();
+	private static double calculateTreasureQuality(Room room){
+		double[] expectedTreasuresRange = expectedTreasuresRange = room.getConfig().getTreasureQuantityRange();
         double quality = 0.0;
-        double treasurePercent = map.getTreasurePercentage();
+        double treasurePercent = room.getTreasurePercentage();
         if(treasurePercent < expectedTreasuresRange[0])
         {
         	quality = expectedTreasuresRange[0] - treasurePercent;
@@ -98,7 +98,7 @@ public class Treasure extends InventorialPattern {
         }
         //Scale fitness to be between 0 and 1:
         quality = quality/Math.max(expectedTreasuresRange[0], 1.0 - expectedTreasuresRange[1]);
-        quality /= map.getTreasureCount();
+        quality /= room.getTreasureCount();
         
         return quality;
 	}

@@ -11,10 +11,10 @@ import org.slf4j.LoggerFactory;
 import finder.patterns.Pattern;
 import finder.patterns.micro.Connector;
 import finder.patterns.micro.Corridor;
-import finder.patterns.micro.Room;
+import finder.patterns.micro.Chamber;
 import game.ApplicationConfig;
 import game.Game;
-import game.Map;
+import game.Room;
 import game.TileTypes;
 import generator.algorithm.Algorithm;
 import generator.config.GeneratorConfig;
@@ -74,7 +74,7 @@ public class SimpleMapGUIController  implements Initializable, Listener
 	
 	private GridPane mapPane;
 	
-	private Map currentMap; //example map to perform evo on
+	private Room currentMap; //example map to perform evo on
 	private GeneratorConfig basicConfig;
 	private final MapRenderer renderer = MapRenderer.getInstance(); //neeeded
 	private Canvas patternCanvas ;
@@ -187,16 +187,16 @@ public class SimpleMapGUIController  implements Initializable, Listener
 //		}
 		
 //		System.out.println();
-		currentMap = new Map(basicConfig, ex, Game.sizeHeight, Game.sizeWidth, Game.doorCount);
+		currentMap = new Room(basicConfig, ex, Game.sizeHeight, Game.sizeWidth, Game.doorCount);
 		RenderMap(currentMap);
 	}
 	
 	//Renders any map object you send to it
-	private void RenderMap(Map map)
+	private void RenderMap(Room room)
 	{
 		mapPane.autosize();
-		int cols = map.getColCount();
-		int rows = map.getRowCount();
+		int cols = room.getColCount();
+		int rows = room.getRowCount();
 		double width = mapPane.getWidth() / cols;
 		double height = mapPane.getHeight() / rows;
 		double scale = Math.min(width, height);
@@ -206,7 +206,7 @@ public class SimpleMapGUIController  implements Initializable, Listener
 		
 		for (int j = 0; j < rows; j++){ //y
 			for (int i = 0; i < cols; i++)  { //x
-				ImageView iv = new ImageView(getImage(map.getTile(i, j).GetType(), scale));
+				ImageView iv = new ImageView(getImage(room.getTile(i, j).GetType(), scale));
 				GridPane.setFillWidth(iv, true);
 				GridPane.setFillHeight(iv, true);
 				mapPane.add(iv, i,j);
@@ -274,16 +274,16 @@ public class SimpleMapGUIController  implements Initializable, Listener
 	
 	/****
 	 * Redraw the patterns in the canvas 
-	 * @param map Extract the patterns from the map
+	 * @param room Extract the patterns from the map
 	 */
-	private synchronized void redrawPatterns(Map map)
+	private synchronized void redrawPatterns(Room room)
 	{
 		patternCanvas.getGraphicsContext2D().clearRect(0, 0, WIDTH, HEIGHT);
 		zoneCanvas.getGraphicsContext2D().clearRect(0, 0, WIDTH, HEIGHT);
-		renderer.drawPatterns(patternCanvas.getGraphicsContext2D(), map.toMatrix(), colourPatterns(map.getPatternFinder().findMicroPatterns()));
-		renderer.drawGraph(patternCanvas.getGraphicsContext2D(), map.toMatrix(), map.getPatternFinder().getPatternGraph());
-		renderer.drawMesoPatterns(patternCanvas.getGraphicsContext2D(), map.toMatrix(), map.getPatternFinder().getMesoPatterns());
-		renderer.drawZones(zoneCanvas.getGraphicsContext2D(), map.toMatrix(), map.root, (int)(zoneSlider.getValue()), Color.BLACK);
+		renderer.drawPatterns(patternCanvas.getGraphicsContext2D(), room.toMatrix(), colourPatterns(room.getPatternFinder().findMicroPatterns()));
+		renderer.drawGraph(patternCanvas.getGraphicsContext2D(), room.toMatrix(), room.getPatternFinder().getPatternGraph());
+		renderer.drawMesoPatterns(patternCanvas.getGraphicsContext2D(), room.toMatrix(), room.getPatternFinder().getMesoPatterns());
+		renderer.drawZones(zoneCanvas.getGraphicsContext2D(), room.toMatrix(), room.root, (int)(zoneSlider.getValue()), Color.BLACK);
 	}
 	
 	/**
@@ -296,7 +296,7 @@ public class SimpleMapGUIController  implements Initializable, Listener
 		HashMap<Pattern, Color> patternMap = new HashMap<Pattern, Color>();
 		
 		patterns.forEach((pattern) -> {
-			if (pattern instanceof Room) {
+			if (pattern instanceof Chamber) {
 				patternMap.put(pattern, Color.BLUE);
 			} else if (pattern instanceof Corridor) {
 				patternMap.put(pattern, Color.RED);

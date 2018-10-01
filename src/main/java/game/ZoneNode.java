@@ -21,17 +21,17 @@ public class ZoneNode
 	private List<Integer> sortedKeys;
 	private HashMap<Integer, Point> s;
 	private ArrayList<ZoneNode> children;
-	private Map refMap;
+	private Room refMap;
 	private int width;
 	private int height;
 	
 	private boolean valid;
 
-	public ZoneNode(ZoneNode parent, Map map, int w, int h)
+	public ZoneNode(ZoneNode parent, Room room, int w, int h)
 	{
 		s = new HashMap<Integer, Point>();
 		this.parent = parent;
-		this.refMap = map;
+		this.refMap = room;
 		this.width = w;
 		this.height = h;
 		this.children = new ArrayList<ZoneNode>();
@@ -50,11 +50,11 @@ public class ZoneNode
 		}
 	}
 	
-	public ZoneNode(int n, Bitmap section, ZoneNode parent, Map map, int w, int h)
+	public ZoneNode(int n, Bitmap section, ZoneNode parent, Room room, int w, int h)
 	{
 		s = new HashMap<Integer, Point>();
 		this.parent = parent;
-		this.refMap = map;
+		this.refMap = room;
 		this.section = section;
 		
 		for(Point p : section.getPoints())
@@ -83,7 +83,7 @@ public class ZoneNode
 	{
 		this.s = new HashMap<Integer, Point>();
 		this.parent = copy.parent;
-		this.refMap = new Map(copy.refMap, this);
+		this.refMap = new Room(copy.refMap, this);
 		this.width = copy.width;
 		this.height = copy.height;
 		this.section = FillSection();
@@ -263,7 +263,7 @@ public class ZoneNode
 		return children.size() < 1;
 	}
 	
-	public Map GetMap()
+	public Room GetMap()
 	{
 		return refMap;
 	}
@@ -294,13 +294,13 @@ public class ZoneNode
 		return children;
 	}
 	
-	public void SetRefMap(Map map)
+	public void SetRefMap(Room room)
 	{
-		this.refMap = map;
+		this.refMap = room;
 		
 		for(ZoneNode child : children)
 		{
-			child.SetRefMap(map);
+			child.SetRefMap(room);
 		}	
 	}
 	

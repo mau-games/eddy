@@ -14,19 +14,19 @@ import finder.patterns.CompositePattern;
 import finder.patterns.Pattern;
 import finder.patterns.micro.Door;
 import finder.patterns.micro.Entrance;
-import game.Map;
+import game.Room;
 import generator.config.GeneratorConfig;
 
 public class DeadEnd extends CompositePattern {
 	
 	private double badness = 0.0;
 	private double filledness = 1.0f;
-	Map map;
+	Room room;
 	
 	public double getQuality(){
 		
 		double actualFilledness = 0.0;
-		List<CompositePattern> mesopatterns = map.getPatternFinder().findMesoPatterns();
+		List<CompositePattern> mesopatterns = room.getPatternFinder().findMesoPatterns();
 		int contained = 0;
 		//actualFilledness is the ratio to patterns involved in meso patterns to the total number
 		for(Pattern p : getPatterns()){
@@ -46,8 +46,8 @@ public class DeadEnd extends CompositePattern {
 		return 0.5 * quality + 0.5 * (1 - badness);	
 	}
 	
-	public DeadEnd(Map map, GeneratorConfig config){
-		this.map = map;
+	public DeadEnd(Room room, GeneratorConfig config){
+		this.room = room;
 		
 		
 		filledness = config.getDeadEndFilledness();
@@ -60,11 +60,11 @@ public class DeadEnd extends CompositePattern {
 	 * Searches a map for instances of this pattern and returns a list of found
 	 * instances.
 	 * 
-	 * @param map The map to search for patterns in.
+	 * @param room The map to search for patterns in.
 	 * @param boundary A boundary in which the pattern is searched for.
 	 * @return A list of found instances.
 	 */
-	public static List<CompositePattern> matches(Map map, Graph<Pattern> patternGraph) {
+	public static List<CompositePattern> matches(Room room, Graph<Pattern> patternGraph) {
 		
 		//How to find dead ends:
 		//1. Find the critical path
@@ -77,7 +77,7 @@ public class DeadEnd extends CompositePattern {
 		//Find doors & entrance
 		Entrance entrance = null;
 		List<Door> doors = new ArrayList<Door>();
-		for(Pattern p : map.getPatternFinder().findMicroPatterns()){
+		for(Pattern p : room.getPatternFinder().findMicroPatterns()){
 			if (p instanceof Entrance)
 				entrance = (Entrance)p;
 			else if (p instanceof Door)
@@ -104,7 +104,7 @@ public class DeadEnd extends CompositePattern {
 				if(!criticalPath.contains(getOtherNode(e,n)) && !getOtherNode(e,n).isVisited()){
 					
 					if(!patternGraph.isEdgeInCycle(e)){
-						deadEnds.add(expandDeadEnd(map, getOtherNode(e,n),n));
+						deadEnds.add(expandDeadEnd(room, getOtherNode(e,n),n));
 					} else {
 					
 						Queue<Node<Pattern>> queue = new LinkedList<Node<Pattern>>();
@@ -117,7 +117,7 @@ public class DeadEnd extends CompositePattern {
 								Node<Pattern> n2 = getOtherNode(e2,current);
 								if(!criticalPath.contains(n2) && !n2.isVisited()){
 									if(!patternGraph.isEdgeInCycle(e2)){
-										deadEnds.add(expandDeadEnd(map, n2,current));
+										deadEnds.add(expandDeadEnd(room, n2,current));
 									} else {
 										queue.add(n2);
 										n2.tryVisit();
@@ -136,7 +136,7 @@ public class DeadEnd extends CompositePattern {
 		return deadEnds;
 	}
 	
-	private static DeadEnd expandDeadEnd(Map map, Node<Pattern> start, Node<Pattern> prev){
+	private static DeadEnd expandDeadEnd(Room room, Node<Pattern> start, Node<Pattern> prev){
 		List<Pattern> patterns = new ArrayList<Pattern>();
 		
 		Queue<Node<Pattern>> queue = new LinkedList<Node<Pattern>>();
@@ -156,7 +156,7 @@ public class DeadEnd extends CompositePattern {
 			}
 		}
 
-		DeadEnd deadEnd = new DeadEnd(map, map.getConfig());
+		DeadEnd deadEnd = new DeadEnd(room, room.getConfig());
 		deadEnd.getPatterns().addAll(patterns);
 		return deadEnd;
 	}

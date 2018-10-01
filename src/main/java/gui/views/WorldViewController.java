@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.util.List;
 
 import game.ApplicationConfig;
-import game.Map;
+import game.Room;
 import game.MapContainer;
 import gui.controls.LabeledCanvas;
 import gui.utils.MapRenderer;

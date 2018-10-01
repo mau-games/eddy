@@ -15,7 +15,7 @@ import org.slf4j.LoggerFactory;
 import finder.PatternFinder;
 import game.ApplicationConfig;
 import game.Game;
-import game.Map;
+import game.Room;
 import game.MapContainer;
 import game.TileTypes;
 import generator.config.GeneratorConfig;
@@ -133,11 +133,11 @@ public class InteractiveGUIController implements Initializable, Listener {
 			}
 
 		} else if (e instanceof RequestAppliedMap) {
-			Map map = (Map) ((RequestAppliedMap) e).getPayload();
+			Room room = (Room) ((RequestAppliedMap) e).getPayload();
 			MapContainer mapCont = new MapContainer();
 			row = ((RequestAppliedMap) e).getRow();
 			col = ((RequestAppliedMap) e).getCol(); 
-			mapCont.setMap(map);
+			mapCont.setMap(room);
 			worldMapMatrix[row][col] = mapCont;
 			initRoomView(mapCont);
 		} else if (e instanceof RequestSuggestionsView) {
@@ -214,7 +214,7 @@ public class InteractiveGUIController implements Initializable, Listener {
 			MapContainer container = (MapContainer) e.getPayload();
 
 			if (!worldMapMatrix[row][col].getMap().getNull()) {
-				Map nullMap = new Map(Game.sizeWidth, Game.sizeHeight, 0);
+				Room nullMap = new Room(Game.sizeWidth, Game.sizeHeight, 0);
 				MapContainer nullCont = new MapContainer();
 				nullCont.setMap(nullMap);
 				worldMapMatrix[row][col] = nullCont;
@@ -239,42 +239,42 @@ public class InteractiveGUIController implements Initializable, Listener {
 					// TODO Auto-generated catch block
 					ex.printStackTrace();
 				}
-				Map tempMap = null;
+				Room tempMap = null;
 				// 1
 				if (row == 0 && col == 0) {
-					tempMap = new Map(gc, 11, 11, null, east, south, null);
+					tempMap = new Room(gc, 11, 11, null, east, south, null);
 				}
 				// 3
 				if (row == 0 && col == (size - 1)) {
-					tempMap = new Map(gc, 11, 11, null, null, south, west);
+					tempMap = new Room(gc, 11, 11, null, null, south, west);
 				}
 				// 7
 				if (row == (size - 1) && col == 0) {
-					tempMap = new Map(gc, 11, 11, north, east, null, null);
+					tempMap = new Room(gc, 11, 11, north, east, null, null);
 				}
 				// 9
 				if (row == (size - 1) && col == (size - 1)) {
-					tempMap = new Map(gc, 11, 11, north, null, null, west);
+					tempMap = new Room(gc, 11, 11, north, null, null, west);
 				}
 				// top
 				if (row == 0 && col != (size - 1) && col != 0) {
-					tempMap = new Map(gc, 11, 11, null, east, south, west);
+					tempMap = new Room(gc, 11, 11, null, east, south, west);
 				}
 				// left
 				if (row != 0 && col == 0 && row != (size - 1)) {
-					tempMap = new Map(gc, 11, 11, north, east, south, null);
+					tempMap = new Room(gc, 11, 11, north, east, south, null);
 				}
 				// right
 				if (row != 0 && row != (size - 1) && col == (size - 1)) {
-					tempMap = new Map(gc, 11, 11, north, null, south, west);
+					tempMap = new Room(gc, 11, 11, north, null, south, west);
 				}
 				// bottom
 				if (col != 0 && col != (size - 1) && row == (size - 1)) {
-					tempMap = new Map(gc, 11, 11, north, east, null, west);
+					tempMap = new Room(gc, 11, 11, north, east, null, west);
 				}
 				// other
 				else if (col != 0 && col != (size - 1) && row != 0 && row != (size - 1)) {
-					tempMap = new Map(gc, 11, 11, north, east, south, west);
+					tempMap = new Room(gc, 11, 11, north, east, south, west);
 				}
 				MapContainer revertCont = new MapContainer();
 				revertCont.setMap(tempMap);
@@ -532,9 +532,9 @@ public class InteractiveGUIController implements Initializable, Listener {
 		System.out.println("Generate map");
 	}
 
-	private void updateConfigBasedOnMap(Map map) {
-		config.setDimensionM(map.getColCount());
-		config.setDimensionN(map.getRowCount());
+	private void updateConfigBasedOnMap(Room room) {
+		config.setDimensionM(room.getColCount());
+		config.setDimensionN(room.getRowCount());
 	}
 
 	/*
@@ -785,7 +785,7 @@ public class InteractiveGUIController implements Initializable, Listener {
 					roomView.getAppSuggestionsBtn().setDisable(false);
 
 					router.postEvent(new ApplySuggestion(0));
-					roomView.setSelectedMiniMap(roomView.maps.get(0));
+					roomView.setSelectedMiniMap(roomView.rooms.get(0));
 
 					roomView.displayStats();
 					
@@ -836,7 +836,7 @@ public class InteractiveGUIController implements Initializable, Listener {
 					roomView.getAppSuggestionsBtn().setDisable(false);
 
 					router.postEvent(new ApplySuggestion(1));
-					roomView.setSelectedMiniMap(roomView.maps.get(1));
+					roomView.setSelectedMiniMap(roomView.rooms.get(1));
 
 					roomView.displayStats();
 
@@ -886,7 +886,7 @@ public class InteractiveGUIController implements Initializable, Listener {
 					roomView.getAppSuggestionsBtn().setDisable(false);
 
 					router.postEvent(new ApplySuggestion(2));
-					roomView.setSelectedMiniMap(roomView.maps.get(2));
+					roomView.setSelectedMiniMap(roomView.rooms.get(2));
 
 					roomView.displayStats();
 
@@ -935,7 +935,7 @@ public class InteractiveGUIController implements Initializable, Listener {
 					roomView.getAppSuggestionsBtn().setDisable(false);
 
 					router.postEvent(new ApplySuggestion(3));
-					roomView.setSelectedMiniMap(roomView.maps.get(3));
+					roomView.setSelectedMiniMap(roomView.rooms.get(3));
 
 					roomView.displayStats();
 
@@ -1064,7 +1064,7 @@ public class InteractiveGUIController implements Initializable, Listener {
 
 					}
 					if (worldMapMatrix[rows][cols].getMap().getNumberOfDoors() == 0) {
-						Map nullMap = new Map(11, 11, 0);
+						Room nullMap = new Room(11, 11, 0);
 						MapContainer nullCont = new MapContainer();
 						nullCont.setMap(nullMap);
 						worldMapMatrix[rows][cols] = nullCont;
@@ -1107,42 +1107,42 @@ public class InteractiveGUIController implements Initializable, Listener {
 		}
 		for (int rows = 0; rows < size; rows++) {
 			for (int cols = 0; cols < size; cols++) {
-				Map tempMap = null;
+				Room tempMap = null;
 				// 1
 				if (rows == 0 && cols == 0) {
-					tempMap = new Map(gc, height, width, null, east, south, null);
+					tempMap = new Room(gc, height, width, null, east, south, null);
 				}
 				// 3
 				if (rows == 0 && cols == (size - 1)) {
-					tempMap = new Map(gc, height, width, null, null, south, west);
+					tempMap = new Room(gc, height, width, null, null, south, west);
 				}
 				// 7
 				if (rows == (size - 1) && cols == 0) {
-					tempMap = new Map(gc, height, width, north, east, null, null);
+					tempMap = new Room(gc, height, width, north, east, null, null);
 				}
 				// 9
 				if (rows == (size - 1) && cols == (size - 1)) {
-					tempMap = new Map(gc, height, width, north, null, null, west);
+					tempMap = new Room(gc, height, width, north, null, null, west);
 				}
 				// top
 				if (rows == 0 && cols != (size - 1) && cols != 0) {
-					tempMap = new Map(gc, height, width, null, east, south, west);
+					tempMap = new Room(gc, height, width, null, east, south, west);
 				}
 				// left
 				if (rows != 0 && cols == 0 && rows != (size - 1)) {
-					tempMap = new Map(gc, height, width, north, east, south, null);
+					tempMap = new Room(gc, height, width, north, east, south, null);
 				}
 				// right
 				if (rows != 0 && rows != (size - 1) && cols == (size - 1)) {
-					tempMap = new Map(gc, height, width, north, null, south, west);
+					tempMap = new Room(gc, height, width, north, null, south, west);
 				}
 				// bottom
 				if (cols != 0 && cols != (size - 1) && rows == (size - 1)) {
-					tempMap = new Map(gc, height, width, north, east, null, west);
+					tempMap = new Room(gc, height, width, north, east, null, west);
 				}
 				// other
 				else if (cols != 0 && cols != (size - 1) && rows != 0 && rows != (size - 1)) {
-					tempMap = new Map(gc, height, width, north, east, south, west);
+					tempMap = new Room(gc, height, width, north, east, south, west);
 				}
 
 				MapContainer temp = new MapContainer();
@@ -1235,7 +1235,7 @@ public class InteractiveGUIController implements Initializable, Listener {
 
 						for (int s = 0; s < stringArray.length; s++) {
 							MapContainer helpContainer = new MapContainer();
-							helpContainer.setMap(Map.fromString(stringArray[s]));
+							helpContainer.setMap(Room.fromString(stringArray[s]));
 							
 							
 							int counter = 0;

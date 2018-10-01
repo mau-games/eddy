@@ -10,7 +10,7 @@ import finder.geometry.Point;
 import finder.geometry.Rectangle;
 import finder.patterns.InventorialPattern;
 import finder.patterns.Pattern;
-import game.Map;
+import game.Room;
 import util.Util;
 import util.algorithms.Node;
 import util.algorithms.Pathfinder;
@@ -24,9 +24,9 @@ public class Entrance extends InventorialPattern {
 	
 	private double quality;
 	
-	public Entrance(Geometry geometry, Map map) {
+	public Entrance(Geometry geometry, Room room) {
 		boundaries = geometry;
-		this.map = map;
+		this.room = room;
 	}
 	
 	@Override
@@ -49,28 +49,28 @@ public class Entrance extends InventorialPattern {
 	 * boundaries. If these boundaries are invalid, no search will be
 	 * performed.
 	 * 
-	 * @param map The map to search.
+	 * @param room The map to search.
 	 * @param boundary The boundary that limits the searchable area.
 	 * @return A list of found room pattern instances.
 	 */
-	public static List<Pattern> matches(Map map, Geometry boundary) {
+	public static List<Pattern> matches(Room room, Geometry boundary) {
 		ArrayList<Pattern> results = new ArrayList<Pattern>();
 		
-		if (map == null || map.getColCount() == 0) {
+		if (room == null || room.getColCount() == 0) {
 			return results;
 		}
 		
 		if (boundary == null) {
 			boundary = new Rectangle(new Point(0, 0),
-					new Point(map.getColCount() -1 , map.getRowCount() - 1));
+					new Point(room.getColCount() -1 , room.getRowCount() - 1));
 		}
 		
-		double quality = calculateEntranceQuality(map);
+		double quality = calculateEntranceQuality(room);
 		
-		util.Point p = map.getEntrance();
+		util.Point p = room.getEntrance();
 		Point p_ = new Point(p.getX(),p.getY());
 		if(((Rectangle)boundary).contains(p_)){
-			Entrance e = new Entrance(p_,map);
+			Entrance e = new Entrance(p_,room);
 			e.quality = quality;
 			results.add(e);
 		}
@@ -82,29 +82,29 @@ public class Entrance extends InventorialPattern {
 		return map[y][x] == 5;
 	}
 	
-	private static double calculateEntranceQuality(Map map){
+	private static double calculateEntranceQuality(Room room){
 		//Entrance safety
-	    double entranceSafetyQuality = evaluateEntranceSafety(map);
-	    map.setEntranceSafety(entranceSafetyQuality);
-	    entranceSafetyQuality = Math.abs(entranceSafetyQuality - map.getConfig().getEntranceSafety());
+	    double entranceSafetyQuality = evaluateEntranceSafety(room);
+	    room.setEntranceSafety(entranceSafetyQuality);
+	    entranceSafetyQuality = Math.abs(entranceSafetyQuality - room.getConfig().getEntranceSafety());
 	    
 	    //Average treasure safety
-        evaluateTreasureSafeties(map);
-        Double[] safeties = map.getAllTreasureSafeties();
+        evaluateTreasureSafeties(room);
+        Double[] safeties = room.getAllTreasureSafeties();
         double safeties_average = Util.calcAverage(safeties);
         double averageTreasureSafetyQuality = 0.0;
-        averageTreasureSafetyQuality = Math.abs(safeties_average - map.getConfig().getAverageTreasureSafety());
+        averageTreasureSafetyQuality = Math.abs(safeties_average - room.getConfig().getAverageTreasureSafety());
         
         //Treasure Safety Variance
         double safeties_variance = Util.calcVariance(safeties);
         double expectedSafetyVariance = 0.0;
-		expectedSafetyVariance = map.getConfig().getTreasureSafetyVariance();
+		expectedSafetyVariance = room.getConfig().getTreasureSafetyVariance();
         double treasureSafetyVarianceQuality = Math.abs(safeties_variance - expectedSafetyVariance);
         
         //Entrance greed
-        double entranceGreedQuality = evaluateEntranceGreed(map); //Note - this has been changed from the Unity version
-        map.setEntranceGreed(entranceGreedQuality);
-    	entranceGreedQuality = Math.abs(entranceGreedQuality - map.getConfig().getEntranceGreed());
+        double entranceGreedQuality = evaluateEntranceGreed(room); //Note - this has been changed from the Unity version
+        room.setEntranceGreed(entranceGreedQuality);
+    	entranceGreedQuality = Math.abs(entranceGreedQuality - room.getConfig().getEntranceGreed());
         
         double quality = 0.2*entranceSafetyQuality + 0.2 * entranceGreedQuality + 0.2 * averageTreasureSafetyQuality + 0.4 * treasureSafetyVarianceQuality;
         return quality;
@@ -119,25 +119,25 @@ public class Entrance extends InventorialPattern {
 	 * 1 means there is no enemy in the room (impossible).
 	 * In practice the highest safety will be achieved when an enemy is as far away from the entrance as possible.
 	 * 
-	 * @param map The map to evaluate.
+	 * @param room The map to evaluate.
 	 * @return The safety value for the room's entrance.
 	 */
-	private static float evaluateEntranceSafety(Map map)
+	private static float evaluateEntranceSafety(Room room)
     {
 
         List<Node> visited = new ArrayList<Node>();
     	Queue<Node> queue = new LinkedList<Node>();
     	
-    	Node root = new Node(0.0f, map.getEntrance(), null);
+    	Node root = new Node(0.0f, room.getEntrance(), null);
     	queue.add(root);
     	
     	while(!queue.isEmpty()){
     		Node current = queue.remove();
     		visited.add(current);
-    		if(map.getTile(current.position).GetType().isEnemy())
+    		if(room.getTile(current.position).GetType().isEnemy())
     			break;
     		
-    		List<util.Point> children = map.getAvailableCoords(current.position);
+    		List<util.Point> children = room.getAvailableCoords(current.position);
             for(util.Point child : children)
             {
                 if (visited.stream().filter(x->x.equals(child)).findFirst().isPresent() 
@@ -150,7 +150,7 @@ public class Entrance extends InventorialPattern {
             }
             
     	}
-    	return (float)visited.size()/map.getNonWallTileCount();  
+    	return (float)visited.size()/room.getNonWallTileCount();  
     }
 	
 	/**
@@ -161,25 +161,25 @@ public class Entrance extends InventorialPattern {
 	 * 1 means there is no treasure in the room (impossible).
 	 * In practice the highest greed will be achieved when a treasure is as far away from the entrance as possible.
 	 * 
-	 * @param map The map to evaluate.
+	 * @param room The map to evaluate.
 	 * @return The safety value for the room's entrance.
 	 */
-	private static float evaluateEntranceGreed(Map map)
+	private static float evaluateEntranceGreed(Room room)
     {
 
         List<Node> visited = new ArrayList<Node>();
     	Queue<Node> queue = new LinkedList<Node>();
     	
-    	Node root = new Node(0.0f, map.getEntrance(), null);
+    	Node root = new Node(0.0f, room.getEntrance(), null);
     	queue.add(root);
     	
     	while(!queue.isEmpty()){
     		Node current = queue.remove();
     		visited.add(current);
-    		if(map.getTile(current.position).GetType().isTreasure())
+    		if(room.getTile(current.position).GetType().isTreasure())
     			break;
     		
-    		List<util.Point> children = map.getAvailableCoords(current.position);
+    		List<util.Point> children = room.getAvailableCoords(current.position);
             for(util.Point child : children)
             {
                 if (visited.stream().filter(x->x.equals(child)).findFirst().isPresent() 
@@ -192,7 +192,7 @@ public class Entrance extends InventorialPattern {
             }
             
     	}
-    	return (float)visited.size()/map.getNonWallTileCount();  
+    	return (float)visited.size()/room.getNonWallTileCount();  
     }
 	
 	/**
@@ -201,17 +201,17 @@ public class Entrance extends InventorialPattern {
 	 * 
 	 * @param ind The individual to evaluate
 	 */
-	private static void evaluateTreasureSafeties(Map map)
+	private static void evaluateTreasureSafeties(Room room)
 	{
 	
-	    if(map.getEnemyCount() > 0)
+	    if(room.getEnemyCount() > 0)
 	    {
 
-	        util.Point doorEnter = map.getEntrance();
+	        util.Point doorEnter = room.getEntrance();
 	        
-	        Pathfinder pathfinder = new Pathfinder(map);
+	        Pathfinder pathfinder = new Pathfinder(room);
 	
-	        for (util.Point treasure: map.getTreasures())
+	        for (util.Point treasure: room.getTreasures())
 	        {
 	        	//Find the closest enemy
 	            List<Node> visited = new ArrayList<Node>();
@@ -224,12 +224,12 @@ public class Entrance extends InventorialPattern {
 	        	while(!queue.isEmpty()){
 	        		Node current = queue.remove();
 	        		visited.add(current);
-	        		if(map.getTile(current.position).GetType().isEnemy()){
+	        		if(room.getTile(current.position).GetType().isEnemy()){
 	        			closestEnemy = current.position;
 	        			break;
 	        		}
 	        		
-	        		List<util.Point> children = map.getAvailableCoords(current.position);
+	        		List<util.Point> children = room.getAvailableCoords(current.position);
 	                for(util.Point child : children)
 	                {
 	                    if (visited.stream().filter(x->x.equals(child)).findFirst().isPresent() 
@@ -243,7 +243,7 @@ public class Entrance extends InventorialPattern {
 	        	}
 	        	
 	        	if (treasure == null || closestEnemy == null) {
-	        		map.setTreasureSafety(treasure, 0);
+	        		room.setTreasureSafety(treasure, 0);
 	        	} else {
 	        		int dinTreasureToEnemy = pathfinder.find(treasure, closestEnemy).length;
 		            
@@ -257,7 +257,7 @@ public class Entrance extends InventorialPattern {
 	                if (Double.isNaN(result))
 	                    result = 0.0f;
 	                
-	                map.setTreasureSafety(treasure, Math.max(0.0, result));
+	                room.setTreasureSafety(treasure, Math.max(0.0, result));
 	        	}
 	        }
 	    }

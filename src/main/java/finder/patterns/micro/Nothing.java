@@ -12,14 +12,14 @@ import finder.geometry.Rectangle;
 import finder.patterns.Pattern;
 import finder.patterns.SpacialPattern;
 import game.Game;
-import game.Map;
+import game.Room;
 import game.TileTypes;
 
 public class Nothing extends SpacialPattern {
 
-	public Nothing(Geometry geometry, Map map) {
+	public Nothing(Geometry geometry, Room room) {
 		boundaries = geometry;
-		this.map = map;
+		this.room = room;
 	}
 	
 	@Override
@@ -63,31 +63,31 @@ public class Nothing extends SpacialPattern {
 	 * boundaries. If these boundaries are invalid, no search will be
 	 * performed.
 	 * 
-	 * @param map The map to search.
+	 * @param room The map to search.
 	 * @param boundary The boundary that limits the searchable area.
 	 * @return A list of found Nothing pattern instances.
 	 */
-	public static List<Pattern> matches(Map map, Geometry boundary) {
+	public static List<Pattern> matches(Room room, Geometry boundary) {
 
 		ArrayList<Pattern> results = new ArrayList<Pattern>();
 		
-		if (map == null) {
+		if (room == null) {
 			return results;
 		}
 		
 		if (boundary == null) {
 			boundary = new Rectangle(new Point(0, 0),
-					new Point(map.getColCount() -1 , map.getRowCount() - 1));
+					new Point(room.getColCount() -1 , room.getRowCount() - 1));
 		}
 
-		boolean[][] allocated = map.getAllocationMatrix();
-		boolean[][] visited = new boolean[map.getRowCount()][map.getColCount()];
+		boolean[][] allocated = room.getAllocationMatrix();
+		boolean[][] visited = new boolean[room.getRowCount()][room.getColCount()];
 		
 		//Ignore boundary for now
-		for(int j = 0; j < map.getRowCount(); j++)
-			for(int i = 0; i < map.getColCount(); i++){
+		for(int j = 0; j < room.getRowCount(); j++)
+			for(int i = 0; i < room.getColCount(); i++){
 				
-				if(!allocated[j][i] && !IsWall(map,i,j)){
+				if(!allocated[j][i] && !IsWall(room,i,j)){
 					
 					//This tile is not allocated - search for any adjacent ones and put them all in the same Nothing pattern
 					
@@ -106,22 +106,22 @@ public class Nothing extends SpacialPattern {
 			    		int ii = current.position.getX();
 			    		int jj = current.position.getY();
 			    		
-			    		if(ii > 0 && !visited[jj][ii-1] && !allocated[jj][ii-1] && !IsWall(map,ii-1,jj)){
+			    		if(ii > 0 && !visited[jj][ii-1] && !allocated[jj][ii-1] && !IsWall(room,ii-1,jj)){
 			    			queue.add(new SearchNode(new Point(ii-1,jj), null));
 			    			visited[jj][ii-1] = true;
 							allocated[jj][ii - 1] = true;
 			    		}
-			    		if(jj > 0 && !visited[jj - 1][ii] && !allocated[jj - 1][ii] && !IsWall(map,ii,jj - 1)){
+			    		if(jj > 0 && !visited[jj - 1][ii] && !allocated[jj - 1][ii] && !IsWall(room,ii,jj - 1)){
 			    			queue.add(new SearchNode(new Point(ii,jj - 1), null));
 			    			visited[jj - 1][ii] = true;
 							allocated[jj - 1][ii] = true;
 			    		}
-			    		if(ii < map.getColCount() - 1 && !visited[jj][ii+1] && !allocated[jj][ii+1] && !IsWall(map,ii+1,jj)){
+			    		if(ii < room.getColCount() - 1 && !visited[jj][ii+1] && !allocated[jj][ii+1] && !IsWall(room,ii+1,jj)){
 			    			queue.add(new SearchNode(new Point(ii+1,jj), null));
 			    			visited[jj][ii+1] = true;
 							allocated[jj][ii+1] = true;
 			    		}
-			    		if(jj < map.getRowCount() - 1 && !visited[jj + 1][ii] && !allocated[jj + 1][ii] && !IsWall(map,ii,jj+1)){
+			    		if(jj < room.getRowCount() - 1 && !visited[jj + 1][ii] && !allocated[jj + 1][ii] && !IsWall(room,ii,jj+1)){
 			    			queue.add(new SearchNode(new Point(ii,jj + 1), null));
 			    			visited[jj + 1][ii] = true;
 							allocated[jj + 1][ii] = true;
@@ -134,7 +134,7 @@ public class Nothing extends SpacialPattern {
 						b.addPoint(new finder.geometry.Point(sn.position.getX(),sn.position.getY()));
 					}
 					
-					results.add(new Nothing(b,map));
+					results.add(new Nothing(b,room));
 					
 					//System.out.println("Nothing area: " + b.getArea());
 					
@@ -150,8 +150,8 @@ public class Nothing extends SpacialPattern {
 		return map[y][x] == 4;
 	}
 	
-	private static boolean IsWall(Map map, int x, int y){
-		return x < 0 || y < 0 || x == map.getColCount() || y == map.getRowCount() || map.getTile(x,y).GetType() == TileTypes.WALL;
+	private static boolean IsWall(Room room, int x, int y){
+		return x < 0 || y < 0 || x == room.getColCount() || y == room.getRowCount() || room.getTile(x,y).GetType() == TileTypes.WALL;
 	}
 	
 }
