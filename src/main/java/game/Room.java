@@ -43,6 +43,14 @@ import generator.config.GeneratorConfig;
  * @author Axel Österman, Malmö University
  */
 public class Room {
+	
+////////////////////////////NEW/////////////////////////////////
+	
+	//Maybe I can copy the finder.graph info into other types, I feel that it will give me a lot of constraints as well.
+	public finder.graph.Node<Room> node; //This will hold in the edges the doors
+	public int maxNumberDoors; //--> HAHA
+
+/////////////////////////OLD///////////////////////////
 
 	private Tile[] tileMap; //This HAVE to be the real tilemap
 	public int[][] matrix; // The actual map

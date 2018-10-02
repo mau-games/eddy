@@ -18,10 +18,20 @@ import javafx.scene.Node;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.control.Button;
 import javafx.scene.control.Tooltip;
+import javafx.scene.input.ClipboardContent;
+import javafx.scene.input.Dragboard;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.input.TransferMode;
+import javafx.scene.layout.Border;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.BorderStroke;
+import javafx.scene.layout.BorderStrokeStyle;
+import javafx.scene.layout.BorderWidths;
+import javafx.scene.layout.CornerRadii;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
+import javafx.scene.paint.Color;
 import util.config.MissingConfigurationException;
 import util.eventrouting.EventRouter;
 import util.eventrouting.Listener;
@@ -52,7 +62,8 @@ public class WorldViewController extends GridPane implements Listener{
 
 	@FXML private StackPane worldPane;
 	@FXML private StackPane buttonPane;
-	@FXML GridPane gridPane;
+//	@FXML GridPane gridPane;
+	@FXML StackPane stackPane;
 	@FXML private List<LabeledCanvas> mapDisplays;
 
 	private int row = 0;
@@ -63,6 +74,13 @@ public class WorldViewController extends GridPane implements Listener{
 	private Node source;
 	private Node oldNode;
 	private LabeledCanvas canvas;
+	
+	double orgSceneX;
+	double orgSceneY;
+	double offsetX;
+	double offsetY;
+	double initialTransX;
+	double initialTransY;
 	
 	public WorldViewController() {
 		super();
@@ -98,10 +116,64 @@ public class WorldViewController extends GridPane implements Listener{
 	
 	//TODO: this need to be check
 	public void initWorldMap(MapContainer[][] matrix) {
-		gridPane.getChildren().clear();
+//		gridPane.getChildren().clear();
+//		this.matrix = matrix;	
+//		size = matrix.length;
+//		viewSize = 750/size;
+//		gridPane.setBorder(new Border(new BorderStroke(Color.BLACK, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderWidths.DEFAULT)));
+////		gridPane.setBorder(new Border(new BorderStroke(Color.BLACK, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderWidths.DEFAULT)));
+//		
+//		for (int i = 0; i < matrix.length; i++) 
+//		{
+//			for (int j = 0; j < matrix.length; j++)
+//			{
+//
+//				canvas = new LabeledCanvas();
+//				canvas.setText("");
+//				canvas.setPrefSize(viewSize, viewSize);
+//				canvas.draw(renderer.renderMap(matrix[j][i].getMap().toMatrix()));
+//
+//				gridPane.add(canvas, i, j);
+//
+//				canvas.addEventFilter(MouseEvent.MOUSE_CLICKED,
+//						new MouseEventHandler());
+//				
+//				canvas.addEventFilter(MouseEvent.MOUSE_DRAGGED, new MouseEventH());
+//				
+//				canvas.setBorder(new Border(new BorderStroke(Color.BLACK, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderWidths.DEFAULT)));
+//				
+////				canvas.setOnDragDetected(new EventHandler <MouseEvent>() {
+////			            public void handle(MouseEvent event) {
+////			                /* drag was detected, start drag-and-drop gesture*/
+////			                System.out.println("onDragDetected");
+////			                
+////			                /* allow any transfer mode */
+////			                Dragboard db = canvas.startDragAndDrop(TransferMode.ANY);
+////			                
+////			                /* put a string on dragboard */
+////			                ClipboardContent content = new ClipboardContent();
+//////			                content.putString("YEAH BOI");
+////			                db.setContent(content);
+////			                
+////			                event.consume();
+////			            }
+////			        });
+////				
+//			}
+//		}
+
+		stackPane.getChildren().clear();
 		this.matrix = matrix;	
 		size = matrix.length;
 		viewSize = 750/size;
+//		pane.setStyle("-fx-background-color: black;");
+//		pane.setPrefSize(750,750);
+		stackPane.setBorder(new Border(new BorderStroke(Color.RED, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderWidths.DEFAULT)));
+//		gridPane.setBorder(new Border(new BorderStroke(Color.BLACK, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderWidths.DEFAULT)));
+//		StackPane.setAlignment(stackPane, Pos.CENTER);
+		
+		stackPane.setAlignment(Pos.CENTER);
+
 		
 		for (int i = 0; i < matrix.length; i++) 
 		{
@@ -112,12 +184,38 @@ public class WorldViewController extends GridPane implements Listener{
 				canvas.setText("");
 				canvas.setPrefSize(viewSize, viewSize);
 				canvas.draw(renderer.renderMap(matrix[j][i].getMap().toMatrix()));
-
-				gridPane.add(canvas, i, j);
-
-				canvas.addEventFilter(MouseEvent.MOUSE_CLICKED,
-						new MouseEventHandler());
+//				canvas.relocate(25, 25);
 				
+				canvas.setMinSize(viewSize, viewSize);
+				canvas.setMaxSize(viewSize, viewSize);
+				stackPane.getChildren().add(canvas);
+
+//				canvas.addEventFilter(MouseEvent.MOUSE_CLICKED,
+//						new MouseEventHandler());
+
+//				
+				canvas.addEventFilter(MouseEvent.MOUSE_DRAGGED, new MouseEventH());
+				canvas.addEventFilter(MouseEvent.MOUSE_PRESSED, new MouseEventH());
+//				
+//				canvas.setBorder(new Border(new BorderStroke(Color.BLACK, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderWidths.DEFAULT)));
+				
+//				canvas.setOnDragDetected(new EventHandler <MouseEvent>() {
+//			            public void handle(MouseEvent event) {
+//			                /* drag was detected, start drag-and-drop gesture*/
+//			                System.out.println("onDragDetected");
+//			                
+//			                /* allow any transfer mode */
+//			                Dragboard db = canvas.startDragAndDrop(TransferMode.ANY);
+//			                
+//			                /* put a string on dragboard */
+//			                ClipboardContent content = new ClipboardContent();
+////			                content.putString("YEAH BOI");
+//			                db.setContent(content);
+//			                
+//			                event.consume();
+//			            }
+//			        });
+//				
 			}
 		}
 		
@@ -193,6 +291,91 @@ public class WorldViewController extends GridPane implements Listener{
 	public void setSuggestionsBtn(Button suggestionsBtn) {
 		this.suggestionsBtn = suggestionsBtn;
 	}
+	
+	public class MouseEventH implements EventHandler<MouseEvent>
+	{
+		@Override
+		public void handle(MouseEvent event) 
+		{
+			source = (Node)event.getSource() ;
+//			Integer colIndex = GridPane.getColumnIndex(source);
+//			Integer rowIndex = GridPane.getRowIndex(source);
+//			row = rowIndex;
+//			col = colIndex;
+//			orgSceneX = source.getScene().getX();
+//			orgSceneY = source.getScene().getY();
+			
+			source.setOnMouseDragged(new EventHandler<MouseEvent>() {
+
+	            @Override
+	            public void handle(MouseEvent event) {
+//	    			System.out.println("DRAAAAAAAAAGED");
+	            	
+//	            	source.setTranslateX(
+//	            			initialTransX
+//	                            + event.getX()
+//	                            - orgSceneX);
+//	                    source.setTranslateY(
+//	                    		initialTransY
+//	                            + event.getY()
+//	                            - orgSceneY);
+	    			
+//	    			offsetX = event.getScreenX() - offsetX;
+//	    			offsetY = event.getScreenY() - offsetY;
+	    			
+//	    			source.setTranslateX( (event.getScreenX() - offsetX));
+//	    			source.setTranslateY((event.getScreenY() - offsetY));
+
+//	            	source.setTranslateX((event.getX() + source.getTranslateX()) - (source.boundsInLocalProperty().get().getWidth()/2.0f));
+//	    			source.setTranslateY((event.getY() + source.getTranslateY()) - (source.boundsInLocalProperty().get().getHeight()/2.0f)); 
+	    			
+//	            	offsetX = event.getSceneX() - orgSceneX;
+//	    			offsetY = event.getSceneY() - orgSceneY;
+//	            	
+	    			source.setTranslateX(event.getX() + source.getTranslateX() - orgSceneX);
+	    			source.setTranslateY(event.getY() + source.getTranslateY() - orgSceneY); 
+	    			
+//	    			source.setTranslateX(source.getTranslateX() + offsetX);
+//	    			source.setTranslateY(source.getTranslateY() + offsetY); 
+	    			
+	    			System.out.println("translate X = " + orgSceneX + ", translate Y = " + orgSceneY);
+//	    			
+//	    			source.setTranslateX(source.getTranslateX() + offsetX);
+//					source.setTranslateY(source.getTranslateY() + offsetY);
+//
+//					orgSceneX = event.getSceneX();
+//					orgSceneY = event.getSceneY();
+	    			
+
+	            }
+	        });
+			
+			source.setOnMousePressed(new EventHandler<MouseEvent>() {
+
+	            @Override
+	            public void handle(MouseEvent event) {
+//	    			System.out.println("PRESS");
+	    			
+//	    			orgSceneX = event.getSceneX();
+//	    			orgSceneY = event.getSceneY();
+	            	
+	            	orgSceneX = event.getX();
+	    			orgSceneY = event.getY();
+	    			
+	    			initialTransX = source.getTranslateX();
+	    			initialTransY = source.getTranslateY();
+	    			
+	    			
+	    			System.out.println("Initial X = " + orgSceneX + ", Initial Y = " + orgSceneY);
+	    			
+
+	            }
+	        });
+			
+		}
+	}
+	
+	
 	public class MouseEventHandler implements EventHandler<MouseEvent> {
 
 

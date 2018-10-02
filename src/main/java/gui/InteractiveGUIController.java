@@ -14,6 +14,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import finder.PatternFinder;
 import game.ApplicationConfig;
+import game.Dungeon;
 import game.Game;
 import game.Room;
 import game.MapContainer;
@@ -111,6 +112,9 @@ public class InteractiveGUIController implements Initializable, Listener {
 	private int col = 0;
 
 	private Node oldNode;
+	
+	//NEW
+	private Dungeon dungeonMap = new Dungeon();
 
 
 	@Override
@@ -1080,7 +1084,27 @@ public class InteractiveGUIController implements Initializable, Listener {
 	}
 
 	//TODO: This part has a few issues, like set numbers (11) and how the map is created
-	private MapContainer[][] initMatrix() {
+	private MapContainer[][] initMatrix() 
+	{
+//		//empty room doors thingy
+//		int width = Game.sizeWidth;
+//		int height = Game.sizeHeight;
+//		
+//		int nbrDoors = 4;
+//		GeneratorConfig gc = null;
+//		try {
+//			gc = new GeneratorConfig();
+//
+//		} catch (MissingConfigurationException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
+//		
+//		Dungeon d = new Dungeon(gc, size, width, height);
+//		
+//		return d;
+		
+		
 		//empty room doors thingy
 		
 		int width = Game.sizeWidth;
