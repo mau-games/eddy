@@ -1,5 +1,6 @@
 package gui.utils;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Dictionary;
 import java.util.LinkedList;
@@ -9,6 +10,8 @@ import java.util.Queue;
 import java.util.UUID;
 import java.util.Map.Entry;
 import java.util.stream.Collectors;
+
+import javax.imageio.ImageIO;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,15 +41,18 @@ import finder.patterns.micro.Chamber;
 import game.ApplicationConfig;
 import game.Game;
 import game.MapContainer;
+import game.Room;
 import game.TileTypes;
 import game.ZoneNode;
 import gui.ParameterGUIController;
 import gui.controls.Drawer;
 import javafx.application.Platform;
+import javafx.embed.swing.SwingFXUtils;
 import javafx.scene.SnapshotParameters;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.image.Image;
+import javafx.scene.image.WritableImage;
 import javafx.scene.paint.Color;
 import util.config.ConfigurationUtility;
 import util.config.MissingConfigurationException;
@@ -211,6 +217,37 @@ public class MapRenderer implements Listener {
 		
 		return image;
 	}
+	
+	/**
+	 * Draws a matrix onto a new image.
+	 * 
+	 * @param ctx The graphics context to draw on.
+	 * @param matrix A rectangular matrix of integers. Each integer corresponds
+	 * 		to some predefined value.
+	 */
+	public synchronized Image renderMap(Room room) 
+	{
+		//TODO: This should be extracted from the room config file (independent of each room)
+		finalMapHeight = (int)((float)config.getMapRenderHeight() * (float)((float)room.getRowCount() / 10.0f));
+		finalMapWidth = (int)((float)config.getMapRenderWidth() * (float)((float)room.getColCount() / 10.0f));
+
+		Canvas canvas = new Canvas(finalMapWidth, finalMapHeight);
+		renderMap(canvas.getGraphicsContext2D(), room.toMatrix());
+		
+		Image image = canvas.snapshot(new SnapshotParameters(), null);
+//	
+//		final WritableImage writableImage = new WritableImage((int) canvas.getWidth(), (int) canvas.getHeight());
+//		Image image = canvas.snapshot(new SnapshotParameters(), writableImage);
+//		
+//		File file = new File("CanvasImage" + finalMapHeight + ".png");
+//		try {
+//            ImageIO.write(SwingFXUtils.fromFXImage(writableImage, null), "png", file);
+//        } catch (Exception s) {
+//        }
+//		
+
+		return image;
+	}
 
 	/**
 	 * Draws a matrix onto an extisting graphics context.
@@ -224,12 +261,15 @@ public class MapRenderer implements Listener {
 		int width = matrix[0].length;
 		int height = matrix.length;
 		double pWidth = ctx.getCanvas().getWidth() / (double)Math.max(width, height);
+		
+		double tileSize = width >= height ? ctx.getCanvas().getWidth() / width : ctx.getCanvas().getHeight() / height;
+		
 		Image image = null;
 
 		for (int j = 0; j < height; j++) {
 			 for (int i = 0; i < width; i++){
 				image = getTileImage(matrix[j][i]);
-				ctx.drawImage(image, i * pWidth, j * pWidth, pWidth, pWidth);
+				ctx.drawImage(image, i * tileSize, j * tileSize, tileSize, tileSize);
 			}
 		}
 	}

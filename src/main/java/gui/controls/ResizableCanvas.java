@@ -40,17 +40,19 @@ public class ResizableCanvas extends Canvas {
 		double width = getWidth();
 		double height = getHeight();
 		double size = Math.min(width, height);
+		
+		System.out.println("WIDTH: " + width + ", HEIGHT: " + height);
 
 		GraphicsContext gc = getGraphicsContext2D();
 		gc.clearRect(0, 0, width, height);
-
 
 		if (image == null) {
 			gc.setStroke(Color.RED);
 			gc.strokeLine(0, 0, width, height);
 			gc.strokeLine(0, height, width, 0);
 		} else {
-			gc.drawImage(image, width/2 - size/2, height/2 - size/2, size, size);
+//			gc.drawImage(image, width/2 - size/2, height/2 - size/2, size, size);
+			gc.drawImage(image, 0, 0, width, height);
 		}
 	}
 

@@ -53,6 +53,7 @@ import util.eventrouting.events.ApplySuggestion;
 import util.eventrouting.events.MapLoaded;
 import util.eventrouting.events.RequestAppliedMap;
 import util.eventrouting.events.RequestEmptyRoom;
+import util.eventrouting.events.RequestNewRoom;
 import util.eventrouting.events.RequestNullRoom;
 import util.eventrouting.events.RequestRedraw;
 import util.eventrouting.events.RequestRoomView;
@@ -71,6 +72,9 @@ import util.eventrouting.events.UpdateMiniMap;
  * @author Axel Österman, Malmö University
  */
 
+//Definetely I agree that this class can be the one "controlling" all the views and have in any moment the most updated version of
+//the dungeon. But it is simply doing too much at the moment, It should "create" the dungeon but if another room wants to be incorporated
+//It should be the dungeon adding such a room, Basically this should be an intermid, knowing which dungeon, which view, etc.
 public class InteractiveGUIController implements Initializable, Listener {
 
 	@FXML private AnchorPane mainPane;
@@ -115,12 +119,63 @@ public class InteractiveGUIController implements Initializable, Listener {
 	
 	//NEW
 	private Dungeon dungeonMap = new Dungeon();
+	
+
+	@Override
+	public void initialize(URL location, ResourceBundle resources) {
+		try {
+			config = ApplicationConfig.getInstance();
+		} catch (MissingConfigurationException e) {
+			logger.error("Couldn't read config file.");
+		}
+
+		router.registerListener(this, new RequestNewRoom(null, -1, -1, -1));
+		router.registerListener(this, new StatusMessage(null));
+		router.registerListener(this, new AlgorithmDone(null));
+		router.registerListener(this, new RequestRedraw());
+		router.registerListener(this, new RequestRoomView(null, 0, 0, null));
+		router.registerListener(this, new MapLoaded(null));
+		router.registerListener(this, new RequestWorldView());
+		router.registerListener(this, new RequestEmptyRoom(null, 0, 0, null));
+		router.registerListener(this, new RequestSuggestionsView(null, 0, 0, null, 0));
+		router.registerListener(this, new Stop());
+		router.registerListener(this, new SuggestedMapsDone());
+		router.registerListener(this, new SuggestedMapsLoading());
+		router.registerListener(this, new RequestNullRoom(null, 0, 0, null));
+		router.registerListener(this, new UpdateMiniMap());
+		router.registerListener(this, new StartWorld(0));
+		router.registerListener(this, new RequestAppliedMap(null, 0, 0));
+
+		suggestionsView = new SuggestionsViewController();
+		roomView = new RoomViewController();
+		worldView = new WorldViewController();
+		launchView = new LaunchViewController();
+
+		mainPane.sceneProperty().addListener((observableScene, oldScene, newScene) -> {
+			if (newScene != null) {
+				stage = (Stage) newScene.getWindow();
+
+			}
+
+		});
+
+		initLaunchView();
+
+
+	}
 
 
 	@Override
-	public synchronized void ping(PCGEvent e) {
-
-		if (e instanceof RequestRoomView) {
+	public synchronized void ping(PCGEvent e) 
+	{
+		if(e instanceof RequestNewRoom)
+		{
+			RequestNewRoom rNR = (RequestNewRoom)e;
+			//TODO: Here you should check for which dungeon
+			dungeonMap.addRoom(rNR.getHeight(), rNR.getWidth());
+			worldView.initWorldMap(dungeonMap);
+		}
+		else if (e instanceof RequestRoomView) {
 			if (((RequestRoomView) e).getMatrix() != null) {
 				worldMapMatrix = ((RequestRoomView) e).getMatrix();
 				row = ((RequestRoomView) e).getRow();
@@ -393,48 +448,6 @@ public class InteractiveGUIController implements Initializable, Listener {
 
 	}
 
-	@Override
-	public void initialize(URL location, ResourceBundle resources) {
-		try {
-			config = ApplicationConfig.getInstance();
-		} catch (MissingConfigurationException e) {
-			logger.error("Couldn't read config file.");
-		}
-
-		router.registerListener(this, new StatusMessage(null));
-		router.registerListener(this, new AlgorithmDone(null));
-		router.registerListener(this, new RequestRedraw());
-		router.registerListener(this, new RequestRoomView(null, 0, 0, null));
-		router.registerListener(this, new MapLoaded(null));
-		router.registerListener(this, new RequestWorldView());
-		router.registerListener(this, new RequestEmptyRoom(null, 0, 0, null));
-		router.registerListener(this, new RequestSuggestionsView(null, 0, 0, null, 0));
-		router.registerListener(this, new Stop());
-		router.registerListener(this, new SuggestedMapsDone());
-		router.registerListener(this, new SuggestedMapsLoading());
-		router.registerListener(this, new RequestNullRoom(null, 0, 0, null));
-		router.registerListener(this, new UpdateMiniMap());
-		router.registerListener(this, new StartWorld(0));
-		router.registerListener(this, new RequestAppliedMap(null, 0, 0));
-
-		suggestionsView = new SuggestionsViewController();
-		roomView = new RoomViewController();
-		worldView = new WorldViewController();
-		launchView = new LaunchViewController();
-
-		mainPane.sceneProperty().addListener((observableScene, oldScene, newScene) -> {
-			if (newScene != null) {
-				stage = (Stage) newScene.getWindow();
-
-			}
-
-		});
-
-		initLaunchView();
-
-
-	}
-
 	/*
 	 * Event stuff
 	 */
@@ -621,7 +634,7 @@ public class InteractiveGUIController implements Initializable, Listener {
 		AnchorPane.setLeftAnchor(worldView, 0.0);
 		mainPane.getChildren().add(worldView);
 
-		worldView.initWorldMap(worldMapMatrix);
+		worldView.initWorldMap(dungeonMap);
 
 		saveItem.setDisable(false);
 		saveAsItem.setDisable(false);
@@ -671,7 +684,6 @@ public class InteractiveGUIController implements Initializable, Listener {
 
 
 	private void roomButtonEvents() {
-
 
 		roomView.getRightButton().setOnAction(new EventHandler<ActionEvent>() {
 			@Override
@@ -1084,12 +1096,40 @@ public class InteractiveGUIController implements Initializable, Listener {
 	}
 
 	//TODO: This part has a few issues, like set numbers (11) and how the map is created
-	private MapContainer[][] initMatrix() 
+	private Dungeon initMatrix() 
 	{
+		int width = Game.sizeWidth;
+		int height = Game.sizeHeight;
+
+		GeneratorConfig gc = null;
+		try {
+			gc = new GeneratorConfig();
+
+		} catch (MissingConfigurationException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		dungeonMap = new Dungeon(gc, 1, width, height);
+		
+		return dungeonMap;
+//		
+//		
 //		//empty room doors thingy
+//		
 //		int width = Game.sizeWidth;
 //		int height = Game.sizeHeight;
 //		
+//		// South
+//		Point south = new Point(width / 2, height - 1);
+//		// East
+//		Point east = new Point(width - 1, height / 2);
+//		// North
+//		Point north = new Point(width / 2, 0);
+//		// West
+//		Point west = new Point(0, height / 2);
+//
+//		MapContainer[][] worldMapMatrix3 = new MapContainer[size][size];
 //		int nbrDoors = 4;
 //		GeneratorConfig gc = null;
 //		try {
@@ -1099,84 +1139,54 @@ public class InteractiveGUIController implements Initializable, Listener {
 //			// TODO Auto-generated catch block
 //			e.printStackTrace();
 //		}
-//		
-//		Dungeon d = new Dungeon(gc, size, width, height);
-//		
-//		return d;
-		
-		
-		//empty room doors thingy
-		
-		int width = Game.sizeWidth;
-		int height = Game.sizeHeight;
-		
-		// South
-		Point south = new Point(width / 2, height - 1);
-		// East
-		Point east = new Point(width - 1, height / 2);
-		// North
-		Point north = new Point(width / 2, 0);
-		// West
-		Point west = new Point(0, height / 2);
-
-		MapContainer[][] worldMapMatrix3 = new MapContainer[size][size];
-		int nbrDoors = 4;
-		GeneratorConfig gc = null;
-		try {
-			gc = new GeneratorConfig();
-
-		} catch (MissingConfigurationException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		for (int rows = 0; rows < size; rows++) {
-			for (int cols = 0; cols < size; cols++) {
-				Room tempMap = null;
-				// 1
-				if (rows == 0 && cols == 0) {
-					tempMap = new Room(gc, height, width, null, east, south, null);
-				}
-				// 3
-				if (rows == 0 && cols == (size - 1)) {
-					tempMap = new Room(gc, height, width, null, null, south, west);
-				}
-				// 7
-				if (rows == (size - 1) && cols == 0) {
-					tempMap = new Room(gc, height, width, north, east, null, null);
-				}
-				// 9
-				if (rows == (size - 1) && cols == (size - 1)) {
-					tempMap = new Room(gc, height, width, north, null, null, west);
-				}
-				// top
-				if (rows == 0 && cols != (size - 1) && cols != 0) {
-					tempMap = new Room(gc, height, width, null, east, south, west);
-				}
-				// left
-				if (rows != 0 && cols == 0 && rows != (size - 1)) {
-					tempMap = new Room(gc, height, width, north, east, south, null);
-				}
-				// right
-				if (rows != 0 && rows != (size - 1) && cols == (size - 1)) {
-					tempMap = new Room(gc, height, width, north, null, south, west);
-				}
-				// bottom
-				if (cols != 0 && cols != (size - 1) && rows == (size - 1)) {
-					tempMap = new Room(gc, height, width, north, east, null, west);
-				}
-				// other
-				else if (cols != 0 && cols != (size - 1) && rows != 0 && rows != (size - 1)) {
-					tempMap = new Room(gc, height, width, north, east, south, west);
-				}
-
-				MapContainer temp = new MapContainer();
-				temp.setMap(tempMap);
-				worldMapMatrix3[rows][cols] = temp;
-
-
-			}
-		}
-		return worldMapMatrix3;
+//		for (int rows = 0; rows < size; rows++) {
+//			for (int cols = 0; cols < size; cols++) {
+//				Room tempMap = null;
+//				// 1
+//				if (rows == 0 && cols == 0) {
+//					tempMap = new Room(gc, height, width, null, east, south, null);
+//				}
+//				// 3
+//				if (rows == 0 && cols == (size - 1)) {
+//					tempMap = new Room(gc, height, width, null, null, south, west);
+//				}
+//				// 7
+//				if (rows == (size - 1) && cols == 0) {
+//					tempMap = new Room(gc, height, width, north, east, null, null);
+//				}
+//				// 9
+//				if (rows == (size - 1) && cols == (size - 1)) {
+//					tempMap = new Room(gc, height, width, north, null, null, west);
+//				}
+//				// top
+//				if (rows == 0 && cols != (size - 1) && cols != 0) {
+//					tempMap = new Room(gc, height, width, null, east, south, west);
+//				}
+//				// left
+//				if (rows != 0 && cols == 0 && rows != (size - 1)) {
+//					tempMap = new Room(gc, height, width, north, east, south, null);
+//				}
+//				// right
+//				if (rows != 0 && rows != (size - 1) && cols == (size - 1)) {
+//					tempMap = new Room(gc, height, width, north, null, south, west);
+//				}
+//				// bottom
+//				if (cols != 0 && cols != (size - 1) && rows == (size - 1)) {
+//					tempMap = new Room(gc, height, width, north, east, null, west);
+//				}
+//				// other
+//				else if (cols != 0 && cols != (size - 1) && rows != 0 && rows != (size - 1)) {
+//					tempMap = new Room(gc, height, width, north, east, south, west);
+//				}
+//
+//				MapContainer temp = new MapContainer();
+//				temp.setMap(tempMap);
+//				worldMapMatrix3[rows][cols] = temp;
+//
+//
+//			}
+//		}
+//		return worldMapMatrix3;
 	}
 
 	private void createWorldMatrix() {

@@ -106,6 +106,28 @@ public class Room {
 
 	}
 	
+	public Room(GeneratorConfig config, int rows, int cols)
+	{
+		init(rows, cols);
+
+		this.config = config;
+		this.doorCount = Game.doors.size();
+		
+		this.doorCount = numberOfDoors;
+		
+		for (int j = 0; j < height; j++) {
+			for (int i = 0; i < width; i++) {
+
+				tileMap[j * width + i] = new Tile(i , j, TileTypes.toTileType(matrix[j][i]));
+			}
+		}
+
+		finder = new PatternFinder(this);
+		root = new ZoneNode(null, this, getColCount(), getRowCount());
+		node = new finder.graph.Node<Room>(this);
+
+	}
+	
 	public boolean getNull() {
 		return isNull;
 	}
