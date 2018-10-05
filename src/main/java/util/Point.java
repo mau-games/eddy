@@ -33,5 +33,6 @@ public class Point {
 		return x == p.x && y == p.y;
 	}
 	
-	
+	public void setX(int value) { x = value; }
+	public void setY(int value) { y = value; }
 }

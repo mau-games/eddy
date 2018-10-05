@@ -58,4 +58,6 @@ public class Dungeon
 		this.rooms.add(new Room(defaultConfig, height < 0 ? defaultHeight : height, width < 0 ? defaultWidth : width));
 		this.size++;
 	}
+	
+	public ArrayList<Room> getAllRooms() { return rooms; }
 }

@@ -48,6 +48,7 @@ public class Room {
 	
 	//Maybe I can copy the finder.graph info into other types, I feel that it will give me a lot of constraints as well.
 	public finder.graph.Node<Room> node; //This will hold in the edges the doors
+	public RoomConfig localConfig;
 	public int maxNumberDoors; //--> HAHA
 
 /////////////////////////OLD///////////////////////////
@@ -111,6 +112,8 @@ public class Room {
 		init(rows, cols);
 
 		this.config = config;
+		localConfig = new RoomConfig(this); //NEW ADDITION --> HAVE TO BE ADDED EVERYWHERE
+		
 		this.doorCount = Game.doors.size();
 		
 		this.doorCount = numberOfDoors;

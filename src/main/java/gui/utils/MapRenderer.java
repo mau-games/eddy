@@ -126,6 +126,11 @@ public class MapRenderer implements Listener {
 			});
 		}
 	}
+	
+	public ApplicationConfig getApplicationConfig()
+	{
+		return config;
+	}
 
 	/**
 	 * Draws a matrix onto a graphics ccntext.
@@ -228,8 +233,11 @@ public class MapRenderer implements Listener {
 	public synchronized Image renderMap(Room room) 
 	{
 		//TODO: This should be extracted from the room config file (independent of each room)
-		finalMapHeight = (int)((float)config.getMapRenderHeight() * (float)((float)room.getRowCount() / 10.0f));
-		finalMapWidth = (int)((float)config.getMapRenderWidth() * (float)((float)room.getColCount() / 10.0f));
+//		finalMapHeight = (int)((float)config.getMapRenderHeight() * (float)((float)room.getRowCount() / 10.0f));
+//		finalMapWidth = (int)((float)config.getMapRenderWidth() * (float)((float)room.getColCount() / 10.0f));
+		
+		finalMapHeight = room.localConfig.getRenderSizeHeight();
+		finalMapWidth = room.localConfig.getRenderSizeWidth();
 
 		Canvas canvas = new Canvas(finalMapWidth, finalMapHeight);
 		renderMap(canvas.getGraphicsContext2D(), room.toMatrix());

@@ -6,6 +6,7 @@ import java.util.List;
 import game.ApplicationConfig;
 import game.Dungeon;
 import game.Room;
+import game.WorldViewCanvas;
 import game.MapContainer;
 import gui.controls.LabeledCanvas;
 import gui.utils.MapRenderer;
@@ -34,6 +35,7 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
+import javafx.scene.shape.Line;
 import util.config.MissingConfigurationException;
 import util.eventrouting.EventRouter;
 import util.eventrouting.Listener;
@@ -140,29 +142,53 @@ public class WorldViewController extends GridPane implements Listener
 		stackPane.setBorder(new Border(new BorderStroke(Color.RED, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderWidths.DEFAULT)));
 		stackPane.setAlignment(Pos.CENTER);
 		
+		for( Room room : dungeon.getAllRooms())
+		{
+			WorldViewCanvas wvc = room.localConfig.getWorldCanvas();
+			
+			if(!wvc.getRendered())
+			{
+				wvc.getCanvas().draw(renderer.renderMap(room));
+				wvc.setRendered(true);
+			}
+			
+			stackPane.getChildren().add(wvc.getCanvas());
+		}
+		
+//		Line line = new Line();
+//        line.setStartX(100.0f);
+//        line.setStartY(200.0f);
+//        line.setEndX(300.0f);
+//        line.setEndY(70.0f);
+//        line.setStrokeWidth(10);
+//        line.setStroke(Color.PINK);
+//        stackPane.getChildren().add(line);
+//		
 		for (int index = 0; index < size; index++) 
 		{
-			//TODO: the 50 should be scaled --> And the 20... is because of the padding
-			viewSizeHeight = (50 * (dungeon.getRoomByIndex(index).getRowCount())) + 20; //THIS IS PART OF THE SOLUTION
-			viewSizeWidth = (50 * (dungeon.getRoomByIndex(index).getColCount())) + 20; //THIS IS PART OF THE SOLUTION
-			canvas = new LabeledCanvas();
-			canvas.setText("");
-			canvas.setMinSize(viewSizeWidth, viewSizeHeight);
-			canvas.setMaxSize(viewSizeWidth, viewSizeHeight); //THIS IS PART OF THE SOLUTION
-			canvas.setPrefSize(viewSizeWidth, viewSizeHeight);
-			canvas.draw(renderer.renderMap(dungeon.getRoomByIndex(index))); //TODO: HERE!!!
-//				canvas.relocate(25, 25);
-//			
-//			canvas.setMinSize(viewSize, viewSize);
-//			canvas.setMaxSize(viewSize, viewSize);
-			stackPane.getChildren().add(canvas);
-
-//				canvas.addEventFilter(MouseEvent.MOUSE_CLICKED,
-//						new MouseEventHandler());
-
-//				
-//				canvas.addEventFilter(MouseEvent.MOUSE_DRAGGED, new MouseEventH());
-			canvas.addEventFilter(MouseEvent.MOUSE_PRESSED, new MouseEventH());
+			
+			
+//			//TODO: the 50 should be scaled --> And the 20... is because of the padding
+//			viewSizeHeight = (50 * (dungeon.getRoomByIndex(index).getRowCount())) + 20; //THIS IS PART OF THE SOLUTION
+//			viewSizeWidth = (50 * (dungeon.getRoomByIndex(index).getColCount())) + 20; //THIS IS PART OF THE SOLUTION
+//			canvas = new LabeledCanvas();
+//			canvas.setText("");
+//			canvas.setMinSize(viewSizeWidth, viewSizeHeight);
+//			canvas.setMaxSize(viewSizeWidth, viewSizeHeight); //THIS IS PART OF THE SOLUTION
+//			canvas.setPrefSize(viewSizeWidth, viewSizeHeight);
+//			canvas.draw(renderer.renderMap(dungeon.getRoomByIndex(index))); //TODO: HERE!!!
+////				canvas.relocate(25, 25);
+////			
+////			canvas.setMinSize(viewSize, viewSize);
+////			canvas.setMaxSize(viewSize, viewSize);
+//			stackPane.getChildren().add(canvas);
+//
+////				canvas.addEventFilter(MouseEvent.MOUSE_CLICKED,
+////						new MouseEventHandler());
+//
+////				
+////				canvas.addEventFilter(MouseEvent.MOUSE_DRAGGED, new MouseEventH());
+//			canvas.addEventFilter(MouseEvent.MOUSE_PRESSED, new MouseEventH());
 		}
 		
 //		boolean voidRoom = matrix[row][col].getMap().getNull();
