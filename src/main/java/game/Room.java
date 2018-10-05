@@ -131,6 +131,12 @@ public class Room {
 
 	}
 	
+	public void createDoor(Point doorPosition)
+	{
+		//TODO: create a door in the position
+		System.out.println("STILL NOT IMPLEMENTED: createDoor() --> Room class");
+	}
+	
 	public boolean getNull() {
 		return isNull;
 	}

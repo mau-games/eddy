@@ -2,6 +2,9 @@ package game;
 
 import java.util.ArrayList;
 
+import com.google.common.graph.MutableNetwork;
+import com.google.common.graph.NetworkBuilder;
+
 import generator.config.GeneratorConfig;
 import util.Point;
 
@@ -11,6 +14,7 @@ public class Dungeon
 	public static int ID_COUNTER = 0; //Probably not the best
 	public int id = 0;
 	
+	MutableNetwork<Room, String> network;
 	ArrayList<Room> rooms;
 	Room initialRoom;
 	Room currentEditedRoom;
@@ -32,6 +36,8 @@ public class Dungeon
 		this.id = ID_COUNTER;
 		ID_COUNTER += 1;
 		
+		network = NetworkBuilder.undirected().build();
+		
 		//Create the amount of rooms with the default values -->
 		this.size = size;
 		this.defaultWidth = defaultWidth;
@@ -43,7 +49,9 @@ public class Dungeon
 		
 		for(int i = 0; i < size * size; ++i)
 		{
-			rooms.add(new Room(defaultConfig, defaultWidth, defaultHeight));
+			Room auxR = new Room(defaultConfig, defaultWidth, defaultHeight);
+			rooms.add(auxR);
+			network.addNode(auxR);
 		}
 		
 	}
@@ -55,8 +63,21 @@ public class Dungeon
 	
 	public void addRoom(int height, int width)
 	{
-		this.rooms.add(new Room(defaultConfig, height < 0 ? defaultHeight : height, width < 0 ? defaultWidth : width));
+		Room auxR = new Room(defaultConfig, height < 0 ? defaultHeight : height, width < 0 ? defaultWidth : width);
+		rooms.add(auxR);
+		network.addNode(auxR);
+//		this.rooms.add(new Room(defaultConfig, height < 0 ? defaultHeight : height, width < 0 ? defaultWidth : width));
 		this.size++;
+	}
+	
+	//TODO: STILL INSECURE OVER NETWORK/GRAPH CODE
+	//Rooms could be an ID
+	public void addConnection(Room from, Room to, Point fromPosition, Point toPosition)
+	{
+		from.addDoor(fromPosition);
+		to.addDoor(toPosition);
+		String testEdge = "Edge between rooms " + rooms.indexOf(from) + "---" + rooms.indexOf(to);
+		network.addEdge(from, to, testEdge);
 	}
 	
 	public ArrayList<Room> getAllRooms() { return rooms; }
