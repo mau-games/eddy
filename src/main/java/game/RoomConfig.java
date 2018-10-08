@@ -18,8 +18,8 @@ public class RoomConfig
 	{
 		this.owner = owner;
 		node = new Node<Room>(owner);
-		worldGraphicNode = new WorldViewCanvas();
-		worldGraphicNode.setViewSize((30 * this.owner.getColCount()) + 20, (30 * this.owner.getRowCount()) + 20);
+		worldGraphicNode = new WorldViewCanvas(owner);
+		worldGraphicNode.setViewSize((30 * this.owner.getColCount()), (30 * this.owner.getRowCount()));
 		//This is a bit .......
 		renderSizeHeight = (int)((float)MapRenderer.getInstance().getApplicationConfig().getMapRenderHeight() * (float)((float)owner.getRowCount() / 10.0f));
 		renderSizeWidth = (int)((float)MapRenderer.getInstance().getApplicationConfig().getMapRenderWidth() * (float)((float)owner.getColCount() / 10.0f));

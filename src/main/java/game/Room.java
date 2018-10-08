@@ -16,6 +16,7 @@ import java.util.Map.Entry;
 
 import finder.PatternFinder;
 import finder.Populator;
+import finder.geometry.Bitmap;
 import finder.geometry.Polygon;
 import finder.graph.Graph;
 import util.algorithms.Node;
@@ -50,6 +51,7 @@ public class Room {
 	public finder.graph.Node<Room> node; //This will hold in the edges the doors
 	public RoomConfig localConfig;
 	public int maxNumberDoors; //--> HAHA
+	public Bitmap borders = new Bitmap();
 
 /////////////////////////OLD///////////////////////////
 
@@ -112,7 +114,7 @@ public class Room {
 		init(rows, cols);
 
 		this.config = config;
-		localConfig = new RoomConfig(this); //NEW ADDITION --> HAVE TO BE ADDED EVERYWHERE
+		localConfig = new RoomConfig(this); //TODO: NEW ADDITION --> HAVE TO BE ADDED EVERYWHERE
 		
 		this.doorCount = Game.doors.size();
 		
@@ -134,7 +136,25 @@ public class Room {
 	public void createDoor(Point doorPosition)
 	{
 		//TODO: create a door in the position
-		System.out.println("STILL NOT IMPLEMENTED: createDoor() --> Room class");
+//		System.out.println("STILL NOT IMPLEMENTED: createDoor() --> Room class");
+		
+		//Check what will be overwritten
+		// Check if door overrides an enemy
+        if (TileTypes.toTileType(matrix[doorPosition.getY()][doorPosition.getX()]).isEnemy())
+        {
+        	enemies.removeIf((x)->x.equals(doorPosition));
+        }
+        else if (TileTypes.toTileType(matrix[doorPosition.getY()][doorPosition.getX()]).isTreasure())   // Check if door overrides a treasure
+        {
+        	treasures.removeIf((x)->x.equals(doorPosition));
+        }
+        else if (matrix[doorPosition.getY()][doorPosition.getX()] == TileTypes.WALL.getValue()) // Check if door overrides a wall
+        {
+            wallCount--;
+        } 
+        
+        setTile(doorPosition.getX(), doorPosition.getY(), TileTypes.DOOR);
+        borders.removePoint(new finder.geometry.Point(doorPosition.getX(), doorPosition.getY()));
 	}
 	
 	public boolean getNull() {
@@ -496,7 +516,22 @@ public class Room {
 		matrix = new int[height][width];
 		allocated = new boolean[height][width];
 		tileMap = new Tile[rows * cols];
-
+		
+		for(int y = 0; y < height; y++)
+		{
+			for(int x = 0; x < width; x++)
+			{
+				if(y == 0 || y == height - 1)
+				{
+					borders.addPoint(new finder.geometry.Point(x, y));
+				}
+				else if(x == 0 || x == width - 1 )
+				{
+					borders.addPoint(new finder.geometry.Point(x, y));
+				}	
+			}
+		}
+		
 	}
 
 	public void resetAllocated(){
@@ -570,7 +605,9 @@ public class Room {
 	 * @param y The Y coordinate.
 	 * @param tile A tile.
 	 */
-	public void setTile(int x, int y, TileTypes tile) {
+	public void setTile(int x, int y, TileTypes tile) 
+	{
+		localConfig.getWorldCanvas().setRendered(false); //THIS IS NEEDED TO FORCE RENDERING IN THE WORLD VIEW
 		matrix[y][x] = tile.getValue();
 		tileMap[y * width + x].SetType(tile);
 	}
@@ -582,7 +619,9 @@ public class Room {
 	 * @param y The Y coordinate.
 	 * @param tile A tile object.
 	 */
-	public void setTile(int x, int y, Tile tile) {
+	public void setTile(int x, int y, Tile tile) 
+	{
+		localConfig.getWorldCanvas().setRendered(false); //THIS IS NEEDED TO FORCE RENDERING IN THE WORLD VIEW
 		matrix[y][x] = tile.GetType().getValue();
 		tileMap[y * width + x] = new Tile(tile);
 	}
@@ -594,7 +633,9 @@ public class Room {
 	 * @param y The Y coordinate.
 	 * @param tileValue value of a tiletype.
 	 */
-	public void setTile(int x, int y, int tileValue) {
+	public void setTile(int x, int y, int tileValue)
+	{
+		localConfig.getWorldCanvas().setRendered(false); //THIS IS NEEDED TO FORCE RENDERING IN THE WORLD VIEW
 		matrix[y][x] = tileValue;
 		tileMap[y * width + x].SetType(TileTypes.toTileType(tileValue));
 	}

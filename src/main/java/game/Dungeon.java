@@ -36,7 +36,7 @@ public class Dungeon
 		this.id = ID_COUNTER;
 		ID_COUNTER += 1;
 		
-		network = NetworkBuilder.undirected().build();
+		network = NetworkBuilder.undirected().allowsParallelEdges(true).build();
 		
 		//Create the amount of rooms with the default values -->
 		this.size = size;
@@ -74,10 +74,16 @@ public class Dungeon
 	//Rooms could be an ID
 	public void addConnection(Room from, Room to, Point fromPosition, Point toPosition)
 	{
-		from.addDoor(fromPosition);
-		to.addDoor(toPosition);
-		String testEdge = "Edge between rooms " + rooms.indexOf(from) + "---" + rooms.indexOf(to);
+		
+		from.createDoor(fromPosition);
+		to.createDoor(toPosition);
+		String testEdge = "Edge between rooms " + rooms.indexOf(from) + "---" + rooms.indexOf(to) + ", at pos: " + fromPosition;
 		network.addEdge(from, to, testEdge);
+		
+		for(String s : network.edges())
+		{
+			System.out.println(s);
+		}
 	}
 	
 	public ArrayList<Room> getAllRooms() { return rooms; }

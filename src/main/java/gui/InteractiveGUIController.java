@@ -52,6 +52,7 @@ import util.eventrouting.events.AlgorithmDone;
 import util.eventrouting.events.ApplySuggestion;
 import util.eventrouting.events.MapLoaded;
 import util.eventrouting.events.RequestAppliedMap;
+import util.eventrouting.events.RequestConnection;
 import util.eventrouting.events.RequestEmptyRoom;
 import util.eventrouting.events.RequestNewRoom;
 import util.eventrouting.events.RequestNullRoom;
@@ -129,6 +130,7 @@ public class InteractiveGUIController implements Initializable, Listener {
 			logger.error("Couldn't read config file.");
 		}
 
+		router.registerListener(this, new RequestConnection(null, -1, null, null, null, null));
 		router.registerListener(this, new RequestNewRoom(null, -1, -1, -1));
 		router.registerListener(this, new StatusMessage(null));
 		router.registerListener(this, new AlgorithmDone(null));
@@ -168,7 +170,14 @@ public class InteractiveGUIController implements Initializable, Listener {
 	@Override
 	public synchronized void ping(PCGEvent e) 
 	{
-		if(e instanceof RequestNewRoom)
+		if(e instanceof RequestConnection)
+		{
+			RequestConnection rC = (RequestConnection)e;
+			//TODO: Here you should check for which dungeon
+			dungeonMap.addConnection(rC.getFromRoom(), rC.getToRoom(), rC.getFromPos(), rC.getToPos());
+			worldView.initWorldMap(dungeonMap);
+		}
+		else if(e instanceof RequestNewRoom)
 		{
 			RequestNewRoom rNR = (RequestNewRoom)e;
 			//TODO: Here you should check for which dungeon

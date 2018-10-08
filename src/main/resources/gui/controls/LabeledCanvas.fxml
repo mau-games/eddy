@@ -9,7 +9,7 @@
 <?import javafx.geometry.Insets?>
 
 <fx:root type="javafx.scene.layout.BorderPane" xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/8.0.111" fx:id="rootPane">
-  <padding> <Insets top="10" bottom = "10" left= "10" right="10"/></padding>
+ <!-- <padding> <Insets top="10" bottom = "10" left= "10" right="10"/></padding> -->
    <center>
       <AnchorPane fx:id="canvasPane">
          <children>

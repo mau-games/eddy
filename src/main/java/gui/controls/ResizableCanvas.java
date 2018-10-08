@@ -40,8 +40,6 @@ public class ResizableCanvas extends Canvas {
 		double width = getWidth();
 		double height = getHeight();
 		double size = Math.min(width, height);
-		
-		System.out.println("WIDTH: " + width + ", HEIGHT: " + height);
 
 		GraphicsContext gc = getGraphicsContext2D();
 		gc.clearRect(0, 0, width, height);
