@@ -9,10 +9,11 @@ import game.Dungeon;
 import game.Room;
 import game.WorldViewCanvas;
 import game.MapContainer;
-import gui.controls.DungeonDrawer;
 import gui.controls.LabeledCanvas;
-import gui.controls.RoomConnector;
+import gui.utils.DungeonDrawer;
 import gui.utils.MapRenderer;
+import gui.utils.MoveElementBrush;
+import gui.utils.RoomConnector;
 import gui.views.RoomViewController.EditViewMouseHover;
 import gui.views.SuggestionsViewController.MouseEventHandler;
 import javafx.event.ActionEvent;
@@ -38,9 +39,11 @@ import javafx.scene.layout.BorderWidths;
 import javafx.scene.layout.CornerRadii;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Pane;
+import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Line;
+import javafx.scene.shape.Rectangle;
 import util.config.MissingConfigurationException;
 import util.eventrouting.EventRouter;
 import util.eventrouting.Listener;
@@ -82,10 +85,10 @@ public class WorldViewController extends GridPane implements Listener
 	private MapRenderer renderer = MapRenderer.getInstance();
 
 
-	@FXML private StackPane worldPane;
+	@FXML private GridPane worldViewPane;
 	@FXML private StackPane buttonPane;
 //	@FXML GridPane gridPane;
-	@FXML StackPane stackPane;
+	@FXML Pane stackPane;
 	@FXML private List<LabeledCanvas> mapDisplays;
 
 	private int row = 0;
@@ -105,6 +108,8 @@ public class WorldViewController extends GridPane implements Listener
 	double anchorX;
 	double anchorY;
 
+	Line l;
+	
 	public WorldViewController() {
 		super();
 		FXMLLoader loader = new FXMLLoader(getClass().getResource("/gui/interactive/WorldView.fxml"));
@@ -143,7 +148,9 @@ public class WorldViewController extends GridPane implements Listener
 //		brushCanvas.setMouseTransparent(true);
 //		brushCanvas.setOpacity(1.0f);
 //		stackPane.addEventFilter(MouseEvent.MOUSE_MOVED, new EditViewMouseHover());
-		
+		worldViewPane.getChildren().add(stackPane);
+//		stackPane.addEventHandler(MouseEvent.MOUSE_PRESSED, new MouseEventWorldPane());
+//		clipChildren(stackPane, 12);
 		worldButtonEvents();
 		initOptions();	
 
@@ -172,6 +179,7 @@ public class WorldViewController extends GridPane implements Listener
 		
 	}
 	
+	//TODO: I WAS HERE!!! Line works with a PANE because stack pane destroys everything based on how it calculates
 	//TODO: THIS NEEDS TO BE CHECK BECAUSE OF HOW WE RENDER!!!!!!
 	//TODO: this need to be check IDK do we really need to clear the children and create them again? probably there is a better way :D 
 	//TODO: There was a better way
@@ -192,7 +200,26 @@ public class WorldViewController extends GridPane implements Listener
 		int viewSizeWidth = 500;
 		
 		stackPane.setBorder(new Border(new BorderStroke(Color.RED, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderWidths.DEFAULT)));
-		stackPane.setAlignment(Pos.CENTER);
+//		stackPane.setAlignment(Pos.CENTER);
+		StackPane.setAlignment(stackPane, Pos.CENTER);
+		
+		//dirty code
+		int roomCounter= 1;
+		boolean createLine = false;
+		Line line = new Line();
+		
+		if(dungeon.size > 1)
+		{
+	        line.setStartX(-100.0f);
+	        line.setStartY(0.0f);
+	        line.setEndX(300.0f);
+	        line.setEndY(70.0f);
+	        line.setStrokeWidth(2);
+	        line.setStroke(Color.PINK);
+	        line.setMouseTransparent(true);
+	      
+	        createLine = true;
+		}
 		
 		for( Room room : dungeon.getAllRooms())
 		{
@@ -204,18 +231,34 @@ public class WorldViewController extends GridPane implements Listener
 				wvc.setRendered(true);
 			}
 			
+//			Line line = new Line();
+//	        line.setStartX(-100.0f);
+//	        line.setStartY(0.0f);
+//	        line.setEndX(300.0f);
+//	        line.setEndY(70.0f);
+//	        line.setStrokeWidth(2);
+//	        line.setStroke(Color.PINK);
+//	        stackPane.getChildren().add(line);
+			if(createLine && roomCounter==1)
+			{
+				line.startXProperty().bind(wvc.xPosition);
+		        line.startYProperty().bind(wvc.yPosition);
+		        roomCounter++;
+			}
+			else if(createLine && roomCounter==2)
+			{
+				line.endXProperty().bind(wvc.xPosition);
+		        line.endYProperty().bind(wvc.yPosition);
+			}
+	        
+			
 			stackPane.getChildren().add(wvc.getCanvas());
 		}
 		
-//		Line line = new Line();
-//        line.setStartX(100.0f);
-//        line.setStartY(200.0f);
-//        line.setEndX(300.0f);
-//        line.setEndY(70.0f);
-//        line.setStrokeWidth(10);
-//        line.setStroke(Color.PINK);
-//        stackPane.getChildren().add(line);
+		if(createLine)
+			  stackPane.getChildren().add(line);
 //		
+
 		for (int index = 0; index < size; index++) 
 		{
 			
@@ -247,6 +290,62 @@ public class WorldViewController extends GridPane implements Listener
 //		getSuggestionsBtn().setDisable(voidRoom);
 //		getStartEmptyBtn().setDisable(voidRoom);
 
+		
+	}
+	
+	public class MouseEventWorldPane implements EventHandler<MouseEvent>
+	{
+		@Override
+		public void handle(MouseEvent event) 
+		{
+			source = (Node)event.getSource();
+			
+			source.setOnMouseDragged(new EventHandler<MouseEvent>() 
+			{
+
+	            @Override
+	            public void handle(MouseEvent event) {
+
+//	    			source.setTranslateX(event.getX() + source.getTranslateX() - anchorX);
+//	    			source.setTranslateY(event.getY() + source.getTranslateY() - anchorY); 
+	    			l.setEndX(event.getX());
+	    			l.setEndY(event.getY());
+	            }
+	            
+	        });
+			
+			source.setOnMousePressed(new EventHandler<MouseEvent>() {
+
+	            @Override
+	            public void handle(MouseEvent event) {
+
+	            	anchorX = event.getX();
+	    			anchorY = event.getY();
+	    			l = new Line();
+	    			stackPane.getChildren().add(l);
+	    			l.setStartX(event.getX());
+	    			l.setStartY(event.getY());
+	    			l.setEndX(event.getX());
+	    			l.setEndY(event.getY());
+	    			l.setStrokeWidth(2.0f);
+	    			l.setStroke(Color.PINK);
+	            }
+	        });
+			
+		}
+	}
+	
+	private void clipChildren(Region region, double arc)
+	{
+		final Rectangle outputClip = new Rectangle();
+	    outputClip.setArcWidth(arc);
+	    outputClip.setArcHeight(arc);
+	    region.setClip(outputClip);
+
+	    region.layoutBoundsProperty().addListener((ov, oldValue, newValue) -> {
+	        outputClip.setWidth(newValue.getWidth());
+	        outputClip.setHeight(newValue.getHeight());
+	    });
 	}
 	
 	private void zoom()
@@ -565,12 +664,21 @@ public class WorldViewController extends GridPane implements Listener
 
 //				zoom();
 //				router.postEvent(new RequestNewRoom(dungeon, -1, heightField.getValue(), widthField.getValue()));
-				if(dungeon.size > 1)
+//				if(dungeon.size > 1)
+//				{
+//					Room from = dungeon.getRoomByIndex(0);
+//					Room to = dungeon.getRoomByIndex(Util.getNextInt(1, dungeon.size));
+////					Point fromPos = 
+//					router.postEvent(new RequestConnection(dungeon, -1, from, to, new Point(0, 0), new Point(0, (to.getRowCount() -1) / 2)));
+//				}
+				
+				if(DungeonDrawer.getInstance().getBrush() instanceof MoveElementBrush)
 				{
-					Room from = dungeon.getRoomByIndex(0);
-					Room to = dungeon.getRoomByIndex(Util.getNextInt(1, dungeon.size));
-//					Point fromPos = 
-					router.postEvent(new RequestConnection(dungeon, -1, from, to, new Point(0, 0), new Point(0, (to.getRowCount() -1) / 2)));
+					DungeonDrawer.getInstance().changeToConnector();
+				}
+				else
+				{
+					DungeonDrawer.getInstance().changeToMove();
 				}
 			}
 

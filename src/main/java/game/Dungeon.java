@@ -77,6 +77,9 @@ public class Dungeon
 		
 		from.createDoor(fromPosition);
 		to.createDoor(toPosition);
+		
+		//Here it should be RoomEdge the edge
+		
 		String testEdge = "Edge between rooms " + rooms.indexOf(from) + "---" + rooms.indexOf(to) + ", at pos: " + fromPosition;
 		network.addEdge(from, to, testEdge);
 		
