@@ -21,6 +21,7 @@ public class RoomEdge
 	DoubleProperty tX = new SimpleDoubleProperty();
 	DoubleProperty tY = new SimpleDoubleProperty();
 	
+	public boolean rendered = false;
 	
 	public RoomEdge(Room from, Room to, Point fromPosition, Point toPosition)
 	{
@@ -29,14 +30,21 @@ public class RoomEdge
 		tX.add(to.localConfig.getWorldCanvas().xPosition).add(toPosition.getX()).multiply(to.localConfig.getWorldCanvas().tileSizeWidth);
 		tY.add(to.localConfig.getWorldCanvas().yPosition).add(toPosition.getY()).multiply(to.localConfig.getWorldCanvas().tileSizeHeight);
 		
-		graphicElement = new RoomEdgeLine(fX, 
-											fY, 
-											tX, 
-											tY);
+		graphicElement = new RoomEdgeLine(from.localConfig.getWorldCanvas().xPosition, 
+				from.localConfig.getWorldCanvas().yPosition, 
+				to.localConfig.getWorldCanvas().xPosition, 
+				to.localConfig.getWorldCanvas().yPosition);
+		
+//		graphicElement = new RoomEdgeLine(fX, fY, tX, tY);
 		
 		this.from = from;
 		this.to = to;
 		this.fromPosition = fromPosition;
 		this.toPosition = toPosition;
+	}
+	
+	public String print()
+	{
+		return "Room edge between Room: " + from.hashCode() + " at (" + fromPosition.getX() + "," + fromPosition.getY() + ") and Room: " + to.hashCode() + " at (" + toPosition.getX() + "," + toPosition.getY() + ")";
 	}
 }

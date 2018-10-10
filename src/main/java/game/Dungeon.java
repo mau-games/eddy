@@ -14,7 +14,7 @@ public class Dungeon
 	public static int ID_COUNTER = 0; //Probably not the best
 	public int id = 0;
 	
-	MutableNetwork<Room, String> network;
+	public MutableNetwork<Room, RoomEdge> network; //TODO: Public for now
 	ArrayList<Room> rooms;
 	Room initialRoom;
 	Room currentEditedRoom;
@@ -81,11 +81,12 @@ public class Dungeon
 		//Here it should be RoomEdge the edge
 		
 		String testEdge = "Edge between rooms " + rooms.indexOf(from) + "---" + rooms.indexOf(to) + ", at pos: " + fromPosition;
-		network.addEdge(from, to, testEdge);
+		RoomEdge edge = new RoomEdge(from, to, fromPosition, toPosition);
+		network.addEdge(from, to, edge);
 		
-		for(String s : network.edges())
+		for(RoomEdge e : network.edges())
 		{
-			System.out.println(s);
+			System.out.println(e.print());
 		}
 	}
 	

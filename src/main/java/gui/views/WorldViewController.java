@@ -7,6 +7,7 @@ import java.util.Random;
 import game.ApplicationConfig;
 import game.Dungeon;
 import game.Room;
+import game.RoomEdge;
 import game.WorldViewCanvas;
 import game.MapContainer;
 import gui.controls.LabeledCanvas;
@@ -218,7 +219,17 @@ public class WorldViewController extends GridPane implements Listener
 	        line.setStroke(Color.PINK);
 	        line.setMouseTransparent(true);
 	      
-	        createLine = true;
+	        createLine = false;
+		}
+		
+		for(RoomEdge e : dungeon.network.edges())
+		{
+//			if(!e.rendered)
+//			{
+//				
+//			}
+			
+			stackPane.getChildren().add(e.graphicElement);
 		}
 		
 		for( Room room : dungeon.getAllRooms())
@@ -257,6 +268,9 @@ public class WorldViewController extends GridPane implements Listener
 		
 		if(createLine)
 			  stackPane.getChildren().add(line);
+		
+		
+		
 //		
 
 		for (int index = 0; index < size; index++) 
