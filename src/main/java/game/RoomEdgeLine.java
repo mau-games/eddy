@@ -14,7 +14,7 @@ public class RoomEdgeLine extends Line
 		endYProperty().bind(endY);
 		
 		setStrokeWidth(2);
-		setStroke(Color.BLACK);
+		setStroke(Color.PINK);
 //		setStrokeLineCap(StrokeLineCap.BUTT);
 //		getStrokeDashArray().setAll(10.0, 5.0);
 		setMouseTransparent(true); //--> If you dont want to be able to "touch"

@@ -1,5 +1,6 @@
 package game;
 
+import javafx.beans.binding.Bindings;
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.SimpleDoubleProperty;
 import util.Point;
@@ -23,19 +24,38 @@ public class RoomEdge
 	
 	public boolean rendered = false;
 	
+	//TODO: TileSize needs to be a property too??
+	//TODO: Is giving the init of the tile, check how to get the center .. I FIXED but there must be a better way haha
 	public RoomEdge(Room from, Room to, Point fromPosition, Point toPosition)
 	{
-		fX.add(from.localConfig.getWorldCanvas().xPosition).add(fromPosition.getX()).multiply(from.localConfig.getWorldCanvas().tileSizeWidth);
-		fY.add(from.localConfig.getWorldCanvas().yPosition).add(fromPosition.getY()).multiply(from.localConfig.getWorldCanvas().tileSizeHeight);
-		tX.add(to.localConfig.getWorldCanvas().xPosition).add(toPosition.getX()).multiply(to.localConfig.getWorldCanvas().tileSizeWidth);
-		tY.add(to.localConfig.getWorldCanvas().yPosition).add(toPosition.getY()).multiply(to.localConfig.getWorldCanvas().tileSizeHeight);
+		fX.bind(Bindings.add((fromPosition.getX() * from.localConfig.getWorldCanvas().tileSizeWidth) +
+							from.localConfig.getWorldCanvas().tileSizeWidth/2, 
+							from.localConfig.getWorldCanvas().xPosition));
 		
-		graphicElement = new RoomEdgeLine(from.localConfig.getWorldCanvas().xPosition, 
-				from.localConfig.getWorldCanvas().yPosition, 
-				to.localConfig.getWorldCanvas().xPosition, 
-				to.localConfig.getWorldCanvas().yPosition);
+		fY.bind(Bindings.add(fromPosition.getY() * from.localConfig.getWorldCanvas().tileSizeHeight + 
+							from.localConfig.getWorldCanvas().tileSizeHeight/2, 
+							from.localConfig.getWorldCanvas().yPosition));
 		
-//		graphicElement = new RoomEdgeLine(fX, fY, tX, tY);
+		tX.bind(Bindings.add(toPosition.getX() * to.localConfig.getWorldCanvas().tileSizeWidth + 
+							to.localConfig.getWorldCanvas().tileSizeWidth/2, 
+							to.localConfig.getWorldCanvas().xPosition));
+		
+		tY.bind(Bindings.add(toPosition.getY() * to.localConfig.getWorldCanvas().tileSizeHeight + 
+							to.localConfig.getWorldCanvas().tileSizeHeight/2, 
+							to.localConfig.getWorldCanvas().yPosition));
+		
+//		fX.add(from.localConfig.getWorldCanvas().xPosition);
+//		fY.add(from.localConfig.getWorldCanvas().yPosition).add(fromPosition.getY() * from.localConfig.getWorldCanvas().tileSizeHeight);
+//		tX.add(to.localConfig.getWorldCanvas().xPosition).add(toPosition.getX() * to.localConfig.getWorldCanvas().tileSizeWidth);
+//		tY.add(to.localConfig.getWorldCanvas().yPosition).add(toPosition.getY() * to.localConfig.getWorldCanvas().tileSizeHeight);
+		
+		System.out.println("LineF pos: (" + fX.getValue() + "," + fY.getValue() + ")" );
+//		graphicElement = new RoomEdgeLine(from.localConfig.getWorldCanvas().xPosition, 
+//											from.localConfig.getWorldCanvas().yPosition, 
+//											to.localConfig.getWorldCanvas().xPosition, 
+//											to.localConfig.getWorldCanvas().yPosition);
+//		
+		graphicElement = new RoomEdgeLine(fX, fY, tX, tY);
 		
 		this.from = from;
 		this.to = to;

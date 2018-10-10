@@ -129,8 +129,8 @@ public class WorldViewCanvas
 //		worldGraphicNode.setTranslateX(next_x);
 //		worldGraphicNode.setTranslateX(next_y);
 		
-		xPosition.set((worldGraphicNode.getBoundsInParent().getMinX() + worldGraphicNode.getBoundsInParent().getWidth() / 2) + (doorpos.getX() - worldGraphicNode.getWidth() / 2));
-		yPosition.set((worldGraphicNode.getBoundsInParent().getMinY() + worldGraphicNode.getBoundsInParent().getHeight() / 2) +(doorpos.getY() - worldGraphicNode.getHeight() / 2));
+		xPosition.set((worldGraphicNode.getBoundsInParent().getMinX() + worldGraphicNode.getBoundsInParent().getWidth() / 2) - (worldGraphicNode.getWidth() / 2));
+		yPosition.set((worldGraphicNode.getBoundsInParent().getMinY() + worldGraphicNode.getBoundsInParent().getHeight() / 2) - (worldGraphicNode.getHeight() / 2));
 	}
 	
 	public class MouseEventDrag implements EventHandler<MouseEvent>
