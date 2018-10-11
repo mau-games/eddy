@@ -2,7 +2,8 @@ package gui.views;
 
 import java.io.IOException;
 import java.util.List;
-import java.util.Random;
+
+import javax.swing.DebugGraphics;
 
 import game.ApplicationConfig;
 import game.Dungeon;
@@ -15,25 +16,17 @@ import gui.utils.DungeonDrawer;
 import gui.utils.MapRenderer;
 import gui.utils.MoveElementBrush;
 import gui.utils.RoomConnector;
-import gui.views.RoomViewController.EditViewMouseHover;
-import gui.views.SuggestionsViewController.MouseEventHandler;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
-import javafx.geometry.Bounds;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.control.Button;
 import javafx.scene.control.Tooltip;
-import javafx.scene.image.ImageView;
-import javafx.scene.input.ClipboardContent;
-import javafx.scene.input.Dragboard;
 import javafx.scene.input.MouseEvent;
-import javafx.scene.input.TransferMode;
 import javafx.scene.layout.Border;
-import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.BorderStroke;
 import javafx.scene.layout.BorderStrokeStyle;
 import javafx.scene.layout.BorderWidths;
@@ -50,17 +43,11 @@ import util.eventrouting.EventRouter;
 import util.eventrouting.Listener;
 import util.eventrouting.PCGEvent;
 import util.eventrouting.events.MapUpdate;
-import util.eventrouting.events.RegisterDoorPosition;
-import util.eventrouting.events.RegisterRoom;
-import util.eventrouting.events.RequestConnection;
 import util.eventrouting.events.RequestEmptyRoom;
 import util.eventrouting.events.RequestNewRoom;
 import util.eventrouting.events.RequestNullRoom;
-import util.eventrouting.events.RequestRoomView;
 import util.eventrouting.events.RequestSuggestionsView;
 import util.IntField;
-import util.Point;
-import util.Util;
 
 /*  
  * @author Chelsi Nolasco, Malmö University
@@ -89,7 +76,7 @@ public class WorldViewController extends GridPane implements Listener
 	@FXML private GridPane worldViewPane;
 	@FXML private StackPane buttonPane;
 //	@FXML GridPane gridPane;
-	@FXML Pane stackPane;
+	@FXML Pane worldPane;
 	@FXML private List<LabeledCanvas> mapDisplays;
 
 	private int row = 0;
@@ -102,14 +89,11 @@ public class WorldViewController extends GridPane implements Listener
 	private LabeledCanvas canvas;
 	
 	Dungeon dungeon;
-	DungeonDrawer drawer;
-	private Canvas brushCanvas;
-	private RoomConnector connection;
 	
 	double anchorX;
 	double anchorY;
 
-	Line l;
+	private Line auxLine;
 	
 	public WorldViewController() {
 		super();
@@ -128,9 +112,7 @@ public class WorldViewController extends GridPane implements Listener
 		}
 
 		router.registerListener(this, new MapUpdate(null));
-		router.registerListener(this, new RegisterRoom(null));
-		router.registerListener(this, new RegisterDoorPosition(null, null));
-		
+
 		initWorldView();
 	}
 
@@ -140,44 +122,19 @@ public class WorldViewController extends GridPane implements Listener
 
 	private void initWorldView() 
 	{
-		connection = new RoomConnector();
+		auxLine = new Line();
+		auxLine.setStrokeWidth(2.0f);
+		auxLine.setStroke(Color.PINK);
+		auxLine.setMouseTransparent(true);
 		
-//		brushCanvas = new Canvas(1000, 1000);
-//		StackPane.setAlignment(brushCanvas, Pos.CENTER);
-//		
-//		brushCanvas.setVisible(false);
-//		brushCanvas.setMouseTransparent(true);
-//		brushCanvas.setOpacity(1.0f);
-//		stackPane.addEventFilter(MouseEvent.MOUSE_MOVED, new EditViewMouseHover());
-		worldViewPane.getChildren().add(stackPane);
-//		stackPane.addEventHandler(MouseEvent.MOUSE_PRESSED, new MouseEventWorldPane());
+		
+		worldViewPane.getChildren().add(worldPane);
+		worldPane.addEventHandler(MouseEvent.MOUSE_PRESSED, new MouseEventWorldPane());
 //		clipChildren(stackPane, 12);
 		worldButtonEvents();
 		initOptions();	
 
 
-	}
-	
-	public class EditViewMouseHover implements EventHandler<MouseEvent> {
-		@Override
-		public void handle(MouseEvent event) 
-		{
-			brushCanvas.setVisible(false);
-			
-			if (event.getTarget() instanceof LabeledCanvas) 
-			{
-				System.out.println("THERE IS SOMETHING HERE");
-//				// Show the brush canvas
-//				ImageView tile = (ImageView) event.getTarget();
-//				brushCanvas.getGraphicsContext2D().clearRect(0, 0, 420, 420);
-//				brushCanvas.setVisible(true);
-//				util.Point p = mapView.CheckTile(tile);
-//				myBrush.Update(event, p, mapView.getMap());
-//				
-//				renderer.drawBrush(brushCanvas.getGraphicsContext2D(), mapView.getMap().toMatrix(), myBrush, Color.WHITE);
-			}
-		}
-		
 	}
 	
 	//TODO: I WAS HERE!!! Line works with a PANE because stack pane destroys everything based on how it calculates
@@ -193,35 +150,14 @@ public class WorldViewController extends GridPane implements Listener
 		if(heightField == null)
 			heightField = new IntField(1, 20, dungeon.defaultHeight);
 		
-		stackPane.getChildren().clear();
 		this.dungeon = dungeon;
+		worldPane.getChildren().clear();
 		size = this.dungeon.size;
 		viewSize = 500;
-		int viewSizeHeight = 500;
-		int viewSizeWidth = 500;
 		
-		stackPane.setBorder(new Border(new BorderStroke(Color.RED, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderWidths.DEFAULT)));
-//		stackPane.setAlignment(Pos.CENTER);
-		StackPane.setAlignment(stackPane, Pos.CENTER);
+		worldPane.setBorder(new Border(new BorderStroke(Color.RED, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderWidths.DEFAULT)));
 		
-		//dirty code
-		int roomCounter= 1;
-		boolean createLine = false;
-		Line line = new Line();
-		
-		if(dungeon.size > 1)
-		{
-	        line.setStartX(-100.0f);
-	        line.setStartY(0.0f);
-	        line.setEndX(300.0f);
-	        line.setEndY(70.0f);
-	        line.setStrokeWidth(2);
-	        line.setStroke(Color.PINK);
-	        line.setMouseTransparent(true);
-	      
-	        createLine = false;
-		}
-		
+		//Edges
 		for(RoomEdge e : dungeon.network.edges())
 		{
 //			if(!e.rendered)
@@ -229,9 +165,10 @@ public class WorldViewController extends GridPane implements Listener
 //				
 //			}
 			
-			stackPane.getChildren().add(e.graphicElement);
+			worldPane.getChildren().add(e.graphicElement);
 		}
 		
+		//ROOMS
 		for( Room room : dungeon.getAllRooms())
 		{
 			WorldViewCanvas wvc = room.localConfig.getWorldCanvas();
@@ -241,70 +178,10 @@ public class WorldViewController extends GridPane implements Listener
 				wvc.getCanvas().draw(renderer.renderMap(room));
 				wvc.setRendered(true);
 			}
-			
-//			Line line = new Line();
-//	        line.setStartX(-100.0f);
-//	        line.setStartY(0.0f);
-//	        line.setEndX(300.0f);
-//	        line.setEndY(70.0f);
-//	        line.setStrokeWidth(2);
-//	        line.setStroke(Color.PINK);
-//	        stackPane.getChildren().add(line);
-			if(createLine && roomCounter==1)
-			{
-				line.startXProperty().bind(wvc.xPosition);
-		        line.startYProperty().bind(wvc.yPosition);
-		        roomCounter++;
-			}
-			else if(createLine && roomCounter==2)
-			{
-				line.endXProperty().bind(wvc.xPosition);
-		        line.endYProperty().bind(wvc.yPosition);
-			}
-	        
-			
-			stackPane.getChildren().add(wvc.getCanvas());
-		}
-		
-		if(createLine)
-			  stackPane.getChildren().add(line);
-		
-		
-		
-//		
 
-		for (int index = 0; index < size; index++) 
-		{
 			
-			
-//			//TODO: the 50 should be scaled --> And the 20... is because of the padding
-//			viewSizeHeight = (50 * (dungeon.getRoomByIndex(index).getRowCount())) + 20; //THIS IS PART OF THE SOLUTION
-//			viewSizeWidth = (50 * (dungeon.getRoomByIndex(index).getColCount())) + 20; //THIS IS PART OF THE SOLUTION
-//			canvas = new LabeledCanvas();
-//			canvas.setText("");
-//			canvas.setMinSize(viewSizeWidth, viewSizeHeight);
-//			canvas.setMaxSize(viewSizeWidth, viewSizeHeight); //THIS IS PART OF THE SOLUTION
-//			canvas.setPrefSize(viewSizeWidth, viewSizeHeight);
-//			canvas.draw(renderer.renderMap(dungeon.getRoomByIndex(index))); //TODO: HERE!!!
-////				canvas.relocate(25, 25);
-////			
-////			canvas.setMinSize(viewSize, viewSize);
-////			canvas.setMaxSize(viewSize, viewSize);
-//			stackPane.getChildren().add(canvas);
-//
-////				canvas.addEventFilter(MouseEvent.MOUSE_CLICKED,
-////						new MouseEventHandler());
-//
-////				
-////				canvas.addEventFilter(MouseEvent.MOUSE_DRAGGED, new MouseEventH());
-//			canvas.addEventFilter(MouseEvent.MOUSE_PRESSED, new MouseEventH());
+			worldPane.getChildren().add(wvc.getCanvas());
 		}
-		
-//		boolean voidRoom = matrix[row][col].getMap().getNull();
-//		getSuggestionsBtn().setDisable(voidRoom);
-//		getStartEmptyBtn().setDisable(voidRoom);
-
-		
 	}
 	
 	public class MouseEventWorldPane implements EventHandler<MouseEvent>
@@ -318,31 +195,46 @@ public class WorldViewController extends GridPane implements Listener
 			{
 
 	            @Override
-	            public void handle(MouseEvent event) {
-
-//	    			source.setTranslateX(event.getX() + source.getTranslateX() - anchorX);
-//	    			source.setTranslateY(event.getY() + source.getTranslateY() - anchorY); 
-	    			l.setEndX(event.getX());
-	    			l.setEndY(event.getY());
+	            public void handle(MouseEvent event)
+	            {
+	            	if(DungeonDrawer.getInstance().getBrush() instanceof RoomConnector)
+	            	{
+		    			auxLine.setEndX(event.getX());
+		    			auxLine.setEndY(event.getY());
+	            	}
 	            }
 	            
 	        });
 			
-			source.setOnMousePressed(new EventHandler<MouseEvent>() {
+			source.setOnMouseReleased(new EventHandler<MouseEvent>() {
 
 	            @Override
-	            public void handle(MouseEvent event) {
+	            public void handle(MouseEvent event) 
+	            {
+	            	worldPane.getChildren().remove(auxLine);
+	            }
 
-	            	anchorX = event.getX();
-	    			anchorY = event.getY();
-	    			l = new Line();
-	    			stackPane.getChildren().add(l);
-	    			l.setStartX(event.getX());
-	    			l.setStartY(event.getY());
-	    			l.setEndX(event.getX());
-	    			l.setEndY(event.getY());
-	    			l.setStrokeWidth(2.0f);
-	    			l.setStroke(Color.PINK);
+	        });
+			
+			source.setOnMousePressed(new EventHandler<MouseEvent>() 
+			{
+
+	            @Override
+	            public void handle(MouseEvent event) 
+	            {
+
+	            	if(DungeonDrawer.getInstance().getBrush() instanceof RoomConnector)
+	            	{
+	            		anchorX = event.getX();
+		    			anchorY = event.getY();
+		    			
+		    			worldPane.getChildren().add(auxLine);
+		    			auxLine.setStartX(event.getX());
+		    			auxLine.setStartY(event.getY());
+		    			auxLine.setEndX(event.getX());
+		    			auxLine.setEndY(event.getY());
+	            	}
+	            	
 	            }
 	        });
 			
@@ -364,11 +256,11 @@ public class WorldViewController extends GridPane implements Listener
 	
 	private void zoom()
 	{
-		int s = stackPane.getChildren().size();
+		int s = worldPane.getChildren().size();
 		viewSize += 10;
 		for(int i = 0; i < s; i++)
 		{
-			canvas = (LabeledCanvas)stackPane.getChildren().get(i); //DIRTy
+			canvas = (LabeledCanvas)worldPane.getChildren().get(i); //DIRTy
 			canvas.setMaxSize(viewSize, viewSize);
 		}
 		
@@ -441,35 +333,7 @@ public class WorldViewController extends GridPane implements Listener
 
 	@Override
 	public void ping(PCGEvent e) {
-		if(e instanceof RegisterRoom)
-		{
-			System.out.println("HERE?");
-			//Get room
-			if(connection.from == null)
-			{
-				connection.from = (Room)e.getPayload();
-				System.out.println("ROOM FROM: " + connection.from);
-			}
-			else if(connection.from != (Room)e.getPayload())
-			{
-				connection.to = (Room)e.getPayload();
-			}
-		}
-		else if(e instanceof RegisterDoorPosition)
-		{
-			//Get position
-			if(connection.fromPos == null && ((RegisterDoorPosition)e).room == connection.from)
-			{
-				connection.fromPos = (Point)e.getPayload();
-				System.out.println("POS FROM: " + connection.fromPos);
-			}
-			else if( ((RegisterDoorPosition)e).room == connection.to )
-			{
-				connection.toPos = (Point)e.getPayload();
-				router.postEvent(new RequestConnection(dungeon, -1, connection.from, connection.to, connection.fromPos, connection.toPos));
-				connection = new RoomConnector();
-			}
-		}
+
 
 	}
 
@@ -496,94 +360,7 @@ public class WorldViewController extends GridPane implements Listener
 	public void setSuggestionsBtn(Button suggestionsBtn) {
 		this.suggestionsBtn = suggestionsBtn;
 	}
-	
-	public class MouseEventH implements EventHandler<MouseEvent>
-	{
-		@Override
-		public void handle(MouseEvent event) 
-		{
-			source = (Node)event.getSource();
-			
-			source.setOnMouseDragged(new EventHandler<MouseEvent>() {
 
-	            @Override
-	            public void handle(MouseEvent event) {
-
-	            	
-//	            	System.out.println(source.getLayoutBounds());
-//	            	System.out.println("parent: " + source.getParent().getLayoutBounds());
-//	            	System.out.println("EVENT X: " +  (event.getX()));
-//	            	System.out.println("getTranslateX: " +  (source.getTranslateX()));
-//	            	System.out.println("SCENE X: " + event.getSceneX());
-
-	            	
-//	            	if(outSideParentBounds(source.getLayoutBounds(),source.getTranslateX() + 10, source.getTranslateY() + 10))
-//	            	{
-//	            		event.consume();
-//	            		return;
-//	            	}
-//	            		
-	            	
-	    			source.setTranslateX(event.getX() + source.getTranslateX() - anchorX);
-	    			source.setTranslateY(event.getY() + source.getTranslateY() - anchorY); 
-
-	            }
-
-	            //TODO: Trying to limit if the canvas is outside the pane --> need to give it a bettter try
-	            private boolean outSideParentBounds( Bounds childBounds, double newX, double newY) {
-
-	                Bounds parentBounds = source.getParent().getLayoutBounds();
-	                
-	                newX += parentBounds.getMaxX() / 2;
-	                newY += parentBounds.getMaxY() / 2;
-
-	                if((childBounds.getMaxX() / 2.0) + newX > parentBounds.getMaxX())
-	                {
-//	                	source.setTranslateX(source.getTranslateX() - 10);
-	                	return true;
-	                }
-	                	
-	                
-//	                //check if too left
-//	                if( parentBounds.getMaxX() <= (newX + childBounds.getMaxX()) ) {
-//	                    return true ;
-//	                }
-//
-//	                //check if too right
-//	                if( parentBounds.getMinX() >= (newX + childBounds.getMinX()) ) {
-//	                    return true ;
-//	                }
-//
-//	                //check if too down
-//	                if( parentBounds.getMaxY() <= (newY + childBounds.getMaxY()) ) {
-//	                    return true ;
-//	                }
-//
-//	                //check if too up
-//	                if( parentBounds.getMinY() >= (newY + childBounds.getMinY()) ) {
-//	                    return true ;
-//	                }
-
-	                return false;
-
-	            }
-	        });
-			
-			source.setOnMousePressed(new EventHandler<MouseEvent>() {
-
-	            @Override
-	            public void handle(MouseEvent event) {
-
-	            	anchorX = event.getX();
-	    			anchorY = event.getY();
-	    		
-	            }
-	        });
-			
-		}
-	}
-	
-	
 	public class MouseEventHandler implements EventHandler<MouseEvent> {
 
 

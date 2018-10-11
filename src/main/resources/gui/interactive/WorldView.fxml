@@ -19,6 +19,6 @@
 
 <fx:root type="javafx.scene.layout.GridPane" stylesheets="@../styling.css" xmlns:fx="http://javafx.com/fxml/1" fx:id="worldViewPane">
 	<StackPane alignment="CENTER" fx:id="buttonPane" /> 
-	<Pane alignment="CENTER" fx:id="stackPane" />
+	<Pane alignment="CENTER" fx:id="worldPane" />
 	
 </fx:root>
