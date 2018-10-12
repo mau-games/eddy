@@ -161,6 +161,7 @@ public class WorldViewCanvas
 	            	if(DungeonDrawer.getInstance().getBrush() instanceof MoveElementBrush)
 	            	{
 		            	setPosition(event.getX() + source.getTranslateX() - dragAnchorX, event.getY() + source.getTranslateY() - dragAnchorY);
+		            	System.out.println("ROOM X: " + (event.getX() + source.getTranslateX() - dragAnchorX));
 		    			source.setTranslateX(event.getX() + source.getTranslateX() - dragAnchorX);
 		    			source.setTranslateY(event.getY() + source.getTranslateY() - dragAnchorY); 
 	            	}
@@ -181,9 +182,10 @@ public class WorldViewCanvas
 	
 	            	if(DungeonDrawer.getInstance().getBrush() instanceof MoveElementBrush)
 	            	{
-		            	setPosition(event.getX() + source.getTranslateX() - dragAnchorX, event.getY() + source.getTranslateY() - dragAnchorY);
-		    			source.setTranslateX(event.getX() + source.getTranslateX() - dragAnchorX);
-		    			source.setTranslateY(event.getY() + source.getTranslateY() - dragAnchorY); 
+//		            	setPosition(event.getX() + source.getTranslateX() - dragAnchorX, event.getY() + source.getTranslateY() - dragAnchorY);
+//		    			source.setTranslateX(event.getX() + source.getTranslateX() - dragAnchorX);
+//		    			source.setTranslateY(event.getY() + source.getTranslateY() - dragAnchorY); 
+//		    			System.out.println("ROOM X: " + (event.getX() + source.getTranslateX() - dragAnchorX));
 	            	}
 	            	else
 	            	{

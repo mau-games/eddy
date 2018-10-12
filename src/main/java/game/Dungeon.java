@@ -1,5 +1,6 @@
 package game;
 
+import java.awt.List;
 import java.util.ArrayList;
 import java.util.Set;
 import java.util.Stack;
@@ -94,36 +95,78 @@ public class Dungeon
 	
 	public ArrayList<Room> getAllRooms() { return rooms; }
 	
+	Stack<Room> ConnectionPath = new Stack<Room>();
+	ArrayList<Stack<Room>> connectionPaths = new ArrayList<Stack<Room>>();
+	
 	public void testTraverseNetwork(Room init, Room end)
 	{
+		ConnectionPath.push(init);
 		Set<Room> initAdjacentRooms = network.adjacentNodes(init);
 		
 		for(Room r : initAdjacentRooms)
 		{
-			Stack<Room> steps = new Stack<Room>();
-			steps.push(init);
-			steps.push(r);
-			
-			Set<Room> adjRooms = network.adjacentNodes(r);
-			adjRooms.remove(init);
-			
-			if(adjRooms.contains(end))
+			if(r == end) //Is done
 			{
-				steps.push(r);
-				System.out.println("REACHED");
-				printRoomNumbers(steps);
+				Stack<Room> temp = new Stack<Room>();
+				for(Room rcp : ConnectionPath)
+				{
+					temp.push(rcp);
+//					System.out.println("ROOM " + rooms.indexOf(rcp));
+				}
+				temp.push(r);
+//				temp.push(init);
+				connectionPaths.add(temp);
 			}
-			else
+			else if(!ConnectionPath.contains(r))
 			{
-				
+//				ConnectionPath.push(r);
+				testTraverseNetwork(r, end);
+				ConnectionPath.pop();
 			}
+			
+//			Stack<Room> steps = new Stack<Room>();
+//			steps.push(init);
+//			steps.push(r);
+//			
+//			Set<Room> adjRooms = network.adjacentNodes(r);
+//			adjRooms.remove(init);
+//			
+//			if(adjRooms.contains(end))
+//			{
+//				steps.push(r);
+//				System.out.println("REACHED");
+//				printRoomNumbers(steps);
+//			}
+//			else
+//			{
+//				
+//			}
 		}
 		
+//		int counter = 0;
+//		for(Room r : initAdjacentRooms)
+//		{
+//			System.out.println(counter++);
+//		}
+	}
+	
+	public void printRoomsPath()
+	{
 		int counter = 0;
-		for(Room r : initAdjacentRooms)
+		for(Stack<Room> path : connectionPaths)
 		{
-			System.out.println(counter++);
+			System.out.print("PATH " + counter++ + ": ");
+			while(!path.isEmpty())
+			{
+				System.out.print("ROOM: " + rooms.indexOf(path.pop()) + ", ");
+			}
+			System.out.println();
 		}
+		
+		connectionPaths.clear();
+		ConnectionPath.clear();
+		
+//		System.out.println("PATH: ROOM: " + rooms.indexOf(rooms.pop()));
 	}
 	
 	private void printRoomNumbers(Stack<Room> rooms)

@@ -134,7 +134,7 @@ public class WorldViewController extends BorderPane implements Listener
 		setCenter(worldPane);
 		setRight(buttonPane);
 		worldPane.addEventHandler(MouseEvent.MOUSE_PRESSED, new MouseEventWorldPane());
-//		clipChildren(stackPane, 12);
+		clipChildren(worldPane, 12);
 		worldButtonEvents();
 		initOptions();	
 
@@ -206,6 +206,33 @@ public class WorldViewController extends BorderPane implements Listener
 		    			auxLine.setEndX(event.getX());
 		    			auxLine.setEndY(event.getY());
 	            	}
+	            	else if(event.getTarget() == worldPane && event.isMiddleButtonDown()) //TODO: WORK IN PROGRESS
+	            	{
+//	            		System.out.println("PANE X: " + (event.getX() - anchorX));
+	            		for( Room room : dungeon.getAllRooms())
+	            		{
+	            			WorldViewCanvas wvc = room.localConfig.getWorldCanvas();
+	            			wvc.getCanvas().setTranslateX(wvc.getCanvas().getBoundsInParent().getMinX() + (event.getX() - anchorX));
+	            			wvc.getCanvas().setTranslateY(wvc.getCanvas().getBoundsInParent().getMinY() + event.getY() - anchorY); 
+	            			wvc.setPosition(0, 0);
+	            		}
+//	            		for(Node child : worldPane.getChildren())
+//	            		{
+//	            			if(child instanceof Line)
+//	            			{
+//	            				
+//	            			}
+//	            			else
+//	            			{
+//		            			child.setTranslateX(child.getBoundsInParent().getMinX() + (event.getX() - anchorX));
+//		            			child.setTranslateY(child.getBoundsInParent().getMinY() + event.getY() - anchorY); 
+//	            			}
+//
+//	            		}
+	            		
+            			anchorX = event.getX();
+            			anchorY = event.getY();
+	            	}
 	            }
 	            
 	        });
@@ -226,17 +253,24 @@ public class WorldViewController extends BorderPane implements Listener
 	            @Override
 	            public void handle(MouseEvent event) 
 	            {
+	            	anchorX = event.getX();
+	    			anchorY = event.getY();
+	    			
 
 	            	if(DungeonDrawer.getInstance().getBrush() instanceof RoomConnector)
 	            	{
-	            		anchorX = event.getX();
-		    			anchorY = event.getY();
+//	            		anchorX = event.getX();
+//		    			anchorY = event.getY();
 		    			
 		    			worldPane.getChildren().add(auxLine);
 		    			auxLine.setStartX(event.getX());
 		    			auxLine.setStartY(event.getY());
 		    			auxLine.setEndX(event.getX());
 		    			auxLine.setEndY(event.getY());
+	            	}
+	            	else
+	            	{
+	            		
 	            	}
 	            	
 	            }
@@ -455,6 +489,7 @@ public class WorldViewController extends BorderPane implements Listener
 				if(dungeon.size > 1)
 				{
 					dungeon.testTraverseNetwork(dungeon.getRoomByIndex(0),dungeon.getRoomByIndex(1));
+					dungeon.printRoomsPath();
 				}
 				
 //				router.postEvent(new RequestNullRoom(matrix[row][col], row, col, matrix));
