@@ -1,6 +1,8 @@
 package game;
 
 import java.util.ArrayList;
+import java.util.Set;
+import java.util.Stack;
 
 import com.google.common.graph.MutableNetwork;
 import com.google.common.graph.NetworkBuilder;
@@ -91,4 +93,47 @@ public class Dungeon
 	}
 	
 	public ArrayList<Room> getAllRooms() { return rooms; }
+	
+	public void testTraverseNetwork(Room init, Room end)
+	{
+		Set<Room> initAdjacentRooms = network.adjacentNodes(init);
+		
+		for(Room r : initAdjacentRooms)
+		{
+			Stack<Room> steps = new Stack<Room>();
+			steps.push(init);
+			steps.push(r);
+			
+			Set<Room> adjRooms = network.adjacentNodes(r);
+			adjRooms.remove(init);
+			
+			if(adjRooms.contains(end))
+			{
+				steps.push(r);
+				System.out.println("REACHED");
+				printRoomNumbers(steps);
+			}
+			else
+			{
+				
+			}
+		}
+		
+		int counter = 0;
+		for(Room r : initAdjacentRooms)
+		{
+			System.out.println(counter++);
+		}
+	}
+	
+	private void printRoomNumbers(Stack<Room> rooms)
+	{
+		System.out.print("PATH: ");
+		while(!rooms.isEmpty())
+		{
+			System.out.print("ROOM: " + rooms.indexOf(rooms.pop()) + ", ");
+		}
+		System.out.println();
+//		System.out.println("PATH: ROOM: " + rooms.indexOf(rooms.pop()));
+	}
 }

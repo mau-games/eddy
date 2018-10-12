@@ -218,7 +218,7 @@ public class InteractiveGUIController implements Initializable, Listener {
 
 			backToWorldView();
 			worldView.getStartEmptyBtn().setDisable(true);
-			worldView.getRoomNullBtn().setDisable(true);
+//			worldView.getRoomNullBtn().setDisable(true); //TODO: HERE
 			worldView.getSuggestionsBtn().setDisable(true);
 
 
@@ -235,7 +235,7 @@ public class InteractiveGUIController implements Initializable, Listener {
 				initWorldView();
 			}
 			worldView.getStartEmptyBtn().setDisable(true);
-			worldView.getRoomNullBtn().setDisable(true);
+//			worldView.getRoomNullBtn().setDisable(true);
 			worldView.getSuggestionsBtn().setDisable(true);
 		}
 		else if (e instanceof SuggestedMapsDone) {

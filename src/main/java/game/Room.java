@@ -1420,6 +1420,11 @@ public class Room {
 				&& (treasure + enemies == getTreasureCount() + getEnemyCount())
 				&& getTreasureCount() > 0 && getEnemyCount() > 0;
 	}
+	
+	public boolean isPointInBorder(Point p)
+	{
+		return borders.contains(Point.castToGeometry(p));
+	}
 
 	//TODO: ...
 	public int getNumberOfDoors() {

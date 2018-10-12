@@ -54,10 +54,25 @@ public class RoomConnector extends ShapeBrush
 			this.toPos = releasedPosition;
 			aux = null;
 			
-			System.out.println("Rlease ROOM ROOM: " + releasedRoom.hashCode());
+			System.out.println("Release ROOM ROOM: " + releasedRoom.hashCode());
 			
 			//Send event
-			EventRouter.getInstance().postEvent(new RequestConnection(null, -1, from, to, fromPos, toPos));
+			if(releasedRoom.equals(from))
+			{
+				from = null;
+				to = null;
+				toPos = null;
+				fromPos = null;
+			}
+			else if(from != null && to != null && fromPos != null && toPos != null)
+			{
+				EventRouter.getInstance().postEvent(new RequestConnection(null, -1, from, to, fromPos, toPos));	
+				from = null;
+				to = null;
+				toPos = null;
+				fromPos = null;
+			}
+			
 			
 		}
 	}

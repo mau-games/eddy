@@ -35,4 +35,9 @@ public class Point {
 	
 	public void setX(int value) { x = value; }
 	public void setY(int value) { y = value; }
+	
+	public static final finder.geometry.Point castToGeometry(final Point from)
+	{
+		return new finder.geometry.Point(from.x, from.y);
+	}
 }

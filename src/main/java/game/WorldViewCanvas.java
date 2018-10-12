@@ -5,6 +5,7 @@ import gui.controls.LabeledCanvas;
 import gui.utils.DungeonDrawer;
 import gui.utils.MapRenderer;
 import gui.utils.MoveElementBrush;
+import gui.utils.RoomConnector;
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.event.EventHandler;
@@ -34,11 +35,9 @@ public class WorldViewCanvas
 	//Border canvas
 	private Canvas borderCanvas;
 	
-	public DoubleProperty xPosition;
+	public DoubleProperty xPosition; //TODO: public just to test
 	public DoubleProperty yPosition;
-	
-	//Door pos test
-	private Point doorpos;
+	private Point currentBrushPosition = new Point();
 	
 	public WorldViewCanvas(Room owner)
 	{
@@ -46,12 +45,8 @@ public class WorldViewCanvas
 		worldGraphicNode = new LabeledCanvas();
 		worldGraphicNode.setText("");
 		
-		
 		worldGraphicNode.addEventFilter(MouseEvent.MOUSE_ENTERED, new MouseEventH());
 		worldGraphicNode.addEventFilter(MouseEvent.MOUSE_DRAGGED, new MouseEventDrag());
-//		worldGraphicNode.addEventFilter(MouseEvent.DRAG_DETECTED, new MouseEventDrag());
-//		worldGraphicNode.addEventFilter(MouseEvent.MOUSE_MOVED, new MouseEventH()); //need to check
-//		worldGraphicNode.addEventFilter(MouseEvent.MOUSE_PRESSED, new MouseEventH()); //need to check
 		
 		worldGraphicNode.setOnDragDetected(new EventHandler<MouseEvent>() 
 		{
@@ -74,8 +69,6 @@ public class WorldViewCanvas
 		worldGraphicNode.getChildren().add(borderCanvas);
 		borderCanvas.setVisible(false);
 		borderCanvas.setMouseTransparent(true);
-		
-		doorpos = new Point(0,0);
 
 	}
 	
@@ -145,16 +138,18 @@ public class WorldViewCanvas
 	            @Override
 	            public void handle(MouseEvent event) 
 	            {
-	            	borderCanvas.setVisible(true);
-	            	drawBorder();
+	            	if(DungeonDrawer.getInstance().getBrush() instanceof RoomConnector)
+	            	{
+		            	borderCanvas.setVisible(true);
+		            	drawBorder();
+	            	}
+	            	else
+	            	{
+	            		highlight(true);
+	            	}
+
 	            	DungeonDrawer.getInstance().getBrush().onEnteredRoom(owner);
 	            }
-	            
-	            private synchronized void drawBorder() 
-	            {
-	            	borderCanvas.getGraphicsContext2D().clearRect(0, 0, borderCanvas.getWidth(), borderCanvas.getHeight());
-	            	MapRenderer.getInstance().drawRoomBorders(borderCanvas.getGraphicsContext2D(), owner.matrix, owner.borders, Color.WHITE);
-	        	}
 	        });
 
 			source.setOnMouseDragged(new EventHandler<MouseEvent>() {
@@ -169,6 +164,32 @@ public class WorldViewCanvas
 		    			source.setTranslateX(event.getX() + source.getTranslateX() - dragAnchorX);
 		    			source.setTranslateY(event.getY() + source.getTranslateY() - dragAnchorY); 
 	            	}
+	            	else
+	            	{
+	            		currentBrushPosition =  new Point((int)( event.getX() / tileSizeWidth), (int)( event.getY() / tileSizeHeight ));
+		            	drawBorder();
+	            	}
+	            }
+
+	        });
+			
+			source.setOnMouseDragOver(new EventHandler<MouseEvent>() {
+
+	            @Override
+	            public void handle(MouseEvent event) 
+	            {
+	
+	            	if(DungeonDrawer.getInstance().getBrush() instanceof MoveElementBrush)
+	            	{
+		            	setPosition(event.getX() + source.getTranslateX() - dragAnchorX, event.getY() + source.getTranslateY() - dragAnchorY);
+		    			source.setTranslateX(event.getX() + source.getTranslateX() - dragAnchorX);
+		    			source.setTranslateY(event.getY() + source.getTranslateY() - dragAnchorY); 
+	            	}
+	            	else
+	            	{
+	            		currentBrushPosition =  new Point((int)( event.getX() / tileSizeWidth), (int)( event.getY() / tileSizeHeight ));
+		            	drawBorder();
+	            	}
 	            }
 
 	        });
@@ -178,10 +199,12 @@ public class WorldViewCanvas
 	            @Override
 	            public void handle(MouseEvent event) 
 	            {
-	            	Point p =  new Point((int)( event.getX() / tileSizeWidth), (int)( event.getY() / tileSizeHeight ));
-	            	doorpos = new Point((int)event.getX(), (int)event.getY());
+	            	currentBrushPosition =  new Point((int)( event.getX() / tileSizeWidth), (int)( event.getY() / tileSizeHeight ));
 	            	
-	            	DungeonDrawer.getInstance().getBrush().onReleaseRoom(owner, p);
+	            	if(owner.isPointInBorder(currentBrushPosition))
+	            	{
+	            		DungeonDrawer.getInstance().getBrush().onReleaseRoom(owner, currentBrushPosition);
+	            	}
 	            }
 
 	        });
@@ -195,8 +218,8 @@ public class WorldViewCanvas
 	            }
 
 	        });
+			
 		}
-		
 	}
 	
 	public class MouseEventH implements EventHandler<MouseEvent>
@@ -205,6 +228,38 @@ public class WorldViewCanvas
 		public void handle(MouseEvent event) 
 		{
 			source = (Node)event.getSource();
+			
+			//1) Mouse enters the canvas of the room
+			source.setOnMouseEntered(new EventHandler<MouseEvent>() {
+
+	            @Override
+	            public void handle(MouseEvent event) 
+	            {
+	            	if(DungeonDrawer.getInstance().getBrush() instanceof RoomConnector)
+	            	{
+		            	borderCanvas.setVisible(true);
+		            	drawBorder();
+	            	}
+	            	else
+	            	{
+	            		highlight(true);
+	            	}
+
+	            	DungeonDrawer.getInstance().getBrush().onEnteredRoom(owner);	            	
+	            }
+
+	        });
+			
+			//2) mouse is moved around the map
+			source.setOnMouseMoved(new EventHandler<MouseEvent>() {
+
+	            @Override
+	            public void handle(MouseEvent event) 
+	            {
+	            	currentBrushPosition =  new Point((int)( event.getX() / tileSizeWidth), (int)( event.getY() / tileSizeHeight ));	            	
+	            	drawBorder();
+	            }
+	        });
 
 			source.setOnMousePressed(new EventHandler<MouseEvent>() {
 
@@ -214,17 +269,13 @@ public class WorldViewCanvas
 
 	            	dragAnchorX = event.getX();
 	            	dragAnchorY = event.getY();
-//	            	
-//	            	System.out.println("Position in X: " + event.getX());
-//	            	System.out.println("Position in Y: " + event.getY());
-	            	Point p =  new Point((int)( event.getX() / tileSizeWidth), (int)( event.getY() / tileSizeHeight ));
-//	            	System.out.println("POSITION IN MATRIX: (" + p.getX() + "," + p.getY() + ")");
-	            	doorpos = new Point((int)event.getX(), (int)event.getY());
+	            	currentBrushPosition =  new Point((int)( event.getX() / tileSizeWidth), (int)( event.getY() / tileSizeHeight ));
 	            	
-	            	DungeonDrawer.getInstance().getBrush().onClickRoom(owner, p);
-//	            	source.startFullDrag();
-//	            	
-//	            	EventRouter.getInstance().postEvent(new RegisterDoorPosition(p, owner));
+	            	if(owner.isPointInBorder(currentBrushPosition))
+	            	{
+		            	DungeonDrawer.getInstance().getBrush().onClickRoom(owner,currentBrushPosition);
+	            	}
+
 	            }
 	        });
 			
@@ -233,14 +284,7 @@ public class WorldViewCanvas
 	            @Override
 	            public void handle(MouseEvent event) 
 	            {
-//	            	System.out.println("HOW MANY MEEE!?");
-	            	Point p =  new Point((int)( event.getX() / tileSizeWidth), (int)( event.getY() / tileSizeHeight ));
-//	            	System.out.println("POSITION IN MATRIX: (" + p.getX() + "," + p.getY() + ")");
-	            	doorpos = new Point((int)event.getX(), (int)event.getY());
-
-//	            	DungeonDrawer.getInstance().getBrush().onReleaseRoom(owner, p);
-	            	
-//	            	EventRouter.getInstance().postEvent(new RegisterDoorPosition(p, owner));
+	            	currentBrushPosition =  new Point((int)( event.getX() / tileSizeWidth), (int)( event.getY() / tileSizeHeight ));
 	            }
 	        });
 			
@@ -249,34 +293,37 @@ public class WorldViewCanvas
 	            @Override
 	            public void handle(MouseEvent event) 
 	            {
-	            	
 	            	borderCanvas.setVisible(false);
+	            	highlight(false);
 	            }
 
 	        });
-			
-			source.setOnMouseEntered(new EventHandler<MouseEvent>() {
-
-	            @Override
-	            public void handle(MouseEvent event) 
-	            {
-	            	
-	            	borderCanvas.setVisible(true);
-	            	drawBorder();
-//	            	EventRouter.getInstance().postEvent(new RegisterRoom(owner));
-//	            	System.out.println("MOUSE ENTERED: " + owner.hashCode());
-	            	DungeonDrawer.getInstance().getBrush().onEnteredRoom(owner);
-	            }
-	            
-	            private synchronized void drawBorder() 
-	            {
-	            	borderCanvas.getGraphicsContext2D().clearRect(0, 0, borderCanvas.getWidth(), borderCanvas.getHeight());
-	            	MapRenderer.getInstance().drawRoomBorders(borderCanvas.getGraphicsContext2D(), owner.matrix, owner.borders, Color.WHITE);
-	            
-	        	}
-
-	        });
-			
 		}
 	}
+	
+	private synchronized void drawBorder() 
+    {
+		if(borderCanvas.isVisible())
+		{
+			borderCanvas.getGraphicsContext2D().clearRect(0, 0, borderCanvas.getWidth(), borderCanvas.getHeight());
+	    	MapRenderer.getInstance().drawRoomBorders(borderCanvas.getGraphicsContext2D(), 
+	    			owner.matrix, 
+	    			owner.borders, 
+	    			new finder.geometry.Point(currentBrushPosition.getX(), currentBrushPosition.getY()) , 
+	    			Color.WHITE);
+		}
+	}
+	
+    /**
+     * Highlights the control.
+     * 
+     * @param state True if highlighted, otherwise false.
+     */
+    private void highlight(boolean state) {
+    	if (state) {
+    		worldGraphicNode.setStyle("-fx-border-width: 2px; -fx-border-color: #6b87f9");
+    	} else {
+    		worldGraphicNode.setStyle("-fx-border-width: 0px");
+    	}
+    }
 }

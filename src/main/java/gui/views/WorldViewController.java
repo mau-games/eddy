@@ -35,6 +35,7 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
+import javafx.scene.layout.BorderPane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Line;
 import javafx.scene.shape.Rectangle;
@@ -53,7 +54,7 @@ import util.IntField;
  * @author Chelsi Nolasco, Malmö University
  * @author Axel Österman, Malmö University*/
 
-public class WorldViewController extends GridPane implements Listener
+public class WorldViewController extends BorderPane implements Listener
 {
 
 	private ApplicationConfig config;
@@ -73,7 +74,7 @@ public class WorldViewController extends GridPane implements Listener
 	private MapRenderer renderer = MapRenderer.getInstance();
 
 
-	@FXML private GridPane worldViewPane;
+//	@FXML private BorderPane rootWorldViewPane;
 	@FXML private StackPane buttonPane;
 //	@FXML GridPane gridPane;
 	@FXML Pane worldPane;
@@ -127,8 +128,11 @@ public class WorldViewController extends GridPane implements Listener
 		auxLine.setStroke(Color.PINK);
 		auxLine.setMouseTransparent(true);
 		
+		buttonPane = new StackPane();
 		
-		worldViewPane.getChildren().add(worldPane);
+//		rootWorldViewPane.getChildren().add(worldPane);
+		setCenter(worldPane);
+		setRight(buttonPane);
 		worldPane.addEventHandler(MouseEvent.MOUSE_PRESSED, new MouseEventWorldPane());
 //		clipChildren(stackPane, 12);
 		worldButtonEvents();
@@ -268,40 +272,41 @@ public class WorldViewController extends GridPane implements Listener
 	}
 
 	private void initOptions() {				
-		buttonCanvas = new Canvas(1000, 1000);
+		buttonCanvas = new Canvas(500, 1000);
 		StackPane.setAlignment(buttonCanvas, Pos.CENTER);
+		buttonPane.setAlignment(Pos.CENTER);
 		buttonPane.getChildren().add(buttonCanvas);
 		buttonCanvas.setVisible(false);
 		buttonCanvas.setMouseTransparent(true);
 
 //		getStartEmptyBtn().setTranslateX(800);
 //		getStartEmptyBtn().setTranslateY(-200);
-		getRoomNullBtn().setTranslateX(800);
+		getRoomNullBtn().setTranslateX(0);
 		getRoomNullBtn().setTranslateY(0);
-		getSuggestionsBtn().setTranslateX(800);
+		getSuggestionsBtn().setTranslateX(0);
 		getSuggestionsBtn().setTranslateY(200);
 		
-		connectBtn.setTranslateX(800);
+		connectBtn.setTranslateX(0);
 		connectBtn.setTranslateY(-200);
 		
-		testBtn.setTranslateX(800);
+		testBtn.setTranslateX(0);
 		testBtn.setTranslateY(400);
 		
 		heightField.setStyle("-fx-text-inner-color: white;");
 		heightField.setPromptText("HEIGHT");
-		heightField.setTranslateX(700);
+		heightField.setTranslateX(-50);
 		heightField.setTranslateY(-300);
 		
 		widthField.setStyle("-fx-text-inner-color: white;");
 		widthField.setPromptText("WIDTH");
-		widthField.setTranslateX(810);
+		widthField.setTranslateX(100);
 		widthField.setTranslateY(-300);
 		
 //		getStartEmptyBtn().setMinSize(500, 100);
-		getRoomNullBtn().setMinSize(500, 100);
-		getSuggestionsBtn().setMinSize(500, 100);
-		connectBtn.setMinSize(500, 100);
-		testBtn.setMinSize(500, 100);
+		getRoomNullBtn().setMinSize(300, 100);
+		getSuggestionsBtn().setMinSize(300, 100);
+		connectBtn.setMinSize(300, 100);
+		testBtn.setMinSize(300, 100);
 		widthField.setMinSize(100, 50);
 		widthField.setMaxSize(100, 50);
 		heightField.setMinSize(100, 50);
@@ -315,10 +320,12 @@ public class WorldViewController extends GridPane implements Listener
 		buttonPane.getChildren().add(heightField);
 		buttonPane.getChildren().add(widthField);
 		
-		connectBtn.setText("Connect ROOMS!");
+		connectBtn.setText("Change brush");
 		connectBtn.setDisable(false);
-		testBtn.setText("ZOOM IN");
+		testBtn.setText("NEW ROOM");
 		testBtn.setDisable(false);
+		getRoomNullBtn().setDisable(false);
+		
 		
 		getStartEmptyBtn().setText("Edit room");
 		getStartEmptyBtn().setTooltip(new Tooltip("Go to room view and start designing"));
@@ -442,8 +449,15 @@ public class WorldViewController extends GridPane implements Listener
 
 		getRoomNullBtn().setOnAction(new EventHandler<ActionEvent>() {
 			@Override
-			public void handle(ActionEvent e) {
-				router.postEvent(new RequestNullRoom(matrix[row][col], row, col, matrix));
+			public void handle(ActionEvent e) 
+			{
+				
+				if(dungeon.size > 1)
+				{
+					dungeon.testTraverseNetwork(dungeon.getRoomByIndex(0),dungeon.getRoomByIndex(1));
+				}
+				
+//				router.postEvent(new RequestNullRoom(matrix[row][col], row, col, matrix));
 			}
 
 		}); 

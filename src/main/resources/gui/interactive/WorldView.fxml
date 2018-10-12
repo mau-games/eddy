@@ -17,8 +17,12 @@
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
 
-<fx:root type="javafx.scene.layout.GridPane" stylesheets="@../styling.css" xmlns:fx="http://javafx.com/fxml/1" fx:id="worldViewPane">
-	<StackPane alignment="CENTER" fx:id="buttonPane" /> 
-	<Pane alignment="CENTER" fx:id="worldPane" />
-	
+<fx:root type="javafx.scene.layout.BorderPane" stylesheets="@../styling.css" xmlns:fx="http://javafx.com/fxml/1" fx:id="rootWorldViewPane">
+	<center>
+		<Pane alignment="CENTER" fx:id="worldPane" />
+	</center>
+	<right>
+		<StackPane alignment="CENTER" fx:id="buttonPane" /> 
+	</right>
+
 </fx:root>

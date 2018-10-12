@@ -339,18 +339,19 @@ public class MapRenderer implements Listener {
 	}
 	
 	/**
-	 * Draws the zone division on the map.
+	 * Draws the border of a room.
 	 * 
 	 * @param ctx The graphics context to draw on.
 	 * @param matrix A rectangular matrix of integers. Each integer corresponds
 	 * 		to some predefined value.
-	 * @param rootZone The starting zone (the whole map).
+	 * @param borders border positions of the room.
 	 * @param c The color for the zone
 	 */
 	public synchronized void drawRoomBorders(
 			GraphicsContext ctx,
 			int[][] matrix,
 			Bitmap borders,
+			Point brushPosition,
 			Color c) {
 		
 		//TODO: The following calculation should probably be split out into a method ... should just send the width and the height instead
@@ -361,6 +362,11 @@ public class MapRenderer implements Listener {
 		double tileSize = width >= height ? ctx.getCanvas().getWidth() / width : ctx.getCanvas().getHeight() / height;
 		
 		drawBitmapProperly(ctx, borders, c, tileSize);
+		if(borders.contains(brushPosition))
+		{
+			drawPoint(ctx, brushPosition, Color.BLACK, tileSize);
+		}
+
 	}
 	
 	/**
