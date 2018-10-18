@@ -28,21 +28,41 @@ public class RoomEdge
 	//TODO: Is giving the init of the tile, check how to get the center .. I FIXED but there must be a better way haha
 	public RoomEdge(Room from, Room to, Point fromPosition, Point toPosition)
 	{
-		fX.bind(Bindings.add((fromPosition.getX() * from.localConfig.getWorldCanvas().tileSizeWidth) +
-							from.localConfig.getWorldCanvas().tileSizeWidth/2, 
-							from.localConfig.getWorldCanvas().xPosition));
+//		fX.bind(Bindings.add((fromPosition.getX() * from.localConfig.getWorldCanvas().tileSizeWidth) +
+//							from.localConfig.getWorldCanvas().tileSizeWidth/2, 
+//							from.localConfig.getWorldCanvas().xPosition));
+//
+//		fY.bind(Bindings.add(fromPosition.getY() * from.localConfig.getWorldCanvas().tileSizeHeight + 
+//							from.localConfig.getWorldCanvas().tileSizeHeight/2, 
+//							from.localConfig.getWorldCanvas().yPosition));
+//		
+//		tX.bind(Bindings.add(toPosition.getX() * to.localConfig.getWorldCanvas().tileSizeWidth + 
+//							to.localConfig.getWorldCanvas().tileSizeWidth/2, 
+//							to.localConfig.getWorldCanvas().xPosition));
+//		
+//		tY.bind(Bindings.add(toPosition.getY() * to.localConfig.getWorldCanvas().tileSizeHeight + 
+//							to.localConfig.getWorldCanvas().tileSizeHeight/2, 
+//							to.localConfig.getWorldCanvas().yPosition));
 		
-		fY.bind(Bindings.add(fromPosition.getY() * from.localConfig.getWorldCanvas().tileSizeHeight + 
-							from.localConfig.getWorldCanvas().tileSizeHeight/2, 
-							from.localConfig.getWorldCanvas().yPosition));
+		fX.bind(Bindings.add(Bindings.add(
+				Bindings.multiply(fromPosition.getX(), from.localConfig.getWorldCanvas().tileSizeWidth), 
+				Bindings.divide(from.localConfig.getWorldCanvas().tileSizeWidth, 2)), 
+				from.localConfig.getWorldCanvas().xPosition));
 		
-		tX.bind(Bindings.add(toPosition.getX() * to.localConfig.getWorldCanvas().tileSizeWidth + 
-							to.localConfig.getWorldCanvas().tileSizeWidth/2, 
-							to.localConfig.getWorldCanvas().xPosition));
+		fY.bind(Bindings.add(Bindings.add(
+				Bindings.multiply(fromPosition.getY(), from.localConfig.getWorldCanvas().tileSizeHeight), 
+				Bindings.divide(from.localConfig.getWorldCanvas().tileSizeHeight, 2)), 
+				from.localConfig.getWorldCanvas().yPosition));
 		
-		tY.bind(Bindings.add(toPosition.getY() * to.localConfig.getWorldCanvas().tileSizeHeight + 
-							to.localConfig.getWorldCanvas().tileSizeHeight/2, 
-							to.localConfig.getWorldCanvas().yPosition));
+		tX.bind(Bindings.add(Bindings.add(
+				Bindings.multiply(toPosition.getX(), to.localConfig.getWorldCanvas().tileSizeWidth), 
+				Bindings.divide(to.localConfig.getWorldCanvas().tileSizeWidth, 2)), 
+				to.localConfig.getWorldCanvas().xPosition));
+		
+		tY.bind(Bindings.add(Bindings.add(
+				Bindings.multiply(toPosition.getY(), to.localConfig.getWorldCanvas().tileSizeHeight), 
+				Bindings.divide(to.localConfig.getWorldCanvas().tileSizeHeight, 2)), 
+				to.localConfig.getWorldCanvas().yPosition));
 		
 //		fX.add(from.localConfig.getWorldCanvas().xPosition);
 //		fY.add(from.localConfig.getWorldCanvas().yPosition).add(fromPosition.getY() * from.localConfig.getWorldCanvas().tileSizeHeight);

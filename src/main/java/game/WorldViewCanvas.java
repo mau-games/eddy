@@ -6,6 +6,7 @@ import gui.utils.DungeonDrawer;
 import gui.utils.MapRenderer;
 import gui.utils.MoveElementBrush;
 import gui.utils.RoomConnector;
+import javafx.beans.binding.Bindings;
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.event.EventHandler;
@@ -25,18 +26,22 @@ public class WorldViewCanvas
 	
 	//We should add a few values to make our life easier
 	private boolean rendered;
-	private float viewSizeHeight;
-	private float viewSizeWidth;
+	public float viewSizeHeight;
+	public float viewSizeWidth;
 	private double dragAnchorX;
 	private double dragAnchorY;
-	public double tileSizeWidth; //TODO: public just to test
-	public double tileSizeHeight;
+//	public double tileSizeWidth; //TODO: public just to test
+//	public double tileSizeHeight;
 	private Node source;
 	//Border canvas
 	private Canvas borderCanvas;
 	
 	public DoubleProperty xPosition; //TODO: public just to test
 	public DoubleProperty yPosition;
+	
+	public DoubleProperty tileSizeWidth; //TODO: public just to test
+	public DoubleProperty tileSizeHeight;
+
 	private Point currentBrushPosition = new Point();
 	
 	public WorldViewCanvas(Room owner)
@@ -60,16 +65,29 @@ public class WorldViewCanvas
 		rendered = false;
 		viewSizeHeight = 0;
 		viewSizeWidth = 0;
-		tileSizeHeight = 0;
-		tileSizeWidth = 0;
+		tileSizeHeight = new SimpleDoubleProperty();
+		tileSizeWidth = new SimpleDoubleProperty();
 		xPosition = new SimpleDoubleProperty();
 		yPosition = new SimpleDoubleProperty();
+		
+		//Crazy binding but it gives exactly the position we need and now it is updated  automatically
+		xPosition.bind(Bindings.selectDouble(worldGraphicNode.boundsInParentProperty(), "minX").
+				add(Bindings.divide( Bindings.selectDouble(worldGraphicNode.boundsInParentProperty(), "width"), 2).subtract(Bindings.divide(worldGraphicNode.widthProperty(), 2.0))));
+		yPosition.bind(Bindings.selectDouble(worldGraphicNode.boundsInParentProperty(), "minY").
+				add(Bindings.divide( Bindings.selectDouble(worldGraphicNode.boundsInParentProperty(), "height"), 2).subtract(Bindings.divide(worldGraphicNode.heightProperty(), 2.0))));
+
 		
 		borderCanvas = new Canvas(viewSizeHeight, viewSizeHeight);
 		worldGraphicNode.getChildren().add(borderCanvas);
 		borderCanvas.setVisible(false);
 		borderCanvas.setMouseTransparent(true);
 
+	}
+	
+	public void setParent()
+	{
+		
+		System.out.println("XPOSITION: " + xPosition.get() +", YPOSITION: " + yPosition.get());
 	}
 	
 	public LabeledCanvas getCanvas() { return worldGraphicNode; }
@@ -113,17 +131,8 @@ public class WorldViewCanvas
 		borderCanvas.setHeight(viewSizeHeight);
 		
 		//Update the size of the tiles in the graphic display
-		tileSizeWidth = viewSizeWidth/ owner.getColCount();
-		tileSizeHeight = viewSizeHeight/ owner.getRowCount();
-	}
-	
-	public void setPosition(double next_x, double next_y)
-	{
-//		worldGraphicNode.setTranslateX(next_x);
-//		worldGraphicNode.setTranslateX(next_y);
-		
-		xPosition.set((worldGraphicNode.getBoundsInParent().getMinX() + worldGraphicNode.getBoundsInParent().getWidth() / 2) - (worldGraphicNode.getWidth() / 2));
-		yPosition.set((worldGraphicNode.getBoundsInParent().getMinY() + worldGraphicNode.getBoundsInParent().getHeight() / 2) - (worldGraphicNode.getHeight() / 2));
+		tileSizeWidth.set(viewSizeWidth/ owner.getColCount());
+		tileSizeHeight.set(viewSizeHeight/ owner.getRowCount());
 	}
 	
 	public class MouseEventDrag implements EventHandler<MouseEvent>
@@ -160,14 +169,12 @@ public class WorldViewCanvas
 	
 	            	if(DungeonDrawer.getInstance().getBrush() instanceof MoveElementBrush)
 	            	{
-		            	setPosition(event.getX() + source.getTranslateX() - dragAnchorX, event.getY() + source.getTranslateY() - dragAnchorY);
-		            	System.out.println("ROOM X: " + (event.getX() + source.getTranslateX() - dragAnchorX));
 		    			source.setTranslateX(event.getX() + source.getTranslateX() - dragAnchorX);
 		    			source.setTranslateY(event.getY() + source.getTranslateY() - dragAnchorY); 
 	            	}
 	            	else
 	            	{
-	            		currentBrushPosition =  new Point((int)( event.getX() / tileSizeWidth), (int)( event.getY() / tileSizeHeight ));
+	            		currentBrushPosition =  new Point((int)( event.getX() / tileSizeWidth.get()), (int)( event.getY() / tileSizeHeight.get() ));
 		            	drawBorder();
 	            	}
 	            }
@@ -180,18 +187,12 @@ public class WorldViewCanvas
 	            public void handle(MouseEvent event) 
 	            {
 	
-	            	if(DungeonDrawer.getInstance().getBrush() instanceof MoveElementBrush)
+	            	if(DungeonDrawer.getInstance().getBrush() instanceof RoomConnector)
 	            	{
-//		            	setPosition(event.getX() + source.getTranslateX() - dragAnchorX, event.getY() + source.getTranslateY() - dragAnchorY);
-//		    			source.setTranslateX(event.getX() + source.getTranslateX() - dragAnchorX);
-//		    			source.setTranslateY(event.getY() + source.getTranslateY() - dragAnchorY); 
-//		    			System.out.println("ROOM X: " + (event.getX() + source.getTranslateX() - dragAnchorX));
-	            	}
-	            	else
-	            	{
-	            		currentBrushPosition =  new Point((int)( event.getX() / tileSizeWidth), (int)( event.getY() / tileSizeHeight ));
+	            		currentBrushPosition =  new Point((int)( event.getX() / tileSizeWidth.get()), (int)( event.getY() / tileSizeHeight.get() ));
 		            	drawBorder();
 	            	}
+
 	            }
 
 	        });
@@ -201,7 +202,7 @@ public class WorldViewCanvas
 	            @Override
 	            public void handle(MouseEvent event) 
 	            {
-	            	currentBrushPosition =  new Point((int)( event.getX() / tileSizeWidth), (int)( event.getY() / tileSizeHeight ));
+	            	currentBrushPosition =  new Point((int)( event.getX() / tileSizeWidth.get()), (int)( event.getY() / tileSizeHeight.get() ));
 	            	
 	            	if(owner.isPointInBorder(currentBrushPosition))
 	            	{
@@ -258,7 +259,7 @@ public class WorldViewCanvas
 	            @Override
 	            public void handle(MouseEvent event) 
 	            {
-	            	currentBrushPosition =  new Point((int)( event.getX() / tileSizeWidth), (int)( event.getY() / tileSizeHeight ));	            	
+	            	currentBrushPosition =  new Point((int)( event.getX() / tileSizeWidth.get()), (int)( event.getY() / tileSizeHeight.get() ));            	
 	            	drawBorder();
 	            }
 	        });
@@ -271,7 +272,7 @@ public class WorldViewCanvas
 
 	            	dragAnchorX = event.getX();
 	            	dragAnchorY = event.getY();
-	            	currentBrushPosition =  new Point((int)( event.getX() / tileSizeWidth), (int)( event.getY() / tileSizeHeight ));
+	            	currentBrushPosition =  new Point((int)( event.getX() / tileSizeWidth.get()), (int)( event.getY() / tileSizeHeight.get() ));
 	            	
 	            	if(owner.isPointInBorder(currentBrushPosition))
 	            	{
@@ -286,7 +287,7 @@ public class WorldViewCanvas
 	            @Override
 	            public void handle(MouseEvent event) 
 	            {
-	            	currentBrushPosition =  new Point((int)( event.getX() / tileSizeWidth), (int)( event.getY() / tileSizeHeight ));
+	            	currentBrushPosition =  new Point((int)( event.getX() / tileSizeWidth.get()), (int)( event.getY() / tileSizeHeight.get() ));
 	            }
 	        });
 			
@@ -311,7 +312,7 @@ public class WorldViewCanvas
 	    	MapRenderer.getInstance().drawRoomBorders(borderCanvas.getGraphicsContext2D(), 
 	    			owner.matrix, 
 	    			owner.borders, 
-	    			new finder.geometry.Point(currentBrushPosition.getX(), currentBrushPosition.getY()) , 
+	    			Point.castToGeometry(currentBrushPosition) , 
 	    			Color.WHITE);
 		}
 	}

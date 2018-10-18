@@ -109,12 +109,12 @@ public class Room {
 
 	}
 	
-	public Room(GeneratorConfig config, int rows, int cols)
+	public Room(GeneratorConfig config, int rows, int cols, int scaleFactor)
 	{
 		init(rows, cols);
 
 		this.config = config;
-		localConfig = new RoomConfig(this); //TODO: NEW ADDITION --> HAVE TO BE ADDED EVERYWHERE
+		localConfig = new RoomConfig(this, scaleFactor); //TODO: NEW ADDITION --> HAVE TO BE ADDED EVERYWHERE
 		
 		this.doorCount = Game.doors.size();
 		

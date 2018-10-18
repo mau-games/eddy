@@ -13,6 +13,8 @@ import util.Point;
 
 public class Dungeon 
 {	
+	public DungeonPane dPane;
+	
 	//Maybe we can add a "unique" identifier
 	public static int ID_COUNTER = 0; //Probably not the best
 	public int id = 0;
@@ -27,11 +29,18 @@ public class Dungeon
 	public int size;
 	public int defaultWidth;
 	public int defaultHeight;
+	private int defaultScaleFactor = 30;
+	private int defaultMinScaleFactor = 15;
+	private int defaultMaxScaleFactor = 45;
 	public GeneratorConfig defaultConfig;
+	
+	//scale factor of the (canvas) view
+	private int scaleFactor;
+
 	
 	public Dungeon()
 	{
-		
+		dPane = new DungeonPane(this);
 	}
 	
 	public Dungeon(GeneratorConfig defaultConfig, int size, int defaultWidth, int defaultHeight)
@@ -39,6 +48,7 @@ public class Dungeon
 		this.id = ID_COUNTER;
 		ID_COUNTER += 1;
 		
+		dPane = new DungeonPane(this);
 		network = NetworkBuilder.undirected().allowsParallelEdges(true).build();
 		
 		//Create the amount of rooms with the default values -->
@@ -46,17 +56,31 @@ public class Dungeon
 		this.defaultWidth = defaultWidth;
 		this.defaultHeight = defaultHeight;
 		this.defaultConfig = defaultConfig;
-		
+		this.scaleFactor = defaultScaleFactor;
 		//Create rooms
 		rooms = new ArrayList<Room>();
 		
-		for(int i = 0; i < size * size; ++i)
+		for(int i = 0; i < size; ++i)
 		{
-			Room auxR = new Room(defaultConfig, defaultWidth, defaultHeight);
+			Room auxR = new Room(defaultConfig, defaultWidth, defaultHeight, scaleFactor);
 			rooms.add(auxR);
 			network.addNode(auxR);
+			dPane.addVisualRoom(auxR);
 		}
 		
+	}
+	
+	public void scaleRoomsWorldView(int value)
+	{
+		if(this.scaleFactor + value > defaultMaxScaleFactor || this.scaleFactor + value < defaultMinScaleFactor)
+			return;
+		
+		this.scaleFactor += value;
+		
+		for(Room room : rooms)
+		{
+			room.localConfig.getWorldCanvas().setViewSize(this.scaleFactor * room.getColCount(), this.scaleFactor * room.getRowCount());
+		}
 	}
 	
 	public Room getRoomByIndex(int index)
@@ -66,9 +90,10 @@ public class Dungeon
 	
 	public void addRoom(int height, int width)
 	{
-		Room auxR = new Room(defaultConfig, height < 0 ? defaultHeight : height, width < 0 ? defaultWidth : width);
+		Room auxR = new Room(defaultConfig, height < 0 ? defaultHeight : height, width < 0 ? defaultWidth : width, scaleFactor);
 		rooms.add(auxR);
 		network.addNode(auxR);
+		dPane.addVisualRoom(auxR);
 //		this.rooms.add(new Room(defaultConfig, height < 0 ? defaultHeight : height, width < 0 ? defaultWidth : width));
 		this.size++;
 	}
@@ -86,6 +111,7 @@ public class Dungeon
 		String testEdge = "Edge between rooms " + rooms.indexOf(from) + "---" + rooms.indexOf(to) + ", at pos: " + fromPosition;
 		RoomEdge edge = new RoomEdge(from, to, fromPosition, toPosition);
 		network.addEdge(from, to, edge);
+		dPane.addVisualConnector(edge);
 		
 		for(RoomEdge e : network.edges())
 		{
