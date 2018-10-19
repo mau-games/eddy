@@ -135,9 +135,6 @@ public class Room {
 	
 	public void createDoor(Point doorPosition)
 	{
-		//TODO: create a door in the position
-//		System.out.println("STILL NOT IMPLEMENTED: createDoor() --> Room class");
-		
 		//Check what will be overwritten
 		// Check if door overrides an enemy
         if (TileTypes.toTileType(matrix[doorPosition.getY()][doorPosition.getX()]).isEnemy())
@@ -153,8 +150,20 @@ public class Room {
             wallCount--;
         } 
         
-        setTile(doorPosition.getX(), doorPosition.getY(), TileTypes.DOOR);
-        borders.removePoint(new finder.geometry.Point(doorPosition.getX(), doorPosition.getY()));
+        if(doors.size() == 0) //TODO: PLEASE CHANGE ME!!! 
+        {
+        	setTile(doorPosition.getX(), doorPosition.getY(), TileTypes.DOORENTER);
+        	entrance = doorPosition;
+        	doors.add(doorPosition);
+        }
+        else
+        {
+        	setTile(doorPosition.getX(), doorPosition.getY(), TileTypes.DOOR);
+        	doors.add(doorPosition);
+        }
+        
+        
+        borders.removePoint(Point.castToGeometry(doorPosition)); //remove this point from the "usable" border
 	}
 	
 	public boolean getNull() {

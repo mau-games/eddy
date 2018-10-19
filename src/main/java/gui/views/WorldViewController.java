@@ -3,14 +3,9 @@ package gui.views;
 import java.io.IOException;
 import java.util.List;
 
-import javax.swing.DebugGraphics;
-
 import game.ApplicationConfig;
 import game.Dungeon;
 import game.DungeonPane;
-import game.Room;
-import game.RoomEdge;
-import game.WorldViewCanvas;
 import game.MapContainer;
 import gui.controls.LabeledCanvas;
 import gui.utils.DungeonDrawer;
@@ -22,8 +17,6 @@ import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Pos;
-import javafx.scene.Cursor;
-import javafx.scene.Group;
 import javafx.scene.Node;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.control.Button;
@@ -51,7 +44,7 @@ import util.eventrouting.PCGEvent;
 import util.eventrouting.events.MapUpdate;
 import util.eventrouting.events.RequestEmptyRoom;
 import util.eventrouting.events.RequestNewRoom;
-import util.eventrouting.events.RequestNullRoom;
+import util.eventrouting.events.RequestRoomView;
 import util.eventrouting.events.RequestSuggestionsView;
 import util.IntField;
 
@@ -69,8 +62,8 @@ public class WorldViewController extends BorderPane implements Listener
 	private Button startEmptyBtn = new Button();
 	private Button roomNullBtn = new Button ();
 	private Button suggestionsBtn = new Button();
-	private Button testBtn = new Button();
-	private Button connectBtn = new Button();
+	private Button createNewRoomBtn = new Button();
+	private Button changeBrushBtn = new Button();
 	
 	private IntField widthField = new IntField(1, 20, 11);
 	private IntField heightField = new IntField(1, 20, 11);
@@ -78,21 +71,15 @@ public class WorldViewController extends BorderPane implements Listener
 	private Canvas buttonCanvas;
 	private MapRenderer renderer = MapRenderer.getInstance();
 
-
-//	@FXML private BorderPane rootWorldViewPane;
 	@FXML private StackPane buttonPane;
-//	@FXML GridPane gridPane;
 	@FXML Pane worldPane;
 	@FXML private List<LabeledCanvas> mapDisplays;
 
 	private int row = 0;
 	private int col = 0;
 	private MapContainer[][] matrix;
-	private int size;
-	private int viewSize;
 	private Node source;
 	private Node oldNode;
-	private LabeledCanvas canvas;
 	
 	Dungeon dungeon;
 	
@@ -100,8 +87,6 @@ public class WorldViewController extends BorderPane implements Listener
 	double anchorY;
 
 	private Line auxLine;
-	
-	private Pane roomGroup;
 	
 	public WorldViewController() {
 		super();
@@ -136,12 +121,11 @@ public class WorldViewController extends BorderPane implements Listener
 		auxLine.setMouseTransparent(true);
 		
 		buttonPane = new StackPane();
-		
-//		rootWorldViewPane.getChildren().add(worldPane);
+
 		setCenter(worldPane);
 		setRight(buttonPane);
 		worldPane.addEventHandler(MouseEvent.MOUSE_PRESSED, new MouseEventWorldPane());
-		roomGroup = new Pane();
+
 		clipChildren(worldPane, 12);
 		worldButtonEvents();
 		initOptions();	
@@ -160,62 +144,11 @@ public class WorldViewController extends BorderPane implements Listener
 		
 		this.dungeon = dungeon;
 		worldPane.getChildren().clear();
-		roomGroup.getChildren().clear();
-		size = this.dungeon.size;
-		viewSize = 500;
-		
 		worldPane.setBorder(new Border(new BorderStroke(Color.RED, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderWidths.DEFAULT)));
 
 		
-//		roomGroup.maxHeight(worldPane.getHeight());
-//		roomGroup.minHeight(worldPane.getHeight());
-//		roomGroup.prefHeight(worldPane.getHeight());
-//		roomGroup.maxHeight(worldPane.getWidth());
-//		roomGroup.minHeight(worldPane.getWidth());
-//		roomGroup.prefHeight(worldPane.getWidth());
-		
-		roomGroup.setMaxSize(worldPane.getMaxWidth(), worldPane.getMaxHeight());
-		roomGroup.setMinSize(worldPane.getMinWidth(), worldPane.getMinWidth());
-		roomGroup.setPrefSize(1000,1000);
-		roomGroup.setBorder(new Border(new BorderStroke(Color.WHITE, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderWidths.DEFAULT)));
-//		roomGroup.setCursor(Cursor.CROSSHAIR);
-//		roomGroup.setAutoSizeChildren(false);
-		
 		dungeon.dPane.renderAll();
 		worldPane.getChildren().add(dungeon.dPane);
-		
-//		System.out.println(roomGroup.isResizable());
-//		
-//		//Edges
-//		for(RoomEdge e : dungeon.network.edges())
-//		{
-////			if(!e.rendered)
-////			{
-////				
-////			}
-//			
-////			worldPane.getChildren().add(e.graphicElement);
-//			roomGroup.getChildren().add(e.graphicElement);
-//		}
-//		
-//		//ROOMS
-//		for( Room room : dungeon.getAllRooms())
-//		{
-//			WorldViewCanvas wvc = room.localConfig.getWorldCanvas();
-//			
-//			if(!wvc.getRendered())
-//			{
-//				wvc.getCanvas().draw(renderer.renderMap(room));
-//				wvc.setRendered(true);
-//			}
-//
-//			
-////			worldPane.getChildren().add(wvc.getCanvas());
-//			roomGroup.getChildren().add(wvc.getCanvas());
-//			wvc.setParent();
-//		}
-//		
-//		worldPane.getChildren().add(roomGroup);
 	}
 	
 	public class MouseEventWorldPane implements EventHandler<MouseEvent>
@@ -230,21 +163,6 @@ public class WorldViewController extends BorderPane implements Listener
 
 				@Override
 				public void handle(ScrollEvent event) {
-					// TODO Auto-generated method stub
-					System.out.println(event.getDeltaY());
-//					scaleRooms((int)event.getDeltaY());
-//					for( Room room : dungeon.getAllRooms())
-//            		{
-//            			WorldViewCanvas wvc = room.localConfig.getWorldCanvas();
-//            			wvc.getCanvas().setScaleX(wvc.getCanvas().getScaleX() + (0.01 * event.getDeltaY()));
-//            			wvc.getCanvas().setScaleY(wvc.getCanvas().getScaleY() + (0.01 * event.getDeltaY()));
-//            		}
-					
-//					roomGroup.setScaleX(roomGroup.getScaleX() + (0.01 * event.getDeltaY()));
-//        			roomGroup.setScaleY(roomGroup.getScaleY() + (0.01 * event.getDeltaY()));
-        			
-        			
-        			
         			Scale newScale = new Scale();
         	        newScale.setPivotX(event.getX());
         	        newScale.setPivotY(event.getY());
@@ -255,12 +173,7 @@ public class WorldViewController extends BorderPane implements Listener
             	        newScale.setY( child.getScaleY() + (0.001 * event.getDeltaY()) );
             	        ((DungeonPane)child).tryScale(newScale);
             		}
-//        	        newScale.setX( worldPane.getScaleX() + (0.001 * event.getDeltaY()) );
-//        	        newScale.setY( worldPane.getScaleY() + (0.001 * event.getDeltaY()) );
-//        	        
-//        	        worldPane.getTransforms().add(newScale);
-//        	        roomGroup.setPrefSize(roomGroup.getPrefWidth() + Math.abs((event.getDeltaY())), roomGroup.getPrefHeight()  + Math.abs((event.getDeltaY())));
-//        			
+
         			event.consume();
 				}
 
@@ -279,26 +192,6 @@ public class WorldViewController extends BorderPane implements Listener
 	            	}
 	            	else if(event.getTarget() == worldPane && event.isMiddleButtonDown()) //TODO: WORK IN PROGRESS
 	            	{
-//	            		for( Room room : dungeon.getAllRooms())
-//	            		{
-//	            			WorldViewCanvas wvc = room.localConfig.getWorldCanvas();
-//	            			wvc.getCanvas().setTranslateX(wvc.getCanvas().getBoundsInParent().getMinX() + (event.getX() - anchorX));
-//	            			wvc.getCanvas().setTranslateY(wvc.getCanvas().getBoundsInParent().getMinY() + event.getY() - anchorY); 
-//	            		}
-//	            		for(Node child : worldPane.getChildren())
-//	            		{
-//	            			if(child instanceof Line)
-//	            			{
-//	            				
-//	            			}
-//	            			else
-//	            			{
-//		            			child.setTranslateX(child.getBoundsInParent().getMinX() + (event.getX() - anchorX));
-//		            			child.setTranslateY(child.getBoundsInParent().getMinY() + event.getY() - anchorY); 
-//	            			}
-//
-//	            		}
-	            		
 	            		for(Node child : worldPane.getChildren())
 	            		{
 	            			child.setLayoutX(child.getLayoutX() + (event.getX() - anchorX));
@@ -334,7 +227,6 @@ public class WorldViewController extends BorderPane implements Listener
 	            	anchorX = event.getX();
 	    			anchorY = event.getY();
 	    			
-
 	            	if(DungeonDrawer.getInstance().getBrush() instanceof RoomConnector)
 	            	{
 		    			worldPane.getChildren().add(auxLine);
@@ -370,22 +262,6 @@ public class WorldViewController extends BorderPane implements Listener
 	private void scaleRooms(int scaleAmount)
 	{
 		dungeon.scaleRoomsWorldView(scaleAmount);
-//		for( Room room : dungeon.getAllRooms())
-//		{
-//			WorldViewCanvas wvc = room.localConfig.getWorldCanvas();
-//			wvc.setViewSize(wvc.viewSizeWidth + 10, wvc.viewSizeHeight + 10);
-////			wvc.getCanvas().setTranslateX(wvc.getCanvas().getBoundsInParent().getMinX() + (event.getX() - anchorX));
-////			wvc.getCanvas().setTranslateY(wvc.getCanvas().getBoundsInParent().getMinY() + event.getY() - anchorY); 
-//		}
-//		int s = worldPane.getChildren().size();
-//		viewSize += 10;
-//		for(int i = 0; i < s; i++)
-//		{
-//			canvas = (LabeledCanvas)worldPane.getChildren().get(i); //DIRTy
-//			canvas.setMaxSize(viewSize, viewSize);
-//		}
-//		
-		
 	}
 
 	private void initOptions() {				
@@ -403,11 +279,11 @@ public class WorldViewController extends BorderPane implements Listener
 		getSuggestionsBtn().setTranslateX(0);
 		getSuggestionsBtn().setTranslateY(200);
 		
-		connectBtn.setTranslateX(0);
-		connectBtn.setTranslateY(-200);
+		changeBrushBtn.setTranslateX(0);
+		changeBrushBtn.setTranslateY(-200);
 		
-		testBtn.setTranslateX(0);
-		testBtn.setTranslateY(400);
+		createNewRoomBtn.setTranslateX(0);
+		createNewRoomBtn.setTranslateY(400);
 		
 		heightField.setStyle("-fx-text-inner-color: white;");
 		heightField.setPromptText("HEIGHT");
@@ -422,8 +298,8 @@ public class WorldViewController extends BorderPane implements Listener
 //		getStartEmptyBtn().setMinSize(500, 100);
 		getRoomNullBtn().setMinSize(300, 100);
 		getSuggestionsBtn().setMinSize(300, 100);
-		connectBtn.setMinSize(300, 100);
-		testBtn.setMinSize(300, 100);
+		changeBrushBtn.setMinSize(300, 100);
+		createNewRoomBtn.setMinSize(300, 100);
 		widthField.setMinSize(100, 50);
 		widthField.setMaxSize(100, 50);
 		heightField.setMinSize(100, 50);
@@ -432,15 +308,15 @@ public class WorldViewController extends BorderPane implements Listener
 //		buttonPane.getChildren().add(getStartEmptyBtn());
 		buttonPane.getChildren().add(getRoomNullBtn());
 		buttonPane.getChildren().add(getSuggestionsBtn());
-		buttonPane.getChildren().add(connectBtn);
-		buttonPane.getChildren().add(testBtn);
+		buttonPane.getChildren().add(changeBrushBtn);
+		buttonPane.getChildren().add(createNewRoomBtn);
 		buttonPane.getChildren().add(heightField);
 		buttonPane.getChildren().add(widthField);
 		
-		connectBtn.setText("Change brush");
-		connectBtn.setDisable(false);
-		testBtn.setText("NEW ROOM");
-		testBtn.setDisable(false);
+		changeBrushBtn.setText("Change brush");
+		changeBrushBtn.setDisable(false);
+		createNewRoomBtn.setText("NEW ROOM");
+		createNewRoomBtn.setDisable(false);
 		getRoomNullBtn().setDisable(false);
 		
 		
@@ -558,12 +434,17 @@ public class WorldViewController extends BorderPane implements Listener
 		getSuggestionsBtn().setOnAction(new EventHandler<ActionEvent>() {
 			@Override
 			public void handle(ActionEvent e) {
-				router.postEvent(new RequestSuggestionsView(matrix[row][col], row, col, matrix, 6));
+//				router.postEvent(new RequestSuggestionsView(matrix[row][col], row, col, matrix, 6));
+				
+//				router.postEvent(new RequestSuggestionsView(matrix[row][col], row, col, matrix, 6));
+				MapContainer mc = new MapContainer();
+				mc.setMap(dungeon.getSelectedRoom());
+				router.postEvent(new RequestRoomView(mc, row, col, null));
 			}
 
 		}); 
 
-
+		//This button get all paths from room 0 to room 1
 		getRoomNullBtn().setOnAction(new EventHandler<ActionEvent>() {
 			@Override
 			public void handle(ActionEvent e) 
@@ -580,21 +461,10 @@ public class WorldViewController extends BorderPane implements Listener
 
 		}); 
 		
-		connectBtn.setOnAction(new EventHandler<ActionEvent>() {
+		changeBrushBtn.setOnAction(new EventHandler<ActionEvent>() {
 			@Override
-			public void handle(ActionEvent e) {
-				System.out.println("Pressed Connect btn");
-
-//				zoom();
-//				router.postEvent(new RequestNewRoom(dungeon, -1, heightField.getValue(), widthField.getValue()));
-//				if(dungeon.size > 1)
-//				{
-//					Room from = dungeon.getRoomByIndex(0);
-//					Room to = dungeon.getRoomByIndex(Util.getNextInt(1, dungeon.size));
-////					Point fromPos = 
-//					router.postEvent(new RequestConnection(dungeon, -1, from, to, new Point(0, 0), new Point(0, (to.getRowCount() -1) / 2)));
-//				}
-				
+			public void handle(ActionEvent e) 
+			{
 				if(DungeonDrawer.getInstance().getBrush() instanceof MoveElementBrush)
 				{
 					DungeonDrawer.getInstance().changeToConnector();
@@ -607,7 +477,7 @@ public class WorldViewController extends BorderPane implements Listener
 
 		}); 
 		
-		testBtn.setOnAction(new EventHandler<ActionEvent>() {
+		createNewRoomBtn.setOnAction(new EventHandler<ActionEvent>() {
 			@Override
 			public void handle(ActionEvent e) {
 				System.out.println("Pressed test btn");

@@ -25,6 +25,8 @@ import gui.controls.InteractiveMap;
 import gui.controls.LabeledCanvas;
 import gui.controls.Modifier;
 import gui.utils.MapRenderer;
+import gui.views.RoomViewController.EditViewEventHandler;
+import gui.views.RoomViewController.EditViewMouseHover;
 import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
@@ -79,11 +81,12 @@ public class RoomViewController extends BorderPane implements Listener {
 
 	@FXML private List<LabeledCanvas> mapDisplays;
 	@FXML public StackPane mapPane;
-	@FXML private StackPane buttonsPane;
 
+	//left side as well
 	@FXML private GridPane legend;
 	@FXML private ToggleGroup brushes;
 	
+	//All the buttons to the left
 	@FXML private ToggleButton patternButton;
 	@FXML private ToggleButton lockBrush;
 	@FXML private ToggleButton lockButton;
@@ -92,9 +95,11 @@ public class RoomViewController extends BorderPane implements Listener {
 	@FXML private ToggleButton wallBtn;
 	@FXML private ToggleButton treasureBtn;
 	@FXML private ToggleButton enemyBtn;
-
+	
+	//Brush Slider
 	@FXML private Slider zoneSlider;
 	
+	//Abusive amount of labels for info
 	@FXML private Label enemyNumbr;
 	@FXML private Label enemyNumbr2;
 	@FXML private Label treasureNmbr;
@@ -108,31 +113,20 @@ public class RoomViewController extends BorderPane implements Listener {
 	@FXML private Label treasureSafety;
 	@FXML private Label treasureSafety2;
 
-	@FXML private Button updateMiniMapBtn;
-	@FXML private Button worldGridBtn;
-	@FXML private Button genSuggestionsBtn;
-	@FXML private Button appSuggestionsBtn;
+	@FXML private Button updateMiniMapBtn; //no
+	@FXML private Button worldGridBtn; //ok
+	@FXML private Button genSuggestionsBtn; //bra
+	@FXML private Button appSuggestionsBtn; //bra
 	
-	@FXML private CheckBox symmetryChoicebox;
-	@FXML private CheckBox similarChoicebox;
+	@FXML private CheckBox symmetryChoicebox; //ok, why not
+	@FXML private CheckBox similarChoicebox; //ok, why not
 
+	private boolean symmetry = false; //Probably can use the checkbox
+	private boolean similarity = false; //Probably can use the checkbox
 
-	@FXML GridPane minimap;
-
-	private Node oldNode;
-	
-	private boolean symmetry = false;
-	private boolean similarity = false;
-
-	private Button rightButton = new Button();
-	private Button leftButton = new Button();
-	private Button upButton = new Button();
-	private Button downButton = new Button();
-
-	private boolean mousePressed = false;
 	private Room selectedMiniMap;
 
-
+	//Literally the only thing that should be here
 	private InteractiveMap mapView;
 	private Room largeMap;
 	private Canvas patternCanvas;
@@ -143,10 +137,9 @@ public class RoomViewController extends BorderPane implements Listener {
 
 	private MapContainer map;
 
-	private boolean isActive = false;
-	private boolean isFeasible = true;
-	private TileTypes brush = null;
-	public HashMap<Integer, Room> rooms = new HashMap<Integer, Room>();
+	private boolean isActive = false; //for having the same event listener in different views 
+	private boolean isFeasible = true; //How feasible the individual is
+	public HashMap<Integer, Room> suggestedRooms = new HashMap<Integer, Room>();
 	private int nextMap = 0;
 
 	private MapRenderer renderer = MapRenderer.getInstance();
@@ -159,10 +152,11 @@ public class RoomViewController extends BorderPane implements Listener {
 
 	private int requestedSuggestion;
 
-	private boolean minimapBoolean = false;
-
 	private int RequestCounter = 0;
 	public Drawer myBrush;
+	
+	int width;
+	int height;
 
 	/**
 	 * Creates an instance of this class.
@@ -201,9 +195,23 @@ public class RoomViewController extends BorderPane implements Listener {
 	 * Initialises the edit view.
 	 */
 	private void init() {
+		width = 420;
+		height = 420;
 		initMapView();
 		initLegend();
 
+	}
+	
+	public void initializeView(Room roomToBe)
+	{
+//		width = 420/roomToBe.getColCount();
+//		height = 420/roomToBe.getRowCount();
+		height = (int)(420 * (float)((float)roomToBe.getRowCount() / 10.0f));
+		width = (int)(420 * (float)((float)roomToBe.getColCount() / 10.0f));
+		initMapView();
+		initLegend();
+		updateLargeMap(roomToBe);
+		updateMap(roomToBe);	
 	}
 
 	/**
@@ -211,8 +219,8 @@ public class RoomViewController extends BorderPane implements Listener {
 	 * infeasibility notifications.
 	 */
 	private void initMapView() {
-		int width = 420;
-		int height = 420;
+		
+		mapPane.getChildren().clear();
 
 		setMapView(new InteractiveMap());
 		StackPane.setAlignment(getMapView(), Pos.CENTER);
@@ -247,37 +255,11 @@ public class RoomViewController extends BorderPane implements Listener {
 		patternCanvas.setVisible(false);
 		patternCanvas.setMouseTransparent(true);
 
-
-		getRightButton().setText("right");
-		getLeftButton().setText("left");
-		getUpButton().setText("up");
-		getDownButton().setText("bot");
-
-
-		getRightButton().setTranslateX(300);
-
-		getLeftButton().setTranslateX(-300);
-
-		getUpButton().setTranslateY(-300);
-
-		getDownButton().setTranslateY(300);
-
-		getPatternButton().setMinWidth(75);
 		floorBtn.setMinWidth(75);
 		wallBtn.setMinWidth(75);
 		enemyBtn.setMinWidth(75);
 		treasureBtn.setMinWidth(75);
 
-
-		StackPane.setAlignment(getUpButton(), Pos.CENTER);
-		StackPane.setAlignment(getDownButton(), Pos.CENTER);
-		StackPane.setAlignment(getRightButton(), Pos.CENTER);
-		StackPane.setAlignment(getLeftButton(), Pos.CENTER);
-
-		mapPane.getChildren().add(getUpButton());
-		mapPane.getChildren().add(getDownButton());
-		mapPane.getChildren().add(getRightButton());
-		mapPane.getChildren().add(getLeftButton());
 
 		getWorldGridBtn().setTooltip(new Tooltip("View your world map"));
 		getGenSuggestionsBtn().setTooltip(new Tooltip("Generate new maps according to the current map view"));
@@ -340,65 +322,6 @@ public class RoomViewController extends BorderPane implements Listener {
 //		mapView.addEventFilter(MouseEvent.MOUSE_CLICKED, new EditViewEventHandler());
 //		mapView.addEventFilter(MouseEvent.MOUSE_MOVED, new EditViewMouseHover());
 
-	}
-
-	public void updateMiniMap(MapContainer[][] minimapMatrix) {
-		minimap.getChildren().clear();
-		int size = minimapMatrix.length;
-		int viewSize = 450/size;
-		for (int i = 0; i < minimapMatrix.length; i++) {
-			for (int j = 0; j < minimapMatrix.length; j++) {
-
-				for (int o = 0; o < minimapMatrix[i][j].getMap().toMatrix().length; o++) {
-					for (int p = 0; p < minimapMatrix[i][j].getMap().toMatrix().length; p++) {
-					}
-				}
-
-				LabeledCanvas canvas = new LabeledCanvas();
-				canvas.setText("");
-				canvas.setPrefSize(viewSize, viewSize);
-				canvas.draw(renderer.renderMap(minimapMatrix[j][i].getMap().toMatrix()));
-				for (int outer = 0; outer < minimapMatrix[i][j].getMap().toMatrix().length; outer++) {
-					for (int inner = 0; inner < minimapMatrix[i][j].getMap().toMatrix().length; inner++) {
-					}
-				}
-				minimap.add(canvas, i, j);
-				canvas.addEventFilter(MouseEvent.MOUSE_CLICKED,
-						new MouseEventHandler());
-			}
-		}
-	}
-
-	public void updatePosition(int row, int col) {
-		for (Node node : minimap.getChildren()) {
-			if (GridPane.getColumnIndex(node) == prevCol && GridPane.getRowIndex(node) == prevRow) {
-				node.setStyle("-fx-background-color:#2c2f33;");
-
-			}
-		}
-		prevRow = row;
-		prevCol = col;
-		for (Node node : minimap.getChildren()) {
-			if (GridPane.getColumnIndex(node) == col && GridPane.getRowIndex(node) == row) {
-				node.setStyle("-fx-background-color:#fcdf3c;");
-				node.setOnMouseExited(new EventHandler<MouseEvent>() {
-
-					@Override
-					public void handle(MouseEvent event) {
-						node.setStyle("-fx-background-color:#fcdf3c;");
-
-					}
-				});
-				node.setOnMouseEntered(new EventHandler<MouseEvent>() {
-
-					@Override
-					public void handle(MouseEvent event) {
-						node.setStyle("-fx-background-color:#fcdf3c;");
-
-					}
-				});
-			}
-		}
 	}
 
 	public void setContainer(MapContainer map) {
@@ -504,7 +427,7 @@ public class RoomViewController extends BorderPane implements Listener {
 					canvas = mapDisplays.get(nextMap);
 					//					canvas.setText("Got map:\n" + uuid);
 					canvas.setText("");
-					rooms.put(nextMap, room);
+					suggestedRooms.put(nextMap, room);
 					nextMap++;
 					if (nextMap == 4) { //TODO: This is a hack to overcome a real problem
 						router.postEvent(new Stop());	
@@ -603,29 +526,26 @@ public class RoomViewController extends BorderPane implements Listener {
 	 */
 	public void selectBrush() {
 		if (brushes.getSelectedToggle() == null) {
-			brush = null;
 			mapView.setCursor(Cursor.DEFAULT);
+			myBrush.SetMainComponent(null);
 			
 		} else {
 			mapView.setCursor(Cursor.HAND);
-//			System.out.println(getMapView().getMap().toString());
 			switch (((ToggleButton) brushes.getSelectedToggle()).getText()) {
 			case "Floor":
-				brush = TileTypes.FLOOR;
+				myBrush.SetMainComponent(TileTypes.FLOOR);
 				break;
 			case "Wall":
-				brush = TileTypes.WALL;
+				myBrush.SetMainComponent(TileTypes.WALL);
 				break;
 			case "Treasure":
-				brush = TileTypes.TREASURE;
+				myBrush.SetMainComponent(TileTypes.TREASURE);
 				break;
 			case "Enemy":
-				brush = TileTypes.ENEMY;
+				myBrush.SetMainComponent(TileTypes.ENEMY);
 				break;
 			}
 		}
-		
-		myBrush.SetMainComponent(brush);
 		
 	}
 
@@ -730,7 +650,7 @@ public class RoomViewController extends BorderPane implements Listener {
 	 * @param index The new map's index.
 	 */
 	public void replaceMap(int index) {
-		selectedMiniMap = rooms.get(index);
+		selectedMiniMap = suggestedRooms.get(index);
 		if (selectedMiniMap != null) {
 			generateNewMaps(selectedMiniMap);
 			updateMap(selectedMiniMap);
@@ -781,8 +701,8 @@ public class RoomViewController extends BorderPane implements Listener {
 	private synchronized void redrawPatterns(Room room) {
 		//Change those 2 width and height hardcoded values (420,420)
 		//And change zone to its own method
-		patternCanvas.getGraphicsContext2D().clearRect(0, 0, 420, 420);
-		zoneCanvas.getGraphicsContext2D().clearRect(0, 0, 420, 420);
+		patternCanvas.getGraphicsContext2D().clearRect(0, 0, width, height);
+		zoneCanvas.getGraphicsContext2D().clearRect(0, 0, width, height);
 
 		renderer.drawPatterns(patternCanvas.getGraphicsContext2D(), room.toMatrix(), colourPatterns(room.getPatternFinder().findMicroPatterns()));
 		renderer.drawGraph(patternCanvas.getGraphicsContext2D(), room.toMatrix(), room.getPatternFinder().getPatternGraph());
@@ -796,7 +716,7 @@ public class RoomViewController extends BorderPane implements Listener {
 	 */
 	private void redrawLocks(Room room)
 	{
-		lockCanvas.getGraphicsContext2D().clearRect(0, 0, 420, 420);
+		lockCanvas.getGraphicsContext2D().clearRect(0, 0, width, height);
 		
 		for(int i = 0; i < room.getRowCount(); ++i)
 		{
@@ -1026,6 +946,207 @@ public class RoomViewController extends BorderPane implements Listener {
 //		}
 //
 //	}
+	
+//	private void roomMouseEvents() {
+//		getMapView().addEventFilter(MouseEvent.MOUSE_CLICKED, new EditViewEventHandler());
+//		getMapView().addEventFilter(MouseEvent.MOUSE_MOVED, new EditViewMouseHover());
+//		
+//		getMap(0).addEventFilter(MouseEvent.MOUSE_CLICKED, (e) -> {
+//
+//			roomView.getMap(0).setOnMouseClicked(new EventHandler<MouseEvent>() {
+//
+//				@Override
+//				public void handle(MouseEvent event) {
+//					roomView.getAppSuggestionsBtn().setDisable(false);
+//
+//					router.postEvent(new ApplySuggestion(0));
+//					roomView.setSelectedMiniMap(roomView.suggestedRooms.get(0));
+//
+//					roomView.displayStats();
+//					
+//					roomView.getMap(0).setStyle("-fx-background-color:#fcdf3c;");
+//					roomView.getMap(1).setStyle("-fx-background-color:#2c2f33;");
+//					roomView.getMap(2).setStyle("-fx-background-color:#2c2f33;");
+//					roomView.getMap(3).setStyle("-fx-background-color:#2c2f33;");
+//				}
+//			});
+//			roomView.getMap(0).setOnMouseExited(new EventHandler<MouseEvent>() {
+//
+//				@Override
+//				public void handle(MouseEvent event) {
+//					if (firstIsClicked) {
+//						roomView.getMap(0).setStyle("-fx-background-color:#fcdf3c;");
+//						roomView.getMap(1).setStyle("-fx-background-color:#2c2f33;");
+//						roomView.getMap(2).setStyle("-fx-background-color:#2c2f33;");
+//						roomView.getMap(3).setStyle("-fx-background-color:#2c2f33;");
+//					}
+//				}
+//			});
+//			roomView.getMap(0).setOnMouseEntered(new EventHandler<MouseEvent>() {
+//
+//				@Override
+//				public void handle(MouseEvent event) {
+//					if (firstIsClicked) {
+//
+//						roomView.getMap(0).setStyle("-fx-background-color:#fcdf3c;");
+//						roomView.getMap(1).setStyle("-fx-background-color:#2c2f33;");
+//						roomView.getMap(2).setStyle("-fx-background-color:#2c2f33;");
+//						roomView.getMap(3).setStyle("-fx-background-color:#2c2f33;");
+//					}
+//				}
+//			});
+//
+//		});
+//
+//		roomView.getMap(1).addEventFilter(MouseEvent.MOUSE_CLICKED, (e) -> {
+//			roomView.getMap(1).setOnMouseClicked(new EventHandler<MouseEvent>() {
+//
+//				@Override
+//				public void handle(MouseEvent event) {
+//					roomView.getAppSuggestionsBtn().setDisable(false);
+//
+//					router.postEvent(new ApplySuggestion(1));
+//					roomView.setSelectedMiniMap(roomView.suggestedRooms.get(1));
+//
+//					roomView.displayStats();
+//
+//					roomView.getMap(1).setStyle("-fx-background-color:#fcdf3c;");
+//					roomView.getMap(0).setStyle("-fx-background-color:#2c2f33;");
+//					roomView.getMap(2).setStyle("-fx-background-color:#2c2f33;");
+//					roomView.getMap(3).setStyle("-fx-background-color:#2c2f33;");
+//					firstIsClicked = false;
+//					secondIsClicked = true;
+//					thirdIsClicked = false;
+//					fourthIsClicked = false;
+//				}
+//			});
+//
+//			roomView.getMap(1).setOnMouseExited(new EventHandler<MouseEvent>() {
+//
+//				@Override
+//				public void handle(MouseEvent event) {
+//					if (secondIsClicked ) {
+//						roomView.getMap(1).setStyle("-fx-background-color:#fcdf3c;");
+//						roomView.getMap(0).setStyle("-fx-background-color:#2c2f33;");
+//						roomView.getMap(2).setStyle("-fx-background-color:#2c2f33;");
+//						roomView.getMap(3).setStyle("-fx-background-color:#2c2f33;");
+//					}
+//				}
+//			});
+//
+//			roomView.getMap(1).setOnMouseEntered(new EventHandler<MouseEvent>() {
+//
+//				@Override
+//				public void handle(MouseEvent event) {
+//					if (secondIsClicked ) {
+//
+//						roomView.getMap(1).setStyle("-fx-background-color:#fcdf3c;");
+//						roomView.getMap(0).setStyle("-fx-background-color:#2c2f33;");
+//						roomView.getMap(2).setStyle("-fx-background-color:#2c2f33;");
+//						roomView.getMap(3).setStyle("-fx-background-color:#2c2f33;");
+//					}
+//				}
+//			});
+//		});
+//		roomView.getMap(2).addEventFilter(MouseEvent.MOUSE_CLICKED, (e) -> {
+//			roomView.getMap(2).setOnMouseClicked(new EventHandler<MouseEvent>() {
+//
+//				@Override
+//				public void handle(MouseEvent event) {
+//					roomView.getAppSuggestionsBtn().setDisable(false);
+//
+//					router.postEvent(new ApplySuggestion(2));
+//					roomView.setSelectedMiniMap(roomView.suggestedRooms.get(2));
+//
+//					roomView.displayStats();
+//
+//					roomView.getMap(2).setStyle("-fx-background-color:#fcdf3c;");
+//					roomView.getMap(0).setStyle("-fx-background-color:#2c2f33;");
+//					roomView.getMap(1).setStyle("-fx-background-color:#2c2f33;");
+//					roomView.getMap(3).setStyle("-fx-background-color:#2c2f33;");
+//					firstIsClicked = false;
+//					secondIsClicked = false;
+//					thirdIsClicked = true;
+//					fourthIsClicked = false;
+//				}
+//			});
+//
+//			roomView.getMap(2).setOnMouseExited(new EventHandler<MouseEvent>() {
+//
+//				@Override
+//				public void handle(MouseEvent event) {
+//					if (thirdIsClicked) {
+//						roomView.getMap(2).setStyle("-fx-background-color:#fcdf3c;");
+//						roomView.getMap(0).setStyle("-fx-background-color:#2c2f33;");
+//						roomView.getMap(1).setStyle("-fx-background-color:#2c2f33;");
+//						roomView.getMap(3).setStyle("-fx-background-color:#2c2f33;");
+//					}
+//				}
+//			});
+//			roomView.getMap(2).setOnMouseEntered(new EventHandler<MouseEvent>() {
+//
+//				@Override
+//				public void handle(MouseEvent event) {
+//					if (thirdIsClicked) {
+//						roomView.getMap(2).setStyle("-fx-background-color:#fcdf3c;");
+//						roomView.getMap(0).setStyle("-fx-background-color:#2c2f33;");
+//						roomView.getMap(1).setStyle("-fx-background-color:#2c2f33;");
+//						roomView.getMap(3).setStyle("-fx-background-color:#2c2f33;");
+//					}
+//				}
+//			});
+//
+//		});
+//		roomView.getMap(3).addEventFilter(MouseEvent.MOUSE_CLICKED, (e) -> {
+//			roomView.getMap(3).setOnMouseClicked(new EventHandler<MouseEvent>() {
+//
+//				@Override
+//				public void handle(MouseEvent event) {
+//					roomView.getAppSuggestionsBtn().setDisable(false);
+//
+//					router.postEvent(new ApplySuggestion(3));
+//					roomView.setSelectedMiniMap(roomView.suggestedRooms.get(3));
+//
+//					roomView.displayStats();
+//
+//					roomView.getMap(3).setStyle("-fx-background-color:#fcdf3c;");
+//					roomView.getMap(0).setStyle("-fx-background-color:#2c2f33;");
+//					roomView.getMap(2).setStyle("-fx-background-color:#2c2f33;");
+//					roomView.getMap(1).setStyle("-fx-background-color:#2c2f33;");
+//					firstIsClicked = false;
+//					secondIsClicked = false;
+//					thirdIsClicked = false;
+//					fourthIsClicked = true;
+//				}
+//			});
+//
+//			roomView.getMap(3).setOnMouseExited(new EventHandler<MouseEvent>() {
+//
+//				@Override
+//				public void handle(MouseEvent event) {
+//					if (fourthIsClicked) {
+//						roomView.getMap(3).setStyle("-fx-background-color:#fcdf3c;");
+//						roomView.getMap(0).setStyle("-fx-background-color:#2c2f33;");
+//						roomView.getMap(2).setStyle("-fx-background-color:#2c2f33;");
+//						roomView.getMap(1).setStyle("-fx-background-color:#2c2f33;");
+//					}
+//				}
+//			});
+//			roomView.getMap(3).setOnMouseEntered(new EventHandler<MouseEvent>() {
+//
+//				@Override
+//				public void handle(MouseEvent event) {
+//					if (fourthIsClicked) {
+//						roomView.getMap(3).setStyle("-fx-background-color:#fcdf3c;");
+//						roomView.getMap(0).setStyle("-fx-background-color:#2c2f33;");
+//						roomView.getMap(2).setStyle("-fx-background-color:#2c2f33;");
+//						roomView.getMap(1).setStyle("-fx-background-color:#2c2f33;");
+//					}
+//				}
+//			});
+//		});
+//		roomView.resetMiniMaps();
+//	}
 
 	/*
 	 * Event handlers
@@ -1070,7 +1191,7 @@ public class RoomViewController extends BorderPane implements Listener {
 				// Show the brush canvas
 				ImageView tile = (ImageView) event.getTarget();
 				myBrush.SetBrushSize((int)(zoneSlider.getValue()));
-				brushCanvas.getGraphicsContext2D().clearRect(0, 0, 420, 420);
+				brushCanvas.getGraphicsContext2D().clearRect(0, 0, width, height);
 				brushCanvas.setVisible(true);
 				util.Point p = mapView.CheckTile(tile);
 				myBrush.Update(event, p, mapView.getMap());
@@ -1111,40 +1232,7 @@ public class RoomViewController extends BorderPane implements Listener {
 		getMap(3).setStyle("-fx-background-color:#2c2f33");
 
 	}
-
-
-	public Button getRightButton() {
-		return rightButton;
-	}
-
-
-
-	public Button getLeftButton() {
-		return leftButton;
-	}
-
-
-
-	public Button getUpButton() {
-		return upButton;
-	}
-	public void setUpButton(Button btn) {
-		upButton = btn;
-	}
-
-
-	public Button getDownButton() {
-		return downButton;
-	}
-
-	public boolean isMousePressed() {
-		return mousePressed;
-	}
-
-	public void setMousePressed(boolean mousePressed) {
-		this.mousePressed = mousePressed;
-	}
-
+	
 	public Room getSelectedMiniMap() {
 		return selectedMiniMap;
 	}
@@ -1209,38 +1297,4 @@ public class RoomViewController extends BorderPane implements Listener {
 	public void setPatternButton(ToggleButton patternButton) {
 		this.patternButton = patternButton;
 	}
-
-	public class MouseEventHandler implements EventHandler<MouseEvent> {
-
-		@Override
-		public void handle(MouseEvent event) {
-
-			if (minimapBoolean) {
-
-				Node source = (Node)event.getSource();
-				Integer colIndex = GridPane.getColumnIndex(source);
-				Integer rowIndex = GridPane.getRowIndex(source);
-
-				source.setOnMouseClicked(new EventHandler<MouseEvent>() {
-
-					@Override
-					public void handle(MouseEvent event) {
-
-						int row = rowIndex;
-						int col = colIndex;
-						router.postEvent(new RequestRoomView(null, row, col, null));
-
-					}
-
-				});
-			}
-
-		}
-
-	}
-	public void setMinimapBoolean(boolean bool) {
-		minimapBoolean = bool;
-	}
-
-
 }

@@ -1,6 +1,5 @@
 package game;
 
-import java.awt.List;
 import java.util.ArrayList;
 import java.util.Set;
 import java.util.Stack;
@@ -10,8 +9,13 @@ import com.google.common.graph.NetworkBuilder;
 
 import generator.config.GeneratorConfig;
 import util.Point;
+import util.eventrouting.EventRouter;
+import util.eventrouting.Listener;
+import util.eventrouting.PCGEvent;
+import util.eventrouting.events.FocusRoom;
+import util.eventrouting.events.RequestConnection;
 
-public class Dungeon 
+public class Dungeon implements Listener
 {	
 	public DungeonPane dPane;
 	
@@ -20,6 +24,7 @@ public class Dungeon
 	public int id = 0;
 	
 	public MutableNetwork<Room, RoomEdge> network; //TODO: Public for now
+	
 	ArrayList<Room> rooms;
 	Room initialRoom;
 	Room currentEditedRoom;
@@ -37,7 +42,6 @@ public class Dungeon
 	//scale factor of the (canvas) view
 	private int scaleFactor;
 
-	
 	public Dungeon()
 	{
 		dPane = new DungeonPane(this);
@@ -51,14 +55,21 @@ public class Dungeon
 		dPane = new DungeonPane(this);
 		network = NetworkBuilder.undirected().allowsParallelEdges(true).build();
 		
+		//Listening to events
+		EventRouter.getInstance().registerListener(this, new FocusRoom(null, null));
+		
 		//Create the amount of rooms with the default values -->
 		this.size = size;
 		this.defaultWidth = defaultWidth;
 		this.defaultHeight = defaultHeight;
 		this.defaultConfig = defaultConfig;
 		this.scaleFactor = defaultScaleFactor;
+		
 		//Create rooms
 		rooms = new ArrayList<Room>();
+		selectedRoom = null;
+		initialRoom = null;
+		currentEditedRoom = null;
 		
 		for(int i = 0; i < size; ++i)
 		{
@@ -66,6 +77,19 @@ public class Dungeon
 			rooms.add(auxR);
 			network.addNode(auxR);
 			dPane.addVisualRoom(auxR);
+		}
+	}
+	
+	@Override
+	public void ping(PCGEvent e) 
+	{
+		if(e instanceof FocusRoom)
+		{
+			FocusRoom frEvent = (FocusRoom)e;
+			if(rooms.contains((frEvent.getRoom())))
+			{
+				selectedRoom = frEvent.getRoom();
+			}
 		}
 		
 	}
@@ -94,7 +118,6 @@ public class Dungeon
 		rooms.add(auxR);
 		network.addNode(auxR);
 		dPane.addVisualRoom(auxR);
-//		this.rooms.add(new Room(defaultConfig, height < 0 ? defaultHeight : height, width < 0 ? defaultWidth : width));
 		this.size++;
 	}
 	
@@ -119,8 +142,16 @@ public class Dungeon
 		}
 	}
 	
+	public Room getSelectedRoom()
+	{
+		return selectedRoom;
+	}
+	
 	public ArrayList<Room> getAllRooms() { return rooms; }
 	
+	
+	
+	//TESTING TRAVERSE
 	Stack<Room> ConnectionPath = new Stack<Room>();
 	ArrayList<Stack<Room>> connectionPaths = new ArrayList<Stack<Room>>();
 	
@@ -205,4 +236,5 @@ public class Dungeon
 		System.out.println();
 //		System.out.println("PATH: ROOM: " + rooms.indexOf(rooms.pop()));
 	}
+
 }

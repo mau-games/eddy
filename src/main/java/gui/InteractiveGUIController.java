@@ -144,7 +144,6 @@ public class InteractiveGUIController implements Initializable, Listener {
 		router.registerListener(this, new SuggestedMapsDone());
 		router.registerListener(this, new SuggestedMapsLoading());
 		router.registerListener(this, new RequestNullRoom(null, 0, 0, null));
-		router.registerListener(this, new UpdateMiniMap());
 		router.registerListener(this, new StartWorld(0));
 		router.registerListener(this, new RequestAppliedMap(null, 0, 0));
 
@@ -185,20 +184,24 @@ public class InteractiveGUIController implements Initializable, Listener {
 			worldView.initWorldMap(dungeonMap);
 		}
 		else if (e instanceof RequestRoomView) {
-			if (((RequestRoomView) e).getMatrix() != null) {
-				worldMapMatrix = ((RequestRoomView) e).getMatrix();
-				row = ((RequestRoomView) e).getRow();
-				col = ((RequestRoomView) e).getCol();
-				MapContainer container = (MapContainer) e.getPayload();
-				initRoomView(container);
-			}
-			else if (!worldMapMatrix[((RequestRoomView) e).getRow()][((RequestRoomView) e).getCol()].getMap().getNull()) { 
-				row = ((RequestRoomView) e).getRow();
-				col = ((RequestRoomView) e).getCol();
-				MapContainer container = worldMapMatrix[row][col];
-				initRoomView(container);
-
-			}
+			
+			//Yeah dont care about matrix
+			initRoomView((MapContainer) e.getPayload());
+			
+//			if (((RequestRoomView) e).getMatrix() != null) {
+//				worldMapMatrix = ((RequestRoomView) e).getMatrix();
+//				row = ((RequestRoomView) e).getRow();
+//				col = ((RequestRoomView) e).getCol();
+//				MapContainer container = (MapContainer) e.getPayload();
+//				initRoomView(container);
+//			}
+//			else if (!worldMapMatrix[((RequestRoomView) e).getRow()][((RequestRoomView) e).getCol()].getMap().getNull()) { 
+//				row = ((RequestRoomView) e).getRow();
+//				col = ((RequestRoomView) e).getCol();
+//				MapContainer container = worldMapMatrix[row][col];
+//				initRoomView(container);
+//
+//			}
 
 		} else if (e instanceof RequestAppliedMap) {
 			Room room = (Room) ((RequestAppliedMap) e).getPayload();
@@ -217,9 +220,9 @@ public class InteractiveGUIController implements Initializable, Listener {
 		} else if (e instanceof RequestWorldView) {
 
 			backToWorldView();
-			worldView.getStartEmptyBtn().setDisable(true);
+//			worldView.getStartEmptyBtn().setDisable(true);
 //			worldView.getRoomNullBtn().setDisable(true); //TODO: HERE
-			worldView.getSuggestionsBtn().setDisable(true);
+//			worldView.getSuggestionsBtn().setDisable(true);
 
 
 		} else if (e instanceof RequestEmptyRoom) {
@@ -234,16 +237,14 @@ public class InteractiveGUIController implements Initializable, Listener {
 			if (size != 0) {
 				initWorldView();
 			}
-			worldView.getStartEmptyBtn().setDisable(true);
+//			worldView.getStartEmptyBtn().setDisable(true);
 //			worldView.getRoomNullBtn().setDisable(true);
-			worldView.getSuggestionsBtn().setDisable(true);
+//			worldView.getSuggestionsBtn().setDisable(true);
 		}
 		else if (e instanceof SuggestedMapsDone) {
-			restrictNav();
 			roomView.getUpdateMiniMapBtn().setDisable(false);
 			roomView.getWorldGridBtn().setDisable(false);
 			roomView.getGenSuggestionsBtn().setDisable(false);			
-			roomView.setMinimapBoolean(true);
 		} else if (e instanceof SuggestedMapsLoading) {
 
 			firstIsClicked = false;
@@ -262,20 +263,9 @@ public class InteractiveGUIController implements Initializable, Listener {
 			roomView.getAppSuggestionsBtn().setDisable(true);
 
 			roomView.getAppSuggestionsBtn().setDisable(true);
-			roomView.getRightButton().setDisable(true);
-			roomView.getLeftButton().setDisable(true);
-			roomView.getDownButton().setDisable(true);
-			roomView.getUpButton().setDisable(true);
-			roomView.getRightButton().setOpacity(0);
-			roomView.getLeftButton().setOpacity(0);
-			roomView.getDownButton().setOpacity(0);
-			roomView.getUpButton().setOpacity(0);
-			
-			roomView.setMinimapBoolean(false);
 
-		} else if (e instanceof UpdateMiniMap) {
-			roomView.updateMiniMap(worldMapMatrix);
-		} else if (e instanceof RequestNullRoom) {
+		}
+		 else if (e instanceof RequestNullRoom) {
 			worldMapMatrix = ((RequestNullRoom) e).getMatrix();
 			row = ((RequestNullRoom) e).getRow();
 			col = ((RequestNullRoom) e).getCol();
@@ -350,109 +340,6 @@ public class InteractiveGUIController implements Initializable, Listener {
 			}
 			evaluateNullChange();
 			backToWorldView();
-		}
-
-	}
-
-	private void restrictNav() {
-		MapRenderer renderer = MapRenderer.getInstance();
-		if (row != 0) {
-			if (!worldMapMatrix[row - 1][col].getMap().getNull()) {
-				Platform.runLater(() -> {
-					roomView.getUpButton().setOpacity(1);
-					ImageView image = new ImageView(renderer.renderMap(worldMapMatrix[row - 1][col].getMap().toMatrix()));
-					image.setScaleX(0.85);
-					image.setScaleY(0.85);
-					roomView.getUpButton().setGraphic(image);
-					roomView.getUpButton().setScaleX(0.15);
-					roomView.getUpButton().setScaleY(0.15);
-				});
-				roomView.getUpButton().setDisable(false);
-
-			}
-			else {
-				Platform.runLater(() -> {
-					roomView.getUpButton().setOpacity(0);
-				});
-			}
-		}
-		else {
-			Platform.runLater(() -> {
-				roomView.getUpButton().setOpacity(0);
-			});
-		}
-		if (row != (size-1)) {
-			if (!worldMapMatrix[row + 1][col].getMap().getNull()) {
-				Platform.runLater(() -> {
-					roomView.getDownButton().setOpacity(1);
-					ImageView image = new ImageView(renderer.renderMap(worldMapMatrix[row + 1][col].getMap().toMatrix()));
-					image.setScaleX(0.85);
-					image.setScaleY(0.85);
-					roomView.getDownButton().setGraphic(image);
-					roomView.getDownButton().setScaleX(0.15);
-					roomView.getDownButton().setScaleY(0.15);
-
-				});
-				roomView.getDownButton().setDisable(false);
-			}
-			else {
-				Platform.runLater(() -> {
-					roomView.getDownButton().setOpacity(0);
-				});
-			}
-		}
-		else {
-			Platform.runLater(() -> {
-				roomView.getDownButton().setOpacity(0);
-			});
-		}
-		if (col != 0) {
-			if (!worldMapMatrix[row][col - 1].getMap().getNull()) {
-				Platform.runLater(() -> {
-					roomView.getLeftButton().setOpacity(1);
-					ImageView image = new ImageView(renderer.renderMap(worldMapMatrix[row][col - 1].getMap().toMatrix()));
-					image.setScaleX(0.85);
-					image.setScaleY(0.85);
-					roomView.getLeftButton().setGraphic(image);
-					roomView.getLeftButton().setScaleX(0.15);
-					roomView.getLeftButton().setScaleY(0.15);
-				});
-				roomView.getLeftButton().setDisable(false);
-			}
-			else {
-				Platform.runLater(() -> {
-					roomView.getLeftButton().setOpacity(0);
-				});
-			}
-		}
-		else {
-			Platform.runLater(() -> {
-				roomView.getLeftButton().setOpacity(0);
-			});
-		}
-		if (col != (size-1)) {
-			if (!worldMapMatrix[row][col + 1].getMap().getNull()) {
-				Platform.runLater(() -> {
-					roomView.getRightButton().setOpacity(1);
-					ImageView image = new ImageView(renderer.renderMap(worldMapMatrix[row][col + 1].getMap().toMatrix()));
-					image.setScaleX(0.85);
-					image.setScaleY(0.85);
-					roomView.getRightButton().setGraphic(image);
-					roomView.getRightButton().setScaleX(0.15);
-					roomView.getRightButton().setScaleY(0.15);
-				});
-				roomView.getRightButton().setDisable(false);
-			}
-			else {
-				Platform.runLater(() -> {
-					roomView.getRightButton().setOpacity(0);
-				});
-			}
-		}
-		else {
-			Platform.runLater(() -> {
-				roomView.getRightButton().setOpacity(0);
-			});
 		}
 
 	}
@@ -670,13 +557,18 @@ public class InteractiveGUIController implements Initializable, Listener {
 		roomView.updateMap(map.getMap());	
 		setCurrentQuadMap(map);
 
+		
+		
+		roomView.initializeView(map.getMap());
+
 		roomMouseEvents();
 		roomButtonEvents();
+		
+		//TODO: HERE IS WHAT YOU NEED TO FIX!! PLEASE :/
+//		roomView.updateMiniMap(worldMapMatrix);
+//		roomView.updatePosition(row, col);
 
-		roomView.updateMiniMap(worldMapMatrix);
-		roomView.updatePosition(row, col);
-
-		roomView.generateNewMaps();
+//		roomView.generateNewMaps();
 
 		saveItem.setDisable(false);
 		saveAsItem.setDisable(false);
@@ -691,105 +583,105 @@ public class InteractiveGUIController implements Initializable, Listener {
 	}
 
 
-
+//TODO: PROBABLY NEED TO DELETE THIS
 	private void roomButtonEvents() {
 
-		roomView.getRightButton().setOnAction(new EventHandler<ActionEvent>() {
-			@Override
-			public void handle(ActionEvent e) {
-				worldMapMatrix[row][col] = currentQuadMap;
-
-				if (col != (size - 1)) {
-					col++;
-
-					roomView.updateMiniMap(worldMapMatrix);
-					roomView.updatePosition(row, col);
-
-					currentQuadMap = worldMapMatrix[row][col];
-					roomView.updateRoom(currentQuadMap.getMap());
-					roomView.generateNewMaps();
-
-
-				}
-				roomView.getRightButton().setDisable(true);
-				roomView.getLeftButton().setDisable(true);
-				roomView.getDownButton().setDisable(true);
-				roomView.getUpButton().setDisable(true);
-
-			}
-		}); 
-
-		roomView.getLeftButton().setOnAction(new EventHandler<ActionEvent>() {
-			@Override
-			public void handle(ActionEvent e) {
-				worldMapMatrix[row][col] = currentQuadMap;
-
-				if (col != 0) {
-					col--;
-					roomView.updateMiniMap(worldMapMatrix);
-					roomView.updatePosition(row, col);
-
-					currentQuadMap = worldMapMatrix[row][col];
-					roomView.updateRoom(currentQuadMap.getMap());
-					roomView.generateNewMaps();
-
-
-
-				}
-				roomView.getRightButton().setDisable(true);
-				roomView.getLeftButton().setDisable(true);
-				roomView.getDownButton().setDisable(true);
-				roomView.getUpButton().setDisable(true);
-			}
-		}); 
-
-		roomView.getDownButton().setOnAction(new EventHandler<ActionEvent>() {
-			@Override
-			public void handle(ActionEvent e) {
-				worldMapMatrix[row][col] = currentQuadMap;
-
-				if (row != (size - 1)) {
-					row++;
-					roomView.updateMiniMap(worldMapMatrix);
-					roomView.updatePosition(row, col);
-
-					currentQuadMap = worldMapMatrix[row][col];
-					roomView.updateRoom(currentQuadMap.getMap());
-					roomView.generateNewMaps();
-
-
-				}
-				roomView.getRightButton().setDisable(true);
-				roomView.getLeftButton().setDisable(true);
-				roomView.getDownButton().setDisable(true);
-				roomView.getUpButton().setDisable(true);
-			}
-
-		}); 
-		roomView.getUpButton().setOnAction(new EventHandler<ActionEvent>() {
-			@Override
-			public void handle(ActionEvent e) {
-				worldMapMatrix[row][col] = currentQuadMap;
-
-				if (row != 0) {
-					row--;
-					roomView.updateMiniMap(worldMapMatrix);
-					roomView.updatePosition(row, col);
-
-					currentQuadMap = worldMapMatrix[row][col];
-					roomView.updateRoom(currentQuadMap.getMap());
-					roomView.generateNewMaps();
-
-
-
-				}
-				roomView.getRightButton().setDisable(true);
-				roomView.getLeftButton().setDisable(true);
-				roomView.getDownButton().setDisable(true);
-				roomView.getUpButton().setDisable(true);
-
-			}
-		}); 
+//		roomView.getRightButton().setOnAction(new EventHandler<ActionEvent>() {
+//			@Override
+//			public void handle(ActionEvent e) {
+//				worldMapMatrix[row][col] = currentQuadMap;
+//
+//				if (col != (size - 1)) {
+//					col++;
+//
+//					roomView.updateMiniMap(worldMapMatrix);
+//					roomView.updatePosition(row, col);
+//
+//					currentQuadMap = worldMapMatrix[row][col];
+//					roomView.updateRoom(currentQuadMap.getMap());
+//					roomView.generateNewMaps();
+//
+//
+//				}
+//				roomView.getRightButton().setDisable(true);
+//				roomView.getLeftButton().setDisable(true);
+//				roomView.getDownButton().setDisable(true);
+//				roomView.getUpButton().setDisable(true);
+//
+//			}
+//		}); 
+//
+//		roomView.getLeftButton().setOnAction(new EventHandler<ActionEvent>() {
+//			@Override
+//			public void handle(ActionEvent e) {
+//				worldMapMatrix[row][col] = currentQuadMap;
+//
+//				if (col != 0) {
+//					col--;
+//					roomView.updateMiniMap(worldMapMatrix);
+//					roomView.updatePosition(row, col);
+//
+//					currentQuadMap = worldMapMatrix[row][col];
+//					roomView.updateRoom(currentQuadMap.getMap());
+//					roomView.generateNewMaps();
+//
+//
+//
+//				}
+//				roomView.getRightButton().setDisable(true);
+//				roomView.getLeftButton().setDisable(true);
+//				roomView.getDownButton().setDisable(true);
+//				roomView.getUpButton().setDisable(true);
+//			}
+//		}); 
+//
+//		roomView.getDownButton().setOnAction(new EventHandler<ActionEvent>() {
+//			@Override
+//			public void handle(ActionEvent e) {
+//				worldMapMatrix[row][col] = currentQuadMap;
+//
+//				if (row != (size - 1)) {
+//					row++;
+//					roomView.updateMiniMap(worldMapMatrix);
+//					roomView.updatePosition(row, col);
+//
+//					currentQuadMap = worldMapMatrix[row][col];
+//					roomView.updateRoom(currentQuadMap.getMap());
+//					roomView.generateNewMaps();
+//
+//
+//				}
+//				roomView.getRightButton().setDisable(true);
+//				roomView.getLeftButton().setDisable(true);
+//				roomView.getDownButton().setDisable(true);
+//				roomView.getUpButton().setDisable(true);
+//			}
+//
+//		}); 
+//		roomView.getUpButton().setOnAction(new EventHandler<ActionEvent>() {
+//			@Override
+//			public void handle(ActionEvent e) {
+//				worldMapMatrix[row][col] = currentQuadMap;
+//
+//				if (row != 0) {
+//					row--;
+//					roomView.updateMiniMap(worldMapMatrix);
+//					roomView.updatePosition(row, col);
+//
+//					currentQuadMap = worldMapMatrix[row][col];
+//					roomView.updateRoom(currentQuadMap.getMap());
+//					roomView.generateNewMaps();
+//
+//
+//
+//				}
+//				roomView.getRightButton().setDisable(true);
+//				roomView.getLeftButton().setDisable(true);
+//				roomView.getDownButton().setDisable(true);
+//				roomView.getUpButton().setDisable(true);
+//
+//			}
+//		}); 
 
 	}
 
@@ -810,7 +702,7 @@ public class InteractiveGUIController implements Initializable, Listener {
 					roomView.getAppSuggestionsBtn().setDisable(false);
 
 					router.postEvent(new ApplySuggestion(0));
-					roomView.setSelectedMiniMap(roomView.rooms.get(0));
+					roomView.setSelectedMiniMap(roomView.suggestedRooms.get(0));
 
 					roomView.displayStats();
 					
@@ -861,7 +753,7 @@ public class InteractiveGUIController implements Initializable, Listener {
 					roomView.getAppSuggestionsBtn().setDisable(false);
 
 					router.postEvent(new ApplySuggestion(1));
-					roomView.setSelectedMiniMap(roomView.rooms.get(1));
+					roomView.setSelectedMiniMap(roomView.suggestedRooms.get(1));
 
 					roomView.displayStats();
 
@@ -911,7 +803,7 @@ public class InteractiveGUIController implements Initializable, Listener {
 					roomView.getAppSuggestionsBtn().setDisable(false);
 
 					router.postEvent(new ApplySuggestion(2));
-					roomView.setSelectedMiniMap(roomView.rooms.get(2));
+					roomView.setSelectedMiniMap(roomView.suggestedRooms.get(2));
 
 					roomView.displayStats();
 
@@ -960,7 +852,7 @@ public class InteractiveGUIController implements Initializable, Listener {
 					roomView.getAppSuggestionsBtn().setDisable(false);
 
 					router.postEvent(new ApplySuggestion(3));
-					roomView.setSelectedMiniMap(roomView.rooms.get(3));
+					roomView.setSelectedMiniMap(roomView.suggestedRooms.get(3));
 
 					roomView.displayStats();
 
@@ -1001,7 +893,6 @@ public class InteractiveGUIController implements Initializable, Listener {
 			});
 		});
 		roomView.resetMiniMaps();
-		roomView.setMousePressed(false);
 	}
 
 	//TODO: this method...
@@ -1122,80 +1013,6 @@ public class InteractiveGUIController implements Initializable, Listener {
 		dungeonMap = new Dungeon(gc, 1, width, height);
 		
 		return dungeonMap;
-//		
-//		
-//		//empty room doors thingy
-//		
-//		int width = Game.sizeWidth;
-//		int height = Game.sizeHeight;
-//		
-//		// South
-//		Point south = new Point(width / 2, height - 1);
-//		// East
-//		Point east = new Point(width - 1, height / 2);
-//		// North
-//		Point north = new Point(width / 2, 0);
-//		// West
-//		Point west = new Point(0, height / 2);
-//
-//		MapContainer[][] worldMapMatrix3 = new MapContainer[size][size];
-//		int nbrDoors = 4;
-//		GeneratorConfig gc = null;
-//		try {
-//			gc = new GeneratorConfig();
-//
-//		} catch (MissingConfigurationException e) {
-//			// TODO Auto-generated catch block
-//			e.printStackTrace();
-//		}
-//		for (int rows = 0; rows < size; rows++) {
-//			for (int cols = 0; cols < size; cols++) {
-//				Room tempMap = null;
-//				// 1
-//				if (rows == 0 && cols == 0) {
-//					tempMap = new Room(gc, height, width, null, east, south, null);
-//				}
-//				// 3
-//				if (rows == 0 && cols == (size - 1)) {
-//					tempMap = new Room(gc, height, width, null, null, south, west);
-//				}
-//				// 7
-//				if (rows == (size - 1) && cols == 0) {
-//					tempMap = new Room(gc, height, width, north, east, null, null);
-//				}
-//				// 9
-//				if (rows == (size - 1) && cols == (size - 1)) {
-//					tempMap = new Room(gc, height, width, north, null, null, west);
-//				}
-//				// top
-//				if (rows == 0 && cols != (size - 1) && cols != 0) {
-//					tempMap = new Room(gc, height, width, null, east, south, west);
-//				}
-//				// left
-//				if (rows != 0 && cols == 0 && rows != (size - 1)) {
-//					tempMap = new Room(gc, height, width, north, east, south, null);
-//				}
-//				// right
-//				if (rows != 0 && rows != (size - 1) && cols == (size - 1)) {
-//					tempMap = new Room(gc, height, width, north, null, south, west);
-//				}
-//				// bottom
-//				if (cols != 0 && cols != (size - 1) && rows == (size - 1)) {
-//					tempMap = new Room(gc, height, width, north, east, null, west);
-//				}
-//				// other
-//				else if (cols != 0 && cols != (size - 1) && rows != 0 && rows != (size - 1)) {
-//					tempMap = new Room(gc, height, width, north, east, south, west);
-//				}
-//
-//				MapContainer temp = new MapContainer();
-//				temp.setMap(tempMap);
-//				worldMapMatrix3[rows][cols] = temp;
-//
-//
-//			}
-//		}
-//		return worldMapMatrix3;
 	}
 
 	private void createWorldMatrix() {

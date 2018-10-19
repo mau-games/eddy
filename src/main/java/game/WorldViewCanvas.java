@@ -16,8 +16,7 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.paint.Color;
 import util.Point;
 import util.eventrouting.EventRouter;
-import util.eventrouting.events.RegisterDoorPosition;
-import util.eventrouting.events.RegisterRoom;
+import util.eventrouting.events.FocusRoom;
 
 public class WorldViewCanvas 
 {
@@ -49,10 +48,9 @@ public class WorldViewCanvas
 		this.owner = owner;
 		worldGraphicNode = new LabeledCanvas();
 		worldGraphicNode.setText("");
-		
+		//Events to the graphic node
 		worldGraphicNode.addEventFilter(MouseEvent.MOUSE_ENTERED, new MouseEventH());
 		worldGraphicNode.addEventFilter(MouseEvent.MOUSE_DRAGGED, new MouseEventDrag());
-		
 		worldGraphicNode.setOnDragDetected(new EventHandler<MouseEvent>() 
 		{
             @Override
@@ -232,7 +230,7 @@ public class WorldViewCanvas
 		{
 			source = (Node)event.getSource();
 			
-			//1) Mouse enters the canvas of the room
+			//1) Mouse enters the canvas of the room --> I can fire the event here, no?
 			source.setOnMouseEntered(new EventHandler<MouseEvent>() {
 
 	            @Override
@@ -248,7 +246,8 @@ public class WorldViewCanvas
 	            		highlight(true);
 	            	}
 
-	            	DungeonDrawer.getInstance().getBrush().onEnteredRoom(owner);	            	
+	            	DungeonDrawer.getInstance().getBrush().onEnteredRoom(owner); //This could also use the event actually :O
+	            	EventRouter.getInstance().postEvent(new FocusRoom(owner, null));
 	            }
 
 	        });
