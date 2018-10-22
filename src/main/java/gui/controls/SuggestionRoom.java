@@ -9,6 +9,7 @@ import javafx.scene.Node;
 import javafx.scene.input.MouseEvent;
 import util.Point;
 import util.eventrouting.EventRouter;
+import util.eventrouting.events.ApplySuggestion;
 import util.eventrouting.events.FocusRoom;
 
 /***
@@ -25,6 +26,7 @@ public class SuggestionRoom
 	
 	public SuggestionRoom()
 	{
+		roomViewNode = new LabeledCanvas();
 		roomViewNode.addEventFilter(MouseEvent.MOUSE_ENTERED, new MouseEventH());
 	}
 	
@@ -41,6 +43,7 @@ public class SuggestionRoom
 	            @Override
 	            public void handle(MouseEvent event) 
 	            {
+	            	highlight(true);
 	            }
 
 	        });
@@ -59,7 +62,19 @@ public class SuggestionRoom
 	            @Override
 	            public void handle(MouseEvent event) 
 	            {
-
+	            	System.out.println("Send event to apply suggestion");
+	            	highlight(true);
+//	            	roomView.getAppSuggestionsBtn().setDisable(false);
+//
+//					router.postEvent(new ApplySuggestion(0));
+//					roomView.setSelectedMiniMap(roomView.suggestedRooms.get(0));
+//
+//					roomView.displayStats();
+//					
+//					roomView.getMap(0).setStyle("-fx-background-color:#fcdf3c;");
+//					roomView.getMap(1).setStyle("-fx-background-color:#2c2f33;");
+//					roomView.getMap(2).setStyle("-fx-background-color:#2c2f33;");
+//					roomView.getMap(3).setStyle("-fx-background-color:#2c2f33;");
 	            }
 	        });
 			
@@ -76,14 +91,34 @@ public class SuggestionRoom
 	            @Override
 	            public void handle(MouseEvent event) 
 	            {
+	            	highlight(false);
 	            }
 
 	        });
 		}
 	}
 	
+	public LabeledCanvas getRoomCanvas()
+	{
+		return roomViewNode;
+	}
+	
 	public String getStats() //This should be in room not here
 	{
 		return "THIS METHOD SHOULD NOT BE IN SUGGESTION ROOM";
 	}
+	
+
+    /**
+     * Highlights the control.
+     * 
+     * @param state True if highlighted, otherwise false.
+     */
+    private void highlight(boolean state) {
+    	if (state) {
+    		roomViewNode.setStyle("-fx-background-color:#fcdf3c;");
+    	} else {
+    		roomViewNode.setStyle("-fx-background-color:#2c2f33;");
+    	}
+    }
 }

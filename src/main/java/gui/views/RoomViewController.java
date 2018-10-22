@@ -3,6 +3,7 @@ package gui.views;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
@@ -24,6 +25,7 @@ import gui.controls.Drawer;
 import gui.controls.InteractiveMap;
 import gui.controls.LabeledCanvas;
 import gui.controls.Modifier;
+import gui.controls.SuggestionRoom;
 import gui.utils.MapRenderer;
 import gui.views.RoomViewController.EditViewEventHandler;
 import gui.views.RoomViewController.EditViewMouseHover;
@@ -52,7 +54,11 @@ import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
+import javafx.scene.control.ScrollPane;
+import javafx.scene.control.ScrollPane.ScrollBarPolicy;
 import javafx.scene.paint.Color;
 import util.config.ConfigurationUtility;
 import util.config.MissingConfigurationException;
@@ -69,6 +75,7 @@ import util.eventrouting.events.Stop;
 import util.eventrouting.events.SuggestedMapsDone;
 import util.eventrouting.events.SuggestedMapsLoading;
 import util.eventrouting.events.UpdateMiniMap;
+import game.DungeonPane;
 
 /**
  * This class controls the interactive application's edit view.
@@ -77,14 +84,20 @@ import util.eventrouting.events.UpdateMiniMap;
  * @author Chelsi Nolasco, Malmö University
  * @author Axel Österman, Malmö University
  */
-public class RoomViewController extends BorderPane implements Listener {
+public class RoomViewController extends BorderPane implements Listener 
+{
 
-	@FXML private List<LabeledCanvas> mapDisplays;
 	@FXML public StackPane mapPane;
+	@FXML public Pane minimap;
 
 	//left side as well
 	@FXML private GridPane legend;
 	@FXML private ToggleGroup brushes;
+	
+	//Suggestions
+	@FXML private ScrollPane suggestionsPane;
+	@FXML private HBox suggestionsBox;
+	private ArrayList<SuggestionRoom> roomDisplays;
 	
 	//All the buttons to the left
 	@FXML private ToggleButton patternButton;
@@ -124,7 +137,7 @@ public class RoomViewController extends BorderPane implements Listener {
 	private boolean symmetry = false; //Probably can use the checkbox
 	private boolean similarity = false; //Probably can use the checkbox
 
-	private Room selectedMiniMap;
+	private Room selectedSuggestion;
 
 	//Literally the only thing that should be here
 	private InteractiveMap mapView;
@@ -140,7 +153,7 @@ public class RoomViewController extends BorderPane implements Listener {
 	private boolean isActive = false; //for having the same event listener in different views 
 	private boolean isFeasible = true; //How feasible the individual is
 	public HashMap<Integer, Room> suggestedRooms = new HashMap<Integer, Room>();
-	private int nextMap = 0;
+	private int nextRoom = 0;
 
 	private MapRenderer renderer = MapRenderer.getInstance();
 	private static EventRouter router = EventRouter.getInstance();
@@ -189,6 +202,21 @@ public class RoomViewController extends BorderPane implements Listener {
 		
 		
 		init();
+		
+		suggestionsPane.setHbarPolicy(ScrollBarPolicy.AS_NEEDED);
+		suggestionsPane.setVbarPolicy(ScrollBarPolicy.NEVER);
+//		suggestionsPane.setPrefSize(120, 120);
+		suggestionsPane.setPrefWidth(50);
+		roomDisplays = new ArrayList<SuggestionRoom>();
+		
+		//testing the HBOX --> This set all of the suggestions you want :D 
+		//It should be based on the application config file!
+		for(int i = 0; i < 4; i++)
+		{
+			SuggestionRoom suggestion = new SuggestionRoom();
+			roomDisplays.add(suggestion);
+			suggestionsBox.getChildren().add(suggestion.getRoomCanvas());
+		}
 	}
 
 	/**
@@ -208,6 +236,7 @@ public class RoomViewController extends BorderPane implements Listener {
 //		height = 420/roomToBe.getRowCount();
 		height = (int)(420 * (float)((float)roomToBe.getRowCount() / 10.0f));
 		width = (int)(420 * (float)((float)roomToBe.getColCount() / 10.0f));
+		
 		initMapView();
 		initLegend();
 		updateLargeMap(roomToBe);
@@ -395,22 +424,17 @@ public class RoomViewController extends BorderPane implements Listener {
 	}
 
 	/**
-	 * Resets the mini maps for a new run of map generation.
+	 * Resets the mini maps for a new run of map generation. TODO: loop maybe?
 	 */
-	public void resetMiniMaps() {
-		nextMap = 0;
-
-		getMap(0).draw(null);
-		getMap(0).setText("Waiting for map...");
-
-		getMap(1).draw(null);
-		getMap(1).setText("Waiting for map...");
-
-		getMap(2).draw(null);
-		getMap(2).setText("Waiting for map...");
-
-		getMap(3).draw(null);
-		getMap(3).setText("Waiting for map...");
+	public void resetSuggestedRooms() 
+	{
+		nextRoom = 0;
+		
+		for(SuggestionRoom sr : roomDisplays)
+		{
+			sr.getRoomCanvas().draw(null);
+			sr.getRoomCanvas().setText("Waiting for map...");
+		}
 	}
 
 	@Override
@@ -422,14 +446,14 @@ public class RoomViewController extends BorderPane implements Listener {
 				Room room = (Room) ((MapUpdate) e).getPayload();
 				UUID uuid = ((MapUpdate) e).getID();
 				LabeledCanvas canvas;
-				synchronized (mapDisplays) {
+				synchronized (roomDisplays) {
 
-					canvas = mapDisplays.get(nextMap);
-					//					canvas.setText("Got map:\n" + uuid);
+					canvas = roomDisplays.get(nextRoom).getRoomCanvas();
+					//canvas.setText("Got map:\n" + uuid);
 					canvas.setText("");
-					suggestedRooms.put(nextMap, room);
-					nextMap++;
-					if (nextMap == 4) { //TODO: This is a hack to overcome a real problem
+					suggestedRooms.put(nextRoom, room);
+					nextRoom++;
+					if (nextRoom == 4) { //TODO: This is a hack to overcome a real problem
 						router.postEvent(new Stop());	
 						router.postEvent(new SuggestedMapsDone());
 					}
@@ -463,7 +487,7 @@ public class RoomViewController extends BorderPane implements Listener {
 	 * @return A map if it exists, otherwise null.
 	 */
 	public LabeledCanvas getMap(int index) {
-		return mapDisplays.get(index);
+		return roomDisplays.get(index).getRoomCanvas();
 	}
 
 	/**
@@ -604,7 +628,7 @@ public class RoomViewController extends BorderPane implements Listener {
 	public void generateNewMaps()
 	{	
 		router.postEvent(new SuggestedMapsLoading());
-		resetMiniMaps();
+		resetSuggestedRooms();
 		generateNewMaps(getMapView().getMap());
 	}
 
@@ -650,10 +674,10 @@ public class RoomViewController extends BorderPane implements Listener {
 	 * @param index The new map's index.
 	 */
 	public void replaceMap(int index) {
-		selectedMiniMap = suggestedRooms.get(index);
-		if (selectedMiniMap != null) {
-			generateNewMaps(selectedMiniMap);
-			updateMap(selectedMiniMap);
+		selectedSuggestion = suggestedRooms.get(index);
+		if (selectedSuggestion != null) {
+			generateNewMaps(selectedSuggestion);
+			updateMap(selectedSuggestion);
 		}
 		generateNewMaps();
 	}
@@ -757,12 +781,12 @@ public class RoomViewController extends BorderPane implements Listener {
 		enemyNumbr.setText(str.toString());	
 		str = new StringBuilder();
 
-		str.append(selectedMiniMap.getEnemyCount());
-		if (getMapView().getMap().getEnemyCount() > selectedMiniMap.getEnemyCount()) {
+		str.append(selectedSuggestion.getEnemyCount());
+		if (getMapView().getMap().getEnemyCount() > selectedSuggestion.getEnemyCount()) {
 			str.append(" ▼");
 			enemyNumbr2.setText(str.toString());
 			enemyNumbr2.setStyle("-fx-text-fill: red");
-		} else if (getMapView().getMap().getEnemyCount() < selectedMiniMap.getEnemyCount()) {			
+		} else if (getMapView().getMap().getEnemyCount() < selectedSuggestion.getEnemyCount()) {			
 			str.append(" ▲");
 			enemyNumbr2.setText(str.toString());
 			enemyNumbr2.setStyle("-fx-text-fill: green");
@@ -781,12 +805,12 @@ public class RoomViewController extends BorderPane implements Listener {
 		treasureNmbr.setText(str.toString());	
 		str = new StringBuilder();
 
-		str.append(selectedMiniMap.getTreasureCount());
-		if (getMapView().getMap().getTreasureCount() > selectedMiniMap.getTreasureCount()) {
+		str.append(selectedSuggestion.getTreasureCount());
+		if (getMapView().getMap().getTreasureCount() > selectedSuggestion.getTreasureCount()) {
 			str.append(" ▼");
 			treasureNmbr2.setText(str.toString());
 			treasureNmbr2.setStyle("-fx-text-fill: red");
-		} else if (getMapView().getMap().getTreasureCount() < selectedMiniMap.getTreasureCount()) {			
+		} else if (getMapView().getMap().getTreasureCount() < selectedSuggestion.getTreasureCount()) {			
 			str.append(" ▲");
 			treasureNmbr2.setText(str.toString());
 			treasureNmbr2.setStyle("-fx-text-fill: green");
@@ -807,14 +831,14 @@ public class RoomViewController extends BorderPane implements Listener {
 		treasurePercent.setText(str.toString());	
 		str = new StringBuilder();
 
-		str.append(round(selectedMiniMap.getTreasurePercentage()* 100, 2 ));
+		str.append(round(selectedSuggestion.getTreasurePercentage()* 100, 2 ));
 		str.append("%");
 
-		if (getMapView().getMap().getTreasurePercentage() > selectedMiniMap.getTreasurePercentage()) {
+		if (getMapView().getMap().getTreasurePercentage() > selectedSuggestion.getTreasurePercentage()) {
 			str.append(" ▼");
 			treasurePercent2.setText(str.toString());
 			treasurePercent2.setStyle("-fx-text-fill: red");
-		} else if (getMapView().getMap().getTreasurePercentage() < selectedMiniMap.getTreasurePercentage()) {			
+		} else if (getMapView().getMap().getTreasurePercentage() < selectedSuggestion.getTreasurePercentage()) {			
 			str.append(" ▲");
 			treasurePercent2.setText(str.toString());
 			treasurePercent2.setStyle("-fx-text-fill: green");
@@ -835,14 +859,14 @@ public class RoomViewController extends BorderPane implements Listener {
 		enemyPercent.setText(str.toString());	
 		str = new StringBuilder();
 
-		str.append(round(selectedMiniMap.getEnemyPercentage()* 100, 2 ));
+		str.append(round(selectedSuggestion.getEnemyPercentage()* 100, 2 ));
 		str.append("%");
 
-		if (getMapView().getMap().getEnemyPercentage() > selectedMiniMap.getEnemyPercentage()) {
+		if (getMapView().getMap().getEnemyPercentage() > selectedSuggestion.getEnemyPercentage()) {
 			str.append(" ▼");
 			enemyPercent2.setText(str.toString());
 			enemyPercent2.setStyle("-fx-text-fill: red");
-		} else if (getMapView().getMap().getEnemyPercentage() < selectedMiniMap.getEnemyPercentage()) {			
+		} else if (getMapView().getMap().getEnemyPercentage() < selectedSuggestion.getEnemyPercentage()) {			
 			str.append(" ▲");
 			enemyPercent2.setText(str.toString());
 			enemyPercent2.setStyle("-fx-text-fill: green");
@@ -863,14 +887,14 @@ public class RoomViewController extends BorderPane implements Listener {
 		entranceSafety.setText(str.toString());	
 		str = new StringBuilder();
 
-		str.append(round(selectedMiniMap.getEntranceSafety()* 100, 2 ));
+		str.append(round(selectedSuggestion.getEntranceSafety()* 100, 2 ));
 		str.append("%");
 
-		if (getMapView().getMap().getEntranceSafety() > selectedMiniMap.getEntranceSafety()) {
+		if (getMapView().getMap().getEntranceSafety() > selectedSuggestion.getEntranceSafety()) {
 			str.append(" ▼");
 			entranceSafety2.setText(str.toString());
 			entranceSafety2.setStyle("-fx-text-fill: red");
-		} else if (getMapView().getMap().getEntranceSafety() < selectedMiniMap.getEntranceSafety()) {			
+		} else if (getMapView().getMap().getEntranceSafety() < selectedSuggestion.getEntranceSafety()) {			
 			str.append(" ▲");
 			entranceSafety2.setText(str.toString());
 			entranceSafety2.setStyle("-fx-text-fill: green");
@@ -895,7 +919,7 @@ public class RoomViewController extends BorderPane implements Listener {
 		if (safeties.length != 0) {
 			totalSafety = totalSafety/safeties.length;
 		}
-		safeties = selectedMiniMap.getAllTreasureSafeties();
+		safeties = selectedSuggestion.getAllTreasureSafeties();
 
 		double totalSafety2 = 0;
 
@@ -947,206 +971,13 @@ public class RoomViewController extends BorderPane implements Listener {
 //
 //	}
 	
-//	private void roomMouseEvents() {
-//		getMapView().addEventFilter(MouseEvent.MOUSE_CLICKED, new EditViewEventHandler());
-//		getMapView().addEventFilter(MouseEvent.MOUSE_MOVED, new EditViewMouseHover());
-//		
-//		getMap(0).addEventFilter(MouseEvent.MOUSE_CLICKED, (e) -> {
-//
-//			roomView.getMap(0).setOnMouseClicked(new EventHandler<MouseEvent>() {
-//
-//				@Override
-//				public void handle(MouseEvent event) {
-//					roomView.getAppSuggestionsBtn().setDisable(false);
-//
-//					router.postEvent(new ApplySuggestion(0));
-//					roomView.setSelectedMiniMap(roomView.suggestedRooms.get(0));
-//
-//					roomView.displayStats();
-//					
-//					roomView.getMap(0).setStyle("-fx-background-color:#fcdf3c;");
-//					roomView.getMap(1).setStyle("-fx-background-color:#2c2f33;");
-//					roomView.getMap(2).setStyle("-fx-background-color:#2c2f33;");
-//					roomView.getMap(3).setStyle("-fx-background-color:#2c2f33;");
-//				}
-//			});
-//			roomView.getMap(0).setOnMouseExited(new EventHandler<MouseEvent>() {
-//
-//				@Override
-//				public void handle(MouseEvent event) {
-//					if (firstIsClicked) {
-//						roomView.getMap(0).setStyle("-fx-background-color:#fcdf3c;");
-//						roomView.getMap(1).setStyle("-fx-background-color:#2c2f33;");
-//						roomView.getMap(2).setStyle("-fx-background-color:#2c2f33;");
-//						roomView.getMap(3).setStyle("-fx-background-color:#2c2f33;");
-//					}
-//				}
-//			});
-//			roomView.getMap(0).setOnMouseEntered(new EventHandler<MouseEvent>() {
-//
-//				@Override
-//				public void handle(MouseEvent event) {
-//					if (firstIsClicked) {
-//
-//						roomView.getMap(0).setStyle("-fx-background-color:#fcdf3c;");
-//						roomView.getMap(1).setStyle("-fx-background-color:#2c2f33;");
-//						roomView.getMap(2).setStyle("-fx-background-color:#2c2f33;");
-//						roomView.getMap(3).setStyle("-fx-background-color:#2c2f33;");
-//					}
-//				}
-//			});
-//
-//		});
-//
-//		roomView.getMap(1).addEventFilter(MouseEvent.MOUSE_CLICKED, (e) -> {
-//			roomView.getMap(1).setOnMouseClicked(new EventHandler<MouseEvent>() {
-//
-//				@Override
-//				public void handle(MouseEvent event) {
-//					roomView.getAppSuggestionsBtn().setDisable(false);
-//
-//					router.postEvent(new ApplySuggestion(1));
-//					roomView.setSelectedMiniMap(roomView.suggestedRooms.get(1));
-//
-//					roomView.displayStats();
-//
-//					roomView.getMap(1).setStyle("-fx-background-color:#fcdf3c;");
-//					roomView.getMap(0).setStyle("-fx-background-color:#2c2f33;");
-//					roomView.getMap(2).setStyle("-fx-background-color:#2c2f33;");
-//					roomView.getMap(3).setStyle("-fx-background-color:#2c2f33;");
-//					firstIsClicked = false;
-//					secondIsClicked = true;
-//					thirdIsClicked = false;
-//					fourthIsClicked = false;
-//				}
-//			});
-//
-//			roomView.getMap(1).setOnMouseExited(new EventHandler<MouseEvent>() {
-//
-//				@Override
-//				public void handle(MouseEvent event) {
-//					if (secondIsClicked ) {
-//						roomView.getMap(1).setStyle("-fx-background-color:#fcdf3c;");
-//						roomView.getMap(0).setStyle("-fx-background-color:#2c2f33;");
-//						roomView.getMap(2).setStyle("-fx-background-color:#2c2f33;");
-//						roomView.getMap(3).setStyle("-fx-background-color:#2c2f33;");
-//					}
-//				}
-//			});
-//
-//			roomView.getMap(1).setOnMouseEntered(new EventHandler<MouseEvent>() {
-//
-//				@Override
-//				public void handle(MouseEvent event) {
-//					if (secondIsClicked ) {
-//
-//						roomView.getMap(1).setStyle("-fx-background-color:#fcdf3c;");
-//						roomView.getMap(0).setStyle("-fx-background-color:#2c2f33;");
-//						roomView.getMap(2).setStyle("-fx-background-color:#2c2f33;");
-//						roomView.getMap(3).setStyle("-fx-background-color:#2c2f33;");
-//					}
-//				}
-//			});
-//		});
-//		roomView.getMap(2).addEventFilter(MouseEvent.MOUSE_CLICKED, (e) -> {
-//			roomView.getMap(2).setOnMouseClicked(new EventHandler<MouseEvent>() {
-//
-//				@Override
-//				public void handle(MouseEvent event) {
-//					roomView.getAppSuggestionsBtn().setDisable(false);
-//
-//					router.postEvent(new ApplySuggestion(2));
-//					roomView.setSelectedMiniMap(roomView.suggestedRooms.get(2));
-//
-//					roomView.displayStats();
-//
-//					roomView.getMap(2).setStyle("-fx-background-color:#fcdf3c;");
-//					roomView.getMap(0).setStyle("-fx-background-color:#2c2f33;");
-//					roomView.getMap(1).setStyle("-fx-background-color:#2c2f33;");
-//					roomView.getMap(3).setStyle("-fx-background-color:#2c2f33;");
-//					firstIsClicked = false;
-//					secondIsClicked = false;
-//					thirdIsClicked = true;
-//					fourthIsClicked = false;
-//				}
-//			});
-//
-//			roomView.getMap(2).setOnMouseExited(new EventHandler<MouseEvent>() {
-//
-//				@Override
-//				public void handle(MouseEvent event) {
-//					if (thirdIsClicked) {
-//						roomView.getMap(2).setStyle("-fx-background-color:#fcdf3c;");
-//						roomView.getMap(0).setStyle("-fx-background-color:#2c2f33;");
-//						roomView.getMap(1).setStyle("-fx-background-color:#2c2f33;");
-//						roomView.getMap(3).setStyle("-fx-background-color:#2c2f33;");
-//					}
-//				}
-//			});
-//			roomView.getMap(2).setOnMouseEntered(new EventHandler<MouseEvent>() {
-//
-//				@Override
-//				public void handle(MouseEvent event) {
-//					if (thirdIsClicked) {
-//						roomView.getMap(2).setStyle("-fx-background-color:#fcdf3c;");
-//						roomView.getMap(0).setStyle("-fx-background-color:#2c2f33;");
-//						roomView.getMap(1).setStyle("-fx-background-color:#2c2f33;");
-//						roomView.getMap(3).setStyle("-fx-background-color:#2c2f33;");
-//					}
-//				}
-//			});
-//
-//		});
-//		roomView.getMap(3).addEventFilter(MouseEvent.MOUSE_CLICKED, (e) -> {
-//			roomView.getMap(3).setOnMouseClicked(new EventHandler<MouseEvent>() {
-//
-//				@Override
-//				public void handle(MouseEvent event) {
-//					roomView.getAppSuggestionsBtn().setDisable(false);
-//
-//					router.postEvent(new ApplySuggestion(3));
-//					roomView.setSelectedMiniMap(roomView.suggestedRooms.get(3));
-//
-//					roomView.displayStats();
-//
-//					roomView.getMap(3).setStyle("-fx-background-color:#fcdf3c;");
-//					roomView.getMap(0).setStyle("-fx-background-color:#2c2f33;");
-//					roomView.getMap(2).setStyle("-fx-background-color:#2c2f33;");
-//					roomView.getMap(1).setStyle("-fx-background-color:#2c2f33;");
-//					firstIsClicked = false;
-//					secondIsClicked = false;
-//					thirdIsClicked = false;
-//					fourthIsClicked = true;
-//				}
-//			});
-//
-//			roomView.getMap(3).setOnMouseExited(new EventHandler<MouseEvent>() {
-//
-//				@Override
-//				public void handle(MouseEvent event) {
-//					if (fourthIsClicked) {
-//						roomView.getMap(3).setStyle("-fx-background-color:#fcdf3c;");
-//						roomView.getMap(0).setStyle("-fx-background-color:#2c2f33;");
-//						roomView.getMap(2).setStyle("-fx-background-color:#2c2f33;");
-//						roomView.getMap(1).setStyle("-fx-background-color:#2c2f33;");
-//					}
-//				}
-//			});
-//			roomView.getMap(3).setOnMouseEntered(new EventHandler<MouseEvent>() {
-//
-//				@Override
-//				public void handle(MouseEvent event) {
-//					if (fourthIsClicked) {
-//						roomView.getMap(3).setStyle("-fx-background-color:#fcdf3c;");
-//						roomView.getMap(0).setStyle("-fx-background-color:#2c2f33;");
-//						roomView.getMap(2).setStyle("-fx-background-color:#2c2f33;");
-//						roomView.getMap(1).setStyle("-fx-background-color:#2c2f33;");
-//					}
-//				}
-//			});
-//		});
-//		roomView.resetMiniMaps();
-//	}
+	//TODO: things are going to change probs
+	public void roomMouseEvents() 
+	{
+		getMapView().addEventFilter(MouseEvent.MOUSE_CLICKED, new EditViewEventHandler());
+		getMapView().addEventFilter(MouseEvent.MOUSE_MOVED, new EditViewMouseHover());
+		resetSuggestedRooms();
+	}
 
 	/*
 	 * Event handlers
@@ -1225,7 +1056,7 @@ public class RoomViewController extends BorderPane implements Listener {
 	private void selectSuggestion(ActionEvent event) throws IOException {
 
 		replaceMap(requestedSuggestion);
-		router.postEvent(new RequestAppliedMap(selectedMiniMap, prevRow, prevCol));
+		router.postEvent(new RequestAppliedMap(selectedSuggestion, prevRow, prevCol));
 		getMap(0).setStyle("-fx-background-color:#2c2f33");
 		getMap(1).setStyle("-fx-background-color:#2c2f33");
 		getMap(2).setStyle("-fx-background-color:#2c2f33");
@@ -1234,11 +1065,11 @@ public class RoomViewController extends BorderPane implements Listener {
 	}
 	
 	public Room getSelectedMiniMap() {
-		return selectedMiniMap;
+		return selectedSuggestion;
 	}
 
 	public void setSelectedMiniMap(Room selectedMiniMap) {
-		this.selectedMiniMap = selectedMiniMap;
+		this.selectedSuggestion = selectedMiniMap;
 	}
 
 	public InteractiveMap getMapView() {

@@ -97,6 +97,7 @@ public class Room {
 		init(rows, cols);
 
 		this.config = config;
+		localConfig = new RoomConfig(this, 40);
 		this.doorCount = Game.doors.size();
 
 		initMapFromTypes(types);
@@ -116,7 +117,7 @@ public class Room {
 		this.config = config;
 		localConfig = new RoomConfig(this, scaleFactor); //TODO: NEW ADDITION --> HAVE TO BE ADDED EVERYWHERE
 		
-		this.doorCount = Game.doors.size();
+		this.doorCount = 0;
 		
 		this.doorCount = numberOfDoors;
 		
@@ -154,15 +155,17 @@ public class Room {
         {
         	setTile(doorPosition.getX(), doorPosition.getY(), TileTypes.DOORENTER);
         	entrance = doorPosition;
-        	doors.add(doorPosition);
+
         }
         else
         {
         	setTile(doorPosition.getX(), doorPosition.getY(), TileTypes.DOOR);
-        	doors.add(doorPosition);
+
         }
         
-        
+    	doors.add(doorPosition);
+    	doorCount++;
+    	numberOfDoors++;
         borders.removePoint(Point.castToGeometry(doorPosition)); //remove this point from the "usable" border
 	}
 	
@@ -179,6 +182,7 @@ public class Room {
 	{
 		init(copyMap.getRowCount(), copyMap.getColCount());
 		this.config = copyMap.config;
+		localConfig = new RoomConfig(this, 40);
 		this.doorCount = copyMap.getNumberOfDoors();
 		
 		for (int j = 0; j < height; j++)
@@ -226,6 +230,7 @@ public class Room {
 		init(rows, cols);
 
 		this.config = config;
+		localConfig = new RoomConfig(this, 40);
 //		this.doorCount = Game.doors.size();
 		
 		CloneMap(rootCopy.GetMap(), chromosomes);
@@ -332,7 +337,7 @@ public class Room {
 
 		init(rows, cols);
 		isNull = true;
-
+		localConfig = new RoomConfig(this, 40);
 		for (int i = 0; i < cols; i++) {
 			for (int j = 0; j < rows; j++) {
 				matrix[i][j] = 1;
@@ -346,7 +351,7 @@ public class Room {
 
 
 		this.config = config;
-
+		localConfig = new RoomConfig(this, 40);
 		boolean entraceSet = false; 
 
 		if (p1 != null) {

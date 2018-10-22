@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import gui.controls.LabeledCanvas?>
+<?import game.DungeonPane?>
 
 <?import java.util.ArrayList?>
 
@@ -14,7 +15,9 @@
 <?import javafx.scene.control.ToolBar?>
 <?import javafx.scene.image.Image?>
 <?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.Pane?>
 <?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.control.ScrollPane?>
 <?import javafx.scene.layout.GridPane?>
 <?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.HBox?>
@@ -148,26 +151,11 @@
 					id="generatedMapsLabel">
 					<Label text="Generated Suggestions" />
 				</StackPane>
-				<StackPane alignment="CENTER">
-					<fx:define>
-						<ArrayList fx:id="mapDisplays">
-							<LabeledCanvas fx:id="map0" />
-							<LabeledCanvas fx:id="map1" />
-							<LabeledCanvas fx:id="map2" />
-							<LabeledCanvas fx:id="map3" />
-						</ArrayList>
-					</fx:define>
-					<children>
-						<HBox alignment="CENTER">
-							<children>
-								<fx:reference source="map0" />
-								<fx:reference source="map1" />
-								<fx:reference source="map2" />
-								<fx:reference source="map3" />
-							</children>
-						</HBox>
-					</children>
-				</StackPane>
+				<ScrollPane fx:id="suggestionsPane"> <!-- I STAYED HERE!!! ScrollPane is for scrolling if for instance we want to create more than 4 maps! -->
+					<content>
+						<HBox alignment="CENTER" fx:id="suggestionsBox"/>
+					</content>
+				</ScrollPane>
 				<HBox spacing="20">
 					<VBox>
 						<CheckBox fx:id="symmetryChoicebox"
@@ -234,8 +222,7 @@
 						text="Apply Suggestion" onAction="#selectSuggestion" />
 
 				</HBox>
-				<GridPane alignment="CENTER" fx:id="minimap" hgap="0"
-					vgap="0" />
+				<Pane fx:id="minimap" />
 			</VBox>
 			<HBox.margin>
 				<Insets>

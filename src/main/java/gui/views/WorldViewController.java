@@ -435,11 +435,16 @@ public class WorldViewController extends BorderPane implements Listener
 			@Override
 			public void handle(ActionEvent e) {
 //				router.postEvent(new RequestSuggestionsView(matrix[row][col], row, col, matrix, 6));
-				
 //				router.postEvent(new RequestSuggestionsView(matrix[row][col], row, col, matrix, 6));
-				MapContainer mc = new MapContainer();
-				mc.setMap(dungeon.getSelectedRoom());
-				router.postEvent(new RequestRoomView(mc, row, col, null));
+				
+//				MapContainer mc = new MapContainer();
+//				mc.setMap(dungeon.getSelectedRoom());
+//				router.postEvent(new RequestRoomView(mc, row, col, null));
+				
+				for(Node child : worldPane.getChildren()) 
+        		{
+        	        ((DungeonPane)child).resetScale();
+        		}
 			}
 
 		}); 

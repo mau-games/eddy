@@ -14,6 +14,7 @@ import util.eventrouting.Listener;
 import util.eventrouting.PCGEvent;
 import util.eventrouting.events.FocusRoom;
 import util.eventrouting.events.RequestConnection;
+import util.eventrouting.events.RequestRoomView;
 
 public class Dungeon implements Listener
 {	
@@ -90,10 +91,26 @@ public class Dungeon implements Listener
 			{
 				selectedRoom = frEvent.getRoom();
 			}
-		}
-		
+		}	
 	}
 	
+	public void editFocusedRoom()
+	{
+		//maybe something to test if we can/should
+		if(selectedRoom == null)
+			return;
+		
+		MapContainer mc = new MapContainer(); // this map container thingy, idk, me not like it
+		mc.setMap(getSelectedRoom());
+		EventRouter.getInstance().postEvent(new RequestRoomView(mc, 0, 0, null));
+	}
+	
+	/**
+	 * Used to scale the resolution of each individual room canvas
+	 * @param value
+	 * @deprecated get access to internal Dungeon pane {@link #dPane} and use {@link #dPane.tryScale(Scale)} instead
+	 */
+	@Deprecated
 	public void scaleRoomsWorldView(int value)
 	{
 		if(this.scaleFactor + value > defaultMaxScaleFactor || this.scaleFactor + value < defaultMinScaleFactor)

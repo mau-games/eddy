@@ -17,6 +17,7 @@ import javafx.scene.paint.Color;
 import util.Point;
 import util.eventrouting.EventRouter;
 import util.eventrouting.events.FocusRoom;
+import util.eventrouting.events.RequestRoomView;
 
 public class WorldViewCanvas 
 {
@@ -247,7 +248,6 @@ public class WorldViewCanvas
 	            	}
 
 	            	DungeonDrawer.getInstance().getBrush().onEnteredRoom(owner); //This could also use the event actually :O
-	            	EventRouter.getInstance().postEvent(new FocusRoom(owner, null));
 	            }
 
 	        });
@@ -268,7 +268,16 @@ public class WorldViewCanvas
 	            @Override
 	            public void handle(MouseEvent event) 
 	            {
-
+	            	if(event.getClickCount() == 2) //Works --> Double click
+	            	{
+	            		//TODO: I think is better that the dungeon receives an event to request room view but maybe that will be too convoluted
+	            		MapContainer mc = new MapContainer(); // this map container thingy, idk, me not like it
+	            		mc.setMap(owner);
+	            		EventRouter.getInstance().postEvent(new RequestRoomView(mc, 0, 0, null));
+	            	}
+	            	
+	            	EventRouter.getInstance().postEvent(new FocusRoom(owner, null));
+	            	
 	            	dragAnchorX = event.getX();
 	            	dragAnchorY = event.getY();
 	            	currentBrushPosition =  new Point((int)( event.getX() / tileSizeWidth.get()), (int)( event.getY() / tileSizeHeight.get() ));
@@ -289,7 +298,7 @@ public class WorldViewCanvas
 	            	currentBrushPosition =  new Point((int)( event.getX() / tileSizeWidth.get()), (int)( event.getY() / tileSizeHeight.get() ));
 	            }
 	        });
-			
+
 			source.setOnMouseExited(new EventHandler<MouseEvent>() {
 
 	            @Override

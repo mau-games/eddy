@@ -22,6 +22,10 @@
 	
 }
 
+#suggestionsPane, #suggestionsPane . viewport{
+	-fx-background-color: transparent;
+}
+
 #programTitle {
 	-fx-font: 72px "Consolas";
 	-fx-text-fill: #7c7c7c;

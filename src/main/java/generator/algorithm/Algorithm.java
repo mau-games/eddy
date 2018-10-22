@@ -190,6 +190,8 @@ public class Algorithm extends Thread {
 					j++;
 				}
 			}
+			
+			System.out.println(j);
 		}
 		
 		broadcastStatusUpdate("Population generated.");

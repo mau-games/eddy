@@ -14,6 +14,7 @@ import javafx.scene.layout.CornerRadii;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.scene.transform.Scale;
+import util.eventrouting.events.RequestRoomView;
 
 public class DungeonPane extends Pane
 {
@@ -24,6 +25,7 @@ public class DungeonPane extends Pane
 	double anchorY;
 	
 	//Arbitrary values
+	private double internalMaxScale = 2.0;
 	private double maxScale = 1.7;
 	private double minScale = 0.6; //Less than this value and the scale starts to mess the translations
 	private double currentScale = 1.0;
@@ -92,7 +94,7 @@ public class DungeonPane extends Pane
         	        newScale.setX( getScaleX() + (0.001 * event.getDeltaY()) );
         	        newScale.setY( getScaleY() + (0.001 * event.getDeltaY()) );
         	       
-        	        tryScale(newScale);
+        	        internalScale(newScale);
         			event.consume();
 				}
 
@@ -139,6 +141,23 @@ public class DungeonPane extends Pane
 		}
 	}
 	
+	private void internalScale(Scale value)
+	{
+		double auxScale = currentScale;
+		auxScale += (value.getX() - 1.0);
+		
+		if(auxScale > internalMaxScale)
+		{
+			owner.editFocusedRoom();
+			return;
+		}
+		else if(auxScale < minScale)
+			return;
+		
+		currentScale = auxScale;
+		getTransforms().add(value);
+	}
+	
 	public void tryScale(Scale value)
 	{
 		double auxScale = currentScale;
@@ -149,10 +168,18 @@ public class DungeonPane extends Pane
 		
 		currentScale = auxScale;
 		getTransforms().add(value);
+		
+	}
+	
+	public void resetScale()
+	{
+		getTransforms().clear();
+		currentScale = 1.0;
 	}
 	
 	/***
 	 * This method is for testing all the children in the pane and base on their max X, max Y we will resize this pane
+	 * TODO: under-development
 	 */
 	private void testBounds()
 	{
