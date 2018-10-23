@@ -372,16 +372,18 @@ public class WorldViewController extends BorderPane implements Listener
 			row = rowIndex;
 			col = colIndex;
 			getRoomNullBtn().setDisable(false);
-			if (matrix[row][col].getMap().getNull()) {
-				//disable
-				getSuggestionsBtn().setDisable(true);
-				getStartEmptyBtn().setDisable(true);
-			}
-			else {
-				//enable
-				getSuggestionsBtn().setDisable(false);
-				getStartEmptyBtn().setDisable(false);	
-			}
+			//TODO: This is a good idea, maybe we can not allow the edit of the room if it is not connected :O 
+			
+//			if (matrix[row][col].getMap().getNull()) {
+//				//disable
+//				getSuggestionsBtn().setDisable(true);
+//				getStartEmptyBtn().setDisable(true);
+//			}
+//			else {
+//				//enable
+//				getSuggestionsBtn().setDisable(false);
+//				getStartEmptyBtn().setDisable(false);	
+//			}
 			
 
 			source.setOnMouseClicked(new EventHandler<MouseEvent>() {

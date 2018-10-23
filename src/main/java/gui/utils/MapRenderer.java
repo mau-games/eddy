@@ -236,8 +236,16 @@ public class MapRenderer implements Listener {
 //		finalMapHeight = (int)((float)config.getMapRenderHeight() * (float)((float)room.getRowCount() / 10.0f));
 //		finalMapWidth = (int)((float)config.getMapRenderWidth() * (float)((float)room.getColCount() / 10.0f));
 		
-		finalMapHeight = room.localConfig.getRenderSizeHeight();
-		finalMapWidth = room.localConfig.getRenderSizeWidth();
+		if(room.localConfig != null)
+		{
+			finalMapHeight = room.localConfig.getRenderSizeHeight(); //TODO: ERROR HERE!
+			finalMapWidth = room.localConfig.getRenderSizeWidth();
+		}
+		else
+		{
+			finalMapHeight = (int)((float)config.getMapRenderHeight() * (float)((float)room.getRowCount() / 10.0f));
+			finalMapWidth = (int)((float)config.getMapRenderWidth() * (float)((float)room.getColCount() / 10.0f));
+		}
 
 		Canvas canvas = new Canvas(finalMapWidth, finalMapHeight);
 		renderMap(canvas.getGraphicsContext2D(), room.toMatrix());
@@ -256,6 +264,50 @@ public class MapRenderer implements Listener {
 
 		return image;
 	}
+	
+	/**
+	 * Draws a matrix onto a new image.
+	 * 
+	 * @param ctx The graphics context to draw on.
+	 * @param matrix A rectangular matrix of integers. Each integer corresponds
+	 * 		to some predefined value.
+	 */
+	public synchronized Image renderMiniSuggestedRoom(Room room) 
+	{
+		//TODO: This should be extracted from the room config file (independent of each room)
+//		finalMapHeight = (int)((float)config.getMapRenderHeight() * (float)((float)room.getRowCount() / 10.0f));
+//		finalMapWidth = (int)((float)config.getMapRenderWidth() * (float)((float)room.getColCount() / 10.0f));
+		
+		if(room.localConfig != null)
+		{
+			finalMapHeight = room.localConfig.getRenderSizeHeight(); //TODO: ERROR HERE!
+			finalMapWidth = room.localConfig.getRenderSizeWidth();
+		}
+		else
+		{
+			finalMapHeight = (int)((float)config.getMapRenderHeight() * (float)((float)room.getRowCount() / 10.0f));
+			finalMapWidth = (int)((float)config.getMapRenderWidth() * (float)((float)room.getColCount() / 10.0f));
+		}
+
+		System.out.println("FINAL MAP WIDTH: " + finalMapWidth + ", FINAL MAP HEIGHT: " + finalMapHeight);
+		Canvas canvas = new Canvas(finalMapWidth, finalMapHeight);
+		renderMap(canvas.getGraphicsContext2D(), room.toMatrix());
+		
+		Image image = canvas.snapshot(new SnapshotParameters(), null);
+//	
+//		final WritableImage writableImage = new WritableImage((int) canvas.getWidth(), (int) canvas.getHeight());
+//		Image image = canvas.snapshot(new SnapshotParameters(), writableImage);
+//		
+//		File file = new File("CanvasImage" + finalMapHeight + ".png");
+//		try {
+//            ImageIO.write(SwingFXUtils.fromFXImage(writableImage, null), "png", file);
+//        } catch (Exception s) {
+//        }
+//		
+
+		return image;
+	}
+	
 
 	/**
 	 * Draws a matrix onto an extisting graphics context.
@@ -298,7 +350,7 @@ public class MapRenderer implements Listener {
 		//TODO: The following calculation should probably be split out into a method
 		int width = matrix[0].length;
 		int height = matrix.length;
-		double pWidth = ctx.getCanvas().getWidth() / (double)Math.max(width, height);
+		double pWidth = Math.max(ctx.getCanvas().getWidth(), ctx.getCanvas().getHeight()) / (double)Math.max(width, height);
 		patternOpacity = config.getPatternOpacity();
 				
 		for (Entry<Pattern, Color> e : patterns.entrySet()) {
@@ -327,7 +379,7 @@ public class MapRenderer implements Listener {
 		//TODO: The following calculation should probably be split out into a method
 		int width = matrix[0].length;
 		int height = matrix.length;
-		double pWidth = ctx.getCanvas().getWidth() / (double)Math.max(width, height);
+		double pWidth = Math.max(ctx.getCanvas().getWidth(), ctx.getCanvas().getHeight()) / (double)Math.max(width, height);
 		patternOpacity = config.getPatternOpacity();
 		
 		ArrayList<ZoneNode> children = rootZone.traverseToLayer(layer);
@@ -387,7 +439,7 @@ public class MapRenderer implements Listener {
 		//TODO: The following calculation should probably be split out into a method
 		int width = matrix[0].length;
 		int height = matrix.length;
-		double pWidth = ctx.getCanvas().getWidth() / (double)Math.max(width, height);
+		double pWidth = Math.max(ctx.getCanvas().getWidth(), ctx.getCanvas().getHeight()) / (double)Math.max(width, height);
 		patternOpacity = config.getPatternOpacity();
 		
 		drawBitmapProperly(ctx, brush.GetDrawableTiles(), c, pWidth);
@@ -397,7 +449,7 @@ public class MapRenderer implements Listener {
 
 		int width = matrix[0].length;
 		int height = matrix.length;
-		double pWidth = ctx.getCanvas().getWidth() / (double)Math.max(width, height);
+		double pWidth = Math.max(ctx.getCanvas().getWidth(), ctx.getCanvas().getHeight()) / (double)Math.max(width, height);
 		
 		patternGraph.resetGraph();
 		
@@ -469,7 +521,7 @@ public class MapRenderer implements Listener {
 	public void drawMesoPatterns(GraphicsContext ctx, int[][] matrix, List<CompositePattern> mesopatterns){
 		int width = matrix[0].length;
 		int height = matrix.length;
-		double pWidth = ctx.getCanvas().getWidth() / (double)Math.max(width, height);
+		double pWidth = Math.max(ctx.getCanvas().getWidth(), ctx.getCanvas().getHeight()) / (double)Math.max(width, height);
 		
 		for(CompositePattern p : mesopatterns){
 			if(p instanceof ChokePoint){

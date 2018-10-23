@@ -34,7 +34,7 @@ public class ZoneGenotype
 		{
 			for(int j = 0; j <room.getColCount();j++)
 			{
-				chromosome[i*Game.sizeWidth + j] = mat[i][j];
+				chromosome[i* room.getColCount() + j] = mat[i][j];
 			}
 		}
 		

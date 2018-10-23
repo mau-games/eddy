@@ -151,9 +151,9 @@
 					id="generatedMapsLabel">
 					<Label text="Generated Suggestions" />
 				</StackPane>
-				<ScrollPane fx:id="suggestionsPane"> <!-- I STAYED HERE!!! ScrollPane is for scrolling if for instance we want to create more than 4 maps! -->
+				<ScrollPane hbarPolicy="ALWAYS" fx:id="suggestionsPane">
 					<content>
-						<HBox alignment="CENTER" fx:id="suggestionsBox"/>
+						<HBox spacing="5" alignment="CENTER" fx:id="suggestionsBox"/>
 					</content>
 				</ScrollPane>
 				<HBox spacing="20">

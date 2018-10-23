@@ -25,6 +25,7 @@ import finder.patterns.meso.TreasureRoom;
 import finder.patterns.micro.Connector;
 import finder.patterns.micro.Corridor;
 import finder.patterns.micro.Enemy;
+import finder.patterns.micro.Entrance;
 import finder.patterns.micro.Chamber;
 import finder.patterns.micro.Treasure;
 import game.Game;
@@ -44,6 +45,7 @@ import util.eventrouting.events.GenerationDone;
 import util.eventrouting.events.MapUpdate;
 import util.eventrouting.events.StatusMessage;
 
+//TODO: NEED TO RECEIVE THE ROOM ALWAYS SO THEN I CAN EXTRACT, WIDTH, HEIGHT, DOORPOSITIONS, ENTRANCE ------ I WAS HERE!!
 public class Algorithm extends Thread {
 	private UUID id;
 	private final Logger logger = LoggerFactory.getLogger(Algorithm.class);
@@ -63,14 +65,19 @@ public class Algorithm extends Thread {
 	private double roomTarget;
 	private double corridorTarget;
 
-	private Room oldMap = null;
+	private Room originalRoom = null;
 	
 	private int infeasiblesMoved = 0;
 	private int movedInfeasiblesKept = 0;
 
 	private AlgorithmTypes algorithmTypes;
+	
+	private int roomWidth;
+	private int roomHeight;
+	private List<Point> roomDoorPositions;
+	private Point roomEntrance;
 
-	public enum AlgorithmTypes
+	public enum AlgorithmTypes //TODO: This needs to change
 	{
 		Native,
 		Symmetry,
@@ -78,7 +85,7 @@ public class Algorithm extends Thread {
 		SymmetryAndSimilarity
 	}
 	
-	public Algorithm(GeneratorConfig config){
+	public Algorithm(GeneratorConfig config){ //This is called from the batch run and when asked for suggestions view
 		this.config = config;
 		id = UUID.randomUUID();
 		populationSize = config.getPopulationSize();
@@ -92,8 +99,19 @@ public class Algorithm extends Thread {
 //		System.out.println("Starting run #" + id);
 		initPopulations();
 	}
-	public Algorithm(GeneratorConfig config, AlgorithmTypes algorithmTypes){
+	
+	public Algorithm(Room room, GeneratorConfig config, AlgorithmTypes algorithmTypes) //THIS IS THE ONE CALLED WHEN IS NOT PRESERVING
+	{
+		//Set info of the original room
+		this.originalRoom = room;
+		this.roomWidth = originalRoom.getColCount();
+		this.roomHeight = originalRoom.getRowCount();
+		this.roomDoorPositions = originalRoom.getDoors();
+		this.roomEntrance = originalRoom.getEntrance();
+			
 		this.config = config;
+		
+		//TODO: What is this?
 		this.algorithmTypes = algorithmTypes;
 		if(algorithmTypes == AlgorithmTypes.Similarity)
 			this.algorithmTypes = AlgorithmTypes.Native;
@@ -110,6 +128,7 @@ public class Algorithm extends Thread {
 		
 		// Uncomment this for silly debugging
 //		System.out.println("Starting run #" + id);
+		
 		initPopulations();
 	}
 	
@@ -117,7 +136,14 @@ public class Algorithm extends Thread {
 	 * Create an Algorithm run using mutations of a given map
 	 * @param room
 	 */
-	public Algorithm(Room room, AlgorithmTypes algorithmTypes){
+	public Algorithm(Room room, AlgorithmTypes algorithmTypes) //THIS IS CALLED WHEN WE WANT TO PRESERVE THE ROOM 
+	{
+		this.originalRoom = room;
+		this.roomWidth = originalRoom.getColCount();
+		this.roomHeight = originalRoom.getRowCount();
+		this.roomDoorPositions = originalRoom.getDoors();
+		this.roomEntrance = originalRoom.getEntrance();
+		
 		this.config = room.getCalculatedConfig();
 		this.algorithmTypes = algorithmTypes;
 		room.setConfig(this.config);
@@ -129,10 +155,10 @@ public class Algorithm extends Thread {
 		roomTarget = config.getRoomProportion();
 		corridorTarget = config.getCorridorProportion();
 		
-//		System.out.println("I AM PASSING THE MAP!!");
 
 		// Uncomment this for silly debugging
 //		System.out.println("Starting run #" + id);
+		
 		initPopulations(room);
 	}
 	
@@ -165,7 +191,6 @@ public class Algorithm extends Thread {
 
 	private void initPopulations(Room room){
 		broadcastStatusUpdate("Initialising...");
-		oldMap = room;
 				
 		feasiblePool = new ArrayList<ZoneIndividual>();
 		infeasiblePool = new ArrayList<ZoneIndividual>();
@@ -176,7 +201,7 @@ public class Algorithm extends Thread {
 		int j = 0;
 		while((i + j) < populationSize){
 			ZoneIndividual ind = new ZoneIndividual(room, mutationProbability);
-			ind.mutateAll(0.4);
+			ind.mutateAll(0.4, roomWidth, roomHeight);
 			
 			if(checkZoneIndividual(ind)){
 				if(i < feasibleAmount){
@@ -190,8 +215,6 @@ public class Algorithm extends Thread {
 					j++;
 				}
 			}
-			
-			System.out.println(j);
 		}
 		
 		broadcastStatusUpdate("Population generated.");
@@ -211,7 +234,7 @@ public class Algorithm extends Thread {
 		int i = 0;
 		int j = 0;
 		while((i + j) < populationSize){
-			ZoneIndividual ind = new ZoneIndividual(config, Game.sizeHeight * Game.sizeWidth, mutationProbability);
+			ZoneIndividual ind = new ZoneIndividual(config, roomWidth * roomHeight, mutationProbability);
 			ind.initialize();
 			
 			if(checkZoneIndividual(ind)){
@@ -234,13 +257,15 @@ public class Algorithm extends Thread {
 	/**
 	 * Starts the algorithm. Called when the thread starts.
 	 */
-	public void run(){
+	public void run()
+	{
 		AlgorithmStarted as = new AlgorithmStarted();
 		as.setID(id);
 		EventRouter.getInstance().postEvent(as);
 		
 		broadcastStatusUpdate("Evolving...");
         int generations = config.getGenerations();
+//        generations = 5;
         
         Room room = null;
 
@@ -260,7 +285,7 @@ public class Algorithm extends Thread {
 //            broadcastStatusUpdate("BEST fitness: " + best.getFitness());
 //            System.out.println("DOORS: " + best.getPhenotype().getMap().getDoorCount());
             
-            room = best.getPhenotype().getMap();
+            room = best.getPhenotype().getMap(roomWidth, roomHeight, roomDoorPositions, roomEntrance);
            
             //broadcastMapUpdate(map);
             
@@ -300,7 +325,12 @@ public class Algorithm extends Thread {
         	// Room proportion
         	//String generation = "" + best.getFitness() + "," + dataValid[0] + "," + best.getCorridorFitness() + "," + best.getRoomFitness() + "," + best.getCorridorArea()/passableTiles + "," + best.getRoomArea()/passableTiles + "," + best.getTreasureAndEnemyFitness();
         	//EventRouter.getInstance().postEvent(new GenerationDone(generation));
+        	
+//        	System.out.println("HERE");
         }
+        
+        System.out.println("FINISH");
+        
         broadcastMapUpdate(room); //TODO: SOMETHING HERE
         PatternFinder finder = room.getPatternFinder();
 		MapContainer result = new MapContainer();
@@ -360,7 +390,7 @@ public class Algorithm extends Thread {
 	 * @return Return true if ZoneIndividual is valid, otherwise return false
     */
 	private boolean checkZoneIndividual(ZoneIndividual ind){
-		Room room = ind.getPhenotype().getMap();
+		Room room = ind.getPhenotype().getMap(roomWidth, roomHeight, roomDoorPositions, roomEntrance);
 		return room.isFeasible();
 	}
 	
@@ -376,7 +406,7 @@ public class Algorithm extends Thread {
 	 */
     public void evaluateFeasibleZoneIndividual(ZoneIndividual ind)
     {
-        Room room = ind.getPhenotype().getMap();
+        Room room = ind.getPhenotype().getMap(roomWidth, roomHeight, roomDoorPositions, roomEntrance);
         PatternFinder finder = room.getPatternFinder();
         List<Enemy> enemies = new ArrayList<Enemy>();
         List<Treasure> treasures = new ArrayList<Treasure>();
@@ -521,7 +551,7 @@ public class Algorithm extends Thread {
     	if(algorithmTypes == AlgorithmTypes.Similarity ||
     			algorithmTypes == AlgorithmTypes.SymmetryAndSimilarity)
     	{
-        	similarityFitness = evaluateSimilarityFitnessValue(oldMap, room, 0.95);    		
+        	similarityFitness = evaluateSimilarityFitnessValue(originalRoom, room, 0.95);    		
     	}
     	// Symmetry Fitness
     	double symmetricFitnessValue = 1.0;
@@ -704,7 +734,7 @@ public class Algorithm extends Thread {
 	public void evaluateInfeasibleZoneIndividual(ZoneIndividual ind)
 	{
 		double fitness = 0.0;
-	    Room room = ind.getPhenotype().getMap();
+	    Room room = ind.getPhenotype().getMap(roomWidth, roomHeight, roomDoorPositions, roomEntrance);
 	
 	    double enemies = (room.getFailedPathsToEnemies() / (double)room.getEnemyCount());
 	    if (Double.isNaN(enemies)) 
@@ -714,7 +744,7 @@ public class Algorithm extends Thread {
 	    if (Double.isNaN(treasures)) 
 	    	treasures = 1.0;
 	    
-	    double doors = (room.getFailedPathsToAnotherDoor() / (double)room.getDoorCount());
+	    double doors = (room.getFailedPathsToAnotherDoor() / (double)room.getDoorCount(false));
 	    if (Double.isNaN(doors)) 
 	    	doors = 1.0;
 	
@@ -796,7 +826,11 @@ public class Algorithm extends Thread {
 
         while (countSons < sonSize)
         {
-            ZoneIndividual[] offspring = progenitors.get(Util.getNextInt(0, sizeProgenitors)).twoPointCrossover(progenitors.get(Util.getNextInt(0, sizeProgenitors)));
+            ZoneIndividual[] offspring = progenitors.get(
+            									Util.getNextInt(0, sizeProgenitors)).twoPointCrossover(progenitors.get(Util.getNextInt(0, sizeProgenitors)),
+            									roomWidth, 
+            									roomHeight);
+            
             sons.addAll(Arrays.asList(offspring));
             countSons += 2;
         }

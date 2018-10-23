@@ -22,11 +22,13 @@ public class SuggestionRoom
 {
 	private LabeledCanvas roomViewNode;
 	private Room suggestedRoom;
+	private Room originalRoom;
 	private Node source;
 	
 	public SuggestionRoom()
 	{
 		roomViewNode = new LabeledCanvas();
+		roomViewNode.setPrefSize(140, 140);
 		roomViewNode.addEventFilter(MouseEvent.MOUSE_ENTERED, new MouseEventH());
 	}
 	
@@ -44,6 +46,7 @@ public class SuggestionRoom
 	            public void handle(MouseEvent event) 
 	            {
 	            	highlight(true);
+	            	System.out.println("MOUSE ENTERED CANVAS");
 	            }
 
 	        });
@@ -98,6 +101,38 @@ public class SuggestionRoom
 		}
 	}
 	
+	//TODO: Change magic numbers
+	public void resizeCanvasForRoom(Room original)
+	{
+		this.originalRoom = original;
+		roomViewNode.setPrefSize(140, 140);
+		
+		float proportion = (float)(Math.min(original.getColCount(), original.getRowCount()))/(float)(Math.max(original.getColCount(), original.getRowCount()));
+		
+		if(original.getColCount() > 10)
+		{
+			roomViewNode.setPrefWidth(14.0 * original.getColCount());
+		}
+		
+		if(original.getRowCount() > 10)
+		{
+			roomViewNode.setPrefHeight(14.0 * original.getRowCount());
+		}
+		
+		System.out.println(roomViewNode.getHeight());
+		System.out.println(roomViewNode.getPrefHeight());
+		
+		if(original.getRowCount() > original.getColCount())
+		{
+			roomViewNode.setPrefWidth(roomViewNode.getPrefHeight() * proportion);
+		}
+		else if(original.getColCount() > original.getRowCount())
+		{
+			roomViewNode.setPrefHeight(roomViewNode.getPrefWidth() * proportion);
+		}
+
+	}
+	
 	public LabeledCanvas getRoomCanvas()
 	{
 		return roomViewNode;
@@ -116,7 +151,7 @@ public class SuggestionRoom
      */
     private void highlight(boolean state) {
     	if (state) {
-    		roomViewNode.setStyle("-fx-background-color:#fcdf3c;");
+    		roomViewNode.setStyle("-fx-border-width: 2px; -fx-background-color:#fcdf3c;");
     	} else {
     		roomViewNode.setStyle("-fx-background-color:#2c2f33;");
     	}

@@ -266,79 +266,13 @@ public class InteractiveGUIController implements Initializable, Listener {
 
 		}
 		 else if (e instanceof RequestNullRoom) {
+			 //TODO: REFACTOR NULL ROOM TO BE THE EVENT OF REMOVING A ROOM FROM THE DUNGEON
+			 
 			worldMapMatrix = ((RequestNullRoom) e).getMatrix();
 			row = ((RequestNullRoom) e).getRow();
 			col = ((RequestNullRoom) e).getCol();
 			MapContainer container = (MapContainer) e.getPayload();
 
-			if (!worldMapMatrix[row][col].getMap().getNull()) {
-				Room nullMap = new Room(Game.sizeWidth, Game.sizeHeight, 0);
-				MapContainer nullCont = new MapContainer();
-				nullCont.setMap(nullMap);
-				worldMapMatrix[row][col] = nullCont;
-			}
-			else {
-				
-				//TODO: This really needs to change
-				
-				// South
-				Point south = new Point(11/2, 11-1);
-				// East
-				Point east = new Point(11-1, 11/2);
-				// North
-				Point north = new Point(11/2, 0);
-				// West
-				Point west = new Point(0, 11/2);
-				GeneratorConfig gc = null;
-				try {
-					gc = new GeneratorConfig();
-
-				} catch (MissingConfigurationException ex) {
-					// TODO Auto-generated catch block
-					ex.printStackTrace();
-				}
-				Room tempMap = null;
-				// 1
-				if (row == 0 && col == 0) {
-					tempMap = new Room(gc, 11, 11, null, east, south, null);
-				}
-				// 3
-				if (row == 0 && col == (size - 1)) {
-					tempMap = new Room(gc, 11, 11, null, null, south, west);
-				}
-				// 7
-				if (row == (size - 1) && col == 0) {
-					tempMap = new Room(gc, 11, 11, north, east, null, null);
-				}
-				// 9
-				if (row == (size - 1) && col == (size - 1)) {
-					tempMap = new Room(gc, 11, 11, north, null, null, west);
-				}
-				// top
-				if (row == 0 && col != (size - 1) && col != 0) {
-					tempMap = new Room(gc, 11, 11, null, east, south, west);
-				}
-				// left
-				if (row != 0 && col == 0 && row != (size - 1)) {
-					tempMap = new Room(gc, 11, 11, north, east, south, null);
-				}
-				// right
-				if (row != 0 && row != (size - 1) && col == (size - 1)) {
-					tempMap = new Room(gc, 11, 11, north, null, south, west);
-				}
-				// bottom
-				if (col != 0 && col != (size - 1) && row == (size - 1)) {
-					tempMap = new Room(gc, 11, 11, north, east, null, west);
-				}
-				// other
-				else if (col != 0 && col != (size - 1) && row != 0 && row != (size - 1)) {
-					tempMap = new Room(gc, 11, 11, north, east, south, west);
-				}
-				MapContainer revertCont = new MapContainer();
-				revertCont.setMap(tempMap);
-				worldMapMatrix[row][col] = revertCont;
-			}
-			evaluateNullChange();
 			backToWorldView();
 		}
 
@@ -492,7 +426,7 @@ public class InteractiveGUIController implements Initializable, Listener {
 		AnchorPane.setLeftAnchor(worldView, 0.0);
 		mainPane.getChildren().add(worldView);
 
-		worldView.initWorldMap(initMatrix());
+		worldView.initWorldMap(initDungeon());
 
 		saveItem.setDisable(false);
 		saveAsItem.setDisable(false);
@@ -592,113 +526,11 @@ public class InteractiveGUIController implements Initializable, Listener {
 	 * Mouse methods for controllers
 	 */
 
-	
-
-	//TODO: this method...
-	private void evaluateNullChange() {
-		// South
-		Point south = new Point(11/2, 11-1);
-		// East
-		Point east = new Point(11-1, 11/2);
-		// North
-		Point north = new Point(11/2, 0);
-		// West
-		Point west = new Point(0, 11/2);
-		for (int rows = 0; rows < size; rows++) {
-			for (int cols = 0; cols < size; cols++) {
-				if (!worldMapMatrix[rows][cols].getMap().getNull()) {
-					if (rows != 0) {
-						//north
-						if (worldMapMatrix[rows - 1][cols].getMap().getNull() && (worldMapMatrix[rows][cols].getMap().matrix[north.getY()][north.getX()] == 5 || 
-								worldMapMatrix[rows][cols].getMap().matrix[north.getY()][north.getX()] == 4)) {
-							worldMapMatrix[rows][cols].getMap().setTile(north.getX(), north.getY(), 0);
-//							worldMapMatrix[rows][cols].getMap().matrix[north.getY()][north.getX()] = 0;
-							worldMapMatrix[rows][cols].getMap().setNumberOfDoors(worldMapMatrix[rows][cols].getMap().getNumberOfDoors() - 1);
-							worldMapMatrix[rows][cols].getMap().setNorth(false);
-						}
-						else if (!worldMapMatrix[rows - 1][cols].getMap().getNull() && !(worldMapMatrix[rows][cols].getMap().matrix[north.getY()][north.getX()] == 5 || 
-								worldMapMatrix[rows][cols].getMap().matrix[north.getY()][north.getX()] == 4)) {
-							worldMapMatrix[rows][cols].getMap().setTile(north.getX(), north.getY(), 4);
-//							worldMapMatrix[rows][cols].getMap().matrix[north.getY()][north.getX()] = 4;
-							worldMapMatrix[rows][cols].getMap().setNumberOfDoors(worldMapMatrix[rows][cols].getMap().getNumberOfDoors() + 1);
-							worldMapMatrix[rows][cols].getMap().setNorth(true);
-						}
-					}
-					if (cols != (size - 1)) {
-						//east
-						if (worldMapMatrix[rows][cols + 1].getMap().getNull() && (worldMapMatrix[rows][cols].getMap().matrix[east.getY()][east.getX()] == 5 || 
-								worldMapMatrix[rows][cols].getMap().matrix[east.getY()][east.getX()] == 4)) {
-							worldMapMatrix[rows][cols].getMap().setTile(east.getX(), east.getY(), 0);
-//							worldMapMatrix[rows][cols].getMap().matrix[east.getY()][east.getX()] = 0;
-							worldMapMatrix[rows][cols].getMap().setNumberOfDoors(worldMapMatrix[rows][cols].getMap().getNumberOfDoors() - 1);
-							worldMapMatrix[rows][cols].getMap().setEast(false);
-						}
-						else if (!worldMapMatrix[rows][cols + 1].getMap().getNull() && !(worldMapMatrix[rows][cols].getMap().matrix[east.getY()][east.getX()] == 5 || 
-								worldMapMatrix[rows][cols].getMap().matrix[east.getY()][east.getX()] == 4)) {
-							worldMapMatrix[rows][cols].getMap().setTile(east.getX(), east.getY(), 4);
-//							worldMapMatrix[rows][cols].getMap().matrix[east.getY()][east.getX()] = 4;
-							worldMapMatrix[rows][cols].getMap().setNumberOfDoors(worldMapMatrix[rows][cols].getMap().getNumberOfDoors() + 1);
-							worldMapMatrix[rows][cols].getMap().setEast(true);
-						}
-
-					}
-					if (rows != (size - 1)) {
-						//south
-						if (worldMapMatrix[rows + 1][cols].getMap().getNull() && (worldMapMatrix[rows][cols].getMap().matrix[south.getY()][south.getX()] == 5 || 
-								worldMapMatrix[rows][cols].getMap().matrix[south.getY()][south.getX()] == 4)) {
-							worldMapMatrix[rows][cols].getMap().setTile(south.getX(), south.getY(), 0);
-//							worldMapMatrix[rows][cols].getMap().matrix[south.getY()][south.getX()] = 0;
-							worldMapMatrix[rows][cols].getMap().setNumberOfDoors(worldMapMatrix[rows][cols].getMap().getNumberOfDoors() - 1);
-							worldMapMatrix[rows][cols].getMap().setSouth(false);
-						}
-						else if (!worldMapMatrix[rows + 1][cols].getMap().getNull() && !(worldMapMatrix[rows][cols].getMap().matrix[south.getY()][south.getX()] == 5 || 
-								worldMapMatrix[rows][cols].getMap().matrix[south.getY()][south.getX()] == 4)) {
-							worldMapMatrix[rows][cols].getMap().setTile(south.getX(), south.getY(), 4);
-//							worldMapMatrix[rows][cols].getMap().matrix[south.getY()][south.getX()] = 4;
-							worldMapMatrix[rows][cols].getMap().setNumberOfDoors(worldMapMatrix[rows][cols].getMap().getNumberOfDoors() + 1);
-							worldMapMatrix[rows][cols].getMap().setSouth(true);
-						}
-
-					}
-					if (cols != 0) {
-						//west
-						if (worldMapMatrix[rows][cols - 1].getMap().getNull() && (worldMapMatrix[rows][cols].getMap().matrix[west.getY()][west.getX()] == 5 || 
-								worldMapMatrix[rows][cols].getMap().matrix[west.getY()][west.getX()] == 4)) {
-							worldMapMatrix[rows][cols].getMap().setTile(west.getX(), west.getY(), 0);
-//							worldMapMatrix[rows][cols].getMap().matrix[west.getY()][west.getX()] = 0;
-							worldMapMatrix[rows][cols].getMap().setNumberOfDoors(worldMapMatrix[rows][cols].getMap().getNumberOfDoors() - 1);
-							worldMapMatrix[rows][cols].getMap().setWest(false);
-						}
-						else if (!worldMapMatrix[rows][cols - 1].getMap().getNull() && !(worldMapMatrix[rows][cols].getMap().matrix[west.getY()][west.getX()] == 5 || 
-								worldMapMatrix[rows][cols].getMap().matrix[west.getY()][west.getX()] == 4)) {
-							worldMapMatrix[rows][cols].getMap().setTile(west.getX(), west.getY(), 4);
-//							worldMapMatrix[rows][cols].getMap().matrix[west.getY()][west.getX()] = 4;
-							worldMapMatrix[rows][cols].getMap().setNumberOfDoors(worldMapMatrix[rows][cols].getMap().getNumberOfDoors() + 1);
-							worldMapMatrix[rows][cols].getMap().setWest(true);
-						}
-
-					}
-					if (worldMapMatrix[rows][cols].getMap().getNumberOfDoors() == 0) {
-						Room nullMap = new Room(11, 11, 0);
-						MapContainer nullCont = new MapContainer();
-						nullCont.setMap(nullMap);
-						worldMapMatrix[rows][cols] = nullCont;
-					}
-					else
-					{
-						worldMapMatrix[rows][cols].getMap().RecalculateEntrance();
-					}
-				}
-			}
-		}
-
-	}
-
 	//TODO: This part has a few issues, like set numbers (11) and how the map is created
-	private Dungeon initMatrix() 
+	private Dungeon initDungeon() 
 	{
-		int width = Game.sizeWidth;
-		int height = Game.sizeHeight;
+		int width = Game.defaultWidth;
+		int height = Game.defaultHeight;
 
 		GeneratorConfig gc = null;
 		try {
@@ -804,7 +636,8 @@ public class InteractiveGUIController implements Initializable, Listener {
 								}
 								
 							}
-							helpContainer.getMap().setNumberOfDoors(counter);
+							//TODO: KALINKA, we are going to have so much fun fixing this method!!
+//							helpContainer.getMap().setNumberOfDoors(counter);
 
 							worldMapMatrix2[q][s] = helpContainer;
 							stringArray[s] = "";
@@ -830,16 +663,16 @@ public class InteractiveGUIController implements Initializable, Listener {
 			}
 		}
 		
-		
-		
-		for (MapContainer[] mc : worldMapMatrix2) {
-			for (MapContainer mc2 : mc) {
-				if (mc2.getMap().getNumberOfDoors() == 0) {
-					mc2.getMap().setNull();
-				}
-			}
-		}
-		
+		//TODO: Setting the room null if no doors
+//		
+//		for (MapContainer[] mc : worldMapMatrix2) {
+//			for (MapContainer mc2 : mc) {
+//				if (mc2.getMap().getNumberOfDoors() == 0) {
+//					mc2.getMap().setNull();
+//				}
+//			}
+//		}
+//		
 		
 		size = worldMapMatrix2.length;
 
