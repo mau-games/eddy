@@ -11,6 +11,7 @@ import util.Point;
 import util.eventrouting.EventRouter;
 import util.eventrouting.events.ApplySuggestion;
 import util.eventrouting.events.FocusRoom;
+import util.eventrouting.events.SuggestedMapSelected;
 
 /***
  * This class will hold the canvas and all relevant info about the maps that are suggested
@@ -24,12 +25,18 @@ public class SuggestionRoom
 	private Room suggestedRoom;
 	private Room originalRoom;
 	private Node source;
+	private boolean selected = false;
+	
+	//Super workaround which i have to do unless someone knows how can i do this thing
+	private SuggestionRoom self;
 	
 	public SuggestionRoom()
 	{
 		roomViewNode = new LabeledCanvas();
 		roomViewNode.setPrefSize(140, 140);
 		roomViewNode.addEventFilter(MouseEvent.MOUSE_ENTERED, new MouseEventH());
+		self = this;
+		selected = false;
 	}
 	
 	public class MouseEventH implements EventHandler<MouseEvent>
@@ -64,9 +71,11 @@ public class SuggestionRoom
 
 	            @Override
 	            public void handle(MouseEvent event) 
-	            {
-	            	System.out.println("Send event to apply suggestion");
+	            {	            	
+	            	EventRouter.getInstance().postEvent(new SuggestedMapSelected(self));
+	            	selected = true;
 	            	highlight(true);
+	            	
 //	            	roomView.getAppSuggestionsBtn().setDisable(false);
 //
 //					router.postEvent(new ApplySuggestion(0));
@@ -102,8 +111,9 @@ public class SuggestionRoom
 	}
 	
 	//TODO: Change magic numbers
-	public void resizeCanvasForRoom(Room original)
+	public void resizeCanvasForRoom(Room original) //ReINIT
 	{
+		selected = false;
 		this.originalRoom = original;
 		roomViewNode.setPrefSize(140, 140);
 		
@@ -143,17 +153,50 @@ public class SuggestionRoom
 		return "THIS METHOD SHOULD NOT BE IN SUGGESTION ROOM";
 	}
 	
+	public Room getSuggestedRoom()
+	{
+		return this.suggestedRoom;
+	}
+	
+	public Room getOriginalRoom()
+	{
+		return this.originalRoom;
+	}
+	
+	public void setSuggestedRoom(Room suggestedRoom)
+	{
+		this.suggestedRoom = suggestedRoom;
+	}
+	
+	public void setOriginalRoom(Room originalRoom)
+	{
+		this.originalRoom = originalRoom;
+	}
+	
+	public void setSelected(Boolean value)
+	{
+		selected = value;
+		highlight(value);
+	}
 
     /**
      * Highlights the control.
      * 
      * @param state True if highlighted, otherwise false.
      */
-    private void highlight(boolean state) {
-    	if (state) {
-    		roomViewNode.setStyle("-fx-border-width: 2px; -fx-background-color:#fcdf3c;");
-    	} else {
-    		roomViewNode.setStyle("-fx-background-color:#2c2f33;");
+    private void highlight(boolean state)
+    {
+    	if(selected)
+    	{
+    		roomViewNode.setStyle("-fx-border-width: 2px; -fx-border-color: #fcdf3c;");
+    	}
+    	else
+    	{
+    		if (state) {
+        		roomViewNode.setStyle("-fx-border-width: 2px; -fx-border-color: #6b87f9;");
+        	} else {
+        		roomViewNode.setStyle("-fx-border-width: 0px; -fx-background-color:#2c2f33;");
+        	}
     	}
     }
 }

@@ -211,7 +211,7 @@
 
 					<Button fx:id="worldGridBtn" contentDisplay="TOP"
 						mnemonicParsing="false" wrapText="true" textAlignment="CENTER"
-						text="Go To World Grid" onAction="#handleButtonAction">
+						text="Go To World Grid" onAction="#backWorldView">
 
 					</Button>
 					<Button fx:id="genSuggestionsBtn" contentDisplay="TOP"

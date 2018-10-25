@@ -85,7 +85,15 @@ public class Algorithm extends Thread {
 		SymmetryAndSimilarity
 	}
 	
-	public Algorithm(GeneratorConfig config){ //This is called from the batch run and when asked for suggestions view
+	public Algorithm(Room room, GeneratorConfig config){ //This is called from the batch run and when asked for suggestions view
+		
+		//Set info of the original room
+		this.originalRoom = room;
+		this.roomWidth = originalRoom.getColCount();
+		this.roomHeight = originalRoom.getRowCount();
+		this.roomDoorPositions = originalRoom.getDoors();
+		this.roomEntrance = originalRoom.getEntrance();
+		
 		this.config = config;
 		id = UUID.randomUUID();
 		populationSize = config.getPopulationSize();
@@ -328,17 +336,15 @@ public class Algorithm extends Thread {
         	
 //        	System.out.println("HERE");
         }
-        
-        System.out.println("FINISH");
-        
-        broadcastMapUpdate(room); //TODO: SOMETHING HERE
+
+        broadcastMapUpdate(room);
         PatternFinder finder = room.getPatternFinder();
 		MapContainer result = new MapContainer();
 		result.setMap(room);
 		result.setMicroPatterns(finder.findMicroPatterns());
 		result.setMesoPatterns(finder.findMesoPatterns());
 		result.setMacroPatterns(finder.findMacroPatterns());
-        AlgorithmDone ev = new AlgorithmDone(result);
+        AlgorithmDone ev = new AlgorithmDone(result, this);
         ev.setID(id);
         EventRouter.getInstance().postEvent(ev);
 	}

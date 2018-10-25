@@ -12,7 +12,7 @@
 <?import javafx.scene.layout.StackPane?>
 
 
-<fx:root type="javafx.scene.layout.GridPane" maxHeight="-Infinity"
+<fx:root type="javafx.scene.layout.GridPane" Hgap="10" Vgap="10" maxHeight="-Infinity"
 	maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity"
 	prefHeight="400.0" prefWidth="600.0" stylesheets="@../styling.css"
 	xmlns:fx="http://javafx.com/fxml/1" fx:id="suggestionsView">

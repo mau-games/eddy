@@ -133,19 +133,16 @@ public class InteractiveGUIController implements Initializable, Listener {
 		router.registerListener(this, new RequestConnection(null, -1, null, null, null, null));
 		router.registerListener(this, new RequestNewRoom(null, -1, -1, -1));
 		router.registerListener(this, new StatusMessage(null));
-		router.registerListener(this, new AlgorithmDone(null));
+		router.registerListener(this, new AlgorithmDone(null, null));
 		router.registerListener(this, new RequestRedraw());
 		router.registerListener(this, new RequestRoomView(null, 0, 0, null));
 		router.registerListener(this, new MapLoaded(null));
 		router.registerListener(this, new RequestWorldView());
 		router.registerListener(this, new RequestEmptyRoom(null, 0, 0, null));
-		router.registerListener(this, new RequestSuggestionsView(null, 0, 0, null, 0));
+		router.registerListener(this, new RequestSuggestionsView(null, 0));
 		router.registerListener(this, new Stop());
-		router.registerListener(this, new SuggestedMapsDone());
-		router.registerListener(this, new SuggestedMapsLoading());
 		router.registerListener(this, new RequestNullRoom(null, 0, 0, null));
 		router.registerListener(this, new StartWorld(0));
-		router.registerListener(this, new RequestAppliedMap(null, 0, 0));
 
 		suggestionsView = new SuggestionsViewController();
 		roomView = new RoomViewController();
@@ -187,36 +184,11 @@ public class InteractiveGUIController implements Initializable, Listener {
 			
 			//Yeah dont care about matrix
 			initRoomView((MapContainer) e.getPayload());
-			
-//			if (((RequestRoomView) e).getMatrix() != null) {
-//				worldMapMatrix = ((RequestRoomView) e).getMatrix();
-//				row = ((RequestRoomView) e).getRow();
-//				col = ((RequestRoomView) e).getCol();
-//				MapContainer container = (MapContainer) e.getPayload();
-//				initRoomView(container);
-//			}
-//			else if (!worldMapMatrix[((RequestRoomView) e).getRow()][((RequestRoomView) e).getCol()].getMap().getNull()) { 
-//				row = ((RequestRoomView) e).getRow();
-//				col = ((RequestRoomView) e).getCol();
-//				MapContainer container = worldMapMatrix[row][col];
-//				initRoomView(container);
-//
-//			}
 
-		} else if (e instanceof RequestAppliedMap) {
-			Room room = (Room) ((RequestAppliedMap) e).getPayload();
-			MapContainer mapCont = new MapContainer();
-			row = ((RequestAppliedMap) e).getRow();
-			col = ((RequestAppliedMap) e).getCol(); 
-			mapCont.setMap(room);
-			worldMapMatrix[row][col] = mapCont;
-			initRoomView(mapCont);
-		} else if (e instanceof RequestSuggestionsView) {
-			worldMapMatrix = ((RequestSuggestionsView) e).getMatrix();
-			row = ((RequestSuggestionsView) e).getRow();
-			col = ((RequestSuggestionsView) e).getCol();
+		} else if (e instanceof RequestSuggestionsView) 
+		{
 			MapContainer container = (MapContainer) e.getPayload();
-			initSuggestionsView();
+			initSuggestionsView(container.getMap());
 		} else if (e instanceof RequestWorldView) {
 
 			backToWorldView();
@@ -240,30 +212,6 @@ public class InteractiveGUIController implements Initializable, Listener {
 //			worldView.getStartEmptyBtn().setDisable(true);
 //			worldView.getRoomNullBtn().setDisable(true);
 //			worldView.getSuggestionsBtn().setDisable(true);
-		}
-		else if (e instanceof SuggestedMapsDone) {
-			roomView.getUpdateMiniMapBtn().setDisable(false);
-			roomView.getWorldGridBtn().setDisable(false);
-			roomView.getGenSuggestionsBtn().setDisable(false);			
-		} else if (e instanceof SuggestedMapsLoading) {
-
-			firstIsClicked = false;
-			secondIsClicked = false;
-			thirdIsClicked = false;
-			fourthIsClicked = false;
-
-			roomView.getMap(0).setStyle("-fx-background-color:#2c2f33;");
-			roomView.getMap(1).setStyle("-fx-background-color:#2c2f33;");
-			roomView.getMap(2).setStyle("-fx-background-color:#2c2f33;");
-			roomView.getMap(3).setStyle("-fx-background-color:#2c2f33;");
-			roomView.clearStats();
-			roomView.getUpdateMiniMapBtn().setDisable(true);
-			roomView.getWorldGridBtn().setDisable(true);
-			roomView.getGenSuggestionsBtn().setDisable(true);
-			roomView.getAppSuggestionsBtn().setDisable(true);
-
-			roomView.getAppSuggestionsBtn().setDisable(true);
-
 		}
 		 else if (e instanceof RequestNullRoom) {
 			 //TODO: REFACTOR NULL ROOM TO BE THE EVENT OF REMOVING A ROOM FROM THE DUNGEON
@@ -321,7 +269,6 @@ public class InteractiveGUIController implements Initializable, Listener {
 	}
 
 	public void saveMap() {
-		roomView.updateLargeMap(tempLargeContainer.getMap());
 		DateTimeFormatter format =
 				DateTimeFormatter.ofPattern("yyyy-MM-dd_HH-mm-s-n");
 		String name = "map_" +
@@ -391,7 +338,7 @@ public class InteractiveGUIController implements Initializable, Listener {
 	/**
 	 * Initialises the suggestions view.
 	 */
-	private void initSuggestionsView() {
+	private void initSuggestionsView(Room room) {
 		mainPane.getChildren().clear();
 
 		AnchorPane.setTopAnchor(suggestionsView, 0.0);
@@ -411,7 +358,7 @@ public class InteractiveGUIController implements Initializable, Listener {
 		launchView.setActive(false);
 
 
-		suggestionsView.initialise();
+		suggestionsView.initialise(room);
 	}
 
 	/**
@@ -487,7 +434,6 @@ public class InteractiveGUIController implements Initializable, Listener {
 		AnchorPane.setBottomAnchor(roomView, 0.0);
 		AnchorPane.setLeftAnchor(roomView, 0.0);
 		mainPane.getChildren().add(roomView);
-		roomView.updateLargeMap(map.getMap());
 		roomView.updateMap(map.getMap());	
 		setCurrentQuadMap(map);
 

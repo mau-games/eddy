@@ -159,7 +159,7 @@ public class Graph<T> {
 	 * 
 	 * @param a A node.
 	 * @param b Another node.
-	 * @param width The edge's width.
+	 * @param mapWidth The edge's width.
 	 * @return Returns true if the nodes were connected, otherwise false.
 	 */
 	public boolean disconnect(T a, T b) {

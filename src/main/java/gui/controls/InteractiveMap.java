@@ -148,8 +148,7 @@ public class InteractiveMap extends GridPane {
 
 		getChildren().clear();
 		coords.clear();
-		
-		
+
 		 for (int j = 0; j < rows; j++)
 		 {
 			 for (int i = 0; i < cols; i++) 
@@ -172,6 +171,20 @@ public class InteractiveMap extends GridPane {
 		}
 		
 		tile = renderer.renderTile(type, size, size);
+		images.put(type, tile);
+		
+		return tile;
+	}
+	
+	private Image getImage(TileTypes type, double width, double height) 
+	{
+		Image tile = images.get(type);
+		
+		if (tile != null) {
+			return tile;
+		}
+		
+		tile = renderer.renderTile(type, width, height);
 		images.put(type, tile);
 		
 		return tile;

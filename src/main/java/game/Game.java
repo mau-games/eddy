@@ -26,6 +26,7 @@ import util.eventrouting.events.Start;
 import util.eventrouting.events.StartBatch;
 import util.eventrouting.events.StartMapMutate;
 import util.eventrouting.events.Stop;
+import util.eventrouting.events.SuggestedMapsDone;
 
 public class Game implements Listener{
 	private final Logger logger = LoggerFactory.getLogger(Game.class);
@@ -56,10 +57,10 @@ public class Game implements Listener{
         EventRouter.getInstance().registerListener(this, new Start());
         EventRouter.getInstance().registerListener(this, new StartMapMutate(null));
         EventRouter.getInstance().registerListener(this, new Stop());
-        //EventRouter.getInstance().registerListener(this, new AlgorithmDone(null));
+        EventRouter.getInstance().registerListener(this, new AlgorithmDone(null, null));
         EventRouter.getInstance().registerListener(this, new RenderingDone());
         EventRouter.getInstance().registerListener(this, new StartBatch());
-        EventRouter.getInstance().registerListener(this, new RequestSuggestionsView(null, 0, 0, null, 0));
+        EventRouter.getInstance().registerListener(this, new RequestSuggestionsView(null, 0));
 	}
 
     public enum MapMutationType {
@@ -141,7 +142,7 @@ public class Game implements Listener{
 				c = configs.remove(Util.getNextInt(0, configs.size()));
 
 			try {
-				geneticAlgorithm = new Algorithm(new GeneratorConfig(c)); //TODO: You need to send the container here (the room)
+				geneticAlgorithm = new Algorithm(container.getMap(), new GeneratorConfig(c)); //TODO: You need to send the container here (the room)
 				runs.add(geneticAlgorithm);
 				geneticAlgorithm.start();
 			} catch (MissingConfigurationException e) {
@@ -151,6 +152,7 @@ public class Game implements Listener{
 
 	}
 
+	//TODO: You need to pass a basic room!!!! 
 	private void startBatch(String config, int size){
 		batch = true;
 		batchRunsLeft = size;
@@ -165,6 +167,7 @@ public class Game implements Listener{
 
 	}
 
+	//TODO: You need to pass a basic room!!!! 
 	private void startBatchRun(){
 		try {
 			Algorithm geneticAlgorithm = new Algorithm(new GeneratorConfig(batchConfig));
@@ -209,6 +212,17 @@ public class Game implements Listener{
 		//    		geneticAlgorithm.terminate();
 		//    	}
 	}
+	
+	private void algorithmRunDone(Algorithm geneticAlgorithm)
+	{
+		runs.remove(geneticAlgorithm);
+		
+		if(runs.isEmpty())
+		{
+			EventRouter.getInstance().postEvent(new SuggestedMapsDone());
+		}
+
+	}
 
 	@Override
 	public synchronized void ping(PCGEvent e) {
@@ -237,6 +251,10 @@ public class Game implements Listener{
 					EventRouter.getInstance().postEvent(new BatchDone());
 				}
 			}
+		}
+		else if(e instanceof AlgorithmDone)
+		{
+			algorithmRunDone(((AlgorithmDone) e).getAlgorithm());
 		}
 	}
 

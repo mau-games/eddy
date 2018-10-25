@@ -436,17 +436,20 @@ public class WorldViewController extends BorderPane implements Listener
 		getSuggestionsBtn().setOnAction(new EventHandler<ActionEvent>() {
 			@Override
 			public void handle(ActionEvent e) {
-//				router.postEvent(new RequestSuggestionsView(matrix[row][col], row, col, matrix, 6));
+				MapContainer mc = new MapContainer();
+				mc.setMap(dungeon.getSelectedRoom());
+				router.postEvent(new RequestSuggestionsView(mc, 6));
 //				router.postEvent(new RequestSuggestionsView(matrix[row][col], row, col, matrix, 6));
 				
 //				MapContainer mc = new MapContainer();
 //				mc.setMap(dungeon.getSelectedRoom());
 //				router.postEvent(new RequestRoomView(mc, row, col, null));
 				
-				for(Node child : worldPane.getChildren()) 
-        		{
-        	        ((DungeonPane)child).resetScale();
-        		}
+				//uncomment to reset scale
+//				for(Node child : worldPane.getChildren()) 
+//        		{
+//        	        ((DungeonPane)child).resetScale();
+//        		}
 			}
 
 		}); 
@@ -501,32 +504,32 @@ public class WorldViewController extends BorderPane implements Listener
 	private String matrixToString() {
 		//create large string
 		String largeString = "";
-		int j = 1;
-
-		for (MapContainer[] outer : matrix) {
-
-			for (int k = 0; k < outer[0].getMap().toString().length(); k++) {
-
-				if (outer[0].getMap().toString().charAt(k) != '\n') {
-					largeString += outer[0].getMap().toString().charAt(k);
-
-				}
-				if (outer[0].getMap().toString().charAt(k) == '\n') {
-					while (j < 3) {
-
-						for (int i = (k - 11); i < k; i++) {
-							largeString += outer[j].getMap().toString().charAt(i);
-
-						}
-						j++;
-					}
-					j = 1;
-					largeString += outer[0].getMap().toString().charAt(k);
-				}
-
-			}
-
-		}
+//		int j = 1;
+//
+//		for (MapContainer[] outer : matrix) {
+//
+//			for (int k = 0; k < outer[0].getMap().toString().length(); k++) {
+//
+//				if (outer[0].getMap().toString().charAt(k) != '\n') {
+//					largeString += outer[0].getMap().toString().charAt(k);
+//
+//				}
+//				if (outer[0].getMap().toString().charAt(k) == '\n') {
+//					while (j < 3) {
+//
+//						for (int i = (k - 11); i < k; i++) {
+//							largeString += outer[j].getMap().toString().charAt(i);
+//
+//						}
+//						j++;
+//					}
+//					j = 1;
+//					largeString += outer[0].getMap().toString().charAt(k);
+//				}
+//
+//			}
+//
+//		}
 		return largeString;
 	}
 }

@@ -356,6 +356,44 @@ public class Room {
         borders.removePoint(Point.castToGeometry(doorPosition)); //remove this point from the "usable" border
 }
 	
+	public void applySuggestion(Room suggestions)
+	{
+		wallCount = 0;
+		enemies.clear();
+		treasures.clear();
+		treasureSafety = new Hashtable<Point, Double>();
+		allocated = new boolean[height][width];
+		
+		for (int j = 0; j < height; j++) 
+		{
+			for (int i = 0; i < width; i++) 
+			{
+				setTile(i, j, suggestions.getTile(i, j));
+//				allocated[j][i] = suggestions.getAllocationMatrix()[j][i];
+				
+				switch (TileTypes.toTileType(matrix[j][i])) {
+				case WALL:
+					wallCount++;
+					break;
+				case ENEMY:
+					enemies.add(new Point(i, j));
+					break;
+				case TREASURE:
+					treasures.add(new Point(i, j));
+					break;
+				default:
+					break;
+				}
+			}
+		}
+		
+		finder = new PatternFinder(this);
+		finder.findMicroPatterns();
+		finder.findMesoPatterns();
+		finder.findMacroPatterns();
+		root = new ZoneNode(null, this, getColCount(), getRowCount());
+	}
+	
 	
 	/***
 	 * Updates the different tile-matrix-components of the room based on changes in the zones
@@ -367,6 +405,7 @@ public class Room {
 		wallCount = 0;
 		enemies.clear();
 		treasures.clear();
+		treasureSafety = new Hashtable<Point, Double>();
 		
 		for (int j = 0; j < height; j++) 
 		{
@@ -391,6 +430,7 @@ public class Room {
 		}
 		
 		finder = new PatternFinder(this);
+		
 	}
 
 	/**

@@ -7,6 +7,7 @@ import java.util.UUID;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import game.MapContainer;
+import game.Room;
 import gui.controls.LabeledCanvas;
 import gui.utils.MapRenderer;
 import javafx.application.Platform;
@@ -28,7 +29,7 @@ import util.eventrouting.events.RequestRoomView;
 import util.eventrouting.events.RequestSuggestionsView;
 
 /**
- * This class controls the interactive application's start view.
+ * This class controls the interactive application's start view. NO
  * 
  * @author Johan Holmberg, Malmö University
  * @author Chelsi Nolasco, Malmö University
@@ -46,10 +47,8 @@ public class SuggestionsViewController extends GridPane implements Listener {
 
 	private MapRenderer renderer = MapRenderer.getInstance();
 	private static EventRouter router = EventRouter.getInstance();
-	private MapContainer[][] worldMapMatrix;
-	private int row;
-	private int col;
 	
+	private Room originalRoom;
 	
 	/**
 	 * Creates an instance of this class.
@@ -67,14 +66,16 @@ public class SuggestionsViewController extends GridPane implements Listener {
 			throw new RuntimeException(exception);
 		}
 		router.registerListener(this, new MapUpdate(null));
-		router.registerListener(this, new AlgorithmDone(null));
-		router.registerListener(this, new RequestSuggestionsView());
+		router.registerListener(this, new AlgorithmDone(null, null));
 	}
 
 	/**
 	 * Initialises the controller for a new run.
 	 */
-	public void initialise() {
+	public void initialise(Room original) {
+		
+		this.originalRoom = original;
+		
 		nextMap = 0;
 		getMapDisplay(0).draw(null);
 		getMapDisplay(0).setText("Waiting for map...");
@@ -123,11 +124,6 @@ public class SuggestionsViewController extends GridPane implements Listener {
 				nextMap++;
 			}
 		}
-		else if (e instanceof RequestSuggestionsView) {
-			worldMapMatrix = ((RequestSuggestionsView) e).getMatrix();
-			row = ((RequestSuggestionsView) e).getRow();
-			col = ((RequestSuggestionsView) e).getCol();
-		}
 	}
 
 
@@ -163,10 +159,12 @@ public class SuggestionsViewController extends GridPane implements Listener {
 		}
 
 		@Override
-		public void handle(MouseEvent event) {
+		public void handle(MouseEvent event) 
+		{
 			nextMap = 0;
-			worldMapMatrix[row][col] = map;
-			router.postEvent(new RequestRoomView(map, row, col, worldMapMatrix));
+			originalRoom.applySuggestion(map.getMap());
+			map.setMap(originalRoom);
+			router.postEvent(new RequestRoomView(map, 0, 0, null));
 		}
 
 	}
