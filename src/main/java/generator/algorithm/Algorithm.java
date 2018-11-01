@@ -45,7 +45,6 @@ import util.eventrouting.events.GenerationDone;
 import util.eventrouting.events.MapUpdate;
 import util.eventrouting.events.StatusMessage;
 
-//TODO: NEED TO RECEIVE THE ROOM ALWAYS SO THEN I CAN EXTRACT, WIDTH, HEIGHT, DOORPOSITIONS, ENTRANCE ------ I WAS HERE!!
 public class Algorithm extends Thread {
 	private UUID id;
 	private final Logger logger = LoggerFactory.getLogger(Algorithm.class);

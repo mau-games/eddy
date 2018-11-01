@@ -206,16 +206,11 @@ public class RoomViewController extends BorderPane implements Listener
 		
 		
 		init();
-		
-//		suggestionsPane.setHbarPolicy(ScrollBarPolicy.AS_NEEDED);
-//		suggestionsPane.setVbarPolicy(ScrollBarPolicy.NEVER);
-//		suggestionsPane.setPrefSize(120, 120);
+
 		suggestionsPane.setPrefWidth(50);
 		roomDisplays = new ArrayList<SuggestionRoom>();
 		
-		//testing the HBOX --> This set all of the suggestions you want :D 
-		//It should be based on the application config file!
-		for(int i = 0; i < suggestionAmount; i++) //TODO: This "10" should be changed based on how many suggestions we want 
+		for(int i = 0; i < suggestionAmount; i++) 
 		{
 			SuggestionRoom suggestion = new SuggestionRoom();
 			roomDisplays.add(suggestion);
@@ -525,14 +520,14 @@ public class RoomViewController extends BorderPane implements Listener
 		getMapView().updateMap(room);
 		redrawPatterns(room);
 		redrawLocks(room);
-		mapIsFeasible(room.isFeasible()); //TODO: Lets try with normal feasible
+		mapIsFeasible(room.isFeasible());
 	}
 
 	public void updateRoom(Room room) {
 		getMapView().updateMap(room);
 
 		redrawPatterns(room);
-		mapIsFeasible(room.isFeasible()); //TODO: Lets try with normal feasible
+		mapIsFeasible(room.isFeasible());
 	}
 
 	/**
@@ -737,23 +732,26 @@ public class RoomViewController extends BorderPane implements Listener
 	public void generateNewMaps(Room room) {
 		// TODO: If we want more diversity in the generated maps, then send more StartMapMutate events.
 
-		router.postEvent(new StartMapMutate(room, MapMutationType.Preserving, AlgorithmTypes.Native, suggestionAmount, true));
+//		router.postEvent(new StartMapMutate(room, MapMutationType.Preserving, AlgorithmTypes.Native, suggestionAmount, true));
 		
-//		if (!similarity && !symmetry ) {
-//		router.postEvent(new StartMapMutate(room, MapMutationType.Preserving, AlgorithmTypes.Native, 2, true)); //TODO: Move some of this hard coding to ApplicationConfig
-//		router.postEvent(new StartMapMutate(room, MapMutationType.ComputedConfig, AlgorithmTypes.Native, 2, true)); //TODO: Move some of this hard coding to ApplicationConfig
-//		}
-//		else if (similarity && !symmetry) {
-//			router.postEvent(new StartMapMutate(room, MapMutationType.Preserving, AlgorithmTypes.Similarity, 4, true));
-//		}
-//		else if (!similarity && symmetry) {
-//			router.postEvent(new StartMapMutate(room, MapMutationType.Preserving, AlgorithmTypes.Symmetry, 2, true));
-//			router.postEvent(new StartMapMutate(room, MapMutationType.ComputedConfig, AlgorithmTypes.Symmetry, 2, true));
-//		}
-//		else if (similarity && symmetry) {
-//			router.postEvent(new StartMapMutate(room, MapMutationType.Preserving, AlgorithmTypes.Similarity, 2, true));
-//			router.postEvent(new StartMapMutate(room, MapMutationType.ComputedConfig, AlgorithmTypes.Symmetry, 2, true));
-//		}
+		int firstAmount = suggestionAmount/2;
+		int secondAmount = suggestionAmount - firstAmount;
+		
+		if (!similarity && !symmetry ) {
+		router.postEvent(new StartMapMutate(room, MapMutationType.Preserving, AlgorithmTypes.Native, firstAmount, true)); //TODO: Move some of this hard coding to ApplicationConfig
+		router.postEvent(new StartMapMutate(room, MapMutationType.ComputedConfig, AlgorithmTypes.Native, secondAmount, true)); //TODO: Move some of this hard coding to ApplicationConfig
+		}
+		else if (similarity && !symmetry) {
+			router.postEvent(new StartMapMutate(room, MapMutationType.Preserving, AlgorithmTypes.Similarity, suggestionAmount, true));
+		}
+		else if (!similarity && symmetry) {
+			router.postEvent(new StartMapMutate(room, MapMutationType.Preserving, AlgorithmTypes.Symmetry, firstAmount, true));
+			router.postEvent(new StartMapMutate(room, MapMutationType.ComputedConfig, AlgorithmTypes.Symmetry, secondAmount, true));
+		}
+		else if (similarity && symmetry) {
+			router.postEvent(new StartMapMutate(room, MapMutationType.Preserving, AlgorithmTypes.Similarity, firstAmount, true));
+			router.postEvent(new StartMapMutate(room, MapMutationType.ComputedConfig, AlgorithmTypes.Symmetry, secondAmount, true));
+		}
 	}
 
 	public void replaceRoom()
@@ -1041,7 +1039,6 @@ public class RoomViewController extends BorderPane implements Listener
 
 	}
 	
-	//TODO: things are going to change probs
 	public void roomMouseEvents() 
 	{
 		getMapView().addEventFilter(MouseEvent.MOUSE_CLICKED, new EditViewEventHandler());
@@ -1068,7 +1065,7 @@ public class RoomViewController extends BorderPane implements Listener
 //				mapView.updateTile(tile, brush, event.getButton() == MouseButton.SECONDARY, lockBrush.isSelected() || event.isControlDown());
 				mapView.updateTile(tile, myBrush);
 				mapView.getMap().forceReevaluation();
-				mapIsFeasible(mapView.getMap().isFeasible()); //TODO: Lets try with normal feasible
+				mapIsFeasible(mapView.getMap().isFeasible());
 				redrawPatterns(mapView.getMap());
 				redrawLocks(mapView.getMap());
 //				redrawHeatMap(mapView.getMap());

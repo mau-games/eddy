@@ -232,13 +232,9 @@ public class MapRenderer implements Listener {
 	 */
 	public synchronized Image renderMap(Room room) 
 	{
-		//TODO: This should be extracted from the room config file (independent of each room)
-//		finalMapHeight = (int)((float)config.getMapRenderHeight() * (float)((float)room.getRowCount() / 10.0f));
-//		finalMapWidth = (int)((float)config.getMapRenderWidth() * (float)((float)room.getColCount() / 10.0f));
-		
 		if(room.localConfig != null)
 		{
-			finalMapHeight = room.localConfig.getRenderSizeHeight(); //TODO: ERROR HERE!
+			finalMapHeight = room.localConfig.getRenderSizeHeight();
 			finalMapWidth = room.localConfig.getRenderSizeWidth();
 		}
 		else
@@ -274,13 +270,10 @@ public class MapRenderer implements Listener {
 	 */
 	public synchronized Image renderMiniSuggestedRoom(Room room) 
 	{
-		//TODO: This should be extracted from the room config file (independent of each room)
-//		finalMapHeight = (int)((float)config.getMapRenderHeight() * (float)((float)room.getRowCount() / 10.0f));
-//		finalMapWidth = (int)((float)config.getMapRenderWidth() * (float)((float)room.getColCount() / 10.0f));
-		
+
 		if(room.localConfig != null)
 		{
-			finalMapHeight = room.localConfig.getRenderSizeHeight(); //TODO: ERROR HERE!
+			finalMapHeight = room.localConfig.getRenderSizeHeight();
 			finalMapWidth = room.localConfig.getRenderSizeWidth();
 		}
 		else

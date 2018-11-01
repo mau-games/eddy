@@ -352,7 +352,7 @@ public class Room {
             wallCount--;
         } 
         
-        if(doors.size() == 0) //TODO: PLEASE CHANGE ME!!! 
+        if(doors.size() == 0) //TODO: PLEASE CHANGE ME!!! Based on the set of the initial room!! or from where you start
         {
         	setTile(doorPosition.getX(), doorPosition.getY(), TileTypes.DOORENTER);
         	entrance = doorPosition;
@@ -454,7 +454,6 @@ public class Room {
 	 * to warrant any particular worry. Maybe replace it with a more granular
 	 * approach sometime?
 	 * 
-	 * TODO: Here the cases of door and doorenter are being disable probably part of the problem with the doors
 	 */
 	public void forceReevaluation() {
 		treasures.clear();

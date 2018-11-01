@@ -123,17 +123,13 @@ public class Dungeon implements Listener
 		this.size++;
 	}
 	
-	//TODO: STILL INSECURE OVER NETWORK/GRAPH CODE
 	//Rooms could be an ID
 	public void addConnection(Room from, Room to, Point fromPosition, Point toPosition)
 	{
 		
 		from.createDoor(fromPosition);
 		to.createDoor(toPosition);
-		
-		//Here it should be RoomEdge the edge
-		
-		String testEdge = "Edge between rooms " + rooms.indexOf(from) + "---" + rooms.indexOf(to) + ", at pos: " + fromPosition;
+
 		RoomEdge edge = new RoomEdge(from, to, fromPosition, toPosition);
 		network.addEdge(from, to, edge);
 		dPane.addVisualConnector(edge);

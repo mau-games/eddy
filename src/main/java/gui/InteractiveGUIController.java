@@ -192,10 +192,6 @@ public class InteractiveGUIController implements Initializable, Listener {
 		} else if (e instanceof RequestWorldView) {
 
 			backToWorldView();
-//			worldView.getStartEmptyBtn().setDisable(true);
-//			worldView.getRoomNullBtn().setDisable(true); //TODO: HERE
-//			worldView.getSuggestionsBtn().setDisable(true);
-
 
 		} else if (e instanceof RequestEmptyRoom) {
 			worldMapMatrix = ((RequestEmptyRoom) e).getMatrix();
@@ -209,9 +205,7 @@ public class InteractiveGUIController implements Initializable, Listener {
 			if (size != 0) {
 				initWorldView();
 			}
-//			worldView.getStartEmptyBtn().setDisable(true);
-//			worldView.getRoomNullBtn().setDisable(true);
-//			worldView.getSuggestionsBtn().setDisable(true);
+
 		}
 		 else if (e instanceof RequestNullRoom) {
 			 //TODO: REFACTOR NULL ROOM TO BE THE EVENT OF REMOVING A ROOM FROM THE DUNGEON
@@ -450,11 +444,6 @@ public class InteractiveGUIController implements Initializable, Listener {
 //		roomView.minimap.getChildren().add(dungeonMap.dPane);
 //		dungeonMap.dPane.setPrefSize(roomView.minimap.getPrefWidth(), roomView.minimap.getPrefHeight());
 		
-		//TODO: HERE IS WHAT YOU NEED TO FIX!! PLEASE :/
-//		roomView.updateMiniMap(worldMapMatrix);
-//		roomView.updatePosition(row, col);
-
-//		roomView.generateNewMaps();
 
 		saveItem.setDisable(false);
 		saveAsItem.setDisable(false);
@@ -471,8 +460,6 @@ public class InteractiveGUIController implements Initializable, Listener {
 	/*
 	 * Mouse methods for controllers
 	 */
-
-	//TODO: This part has a few issues, like set numbers (11) and how the map is created
 	private Dungeon initDungeon() 
 	{
 		int width = Game.defaultWidth;
@@ -491,17 +478,6 @@ public class InteractiveGUIController implements Initializable, Listener {
 		
 		return dungeonMap;
 	}
-
-	private void createWorldMatrix() {
-		//START OF MATRIX STUFF		
-		//fill matrix
-		for (MapContainer[] outer : worldMapMatrix) {
-			for (int i = 0; i < outer.length; i++) {
-				outer[i] = quadMap1;
-			}
-		}								
-	}
-
 
 	private String matrixToString() {
 		//create large string
