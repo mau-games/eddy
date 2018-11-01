@@ -14,7 +14,7 @@ public class RequestNewRoom extends PCGEvent
 	private int width;
 	private int height;
 	
-	public RequestNewRoom(Dungeon payload, int dungeonID, int height, int width)
+	public RequestNewRoom(Dungeon payload, int dungeonID, int width, int height)
 	{
 		this.dungeon = payload;
 		this.dungeonID = dungeonID;

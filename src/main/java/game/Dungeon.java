@@ -114,13 +114,40 @@ public class Dungeon implements Listener
 		return rooms.get(index);
 	}
 	
-	public void addRoom(int height, int width)
+	public void addRoom(int width, int height)
 	{
 		Room auxR = new Room(defaultConfig, height < 0 ? defaultHeight : height, width < 0 ? defaultWidth : width, scaleFactor);
 		rooms.add(auxR);
 		network.addNode(auxR);
 		dPane.addVisualRoom(auxR);
 		this.size++;
+	}
+	
+	public void removeRoom(Room roomToRemove)
+	{
+		//FIRST REMOVE ALL DOORS CONNECTING TO THE ROOM
+		Set<RoomEdge> edgesToRemove = network.incidentEdges(roomToRemove);
+		
+		for(RoomEdge edge : edgesToRemove)
+		{
+			if(edge.from.equals(roomToRemove))
+			{
+				edge.to.removeDoor(edge.toPosition);
+			}
+			else if(edge.to.equals(roomToRemove))
+			{
+				edge.from.removeDoor(edge.fromPosition);
+			}
+			
+			dPane.removeVisualConnector(edge);
+		}
+		
+		dPane.removeVisualRoom(roomToRemove);
+		rooms.remove(roomToRemove);
+		network.removeNode(roomToRemove);
+		selectedRoom = null;
+		
+		this.size--;
 	}
 	
 	//Rooms could be an ID

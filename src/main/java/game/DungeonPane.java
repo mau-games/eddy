@@ -52,10 +52,20 @@ public class DungeonPane extends Pane
 		getChildren().add(wvc.getCanvas());
 	}
 	
+	public void removeVisualRoom(Room room)
+	{
+		getChildren().remove(room.localConfig.getWorldCanvas().getCanvas());
+	}
+	
 	public void addVisualConnector(RoomEdge roomEdge)
 	{
 		getChildren().add(roomEdge.graphicElement);
 		roomEdge.graphicElement.toBack();
+	}
+	
+	public void removeVisualConnector(RoomEdge roomEdge)
+	{
+		getChildren().remove(roomEdge.graphicElement);
 	}
 	
 	public void renderAll()

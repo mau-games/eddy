@@ -366,7 +366,37 @@ public class Room {
         
         addDoor(doorPosition);
         borders.removePoint(Point.castToGeometry(doorPosition)); //remove this point from the "usable" border
-}
+	}
+	
+	/**
+	 * To be called when you remove a room or a connection
+	 * @param doorPosition
+	 */
+	public void removeDoor(Point doorPosition) 
+	{
+		if(doors.size() == 0)
+        {
+        	setTile(doorPosition.getX(), doorPosition.getY(), TileTypes.DOORENTER);
+        	entrance = doorPosition;
+
+        }
+        else
+        {
+        	setTile(doorPosition.getX(), doorPosition.getY(), TileTypes.DOOR);
+
+        }
+        
+		doors.remove(doorPosition);
+		doorCount--;
+		setTile(doorPosition.getX(), doorPosition.getY(), TileTypes.FLOOR);
+		borders.addPoint(Point.castToGeometry(doorPosition));
+		
+		if(doors.size() == 0)
+		{
+			entrance = null;
+		}
+		
+	}
 	
 	public void applySuggestion(Room suggestions)
 	{

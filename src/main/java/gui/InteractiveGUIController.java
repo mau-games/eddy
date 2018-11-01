@@ -55,7 +55,7 @@ import util.eventrouting.events.RequestAppliedMap;
 import util.eventrouting.events.RequestConnection;
 import util.eventrouting.events.RequestEmptyRoom;
 import util.eventrouting.events.RequestNewRoom;
-import util.eventrouting.events.RequestNullRoom;
+import util.eventrouting.events.RequestRoomRemoval;
 import util.eventrouting.events.RequestRedraw;
 import util.eventrouting.events.RequestRoomView;
 import util.eventrouting.events.RequestSuggestionsView;
@@ -141,7 +141,7 @@ public class InteractiveGUIController implements Initializable, Listener {
 		router.registerListener(this, new RequestEmptyRoom(null, 0, 0, null));
 		router.registerListener(this, new RequestSuggestionsView(null, 0));
 		router.registerListener(this, new Stop());
-		router.registerListener(this, new RequestNullRoom(null, 0, 0, null));
+		router.registerListener(this, new RequestRoomRemoval(null, null, 0));
 		router.registerListener(this, new StartWorld(0));
 
 		suggestionsView = new SuggestionsViewController();
@@ -177,18 +177,24 @@ public class InteractiveGUIController implements Initializable, Listener {
 		{
 			RequestNewRoom rNR = (RequestNewRoom)e;
 			//TODO: Here you should check for which dungeon
-			dungeonMap.addRoom(rNR.getHeight(), rNR.getWidth());
+			dungeonMap.addRoom(rNR.getWidth(), rNR.getHeight());
 			worldView.initWorldMap(dungeonMap);
 		}
 		else if (e instanceof RequestRoomView) {
 			
-			//Yeah dont care about matrix
-			initRoomView((MapContainer) e.getPayload());
+			//Yeah dont care about matrix but we do care about doors!
+			
+			if(((MapContainer) e.getPayload()).getMap().getDoorCount(true) > 0)
+				initRoomView((MapContainer) e.getPayload());
 
 		} else if (e instanceof RequestSuggestionsView) 
 		{
 			MapContainer container = (MapContainer) e.getPayload();
-			initSuggestionsView(container.getMap());
+			if(container.getMap().getDoorCount(true) > 0)
+			{
+				initSuggestionsView(container.getMap());
+			}
+
 		} else if (e instanceof RequestWorldView) {
 
 			backToWorldView();
@@ -207,14 +213,12 @@ public class InteractiveGUIController implements Initializable, Listener {
 			}
 
 		}
-		 else if (e instanceof RequestNullRoom) {
-			 //TODO: REFACTOR NULL ROOM TO BE THE EVENT OF REMOVING A ROOM FROM THE DUNGEON
-			 
-			worldMapMatrix = ((RequestNullRoom) e).getMatrix();
-			row = ((RequestNullRoom) e).getRow();
-			col = ((RequestNullRoom) e).getCol();
-			MapContainer container = (MapContainer) e.getPayload();
+		 else if (e instanceof RequestRoomRemoval) {
 
+			Room container = (Room) e.getPayload();
+			
+			//TODO: Here you should check for which dungeon
+			dungeonMap.removeRoom(container);
 			backToWorldView();
 		}
 
