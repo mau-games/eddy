@@ -12,9 +12,11 @@ import javafx.application.Platform;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
+import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.Border;
 import javafx.scene.layout.BorderStroke;
 import javafx.scene.layout.BorderStrokeStyle;
@@ -36,7 +38,7 @@ import util.eventrouting.events.RequestRoomView;
  * @author Chelsi Nolasco, Malmö University
  * @author Axel Österman, Malmö University
  */
-public class SuggestionsViewController extends GridPane implements Listener {
+public class SuggestionsViewController extends AnchorPane implements Listener {
 
 	@FXML private List<LabeledCanvas> mapDisplays;
 	private ArrayList<SuggestedNode> suggestedRooms = new ArrayList<SuggestedNode>();
@@ -66,6 +68,8 @@ public class SuggestionsViewController extends GridPane implements Listener {
 		}
 		router.registerListener(this, new MapUpdate(null));
 		router.registerListener(this, new AlgorithmDone(null, null));
+		
+		this.setPrefSize(1920, 1080);
 		
 		//Everything is loaded!
 		for(LabeledCanvas canvas : mapDisplays) //limitations....
@@ -112,21 +116,33 @@ public class SuggestionsViewController extends GridPane implements Listener {
 		
 		setBorder(new Border(new BorderStroke(Color.RED, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderWidths.DEFAULT)));
 		
+		double width = 1920;
+		double height = 985;
+		double procent = height/width;
+		
 		for(SuggestedNode node : suggestedRooms)
 		{
 			node.setReadiness(false);
 			node.setOriginalRoom(original);
+
+			node.getGraphicNode().draw(null);
+			node.getGraphicNode().setText("Waiting for map...");
+			node.resizeCanvasForRoom(original);
+			System.out.println(procent);
+//			node.getGraphicNode().setPrefSize(140, 140);
+//			node.getGraphicNode().setMaxSize(140, 140);
 //			node.getGraphicNode().setMinSize(width/3.0 * procent, height/2.0);
 //			node.getGraphicNode().setMaxSize(width/3.0 * procent, height/2.0);
 //			node.getGraphicNode().setPrefSize(width/3.0 * procent, height/2.0);
-			node.getGraphicNode().draw(null);
-			node.getGraphicNode().setText("Waiting for map...");
-			System.out.println(node.getGraphicNode().getLayoutBounds());
-			System.out.println(node.getGraphicNode().getBoundsInLocal());
-			System.out.println(node.getGraphicNode().getBoundsInParent());
-			node.getGraphicNode().setPrefSize(140, 140);
-			node.getGraphicNode().setPrefHeight(100);
-			node.getGraphicNode().setPrefWidth(100);
+//			node.getGraphicNode().setPrefHeight(100);
+//			node.getGraphicNode().setPrefWidth(100);
+			
+			
+//			node.getGraphicNode().setMinSize(200, 100);
+//			node.getGraphicNode().setMaxSize(200, 100);
+//			node.getGraphicNode().setPrefSize(200, 100);
+			LabeledCanvas.setAlignment(node.getGraphicNode(), Pos.CENTER);
+			node.getGraphicNode().setAlignment(node.getGraphicNode(), Pos.CENTER);
 		}
 		
 	}
@@ -146,7 +162,7 @@ public class SuggestionsViewController extends GridPane implements Listener {
 					
 					int[][] matrix = container.getMap().toMatrix();
 
-					suggestion.getGraphicNode().draw(renderer.renderMap(matrix));
+					suggestion.getGraphicNode().draw(renderer.renderMiniSuggestedRoom(container.getMap()));
 					//					renderer.renderMap(mapDisplays.get(nextMap++).getGraphicsContext(), matrix);
 					//					renderer.drawPatterns(ctx, matrix, activePatterns);
 					//					renderer.drawGraph(ctx, matrix, currentMap.getPatternFinder().getPatternGraph());				renderer.drawMesoPatterns(ctx, matrix, currentMap.getPatternFinder().findMesoPatterns());
@@ -259,9 +275,27 @@ public class SuggestionsViewController extends GridPane implements Listener {
 			}
 		}
 		
-		//TODO: CHANGE THIS 
 		public void resizeCanvasForRoom(Room original) //ReINIT
 		{
+			this.originalRoom = original;
+			graphicNode.setPrefSize(490, 490);
+			graphicNode.setMinSize(490, 490);
+			graphicNode.setMaxSize(490, 490);
+			
+			float proportion = (float)(Math.min(original.getColCount(), original.getRowCount()))/(float)(Math.max(original.getColCount(), original.getRowCount()));
+			
+			if(original.getRowCount() > original.getColCount())
+			{
+				graphicNode.setPrefWidth(graphicNode.getPrefHeight() * proportion);
+				graphicNode.setMinWidth(graphicNode.getPrefHeight() * proportion);
+				graphicNode.setMaxWidth(graphicNode.getPrefHeight() * proportion);
+			}
+			else if(original.getColCount() > original.getRowCount())
+			{
+				graphicNode.setPrefHeight(graphicNode.getPrefWidth() * proportion);
+				graphicNode.setMinHeight(graphicNode.getPrefWidth() * proportion);
+				graphicNode.setMaxHeight(graphicNode.getPrefWidth() * proportion);
+			}
 		}
 		
 		public LabeledCanvas getGraphicNode()
