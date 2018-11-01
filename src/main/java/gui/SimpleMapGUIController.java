@@ -48,11 +48,20 @@ import util.eventrouting.events.MapLoaded;
 import util.eventrouting.events.RequestRedraw;
 import util.eventrouting.events.StatusMessage;
 
+/***
+ * A SIMPLE GUI CONTROLLER USED TO LEARN EDDY and FXML AND ALL OF THAT!
+ *TODO: I SHOULD OR DELETE THIS OR IMPROVE IT FOR NEW COMERS TO SEE BASIC FUNCTIONALITIES OF THE TOOL
+ *TODO: IN A CONTROLLED ENVIRONMENT!!
+ * @author Alberto Alvarez, Malmö University
+ *
+ */
 public class SimpleMapGUIController  implements Initializable, Listener 
 {
-	private int WIDTH = 420;
-	private int HEIGHT = 420;
+	private int CANVAS_WIDTH = 420;
+	private int CANVAS_HEIGHT = 420;
 	
+	private int roomHeight = 11;
+	private int roomWidth = 12;
 	
 	private int[] manual_map = {0,0,1,0,0,0,0,0,1,0,0,2,
 								0,0,0,0,0,1,0,0,0,0,0,2,
@@ -101,7 +110,7 @@ public class SimpleMapGUIController  implements Initializable, Listener
 		}
 		
 		router.registerListener(this, new StatusMessage(null));
-		router.registerListener(this, new AlgorithmDone(null));
+		router.registerListener(this, new AlgorithmDone(null, null));
 		router.registerListener(this, new RequestRedraw());
 		router.registerListener(this, new MapLoaded(null));
 
@@ -130,19 +139,19 @@ public class SimpleMapGUIController  implements Initializable, Listener
 		SetConfiguration();
 		
 		mapPane = new GridPane();
-		mapPane.setMinSize(WIDTH, HEIGHT);
-		mapPane.setMaxSize(WIDTH, HEIGHT);
+		mapPane.setMinSize(CANVAS_WIDTH, CANVAS_HEIGHT);
+		mapPane.setMaxSize(CANVAS_WIDTH, CANVAS_HEIGHT);
 		StackPane.setAlignment(mapPane, Pos.CENTER);
 		mainPane.getChildren().add(mapPane);
 //		
 //		
-		zoneCanvas = new Canvas(WIDTH, HEIGHT);
+		zoneCanvas = new Canvas(CANVAS_WIDTH, CANVAS_HEIGHT);
 		StackPane.setAlignment(zoneCanvas, Pos.CENTER);
 		mainPane.getChildren().add(zoneCanvas);
 		zoneCanvas.setVisible(false);
 		zoneCanvas.setMouseTransparent(true);
 		
-		patternCanvas = new Canvas(WIDTH, HEIGHT);
+		patternCanvas = new Canvas(CANVAS_WIDTH, CANVAS_HEIGHT);
 		StackPane.setAlignment(patternCanvas, Pos.CENTER);
 		mainPane.getChildren().add(patternCanvas);
 		patternCanvas.setVisible(false);
@@ -152,42 +161,42 @@ public class SimpleMapGUIController  implements Initializable, Listener
 	private void InitializeSampleMap(boolean manual)
 	{
 
-		TileTypes[] ex = new TileTypes[Game.sizeWidth * Game.sizeHeight];
+		TileTypes[] ex = new TileTypes[roomWidth * roomHeight];
 		
 		if(manual) //Fill the map with the manual map
 		{
-			for(int y = 0; y < Game.sizeHeight; y++)
+			for(int y = 0; y < roomHeight; y++)
 			{
-				for(int x = 0; x < Game.sizeWidth; x++)
+				for(int x = 0; x < roomWidth; x++)
 				{
-					ex[y * Game.sizeWidth + x] = TileTypes.toTileType(manual_map[y * Game.sizeWidth + x]);
+					ex[y * roomWidth + x] = TileTypes.toTileType(manual_map[y * roomWidth + x]);
 				}
 			}
 		}
 		else 		//Fill a sample map with random 
 		{
-			for(int y = 0; y < Game.sizeHeight; y++)
+			for(int y = 0; y < roomHeight; y++)
 			{
-				for(int x = 0; x < Game.sizeWidth; x++)
+				for(int x = 0; x < roomWidth; x++)
 				{
-					ex[y * Game.sizeWidth + x] = TileTypes.toTileType(Util.getNextInt(0, 6));
+					ex[y * roomWidth + x] = TileTypes.toTileType(Util.getNextInt(0, 6));
 				}
 			}
 		}
 
 //		
-//		for(int y = 0; y < Game.sizeHeight; y++)
+//		for(int y = 0; y < roomHeight; y++)
 //		{
-//			for(int x = 0; x < Game.sizeWidth; x++)
+//			for(int x = 0; x < roomWidth; x++)
 //			{
-//				System.out.print(ex[y * Game.sizeWidth + x] );
+//				System.out.print(ex[y * roomWidth + x] );
 //			}
 //			
 //			System.out.println();
 //		}
 		
 //		System.out.println();
-		currentMap = new Room(basicConfig, ex, Game.sizeHeight, Game.sizeWidth, Game.doorCount);
+		currentMap = new Room(basicConfig, ex, roomHeight, roomWidth, /*Doors positions*/ null, /*Entrance position*/ null);
 		RenderMap(currentMap);
 	}
 	
@@ -278,8 +287,8 @@ public class SimpleMapGUIController  implements Initializable, Listener
 	 */
 	private synchronized void redrawPatterns(Room room)
 	{
-		patternCanvas.getGraphicsContext2D().clearRect(0, 0, WIDTH, HEIGHT);
-		zoneCanvas.getGraphicsContext2D().clearRect(0, 0, WIDTH, HEIGHT);
+		patternCanvas.getGraphicsContext2D().clearRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
+		zoneCanvas.getGraphicsContext2D().clearRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
 		renderer.drawPatterns(patternCanvas.getGraphicsContext2D(), room.toMatrix(), colourPatterns(room.getPatternFinder().findMicroPatterns()));
 		renderer.drawGraph(patternCanvas.getGraphicsContext2D(), room.toMatrix(), room.getPatternFinder().getPatternGraph());
 		renderer.drawMesoPatterns(patternCanvas.getGraphicsContext2D(), room.toMatrix(), room.getPatternFinder().getMesoPatterns());

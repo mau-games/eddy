@@ -422,6 +422,31 @@ public class MapRenderer implements Listener {
 	}
 	
 	/**
+	 * Draws the border of a room.
+	 * 
+	 * @param ctx The graphics context to draw on.
+	 * @param matrix A rectangular matrix of integers. Each integer corresponds
+	 * 		to some predefined value.
+	 * @param borders border positions of the room.
+	 * @param c The color for the zone
+	 */
+	public synchronized void drawRoomPath(
+			GraphicsContext ctx,
+			int[][] matrix,
+			Bitmap path,
+			Color c) {
+		
+		//TODO: The following calculation should probably be split out into a method ... should just send the width and the height instead
+		int width = matrix[0].length;
+		int height = matrix.length;
+		patternOpacity = config.getPatternOpacity();
+		
+		double tileSize = width >= height ? ctx.getCanvas().getWidth() / width : ctx.getCanvas().getHeight() / height;
+		
+		drawBitmapProperly(ctx, path, c, tileSize);
+	}
+	
+	/**
 	 * Draws the brush size on the map.
 	 * 
 	 * @param ctx The graphics context to draw on.

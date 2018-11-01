@@ -20,6 +20,7 @@ import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.control.Button;
+import javafx.scene.control.Control;
 import javafx.scene.control.Tooltip;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.input.ScrollEvent;
@@ -47,6 +48,7 @@ import util.eventrouting.events.RequestNewRoom;
 import util.eventrouting.events.RequestRoomView;
 import util.eventrouting.events.RequestSuggestionsView;
 import util.IntField;
+import util.Point;
 
 /*  
  * @author Chelsi Nolasco, Malmö University
@@ -58,8 +60,7 @@ public class WorldViewController extends BorderPane implements Listener
 	private ApplicationConfig config;
 	private EventRouter router = EventRouter.getInstance();
 	private boolean isActive = false;
-
-	private Button startEmptyBtn = new Button();
+	
 	private Button roomNullBtn = new Button ();
 	private Button suggestionsBtn = new Button();
 	private Button createNewRoomBtn = new Button();
@@ -75,17 +76,14 @@ public class WorldViewController extends BorderPane implements Listener
 	@FXML Pane worldPane;
 	@FXML private List<LabeledCanvas> mapDisplays;
 
-	private int row = 0;
-	private int col = 0;
-	private MapContainer[][] matrix;
 	private Node source;
-	private Node oldNode;
 	
-	Dungeon dungeon;
+	private Dungeon dungeon;
 	
 	double anchorX;
 	double anchorY;
 
+	//Line to appear when we try to draw conenctions between rooms (just visual feedback)
 	private Line auxLine;
 	
 	public WorldViewController() {
@@ -115,6 +113,7 @@ public class WorldViewController extends BorderPane implements Listener
 
 	private void initWorldView() 
 	{
+		//setup visual line
 		auxLine = new Line();
 		auxLine.setStrokeWidth(2.0f);
 		auxLine.setStroke(Color.PINK);
@@ -122,15 +121,15 @@ public class WorldViewController extends BorderPane implements Listener
 		
 		buttonPane = new StackPane();
 
+		//setting the parts of the border pane
 		setCenter(worldPane);
 		setRight(buttonPane);
 		worldPane.addEventHandler(MouseEvent.MOUSE_PRESSED, new MouseEventWorldPane());
 
+		//Don't allow children to pass over the pane!
 		clipChildren(worldPane, 12);
 		worldButtonEvents();
 		initOptions();	
-
-
 	}
 	
 	public void initWorldMap(Dungeon dungeon) 
@@ -201,7 +200,6 @@ public class WorldViewController extends BorderPane implements Listener
             			anchorX = event.getX();
             			anchorY = event.getY();
             			
-            			System.out.println("IN THE BIG CANVAS");
             			event.consume();
 	            	}
 	            }
@@ -258,54 +256,29 @@ public class WorldViewController extends BorderPane implements Listener
 	        outputClip.setHeight(newValue.getHeight());
 	    });
 	}
-	
-	private void scaleRooms(int scaleAmount)
-	{
-		dungeon.scaleRoomsWorldView(scaleAmount);
-	}
 
-	private void initOptions() {				
-		buttonCanvas = new Canvas(500, 1000);
+	private void initOptions() 
+	{				
+		buttonCanvas = new Canvas(500, 1000); //TODO This will stay like this but it shoudl be responsive!!
 		StackPane.setAlignment(buttonCanvas, Pos.CENTER);
 		buttonPane.setAlignment(Pos.CENTER);
 		buttonPane.getChildren().add(buttonCanvas);
 		buttonCanvas.setVisible(false);
 		buttonCanvas.setMouseTransparent(true);
-
-//		getStartEmptyBtn().setTranslateX(800);
-//		getStartEmptyBtn().setTranslateY(-200);
-		getRoomNullBtn().setTranslateX(0);
-		getRoomNullBtn().setTranslateY(0);
-		getSuggestionsBtn().setTranslateX(0);
-		getSuggestionsBtn().setTranslateY(200);
 		
-		changeBrushBtn.setTranslateX(0);
-		changeBrushBtn.setTranslateY(-200);
-		
-		createNewRoomBtn.setTranslateX(0);
-		createNewRoomBtn.setTranslateY(400);
-		
-		heightField.setStyle("-fx-text-inner-color: white;");
-		heightField.setPromptText("HEIGHT");
-		heightField.setTranslateX(-50);
-		heightField.setTranslateY(-300);
-		
+		//Arrange the controls
+		arrangeControls(heightField, -55, -300, 50, 50);
+		arrangeControls(widthField, 50, -300, 50, 50);
+		arrangeControls(createNewRoomBtn, 0, -200, 300, 100);
+		arrangeControls(getRoomNullBtn(), 0, 0, 300, 100);
+		arrangeControls(getSuggestionsBtn(), 0, 200, 300, 100);
+		arrangeControls(getChangeBrushBtn(), 0, 400, 300, 100);
+	
+		//change color of the input fields!
+		heightField.setStyle("-fx-text-inner-color: white;");		
 		widthField.setStyle("-fx-text-inner-color: white;");
-		widthField.setPromptText("WIDTH");
-		widthField.setTranslateX(100);
-		widthField.setTranslateY(-300);
-		
-//		getStartEmptyBtn().setMinSize(500, 100);
-		getRoomNullBtn().setMinSize(300, 100);
-		getSuggestionsBtn().setMinSize(300, 100);
-		changeBrushBtn.setMinSize(300, 100);
-		createNewRoomBtn.setMinSize(300, 100);
-		widthField.setMinSize(100, 50);
-		widthField.setMaxSize(100, 50);
-		heightField.setMinSize(100, 50);
-		heightField.setMaxSize(100, 50);
 
-//		buttonPane.getChildren().add(getStartEmptyBtn());
+		//Add everything to the button pane!
 		buttonPane.getChildren().add(getRoomNullBtn());
 		buttonPane.getChildren().add(getSuggestionsBtn());
 		buttonPane.getChildren().add(changeBrushBtn);
@@ -313,23 +286,23 @@ public class WorldViewController extends BorderPane implements Listener
 		buttonPane.getChildren().add(heightField);
 		buttonPane.getChildren().add(widthField);
 		
+		//Change the text of the buttons!
 		changeBrushBtn.setText("Change brush");
-		changeBrushBtn.setDisable(false);
 		createNewRoomBtn.setText("NEW ROOM");
-		createNewRoomBtn.setDisable(false);
-		getRoomNullBtn().setDisable(false);
-		
-		
-		getStartEmptyBtn().setText("Edit room");
-		getStartEmptyBtn().setTooltip(new Tooltip("Go to room view and start designing"));
-		getRoomNullBtn().setText("Enable/Disable room");
+		getRoomNullBtn().setText("Calculate paths!");
 		getRoomNullBtn().setTooltip(new Tooltip("Makes the room inaccessible for more complex designs"));
 		getSuggestionsBtn().setText("Start with our suggestions");
 		getSuggestionsBtn().setTooltip(new Tooltip("Start with our suggested designs as generated by genetic algorithms"));
 
 	}
-
-
+	
+	private void arrangeControls(Control obj, double xPos, double yPos, double sizeWidth, double sizeHeight)
+	{
+		obj.setTranslateX(xPos);
+		obj.setTranslateY(yPos);
+		obj.setMinSize(sizeWidth, sizeHeight);
+		obj.setMaxSize(sizeWidth, sizeHeight);
+	}
 
 	@Override
 	public void ping(PCGEvent e) {
@@ -337,12 +310,12 @@ public class WorldViewController extends BorderPane implements Listener
 
 	}
 
-	public Button getStartEmptyBtn() {
-		return startEmptyBtn;
+	public Button getChangeBrushBtn() {
+		return changeBrushBtn;
 	}
 
-	public void setStartEmptyBtn(Button startEmptyBtn) {
-		this.startEmptyBtn = startEmptyBtn;
+	public void setChangeBrushBtn(Button changeBrushBtn) {
+		this.changeBrushBtn = changeBrushBtn;
 	}
 
 	public Button getRoomNullBtn() {
@@ -361,89 +334,15 @@ public class WorldViewController extends BorderPane implements Listener
 		this.suggestionsBtn = suggestionsBtn;
 	}
 
-	public class MouseEventHandler implements EventHandler<MouseEvent> {
-
-
-		@Override
-		public void handle(MouseEvent event) {
-			source = (Node)event.getSource() ;
-			Integer colIndex = GridPane.getColumnIndex(source);
-			Integer rowIndex = GridPane.getRowIndex(source);
-			row = rowIndex;
-			col = colIndex;
-			getRoomNullBtn().setDisable(false);
-			//TODO: This is a good idea, maybe we can not allow the edit of the room if it is not connected :O 
-			
-//			if (matrix[row][col].getMap().getNull()) {
-//				//disable
-//				getSuggestionsBtn().setDisable(true);
-//				getStartEmptyBtn().setDisable(true);
-//			}
-//			else {
-//				//enable
-//				getSuggestionsBtn().setDisable(false);
-//				getStartEmptyBtn().setDisable(false);	
-//			}
-			
-
-			source.setOnMouseClicked(new EventHandler<MouseEvent>() {
-
-	            @Override
-	            public void handle(MouseEvent event) {
-	    			source.setStyle("-fx-background-color:#fcdf3c;");
-	    			if (oldNode != null) {
-	    				oldNode.setStyle("-fx-background-color:#2c2f33;");
-	    			}	 
-	    			oldNode = source;
-	    			
-
-	            }
-	        });
-			
-			source.setOnMouseExited(new EventHandler<MouseEvent>() {
-
-	            @Override
-	            public void handle(MouseEvent event) {
-	    			source.setStyle("-fx-background-color:#fcdf3c;");
-	    			
-	            }
-	        });
-			
-			source.setOnMouseEntered(new EventHandler<MouseEvent>() {
-
-	            @Override
-	            public void handle(MouseEvent event) {
-	    			source.setStyle("-fx-background-color:#fcdf3c;");
-	    			
-	            }
-	        });
-
-		}
-
-	}
-
 	private void worldButtonEvents() 
 	{
-		
-		getStartEmptyBtn().setOnAction(new EventHandler<ActionEvent>() {
-			@Override
-			public void handle(ActionEvent e) {
-				
-				router.postEvent(new RequestEmptyRoom(matrix[row][col], row, col, matrix));
-			}
 
-		}); 
 		getSuggestionsBtn().setOnAction(new EventHandler<ActionEvent>() {
 			@Override
 			public void handle(ActionEvent e) {
 				MapContainer mc = new MapContainer();
 				mc.setMap(dungeon.getSelectedRoom());
 				router.postEvent(new RequestSuggestionsView(mc, 6));
-//				router.postEvent(new RequestSuggestionsView(matrix[row][col], row, col, matrix, 6));
-				
-//				MapContainer mc = new MapContainer();
-//				mc.setMap(dungeon.getSelectedRoom());
-//				router.postEvent(new RequestRoomView(mc, row, col, null));
 				
 				//uncomment to reset scale
 //				for(Node child : worldPane.getChildren()) 
@@ -459,12 +358,16 @@ public class WorldViewController extends BorderPane implements Listener
 			@Override
 			public void handle(ActionEvent e) 
 			{
-//				zoom();
-				if(dungeon.size > 1)
-				{
-					dungeon.testTraverseNetwork(dungeon.getRoomByIndex(0),dungeon.getRoomByIndex(1));
-					dungeon.printRoomsPath();
-				}
+				
+//				if(dungeon.size > 1)
+//				{
+//					dungeon.testTraverseNetwork(dungeon.getRoomByIndex(0),dungeon.getRoomByIndex(1));
+//					dungeon.printRoomsPath();
+//				}
+				
+				//Arbitrary path finding
+				dungeon.getSelectedRoom().applyPathfinding(new Point(0,0), new Point(10,0));
+				dungeon.getBestPathBetweenRooms(dungeon.getRoomByIndex(0), dungeon.getRoomByIndex(1));
 				
 //				router.postEvent(new RequestNullRoom(matrix[row][col], row, col, matrix));
 			}
@@ -490,8 +393,7 @@ public class WorldViewController extends BorderPane implements Listener
 		createNewRoomBtn.setOnAction(new EventHandler<ActionEvent>() {
 			@Override
 			public void handle(ActionEvent e) {
-				System.out.println("Pressed test btn");
-//				zoom();
+				System.out.println("Creating a new room");
 				router.postEvent(new RequestNewRoom(dungeon, -1, heightField.getValue(), widthField.getValue()));
 			}
 
@@ -500,7 +402,7 @@ public class WorldViewController extends BorderPane implements Listener
 	}
 	
 	
-	
+	//TODO: NEeds to be redone
 	private String matrixToString() {
 		//create large string
 		String largeString = "";

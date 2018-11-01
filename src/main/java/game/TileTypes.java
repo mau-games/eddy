@@ -43,6 +43,10 @@ public enum TileTypes {
 	public boolean isDoor(){
 		return value == DOOR.getValue();
 	}	
+	
+	public boolean isWall() {
+		return value == WALL.getValue();
+	}
 
 	/**
 	 * Creates a TileType out of an integer value.

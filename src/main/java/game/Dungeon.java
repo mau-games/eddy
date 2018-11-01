@@ -1,6 +1,7 @@
 package game;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Set;
 import java.util.Stack;
 
@@ -19,6 +20,7 @@ import util.eventrouting.events.RequestRoomView;
 public class Dungeon implements Listener
 {	
 	public DungeonPane dPane;
+	private DungeonPathFinder pathfinding;
 	
 	//Maybe we can add a "unique" identifier
 	public static int ID_COUNTER = 0; //Probably not the best
@@ -46,6 +48,7 @@ public class Dungeon implements Listener
 	public Dungeon()
 	{
 		dPane = new DungeonPane(this);
+		pathfinding = new DungeonPathFinder(this);
 	}
 	
 	public Dungeon(GeneratorConfig defaultConfig, int size, int defaultWidth, int defaultHeight)
@@ -54,6 +57,7 @@ public class Dungeon implements Listener
 		ID_COUNTER += 1;
 		
 		dPane = new DungeonPane(this);
+		pathfinding = new DungeonPathFinder(this);
 		network = NetworkBuilder.undirected().allowsParallelEdges(true).build();
 		
 		//Listening to events
@@ -105,25 +109,6 @@ public class Dungeon implements Listener
 		EventRouter.getInstance().postEvent(new RequestRoomView(mc, 0, 0, null));
 	}
 	
-	/**
-	 * Used to scale the resolution of each individual room canvas
-	 * @param value
-	 * @deprecated get access to internal Dungeon pane {@link #dPane} and use {@link #dPane.tryScale(Scale)} instead
-	 */
-	@Deprecated
-	public void scaleRoomsWorldView(int value)
-	{
-		if(this.scaleFactor + value > defaultMaxScaleFactor || this.scaleFactor + value < defaultMinScaleFactor)
-			return;
-		
-		this.scaleFactor += value;
-		
-		for(Room room : rooms)
-		{
-			room.localConfig.getWorldCanvas().setViewSize(this.scaleFactor * room.getColCount(), this.scaleFactor * room.getRowCount());
-		}
-	}
-	
 	public Room getRoomByIndex(int index)
 	{
 		return rooms.get(index);
@@ -167,8 +152,35 @@ public class Dungeon implements Listener
 	public ArrayList<Room> getAllRooms() { return rooms; }
 	
 	
+	/**
+	 * Used to scale the resolution of each individual room canvas
+	 * @param value
+	 * @deprecated get access to internal Dungeon pane {@link #dPane} and use {@link #dPane.tryScale(Scale)} instead
+	 */
+	@Deprecated
+	public void scaleRoomsWorldView(int value)
+	{
+		if(this.scaleFactor + value > defaultMaxScaleFactor || this.scaleFactor + value < defaultMinScaleFactor)
+			return;
+		
+		this.scaleFactor += value;
+		
+		for(Room room : rooms)
+		{
+			room.localConfig.getWorldCanvas().setViewSize(this.scaleFactor * room.getColCount(), this.scaleFactor * room.getRowCount());
+		}
+	}
+
 	
-	//TESTING TRAVERSE
+	//TODO: Testing A* between rooms!!!!!!!!
+	public void getBestPathBetweenRooms(Room init, Room end)
+	{
+		pathfinding.calculateBestPath(init, end, new Point(0,0), new Point(2,0), network);
+		pathfinding.printPath();
+	}
+	
+	///////////////////////// TODO: TESTING TRAVERSAL AND RETRIEVAL OF ALL THE PATHS FROM A ROOM TO ANOTHER ROOM ///////////////////////////	
+
 	Stack<Room> ConnectionPath = new Stack<Room>();
 	ArrayList<Stack<Room>> connectionPaths = new ArrayList<Stack<Room>>();
 	
@@ -243,15 +255,6 @@ public class Dungeon implements Listener
 //		System.out.println("PATH: ROOM: " + rooms.indexOf(rooms.pop()));
 	}
 	
-	private void printRoomNumbers(Stack<Room> rooms)
-	{
-		System.out.print("PATH: ");
-		while(!rooms.isEmpty())
-		{
-			System.out.print("ROOM: " + rooms.indexOf(rooms.pop()) + ", ");
-		}
-		System.out.println();
-//		System.out.println("PATH: ROOM: " + rooms.indexOf(rooms.pop()));
-	}
+///////////////////////// TESTING TRAVERSAL AND RETRIEVAL OF ALL THE PATHS FROM A ROOM TO ANOTHER ROOM ///////////////////////////	
 
 }

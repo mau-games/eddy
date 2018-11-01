@@ -1,11 +1,9 @@
 package gui.views;
 
 import java.io.IOException;
-import java.util.HashMap;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import game.MapContainer;
 import game.Room;
 import gui.controls.LabeledCanvas;
@@ -14,19 +12,22 @@ import javafx.application.Platform;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
-import javafx.geometry.Pos;
-import javafx.scene.canvas.Canvas;
+import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.Border;
+import javafx.scene.layout.BorderStroke;
+import javafx.scene.layout.BorderStrokeStyle;
+import javafx.scene.layout.BorderWidths;
+import javafx.scene.layout.CornerRadii;
 import javafx.scene.layout.GridPane;
-import javafx.scene.layout.StackPane;
+import javafx.scene.paint.Color;
 import util.eventrouting.EventRouter;
 import util.eventrouting.Listener;
 import util.eventrouting.PCGEvent;
 import util.eventrouting.events.AlgorithmDone;
 import util.eventrouting.events.MapUpdate;
 import util.eventrouting.events.RequestRoomView;
-import util.eventrouting.events.RequestSuggestionsView;
 
 /**
  * This class controls the interactive application's start view. NO
@@ -38,17 +39,15 @@ import util.eventrouting.events.RequestSuggestionsView;
 public class SuggestionsViewController extends GridPane implements Listener {
 
 	@FXML private List<LabeledCanvas> mapDisplays;
+	private ArrayList<SuggestedNode> suggestedRooms = new ArrayList<SuggestedNode>();
 
 	private boolean isActive = false;
-	private HashMap<Integer, MapContainer> maps = new HashMap<Integer, MapContainer>();
 	private int nextMap = 0;
 
 	private Button worldViewButton = new Button();
 
 	private MapRenderer renderer = MapRenderer.getInstance();
 	private static EventRouter router = EventRouter.getInstance();
-	
-	private Room originalRoom;
 	
 	/**
 	 * Creates an instance of this class.
@@ -67,34 +66,69 @@ public class SuggestionsViewController extends GridPane implements Listener {
 		}
 		router.registerListener(this, new MapUpdate(null));
 		router.registerListener(this, new AlgorithmDone(null, null));
+		
+		//Everything is loaded!
+		for(LabeledCanvas canvas : mapDisplays) //limitations....
+		{
+			suggestedRooms.add(new SuggestedNode(canvas));
+			System.out.println(this.getWidth());
+			System.out.println(this.getPrefWidth());
+			System.out.println(this.getMinWidth());
+			System.out.println(this.getMaxWidth());
+		}
 	}
 
 	/**
 	 * Initialises the controller for a new run.
 	 */
 	public void initialise(Room original) {
-		
-		this.originalRoom = original;
-		
 		nextMap = 0;
-		getMapDisplay(0).draw(null);
-		getMapDisplay(0).setText("Waiting for map...");
-
-		getMapDisplay(1).draw(null);
-		getMapDisplay(1).setText("Waiting for map...");
-
-		getMapDisplay(2).draw(null);
-		getMapDisplay(2).setText("Waiting for map...");
-
-		getMapDisplay(3).draw(null);
-		getMapDisplay(3).setText("Waiting for map...");
-
-		getMapDisplay(4).draw(null);
-		getMapDisplay(4).setText("Waiting for map...");
-
-		getMapDisplay(5).draw(null);
-		getMapDisplay(5).setText("Waiting for map...");
-
+		this.layout();
+		System.out.println(this.getWidth());
+		System.out.println(this.getPrefWidth());
+		System.out.println(this.getMinWidth());
+		System.out.println(this.getMaxWidth());
+		System.out.println(this.widthProperty().get());
+		System.out.println(this.getBoundsInLocal().getWidth());
+		System.out.println(this.getBoundsInLocal().getMaxX());
+		System.out.println(this.getLayoutBounds().getWidth());
+		System.out.println(this.getLayoutBounds().getMaxX());
+		System.out.println(getBoundsInParent().getWidth());
+		System.out.println(getBoundsInParent().getMaxX());
+		System.out.println(getBoundsInParent());
+		
+		Platform.runLater(() -> {
+			
+			
+			
+			
+			System.out.println(getBoundsInParent());
+			double width = getBoundsInParent().getWidth();
+			double height = getBoundsInParent().getHeight();
+			double procent = height/width;
+			
+			System.out.println(width + ", " + height + " , " + procent);
+		});
+		
+		setBorder(new Border(new BorderStroke(Color.RED, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderWidths.DEFAULT)));
+		
+		for(SuggestedNode node : suggestedRooms)
+		{
+			node.setReadiness(false);
+			node.setOriginalRoom(original);
+//			node.getGraphicNode().setMinSize(width/3.0 * procent, height/2.0);
+//			node.getGraphicNode().setMaxSize(width/3.0 * procent, height/2.0);
+//			node.getGraphicNode().setPrefSize(width/3.0 * procent, height/2.0);
+			node.getGraphicNode().draw(null);
+			node.getGraphicNode().setText("Waiting for map...");
+			System.out.println(node.getGraphicNode().getLayoutBounds());
+			System.out.println(node.getGraphicNode().getBoundsInLocal());
+			System.out.println(node.getGraphicNode().getBoundsInParent());
+			node.getGraphicNode().setPrefSize(140, 140);
+			node.getGraphicNode().setPrefHeight(100);
+			node.getGraphicNode().setPrefWidth(100);
+		}
+		
 	}
 
 	@Override
@@ -104,23 +138,23 @@ public class SuggestionsViewController extends GridPane implements Listener {
 			if (isActive) {
 				MapContainer container = (MapContainer) ((AlgorithmDone) e).getPayload(); 
 				UUID uuid = ((AlgorithmDone) e).getID();
-				LabeledCanvas canvas = mapDisplays.get(nextMap);
+				SuggestedNode suggestion = getSuggestionsNode(nextMap);
 				//				canvas.setText("Got map:\n" + uuid);
-				canvas.setText("");
-				maps.put(nextMap, container);
+				suggestion.getGraphicNode().setText("");
 				
 				Platform.runLater(() -> {
+					
 					int[][] matrix = container.getMap().toMatrix();
 
-					canvas.draw(renderer.renderMap(matrix));
+					suggestion.getGraphicNode().draw(renderer.renderMap(matrix));
 					//					renderer.renderMap(mapDisplays.get(nextMap++).getGraphicsContext(), matrix);
 					//					renderer.drawPatterns(ctx, matrix, activePatterns);
 					//					renderer.drawGraph(ctx, matrix, currentMap.getPatternFinder().getPatternGraph());				renderer.drawMesoPatterns(ctx, matrix, currentMap.getPatternFinder().findMesoPatterns());
 					//					renderer.drawMesoPatterns(ctx, matrix, currentMap.getPatternFinder().findMesoPatterns());
 				});
-
-				canvas.addEventFilter(MouseEvent.MOUSE_CLICKED,
-						new MouseEventHandler(maps.get(nextMap)));
+				
+				suggestion.setSuggestedRoomContainer(container);
+				suggestion.setReadiness(true);
 				nextMap++;
 			}
 		}
@@ -130,16 +164,16 @@ public class SuggestionsViewController extends GridPane implements Listener {
 	public void setActive(boolean state) {
 		isActive = state;
 	}
-
+	
 	/**
-	 * Gets one of the maps (i.e. a labeled view displaying a map) being under
+	 * Gets one of the suggestions node (i.e. a labeled view displaying a map and extra functionalities) being under
 	 * this object's control.
 	 * 
 	 * @param index An index of a map.
 	 * @return A map if it exists, otherwise null.
 	 */
-	public LabeledCanvas getMapDisplay(int index) {
-		return mapDisplays.get(index);
+	public SuggestedNode getSuggestionsNode(int index){
+		return suggestedRooms.get(index);
 	}
 
 	public Button getWorldViewButton() {
@@ -149,23 +183,126 @@ public class SuggestionsViewController extends GridPane implements Listener {
 	public void setWorldViewButton(Button worldViewButton) {
 		this.worldViewButton = worldViewButton;
 	}
-
-	public class MouseEventHandler implements EventHandler<MouseEvent> {
-
-		private MapContainer map;
-
-		public MouseEventHandler(MapContainer map) {
-			this.map = map;
-		}
-
-		@Override
-		public void handle(MouseEvent event) 
+	
+	public class SuggestedNode
+	{
+		private LabeledCanvas graphicNode;
+		private MapContainer suggestedRoomContainer;
+		private Room originalRoom;
+		private Node source;
+		private boolean ready = false;
+		
+		public SuggestedNode(LabeledCanvas node)
 		{
-			nextMap = 0;
-			originalRoom.applySuggestion(map.getMap());
-			map.setMap(originalRoom);
-			router.postEvent(new RequestRoomView(map, 0, 0, null));
+			this.graphicNode = node;
+			this.graphicNode.addEventFilter(MouseEvent.MOUSE_ENTERED, new MouseEventH());
 		}
+		
+		public class MouseEventH implements EventHandler<MouseEvent>
+		{
+			@Override
+			public void handle(MouseEvent event) 
+			{
+				source = (Node)event.getSource();
+				
+				//1) Mouse enters the canvas of the room --> I can fire the event here, no?
+				source.setOnMouseEntered(new EventHandler<MouseEvent>() {
 
+		            @Override
+		            public void handle(MouseEvent event) 
+		            {
+		            	highlight(true);
+		            }
+
+		        });
+				
+				//2) mouse is moved around the map
+				source.setOnMouseMoved(new EventHandler<MouseEvent>() {
+
+		            @Override
+		            public void handle(MouseEvent event) 
+		            {
+		            }
+		        });
+
+				source.setOnMousePressed(new EventHandler<MouseEvent>() {
+
+		            @Override
+		            public void handle(MouseEvent event) 
+		            {	            	
+		            	if(ready)
+		    			{
+		    				originalRoom.applySuggestion(suggestedRoomContainer.getMap());
+		    				suggestedRoomContainer.setMap(originalRoom);
+		    				router.postEvent(new RequestRoomView(suggestedRoomContainer, 0, 0, null));
+		    			}	
+		            }
+		        });
+				
+				source.setOnMouseReleased(new EventHandler<MouseEvent>() {
+
+		            @Override
+		            public void handle(MouseEvent event) 
+		            {
+		            }
+		        });
+				
+				source.setOnMouseExited(new EventHandler<MouseEvent>() {
+
+		            @Override
+		            public void handle(MouseEvent event) 
+		            {
+		            	highlight(false);
+		            }
+
+		        });
+			}
+		}
+		
+		//TODO: CHANGE THIS 
+		public void resizeCanvasForRoom(Room original) //ReINIT
+		{
+		}
+		
+		public LabeledCanvas getGraphicNode()
+		{
+			return graphicNode;
+		}
+	
+		public MapContainer getSuggestedRoom()
+		{
+			return this.suggestedRoomContainer;
+		}
+		
+		public Room getOriginalRoom()
+		{
+			return this.originalRoom;
+		}
+		
+		public void setSuggestedRoomContainer(MapContainer suggestedRoomContainer)
+		{
+			this.suggestedRoomContainer = suggestedRoomContainer;
+		}
+		
+		public void setOriginalRoom(Room originalRoom)
+		{
+			this.originalRoom = originalRoom;
+		}
+		
+		public void setReadiness(boolean value) {ready = value;}
+
+	    /**
+	     * Highlights the control.
+	     * 
+	     * @param state True if highlighted, otherwise false.
+	     */
+	    private void highlight(boolean state)
+	    {
+    		if (state) {
+        		graphicNode.setStyle("-fx-border-width: 2px; -fx-border-color: #6b87f9;");
+        	} else {
+        		graphicNode.setStyle("-fx-border-width: 0px; -fx-background-color:#2c2f33;");
+        	}
+	    }
 	}
 }

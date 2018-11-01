@@ -36,4 +36,9 @@ public class Bitmap extends Polygon {
 			points.remove(p);
 	}
 	
+	public void clearAllPoints()
+	{
+		points.clear();
+	}
+	
 }

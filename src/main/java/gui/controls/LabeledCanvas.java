@@ -2,7 +2,6 @@ package gui.controls;
 
 import java.io.IOException;
 
-import gui.views.WorldViewController.MouseEventHandler;
 import javafx.animation.Animation;
 import javafx.animation.Interpolator;
 import javafx.animation.RotateTransition;

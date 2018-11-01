@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Dictionary;
 import java.util.HashMap;
@@ -12,6 +13,9 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
+
+import javax.swing.text.Position;
+
 import java.util.Map.Entry;
 
 import finder.PatternFinder;
@@ -52,6 +56,8 @@ public class Room {
 	public RoomConfig localConfig;
 	public int maxNumberDoors; //--> HAHA
 	public Bitmap borders = new Bitmap();
+	public Bitmap path = new Bitmap();//TODO: For testing
+	public RoomPathFinder pathfinder;
 
 /////////////////////////OLD///////////////////////////
 
@@ -87,7 +93,9 @@ public class Room {
 	 */
 	private Room(int rows, int cols) { //THIS IS CALLED WHEN LOADING THE ROOM FROM A STRING
 		init(rows, cols);
+		
 		finder = new PatternFinder(this);
+		pathfinder = new RoomPathFinder(this);
 		
 		for (int j = 0; j < height; j++)
 		{
@@ -119,6 +127,8 @@ public class Room {
 		copyDoors(doorPositions, entrance);
 
 		finder = new PatternFinder(this);
+		pathfinder = new RoomPathFinder(this);
+		
 		root = new ZoneNode(null, this, getColCount(), getRowCount());
 
 	}
@@ -140,6 +150,8 @@ public class Room {
 		}
 
 		finder = new PatternFinder(this);
+		pathfinder = new RoomPathFinder(this);
+		
 		root = new ZoneNode(null, this, getColCount(), getRowCount());
 		node = new finder.graph.Node<Room>(this);
 
@@ -149,8 +161,6 @@ public class Room {
 	{
 		init(copyMap.getRowCount(), copyMap.getColCount());
 		this.config = copyMap.config;
-		//TODO: NEW ADDITION --> HAVE TO BE ADDED EVERYWHERE
-//		localConfig = new RoomConfig(this, 40); //PROBABLY something must be done here 
 		
 		for (int j = 0; j < height; j++)
 		{
@@ -182,6 +192,7 @@ public class Room {
 		copyDoors(copyMap.getDoors(), copyMap.getEntrance());
 		
 		finder = new PatternFinder(this);
+		pathfinder = new RoomPathFinder(this);
 		root = zones;	
 	}
 	
@@ -237,6 +248,7 @@ public class Room {
 		copyDoors(room.getDoors(), room.getEntrance());
 //		
 		finder = new PatternFinder(this);
+		pathfinder = new RoomPathFinder(this);
 		root = new ZoneNode(null, this, width, height);
 		
 	}
@@ -387,6 +399,7 @@ public class Room {
 			}
 		}
 		
+		pathfinder = new RoomPathFinder(this);
 		finder = new PatternFinder(this);
 		finder.findMicroPatterns();
 		finder.findMesoPatterns();
@@ -430,7 +443,7 @@ public class Room {
 		}
 		
 		finder = new PatternFinder(this);
-		
+		pathfinder = new RoomPathFinder(this);
 	}
 
 	/**
@@ -479,6 +492,7 @@ public class Room {
 		
 		//markDoors();
 		finder = new PatternFinder(this);
+		pathfinder = new RoomPathFinder(this);
 		
 		//Update the zones - It could be more efficient by only updating the affected zone
 		//(As we already have separated the map)
@@ -1134,10 +1148,27 @@ public class Room {
 	{
 		return borders.contains(Point.castToGeometry(p));
 	}
+	
+	/////////////////////////////// A* INTERNAL PATHFINDING  ///////////////////////////////////////////////////
 
+	public void applyPathfinding(Point start, Point goal)
+	{
+		//CALL YEAHBOI
+		pathfinder.calculateBestPath(start, goal);
+		pathfinder.printPath();
+		path.clearAllPoints();//Maybe not needed
+		
+		for(PathFindingTile pft : pathfinder.path)
+		{
+			path.addPoint(Point.castToGeometry(pft.position));
+		}
+	}
+	
+	///////////////////////////////END ---- A* INTERNAL PATHFINDING  ///////////////////////////////////////////////////
+	
 	/////////////////////////////// LOADING MAPS AND STRING DEBUG //////////////////////////////////////////////
 
-	//TODO: This will need to be REMADE how to load
+	//TODO: This will need to be REMADE how to load/save
 	/**
 	 * Builds a map from a string representing a rectangular room. Each row in
 	 * the string, separated by a newline (\n), represents a row in the

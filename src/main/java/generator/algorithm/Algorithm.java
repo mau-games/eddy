@@ -85,6 +85,12 @@ public class Algorithm extends Thread {
 		SymmetryAndSimilarity
 	}
 	
+	public Algorithm(GeneratorConfig config) //Called by the BATCH RUN!
+	{
+		//TODO: I have to work to fix the batch runner! I don't know how useful it can be without setting the room config values (Doors and sizes)
+		//probably it is a lot easier to generate a room from the config and then pass it 
+	}
+	
 	public Algorithm(Room room, GeneratorConfig config){ //This is called from the batch run and when asked for suggestions view
 		
 		//Set info of the original room

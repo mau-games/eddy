@@ -75,18 +75,7 @@ public class SuggestionRoom
 	            	EventRouter.getInstance().postEvent(new SuggestedMapSelected(self));
 	            	selected = true;
 	            	highlight(true);
-	            	
-//	            	roomView.getAppSuggestionsBtn().setDisable(false);
-//
-//					router.postEvent(new ApplySuggestion(0));
-//					roomView.setSelectedMiniMap(roomView.suggestedRooms.get(0));
-//
-//					roomView.displayStats();
-//					
-//					roomView.getMap(0).setStyle("-fx-background-color:#fcdf3c;");
-//					roomView.getMap(1).setStyle("-fx-background-color:#2c2f33;");
-//					roomView.getMap(2).setStyle("-fx-background-color:#2c2f33;");
-//					roomView.getMap(3).setStyle("-fx-background-color:#2c2f33;");
+
 	            }
 	        });
 			
@@ -128,9 +117,6 @@ public class SuggestionRoom
 		{
 			roomViewNode.setPrefHeight(14.0 * original.getRowCount());
 		}
-		
-		System.out.println(roomViewNode.getHeight());
-		System.out.println(roomViewNode.getPrefHeight());
 		
 		if(original.getRowCount() > original.getColCount())
 		{

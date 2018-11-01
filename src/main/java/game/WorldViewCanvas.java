@@ -33,8 +33,10 @@ public class WorldViewCanvas
 //	public double tileSizeWidth; //TODO: public just to test
 //	public double tileSizeHeight;
 	private Node source;
-	//Border canvas
+	
+	//CANVAS
 	private Canvas borderCanvas;
+	private Canvas pathCanvas;
 	
 	public DoubleProperty xPosition; //TODO: public just to test
 	public DoubleProperty yPosition;
@@ -80,7 +82,11 @@ public class WorldViewCanvas
 		worldGraphicNode.getChildren().add(borderCanvas);
 		borderCanvas.setVisible(false);
 		borderCanvas.setMouseTransparent(true);
-
+		
+		pathCanvas = new Canvas(viewSizeHeight, viewSizeHeight);
+		worldGraphicNode.getChildren().add(pathCanvas);
+		pathCanvas.setVisible(true);
+		pathCanvas.setMouseTransparent(true);
 	}
 	
 	public void setParent()
@@ -128,6 +134,9 @@ public class WorldViewCanvas
 		//Change the size of the border canvas (where you can place doors)
 		borderCanvas.setWidth(viewSizeWidth);
 		borderCanvas.setHeight(viewSizeHeight);
+		
+		pathCanvas.setWidth(viewSizeWidth);
+		pathCanvas.setHeight(viewSizeHeight);
 		
 		//Update the size of the tiles in the graphic display
 		tileSizeWidth.set(viewSizeWidth/ owner.getColCount());
@@ -247,6 +256,8 @@ public class WorldViewCanvas
 	            		highlight(true);
 	            	}
 
+	            	pathCanvas.setVisible(true);
+	            	drawPath();
 	            	DungeonDrawer.getInstance().getBrush().onEnteredRoom(owner); //This could also use the event actually :O
 	            }
 
@@ -305,6 +316,7 @@ public class WorldViewCanvas
 	            public void handle(MouseEvent event) 
 	            {
 	            	borderCanvas.setVisible(false);
+	            	pathCanvas.setVisible(false);
 	            	highlight(false);
 	            }
 
@@ -322,6 +334,18 @@ public class WorldViewCanvas
 	    			owner.borders, 
 	    			Point.castToGeometry(currentBrushPosition) , 
 	    			Color.WHITE);
+		}
+	}
+	
+	private synchronized void drawPath()
+	{
+		if(pathCanvas.isVisible())
+		{
+			pathCanvas.getGraphicsContext2D().clearRect(0, 0, pathCanvas.getWidth(), pathCanvas.getHeight());
+	    	MapRenderer.getInstance().drawRoomPath(pathCanvas.getGraphicsContext2D(), 
+	    			owner.matrix, 
+	    			owner.path, 
+	    			Color.CYAN);
 		}
 	}
 	

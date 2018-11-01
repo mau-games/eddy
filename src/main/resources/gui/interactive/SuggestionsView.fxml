@@ -54,18 +54,18 @@
 		</ArrayList>
 	</fx:define>
 	<children>
-		<AnchorPane prefHeight="150" prefWidth="150">
+		<AnchorPane prefHeight="150" prefWidth="150" >
 			<children>
 				<fx:reference source="map0" />
 			</children>
 		</AnchorPane>
-		<AnchorPane prefHeight="150" prefWidth="150"
+		<AnchorPane prefHeight="150" prefWidth="150" 
 			GridPane.columnIndex="1">
 			<children>
 				<fx:reference source="map1" />
 			</children>
 		</AnchorPane>
-		<AnchorPane prefHeight="150" prefWidth="150"
+		<AnchorPane prefHeight="150" prefWidth="150" 
 			GridPane.columnIndex="2">
 			<children>
 				<fx:reference source="map2" />
