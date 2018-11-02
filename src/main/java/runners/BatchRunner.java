@@ -30,6 +30,7 @@ import util.eventrouting.events.StartBatch;
  */
 public class BatchRunner extends Application implements Listener {
 	
+	//TODO: THIS CLASS NEEDS TO BE FIXED/UPDATED TO THE NEWEST CHANGES
 	final static Logger logger = LoggerFactory.getLogger(BatchRunner.class);
 
 	private Game game;

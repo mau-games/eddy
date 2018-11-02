@@ -2,25 +2,28 @@ package generator.algorithm;
 
 
 import java.util.Arrays;
+import java.util.List;
+
 import game.Game;
-import game.Map;
+import game.Room;
 import game.TileTypes;
 import generator.config.GeneratorConfig;
+import util.Point;
 
 public class Phenotype {
 	private Genotype genotype;
-	private Map map;
+	private Room room;
 	private GeneratorConfig config;
 	
 	public Phenotype(GeneratorConfig config, Genotype genotype){
 		this.config = config;
 		this.genotype = genotype;
-		map = null;
+		room = null;
 	}
 	
-	public Phenotype(Map map){
+	public Phenotype(Room room){
 		genotype = null;
-		this.map = map;
+		this.room = room;
 	}
 	
 	/**
@@ -28,11 +31,11 @@ public class Phenotype {
 	 * 
 	 * @return The Map for this Genotype
 	 */
-	public Map getMap() {
-		if(map == null){
+	public Room getMap(int width, int height, List<Point> doorPositions, Point entrance) {
+		if(room == null){
 			TileTypes[] tileTypes = Arrays.stream(genotype.getChromosome()).boxed().map(x -> TileTypes.toTileType(x)).toArray(TileTypes[]::new);
-			map = new Map(config, tileTypes, Game.sizeHeight, Game.sizeWidth, Game.doorCount);
+			room = new Room(config, tileTypes,  height, width, doorPositions, entrance);
 		}
-		return map;
+		return room;
 	}
 }

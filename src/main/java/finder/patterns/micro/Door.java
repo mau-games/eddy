@@ -8,7 +8,7 @@ import finder.geometry.Point;
 import finder.geometry.Rectangle;
 import finder.patterns.InventorialPattern;
 import finder.patterns.Pattern;
-import game.Map;
+import game.Room;
 
 /**
  * This class represents the dungeon game design pattern called Door.
@@ -17,9 +17,9 @@ import game.Map;
  */
 public class Door extends InventorialPattern {
 	
-	public Door(Geometry geometry, Map map) {
+	public Door(Geometry geometry, Room room) {
 		boundaries = geometry;
-		this.map = map;
+		this.room = room;
 	}
 	
 	@Override
@@ -44,27 +44,27 @@ public class Door extends InventorialPattern {
 	 * boundaries. If these boundaries are invalid, no search will be
 	 * performed.
 	 * 
-	 * @param map The map to search.
+	 * @param room The map to search.
 	 * @param boundary The boundary that limits the searchable area.
 	 * @return A list of found room pattern instances.
 	 */
-	public static List<Pattern> matches(Map map, Geometry boundary) {
+	public static List<Pattern> matches(Room room, Geometry boundary) {
 
 		ArrayList<Pattern> results = new ArrayList<Pattern>();
 		
-		if (map == null) {
+		if (room == null) {
 			return results;
 		}
 		
 		if (boundary == null) {
 			boundary = new Rectangle(new Point(0, 0),
-					new Point(map.getColCount() -1 , map.getRowCount() - 1));
+					new Point(room.getColCount() -1 , room.getRowCount() - 1));
 		}
 
-		for(util.Point p : map.getDoors()){
+		for(util.Point p : room.getDoors()){
 			Point p_ = new Point(p.getX(),p.getY());
 			if(((Rectangle)boundary).contains(p_)){
-				Door d = new Door(p_,map);
+				Door d = new Door(p_,room);
 				results.add(d);
 			}
 		}

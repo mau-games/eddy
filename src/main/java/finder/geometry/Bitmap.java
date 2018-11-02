@@ -30,4 +30,15 @@ public class Bitmap extends Polygon {
 		this.points.addAll(otherPoints);
 	}
 	
+	public void removePoint(Point p)
+	{
+		if(contains(p))
+			points.remove(p);
+	}
+	
+	public void clearAllPoints()
+	{
+		points.clear();
+	}
+	
 }

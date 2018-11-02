@@ -13,9 +13,9 @@ import finder.patterns.CompositePattern;
 import finder.patterns.InventorialPattern;
 import finder.patterns.Pattern;
 import finder.patterns.micro.Enemy;
-import finder.patterns.micro.Room;
+import finder.patterns.micro.Chamber;
 import finder.patterns.micro.Treasure;
-import game.Map;
+import game.Room;
 import generator.config.GeneratorConfig;
 
 public class TreasureRoom extends CompositePattern {
@@ -31,7 +31,7 @@ public class TreasureRoom extends CompositePattern {
 		//quality = Math.min((double)treasureCount/config.getTreasureRoomTargetTreasureAmount(),1.0);
 	}	
 	
-	public static List<CompositePattern> matches(Map map, Graph<Pattern> patternGraph) {
+	public static List<CompositePattern> matches(Room room, Graph<Pattern> patternGraph) {
 		List<CompositePattern> treasureRooms = new ArrayList<>();
 		
 		patternGraph.resetGraph();
@@ -42,11 +42,11 @@ public class TreasureRoom extends CompositePattern {
 		while(!nodeQueue.isEmpty()){
 			Node<Pattern> current = nodeQueue.remove();
 			current.tryVisit();
-			if(current.getValue() instanceof Room){
-				List<InventorialPattern> containedTreasure = ((Room)current.getValue()).getContainedPatterns().stream().filter(p->{return p instanceof Treasure;}).collect(Collectors.toList());
-				List<InventorialPattern> containedEnemies = ((Room)current.getValue()).getContainedPatterns().stream().filter(p->{return p instanceof Enemy;}).collect(Collectors.toList());
+			if(current.getValue() instanceof Chamber){
+				List<InventorialPattern> containedTreasure = ((Chamber)current.getValue()).getContainedPatterns().stream().filter(p->{return p instanceof Treasure;}).collect(Collectors.toList());
+				List<InventorialPattern> containedEnemies = ((Chamber)current.getValue()).getContainedPatterns().stream().filter(p->{return p instanceof Enemy;}).collect(Collectors.toList());
 				if(containedTreasure.size() >= 2 && containedEnemies.size() == 0){
-					TreasureRoom t = new TreasureRoom(map.getConfig(),containedTreasure.size());
+					TreasureRoom t = new TreasureRoom(room.getConfig(),containedTreasure.size());
 					
 					t.patterns.add(current.getValue());
 					t.patterns.addAll(containedTreasure);

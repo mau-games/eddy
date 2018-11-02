@@ -4,13 +4,13 @@ import java.util.List;
 
 import finder.geometry.Bitmap;
 import finder.geometry.Point;
-import game.Map;
+import game.Room;
 
 public class BasicBrush extends Brush
 {
 
 	@Override
-	public void UpdateDrawableTiles(int x, int y, Map map) 
+	public void UpdateDrawableTiles(int x, int y, Room room) 
 	{
 		//Avoid updating the tiles if we are hovering the same tile
 		if(center != null && x == center.getX() && y == center.getY())
@@ -20,7 +20,7 @@ public class BasicBrush extends Brush
 		drawableTiles = new Bitmap();
 		
 		//Update the bitmap depending on the size of the brush
-		FillDrawable(center, map.getColCount(), map.getRowCount(), size);
+		FillDrawable(center, room.getColCount(), room.getRowCount(), size);
 		
 	}
 

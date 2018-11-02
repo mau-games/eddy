@@ -17,9 +17,13 @@
 	-fx-padding: 5, 0, 0, 0;
 }
 
-#mainBorderPane, #suggestionsView, #worldViewPane {
+#mainBorderPane, #suggestionsView, #rootWorldViewPane {
 		-fx-background-color: #2c2f33;
 	
+}
+
+#suggestionsPane, #suggestionsPane . viewport{
+	-fx-background-color: transparent;
 }
 
 #programTitle {

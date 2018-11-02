@@ -1,5 +1,6 @@
 package gui.utils;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Dictionary;
 import java.util.LinkedList;
@@ -9,6 +10,8 @@ import java.util.Queue;
 import java.util.UUID;
 import java.util.Map.Entry;
 import java.util.stream.Collectors;
+
+import javax.imageio.ImageIO;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,19 +37,22 @@ import finder.patterns.micro.Connector;
 import finder.patterns.micro.Corridor;
 import finder.patterns.micro.Enemy;
 import finder.patterns.micro.Nothing;
-import finder.patterns.micro.Room;
+import finder.patterns.micro.Chamber;
 import game.ApplicationConfig;
 import game.Game;
 import game.MapContainer;
+import game.Room;
 import game.TileTypes;
 import game.ZoneNode;
 import gui.ParameterGUIController;
 import gui.controls.Drawer;
 import javafx.application.Platform;
+import javafx.embed.swing.SwingFXUtils;
 import javafx.scene.SnapshotParameters;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.image.Image;
+import javafx.scene.image.WritableImage;
 import javafx.scene.paint.Color;
 import util.config.ConfigurationUtility;
 import util.config.MissingConfigurationException;
@@ -87,7 +93,7 @@ public class MapRenderer implements Listener {
 			logger.error("Couldn't read config: " + e.getMessage());
 		}
 		
-		router.registerListener(this, new AlgorithmDone(null));
+		router.registerListener(this, new AlgorithmDone(null, null));
 
 		finalMapHeight = config.getMapRenderHeight();
 		finalMapWidth = config.getMapRenderWidth();
@@ -116,9 +122,14 @@ public class MapRenderer implements Listener {
 			MapContainer result = (MapContainer) ((AlgorithmDone) e).getPayload();
 			Platform.runLater(() -> {
 				// We might as well see if anyone is interested in our rendered map
-				sendRenderedMap(((AlgorithmDone)e).getID(), (game.Map) result.getMap());
+				sendRenderedMap(((AlgorithmDone)e).getID(), (game.Room) result.getMap());
 			});
 		}
+	}
+	
+	public ApplicationConfig getApplicationConfig()
+	{
+		return config;
 	}
 
 	/**
@@ -211,6 +222,85 @@ public class MapRenderer implements Listener {
 		
 		return image;
 	}
+	
+	/**
+	 * Draws a matrix onto a new image.
+	 * 
+	 * @param ctx The graphics context to draw on.
+	 * @param matrix A rectangular matrix of integers. Each integer corresponds
+	 * 		to some predefined value.
+	 */
+	public synchronized Image renderMap(Room room) 
+	{
+		if(room.localConfig != null)
+		{
+			finalMapHeight = room.localConfig.getRenderSizeHeight();
+			finalMapWidth = room.localConfig.getRenderSizeWidth();
+		}
+		else
+		{
+			finalMapHeight = (int)((float)config.getMapRenderHeight() * (float)((float)room.getRowCount() / 10.0f));
+			finalMapWidth = (int)((float)config.getMapRenderWidth() * (float)((float)room.getColCount() / 10.0f));
+		}
+
+		Canvas canvas = new Canvas(finalMapWidth, finalMapHeight);
+		renderMap(canvas.getGraphicsContext2D(), room.toMatrix());
+		
+		Image image = canvas.snapshot(new SnapshotParameters(), null);
+//	
+//		final WritableImage writableImage = new WritableImage((int) canvas.getWidth(), (int) canvas.getHeight());
+//		Image image = canvas.snapshot(new SnapshotParameters(), writableImage);
+//		
+//		File file = new File("CanvasImage" + finalMapHeight + ".png");
+//		try {
+//            ImageIO.write(SwingFXUtils.fromFXImage(writableImage, null), "png", file);
+//        } catch (Exception s) {
+//        }
+//		
+
+		return image;
+	}
+	
+	/**
+	 * Draws a matrix onto a new image.
+	 * 
+	 * @param ctx The graphics context to draw on.
+	 * @param matrix A rectangular matrix of integers. Each integer corresponds
+	 * 		to some predefined value.
+	 */
+	public synchronized Image renderMiniSuggestedRoom(Room room) 
+	{
+
+		if(room.localConfig != null)
+		{
+			finalMapHeight = room.localConfig.getRenderSizeHeight();
+			finalMapWidth = room.localConfig.getRenderSizeWidth();
+		}
+		else
+		{
+			finalMapHeight = (int)((float)config.getMapRenderHeight() * (float)((float)room.getRowCount() / 10.0f));
+			finalMapWidth = (int)((float)config.getMapRenderWidth() * (float)((float)room.getColCount() / 10.0f));
+		}
+
+		System.out.println("FINAL MAP WIDTH: " + finalMapWidth + ", FINAL MAP HEIGHT: " + finalMapHeight);
+		Canvas canvas = new Canvas(finalMapWidth, finalMapHeight);
+		renderMap(canvas.getGraphicsContext2D(), room.toMatrix());
+		
+		Image image = canvas.snapshot(new SnapshotParameters(), null);
+//	
+//		final WritableImage writableImage = new WritableImage((int) canvas.getWidth(), (int) canvas.getHeight());
+//		Image image = canvas.snapshot(new SnapshotParameters(), writableImage);
+//		
+//		File file = new File("CanvasImage" + finalMapHeight + ".png");
+//		try {
+//            ImageIO.write(SwingFXUtils.fromFXImage(writableImage, null), "png", file);
+//        } catch (Exception s) {
+//        }
+//		
+
+		return image;
+	}
+	
 
 	/**
 	 * Draws a matrix onto an extisting graphics context.
@@ -224,12 +314,15 @@ public class MapRenderer implements Listener {
 		int width = matrix[0].length;
 		int height = matrix.length;
 		double pWidth = ctx.getCanvas().getWidth() / (double)Math.max(width, height);
+		
+		double tileSize = width >= height ? ctx.getCanvas().getWidth() / width : ctx.getCanvas().getHeight() / height;
+		
 		Image image = null;
 
 		for (int j = 0; j < height; j++) {
 			 for (int i = 0; i < width; i++){
 				image = getTileImage(matrix[j][i]);
-				ctx.drawImage(image, i * pWidth, j * pWidth, pWidth, pWidth);
+				ctx.drawImage(image, i * tileSize, j * tileSize, tileSize, tileSize);
 			}
 		}
 	}
@@ -250,7 +343,7 @@ public class MapRenderer implements Listener {
 		//TODO: The following calculation should probably be split out into a method
 		int width = matrix[0].length;
 		int height = matrix.length;
-		double pWidth = ctx.getCanvas().getWidth() / (double)Math.max(width, height);
+		double pWidth = Math.max(ctx.getCanvas().getWidth(), ctx.getCanvas().getHeight()) / (double)Math.max(width, height);
 		patternOpacity = config.getPatternOpacity();
 				
 		for (Entry<Pattern, Color> e : patterns.entrySet()) {
@@ -279,7 +372,7 @@ public class MapRenderer implements Listener {
 		//TODO: The following calculation should probably be split out into a method
 		int width = matrix[0].length;
 		int height = matrix.length;
-		double pWidth = ctx.getCanvas().getWidth() / (double)Math.max(width, height);
+		double pWidth = Math.max(ctx.getCanvas().getWidth(), ctx.getCanvas().getHeight()) / (double)Math.max(width, height);
 		patternOpacity = config.getPatternOpacity();
 		
 		ArrayList<ZoneNode> children = rootZone.traverseToLayer(layer);
@@ -288,6 +381,62 @@ public class MapRenderer implements Listener {
 		{
 			drawBitmapProperly(ctx, zNode.GetSection(),c,pWidth);
 		}
+	}
+	
+	/**
+	 * Draws the border of a room.
+	 * 
+	 * @param ctx The graphics context to draw on.
+	 * @param matrix A rectangular matrix of integers. Each integer corresponds
+	 * 		to some predefined value.
+	 * @param borders border positions of the room.
+	 * @param c The color for the zone
+	 */
+	public synchronized void drawRoomBorders(
+			GraphicsContext ctx,
+			int[][] matrix,
+			Bitmap borders,
+			Point brushPosition,
+			Color c) {
+		
+		//TODO: The following calculation should probably be split out into a method ... should just send the width and the height instead
+		int width = matrix[0].length;
+		int height = matrix.length;
+		patternOpacity = config.getPatternOpacity();
+		
+		double tileSize = width >= height ? ctx.getCanvas().getWidth() / width : ctx.getCanvas().getHeight() / height;
+		
+		drawBitmapProperly(ctx, borders, c, tileSize);
+		if(borders.contains(brushPosition))
+		{
+			drawPoint(ctx, brushPosition, Color.BLACK, tileSize);
+		}
+
+	}
+	
+	/**
+	 * Draws the border of a room.
+	 * 
+	 * @param ctx The graphics context to draw on.
+	 * @param matrix A rectangular matrix of integers. Each integer corresponds
+	 * 		to some predefined value.
+	 * @param borders border positions of the room.
+	 * @param c The color for the zone
+	 */
+	public synchronized void drawRoomPath(
+			GraphicsContext ctx,
+			int[][] matrix,
+			Bitmap path,
+			Color c) {
+		
+		//TODO: The following calculation should probably be split out into a method ... should just send the width and the height instead
+		int width = matrix[0].length;
+		int height = matrix.length;
+		patternOpacity = config.getPatternOpacity();
+		
+		double tileSize = width >= height ? ctx.getCanvas().getWidth() / width : ctx.getCanvas().getHeight() / height;
+		
+		drawBitmapProperly(ctx, path, c, tileSize);
 	}
 	
 	/**
@@ -308,7 +457,7 @@ public class MapRenderer implements Listener {
 		//TODO: The following calculation should probably be split out into a method
 		int width = matrix[0].length;
 		int height = matrix.length;
-		double pWidth = ctx.getCanvas().getWidth() / (double)Math.max(width, height);
+		double pWidth = Math.max(ctx.getCanvas().getWidth(), ctx.getCanvas().getHeight()) / (double)Math.max(width, height);
 		patternOpacity = config.getPatternOpacity();
 		
 		drawBitmapProperly(ctx, brush.GetDrawableTiles(), c, pWidth);
@@ -318,7 +467,7 @@ public class MapRenderer implements Listener {
 
 		int width = matrix[0].length;
 		int height = matrix.length;
-		double pWidth = ctx.getCanvas().getWidth() / (double)Math.max(width, height);
+		double pWidth = Math.max(ctx.getCanvas().getWidth(), ctx.getCanvas().getHeight()) / (double)Math.max(width, height);
 		
 		patternGraph.resetGraph();
 		
@@ -390,7 +539,7 @@ public class MapRenderer implements Listener {
 	public void drawMesoPatterns(GraphicsContext ctx, int[][] matrix, List<CompositePattern> mesopatterns){
 		int width = matrix[0].length;
 		int height = matrix.length;
-		double pWidth = ctx.getCanvas().getWidth() / (double)Math.max(width, height);
+		double pWidth = Math.max(ctx.getCanvas().getWidth(), ctx.getCanvas().getHeight()) / (double)Math.max(width, height);
 		
 		for(CompositePattern p : mesopatterns){
 			if(p instanceof ChokePoint){
@@ -449,7 +598,7 @@ public class MapRenderer implements Listener {
 	}
 	
 	private double getNodeRadius(SpacialPattern p, double pWidth){
-		if(p instanceof Room)
+		if(p instanceof Chamber)
 			return (pWidth * 0.25);
 		if(p instanceof Corridor)
 			return (pWidth * 0.25);
@@ -461,7 +610,7 @@ public class MapRenderer implements Listener {
 	}
 	
 	private Color getNodeColor(SpacialPattern p){
-		if(p instanceof Room)
+		if(p instanceof Chamber)
 			return Color.BLUE;
 		if(p instanceof Corridor)
 			return Color.RED;
@@ -475,11 +624,11 @@ public class MapRenderer implements Listener {
 	/**
 	 * Publishes a rendered map.
 	 */
-	private synchronized void sendRenderedMap(UUID runID, game.Map map) {
+	private synchronized void sendRenderedMap(UUID runID, game.Room room) {
 		finalMapHeight = config.getMapRenderHeight();
 		finalMapWidth = config.getMapRenderWidth();
 		Canvas canvas = new Canvas(finalMapWidth, finalMapHeight);
-		renderMap(canvas.getGraphicsContext2D(), map.toMatrix());
+		renderMap(canvas.getGraphicsContext2D(), room.toMatrix());
 		Image image = canvas.snapshot(new SnapshotParameters(), null);
 		MapRendered mr = new MapRendered(image);
 		mr.setID(runID);

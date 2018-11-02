@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import finder.geometry.Geometry;
-import game.Map;
+import game.Room;
 
 /**
  * The Pattern class is used to describe dungeon game design patterns.
@@ -15,16 +15,16 @@ import game.Map;
 public abstract class Pattern {
 	
 	protected Geometry boundaries = null;
-	protected Map map = null;
+	protected Room room = null;
 	/**
 	 * Searches a map for instances of this pattern and returns a list of found
 	 * instances.
 	 * 
-	 * @param map The map to search for patterns in.
+	 * @param room The map to search for patterns in.
 	 * @param boundary A boundary in which the pattern is searched for.
 	 * @return A list of found instances.
 	 */
-	public static List<Pattern> matches(Map map, Geometry boundary) {
+	public static List<Pattern> matches(Room room, Geometry boundary) {
 		return new ArrayList<Pattern>();
 	}
 

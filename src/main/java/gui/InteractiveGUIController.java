@@ -14,8 +14,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import finder.PatternFinder;
 import game.ApplicationConfig;
+import game.Dungeon;
 import game.Game;
-import game.Map;
+import game.Room;
 import game.MapContainer;
 import game.TileTypes;
 import generator.config.GeneratorConfig;
@@ -51,8 +52,10 @@ import util.eventrouting.events.AlgorithmDone;
 import util.eventrouting.events.ApplySuggestion;
 import util.eventrouting.events.MapLoaded;
 import util.eventrouting.events.RequestAppliedMap;
+import util.eventrouting.events.RequestConnection;
 import util.eventrouting.events.RequestEmptyRoom;
-import util.eventrouting.events.RequestNullRoom;
+import util.eventrouting.events.RequestNewRoom;
+import util.eventrouting.events.RequestRoomRemoval;
 import util.eventrouting.events.RequestRedraw;
 import util.eventrouting.events.RequestRoomView;
 import util.eventrouting.events.RequestSuggestionsView;
@@ -70,6 +73,9 @@ import util.eventrouting.events.UpdateMiniMap;
  * @author Axel Österman, Malmö University
  */
 
+//Definetely I agree that this class can be the one "controlling" all the views and have in any moment the most updated version of
+//the dungeon. But it is simply doing too much at the moment, It should "create" the dungeon but if another room wants to be incorporated
+//It should be the dungeon adding such a room, Basically this should be an intermid, knowing which dungeon, which view, etc.
 public class InteractiveGUIController implements Initializable, Listener {
 
 	@FXML private AnchorPane mainPane;
@@ -111,283 +117,10 @@ public class InteractiveGUIController implements Initializable, Listener {
 	private int col = 0;
 
 	private Node oldNode;
-
-
-	@Override
-	public synchronized void ping(PCGEvent e) {
-
-		if (e instanceof RequestRoomView) {
-			if (((RequestRoomView) e).getMatrix() != null) {
-				worldMapMatrix = ((RequestRoomView) e).getMatrix();
-				row = ((RequestRoomView) e).getRow();
-				col = ((RequestRoomView) e).getCol();
-				MapContainer container = (MapContainer) e.getPayload();
-				initRoomView(container);
-			}
-			else if (!worldMapMatrix[((RequestRoomView) e).getRow()][((RequestRoomView) e).getCol()].getMap().getNull()) { 
-				row = ((RequestRoomView) e).getRow();
-				col = ((RequestRoomView) e).getCol();
-				MapContainer container = worldMapMatrix[row][col];
-				initRoomView(container);
-
-			}
-
-		} else if (e instanceof RequestAppliedMap) {
-			Map map = (Map) ((RequestAppliedMap) e).getPayload();
-			MapContainer mapCont = new MapContainer();
-			row = ((RequestAppliedMap) e).getRow();
-			col = ((RequestAppliedMap) e).getCol(); 
-			mapCont.setMap(map);
-			worldMapMatrix[row][col] = mapCont;
-			initRoomView(mapCont);
-		} else if (e instanceof RequestSuggestionsView) {
-			worldMapMatrix = ((RequestSuggestionsView) e).getMatrix();
-			row = ((RequestSuggestionsView) e).getRow();
-			col = ((RequestSuggestionsView) e).getCol();
-			MapContainer container = (MapContainer) e.getPayload();
-			initSuggestionsView();
-		} else if (e instanceof RequestWorldView) {
-
-			backToWorldView();
-			worldView.getStartEmptyBtn().setDisable(true);
-			worldView.getRoomNullBtn().setDisable(true);
-			worldView.getSuggestionsBtn().setDisable(true);
-
-
-		} else if (e instanceof RequestEmptyRoom) {
-			worldMapMatrix = ((RequestEmptyRoom) e).getMatrix();
-			row = ((RequestEmptyRoom) e).getRow();
-			col = ((RequestEmptyRoom) e).getCol();
-			MapContainer container = (MapContainer) e.getPayload();
-			initRoomView(container);
-
-		} else if (e instanceof StartWorld) {
-			size = ((StartWorld) e).getSize();
-			if (size != 0) {
-				initWorldView();
-			}
-			worldView.getStartEmptyBtn().setDisable(true);
-			worldView.getRoomNullBtn().setDisable(true);
-			worldView.getSuggestionsBtn().setDisable(true);
-		}
-		else if (e instanceof SuggestedMapsDone) {
-			restrictNav();
-			roomView.getUpdateMiniMapBtn().setDisable(false);
-			roomView.getWorldGridBtn().setDisable(false);
-			roomView.getGenSuggestionsBtn().setDisable(false);			
-			roomView.setMinimapBoolean(true);
-		} else if (e instanceof SuggestedMapsLoading) {
-
-			firstIsClicked = false;
-			secondIsClicked = false;
-			thirdIsClicked = false;
-			fourthIsClicked = false;
-
-			roomView.getMap(0).setStyle("-fx-background-color:#2c2f33;");
-			roomView.getMap(1).setStyle("-fx-background-color:#2c2f33;");
-			roomView.getMap(2).setStyle("-fx-background-color:#2c2f33;");
-			roomView.getMap(3).setStyle("-fx-background-color:#2c2f33;");
-			roomView.clearStats();
-			roomView.getUpdateMiniMapBtn().setDisable(true);
-			roomView.getWorldGridBtn().setDisable(true);
-			roomView.getGenSuggestionsBtn().setDisable(true);
-			roomView.getAppSuggestionsBtn().setDisable(true);
-
-			roomView.getAppSuggestionsBtn().setDisable(true);
-			roomView.getRightButton().setDisable(true);
-			roomView.getLeftButton().setDisable(true);
-			roomView.getDownButton().setDisable(true);
-			roomView.getUpButton().setDisable(true);
-			roomView.getRightButton().setOpacity(0);
-			roomView.getLeftButton().setOpacity(0);
-			roomView.getDownButton().setOpacity(0);
-			roomView.getUpButton().setOpacity(0);
-			
-			roomView.setMinimapBoolean(false);
-
-		} else if (e instanceof UpdateMiniMap) {
-			roomView.updateMiniMap(worldMapMatrix);
-		} else if (e instanceof RequestNullRoom) {
-			worldMapMatrix = ((RequestNullRoom) e).getMatrix();
-			row = ((RequestNullRoom) e).getRow();
-			col = ((RequestNullRoom) e).getCol();
-			MapContainer container = (MapContainer) e.getPayload();
-
-			if (!worldMapMatrix[row][col].getMap().getNull()) {
-				Map nullMap = new Map(Game.sizeWidth, Game.sizeHeight, 0);
-				MapContainer nullCont = new MapContainer();
-				nullCont.setMap(nullMap);
-				worldMapMatrix[row][col] = nullCont;
-			}
-			else {
-				
-				//TODO: This really needs to change
-				
-				// South
-				Point south = new Point(11/2, 11-1);
-				// East
-				Point east = new Point(11-1, 11/2);
-				// North
-				Point north = new Point(11/2, 0);
-				// West
-				Point west = new Point(0, 11/2);
-				GeneratorConfig gc = null;
-				try {
-					gc = new GeneratorConfig();
-
-				} catch (MissingConfigurationException ex) {
-					// TODO Auto-generated catch block
-					ex.printStackTrace();
-				}
-				Map tempMap = null;
-				// 1
-				if (row == 0 && col == 0) {
-					tempMap = new Map(gc, 11, 11, null, east, south, null);
-				}
-				// 3
-				if (row == 0 && col == (size - 1)) {
-					tempMap = new Map(gc, 11, 11, null, null, south, west);
-				}
-				// 7
-				if (row == (size - 1) && col == 0) {
-					tempMap = new Map(gc, 11, 11, north, east, null, null);
-				}
-				// 9
-				if (row == (size - 1) && col == (size - 1)) {
-					tempMap = new Map(gc, 11, 11, north, null, null, west);
-				}
-				// top
-				if (row == 0 && col != (size - 1) && col != 0) {
-					tempMap = new Map(gc, 11, 11, null, east, south, west);
-				}
-				// left
-				if (row != 0 && col == 0 && row != (size - 1)) {
-					tempMap = new Map(gc, 11, 11, north, east, south, null);
-				}
-				// right
-				if (row != 0 && row != (size - 1) && col == (size - 1)) {
-					tempMap = new Map(gc, 11, 11, north, null, south, west);
-				}
-				// bottom
-				if (col != 0 && col != (size - 1) && row == (size - 1)) {
-					tempMap = new Map(gc, 11, 11, north, east, null, west);
-				}
-				// other
-				else if (col != 0 && col != (size - 1) && row != 0 && row != (size - 1)) {
-					tempMap = new Map(gc, 11, 11, north, east, south, west);
-				}
-				MapContainer revertCont = new MapContainer();
-				revertCont.setMap(tempMap);
-				worldMapMatrix[row][col] = revertCont;
-			}
-			evaluateNullChange();
-			backToWorldView();
-		}
-
-	}
-
-	private void restrictNav() {
-		MapRenderer renderer = MapRenderer.getInstance();
-		if (row != 0) {
-			if (!worldMapMatrix[row - 1][col].getMap().getNull()) {
-				Platform.runLater(() -> {
-					roomView.getUpButton().setOpacity(1);
-					ImageView image = new ImageView(renderer.renderMap(worldMapMatrix[row - 1][col].getMap().toMatrix()));
-					image.setScaleX(0.85);
-					image.setScaleY(0.85);
-					roomView.getUpButton().setGraphic(image);
-					roomView.getUpButton().setScaleX(0.15);
-					roomView.getUpButton().setScaleY(0.15);
-				});
-				roomView.getUpButton().setDisable(false);
-
-			}
-			else {
-				Platform.runLater(() -> {
-					roomView.getUpButton().setOpacity(0);
-				});
-			}
-		}
-		else {
-			Platform.runLater(() -> {
-				roomView.getUpButton().setOpacity(0);
-			});
-		}
-		if (row != (size-1)) {
-			if (!worldMapMatrix[row + 1][col].getMap().getNull()) {
-				Platform.runLater(() -> {
-					roomView.getDownButton().setOpacity(1);
-					ImageView image = new ImageView(renderer.renderMap(worldMapMatrix[row + 1][col].getMap().toMatrix()));
-					image.setScaleX(0.85);
-					image.setScaleY(0.85);
-					roomView.getDownButton().setGraphic(image);
-					roomView.getDownButton().setScaleX(0.15);
-					roomView.getDownButton().setScaleY(0.15);
-
-				});
-				roomView.getDownButton().setDisable(false);
-			}
-			else {
-				Platform.runLater(() -> {
-					roomView.getDownButton().setOpacity(0);
-				});
-			}
-		}
-		else {
-			Platform.runLater(() -> {
-				roomView.getDownButton().setOpacity(0);
-			});
-		}
-		if (col != 0) {
-			if (!worldMapMatrix[row][col - 1].getMap().getNull()) {
-				Platform.runLater(() -> {
-					roomView.getLeftButton().setOpacity(1);
-					ImageView image = new ImageView(renderer.renderMap(worldMapMatrix[row][col - 1].getMap().toMatrix()));
-					image.setScaleX(0.85);
-					image.setScaleY(0.85);
-					roomView.getLeftButton().setGraphic(image);
-					roomView.getLeftButton().setScaleX(0.15);
-					roomView.getLeftButton().setScaleY(0.15);
-				});
-				roomView.getLeftButton().setDisable(false);
-			}
-			else {
-				Platform.runLater(() -> {
-					roomView.getLeftButton().setOpacity(0);
-				});
-			}
-		}
-		else {
-			Platform.runLater(() -> {
-				roomView.getLeftButton().setOpacity(0);
-			});
-		}
-		if (col != (size-1)) {
-			if (!worldMapMatrix[row][col + 1].getMap().getNull()) {
-				Platform.runLater(() -> {
-					roomView.getRightButton().setOpacity(1);
-					ImageView image = new ImageView(renderer.renderMap(worldMapMatrix[row][col + 1].getMap().toMatrix()));
-					image.setScaleX(0.85);
-					image.setScaleY(0.85);
-					roomView.getRightButton().setGraphic(image);
-					roomView.getRightButton().setScaleX(0.15);
-					roomView.getRightButton().setScaleY(0.15);
-				});
-				roomView.getRightButton().setDisable(false);
-			}
-			else {
-				Platform.runLater(() -> {
-					roomView.getRightButton().setOpacity(0);
-				});
-			}
-		}
-		else {
-			Platform.runLater(() -> {
-				roomView.getRightButton().setOpacity(0);
-			});
-		}
-
-	}
+	
+	//NEW
+	private Dungeon dungeonMap = new Dungeon();
+	
 
 	@Override
 	public void initialize(URL location, ResourceBundle resources) {
@@ -397,21 +130,19 @@ public class InteractiveGUIController implements Initializable, Listener {
 			logger.error("Couldn't read config file.");
 		}
 
+		router.registerListener(this, new RequestConnection(null, -1, null, null, null, null));
+		router.registerListener(this, new RequestNewRoom(null, -1, -1, -1));
 		router.registerListener(this, new StatusMessage(null));
-		router.registerListener(this, new AlgorithmDone(null));
+		router.registerListener(this, new AlgorithmDone(null, null));
 		router.registerListener(this, new RequestRedraw());
 		router.registerListener(this, new RequestRoomView(null, 0, 0, null));
 		router.registerListener(this, new MapLoaded(null));
 		router.registerListener(this, new RequestWorldView());
 		router.registerListener(this, new RequestEmptyRoom(null, 0, 0, null));
-		router.registerListener(this, new RequestSuggestionsView(null, 0, 0, null, 0));
+		router.registerListener(this, new RequestSuggestionsView(null, 0));
 		router.registerListener(this, new Stop());
-		router.registerListener(this, new SuggestedMapsDone());
-		router.registerListener(this, new SuggestedMapsLoading());
-		router.registerListener(this, new RequestNullRoom(null, 0, 0, null));
-		router.registerListener(this, new UpdateMiniMap());
+		router.registerListener(this, new RequestRoomRemoval(null, null, 0));
 		router.registerListener(this, new StartWorld(0));
-		router.registerListener(this, new RequestAppliedMap(null, 0, 0));
 
 		suggestionsView = new SuggestionsViewController();
 		roomView = new RoomViewController();
@@ -428,6 +159,68 @@ public class InteractiveGUIController implements Initializable, Listener {
 
 		initLaunchView();
 
+
+	}
+
+
+	@Override
+	public synchronized void ping(PCGEvent e) 
+	{
+		if(e instanceof RequestConnection)
+		{
+			RequestConnection rC = (RequestConnection)e;
+			//TODO: Here you should check for which dungeon
+			dungeonMap.addConnection(rC.getFromRoom(), rC.getToRoom(), rC.getFromPos(), rC.getToPos());
+			worldView.initWorldMap(dungeonMap);
+		}
+		else if(e instanceof RequestNewRoom)
+		{
+			RequestNewRoom rNR = (RequestNewRoom)e;
+			//TODO: Here you should check for which dungeon
+			dungeonMap.addRoom(rNR.getWidth(), rNR.getHeight());
+			worldView.initWorldMap(dungeonMap);
+		}
+		else if (e instanceof RequestRoomView) {
+			
+			//Yeah dont care about matrix but we do care about doors!
+			
+			if(((MapContainer) e.getPayload()).getMap().getDoorCount(true) > 0)
+				initRoomView((MapContainer) e.getPayload());
+
+		} else if (e instanceof RequestSuggestionsView) 
+		{
+			MapContainer container = (MapContainer) e.getPayload();
+			if(container.getMap().getDoorCount(true) > 0)
+			{
+				initSuggestionsView(container.getMap());
+			}
+
+		} else if (e instanceof RequestWorldView) {
+
+			backToWorldView();
+
+		} else if (e instanceof RequestEmptyRoom) {
+			worldMapMatrix = ((RequestEmptyRoom) e).getMatrix();
+			row = ((RequestEmptyRoom) e).getRow();
+			col = ((RequestEmptyRoom) e).getCol();
+			MapContainer container = (MapContainer) e.getPayload();
+			initRoomView(container);
+
+		} else if (e instanceof StartWorld) {
+			size = ((StartWorld) e).getSize();
+			if (size != 0) {
+				initWorldView();
+			}
+
+		}
+		 else if (e instanceof RequestRoomRemoval) {
+
+			Room container = (Room) e.getPayload();
+			
+			//TODO: Here you should check for which dungeon
+			dungeonMap.removeRoom(container);
+			backToWorldView();
+		}
 
 	}
 
@@ -474,7 +267,6 @@ public class InteractiveGUIController implements Initializable, Listener {
 	}
 
 	public void saveMap() {
-		roomView.updateLargeMap(tempLargeContainer.getMap());
 		DateTimeFormatter format =
 				DateTimeFormatter.ofPattern("yyyy-MM-dd_HH-mm-s-n");
 		String name = "map_" +
@@ -532,9 +324,9 @@ public class InteractiveGUIController implements Initializable, Listener {
 		System.out.println("Generate map");
 	}
 
-	private void updateConfigBasedOnMap(Map map) {
-		config.setDimensionM(map.getColCount());
-		config.setDimensionN(map.getRowCount());
+	private void updateConfigBasedOnMap(Room room) {
+		config.setDimensionM(room.getColCount());
+		config.setDimensionN(room.getRowCount());
 	}
 
 	/*
@@ -544,7 +336,7 @@ public class InteractiveGUIController implements Initializable, Listener {
 	/**
 	 * Initialises the suggestions view.
 	 */
-	private void initSuggestionsView() {
+	private void initSuggestionsView(Room room) {
 		mainPane.getChildren().clear();
 
 		AnchorPane.setTopAnchor(suggestionsView, 0.0);
@@ -564,7 +356,7 @@ public class InteractiveGUIController implements Initializable, Listener {
 		launchView.setActive(false);
 
 
-		suggestionsView.initialise();
+		suggestionsView.initialise(room);
 	}
 
 	/**
@@ -579,7 +371,7 @@ public class InteractiveGUIController implements Initializable, Listener {
 		AnchorPane.setLeftAnchor(worldView, 0.0);
 		mainPane.getChildren().add(worldView);
 
-		worldView.initWorldMap(initMatrix());
+		worldView.initWorldMap(initDungeon());
 
 		saveItem.setDisable(false);
 		saveAsItem.setDisable(false);
@@ -617,7 +409,7 @@ public class InteractiveGUIController implements Initializable, Listener {
 		AnchorPane.setLeftAnchor(worldView, 0.0);
 		mainPane.getChildren().add(worldView);
 
-		worldView.initWorldMap(worldMapMatrix);
+		worldView.initWorldMap(dungeonMap);
 
 		saveItem.setDisable(false);
 		saveAsItem.setDisable(false);
@@ -640,17 +432,22 @@ public class InteractiveGUIController implements Initializable, Listener {
 		AnchorPane.setBottomAnchor(roomView, 0.0);
 		AnchorPane.setLeftAnchor(roomView, 0.0);
 		mainPane.getChildren().add(roomView);
-		roomView.updateLargeMap(map.getMap());
 		roomView.updateMap(map.getMap());	
 		setCurrentQuadMap(map);
 
-		roomMouseEvents();
-		roomButtonEvents();
-
-		roomView.updateMiniMap(worldMapMatrix);
-		roomView.updatePosition(row, col);
-
-		roomView.generateNewMaps();
+		
+		
+		roomView.initializeView(map.getMap());
+		roomView.roomMouseEvents();
+		
+		//TODO: Crazyness to create mini map based on the dungeon...
+		//It would need to have different dimensions for the room view and for the world view
+		
+//		
+//		roomView.minimap.getChildren().clear();
+//		roomView.minimap.getChildren().add(dungeonMap.dPane);
+//		dungeonMap.dPane.setPrefSize(roomView.minimap.getPrefWidth(), roomView.minimap.getPrefHeight());
+		
 
 		saveItem.setDisable(false);
 		saveAsItem.setDisable(false);
@@ -664,439 +461,14 @@ public class InteractiveGUIController implements Initializable, Listener {
 
 	}
 
-
-
-	private void roomButtonEvents() {
-
-
-		roomView.getRightButton().setOnAction(new EventHandler<ActionEvent>() {
-			@Override
-			public void handle(ActionEvent e) {
-				worldMapMatrix[row][col] = currentQuadMap;
-
-				if (col != (size - 1)) {
-					col++;
-
-					roomView.updateMiniMap(worldMapMatrix);
-					roomView.updatePosition(row, col);
-
-					currentQuadMap = worldMapMatrix[row][col];
-					roomView.updateRoom(currentQuadMap.getMap());
-					roomView.generateNewMaps();
-
-
-				}
-				roomView.getRightButton().setDisable(true);
-				roomView.getLeftButton().setDisable(true);
-				roomView.getDownButton().setDisable(true);
-				roomView.getUpButton().setDisable(true);
-
-			}
-		}); 
-
-		roomView.getLeftButton().setOnAction(new EventHandler<ActionEvent>() {
-			@Override
-			public void handle(ActionEvent e) {
-				worldMapMatrix[row][col] = currentQuadMap;
-
-				if (col != 0) {
-					col--;
-					roomView.updateMiniMap(worldMapMatrix);
-					roomView.updatePosition(row, col);
-
-					currentQuadMap = worldMapMatrix[row][col];
-					roomView.updateRoom(currentQuadMap.getMap());
-					roomView.generateNewMaps();
-
-
-
-				}
-				roomView.getRightButton().setDisable(true);
-				roomView.getLeftButton().setDisable(true);
-				roomView.getDownButton().setDisable(true);
-				roomView.getUpButton().setDisable(true);
-			}
-		}); 
-
-		roomView.getDownButton().setOnAction(new EventHandler<ActionEvent>() {
-			@Override
-			public void handle(ActionEvent e) {
-				worldMapMatrix[row][col] = currentQuadMap;
-
-				if (row != (size - 1)) {
-					row++;
-					roomView.updateMiniMap(worldMapMatrix);
-					roomView.updatePosition(row, col);
-
-					currentQuadMap = worldMapMatrix[row][col];
-					roomView.updateRoom(currentQuadMap.getMap());
-					roomView.generateNewMaps();
-
-
-				}
-				roomView.getRightButton().setDisable(true);
-				roomView.getLeftButton().setDisable(true);
-				roomView.getDownButton().setDisable(true);
-				roomView.getUpButton().setDisable(true);
-			}
-
-		}); 
-		roomView.getUpButton().setOnAction(new EventHandler<ActionEvent>() {
-			@Override
-			public void handle(ActionEvent e) {
-				worldMapMatrix[row][col] = currentQuadMap;
-
-				if (row != 0) {
-					row--;
-					roomView.updateMiniMap(worldMapMatrix);
-					roomView.updatePosition(row, col);
-
-					currentQuadMap = worldMapMatrix[row][col];
-					roomView.updateRoom(currentQuadMap.getMap());
-					roomView.generateNewMaps();
-
-
-
-				}
-				roomView.getRightButton().setDisable(true);
-				roomView.getLeftButton().setDisable(true);
-				roomView.getDownButton().setDisable(true);
-				roomView.getUpButton().setDisable(true);
-
-			}
-		}); 
-
-	}
-
 	/*
 	 * Mouse methods for controllers
 	 */
+	private Dungeon initDungeon() 
+	{
+		int width = Game.defaultWidth;
+		int height = Game.defaultHeight;
 
-	private void roomMouseEvents() {
-		roomView.getMapView().addEventFilter(MouseEvent.MOUSE_CLICKED, roomView.new EditViewEventHandler());
-		roomView.getMapView().addEventFilter(MouseEvent.MOUSE_MOVED, roomView.new EditViewMouseHover());
-		
-		roomView.getMap(0).addEventFilter(MouseEvent.MOUSE_CLICKED, (e) -> {
-
-			roomView.getMap(0).setOnMouseClicked(new EventHandler<MouseEvent>() {
-
-				@Override
-				public void handle(MouseEvent event) {
-					roomView.getAppSuggestionsBtn().setDisable(false);
-
-					router.postEvent(new ApplySuggestion(0));
-					roomView.setSelectedMiniMap(roomView.maps.get(0));
-
-					roomView.displayStats();
-					
-					roomView.getMap(0).setStyle("-fx-background-color:#fcdf3c;");
-					roomView.getMap(1).setStyle("-fx-background-color:#2c2f33;");
-					roomView.getMap(2).setStyle("-fx-background-color:#2c2f33;");
-					roomView.getMap(3).setStyle("-fx-background-color:#2c2f33;");
-					firstIsClicked = true;
-					secondIsClicked = false;
-					thirdIsClicked = false;
-					fourthIsClicked = false;
-
-				}
-			});
-			roomView.getMap(0).setOnMouseExited(new EventHandler<MouseEvent>() {
-
-				@Override
-				public void handle(MouseEvent event) {
-					if (firstIsClicked) {
-						roomView.getMap(0).setStyle("-fx-background-color:#fcdf3c;");
-						roomView.getMap(1).setStyle("-fx-background-color:#2c2f33;");
-						roomView.getMap(2).setStyle("-fx-background-color:#2c2f33;");
-						roomView.getMap(3).setStyle("-fx-background-color:#2c2f33;");
-					}
-				}
-			});
-			roomView.getMap(0).setOnMouseEntered(new EventHandler<MouseEvent>() {
-
-				@Override
-				public void handle(MouseEvent event) {
-					if (firstIsClicked) {
-
-						roomView.getMap(0).setStyle("-fx-background-color:#fcdf3c;");
-						roomView.getMap(1).setStyle("-fx-background-color:#2c2f33;");
-						roomView.getMap(2).setStyle("-fx-background-color:#2c2f33;");
-						roomView.getMap(3).setStyle("-fx-background-color:#2c2f33;");
-					}
-				}
-			});
-
-		});
-
-		roomView.getMap(1).addEventFilter(MouseEvent.MOUSE_CLICKED, (e) -> {
-			roomView.getMap(1).setOnMouseClicked(new EventHandler<MouseEvent>() {
-
-				@Override
-				public void handle(MouseEvent event) {
-					roomView.getAppSuggestionsBtn().setDisable(false);
-
-					router.postEvent(new ApplySuggestion(1));
-					roomView.setSelectedMiniMap(roomView.maps.get(1));
-
-					roomView.displayStats();
-
-					roomView.getMap(1).setStyle("-fx-background-color:#fcdf3c;");
-					roomView.getMap(0).setStyle("-fx-background-color:#2c2f33;");
-					roomView.getMap(2).setStyle("-fx-background-color:#2c2f33;");
-					roomView.getMap(3).setStyle("-fx-background-color:#2c2f33;");
-					firstIsClicked = false;
-					secondIsClicked = true;
-					thirdIsClicked = false;
-					fourthIsClicked = false;
-				}
-			});
-
-			roomView.getMap(1).setOnMouseExited(new EventHandler<MouseEvent>() {
-
-				@Override
-				public void handle(MouseEvent event) {
-					if (secondIsClicked ) {
-						roomView.getMap(1).setStyle("-fx-background-color:#fcdf3c;");
-						roomView.getMap(0).setStyle("-fx-background-color:#2c2f33;");
-						roomView.getMap(2).setStyle("-fx-background-color:#2c2f33;");
-						roomView.getMap(3).setStyle("-fx-background-color:#2c2f33;");
-					}
-				}
-			});
-
-			roomView.getMap(1).setOnMouseEntered(new EventHandler<MouseEvent>() {
-
-				@Override
-				public void handle(MouseEvent event) {
-					if (secondIsClicked ) {
-
-						roomView.getMap(1).setStyle("-fx-background-color:#fcdf3c;");
-						roomView.getMap(0).setStyle("-fx-background-color:#2c2f33;");
-						roomView.getMap(2).setStyle("-fx-background-color:#2c2f33;");
-						roomView.getMap(3).setStyle("-fx-background-color:#2c2f33;");
-					}
-				}
-			});
-		});
-		roomView.getMap(2).addEventFilter(MouseEvent.MOUSE_CLICKED, (e) -> {
-			roomView.getMap(2).setOnMouseClicked(new EventHandler<MouseEvent>() {
-
-				@Override
-				public void handle(MouseEvent event) {
-					roomView.getAppSuggestionsBtn().setDisable(false);
-
-					router.postEvent(new ApplySuggestion(2));
-					roomView.setSelectedMiniMap(roomView.maps.get(2));
-
-					roomView.displayStats();
-
-					roomView.getMap(2).setStyle("-fx-background-color:#fcdf3c;");
-					roomView.getMap(0).setStyle("-fx-background-color:#2c2f33;");
-					roomView.getMap(1).setStyle("-fx-background-color:#2c2f33;");
-					roomView.getMap(3).setStyle("-fx-background-color:#2c2f33;");
-					firstIsClicked = false;
-					secondIsClicked = false;
-					thirdIsClicked = true;
-					fourthIsClicked = false;
-				}
-			});
-
-			roomView.getMap(2).setOnMouseExited(new EventHandler<MouseEvent>() {
-
-				@Override
-				public void handle(MouseEvent event) {
-					if (thirdIsClicked) {
-						roomView.getMap(2).setStyle("-fx-background-color:#fcdf3c;");
-						roomView.getMap(0).setStyle("-fx-background-color:#2c2f33;");
-						roomView.getMap(1).setStyle("-fx-background-color:#2c2f33;");
-						roomView.getMap(3).setStyle("-fx-background-color:#2c2f33;");
-					}
-				}
-			});
-			roomView.getMap(2).setOnMouseEntered(new EventHandler<MouseEvent>() {
-
-				@Override
-				public void handle(MouseEvent event) {
-					if (thirdIsClicked) {
-						roomView.getMap(2).setStyle("-fx-background-color:#fcdf3c;");
-						roomView.getMap(0).setStyle("-fx-background-color:#2c2f33;");
-						roomView.getMap(1).setStyle("-fx-background-color:#2c2f33;");
-						roomView.getMap(3).setStyle("-fx-background-color:#2c2f33;");
-					}
-				}
-			});
-
-		});
-		roomView.getMap(3).addEventFilter(MouseEvent.MOUSE_CLICKED, (e) -> {
-			roomView.getMap(3).setOnMouseClicked(new EventHandler<MouseEvent>() {
-
-				@Override
-				public void handle(MouseEvent event) {
-					roomView.getAppSuggestionsBtn().setDisable(false);
-
-					router.postEvent(new ApplySuggestion(3));
-					roomView.setSelectedMiniMap(roomView.maps.get(3));
-
-					roomView.displayStats();
-
-					roomView.getMap(3).setStyle("-fx-background-color:#fcdf3c;");
-					roomView.getMap(0).setStyle("-fx-background-color:#2c2f33;");
-					roomView.getMap(2).setStyle("-fx-background-color:#2c2f33;");
-					roomView.getMap(1).setStyle("-fx-background-color:#2c2f33;");
-					firstIsClicked = false;
-					secondIsClicked = false;
-					thirdIsClicked = false;
-					fourthIsClicked = true;
-				}
-			});
-
-			roomView.getMap(3).setOnMouseExited(new EventHandler<MouseEvent>() {
-
-				@Override
-				public void handle(MouseEvent event) {
-					if (fourthIsClicked) {
-						roomView.getMap(3).setStyle("-fx-background-color:#fcdf3c;");
-						roomView.getMap(0).setStyle("-fx-background-color:#2c2f33;");
-						roomView.getMap(2).setStyle("-fx-background-color:#2c2f33;");
-						roomView.getMap(1).setStyle("-fx-background-color:#2c2f33;");
-					}
-				}
-			});
-			roomView.getMap(3).setOnMouseEntered(new EventHandler<MouseEvent>() {
-
-				@Override
-				public void handle(MouseEvent event) {
-					if (fourthIsClicked) {
-						roomView.getMap(3).setStyle("-fx-background-color:#fcdf3c;");
-						roomView.getMap(0).setStyle("-fx-background-color:#2c2f33;");
-						roomView.getMap(2).setStyle("-fx-background-color:#2c2f33;");
-						roomView.getMap(1).setStyle("-fx-background-color:#2c2f33;");
-					}
-				}
-			});
-		});
-		roomView.resetMiniMaps();
-		roomView.setMousePressed(false);
-	}
-
-	//TODO: this method...
-	private void evaluateNullChange() {
-		// South
-		Point south = new Point(11/2, 11-1);
-		// East
-		Point east = new Point(11-1, 11/2);
-		// North
-		Point north = new Point(11/2, 0);
-		// West
-		Point west = new Point(0, 11/2);
-		for (int rows = 0; rows < size; rows++) {
-			for (int cols = 0; cols < size; cols++) {
-				if (!worldMapMatrix[rows][cols].getMap().getNull()) {
-					if (rows != 0) {
-						//north
-						if (worldMapMatrix[rows - 1][cols].getMap().getNull() && (worldMapMatrix[rows][cols].getMap().matrix[north.getY()][north.getX()] == 5 || 
-								worldMapMatrix[rows][cols].getMap().matrix[north.getY()][north.getX()] == 4)) {
-							worldMapMatrix[rows][cols].getMap().setTile(north.getX(), north.getY(), 0);
-//							worldMapMatrix[rows][cols].getMap().matrix[north.getY()][north.getX()] = 0;
-							worldMapMatrix[rows][cols].getMap().setNumberOfDoors(worldMapMatrix[rows][cols].getMap().getNumberOfDoors() - 1);
-							worldMapMatrix[rows][cols].getMap().setNorth(false);
-						}
-						else if (!worldMapMatrix[rows - 1][cols].getMap().getNull() && !(worldMapMatrix[rows][cols].getMap().matrix[north.getY()][north.getX()] == 5 || 
-								worldMapMatrix[rows][cols].getMap().matrix[north.getY()][north.getX()] == 4)) {
-							worldMapMatrix[rows][cols].getMap().setTile(north.getX(), north.getY(), 4);
-//							worldMapMatrix[rows][cols].getMap().matrix[north.getY()][north.getX()] = 4;
-							worldMapMatrix[rows][cols].getMap().setNumberOfDoors(worldMapMatrix[rows][cols].getMap().getNumberOfDoors() + 1);
-							worldMapMatrix[rows][cols].getMap().setNorth(true);
-						}
-					}
-					if (cols != (size - 1)) {
-						//east
-						if (worldMapMatrix[rows][cols + 1].getMap().getNull() && (worldMapMatrix[rows][cols].getMap().matrix[east.getY()][east.getX()] == 5 || 
-								worldMapMatrix[rows][cols].getMap().matrix[east.getY()][east.getX()] == 4)) {
-							worldMapMatrix[rows][cols].getMap().setTile(east.getX(), east.getY(), 0);
-//							worldMapMatrix[rows][cols].getMap().matrix[east.getY()][east.getX()] = 0;
-							worldMapMatrix[rows][cols].getMap().setNumberOfDoors(worldMapMatrix[rows][cols].getMap().getNumberOfDoors() - 1);
-							worldMapMatrix[rows][cols].getMap().setEast(false);
-						}
-						else if (!worldMapMatrix[rows][cols + 1].getMap().getNull() && !(worldMapMatrix[rows][cols].getMap().matrix[east.getY()][east.getX()] == 5 || 
-								worldMapMatrix[rows][cols].getMap().matrix[east.getY()][east.getX()] == 4)) {
-							worldMapMatrix[rows][cols].getMap().setTile(east.getX(), east.getY(), 4);
-//							worldMapMatrix[rows][cols].getMap().matrix[east.getY()][east.getX()] = 4;
-							worldMapMatrix[rows][cols].getMap().setNumberOfDoors(worldMapMatrix[rows][cols].getMap().getNumberOfDoors() + 1);
-							worldMapMatrix[rows][cols].getMap().setEast(true);
-						}
-
-					}
-					if (rows != (size - 1)) {
-						//south
-						if (worldMapMatrix[rows + 1][cols].getMap().getNull() && (worldMapMatrix[rows][cols].getMap().matrix[south.getY()][south.getX()] == 5 || 
-								worldMapMatrix[rows][cols].getMap().matrix[south.getY()][south.getX()] == 4)) {
-							worldMapMatrix[rows][cols].getMap().setTile(south.getX(), south.getY(), 0);
-//							worldMapMatrix[rows][cols].getMap().matrix[south.getY()][south.getX()] = 0;
-							worldMapMatrix[rows][cols].getMap().setNumberOfDoors(worldMapMatrix[rows][cols].getMap().getNumberOfDoors() - 1);
-							worldMapMatrix[rows][cols].getMap().setSouth(false);
-						}
-						else if (!worldMapMatrix[rows + 1][cols].getMap().getNull() && !(worldMapMatrix[rows][cols].getMap().matrix[south.getY()][south.getX()] == 5 || 
-								worldMapMatrix[rows][cols].getMap().matrix[south.getY()][south.getX()] == 4)) {
-							worldMapMatrix[rows][cols].getMap().setTile(south.getX(), south.getY(), 4);
-//							worldMapMatrix[rows][cols].getMap().matrix[south.getY()][south.getX()] = 4;
-							worldMapMatrix[rows][cols].getMap().setNumberOfDoors(worldMapMatrix[rows][cols].getMap().getNumberOfDoors() + 1);
-							worldMapMatrix[rows][cols].getMap().setSouth(true);
-						}
-
-					}
-					if (cols != 0) {
-						//west
-						if (worldMapMatrix[rows][cols - 1].getMap().getNull() && (worldMapMatrix[rows][cols].getMap().matrix[west.getY()][west.getX()] == 5 || 
-								worldMapMatrix[rows][cols].getMap().matrix[west.getY()][west.getX()] == 4)) {
-							worldMapMatrix[rows][cols].getMap().setTile(west.getX(), west.getY(), 0);
-//							worldMapMatrix[rows][cols].getMap().matrix[west.getY()][west.getX()] = 0;
-							worldMapMatrix[rows][cols].getMap().setNumberOfDoors(worldMapMatrix[rows][cols].getMap().getNumberOfDoors() - 1);
-							worldMapMatrix[rows][cols].getMap().setWest(false);
-						}
-						else if (!worldMapMatrix[rows][cols - 1].getMap().getNull() && !(worldMapMatrix[rows][cols].getMap().matrix[west.getY()][west.getX()] == 5 || 
-								worldMapMatrix[rows][cols].getMap().matrix[west.getY()][west.getX()] == 4)) {
-							worldMapMatrix[rows][cols].getMap().setTile(west.getX(), west.getY(), 4);
-//							worldMapMatrix[rows][cols].getMap().matrix[west.getY()][west.getX()] = 4;
-							worldMapMatrix[rows][cols].getMap().setNumberOfDoors(worldMapMatrix[rows][cols].getMap().getNumberOfDoors() + 1);
-							worldMapMatrix[rows][cols].getMap().setWest(true);
-						}
-
-					}
-					if (worldMapMatrix[rows][cols].getMap().getNumberOfDoors() == 0) {
-						Map nullMap = new Map(11, 11, 0);
-						MapContainer nullCont = new MapContainer();
-						nullCont.setMap(nullMap);
-						worldMapMatrix[rows][cols] = nullCont;
-					}
-					else
-					{
-						worldMapMatrix[rows][cols].getMap().RecalculateEntrance();
-					}
-				}
-			}
-		}
-
-	}
-
-	//TODO: This part has a few issues, like set numbers (11) and how the map is created
-	private MapContainer[][] initMatrix() {
-		//empty room doors thingy
-		
-		int width = Game.sizeWidth;
-		int height = Game.sizeHeight;
-		
-		// South
-		Point south = new Point(width / 2, height - 1);
-		// East
-		Point east = new Point(width - 1, height / 2);
-		// North
-		Point north = new Point(width / 2, 0);
-		// West
-		Point west = new Point(0, height / 2);
-
-		MapContainer[][] worldMapMatrix3 = new MapContainer[size][size];
-		int nbrDoors = 4;
 		GeneratorConfig gc = null;
 		try {
 			gc = new GeneratorConfig();
@@ -1105,66 +477,11 @@ public class InteractiveGUIController implements Initializable, Listener {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		for (int rows = 0; rows < size; rows++) {
-			for (int cols = 0; cols < size; cols++) {
-				Map tempMap = null;
-				// 1
-				if (rows == 0 && cols == 0) {
-					tempMap = new Map(gc, height, width, null, east, south, null);
-				}
-				// 3
-				if (rows == 0 && cols == (size - 1)) {
-					tempMap = new Map(gc, height, width, null, null, south, west);
-				}
-				// 7
-				if (rows == (size - 1) && cols == 0) {
-					tempMap = new Map(gc, height, width, north, east, null, null);
-				}
-				// 9
-				if (rows == (size - 1) && cols == (size - 1)) {
-					tempMap = new Map(gc, height, width, north, null, null, west);
-				}
-				// top
-				if (rows == 0 && cols != (size - 1) && cols != 0) {
-					tempMap = new Map(gc, height, width, null, east, south, west);
-				}
-				// left
-				if (rows != 0 && cols == 0 && rows != (size - 1)) {
-					tempMap = new Map(gc, height, width, north, east, south, null);
-				}
-				// right
-				if (rows != 0 && rows != (size - 1) && cols == (size - 1)) {
-					tempMap = new Map(gc, height, width, north, null, south, west);
-				}
-				// bottom
-				if (cols != 0 && cols != (size - 1) && rows == (size - 1)) {
-					tempMap = new Map(gc, height, width, north, east, null, west);
-				}
-				// other
-				else if (cols != 0 && cols != (size - 1) && rows != 0 && rows != (size - 1)) {
-					tempMap = new Map(gc, height, width, north, east, south, west);
-				}
-
-				MapContainer temp = new MapContainer();
-				temp.setMap(tempMap);
-				worldMapMatrix3[rows][cols] = temp;
-
-
-			}
-		}
-		return worldMapMatrix3;
+		
+		dungeonMap = new Dungeon(gc, 1, width, height);
+		
+		return dungeonMap;
 	}
-
-	private void createWorldMatrix() {
-		//START OF MATRIX STUFF		
-		//fill matrix
-		for (MapContainer[] outer : worldMapMatrix) {
-			for (int i = 0; i < outer.length; i++) {
-				outer[i] = quadMap1;
-			}
-		}								
-	}
-
 
 	private String matrixToString() {
 		//create large string
@@ -1235,7 +552,7 @@ public class InteractiveGUIController implements Initializable, Listener {
 
 						for (int s = 0; s < stringArray.length; s++) {
 							MapContainer helpContainer = new MapContainer();
-							helpContainer.setMap(Map.fromString(stringArray[s]));
+							helpContainer.setMap(Room.fromString(stringArray[s]));
 							
 							
 							int counter = 0;
@@ -1245,7 +562,8 @@ public class InteractiveGUIController implements Initializable, Listener {
 								}
 								
 							}
-							helpContainer.getMap().setNumberOfDoors(counter);
+							//TODO: KALINKA, we are going to have so much fun fixing this method!!
+//							helpContainer.getMap().setNumberOfDoors(counter);
 
 							worldMapMatrix2[q][s] = helpContainer;
 							stringArray[s] = "";
@@ -1271,16 +589,16 @@ public class InteractiveGUIController implements Initializable, Listener {
 			}
 		}
 		
-		
-		
-		for (MapContainer[] mc : worldMapMatrix2) {
-			for (MapContainer mc2 : mc) {
-				if (mc2.getMap().getNumberOfDoors() == 0) {
-					mc2.getMap().setNull();
-				}
-			}
-		}
-		
+		//TODO: Setting the room null if no doors
+//		
+//		for (MapContainer[] mc : worldMapMatrix2) {
+//			for (MapContainer mc2 : mc) {
+//				if (mc2.getMap().getNumberOfDoors() == 0) {
+//					mc2.getMap().setNull();
+//				}
+//			}
+//		}
+//		
 		
 		size = worldMapMatrix2.length;
 

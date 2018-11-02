@@ -10,7 +10,7 @@ import java.util.stream.Collectors;
 import finder.patterns.InventorialPattern;
 import finder.patterns.Pattern;
 import finder.patterns.meso.TreasureRoom;
-import finder.patterns.micro.Room;
+import finder.patterns.micro.Chamber;
 import finder.patterns.micro.Treasure;
 
 /**
@@ -159,7 +159,7 @@ public class Graph<T> {
 	 * 
 	 * @param a A node.
 	 * @param b Another node.
-	 * @param width The edge's width.
+	 * @param mapWidth The edge's width.
 	 * @return Returns true if the nodes were connected, otherwise false.
 	 */
 	public boolean disconnect(T a, T b) {

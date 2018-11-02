@@ -10,85 +10,102 @@
 <?import javafx.scene.layout.GridPane?>
 <?import javafx.scene.layout.RowConstraints?>
 <?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
 
 
-<fx:root type="javafx.scene.layout.GridPane" maxHeight="-Infinity"
-	maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity"
+<fx:root type="javafx.scene.layout.AnchorPane"
 	prefHeight="400.0" prefWidth="600.0" stylesheets="@../styling.css"
 	xmlns:fx="http://javafx.com/fxml/1" fx:id="suggestionsView">
-
-	<columnConstraints>
-		<ColumnConstraints hgrow="SOMETIMES" minWidth="10.0"
-			prefWidth="100.0" />
-		<ColumnConstraints hgrow="SOMETIMES" minWidth="10.0"
-			prefWidth="100.0" />
-		<ColumnConstraints hgrow="SOMETIMES" minWidth="10.0"
-			prefWidth="100.0" />
-	</columnConstraints>
-	<rowConstraints>
-		<RowConstraints minHeight="10.0" prefHeight="30.0"
-			vgrow="SOMETIMES" />
-		<RowConstraints minHeight="10.0" prefHeight="30.0"
-			vgrow="SOMETIMES" />
-	</rowConstraints>
 	<fx:define>
 		<ArrayList fx:id="mapDisplays">
-			<LabeledCanvas fx:id="map0" AnchorPane.bottomAnchor="0.0"
-				AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0"
-				AnchorPane.topAnchor="0.0" />
-			<LabeledCanvas fx:id="map1" AnchorPane.bottomAnchor="0.0"
-				AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0"
-				AnchorPane.topAnchor="0.0" />
-			<LabeledCanvas fx:id="map2" AnchorPane.bottomAnchor="0.0"
-				AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0"
-				AnchorPane.topAnchor="0.0" />
-			<LabeledCanvas fx:id="map3" AnchorPane.bottomAnchor="0.0"
-				AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0"
-				AnchorPane.topAnchor="0.0" />
-			<LabeledCanvas fx:id="map4" AnchorPane.bottomAnchor="0.0"
-				AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0"
-				AnchorPane.topAnchor="0.0" />
-			<LabeledCanvas fx:id="map5" AnchorPane.bottomAnchor="0.0"
-				AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0"
-				AnchorPane.topAnchor="0.0" />
+			<LabeledCanvas fx:id="map0" />
+			<LabeledCanvas fx:id="map1" />
+			<LabeledCanvas fx:id="map2" />
+			<LabeledCanvas fx:id="map3" />
+			<LabeledCanvas fx:id="map4"/>
+			<LabeledCanvas fx:id="map5" />
 		</ArrayList>
 	</fx:define>
 	<children>
-		<AnchorPane prefHeight="150" prefWidth="150">
+		<VBox alignment="center" spacing="10">
 			<children>
-				<fx:reference source="map0" />
+				<HBox alignment="center" spacing="10">
+					<children>
+						<AnchorPane prefHeight="490" prefWidth="490" >
+							<children>
+								<BorderPane  AnchorPane.bottomAnchor="0.0"
+											AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0"
+											AnchorPane.topAnchor="0.0">
+									<center>
+										<fx:reference source="map0" />
+									</center>
+								</BorderPane>
+							</children>
+						</AnchorPane>
+						<AnchorPane prefHeight="490" prefWidth="490" >
+							<children>
+								<BorderPane  AnchorPane.bottomAnchor="0.0"
+											AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0"
+											AnchorPane.topAnchor="0.0">
+									<center>
+										<fx:reference source="map1" />
+									</center>
+								</BorderPane>
+							</children>
+						</AnchorPane>
+						<AnchorPane prefHeight="490" prefWidth="490" >
+							<children>
+								<BorderPane  AnchorPane.bottomAnchor="0.0"
+											AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0"
+											AnchorPane.topAnchor="0.0">
+									<center>
+										<fx:reference source="map2" />
+									</center>
+								</BorderPane>
+							</children>
+						</AnchorPane>
+					</children>
+				</HBox>
+				<HBox alignment="center" spacing="10">
+					<children>
+					<AnchorPane prefHeight="490" prefWidth="490" >
+							<children>
+								<BorderPane  AnchorPane.bottomAnchor="0.0"
+											AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0"
+											AnchorPane.topAnchor="0.0">
+									<center>
+										<fx:reference source="map3" />
+									</center>
+								</BorderPane>
+							</children>
+						</AnchorPane>
+						<AnchorPane prefHeight="490" prefWidth="490" >
+							<children>
+								<BorderPane  AnchorPane.bottomAnchor="0.0"
+											AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0"
+											AnchorPane.topAnchor="0.0">
+									<center>
+										<fx:reference source="map4" />
+									</center>
+								</BorderPane>
+							</children>
+						</AnchorPane>
+						<AnchorPane prefHeight="490" prefWidth="490" >
+							<children>
+								<BorderPane  AnchorPane.bottomAnchor="0.0"
+											AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0"
+											AnchorPane.topAnchor="0.0">
+									<center>
+										<fx:reference source="map5" />
+									</center>
+								</BorderPane>
+							</children>
+						</AnchorPane>
+					</children>
+				</HBox>
 			</children>
-		</AnchorPane>
-		<AnchorPane prefHeight="150" prefWidth="150"
-			GridPane.columnIndex="1">
-			<children>
-				<fx:reference source="map1" />
-			</children>
-		</AnchorPane>
-		<AnchorPane prefHeight="150" prefWidth="150"
-			GridPane.columnIndex="2">
-			<children>
-				<fx:reference source="map2" />
-			</children>
-		</AnchorPane>
-		<AnchorPane prefHeight="150" prefWidth="150"
-			GridPane.rowIndex="1">
-			<children>
-				<fx:reference source="map3" />
-			</children>
-		</AnchorPane>
-		<AnchorPane prefHeight="150" prefWidth="150"
-			GridPane.columnIndex="1" GridPane.rowIndex="1">
-			<children>
-				<fx:reference source="map4" />
-				
-			</children>
-		</AnchorPane>
-		<AnchorPane prefHeight="150" prefWidth="150"
-			GridPane.columnIndex="2" GridPane.rowIndex="1">
-			<children>
-				<fx:reference source="map5" />
-			</children>
-		</AnchorPane>
+		</VBox>
 	</children>
 </fx:root>

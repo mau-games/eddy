@@ -7,7 +7,7 @@ import java.util.Random;
 
 import finder.geometry.Point;
 import game.Game;
-import game.Map;
+import game.Room;
 import game.Tile;
 import game.TileTypes;
 import game.ZoneNode;
@@ -122,15 +122,16 @@ public class ZoneIndividual {
 		genotype.randomSupervisedChromosome();
 	}
 	
-	public ZoneIndividual(Map map, float mutationProbability){
-		config = map.getConfig();
-		genotype = new ZoneGenotype(config,Game.sizeHeight * Game.sizeWidth);
+	public ZoneIndividual(Room room, float mutationProbability)
+	{
+		config = room.getConfig();
+		genotype = new ZoneGenotype(config, room.getColCount() * room.getRowCount());
 		phenotype = null;
 		fitness = 0.0;
 		evaluate = false;
 		this.mutationProbability = mutationProbability;
 		
-		genotype.ProduceGenotype(map);
+		genotype.ProduceGenotype(room);
 	}
 	
 	/**
@@ -139,7 +140,7 @@ public class ZoneIndividual {
 	 * @param other An Individual to reproduce with.
 	 * @return An array of offspring resulting from the crossover.
 	 */
-	public ZoneIndividual[] twoPointCrossover(ZoneIndividual other){
+	public ZoneIndividual[] twoPointCrossover(ZoneIndividual other, int width, int height){
 		ZoneIndividual[] children = new ZoneIndividual[2];
 		children[0] = new ZoneIndividual(config, new ZoneGenotype(config, genotype.getChromosome().clone(), genotype.GetRootChromosome()), mutationProbability);
 		children[1] = new ZoneIndividual(config, new ZoneGenotype(config, other.getGenotype().getChromosome().clone(), other.genotype.GetRootChromosome()), mutationProbability);
@@ -156,15 +157,15 @@ public class ZoneIndividual {
 		{
 			Point p = myZones.get(rndZone).GetSection().getPoint(i);
 			//exchange
-			if(children[0].getGenotype().getChromosome()[p.getY() * Game.sizeWidth + p.getX()] < 4 && children[1].getGenotype().getChromosome()[p.getY() * Game.sizeWidth + p.getX()] < 4)
+			if(children[0].getGenotype().getChromosome()[p.getY() * width + p.getX()] < 4 && children[1].getGenotype().getChromosome()[p.getY() * width + p.getX()] < 4)
 			{
-				children[0].getGenotype().getChromosome()[p.getY() * Game.sizeWidth + p.getX()] = other.getGenotype().getChromosome()[p.getY() * Game.sizeWidth + p.getX()];
-				children[1].getGenotype().getChromosome()[p.getY() * Game.sizeWidth + p.getX()] = genotype.getChromosome()[p.getY() * Game.sizeWidth + p.getX()];
+				children[0].getGenotype().getChromosome()[p.getY() * width + p.getX()] = other.getGenotype().getChromosome()[p.getY() * width + p.getX()];
+				children[1].getGenotype().getChromosome()[p.getY() * width + p.getX()] = genotype.getChromosome()[p.getY() * width + p.getX()];
 			}
 
 		}
 		
-		//mutate TODO: THIS NEED TO BE ALSO DEPENDABLE ON THE ZONES here is the root of the problem!!!!
+		//mutate
 		for(int i = 0; i < 2; i++){
 			if(Util.getNextFloat(0.0f,1.0f) <= mutationProbability)
 			{
@@ -185,21 +186,21 @@ public class ZoneIndividual {
 		return children;
 	}
 	
-	public ZoneIndividual[] rectangularCrossover(ZoneIndividual other){
+	public ZoneIndividual[] rectangularCrossover(ZoneIndividual other, int width, int height){
 		ZoneIndividual[] children = new ZoneIndividual[2];
 		children[0] = new ZoneIndividual(config, new ZoneGenotype(config, genotype.getChromosome().clone(), genotype.GetRootChromosome()), mutationProbability);
 		children[1] = new ZoneIndividual(config, new ZoneGenotype(config, other.getGenotype().getChromosome().clone(), genotype.GetRootChromosome()), mutationProbability);
 
-		int lowerBoundM = Util.getNextInt(0, Game.sizeWidth);
-		int upperBoundM = Util.getNextInt(lowerBoundM, Game.sizeWidth);
-		int lowerBoundN = Util.getNextInt(0, Game.sizeHeight);
-		int upperBoundN = Util.getNextInt(lowerBoundN, Game.sizeHeight);
+		int lowerBoundM = Util.getNextInt(0, width);
+		int upperBoundM = Util.getNextInt(lowerBoundM, width);
+		int lowerBoundN = Util.getNextInt(0, height);
+		int upperBoundN = Util.getNextInt(lowerBoundN, height);
 		
 		for(int i = lowerBoundM; i <= upperBoundM; i++){
 			for(int j = lowerBoundN; j <= upperBoundN; j++){
 				//exchange
-				children[0].getGenotype().getChromosome()[j*Game.sizeWidth + i] = other.getGenotype().getChromosome()[j*Game.sizeWidth + i];
-				children[1].getGenotype().getChromosome()[j*Game.sizeWidth + i] = genotype.getChromosome()[j*Game.sizeWidth + i];
+				children[0].getGenotype().getChromosome()[j * width+ i] = other.getGenotype().getChromosome()[j * width + i];
+				children[1].getGenotype().getChromosome()[j * width + i] = genotype.getChromosome()[j * width + i];
 			}
 		}
 		
@@ -208,11 +209,11 @@ public class ZoneIndividual {
 			if(Util.getNextFloat(0.0f,1.0f) <= mutationProbability){
 				float rand = Util.getNextFloat(0, 1);
 				if(rand <= 0.6f)
-					children[i].mutateAll(0.2);
+					children[i].mutateAll(0.2, width, height);
 				else if  (rand <= 0.8f)
-					children[i].squareMutation();
+					children[i].squareMutation(width, height);
 				else
-					children[i].mutateRotate180();
+					children[i].mutateRotate180(width, height);
 			}
 				
 		}
@@ -258,21 +259,21 @@ public class ZoneIndividual {
 			
 	}
 	
-	public void squareMutation(){
+	public void squareMutation(int width, int height){
 		System.out.println("DOES THIS EVEN HAPPENS`??");
 		double wallChance = 0.1;
 		int size = Util.getNextInt(3, 5);
-		int startX = Util.getNextInt(0, Game.sizeWidth - size);
-		int startY = Util.getNextInt(0, Game.sizeHeight - size);
+		int startX = Util.getNextInt(0, width- size);
+		int startY = Util.getNextInt(0, height- size);
 		if(Util.getNextFloat(0, 1) <= wallChance){
 			for(int i = startX; i < startX + size; i++)
 				for(int j = startY; j < startY + size; j++){
-					if(genotype.getChromosome()[j*Game.sizeWidth + i] < 4) genotype.getChromosome()[j*Game.sizeWidth + i] = 1;
+					if(genotype.getChromosome()[j*width + i] < 4) genotype.getChromosome()[j*width + i] = 1;
 				}
 		} else {
 			for(int i = startX; i < startX + size; i++)
 				for(int j = startY; j < startY + size; j++){
-					if(genotype.getChromosome()[j*Game.sizeWidth + i] < 4) genotype.getChromosome()[j*Game.sizeWidth + i] = randomFloorTile();
+					if(genotype.getChromosome()[j*width + i] < 4) genotype.getChromosome()[j*width + i] = randomFloorTile();
 				}
 		}
 	}
@@ -289,7 +290,7 @@ public class ZoneIndividual {
 	/**
 	 * Mutate each bit of the chromosome with a small probability
 	 */
-	public void mutateAll(double probability)
+	public void mutateAll(double probability, int width, int height)
 	{
 		ArrayList<ZoneNode> validZones = genotype.GetRootChromosome().GetAllValidZones();
 		
@@ -304,11 +305,11 @@ public class ZoneIndividual {
 				
 				if(Math.random() < probability)
 				{
-					if(genotype.getChromosome()[p.getY() * Game.sizeWidth + p.getX()] < 4)
+					if(genotype.getChromosome()[p.getY() * width + p.getX()] < 4) //TODO: REMOVE THIS FOUR AND CHECK FOR THE ACTUAL DOOR
 					{
 //						genotype.getChromosome()[p.getY() * Game.sizeWidth + p.getX()] = (genotype.getChromosome()[p.getY() * Game.sizeWidth + p.getX()] + Util.getNextInt(0, 4)) % 4; //TODO: Change this - hard coding the number of tile types is bad!!!
 //						genotype.getChromosome()[indexToMutate] = Util.getNextInt(0, TileTypes.DOOR.getValue());
-						genotype.getChromosome()[p.getY() * Game.sizeWidth + p.getX()] = Util.getNextInt(0, TileTypes.DOOR.getValue());
+						genotype.getChromosome()[p.getY() * width + p.getX()] = Util.getNextInt(0, TileTypes.DOOR.getValue());
 					}
 						
 				}
@@ -324,11 +325,11 @@ public class ZoneIndividual {
 //		}
 	}
 	
-	private void mutateRotate180(){
+	private void mutateRotate180(int width, int height){
 		int[] chromosomeCopy = genotype.getChromosome().clone();
-		for(int i = 0; i < Game.sizeWidth; i++)
-			for(int j = 0; j < Game.sizeHeight; j++)
-				genotype.getChromosome()[j*Game.sizeWidth + i] = chromosomeCopy[(Game.sizeHeight - 1 - j)*Game.sizeWidth + Game.sizeWidth - 1 - i];
+		for(int i = 0; i < width; i++)
+			for(int j = 0; j < height; j++)
+				genotype.getChromosome()[j*width + i] = chromosomeCopy[(height - 1 - j)*width + width - 1 - i];
 	}
 	
 	private void mutateRotate180(ZoneNode validZone)
@@ -361,11 +362,11 @@ public class ZoneIndividual {
 //		}
 	}
 	
-	private void mutateRotate90(){
+	private void mutateRotate90(int width, int height){
 		int[] chromosomeCopy = genotype.getChromosome().clone();
-		for(int i = 0; i < Game.sizeWidth; i++)
-			for(int j = 0; j < Game.sizeHeight; j++)
-				genotype.getChromosome()[j*Game.sizeWidth + i] = chromosomeCopy[(Game.sizeHeight - 1 - i)*Game.sizeWidth + Game.sizeWidth - 1 - j];
+		for(int i = 0; i < width; i++)
+			for(int j = 0; j < height; j++)
+				genotype.getChromosome()[j*width+ i] = chromosomeCopy[(height - 1 - i)* width + width - 1 - j];
 	}
 	
 	

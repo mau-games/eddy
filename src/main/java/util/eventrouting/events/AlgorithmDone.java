@@ -1,6 +1,7 @@
 package util.eventrouting.events;
 
 import game.MapContainer;
+import generator.algorithm.Algorithm;
 
 /**
  * This event is triggered when an algorithm run is completed.
@@ -9,7 +10,15 @@ import game.MapContainer;
  */
 public class AlgorithmDone extends AlgorithmEvent {
 	
-	public AlgorithmDone(MapContainer map) {
+	private Algorithm algorithm;
+	
+	public AlgorithmDone(MapContainer map, Algorithm algorithm) {
 		setPayload(map);
+		this.algorithm = algorithm;
+	}
+	
+	public Algorithm getAlgorithm()
+	{
+		return algorithm;
 	}
 }

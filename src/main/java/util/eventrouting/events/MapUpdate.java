@@ -1,6 +1,6 @@
 package util.eventrouting.events;
 
-import game.Map;
+import game.Room;
 import util.eventrouting.PCGEvent;
 
 /**
@@ -16,7 +16,7 @@ public class MapUpdate extends AlgorithmEvent {
 	 * 
 	 * @param payload The map to be sent.
 	 */
-	public MapUpdate(Map payload) {
+	public MapUpdate(Room payload) {
 		setPayload(payload);
 	}
 }

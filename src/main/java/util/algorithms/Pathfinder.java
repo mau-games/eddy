@@ -4,18 +4,18 @@ import java.util.List;
 import java.util.Optional;
 
 import java.util.ArrayList;
-import game.Map;
+import game.Room;
 import util.Point;
 import util.Util;
 
 
 public class Pathfinder {
 	//private Point2D goal;
-    private Map map;
+    private Room room;
 
-    public Pathfinder(Map map)
+    public Pathfinder(Room room)
     {
-        this.map = map;
+        this.room = room;
     }
 
 	//A* algorithm 
@@ -40,7 +40,7 @@ public class Pathfinder {
             closedList.add(current);
 
             //Get all children for current node
-            List<Point> children = map.getAvailableCoords(current.position);
+            List<Point> children = room.getAvailableCoords(current.position);
 
             for (Point child : children)
             {
@@ -107,8 +107,8 @@ public class Pathfinder {
         return nodes.remove(0);
     }
 
-    public void setMap(Map map)
+    public void setMap(Room room)
     {
-        this.map = map;
+        this.room = room;
     }
 }

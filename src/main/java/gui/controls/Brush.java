@@ -5,7 +5,7 @@ import java.util.List;
 
 import finder.geometry.Bitmap;
 import finder.geometry.Point;
-import game.Map;
+import game.Room;
 import game.TileTypes;
 
 public abstract class Brush 
@@ -60,9 +60,9 @@ public abstract class Brush
 	 * based on the position of the tile and the brush size
 	 * @param x X position of the hovered tile
 	 * @param y Y position of the hovered tile
-	 * @param map active map
+	 * @param room active map
 	 */
-	public abstract void UpdateDrawableTiles(int x, int y, Map map);
+	public abstract void UpdateDrawableTiles(int x, int y, Room room);
 	
 	/**
 	 * Fill the Bitmap based on its neighbors and brush size

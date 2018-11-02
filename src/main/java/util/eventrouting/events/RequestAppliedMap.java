@@ -1,6 +1,6 @@
 package util.eventrouting.events;
 
-import game.Map;
+import game.Room;
 import game.MapContainer;
 import util.eventrouting.PCGEvent;
 
@@ -15,10 +15,10 @@ public class RequestAppliedMap extends PCGEvent{
 	private int col;
 	
 	
-	public RequestAppliedMap(Map map, int row, int col) {
+	public RequestAppliedMap(Room room, int row, int col) {
 		setCol(col);
 		setRow(row);
-		setPayload(map);
+		setPayload(room);
 	}
 
 

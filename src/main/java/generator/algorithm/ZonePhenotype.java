@@ -2,52 +2,56 @@ package generator.algorithm;
 
 
 import java.util.Arrays;
+import java.util.List;
+
 import game.Game;
-import game.Map;
+import game.Room;
 import game.TileTypes;
 import generator.config.GeneratorConfig;
+import util.Point;
 
 public class ZonePhenotype {
 	private ZoneGenotype genotype;
-	private Map map;
+	private Room room;
 	private GeneratorConfig config;
 	
 	public ZonePhenotype(GeneratorConfig config, ZoneGenotype genotype){
 		this.config = config;
 		this.genotype = genotype;
-		map = null;
+		room = null;
 	}
 	
-	public ZonePhenotype(Map map){
+	public ZonePhenotype(Room room){
 		genotype = null;
-		this.map = map;
+		this.room = room;
 	}
 	
 	/**
-	 * Generates a Map from the Genotype
+	 * Generates a Map from the Genotype, is called from algorithm
+	 * Therefore, algorithm should know size and doors
 	 * 
 	 * @return The Map for this Genotype
 	 */
-	public Map getMap() {
-		if(map == null)
+	public Room getMap(int width, int height, List<Point> doorPositions, Point entrance) {
+		if(room == null)
 		{
 			if(genotype.GetRootChromosome() != null)
 			{
-				map = new Map(config, genotype.GetRootChromosome(), genotype.getChromosome(), Game.sizeHeight, Game.sizeWidth, Game.doorCount);
+				room = new Room(config, genotype.GetRootChromosome(), genotype.getChromosome(), height, width);
 //				TileTypes[] tileTypes = Arrays.stream(genotype.getChromosome()).boxed().map(x -> TileTypes.toTileType(x)).toArray(TileTypes[]::new);
 //				map = new Map(config, tileTypes, Game.sizeHeight, Game.sizeWidth, Game.doorCount);
-				genotype.SetRootChromosome(map.root);
+				genotype.SetRootChromosome(room.root);
 			}
 			else
 			{
 				TileTypes[] tileTypes = Arrays.stream(genotype.getChromosome()).boxed().map(x -> TileTypes.toTileType(x)).toArray(TileTypes[]::new);
-				map = new Map(config, tileTypes, Game.sizeHeight, Game.sizeWidth, Game.doorCount);
-				genotype.SetRootChromosome(map.root);
+				room = new Room(config, tileTypes, height, width, doorPositions, entrance);
+				genotype.SetRootChromosome(room.root);
 			}
 			
-			genotype.ProduceGenotype(map);
+			genotype.ProduceGenotype(room);
 		}
 		
-		return map;
+		return room;
 	}
 }

@@ -20,9 +20,9 @@ import finder.patterns.CompositePattern;
 import finder.patterns.Pattern;
 import finder.patterns.micro.Connector;
 import finder.patterns.micro.Corridor;
-import finder.patterns.micro.Room;
+import finder.patterns.micro.Chamber;
 import game.ApplicationConfig;
-import game.Map;
+import game.Room;
 import gui.controls.LabeledTextField;
 import gui.controls.NumberTextField;
 import gui.controls.PatternInstanceControl;
@@ -81,7 +81,7 @@ public class ParameterGUIController implements Initializable, Listener {
 	private static EventRouter router = EventRouter.getInstance();
 	private ApplicationConfig config;
 	
-	private Map currentMap;
+	private Room currentMap;
 	private GraphicsContext ctx;
 	private MapRenderer renderer = MapRenderer.getInstance();
 	
@@ -234,7 +234,7 @@ public class ParameterGUIController implements Initializable, Listener {
 	public void initialize(URL location, ResourceBundle resources) {
 		router.registerListener(this, new MapUpdate(null));
 		router.registerListener(this, new StatusMessage(null));
-		router.registerListener(this, new AlgorithmDone(null));
+		router.registerListener(this, new AlgorithmDone(null, null));
 		router.registerListener(this, new RequestRedraw());
 		messageDisplayer.setText("Awaiting commands");
 	}
@@ -244,7 +244,7 @@ public class ParameterGUIController implements Initializable, Listener {
 		if (e instanceof RequestRedraw) {
 			restoreMap();
 		} else if (e instanceof MapUpdate) {
-			currentMap = (Map) e.getPayload();
+			currentMap = (Room) e.getPayload();
 			restoreMap();
 		} else if (e instanceof StatusMessage) {
 			String message = (String) e.getPayload();
@@ -333,7 +333,7 @@ public class ParameterGUIController implements Initializable, Listener {
 			Color corridorColour = Color.RED;
 			
 			for (Pattern p : micropatterns) {
-				if (p instanceof Room) {
+				if (p instanceof Chamber) {
 					PatternInstanceControl pic =
 							new PatternInstanceControl(rooms.size(),
 									roomColour,

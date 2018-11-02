@@ -26,6 +26,7 @@ import util.eventrouting.events.Start;
 import util.eventrouting.events.StartBatch;
 import util.eventrouting.events.StartMapMutate;
 import util.eventrouting.events.Stop;
+import util.eventrouting.events.SuggestedMapsDone;
 
 public class Game implements Listener{
 	private final Logger logger = LoggerFactory.getLogger(Game.class);
@@ -37,12 +38,10 @@ public class Game implements Listener{
 	private boolean batch = false;
 	private String batchConfig = "";
 	private static final int batchThreads = 8;
-
-	//TODO: There must be a better way to handle these public static variables
-	public static int sizeWidth; //Number of columns
-    public static int sizeHeight; //Number of rows
-    public static int doorCount;
-    public static List<Point> doors = new ArrayList<Point>();
+	
+	public static int defaultWidth = 11;
+	public static int defaultHeight = 11;
+//	public static int defaultMaxDoors = 4;
 
 	public Game() {
 		
@@ -54,52 +53,15 @@ public class Game implements Listener{
 		}
 
 		readConfiguration();
-		chooseDoorPositions();
 
         EventRouter.getInstance().registerListener(this, new Start());
         EventRouter.getInstance().registerListener(this, new StartMapMutate(null));
         EventRouter.getInstance().registerListener(this, new Stop());
-        //EventRouter.getInstance().registerListener(this, new AlgorithmDone(null));
+        EventRouter.getInstance().registerListener(this, new AlgorithmDone(null, null));
         EventRouter.getInstance().registerListener(this, new RenderingDone());
         EventRouter.getInstance().registerListener(this, new StartBatch());
-        EventRouter.getInstance().registerListener(this, new RequestSuggestionsView(null, 0, 0, null, 0));
+        EventRouter.getInstance().registerListener(this, new RequestSuggestionsView(null, 0));
 	}
-    
-	//TODO: why does this constraint even exist??
-    /**
-     * Selects positions for between 1 and 4 doors. 
-     * The first door is the main entrance. 
-     * Doors can't be in corners.
-     */
-    private void chooseDoorPositions(){
-    	doors.clear();
-    	List<Integer> walls = new ArrayList<Integer>();
-    	walls.add(0);
-    	walls.add(1);
-    	walls.add(2);
-    	walls.add(3);
-    	for(int i = 0; i < doorCount; i++){
-    		switch(walls.remove(Util.getNextInt(0, walls.size()))){
-    		case 0: //North
-    			//doors.add(new Point(Util.getNextInt(1, sizeWidth - 1), sizeHeight - 1));
-    			doors.add(new Point(sizeWidth / 2, sizeHeight - 1));
-    			break;
-    		case 1: //East
-    			//doors.add(new Point(sizeWidth - 1, Util.getNextInt(1, sizeHeight - 1)));
-    			doors.add(new Point(sizeWidth - 1, sizeHeight / 2));
-    			break;
-    		case 2: //South
-    			//doors.add(new Point(Util.getNextInt(1, sizeWidth - 1), 0));
-    			doors.add(new Point(sizeWidth / 2, 0));
-    			break;
-    		case 3: //West
-    			//doors.add(new Point(0, Util.getNextInt(1, sizeHeight - 1)));
-    			doors.add(new Point(0, sizeHeight / 2));
-    			break;
-    		}
-    	}
-    }
-
 
     public enum MapMutationType {
     	Preserving,
@@ -107,12 +69,10 @@ public class Game implements Listener{
     	ComputedConfig
     }
 
-    private void mutateFromMap(Map map, int mutations, MapMutationType mutationType, AlgorithmTypes AlgoType, boolean randomise){
+    private void mutateFromMap(Room room, int mutations, MapMutationType mutationType, AlgorithmTypes algorithmType, boolean randomise){
 
-    	sizeWidth = map.getColCount();
-    	sizeHeight = map.getRowCount();
     	
-    	System.out.println("LETS CREATE!, mutation TYPE: " + mutationType + ", algorithmTypes: " + AlgoType);
+    	System.out.println("LETS CREATE!, mutation TYPE: " + mutationType + ", algorithmTypes: " + algorithmType);
 
 //    	mutationType = MapMutationType.ComputedConfig;
 //    	randomise = false;
@@ -120,84 +80,27 @@ public class Game implements Listener{
 			switch(mutationType){
 			case ComputedConfig:
 			{
-				doors.clear();
-				if (map.getNorth()) { 	//North
-					doors.add(new Point(sizeWidth / 2, 0));
-				}
-				if (map.getEast()) {	//East
-					doors.add(new Point(sizeWidth - 1, sizeHeight / 2));
-				}
-				if (map.getSouth()) {	//South
-					doors.add(new Point(sizeWidth / 2, sizeHeight - 1));
-				}
-				if (map.getWest()) {	//West
-					doors.add(new Point(0, sizeHeight / 2));
-				}
-				if (doors.isEmpty()) {
-					doors.add(map.getEntrance());
-					for (Point p : map.getDoors()) {
-						doors.add(p);
-					}
-				}
-				GeneratorConfig gc = map.getCalculatedConfig();
+				GeneratorConfig gc = room.getCalculatedConfig();
 				if(randomise)
 					gc.mutate();
-				Algorithm ga = new Algorithm(gc, AlgoType);
+				Algorithm ga = new Algorithm(room, gc, algorithmType);
 				runs.add(ga);
 				ga.start();
 				break;
 			}
 			case OriginalConfig:
 			{
-				doors.clear();
-				if (map.getNorth()) { 	//North
-					doors.add(new Point(sizeWidth / 2, 0));
-				}
-				if (map.getEast()) {	//East
-					doors.add(new Point(sizeWidth - 1, sizeHeight / 2));
-				}
-				if (map.getSouth()) {	//South
-					doors.add(new Point(sizeWidth / 2, sizeHeight - 1));
-				}
-				if (map.getWest()) {	//West
-					doors.add(new Point(0, sizeHeight / 2));
-				}
-				if (doors.isEmpty()) {
-					doors.add(map.getEntrance());
-					for (Point p : map.getDoors()) {
-						doors.add(p);
-					}
-				}
-				GeneratorConfig gc = new GeneratorConfig(map.getConfig());
+				GeneratorConfig gc = new GeneratorConfig(room.getConfig());
 				if(randomise)
 					gc.mutate();
-				Algorithm ga = new Algorithm(gc, AlgoType);
+				Algorithm ga = new Algorithm(room, gc, algorithmType);
 				runs.add(ga);
 				ga.start();
 				break;
 			}
 			case Preserving:
 			{
-//				doors.clear();
-//				if (map.getNorth()) { 	//North
-//					doors.add(new Point(sizeWidth / 2, 0));
-//				}
-//				if (map.getEast()) {	//East
-//					doors.add(new Point(sizeWidth - 1, sizeHeight / 2));
-//				}
-//				if (map.getSouth()) {	//South
-//					doors.add(new Point(sizeWidth / 2, sizeHeight - 1));
-//				}
-//				if (map.getWest()) {	//West
-//					doors.add(new Point(0, sizeHeight / 2));
-//				}
-//				if (doors.isEmpty()) {
-//					doors.add(map.getEntrance());
-//					for (Point p : map.getDoors()) {
-//						doors.add(p);
-//					}
-//				}
-				Algorithm ga = new Algorithm(map, AlgoType);
+				Algorithm ga = new Algorithm(room, algorithmType);
 				runs.add(ga);
 				ga.start();
 				break;
@@ -214,8 +117,6 @@ public class Game implements Listener{
 	 */
 	private void startAll(int runCount, MapContainer container)
 	{
-
-		reinit(container);
 		Algorithm geneticAlgorithm = null;
 
 		List<String> configs = new ArrayList<String>();
@@ -241,7 +142,7 @@ public class Game implements Listener{
 				c = configs.remove(Util.getNextInt(0, configs.size()));
 
 			try {
-				geneticAlgorithm = new Algorithm(new GeneratorConfig(c));
+				geneticAlgorithm = new Algorithm(container.getMap(), new GeneratorConfig(c)); //TODO: You need to send the container here (the room)
 				runs.add(geneticAlgorithm);
 				geneticAlgorithm.start();
 			} catch (MissingConfigurationException e) {
@@ -251,6 +152,7 @@ public class Game implements Listener{
 
 	}
 
+	//TODO: You need to pass a basic room!!!! 
 	private void startBatch(String config, int size){
 		batch = true;
 		batchRunsLeft = size;
@@ -265,6 +167,7 @@ public class Game implements Listener{
 
 	}
 
+	//TODO: You need to pass a basic room!!!! 
 	private void startBatchRun(){
 		try {
 			Algorithm geneticAlgorithm = new Algorithm(new GeneratorConfig(batchConfig));
@@ -299,31 +202,6 @@ public class Game implements Listener{
 	//    }
 
 	/**
-	 * Set everything back to its initial state before running the genetic algorithm
-	 */
-	private void reinit(MapContainer container){
-		if (container == null) {
-			doors.clear();
-			chooseDoorPositions();
-		}
-		else {
-			doors.clear();
-			if (container.getMap().getNorth()) { 	//North
-				doors.add(new Point(sizeWidth / 2, 0));
-			}
-			if (container.getMap().getEast()) {	//East
-				doors.add(new Point(sizeWidth - 1, sizeHeight / 2));
-			}
-			if (container.getMap().getSouth()) {	//South
-				doors.add(new Point(sizeWidth / 2, sizeHeight - 1));
-			}
-			if (container.getMap().getWest()) {	//West
-				doors.add(new Point(0, sizeHeight / 2));
-			}
-		}
-	}
-
-	/**
 	 * Stop the algorithm. Used in the case that the application window is closed.
 	 */
 	public void stop(){
@@ -334,15 +212,23 @@ public class Game implements Listener{
 		//    		geneticAlgorithm.terminate();
 		//    	}
 	}
+	
+	private void algorithmRunDone(Algorithm geneticAlgorithm)
+	{
+		runs.remove(geneticAlgorithm);
+		
+		if(runs.isEmpty())
+		{
+			EventRouter.getInstance().postEvent(new SuggestedMapsDone());
+		}
+
+	}
 
 	@Override
 	public synchronized void ping(PCGEvent e) {
 		if(e instanceof RequestSuggestionsView){ 
 			readConfiguration();
 			MapContainer container = (MapContainer) e.getPayload();
-			doorCount = container.getMap().getNumberOfDoors();
-			sizeWidth = 11; // TODO: Why is this hardcoded here?
-			sizeHeight = 11; //TODO: ?
 			startAll(((RequestSuggestionsView) e).getNbrOfThreads(), container);
 
 		}			
@@ -350,7 +236,7 @@ public class Game implements Listener{
 			
 			StartMapMutate smm = (StartMapMutate)e;
 //			System.out.println("LETS CREATE!, mutation: " + smm.getMutations() + ", algorithmTypes: " + smm.getAlgorithmTypes());
-			mutateFromMap((Map)e.getPayload(),smm.getMutations(),smm.getMutationType(),smm.getAlgorithmTypes(),smm.getRandomiseConfig());
+			mutateFromMap((Room)e.getPayload(),smm.getMutations(),smm.getMutationType(),smm.getAlgorithmTypes(),smm.getRandomiseConfig());
 		} else if (e instanceof StartBatch) {
 			startBatch(((StartBatch)e).getConfig(), ((StartBatch)e).getSize());
 		} else if (e instanceof Stop) {
@@ -366,16 +252,20 @@ public class Game implements Listener{
 				}
 			}
 		}
+		else if(e instanceof AlgorithmDone)
+		{
+			algorithmRunDone(((AlgorithmDone) e).getAlgorithm());
+		}
 	}
 
 	/**
 	 * Reads and applies the current configuration.
 	 */
 	private void readConfiguration() {  
-
-        sizeWidth = config.getDimensionM();
-        sizeHeight = config.getDimensionN();
-        doorCount = config.getDoors();
+		//TODO: THIS NEEDS TO BE CHECK
+//        sizeWidth = config.getDimensionM();
+//        sizeHeight = config.getDimensionN();
+//        doorCount = config.getDoors();
 
 	}
 

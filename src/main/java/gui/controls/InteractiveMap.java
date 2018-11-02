@@ -3,7 +3,7 @@ package gui.controls;
 import java.util.HashMap;
 
 import game.Game;
-import game.Map;
+import game.Room;
 import game.Tile;
 import game.TileTypes;
 import gui.utils.MapRenderer;
@@ -22,7 +22,7 @@ import util.Point;
  */
 public class InteractiveMap extends GridPane {
 	
-	private Map map;
+	private Room room;
 	private int cols = 0;
 	private int rows = 0;
 	public double scale = 0;
@@ -43,11 +43,11 @@ public class InteractiveMap extends GridPane {
 	 * Creates an instance of InteractiveMap, its contents being based on a
 	 * provided Map object.
 	 * 
-	 * @param map A map associated with this object.
+	 * @param room A map associated with this object.
 	 */
-	public InteractiveMap(Map map) {
+	public InteractiveMap(Room room) {
 		super();
-		updateMap(map);
+		updateMap(room);
 	}
 	
 	/**
@@ -59,13 +59,13 @@ public class InteractiveMap extends GridPane {
 	 * @param brush The brush that we will use paint the map (the brush contains all the positions that will be modified)
 	 */
 	public synchronized void updateTile(ImageView tile, Drawer brush) {
-		if (map == null) {
+		if (room == null) {
 			return;
 		}
 
 		//Safety checkup
 		Point p = coords.get(tile);
-		Tile currentTile = map.getTile(p);
+		Tile currentTile = room.getTile(p);
 		
 //		// Let's discard any attempts at erasing the doors
 //		if (map.getDoors().contains(new Point(x, y))) {
@@ -83,7 +83,7 @@ public class InteractiveMap extends GridPane {
 		//The brush has all the points that will be modified
 		for(finder.geometry.Point position : brush.GetDrawableTiles().getPoints())
 		{
-			currentTile = map.getTile(position.getX(), position.getY());
+			currentTile = room.getTile(position.getX(), position.getY());
 			
 			// Let's discard any attempts at erasing the doors
 			if(currentTile.GetType() == TileTypes.DOORENTER
@@ -93,7 +93,7 @@ public class InteractiveMap extends GridPane {
 			currentTile.SetImmutable(brush.GetModifierValue("Lock"));
 			if(brush.GetMainComponent() != null)
 			{
-				map.setTile(position.getX(), position.getY(), brush.GetMainComponent());
+				room.setTile(position.getX(), position.getY(), brush.GetMainComponent());
 				drawTile(position.getX(), position.getY(), brush.GetMainComponent());
 			}
 		}
@@ -103,7 +103,7 @@ public class InteractiveMap extends GridPane {
 
 	public Point CheckTile(ImageView tile)
 	{
-		if (map == null) {
+		if (room == null) {
 			return null;
 		}
 
@@ -116,21 +116,21 @@ public class InteractiveMap extends GridPane {
 	 * 
 	 * @return The map associated with this control.
 	 */
-	public Map getMap() {
-		return map;
+	public Room getMap() {
+		return room;
 	}
 	
 	/**
 	 * Populates this control with a new map.
 	 * 
-	 * @param map A new map.
+	 * @param room A new map.
 	 */
-	public void updateMap(Map map) {
-		this.map = map;
+	public void updateMap(Room room) {
+		this.room = room;
 		
-		if (cols != map.getColCount() || rows != map.getRowCount()) {
-			cols = map.getColCount();
-			rows = map.getRowCount();
+		if (cols != room.getColCount() || rows != room.getRowCount()) {
+			cols = room.getColCount();
+			rows = room.getRowCount();
 			images.clear();
 		}
 		
@@ -148,13 +148,12 @@ public class InteractiveMap extends GridPane {
 
 		getChildren().clear();
 		coords.clear();
-		
-		
+
 		 for (int j = 0; j < rows; j++)
 		 {
 			 for (int i = 0; i < cols; i++) 
 			 {
-				ImageView iv = new ImageView(getImage(map.getTile(i, j).GetType(), scale));
+				ImageView iv = new ImageView(getImage(room.getTile(i, j).GetType(), scale));
 				GridPane.setFillWidth(iv, true);
 				GridPane.setFillHeight(iv, true);
 				add(iv, i, j);
@@ -172,6 +171,20 @@ public class InteractiveMap extends GridPane {
 		}
 		
 		tile = renderer.renderTile(type, size, size);
+		images.put(type, tile);
+		
+		return tile;
+	}
+	
+	private Image getImage(TileTypes type, double width, double height) 
+	{
+		Image tile = images.get(type);
+		
+		if (tile != null) {
+			return tile;
+		}
+		
+		tile = renderer.renderTile(type, width, height);
 		images.put(type, tile);
 		
 		return tile;

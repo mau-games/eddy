@@ -2,7 +2,6 @@ package gui.controls;
 
 import java.io.IOException;
 
-import gui.views.WorldViewController.MouseEventHandler;
 import javafx.animation.Animation;
 import javafx.animation.Interpolator;
 import javafx.animation.RotateTransition;
@@ -88,23 +87,23 @@ public class LabeledCanvas extends BorderPane {
 		transition.setCycleCount(Animation.INDEFINITE);
 		
 		waitForImage(true);
-		
-		addEventFilter(MouseEvent.MOUSE_ENTERED, new EventHandler<MouseEvent>() {
-
-			@Override
-			public void handle(MouseEvent event) {
-				highlight(true);
-			}
-			
-		});
-		addEventFilter(MouseEvent.MOUSE_EXITED, new EventHandler<MouseEvent>() {
-
-			@Override
-			public void handle(MouseEvent event) {
-				highlight(false);
-			}
-			
-		});
+//		
+//		addEventFilter(MouseEvent.MOUSE_ENTERED, new EventHandler<MouseEvent>() {
+//
+//			@Override
+//			public void handle(MouseEvent event) {
+//				highlight(true);
+//			}
+//			
+//		});
+//		addEventFilter(MouseEvent.MOUSE_EXITED, new EventHandler<MouseEvent>() {
+//
+//			@Override
+//			public void handle(MouseEvent event) {
+//				highlight(false);
+//			}
+//			
+//		});
 	}
 	
 	/**

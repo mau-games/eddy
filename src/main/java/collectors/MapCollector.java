@@ -12,7 +12,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import game.ApplicationConfig;
-import game.Map;
+import game.Room;
 import game.MapContainer;
 import util.Util;
 import util.config.ConfigurationUtility;
@@ -49,7 +49,7 @@ public class MapCollector implements Listener {
 			logger.error("Couldn't read configuration file:\n" + e.getMessage());
 		}
 		EventRouter.getInstance().registerListener(this, new MapUpdate(null));
-		EventRouter.getInstance().registerListener(this, new AlgorithmDone(null));
+		EventRouter.getInstance().registerListener(this, new AlgorithmDone(null, null));
 		EventRouter.getInstance().registerListener(this, new AlgorithmStarted());
 		path = Util.normalisePath(config.getMapCollectorPath());
 		active = config.getMapCollectorActive();
@@ -71,11 +71,11 @@ public class MapCollector implements Listener {
 					directory.mkdir();
 				}
 				
-				Map map;
+				Room room;
 				if(e instanceof AlgorithmDone)
-					map = ((MapContainer) e.getPayload()).getMap();
+					room = ((MapContainer) e.getPayload()).getMap();
 				else		
-					map = (Map) e.getPayload();
+					room = (Room) e.getPayload();
 				DateTimeFormatter format =
 						DateTimeFormatter.ofPattern("yyyy-MM-dd_HH-mm-s-n");
 				String name = "map_" +
@@ -86,7 +86,7 @@ public class MapCollector implements Listener {
 				logger.debug("Writing map to " + path + name);
 
 				try {
-					FileUtils.writeStringToFile(file, map.toString());
+					FileUtils.writeStringToFile(file, room.toString());
 				} catch (IOException e1) {
 					logger.error("Couldn't write map to " + path + name +
 							":\n" + e1.getMessage());

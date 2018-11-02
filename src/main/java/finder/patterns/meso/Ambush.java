@@ -14,8 +14,8 @@ import finder.patterns.InventorialPattern;
 import finder.patterns.Pattern;
 import finder.patterns.micro.Enemy;
 import finder.patterns.micro.Entrance;
-import finder.patterns.micro.Room;
-import game.Map;
+import finder.patterns.micro.Chamber;
+import game.Room;
 import generator.config.GeneratorConfig;
 
 public class Ambush extends CompositePattern {
@@ -30,7 +30,7 @@ public class Ambush extends CompositePattern {
 		quality = Math.min((double)enemies/config.getAmbushEnemies(),1.0);
 	}
 	
-	public static List<CompositePattern> matches(Map map, Graph<Pattern> patternGraph) {
+	public static List<CompositePattern> matches(Room room, Graph<Pattern> patternGraph) {
 		List<CompositePattern> ambushes = new ArrayList<CompositePattern>();
 		
 		patternGraph.resetGraph();
@@ -41,11 +41,11 @@ public class Ambush extends CompositePattern {
 		while(!nodeQueue.isEmpty()){
 			Node<Pattern> current = nodeQueue.remove();
 			current.tryVisit();
-			if(current.getValue() instanceof Room){
-				List<InventorialPattern> containedEnemies = ((Room)current.getValue()).getContainedPatterns().stream().filter(p->{return p instanceof Enemy;}).collect(Collectors.toList());
-				List<InventorialPattern> entrances = ((Room)current.getValue()).getContainedPatterns().stream().filter(p->{return p instanceof Entrance;}).collect(Collectors.toList());
+			if(current.getValue() instanceof Chamber){
+				List<InventorialPattern> containedEnemies = ((Chamber)current.getValue()).getContainedPatterns().stream().filter(p->{return p instanceof Enemy;}).collect(Collectors.toList());
+				List<InventorialPattern> entrances = ((Chamber)current.getValue()).getContainedPatterns().stream().filter(p->{return p instanceof Entrance;}).collect(Collectors.toList());
 				if(containedEnemies.size() >= 1 && entrances.size() == 1){
-					Ambush a = new Ambush(map.getConfig(),containedEnemies.size());
+					Ambush a = new Ambush(room.getConfig(),containedEnemies.size());
 					a.patterns.add(current.getValue());
 					a.patterns.addAll(containedEnemies);
 					a.patterns.addAll(entrances);

@@ -5,15 +5,15 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
 
-import game.Map;
+import game.Room;
 import util.Point;
 
 public class FloodFill {
-	private Map mMap;
+	private Room mMap;
 
-    public FloodFill(Map map)
+    public FloodFill(Room room)
     {
-        mMap = map;
+        mMap = room;
     }
 
     /**

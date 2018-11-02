@@ -4,11 +4,14 @@ import java.io.IOException;
 import java.util.List;
 
 import game.ApplicationConfig;
-import game.Map;
+import game.Dungeon;
+import game.DungeonPane;
 import game.MapContainer;
 import gui.controls.LabeledCanvas;
+import gui.utils.DungeonDrawer;
 import gui.utils.MapRenderer;
-import gui.views.SuggestionsViewController.MouseEventHandler;
+import gui.utils.MoveElementBrush;
+import gui.utils.RoomConnector;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
@@ -17,52 +20,77 @@ import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.control.Button;
+import javafx.scene.control.Control;
+import javafx.scene.control.Label;
 import javafx.scene.control.Tooltip;
 import javafx.scene.input.MouseEvent;
-import javafx.scene.layout.BorderPane;
+import javafx.scene.input.ScrollEvent;
+import javafx.scene.layout.Border;
+import javafx.scene.layout.BorderStroke;
+import javafx.scene.layout.BorderStrokeStyle;
+import javafx.scene.layout.BorderWidths;
+import javafx.scene.layout.CornerRadii;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.Pane;
+import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
+import javafx.scene.layout.BorderPane;
+import javafx.scene.paint.Color;
+import javafx.scene.paint.Paint;
+import javafx.scene.shape.Line;
+import javafx.scene.shape.Rectangle;
+import javafx.scene.transform.Scale;
 import util.config.MissingConfigurationException;
 import util.eventrouting.EventRouter;
 import util.eventrouting.Listener;
 import util.eventrouting.PCGEvent;
 import util.eventrouting.events.MapUpdate;
 import util.eventrouting.events.RequestEmptyRoom;
-import util.eventrouting.events.RequestNullRoom;
+import util.eventrouting.events.RequestNewRoom;
+import util.eventrouting.events.RequestRoomRemoval;
 import util.eventrouting.events.RequestRoomView;
 import util.eventrouting.events.RequestSuggestionsView;
+import util.IntField;
+import util.Point;
 
 /*  
  * @author Chelsi Nolasco, Malmö University
  * @author Axel Österman, Malmö University*/
 
-public class WorldViewController extends GridPane implements Listener{
+public class WorldViewController extends BorderPane implements Listener
+{
 
 	private ApplicationConfig config;
 	private EventRouter router = EventRouter.getInstance();
 	private boolean isActive = false;
-
-	private Button startEmptyBtn = new Button();
+	
 	private Button roomNullBtn = new Button ();
 	private Button suggestionsBtn = new Button();
+	private Button createNewRoomBtn = new Button();
+	private Button removeRoomBtn = new Button();
+	private Button changeBrushBtn = new Button();
+	
+	private Label widthLabel = new Label("W =");
+	private Label heightLabel = new Label("H =");
+	private IntField widthField = new IntField(1, 20, 11);
+	private IntField heightField = new IntField(1, 20, 11);
 
 	private Canvas buttonCanvas;
 	private MapRenderer renderer = MapRenderer.getInstance();
 
-
-	@FXML private StackPane worldPane;
 	@FXML private StackPane buttonPane;
-	@FXML GridPane gridPane;
+	@FXML Pane worldPane;
 	@FXML private List<LabeledCanvas> mapDisplays;
 
-	private int row = 0;
-	private int col = 0;
-	private MapContainer[][] matrix;
-	private int size;
-	private int viewSize;
 	private Node source;
-	private Node oldNode;
-	private LabeledCanvas canvas;
+	
+	private Dungeon dungeon;
+	
+	double anchorX;
+	double anchorY;
+
+	//Line to appear when we try to draw conenctions between rooms (just visual feedback)
+	private Line auxLine;
 	
 	public WorldViewController() {
 		super();
@@ -81,6 +109,7 @@ public class WorldViewController extends GridPane implements Listener{
 		}
 
 		router.registerListener(this, new MapUpdate(null));
+
 		initWorldView();
 	}
 
@@ -88,94 +117,222 @@ public class WorldViewController extends GridPane implements Listener{
 		isActive = state;
 	}
 
-	private void initWorldView() {
+	private void initWorldView() 
+	{
+		//setup visual line
+		auxLine = new Line();
+		auxLine.setStrokeWidth(2.0f);
+		auxLine.setStroke(Color.PINK);
+		auxLine.setMouseTransparent(true);
+		
+		buttonPane = new StackPane();
+
+		//setting the parts of the border pane
+		setCenter(worldPane);
+		setRight(buttonPane);
+		worldPane.addEventHandler(MouseEvent.MOUSE_PRESSED, new MouseEventWorldPane());
+
+		//Don't allow children to pass over the pane!
+		clipChildren(worldPane, 12);
 		worldButtonEvents();
 		initOptions();	
-		
-
 	}
 	
-	
-	//TODO: this need to be check
-	public void initWorldMap(MapContainer[][] matrix) {
-		gridPane.getChildren().clear();
-		this.matrix = matrix;	
-		size = matrix.length;
-		viewSize = 750/size;
+	public void initWorldMap(Dungeon dungeon) 
+	{
 		
-		for (int i = 0; i < matrix.length; i++) 
+		if(widthField == null)
+			widthField = new IntField(1, 20, dungeon.defaultWidth);
+		
+		if(heightField == null)
+			heightField = new IntField(1, 20, dungeon.defaultHeight);
+		
+		this.dungeon = dungeon;
+		worldPane.getChildren().clear();
+		worldPane.setBorder(new Border(new BorderStroke(Color.RED, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderWidths.DEFAULT)));
+
+		
+		dungeon.dPane.renderAll();
+		worldPane.getChildren().add(dungeon.dPane);
+	}
+	
+	public class MouseEventWorldPane implements EventHandler<MouseEvent>
+	{
+		@Override
+		public void handle(MouseEvent event) 
 		{
-			for (int j = 0; j < matrix.length; j++)
+			source = (Node)event.getSource();
+			
+			source.setOnScroll(new EventHandler<ScrollEvent>()
 			{
 
-				canvas = new LabeledCanvas();
-				canvas.setText("");
-				canvas.setPrefSize(viewSize, viewSize);
-				canvas.draw(renderer.renderMap(matrix[j][i].getMap().toMatrix()));
+				@Override
+				public void handle(ScrollEvent event) {
+        			Scale newScale = new Scale();
+        	        newScale.setPivotX(event.getX());
+        	        newScale.setPivotY(event.getY());
+        	        
+        	        for(Node child : worldPane.getChildren()) 
+            		{
+            			newScale.setX( child.getScaleX() + (0.001 * event.getDeltaY()) );
+            	        newScale.setY( child.getScaleY() + (0.001 * event.getDeltaY()) );
+            	        ((DungeonPane)child).tryScale(newScale);
+            		}
 
-				gridPane.add(canvas, i, j);
+        			event.consume();
+				}
 
-				canvas.addEventFilter(MouseEvent.MOUSE_CLICKED,
-						new MouseEventHandler());
-				
-			}
+			});
+			
+			source.setOnMouseDragged(new EventHandler<MouseEvent>() 
+			{
+
+	            @Override
+	            public void handle(MouseEvent event)
+	            {
+	            	if(DungeonDrawer.getInstance().getBrush() instanceof RoomConnector)
+	            	{
+		    			auxLine.setEndX(event.getX());
+		    			auxLine.setEndY(event.getY());
+	            	}
+	            	else if(event.getTarget() == worldPane && event.isMiddleButtonDown()) //TODO: WORK IN PROGRESS
+	            	{
+	            		for(Node child : worldPane.getChildren())
+	            		{
+	            			child.setLayoutX(child.getLayoutX() + (event.getX() - anchorX));
+	            			child.setLayoutY(child.getLayoutY() + event.getY() - anchorY); 
+	            		}
+	            		
+            			anchorX = event.getX();
+            			anchorY = event.getY();
+            			
+            			event.consume();
+	            	}
+	            }
+	            
+	        });
+			
+			source.setOnMouseReleased(new EventHandler<MouseEvent>() {
+
+	            @Override
+	            public void handle(MouseEvent event) 
+	            {
+	            	worldPane.getChildren().remove(auxLine);
+	            }
+
+	        });
+			
+			source.setOnMousePressed(new EventHandler<MouseEvent>() 
+			{
+
+	            @Override
+	            public void handle(MouseEvent event) 
+	            {
+	            	anchorX = event.getX();
+	    			anchorY = event.getY();
+	    			
+	            	if(DungeonDrawer.getInstance().getBrush() instanceof RoomConnector)
+	            	{
+		    			worldPane.getChildren().add(auxLine);
+		    			auxLine.setStartX(event.getX());
+		    			auxLine.setStartY(event.getY());
+		    			auxLine.setEndX(event.getX());
+		    			auxLine.setEndY(event.getY());
+	            	}
+	            	else //Another brush
+	            	{
+	            		
+	            	}
+	            	
+	            }
+	        });
+			
 		}
-		
-		boolean voidRoom = matrix[row][col].getMap().getNull();
-		getSuggestionsBtn().setDisable(voidRoom);
-		getStartEmptyBtn().setDisable(voidRoom);
+	}
+	
+	private void clipChildren(Region region, double arc)
+	{
+		final Rectangle outputClip = new Rectangle();
+	    outputClip.setArcWidth(arc);
+	    outputClip.setArcHeight(arc);
+	    region.setClip(outputClip);
 
+	    region.layoutBoundsProperty().addListener((ov, oldValue, newValue) -> {
+	        outputClip.setWidth(newValue.getWidth());
+	        outputClip.setHeight(newValue.getHeight());
+	    });
 	}
 
-	private void initOptions() {				
-		buttonCanvas = new Canvas(1000, 1000);
+	private void initOptions() 
+	{				
+		buttonCanvas = new Canvas(500, 1000); //TODO This will stay like this but it shoudl be responsive!!
 		StackPane.setAlignment(buttonCanvas, Pos.CENTER);
+		buttonPane.setAlignment(Pos.CENTER);
 		buttonPane.getChildren().add(buttonCanvas);
 		buttonCanvas.setVisible(false);
 		buttonCanvas.setMouseTransparent(true);
+		
+		//Arrange the controls
+		
+		arrangeControls(widthLabel, -90, -300, 30, 50);
+		arrangeControls(heightLabel, 10, -300, 30, 50);
+		arrangeControls(widthField, -55, -300, 50, 50);
+		arrangeControls(heightField, 50, -300, 50, 50);
+		arrangeControls(createNewRoomBtn, -100, -200, 120, 100);
+		arrangeControls(removeRoomBtn, 100, -200, 120, 100);
+		arrangeControls(getRoomNullBtn(), 0, 0, 300, 100);
+		arrangeControls(getSuggestionsBtn(), 0, 200, 300, 100);
+		arrangeControls(getChangeBrushBtn(), 0, 400, 300, 100);
+	
+		//change color of the input fields!
+		heightField.setStyle("-fx-text-inner-color: white;");		
+		widthField.setStyle("-fx-text-inner-color: white;");
+		widthLabel.setTextFill(Color.WHITE);
+		heightLabel.setTextFill(Color.WHITE);
+//		widthLabel.setTextFill(Paint);
 
-		getStartEmptyBtn().setTranslateX(800);
-		getStartEmptyBtn().setTranslateY(-200);
-		getRoomNullBtn().setTranslateX(800);
-		getRoomNullBtn().setTranslateY(0);
-		getSuggestionsBtn().setTranslateX(800);
-		getSuggestionsBtn().setTranslateY(200);
-
-		getStartEmptyBtn().setMinSize(500, 100);
-		getRoomNullBtn().setMinSize(500, 100);
-		getSuggestionsBtn().setMinSize(500, 100);
-
-
-		buttonPane.getChildren().add(getStartEmptyBtn());
+		//Add everything to the button pane!
 		buttonPane.getChildren().add(getRoomNullBtn());
 		buttonPane.getChildren().add(getSuggestionsBtn());
-
-		getStartEmptyBtn().setText("Edit room");
-		getStartEmptyBtn().setTooltip(new Tooltip("Go to room view and start designing"));
-		getRoomNullBtn().setText("Enable/Disable room");
+		buttonPane.getChildren().add(changeBrushBtn);
+		buttonPane.getChildren().add(createNewRoomBtn);
+		buttonPane.getChildren().add(removeRoomBtn);
+		buttonPane.getChildren().add(heightField);
+		buttonPane.getChildren().add(widthField);
+		buttonPane.getChildren().add(widthLabel);
+		buttonPane.getChildren().add(heightLabel);
+		
+		//Change the text of the buttons!
+		changeBrushBtn.setText("Change brush");
+		createNewRoomBtn.setText("NEW ROOM");
+		removeRoomBtn.setText("REMOVE ROOM");
+		getRoomNullBtn().setText("Calculate paths!");
 		getRoomNullBtn().setTooltip(new Tooltip("Makes the room inaccessible for more complex designs"));
 		getSuggestionsBtn().setText("Start with our suggestions");
 		getSuggestionsBtn().setTooltip(new Tooltip("Start with our suggested designs as generated by genetic algorithms"));
 
-
-		
-		
 	}
-
-
+	
+	private void arrangeControls(Control obj, double xPos, double yPos, double sizeWidth, double sizeHeight)
+	{
+		obj.setTranslateX(xPos);
+		obj.setTranslateY(yPos);
+		obj.setMinSize(sizeWidth, sizeHeight);
+		obj.setMaxSize(sizeWidth, sizeHeight);
+	}
 
 	@Override
 	public void ping(PCGEvent e) {
-		// TODO Auto-generated method stub
+
 
 	}
 
-	public Button getStartEmptyBtn() {
-		return startEmptyBtn;
+	public Button getChangeBrushBtn() {
+		return changeBrushBtn;
 	}
 
-	public void setStartEmptyBtn(Button startEmptyBtn) {
-		this.startEmptyBtn = startEmptyBtn;
+	public void setChangeBrushBtn(Button changeBrushBtn) {
+		this.changeBrushBtn = changeBrushBtn;
 	}
 
 	public Button getRoomNullBtn() {
@@ -193,87 +350,85 @@ public class WorldViewController extends GridPane implements Listener{
 	public void setSuggestionsBtn(Button suggestionsBtn) {
 		this.suggestionsBtn = suggestionsBtn;
 	}
-	public class MouseEventHandler implements EventHandler<MouseEvent> {
 
+	private void worldButtonEvents() 
+	{
 
-		@Override
-		public void handle(MouseEvent event) {
-			source = (Node)event.getSource() ;
-			Integer colIndex = GridPane.getColumnIndex(source);
-			Integer rowIndex = GridPane.getRowIndex(source);
-			row = rowIndex;
-			col = colIndex;
-			getRoomNullBtn().setDisable(false);
-			if (matrix[row][col].getMap().getNull()) {
-				//disable
-				getSuggestionsBtn().setDisable(true);
-				getStartEmptyBtn().setDisable(true);
-			}
-			else {
-				//enable
-				getSuggestionsBtn().setDisable(false);
-				getStartEmptyBtn().setDisable(false);	
-			}
-			
-
-			source.setOnMouseClicked(new EventHandler<MouseEvent>() {
-
-	            @Override
-	            public void handle(MouseEvent event) {
-	    			source.setStyle("-fx-background-color:#fcdf3c;");
-	    			if (oldNode != null) {
-	    				oldNode.setStyle("-fx-background-color:#2c2f33;");
-	    			}	 
-	    			oldNode = source;
-	    			
-
-	            }
-	        });
-			
-			source.setOnMouseExited(new EventHandler<MouseEvent>() {
-
-	            @Override
-	            public void handle(MouseEvent event) {
-	    			source.setStyle("-fx-background-color:#fcdf3c;");
-	    			
-	            }
-	        });
-			
-			source.setOnMouseEntered(new EventHandler<MouseEvent>() {
-
-	            @Override
-	            public void handle(MouseEvent event) {
-	    			source.setStyle("-fx-background-color:#fcdf3c;");
-	    			
-	            }
-	        });
-
-		}
-
-	}
-
-	private void worldButtonEvents() {
-		getStartEmptyBtn().setOnAction(new EventHandler<ActionEvent>() {
-			@Override
-			public void handle(ActionEvent e) {
-				
-				router.postEvent(new RequestEmptyRoom(matrix[row][col], row, col, matrix));
-			}
-
-		}); 
 		getSuggestionsBtn().setOnAction(new EventHandler<ActionEvent>() {
 			@Override
-			public void handle(ActionEvent e) {
-				router.postEvent(new RequestSuggestionsView(matrix[row][col], row, col, matrix, 6));
+			public void handle(ActionEvent e) 
+			{
+				if(dungeon.getSelectedRoom().getDoorCount(true) > 0)
+				{
+					MapContainer mc = new MapContainer();
+					mc.setMap(dungeon.getSelectedRoom());
+					router.postEvent(new RequestSuggestionsView(mc, 6));
+				}
+
+				
+				//uncomment to reset scale
+//				for(Node child : worldPane.getChildren()) 
+//        		{
+//        	        ((DungeonPane)child).resetScale();
+//        		}
 			}
 
 		}); 
 
-
+		//This button get all paths from room 0 to room 1
 		getRoomNullBtn().setOnAction(new EventHandler<ActionEvent>() {
 			@Override
+			public void handle(ActionEvent e) 
+			{
+				
+//				if(dungeon.size > 1)
+//				{
+//					dungeon.testTraverseNetwork(dungeon.getRoomByIndex(0),dungeon.getRoomByIndex(1));
+//					dungeon.printRoomsPath();
+//				}
+				
+				//Arbitrary path finding
+				if(dungeon.size > 1)
+				{
+					dungeon.getSelectedRoom().applyPathfinding(new Point(0,0), new Point(10,0));
+					dungeon.getBestPathBetweenRooms(dungeon.getRoomByIndex(0), dungeon.getRoomByIndex(1));
+				}
+
+			}
+
+		}); 
+		
+		changeBrushBtn.setOnAction(new EventHandler<ActionEvent>() {
+			@Override
+			public void handle(ActionEvent e) 
+			{
+				if(DungeonDrawer.getInstance().getBrush() instanceof MoveElementBrush)
+				{
+					DungeonDrawer.getInstance().changeToConnector();
+				}
+				else
+				{
+					DungeonDrawer.getInstance().changeToMove();
+				}
+			}
+
+		}); 
+		
+		createNewRoomBtn.setOnAction(new EventHandler<ActionEvent>() {
+			@Override
 			public void handle(ActionEvent e) {
-				router.postEvent(new RequestNullRoom(matrix[row][col], row, col, matrix));
+				System.out.println("Creating a new room");
+				router.postEvent(new RequestNewRoom(dungeon, -1, widthField.getValue(), heightField.getValue()));
+			}
+
+		}); 
+		
+		removeRoomBtn.setOnAction(new EventHandler<ActionEvent>() {
+			@Override
+			public void handle(ActionEvent e) {
+
+				if(dungeon.getSelectedRoom() != null)
+					router.postEvent(new RequestRoomRemoval(dungeon.getSelectedRoom(), dungeon, -1));
 			}
 
 		}); 
@@ -281,36 +436,36 @@ public class WorldViewController extends GridPane implements Listener{
 	}
 	
 	
-	
+	//TODO: NEeds to be redone
 	private String matrixToString() {
 		//create large string
 		String largeString = "";
-		int j = 1;
-
-		for (MapContainer[] outer : matrix) {
-
-			for (int k = 0; k < outer[0].getMap().toString().length(); k++) {
-
-				if (outer[0].getMap().toString().charAt(k) != '\n') {
-					largeString += outer[0].getMap().toString().charAt(k);
-
-				}
-				if (outer[0].getMap().toString().charAt(k) == '\n') {
-					while (j < 3) {
-
-						for (int i = (k - 11); i < k; i++) {
-							largeString += outer[j].getMap().toString().charAt(i);
-
-						}
-						j++;
-					}
-					j = 1;
-					largeString += outer[0].getMap().toString().charAt(k);
-				}
-
-			}
-
-		}
+//		int j = 1;
+//
+//		for (MapContainer[] outer : matrix) {
+//
+//			for (int k = 0; k < outer[0].getMap().toString().length(); k++) {
+//
+//				if (outer[0].getMap().toString().charAt(k) != '\n') {
+//					largeString += outer[0].getMap().toString().charAt(k);
+//
+//				}
+//				if (outer[0].getMap().toString().charAt(k) == '\n') {
+//					while (j < 3) {
+//
+//						for (int i = (k - 11); i < k; i++) {
+//							largeString += outer[j].getMap().toString().charAt(i);
+//
+//						}
+//						j++;
+//					}
+//					j = 1;
+//					largeString += outer[0].getMap().toString().charAt(k);
+//				}
+//
+//			}
+//
+//		}
 		return largeString;
 	}
 }
