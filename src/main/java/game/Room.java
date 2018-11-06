@@ -1180,6 +1180,11 @@ public class Room {
 	
 	/////////////////////////////// A* INTERNAL PATHFINDING  ///////////////////////////////////////////////////
 
+	public boolean pathExists(Point start, Point end) //for now it will just apply A*
+	{
+		return pathfinder.calculateBestPath(start, end);
+	}
+	
 	public void applyPathfinding(Point start, Point goal)
 	{
 		pathfinder.calculateBestPath(start, goal);

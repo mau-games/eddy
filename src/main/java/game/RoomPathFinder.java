@@ -27,7 +27,7 @@ public class RoomPathFinder
 		
 		ArrayList<PathFindingTile> openList = new ArrayList<PathFindingTile>();
 		ArrayList<PathFindingTile> closeList = new ArrayList<PathFindingTile>();
-		PathFindingTile next = new PathFindingTile(start, end);
+		PathFindingTile next = new PathFindingTile(start, end, owner.getTile(start).GetType());
 		
 		//special case that start and end are the same point
 		if(start.equals(end))
@@ -42,7 +42,7 @@ public class RoomPathFinder
 		
 		for(Point adj :adjacent)
 		{
-			PathFindingTile adjacentTile = new PathFindingTile(next, adj, end);
+			PathFindingTile adjacentTile = new PathFindingTile(next, adj, end,  owner.getTile(adj).GetType());
 			
 			if(!closeList.contains(adjacentTile))
 				openList.add(adjacentTile);
@@ -75,7 +75,7 @@ public class RoomPathFinder
 					
 					if(adjacentTile == null)
 					{
-						openList.add(new PathFindingTile(next, adj, end));
+						openList.add(new PathFindingTile(next, adj, end, owner.getTile(adj).GetType()));
 					}
 					else
 					{
