@@ -5,7 +5,7 @@ import gui.controls.LabeledCanvas;
 import gui.utils.DungeonDrawer;
 import gui.utils.MapRenderer;
 import gui.utils.MoveElementBrush;
-import gui.utils.RoomConnector;
+import gui.utils.RoomConnectorBrush;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.SimpleDoubleProperty;
@@ -155,7 +155,7 @@ public class WorldViewCanvas
 	            @Override
 	            public void handle(MouseEvent event) 
 	            {
-	            	if(DungeonDrawer.getInstance().getBrush() instanceof RoomConnector)
+	            	if(DungeonDrawer.getInstance().getBrush() instanceof RoomConnectorBrush)
 	            	{
 		            	borderCanvas.setVisible(true);
 		            	drawBorder();
@@ -180,7 +180,7 @@ public class WorldViewCanvas
 		    			source.setTranslateX(event.getX() + source.getTranslateX() - dragAnchorX);
 		    			source.setTranslateY(event.getY() + source.getTranslateY() - dragAnchorY); 
 	            	}
-	            	else
+	            	else if(DungeonDrawer.getInstance().getBrush() instanceof RoomConnectorBrush)
 	            	{
 	            		currentBrushPosition =  new Point((int)( event.getX() / tileSizeWidth.get()), (int)( event.getY() / tileSizeHeight.get() ));
 		            	drawBorder();
@@ -195,7 +195,7 @@ public class WorldViewCanvas
 	            public void handle(MouseEvent event) 
 	            {
 	
-	            	if(DungeonDrawer.getInstance().getBrush() instanceof RoomConnector)
+	            	if(DungeonDrawer.getInstance().getBrush() instanceof RoomConnectorBrush)
 	            	{
 	            		currentBrushPosition =  new Point((int)( event.getX() / tileSizeWidth.get()), (int)( event.getY() / tileSizeHeight.get() ));
 		            	drawBorder();
@@ -212,7 +212,12 @@ public class WorldViewCanvas
 	            {
 	            	currentBrushPosition =  new Point((int)( event.getX() / tileSizeWidth.get()), (int)( event.getY() / tileSizeHeight.get() ));
 	            	
-	            	if(owner.isPointInBorder(currentBrushPosition))
+	            	if(DungeonDrawer.getInstance().getBrush() instanceof RoomConnectorBrush &&
+	            			owner.isPointInBorder(currentBrushPosition))
+	            	{
+	            		DungeonDrawer.getInstance().getBrush().onReleaseRoom(owner, currentBrushPosition);
+	            	}
+	            	else
 	            	{
 	            		DungeonDrawer.getInstance().getBrush().onReleaseRoom(owner, currentBrushPosition);
 	            	}
@@ -246,7 +251,7 @@ public class WorldViewCanvas
 	            @Override
 	            public void handle(MouseEvent event) 
 	            {
-	            	if(DungeonDrawer.getInstance().getBrush() instanceof RoomConnector)
+	            	if(DungeonDrawer.getInstance().getBrush() instanceof RoomConnectorBrush)
 	            	{
 		            	borderCanvas.setVisible(true);
 		            	drawBorder();
@@ -256,8 +261,6 @@ public class WorldViewCanvas
 	            		highlight(true);
 	            	}
 
-	            	pathCanvas.setVisible(true);
-	            	drawPath();
 	            	DungeonDrawer.getInstance().getBrush().onEnteredRoom(owner); //This could also use the event actually :O
 	            }
 
@@ -293,9 +296,14 @@ public class WorldViewCanvas
 	            	dragAnchorY = event.getY();
 	            	currentBrushPosition =  new Point((int)( event.getX() / tileSizeWidth.get()), (int)( event.getY() / tileSizeHeight.get() ));
 	            	
-	            	if(owner.isPointInBorder(currentBrushPosition))
+	            	if(DungeonDrawer.getInstance().getBrush() instanceof RoomConnectorBrush && 
+	            			owner.isPointInBorder(currentBrushPosition))
 	            	{
 		            	DungeonDrawer.getInstance().getBrush().onClickRoom(owner,currentBrushPosition);
+	            	}
+	            	else
+	            	{
+	            		DungeonDrawer.getInstance().getBrush().onClickRoom(owner,currentBrushPosition);
 	            	}
 
 	            }
@@ -316,12 +324,16 @@ public class WorldViewCanvas
 	            public void handle(MouseEvent event) 
 	            {
 	            	borderCanvas.setVisible(false);
-	            	pathCanvas.setVisible(false);
-	            	highlight(false);
 	            }
 
 	        });
 		}
+	}
+	
+	public synchronized void forcePathDrawing(boolean visibility)
+	{
+		pathCanvas.setVisible(visibility);
+		drawPath();
 	}
 	
 	private synchronized void drawBorder() 

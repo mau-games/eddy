@@ -52,6 +52,12 @@ public class DungeonPathFinder
 		PathFindingEdge nextEdge = null; //Next edge to be tested
 		PathFindingEdge finishEdge = null; //Final edge to consider
 		
+		//Special case where the pathfinding is to be done within the same room
+		if(initRoom.equals(goalRoom))
+		{
+			finishEdge = new PathFindingEdge(initRoom, goalRoom, initPoint, goalPoint, null);
+		}
+		
 		Set<RoomEdge> edges = network.incidentEdges(initRoom); //"NEIGHBORS"
 		
 		for(RoomEdge edge : edges)
@@ -74,7 +80,6 @@ public class DungeonPathFinder
 			if(!closeList.contains(adjacentDoor))
 				openList.add(adjacentDoor);
 		}
-
 
 		//THIS IS WHERE A* STARTS FOR REAL
 		while(!openList.isEmpty())
@@ -183,18 +188,24 @@ public class DungeonPathFinder
 		if(finishEdge == null)
 			return false;
 		
+		fillPath(finishEdge);
+
+		return true;
+	}
+	
+	//TODO: This method is in dungeon!
+	public void calculateAllPaths(Room initRoom, Room goalRoom)
+	{
+		
+	}
+	
+	private void fillPath(PathFindingEdge finishEdge)
+	{
 		while(finishEdge != null)
 		{
 			path.add(finishEdge);
 			finishEdge = finishEdge.parent;
 		}
-		
-		return true;
-	}
-	
-	public void calculateAllPaths(Room initRoom, Room goalRoom)
-	{
-		
 	}
 	
 	/***
@@ -212,6 +223,18 @@ public class DungeonPathFinder
 		}
 		
 		return null;
+	}
+	
+	public void innerCalculation()
+	{
+		if(path == null)
+			return;
+		
+		for(PathFindingEdge pfe : path)
+		{
+			pfe.fromRoom.applyPathfinding(pfe.end, pfe.start);
+			pfe.fromRoom.paintPath(true);
+		}			
 	}
 	
 	public void printPath()

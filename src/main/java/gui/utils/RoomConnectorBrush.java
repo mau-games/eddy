@@ -5,7 +5,7 @@ import util.Point;
 import util.eventrouting.EventRouter;
 import util.eventrouting.events.RequestConnection;
 
-public class RoomConnector extends ShapeBrush
+public class RoomConnectorBrush extends InterRoomBrush
 {
 	public Room from;
 	public Room to;
@@ -16,7 +16,7 @@ public class RoomConnector extends ShapeBrush
 	private Room aux;
 	//maybe it can have info about painting? this is in another part now (RoomEdgeLine)
 	
-	public RoomConnector()
+	public RoomConnectorBrush()
 	{
 		
 	}

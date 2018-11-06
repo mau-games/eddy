@@ -1182,15 +1182,24 @@ public class Room {
 
 	public void applyPathfinding(Point start, Point goal)
 	{
-		//CALL YEAHBOI
 		pathfinder.calculateBestPath(start, goal);
-		pathfinder.printPath();
-		path.clearAllPoints();//Maybe not needed
+//		pathfinder.printPath();
 		
 		for(PathFindingTile pft : pathfinder.path)
 		{
 			path.addPoint(Point.castToGeometry(pft.position));
 		}
+	}
+	
+	public void clearPath()
+	{
+		path.clearAllPoints();
+		paintPath(false);
+	}
+	
+	public void paintPath(boolean paint)
+	{
+		this.localConfig.getWorldCanvas().forcePathDrawing(paint);
 	}
 	
 	///////////////////////////////END ---- A* INTERNAL PATHFINDING  ///////////////////////////////////////////////////

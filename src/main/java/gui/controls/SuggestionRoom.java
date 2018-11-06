@@ -3,7 +3,7 @@ package gui.controls;
 import game.Room;
 import game.WorldViewCanvas.MouseEventH;
 import gui.utils.DungeonDrawer;
-import gui.utils.RoomConnector;
+import gui.utils.RoomConnectorBrush;
 import javafx.event.EventHandler;
 import javafx.scene.Node;
 import javafx.scene.input.MouseEvent;

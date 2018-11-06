@@ -29,6 +29,13 @@ public class RoomPathFinder
 		ArrayList<PathFindingTile> closeList = new ArrayList<PathFindingTile>();
 		PathFindingTile next = new PathFindingTile(start, end);
 		
+		//special case that start and end are the same point
+		if(start.equals(end))
+		{
+			path.add(next);
+			return true;
+		}
+		
 		closeList.add(next);
 		
 		List<Point> adjacent = owner.getAvailableCoords(next.position);

@@ -55,6 +55,7 @@ import util.eventrouting.events.RequestAppliedMap;
 import util.eventrouting.events.RequestConnection;
 import util.eventrouting.events.RequestEmptyRoom;
 import util.eventrouting.events.RequestNewRoom;
+import util.eventrouting.events.RequestPathFinding;
 import util.eventrouting.events.RequestRoomRemoval;
 import util.eventrouting.events.RequestRedraw;
 import util.eventrouting.events.RequestRoomView;
@@ -130,6 +131,7 @@ public class InteractiveGUIController implements Initializable, Listener {
 			logger.error("Couldn't read config file.");
 		}
 
+		router.registerListener(this, new RequestPathFinding(null, -1, null, null, null, null));
 		router.registerListener(this, new RequestConnection(null, -1, null, null, null, null));
 		router.registerListener(this, new RequestNewRoom(null, -1, -1, -1));
 		router.registerListener(this, new StatusMessage(null));
@@ -166,7 +168,16 @@ public class InteractiveGUIController implements Initializable, Listener {
 	@Override
 	public synchronized void ping(PCGEvent e) 
 	{
-		if(e instanceof RequestConnection)
+		if(e instanceof RequestPathFinding)
+		{
+			RequestPathFinding requestedPathFinding = (RequestPathFinding)e;
+			
+			dungeonMap.calculateBestPath(requestedPathFinding.getFromRoom(), 
+										requestedPathFinding.getToRoom(), 
+										requestedPathFinding.getFromPos(), 
+										requestedPathFinding.getToPos());
+		}
+		else if(e instanceof RequestConnection)
 		{
 			RequestConnection rC = (RequestConnection)e;
 			//TODO: Here you should check for which dungeon

@@ -9,9 +9,10 @@ import game.DungeonPane;
 import game.MapContainer;
 import gui.controls.LabeledCanvas;
 import gui.utils.DungeonDrawer;
+import gui.utils.InterRoomBrush;
 import gui.utils.MapRenderer;
 import gui.utils.MoveElementBrush;
-import gui.utils.RoomConnector;
+import gui.utils.RoomConnectorBrush;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
@@ -190,7 +191,7 @@ public class WorldViewController extends BorderPane implements Listener
 	            @Override
 	            public void handle(MouseEvent event)
 	            {
-	            	if(DungeonDrawer.getInstance().getBrush() instanceof RoomConnector)
+	            	if(DungeonDrawer.getInstance().getBrush() instanceof InterRoomBrush)
 	            	{
 		    			auxLine.setEndX(event.getX());
 		    			auxLine.setEndY(event.getY());
@@ -231,7 +232,7 @@ public class WorldViewController extends BorderPane implements Listener
 	            	anchorX = event.getX();
 	    			anchorY = event.getY();
 	    			
-	            	if(DungeonDrawer.getInstance().getBrush() instanceof RoomConnector)
+	            	if(DungeonDrawer.getInstance().getBrush() instanceof InterRoomBrush)
 	            	{
 		    			worldPane.getChildren().add(auxLine);
 		    			auxLine.setStartX(event.getX());
@@ -390,10 +391,11 @@ public class WorldViewController extends BorderPane implements Listener
 				//Arbitrary path finding
 				if(dungeon.size > 1)
 				{
-					dungeon.getSelectedRoom().applyPathfinding(new Point(0,0), new Point(10,0));
-					dungeon.getBestPathBetweenRooms(dungeon.getRoomByIndex(0), dungeon.getRoomByIndex(1));
+//					dungeon.getSelectedRoom().applyPathfinding(new Point(0,0), new Point(10,0));
+//					dungeon.getBestPathBetweenRooms(dungeon.getRoomByIndex(0), dungeon.getRoomByIndex(1));
+					
+					dungeon.calculateBestPath(dungeon.getRoomByIndex(0), dungeon.getRoomByIndex(1), new Point(0,0), new Point(10,0));
 				}
-
 			}
 
 		}); 
@@ -402,14 +404,15 @@ public class WorldViewController extends BorderPane implements Listener
 			@Override
 			public void handle(ActionEvent e) 
 			{
-				if(DungeonDrawer.getInstance().getBrush() instanceof MoveElementBrush)
-				{
-					DungeonDrawer.getInstance().changeToConnector();
-				}
-				else
-				{
-					DungeonDrawer.getInstance().changeToMove();
-				}
+				DungeonDrawer.getInstance().nextBrush();
+//				if(DungeonDrawer.getInstance().getBrush() instanceof MoveElementBrush)
+//				{
+//					DungeonDrawer.getInstance().changeToConnector();
+//				}
+//				else
+//				{
+//					DungeonDrawer.getInstance().changeToMove();
+//				}
 			}
 
 		}); 
