@@ -17,6 +17,7 @@ import game.ApplicationConfig;
 import game.Dungeon;
 import game.Game;
 import game.Room;
+import game.RoomEdge;
 import game.MapContainer;
 import game.TileTypes;
 import generator.config.GeneratorConfig;
@@ -53,6 +54,7 @@ import util.eventrouting.events.ApplySuggestion;
 import util.eventrouting.events.MapLoaded;
 import util.eventrouting.events.RequestAppliedMap;
 import util.eventrouting.events.RequestConnection;
+import util.eventrouting.events.RequestConnectionRemoval;
 import util.eventrouting.events.RequestEmptyRoom;
 import util.eventrouting.events.RequestNewRoom;
 import util.eventrouting.events.RequestPathFinding;
@@ -144,6 +146,7 @@ public class InteractiveGUIController implements Initializable, Listener {
 		router.registerListener(this, new RequestSuggestionsView(null, 0));
 		router.registerListener(this, new Stop());
 		router.registerListener(this, new RequestRoomRemoval(null, null, 0));
+		router.registerListener(this, new RequestConnectionRemoval(null, null, 0));
 		router.registerListener(this, new StartWorld(0));
 
 		suggestionsView = new SuggestionsViewController();
@@ -232,6 +235,14 @@ public class InteractiveGUIController implements Initializable, Listener {
 			dungeonMap.removeRoom(container);
 			backToWorldView();
 		}
+		 else if(e instanceof RequestConnectionRemoval) {
+
+				RoomEdge edge = (RoomEdge) e.getPayload();
+				
+				//TODO: Here you should check for which dungeon
+				dungeonMap.removeEdge(edge);
+				backToWorldView();
+		 }
 
 	}
 

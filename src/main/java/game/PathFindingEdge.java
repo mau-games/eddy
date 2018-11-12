@@ -57,7 +57,8 @@ public class PathFindingEdge implements Comparable<PathFindingEdge>
 	
 	public boolean reallyEquals(PathFindingEdge otherEdge)
 	{
-		return this.end.equals(otherEdge.end) && this.positionConnectedRoom.equals(otherEdge.positionConnectedRoom);
+		return this.fromRoom.equals(otherEdge.fromRoom) && this.connectedRoom.equals(otherEdge.connectedRoom) && 
+				this.end.equals(otherEdge.end) && this.positionConnectedRoom.equals(otherEdge.positionConnectedRoom);
 	}
 
 	@Override

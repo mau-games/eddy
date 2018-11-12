@@ -16,7 +16,6 @@ public class DungeonPathFinder
 	
 	public ArrayList<PathFindingEdge> path;
 	
-	
 	public DungeonPathFinder(Dungeon owner)
 	{
 		this.owner = owner;

@@ -80,7 +80,6 @@ public class DungeonPane extends Pane
 				wvc.setRendered(true);
 			}
 		}
-		
 	}
 	
 	//EVENT

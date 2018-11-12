@@ -31,6 +31,7 @@ import finder.patterns.micro.Corridor;
 import finder.patterns.micro.Enemy;
 import finder.patterns.micro.Chamber;
 import finder.patterns.micro.Treasure;
+import game.roomInfo.RoomSection;
 import util.Point;
 import util.config.MissingConfigurationException;
 import util.eventrouting.EventRouter;
@@ -58,6 +59,7 @@ public class Room {
 	public Bitmap borders = new Bitmap();
 	public Bitmap path = new Bitmap();//TODO: For testing
 	public RoomPathFinder pathfinder;
+	public Dungeon owner;
 
 /////////////////////////OLD///////////////////////////
 
@@ -133,9 +135,10 @@ public class Room {
 
 	}
 	
-	public Room(GeneratorConfig config, int rows, int cols, int scaleFactor) //THIS IS CALLED WHEN ADDING ROOMS TO THE DUNGEON!
+	public Room(Dungeon owner, GeneratorConfig config, int rows, int cols, int scaleFactor) //THIS IS CALLED WHEN ADDING ROOMS TO THE DUNGEON!
 	{
 		init(rows, cols);
+		this.owner = owner;
 
 		this.config = config;
 		localConfig = new RoomConfig(this, scaleFactor); //TODO: NEW ADDITION --> HAVE TO BE ADDED EVERYWHERE
@@ -1084,6 +1087,171 @@ public class Room {
 		result.setMacroPatterns(finder.findMacroPatterns());
 		EventRouter.getInstance().postEvent(new MapLoaded(result));
 	}
+	
+	/**
+	 * Intra Room Feasibility refers to the feasibility within the room and is calculated as follows:
+	 * 1) At least one type of all tile type
+	 * 2) At least 1 door (which will be used as the entrance)
+	 * 3) No unreachable tiles (areas) that do not have doors within the area (In the future it can be other ways of access) 
+	 * USE: This is used by the evolutionary algorithm
+	 * @return true if the room is intra feasible
+	 */
+	public boolean isIntraFeasible()
+	{
+    	Queue<Node> queue = new LinkedList<Node>();
+    	int treasure = 0;
+    	int enemies = 0;
+    	int doors = 0;
+    	
+    	//TODO: CREISI
+    	ArrayList<Point> walkableSpaces = new ArrayList<Point>();
+    	ArrayList<RoomSection> walkableSections = new ArrayList<RoomSection>();
+    	
+    	for (int j = 0; j < height; j++) 
+		{
+			for (int i = 0; i < width; i++) 
+			{	
+				switch (TileTypes.toTileType(matrix[j][i])) {
+				case WALL:
+					break;
+				default:
+					walkableSpaces.add(new Point(i,j));
+					break;
+				}
+			}
+		}
+		
+    	
+    	Node root = new Node(0.0f, getEntrance(), null);
+    	queue.add(root);
+    	
+    	while(!walkableSpaces.isEmpty())
+    	{
+    		RoomSection section = new RoomSection();
+    		
+    		while(!queue.isEmpty()){
+        		Node current = queue.remove();
+        		Tile currentTile = getTile(current.position);
+
+        		if(currentTile.GetType() == TileTypes.DOOR || currentTile.GetType() == TileTypes.DOORENTER)
+        		{
+        			doors++;
+        			section.doorFound();
+        		}
+        		else if (currentTile.GetType().isEnemy())
+        			enemies++;
+        		else if (currentTile.GetType().isTreasure())
+        			treasure++;
+        		
+        		List<Point> children = getAvailableCoords(current.position);
+                for(Point child : children)
+                {
+                	if(!walkableSpaces.contains(child))
+                		continue;
+                	
+            		walkableSpaces.remove(child);
+            		section.addPoint(child);
+
+                    //Create child node
+                    Node n = new Node(0.0f, child, current);
+                    queue.add(n);
+                }
+        	}
+    		
+    		walkableSections.add(section);
+    		
+    		if(!walkableSpaces.isEmpty())
+    			queue.add(new Node(0.0f, walkableSpaces.get(0), null));
+    	}
+    	
+    	//TODO: This is a super testing part!
+    	clearPath();
+    	
+    	for(int i = 1; i < walkableSections.size(); ++i)
+    	{
+    		if(!walkableSections.get(i).hasDoor())
+    		{
+        		for(Point walkableTile : walkableSections.get(i).getPositions())
+        		{
+        			path.addPoint(Point.castToGeometry(walkableTile));
+        		}
+    		}
+
+    	}
+    	
+    	paintPath(true);
+    	//TODO: PART OF THE TESTING
+
+    	for(int i = treasure; i < getTreasureCount();i++)
+    		addFailedPathToTreasures();
+    	for(int i = doors; i < getDoorCount(true);i++)
+    		addFailedPathToDoors();
+    	for(int i = enemies; i < getEnemyCount();i++)
+    		addFailedPathToEnemies();
+    	
+    	
+    	//TODO: THE _future_ renewed warning canvas should consider every reason why it is not feasible probably a feasible clasS? that holds the info
+
+    	return  (treasure + doors + enemies == getTreasureCount() + getDoorCount(true) + getEnemyCount()) //Same amount of treasure+enemies+doors
+    			&& getTreasureCount() > 0 && getEnemyCount() > 0 //Finns at least 1(one) enemy and one treasure
+    			&& allSectionsReachable(walkableSections); //All sections in the room are reachable!!!
+		
+//		return true;
+	}
+	
+	private boolean allSectionsReachable(ArrayList<RoomSection> sections)
+	{
+		for(RoomSection section : sections)
+		{
+			if(!section.hasDoor())
+				return false;
+		}
+		
+		return true;
+	}
+	
+	/**
+	 * Inter Room Feasibility refers to the feasibility of the room in the dungeon and the connections. It is calculated as follows:
+	 * 1) Room is reachable from the initial room (and initial position)
+	 * 2) All doors must be reachable from the initial room (and initial position)
+	 * USE: This is used by the dungeon but maybe it should also be used by the evolutionary run, in case it blocks some space
+	 * @return true if the room is Inter feasible
+	 */
+	public boolean isInterFeasible()
+	{
+		
+		clearPath();
+		boolean interFeasible = true;
+		
+		if(!owner.ttNetwork(this))
+		{
+			for (int j = 0; j < height; j++) 
+			{
+				for (int i = 0; i < width; i++) 
+				{	
+					path.addPoint(Point.castToGeometry(new Point(i,j)));
+					
+				}
+			}
+	
+	    	paintPath(true);
+	    	
+			return false;
+		}
+		
+		for(Point door : doors)
+		{
+			if(!owner.traverseTillDoor(this, door))
+			{
+				path.addPoint(Point.castToGeometry(door));
+				interFeasible = false;
+			}
+		}
+		
+		paintPath(true);
+		
+		return interFeasible;
+	}
 
 	public boolean isFeasible(){
 		List<Node> visited = new ArrayList<Node>();
@@ -1131,7 +1299,7 @@ public class Room {
     	return visited.size() == getNonWallTileCount() 
     			&& (treasure + doors + enemies == getTreasureCount() + getDoorCount(false) + getEnemyCount())
     			&& getTreasureCount() > 0 && getEnemyCount() > 0;
-}
+	}
 
 	//TODO: Double check maybe it can be useful to know this
 	public boolean EveryRoomVisitable(){

@@ -91,7 +91,6 @@ public class WorldViewCanvas
 	
 	public void setParent()
 	{
-		
 		System.out.println("XPOSITION: " + xPosition.get() +", YPOSITION: " + yPosition.get());
 	}
 	
@@ -212,10 +211,10 @@ public class WorldViewCanvas
 	            {
 	            	currentBrushPosition =  new Point((int)( event.getX() / tileSizeWidth.get()), (int)( event.getY() / tileSizeHeight.get() ));
 	            	
-	            	if(DungeonDrawer.getInstance().getBrush() instanceof RoomConnectorBrush &&
-	            			owner.isPointInBorder(currentBrushPosition))
+	            	if(DungeonDrawer.getInstance().getBrush() instanceof RoomConnectorBrush)
 	            	{
-	            		DungeonDrawer.getInstance().getBrush().onReleaseRoom(owner, currentBrushPosition);
+	            		if(owner.isPointInBorder(currentBrushPosition))
+	            			DungeonDrawer.getInstance().getBrush().onReleaseRoom(owner, currentBrushPosition);
 	            	}
 	            	else
 	            	{
@@ -296,10 +295,10 @@ public class WorldViewCanvas
 	            	dragAnchorY = event.getY();
 	            	currentBrushPosition =  new Point((int)( event.getX() / tileSizeWidth.get()), (int)( event.getY() / tileSizeHeight.get() ));
 	            	
-	            	if(DungeonDrawer.getInstance().getBrush() instanceof RoomConnectorBrush && 
-	            			owner.isPointInBorder(currentBrushPosition))
+	            	if(DungeonDrawer.getInstance().getBrush() instanceof RoomConnectorBrush)
 	            	{
-		            	DungeonDrawer.getInstance().getBrush().onClickRoom(owner,currentBrushPosition);
+	            		if(owner.isPointInBorder(currentBrushPosition))
+	            			DungeonDrawer.getInstance().getBrush().onClickRoom(owner,currentBrushPosition);
 	            	}
 	            	else
 	            	{

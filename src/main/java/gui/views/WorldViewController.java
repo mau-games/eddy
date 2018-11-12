@@ -234,7 +234,9 @@ public class WorldViewController extends BorderPane implements Listener
 	    			
 	            	if(DungeonDrawer.getInstance().getBrush() instanceof InterRoomBrush)
 	            	{
-		    			worldPane.getChildren().add(auxLine);
+		    			if(!worldPane.getChildren().contains(auxLine))
+		    				worldPane.getChildren().add(auxLine);
+		    			
 		    			auxLine.setStartX(event.getX());
 		    			auxLine.setStartY(event.getY());
 		    			auxLine.setEndX(event.getX());
@@ -387,14 +389,15 @@ public class WorldViewController extends BorderPane implements Listener
 //					dungeon.testTraverseNetwork(dungeon.getRoomByIndex(0),dungeon.getRoomByIndex(1));
 //					dungeon.printRoomsPath();
 //				}
-				
+
 				//Arbitrary path finding
 				if(dungeon.size > 1)
 				{
 //					dungeon.getSelectedRoom().applyPathfinding(new Point(0,0), new Point(10,0));
 //					dungeon.getBestPathBetweenRooms(dungeon.getRoomByIndex(0), dungeon.getRoomByIndex(1));
 					
-					dungeon.calculateBestPath(dungeon.getRoomByIndex(0), dungeon.getRoomByIndex(1), new Point(0,0), new Point(10,0));
+//					dungeon.calculateBestPath(dungeon.getRoomByIndex(0), dungeon.getRoomByIndex(1), new Point(0,0), new Point(10,0));
+					dungeon.getSelectedRoom().isIntraFeasible();
 				}
 			}
 

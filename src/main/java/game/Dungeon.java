@@ -87,7 +87,7 @@ public class Dungeon implements Listener
 		
 		for(int i = 0; i < size; ++i)
 		{
-			Room auxR = new Room(defaultConfig, defaultWidth, defaultHeight, scaleFactor);
+			Room auxR = new Room(this, defaultConfig, defaultWidth, defaultHeight, scaleFactor);
 			rooms.add(auxR);
 			network.addNode(auxR);
 			dPane.addVisualRoom(auxR);
@@ -126,7 +126,7 @@ public class Dungeon implements Listener
 	
 	public void addRoom(int width, int height)
 	{
-		Room auxR = new Room(defaultConfig, height < 0 ? defaultHeight : height, width < 0 ? defaultWidth : width, scaleFactor);
+		Room auxR = new Room(this, defaultConfig, height < 0 ? defaultHeight : height, width < 0 ? defaultWidth : width, scaleFactor);
 		rooms.add(auxR);
 		network.addNode(auxR);
 		dPane.addVisualRoom(auxR);
@@ -167,6 +167,23 @@ public class Dungeon implements Listener
 		this.size--;
 	}
 	
+	/**
+	 * Remove the selected edge from the dungeon
+	 * @param edgeToRemove
+	 */
+	public void removeEdge(RoomEdge edgeToRemove)
+	{
+		edgeToRemove.from.removeDoor(edgeToRemove.fromPosition);
+		edgeToRemove.to.removeDoor(edgeToRemove.toPosition);
+		
+		//remove this room and its visual representation
+		dPane.removeVisualConnector(edgeToRemove);
+		network.removeEdge(edgeToRemove);
+		
+		//TODO: THIS IS WORK IN PROGRESS
+		checkInterFeasible();
+	}
+	
 	//Rooms could be an ID
 	public void addConnection(Room from, Room to, Point fromPosition, Point toPosition)
 	{
@@ -178,9 +195,20 @@ public class Dungeon implements Listener
 		network.addEdge(from, to, edge);
 		dPane.addVisualConnector(edge);
 		
+		//TODO: THIS IS WORK IN PROGRESS
+		checkInterFeasible();
+		
 		for(RoomEdge e : network.edges())
 		{
 			System.out.println(e.print());
+		}
+	}
+	
+	private void checkInterFeasible()
+	{
+		for(Room room : rooms)
+		{
+			room.isInterFeasible();
 		}
 	}
 	
@@ -238,6 +266,27 @@ public class Dungeon implements Listener
 
 	Stack<Room> ConnectionPath = new Stack<Room>();
 	ArrayList<Stack<Room>> connectionPaths = new ArrayList<Stack<Room>>();
+	
+	public boolean ttNetwork(Room end)
+	{
+		testTraverseNetwork(rooms.get(0), end);
+		
+		if(!connectionPaths.isEmpty())
+		{
+			printRoomsPath();
+			return true;
+		}
+		else
+		{
+			printRoomsPath();
+			return false;
+		}
+	}
+	
+	public boolean traverseTillDoor(Room end, Point endPos)
+	{
+		return pathfinding.calculateBestPath(rooms.get(0), end, new Point(0,0), endPos, network);
+	}
 	
 	public void testTraverseNetwork(Room init, Room end)
 	{

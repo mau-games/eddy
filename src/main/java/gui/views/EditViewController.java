@@ -545,7 +545,7 @@ public class EditViewController extends BorderPane implements Listener {
 	}
 	
 	/***
-	 * Redraw the lock in the map --> TODO: I am afraid this should be in the renderer
+	 * Redraw the lock in the map --> TODO: this should be in the renderer
 	 * @param room
 	 */
 	private void redrawLocks(Room room)
