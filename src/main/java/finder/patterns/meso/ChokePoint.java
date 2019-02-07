@@ -49,6 +49,8 @@ public class ChokePoint extends CompositePattern {
 	 */
 	public static List<CompositePattern> matches(Room room, Graph<Pattern> patternGraph) {
 		
+		//TODO: Is a potential choke point, a variation of a corridor?? that have in-between one or two chambers???
+		
 		// How to find a choke point:
 		// Look at boundaries between patterns where: one or both of the patterns are rooms.
 		// If the width of the edge is 1, we have a potential choke point.
@@ -60,7 +62,8 @@ public class ChokePoint extends CompositePattern {
 		patternGraph.resetGraph();
 		
 		Queue<Node<Pattern>> nodeQueue = new LinkedList<Node<Pattern>>();
-		nodeQueue.add(patternGraph.getStartingPoint());
+//		nodeQueue.add(patternGraph.getStartingPoint());
+		nodeQueue.addAll(patternGraph.getNodes().values());
 		
 		while(!nodeQueue.isEmpty()){
 			Node<Pattern> current = nodeQueue.remove();

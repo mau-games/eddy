@@ -357,7 +357,7 @@ public class EditViewController extends BorderPane implements Listener {
 		mapView.updateMap(room);
 		redrawPatterns(room);
 		redrawLocks(room);
-		mapIsFeasible(room.isFeasible());
+		mapIsFeasible(room.isIntraFeasible());
 		resetMiniMaps();
 	}
 	
@@ -686,7 +686,7 @@ public class EditViewController extends BorderPane implements Listener {
 //				mapView.updateTile(tile, brush, event.getButton() == MouseButton.SECONDARY, lockBrush.isSelected() || event.isControlDown());
 				mapView.updateTile(tile, myBrush);
 				mapView.getMap().forceReevaluation();
-				mapIsFeasible(mapView.getMap().isFeasible());
+				mapIsFeasible(mapView.getMap().isIntraFeasible());
 				redrawPatterns(mapView.getMap());
 				redrawLocks(mapView.getMap());
 //				redrawHeatMap(mapView.getMap());

@@ -31,9 +31,6 @@ public class LaunchViewController extends BorderPane implements Listener{
 	
 	@FXML private BorderPane buttonPane2;
 	@FXML private Button createWorldBtn;
-	@FXML private ComboBox<String> worldSizeBox;
-	
-	private int selectedSize;
 
 	@Override
 	public void ping(PCGEvent e) {
@@ -64,45 +61,16 @@ public class LaunchViewController extends BorderPane implements Listener{
 	}
 	
 	public void initGui() {
-		worldSizeBox.getItems().clear();
 		createWorldBtn.setMinSize(400, 100);
-		
-		ObservableList<String> options = 
-			    FXCollections.observableArrayList(
-			        "2x2",
-			        "3x3",
-			        "4x4",
-			        "5x5",
-			        "6x6",
-			        "7x7"
-			    );
-		worldSizeBox.getItems().addAll(options);
-		worldSizeBox.setValue("World size...");
 		
 	}
 	
 	@FXML
 	private void createWorld(ActionEvent event) throws IOException {
-		router.postEvent(new StartWorld(getWorldSize()));
+		router.postEvent(new StartWorld(1));
 	}
+
 	
-	public int getWorldSize() {
-      
-        if (worldSizeBox.getValue().equals("2x2")) {
-        	selectedSize = 2;
-        } else if (worldSizeBox.getValue().equals("3x3")) {
-        	selectedSize = 3;
-        } else if (worldSizeBox.getValue().equals("4x4")) {
-        	selectedSize = 4;
-        } else if (worldSizeBox.getValue().equals("5x5")) {
-        	selectedSize = 5;
-        } else if (worldSizeBox.getValue().equals("6x6")) {
-        	selectedSize = 6;
-        } else if (worldSizeBox.getValue().equals("7x7")) {
-        	selectedSize = 7;
-        }
-        return selectedSize;
-    }
 
 	
 }

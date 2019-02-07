@@ -63,7 +63,7 @@ public class InteractiveGUI extends Application {
 			stage.setTitle("Eddy - Evolutionary Dungeon Designer");
 			stage.setScene(scene);
 			stage.show();
-			scene.getStylesheets().add(this.getClass().getResource("bootstrap3.css").toExternalForm());
+			scene.getStylesheets().add(this.getClass().getResource("/gui/bootstrap3.css").toExternalForm());
 			stage.setMaximized(true);
 			EventRouter router = EventRouter.getInstance();
 			

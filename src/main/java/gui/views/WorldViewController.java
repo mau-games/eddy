@@ -283,9 +283,9 @@ public class WorldViewController extends BorderPane implements Listener
 		arrangeControls(heightField, 50, -300, 50, 50);
 		arrangeControls(createNewRoomBtn, -100, -200, 120, 100);
 		arrangeControls(removeRoomBtn, 100, -200, 120, 100);
-		arrangeControls(getRoomNullBtn(), 0, 0, 300, 100);
-		arrangeControls(getSuggestionsBtn(), 0, 200, 300, 100);
-		arrangeControls(getChangeBrushBtn(), 0, 400, 300, 100);
+//		arrangeControls(getRoomNullBtn(), 0, 0, 300, 100);
+		arrangeControls(getSuggestionsBtn(), 0, 0, 300, 100);
+		arrangeControls(getChangeBrushBtn(), 0, 200, 300, 100);
 	
 		//change color of the input fields!
 		heightField.setStyle("-fx-text-inner-color: white;");		
@@ -295,7 +295,7 @@ public class WorldViewController extends BorderPane implements Listener
 //		widthLabel.setTextFill(Paint);
 
 		//Add everything to the button pane!
-		buttonPane.getChildren().add(getRoomNullBtn());
+//		buttonPane.getChildren().add(getRoomNullBtn());
 		buttonPane.getChildren().add(getSuggestionsBtn());
 		buttonPane.getChildren().add(changeBrushBtn);
 		buttonPane.getChildren().add(createNewRoomBtn);

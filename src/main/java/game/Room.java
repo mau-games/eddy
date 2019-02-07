@@ -68,7 +68,6 @@ public class Room {
 	private boolean[][] allocated; // A map keeps track of allocated tiles
 	private int width;			// The number of columns in a map
 	private int height;			// The number of rows in a map
-	private int doorCount;	// The number of doors in a map TOTAL
 	private int wallCount;	// The number of wall tiles in a map
 	private List<Point> doors = new ArrayList<Point>();
 	private List<Point> treasures = new ArrayList<Point>();
@@ -142,8 +141,6 @@ public class Room {
 
 		this.config = config;
 		localConfig = new RoomConfig(this, scaleFactor); //TODO: NEW ADDITION --> HAVE TO BE ADDED EVERYWHERE
-		
-		this.doorCount = 0;
 		
 		for (int j = 0; j < height; j++) {
 			for (int i = 0; i < width; i++) {
@@ -268,7 +265,6 @@ public class Room {
 		this.width = cols;
 		this.height = rows;
 		wallCount = 0;
-		this.doorCount = 0;
 		
 		matrix = new int[height][width];
 		allocated = new boolean[height][width];
@@ -390,7 +386,6 @@ public class Room {
         }
         
 		doors.remove(doorPosition);
-		doorCount--;
 		setTile(doorPosition.getX(), doorPosition.getY(), TileTypes.FLOOR);
 		borders.addPoint(Point.castToGeometry(doorPosition));
 		
@@ -494,7 +489,6 @@ public class Room {
 		doors.clear();
 		treasureSafety = new Hashtable<Point, Double>();
 		wallCount = 0;
-		this.doorCount = 0;
 		allocated = new boolean[height][width];
 		
 		for (int j = 0; j < height; j++){
@@ -687,7 +681,6 @@ public class Room {
 	 */
 	public void addDoor(Point door) {
 		doors.add(door);
-		doorCount++;
 	}
 
 	/**
@@ -744,7 +737,7 @@ public class Room {
 	 */
 	public int getDoorCount(boolean entrance) 
 	{
-		return entrance == true ? doorCount : doorCount - 1;
+		return entrance == true ? doors.size() : doors.size() - 1;
 	}
 	
 
@@ -1132,6 +1125,9 @@ public class Room {
     		while(!queue.isEmpty()){
         		Node current = queue.remove();
         		Tile currentTile = getTile(current.position);
+        		
+        		//We need to remove the door!
+        		walkableSpaces.remove(current.position);
 
         		if(currentTile.GetType() == TileTypes.DOOR || currentTile.GetType() == TileTypes.DOORENTER)
         		{
@@ -1165,21 +1161,21 @@ public class Room {
     	}
     	
     	//TODO: This is a super testing part!
-    	clearPath();
-    	
-    	for(int i = 1; i < walkableSections.size(); ++i)
-    	{
-    		if(!walkableSections.get(i).hasDoor())
-    		{
-        		for(Point walkableTile : walkableSections.get(i).getPositions())
-        		{
-        			path.addPoint(Point.castToGeometry(walkableTile));
-        		}
-    		}
-
-    	}
-    	
-    	paintPath(true);
+//    	clearPath();
+//    	
+//    	for(int i = 1; i < walkableSections.size(); ++i)
+//    	{
+//    		if(!walkableSections.get(i).hasDoor())
+//    		{
+//        		for(Point walkableTile : walkableSections.get(i).getPositions())
+//        		{
+//        			path.addPoint(Point.castToGeometry(walkableTile));
+//        		}
+//    		}
+//
+//    	}
+//    	
+//    	paintPath(true);
     	//TODO: PART OF THE TESTING
 
     	for(int i = treasure; i < getTreasureCount();i++)
@@ -1191,6 +1187,11 @@ public class Room {
     	
     	
     	//TODO: THE _future_ renewed warning canvas should consider every reason why it is not feasible probably a feasible clasS? that holds the info
+    	//For testing purposes
+//    	System.out.println(treasure + "=" + getTreasureCount());
+//    	System.out.println(doors + "=" + getDoorCount(true));
+//    	System.out.println(enemies + "=" + getEnemyCount());
+//    	System.out.println(allSectionsReachable(walkableSections));
 
     	return  (treasure + doors + enemies == getTreasureCount() + getDoorCount(true) + getEnemyCount()) //Same amount of treasure+enemies+doors
     			&& getTreasureCount() > 0 && getEnemyCount() > 0 //Finns at least 1(one) enemy and one treasure
