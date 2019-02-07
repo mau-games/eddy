@@ -87,9 +87,6 @@ public class DeadEnd extends CompositePattern {
 			if(nodePattern.getValue() instanceof SpacialPattern)
 			{
 				SpacialPattern sp = (SpacialPattern)nodePattern.getValue();
-//				micropatterns.stream().filter((Pattern p) -> {return p instanceof Entrance;}).findFirst().get();
-				
-				System.out.println(sp.getContainedPatterns().stream().filter((Pattern p) -> {return p instanceof Door;}).findAny());
 				
 				if(sp.getContainedPatterns().stream().filter((Pattern p) -> {return p instanceof Door;}).findAny().orElse(null) != null &&
 						!patternQueue.contains(nodePattern))
@@ -104,6 +101,7 @@ public class DeadEnd extends CompositePattern {
 		List<Pattern> finalPatterns = new ArrayList<Pattern>(); //IDK if I should add everything together! 
 		patternGraph.resetGraph();
 		
+		//TODO: This can be optimized!! ik noW!
 		while(!patternQueue.isEmpty()){
 			
 			Node<Pattern> current = patternQueue.remove();

@@ -181,7 +181,7 @@ public class Dungeon implements Listener
 		network.removeEdge(edgeToRemove);
 		
 		//TODO: THIS IS WORK IN PROGRESS
-		checkInterFeasible();
+		checkInterFeasible(true);
 	}
 	
 	//Rooms could be an ID
@@ -196,7 +196,7 @@ public class Dungeon implements Listener
 		dPane.addVisualConnector(edge);
 		
 		//TODO: THIS IS WORK IN PROGRESS
-		checkInterFeasible();
+		checkInterFeasible(true);
 		
 		for(RoomEdge e : network.edges())
 		{
@@ -204,11 +204,12 @@ public class Dungeon implements Listener
 		}
 	}
 	
-	private void checkInterFeasible()
+	//TODO: This is the method
+	public void checkInterFeasible(boolean interFeasibilityCanvas)
 	{
 		for(Room room : rooms)
 		{
-			room.isInterFeasible();
+			room.isInterFeasible(interFeasibilityCanvas);
 		}
 	}
 	

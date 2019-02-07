@@ -55,9 +55,12 @@ public class Room {
 	//Maybe I can copy the finder.graph info into other types, I feel that it will give me a lot of constraints as well.
 	public finder.graph.Node<Room> node; //This will hold in the edges the doors
 	public RoomConfig localConfig;
+	
 	public int maxNumberDoors; //--> HAHA
 	public Bitmap borders = new Bitmap();
 	public Bitmap path = new Bitmap();//TODO: For testing
+	public Bitmap nonInterFeasibleTiles = new Bitmap();//TODO: For testing
+	
 	public RoomPathFinder pathfinder;
 	public Dungeon owner;
 
@@ -1218,38 +1221,45 @@ public class Room {
 	 * USE: This is used by the dungeon but maybe it should also be used by the evolutionary run, in case it blocks some space
 	 * @return true if the room is Inter feasible
 	 */
-	public boolean isInterFeasible()
+	public boolean isInterFeasible(boolean visualize)
 	{
+		this.localConfig.getWorldCanvas().setInterFeasibilityVisible(visualize);
 		
-		clearPath();
+		if(!visualize) return false; //Maybe is better to just calculate the feasibility but do not show it
+		
+		//I think I should first check if things have change? before doing this  as it can be heavy
+		nonInterFeasibleTiles.clearAllPoints();
+
 		boolean interFeasible = true;
 		
+		//this basically is, if the room is not reachable through the GRAPH it is completely infeasible
 		if(!owner.ttNetwork(this))
 		{
 			for (int j = 0; j < height; j++) 
 			{
 				for (int i = 0; i < width; i++) 
 				{	
-					path.addPoint(Point.castToGeometry(new Point(i,j)));
+					nonInterFeasibleTiles.addPoint(Point.castToGeometry(new Point(i,j)));
 					
 				}
 			}
 	
-	    	paintPath(true);
+			this.localConfig.getWorldCanvas().drawInterFeasibility();
 	    	
 			return false;
 		}
 		
+		//Now lets check each door, can we reach them from the initial room?
 		for(Point door : doors)
 		{
 			if(!owner.traverseTillDoor(this, door))
 			{
-				path.addPoint(Point.castToGeometry(door));
+				nonInterFeasibleTiles.addPoint(Point.castToGeometry(door));
 				interFeasible = false;
 			}
 		}
 		
-		paintPath(true);
+		this.localConfig.getWorldCanvas().drawInterFeasibility();
 		
 		return interFeasible;
 	}

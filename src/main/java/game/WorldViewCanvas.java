@@ -37,6 +37,7 @@ public class WorldViewCanvas
 	//CANVAS
 	private Canvas borderCanvas;
 	private Canvas pathCanvas;
+	private Canvas interFeasibilityCanvas; //creisi
 	
 	public DoubleProperty xPosition; //TODO: public just to test
 	public DoubleProperty yPosition;
@@ -87,8 +88,14 @@ public class WorldViewCanvas
 		worldGraphicNode.getChildren().add(pathCanvas);
 		pathCanvas.setVisible(true);
 		pathCanvas.setMouseTransparent(true);
+		
+		interFeasibilityCanvas = new Canvas(viewSizeHeight, viewSizeHeight);
+		worldGraphicNode.getChildren().add(interFeasibilityCanvas);
+		interFeasibilityCanvas.setVisible(true); //This should be controlled by a toggle button (simple)
+		interFeasibilityCanvas.setMouseTransparent(true);
 	}
 	
+	//TODO: We can delete this method... probably is not useful anymore
 	public void setParent()
 	{
 		System.out.println("XPOSITION: " + xPosition.get() +", YPOSITION: " + yPosition.get());
@@ -136,6 +143,9 @@ public class WorldViewCanvas
 		
 		pathCanvas.setWidth(viewSizeWidth);
 		pathCanvas.setHeight(viewSizeHeight);
+		
+		interFeasibilityCanvas.setWidth(viewSizeWidth);
+		interFeasibilityCanvas.setHeight(viewSizeHeight);
 		
 		//Update the size of the tiles in the graphic display
 		tileSizeWidth.set(viewSizeWidth/ owner.getColCount());
@@ -335,6 +345,11 @@ public class WorldViewCanvas
 		drawPath();
 	}
 	
+	public void setInterFeasibilityVisible(boolean visibility)
+	{
+		interFeasibilityCanvas.setVisible(visibility);
+	}
+	
 	private synchronized void drawBorder() 
     {
 		if(borderCanvas.isVisible())
@@ -357,6 +372,18 @@ public class WorldViewCanvas
 	    			owner.matrix, 
 	    			owner.path, 
 	    			Color.CYAN);
+		}
+	}
+	
+	public synchronized void drawInterFeasibility()
+	{
+		if(interFeasibilityCanvas.isVisible())
+		{
+			interFeasibilityCanvas.getGraphicsContext2D().clearRect(0, 0, interFeasibilityCanvas.getWidth(), interFeasibilityCanvas.getHeight());
+	    	MapRenderer.getInstance().drawRoomPath(interFeasibilityCanvas.getGraphicsContext2D(), 
+	    			owner.matrix, 
+	    			owner.nonInterFeasibleTiles, 
+	    			Color.RED);
 		}
 	}
 	
