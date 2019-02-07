@@ -72,7 +72,7 @@ public class WorldViewController extends BorderPane implements Listener
 	private Button suggestionsBtn = new Button();
 	private Button createNewRoomBtn = new Button();
 	private Button removeRoomBtn = new Button();
-	private Button changeBrushBtn = new Button();
+	private Button pickInitBtn = new Button();
 	
 	private ArrayList<Button> brushBtns = new ArrayList<Button>(); //TEST
 	
@@ -300,7 +300,7 @@ public class WorldViewController extends BorderPane implements Listener
 		arrangeControls(removeRoomBtn, 100, -200, 120, 100);
 		arrangeControls(getInterFeasibilityBtn(), 0, -100, 100, 50);
 		arrangeControls(getSuggestionsBtn(), 0, 0, 300, 100);
-//		arrangeControls(getChangeBrushBtn(), 0, 200, 300, 100);
+		arrangeControls(getPickInitBtn(), 0, 200, 300, 50);
 		
 		String[] btnsText = {"M", "C", "P"};
 		for(int i = 0; i < brushBtns.size(); i++, initXPos += xStep)
@@ -320,7 +320,7 @@ public class WorldViewController extends BorderPane implements Listener
 		//Add everything to the button pane!
 		buttonPane.getChildren().add(getInterFeasibilityBtn());
 		buttonPane.getChildren().add(getSuggestionsBtn());
-//		buttonPane.getChildren().add(changeBrushBtn);
+		buttonPane.getChildren().add(getPickInitBtn());
 		buttonPane.getChildren().add(createNewRoomBtn);
 		buttonPane.getChildren().add(removeRoomBtn);
 		buttonPane.getChildren().add(heightField);
@@ -329,7 +329,7 @@ public class WorldViewController extends BorderPane implements Listener
 		buttonPane.getChildren().add(heightLabel);
 		
 		//Change the text of the buttons!
-		changeBrushBtn.setText("Change brush");
+		pickInitBtn.setText("Pick Init Room and Pos");
 		createNewRoomBtn.setText("NEW ROOM");
 		removeRoomBtn.setText("REMOVE ROOM");
 		getInterFeasibilityBtn().setText("Inter Feasibility");
@@ -353,12 +353,12 @@ public class WorldViewController extends BorderPane implements Listener
 
 	}
 
-	public Button getChangeBrushBtn() {
-		return changeBrushBtn;
+	public Button getPickInitBtn() {
+		return pickInitBtn;
 	}
 
-	public void setChangeBrushBtn(Button changeBrushBtn) {
-		this.changeBrushBtn = changeBrushBtn;
+	public void setPickInitBtn(Button pickInitBtn) {
+		this.pickInitBtn = pickInitBtn;
 	}
 
 	public ToggleButton getInterFeasibilityBtn() {
@@ -375,6 +375,13 @@ public class WorldViewController extends BorderPane implements Listener
 
 	public void setSuggestionsBtn(Button suggestionsBtn) {
 		this.suggestionsBtn = suggestionsBtn;
+	}
+	
+	//TODO: This should check which brush was before and go back to that one!!!!
+	public void restoreBrush() //If you call this method is because you have change the initial room!!
+	{
+		DungeonDrawer.getInstance().changeBrushTo(DungeonBrushes.MOVEMENT);
+		getPickInitBtn().setText("Pick Init Room and Pos: DONE");
 	}
 
 	private void worldButtonEvents() 
@@ -473,11 +480,13 @@ public class WorldViewController extends BorderPane implements Listener
 
 		}); 
 		
-		changeBrushBtn.setOnAction(new EventHandler<ActionEvent>() {
+//		DungeonDrawer.getInstance().nextBrush();
+		
+		pickInitBtn.setOnAction(new EventHandler<ActionEvent>() {
 			@Override
 			public void handle(ActionEvent e) 
 			{
-				DungeonDrawer.getInstance().nextBrush();
+				DungeonDrawer.getInstance().changeBrushTo(DungeonBrushes.INITIAL_ROOM);
 //				if(DungeonDrawer.getInstance().getBrush() instanceof MoveElementBrush)
 //				{
 //					DungeonDrawer.getInstance().changeToConnector();

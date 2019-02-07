@@ -39,6 +39,7 @@ public class Dungeon implements Listener
 	
 	ArrayList<Room> rooms;
 	Room initialRoom;
+	Point initialPos;
 	Room currentEditedRoom;
 	Room selectedRoom;
 	
@@ -92,6 +93,8 @@ public class Dungeon implements Listener
 			network.addNode(auxR);
 			dPane.addVisualRoom(auxR);
 		}
+		
+		setInitialRoom(rooms.get(0), new Point(0,0));
 	}
 	
 	@Override
@@ -204,6 +207,22 @@ public class Dungeon implements Listener
 		}
 	}
 	
+	public void setInitialRoom(Room initRoom, Point initialPos)
+	{
+		this.initialRoom = initRoom;
+		this.initialPos = initialPos;
+	}
+	
+	public Room getInitialRoom()
+	{
+		return this.initialRoom;
+	}
+	
+	public Point getInitialPosition()
+	{
+		return this.initialPos;
+	}
+	
 	//TODO: This is the method
 	public void checkInterFeasible(boolean interFeasibilityCanvas)
 	{
@@ -270,7 +289,7 @@ public class Dungeon implements Listener
 	
 	public boolean ttNetwork(Room end)
 	{
-		testTraverseNetwork(rooms.get(0), end);
+		testTraverseNetwork(initialRoom, end);
 		
 		if(!connectionPaths.isEmpty())
 		{
@@ -286,7 +305,7 @@ public class Dungeon implements Listener
 	
 	public boolean traverseTillDoor(Room end, Point endPos)
 	{
-		return pathfinding.calculateBestPath(rooms.get(0), end, new Point(0,0), endPos, network);
+		return pathfinding.calculateBestPath(initialRoom, end, initialPos, endPos, network);
 	}
 	
 	public void testTraverseNetwork(Room init, Room end)

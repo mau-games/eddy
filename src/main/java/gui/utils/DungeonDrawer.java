@@ -1,5 +1,8 @@
 package gui.utils;
 
+import util.eventrouting.events.EndRoom;
+import util.eventrouting.events.InitialRoom;
+
 public class DungeonDrawer 
 {
 	private static DungeonDrawer instance = null;
@@ -11,7 +14,9 @@ public class DungeonDrawer
 	{
 		MOVEMENT,
 		ROOM_CONNECTOR,
-		PATH_FINDING
+		PATH_FINDING,
+		INITIAL_ROOM,
+		END_ROOM
 	}
 	
 	public DungeonBrushes dungeonBrush;
@@ -85,6 +90,12 @@ public class DungeonDrawer
 				break;
 			case PATH_FINDING: 
 				brush = new PathBrush();
+				break;
+			case INITIAL_ROOM:
+				brush = new SetImportantRoom(new InitialRoom(null, null));
+				break;
+			case END_ROOM:
+				brush = new SetImportantRoom(new EndRoom(null, null));
 				break;
 		}
 	}

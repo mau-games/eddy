@@ -51,6 +51,7 @@ import util.eventrouting.Listener;
 import util.eventrouting.PCGEvent;
 import util.eventrouting.events.AlgorithmDone;
 import util.eventrouting.events.ApplySuggestion;
+import util.eventrouting.events.InitialRoom;
 import util.eventrouting.events.MapLoaded;
 import util.eventrouting.events.RequestAppliedMap;
 import util.eventrouting.events.RequestConnection;
@@ -133,6 +134,7 @@ public class InteractiveGUIController implements Initializable, Listener {
 			logger.error("Couldn't read config file.");
 		}
 
+		router.registerListener(this, new InitialRoom(null, null));
 		router.registerListener(this, new RequestPathFinding(null, -1, null, null, null, null));
 		router.registerListener(this, new RequestConnection(null, -1, null, null, null, null));
 		router.registerListener(this, new RequestNewRoom(null, -1, -1, -1));
@@ -171,7 +173,14 @@ public class InteractiveGUIController implements Initializable, Listener {
 	@Override
 	public synchronized void ping(PCGEvent e) 
 	{
-		if(e instanceof RequestPathFinding)
+		if(e instanceof InitialRoom)
+		{
+			InitialRoom initRoom = (InitialRoom)e;
+			
+			dungeonMap.setInitialRoom(initRoom.getPickedRoom(), initRoom.getRoomPos());
+			worldView.restoreBrush();
+		}
+		else if(e instanceof RequestPathFinding)
 		{
 			RequestPathFinding requestedPathFinding = (RequestPathFinding)e;
 			
