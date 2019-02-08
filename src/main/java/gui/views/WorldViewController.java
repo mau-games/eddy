@@ -8,6 +8,7 @@ import game.ApplicationConfig;
 import game.Dungeon;
 import game.DungeonPane;
 import game.MapContainer;
+import game.PathInformation;
 import gui.controls.LabeledCanvas;
 import gui.utils.DungeonDrawer;
 import gui.utils.DungeonDrawer.DungeonBrushes;
@@ -23,6 +24,7 @@ import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.control.Button;
+import javafx.scene.control.ComboBox;
 import javafx.scene.control.Control;
 import javafx.scene.control.Label;
 import javafx.scene.control.ToggleButton;
@@ -74,7 +76,8 @@ public class WorldViewController extends BorderPane implements Listener
 	private Button removeRoomBtn = new Button();
 	private Button pickInitBtn = new Button();
 	
-	private ArrayList<Button> brushBtns = new ArrayList<Button>(); //TEST
+	private ArrayList<Button> brushBtns = new ArrayList<Button>(); //TODO: This can be improved to be dependant on how many brushes and have maybe its own class?
+	private ComboBox<PathInformation.PathType> pathTypeComboBox = new ComboBox<>();
 	
 	private Label widthLabel = new Label("W =");
 	private Label heightLabel = new Label("H =");
@@ -280,6 +283,10 @@ public class WorldViewController extends BorderPane implements Listener
 		buttonCanvas.setVisible(false);
 		buttonCanvas.setMouseTransparent(true);
 		
+		pathTypeComboBox.getItems().setAll(PathInformation.PathType.values());
+		pathTypeComboBox.setValue(PathInformation.getInstance().getPathType());
+		
+		
 		//some calculations for the brushes
 		double maxWidth = 250;
 		double maxHeight = 50;
@@ -301,6 +308,7 @@ public class WorldViewController extends BorderPane implements Listener
 		arrangeControls(getInterFeasibilityBtn(), 0, -100, 100, 50);
 		arrangeControls(getSuggestionsBtn(), 0, 0, 300, 100);
 		arrangeControls(getPickInitBtn(), 0, 200, 300, 50);
+		arrangeControls(pathTypeComboBox, 0, 300, 300, 50);
 		
 		String[] btnsText = {"M", "C", "P"};
 		for(int i = 0; i < brushBtns.size(); i++, initXPos += xStep)
@@ -327,6 +335,7 @@ public class WorldViewController extends BorderPane implements Listener
 		buttonPane.getChildren().add(widthField);
 		buttonPane.getChildren().add(widthLabel);
 		buttonPane.getChildren().add(heightLabel);
+		buttonPane.getChildren().add(pathTypeComboBox);
 		
 		//Change the text of the buttons!
 		pickInitBtn.setText("Pick Init Room and Pos");
@@ -517,7 +526,15 @@ public class WorldViewController extends BorderPane implements Listener
 			}
 
 		}); 
+		
+		pathTypeComboBox.setOnAction(new EventHandler<ActionEvent>() {
+			@Override
+			public void handle(ActionEvent e) {
 
+				PathInformation.getInstance().changePathType(pathTypeComboBox.getValue());
+			}
+
+		}); 
 	}
 	
 	

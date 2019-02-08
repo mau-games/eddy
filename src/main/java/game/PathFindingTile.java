@@ -1,5 +1,7 @@
 package game;
 
+import java.util.HashMap;
+
 import util.Point;
 
 public class PathFindingTile implements Comparable<PathFindingTile>
@@ -12,21 +14,25 @@ public class PathFindingTile implements Comparable<PathFindingTile>
 	public float hScore = 0.0f;
 	public float fScore = 0.0f;
 	
-	public PathFindingTile(Point position, Point endPosition, TileTypes type)
+	private float roomSize;
+	
+	public PathFindingTile(Point position, Point endPosition, TileTypes type, float roomWidth, float roomHeight)
 	{	
 		this.position = position;
 		this.type = type;
+		this.roomSize = roomWidth + roomHeight;
 		
 		calculateG();
 		calculateH(endPosition);
 		fScore = gScore + hScore;
 	}
 	
-	public PathFindingTile(PathFindingTile parent, Point position, Point endPosition, TileTypes type)
+	public PathFindingTile(PathFindingTile parent, Point position, Point endPosition, TileTypes type, float roomWidth, float roomHeight)
 	{
 		this.parent = parent;
 		this.position = position;
 		this.type = type;
+		this.roomSize = roomWidth + roomHeight;
 		
 		calculateG();
 		calculateH(endPosition);
@@ -49,17 +55,18 @@ public class PathFindingTile implements Comparable<PathFindingTile>
 		
 		if(parent != null)
 		{
-			gScore = parent.gScore + 1;
+			gScore = parent.gScore + PathInformation.getInstance().getTileInformation().getStepToTileValue(this.type);
 		}
 		else
 		{
-			gScore = 1;
+			gScore = PathInformation.getInstance().getTileInformation().getStepToTileValue(this.type);
 		}
 	}
 	
+	//We normalize the value
 	private void calculateH(Point endPosition)
 	{
-		hScore = Math.abs(endPosition.getX() - position.getX()) + Math.abs(endPosition.getY() - position.getY());
+		hScore = (Math.abs(endPosition.getX() - position.getX()) + Math.abs(endPosition.getY() - position.getY()))/roomSize;
 	}
 	
 	public void updateTile(PathFindingTile newParent)
@@ -69,10 +76,11 @@ public class PathFindingTile implements Comparable<PathFindingTile>
 		fScore = gScore + hScore;
 	}
 	
-	public boolean testFScore(PathFindingTile next)
+	public boolean testFScore(PathFindingTile newcomer)
 	{
 		float prevFScore = gScore + hScore;
-		float newFScore = (next.gScore + 1) + hScore;
+//		float newFScore = (next.gScore + 1) + hScore; //TODO: Why is it a 1 here?
+		float newFScore = (newcomer.gScore +  PathInformation.getInstance().getTileInformation().getStepToTileValue(this.type)) + hScore; //TODO: Why is it a 1 here?
 		
 		return newFScore < prevFScore;
 		

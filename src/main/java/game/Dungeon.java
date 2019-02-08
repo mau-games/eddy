@@ -277,7 +277,7 @@ public class Dungeon implements Listener
 				room.clearPath();
 			}
 			
-			pathfinding.printPath();
+//			pathfinding.printPath();
 			pathfinding.innerCalculation();
 		}
 	}
