@@ -17,6 +17,7 @@ import game.ApplicationConfig;
 import game.Dungeon;
 import game.Game;
 import game.Room;
+import game.RoomEdge;
 import game.MapContainer;
 import game.TileTypes;
 import generator.config.GeneratorConfig;
@@ -50,11 +51,14 @@ import util.eventrouting.Listener;
 import util.eventrouting.PCGEvent;
 import util.eventrouting.events.AlgorithmDone;
 import util.eventrouting.events.ApplySuggestion;
+import util.eventrouting.events.InitialRoom;
 import util.eventrouting.events.MapLoaded;
 import util.eventrouting.events.RequestAppliedMap;
 import util.eventrouting.events.RequestConnection;
+import util.eventrouting.events.RequestConnectionRemoval;
 import util.eventrouting.events.RequestEmptyRoom;
 import util.eventrouting.events.RequestNewRoom;
+import util.eventrouting.events.RequestPathFinding;
 import util.eventrouting.events.RequestRoomRemoval;
 import util.eventrouting.events.RequestRedraw;
 import util.eventrouting.events.RequestRoomView;
@@ -130,6 +134,8 @@ public class InteractiveGUIController implements Initializable, Listener {
 			logger.error("Couldn't read config file.");
 		}
 
+		router.registerListener(this, new InitialRoom(null, null));
+		router.registerListener(this, new RequestPathFinding(null, -1, null, null, null, null));
 		router.registerListener(this, new RequestConnection(null, -1, null, null, null, null));
 		router.registerListener(this, new RequestNewRoom(null, -1, -1, -1));
 		router.registerListener(this, new StatusMessage(null));
@@ -142,6 +148,7 @@ public class InteractiveGUIController implements Initializable, Listener {
 		router.registerListener(this, new RequestSuggestionsView(null, 0));
 		router.registerListener(this, new Stop());
 		router.registerListener(this, new RequestRoomRemoval(null, null, 0));
+		router.registerListener(this, new RequestConnectionRemoval(null, null, 0));
 		router.registerListener(this, new StartWorld(0));
 
 		suggestionsView = new SuggestionsViewController();
@@ -166,7 +173,23 @@ public class InteractiveGUIController implements Initializable, Listener {
 	@Override
 	public synchronized void ping(PCGEvent e) 
 	{
-		if(e instanceof RequestConnection)
+		if(e instanceof InitialRoom)
+		{
+			InitialRoom initRoom = (InitialRoom)e;
+			
+			dungeonMap.setInitialRoom(initRoom.getPickedRoom(), initRoom.getRoomPos());
+			worldView.restoreBrush();
+		}
+		else if(e instanceof RequestPathFinding)
+		{
+			RequestPathFinding requestedPathFinding = (RequestPathFinding)e;
+			
+			dungeonMap.calculateBestPath(requestedPathFinding.getFromRoom(), 
+										requestedPathFinding.getToRoom(), 
+										requestedPathFinding.getFromPos(), 
+										requestedPathFinding.getToPos());
+		}
+		else if(e instanceof RequestConnection)
 		{
 			RequestConnection rC = (RequestConnection)e;
 			//TODO: Here you should check for which dungeon
@@ -221,6 +244,14 @@ public class InteractiveGUIController implements Initializable, Listener {
 			dungeonMap.removeRoom(container);
 			backToWorldView();
 		}
+		 else if(e instanceof RequestConnectionRemoval) {
+
+				RoomEdge edge = (RoomEdge) e.getPayload();
+				
+				//TODO: Here you should check for which dungeon
+				dungeonMap.removeEdge(edge);
+				backToWorldView();
+		 }
 
 	}
 

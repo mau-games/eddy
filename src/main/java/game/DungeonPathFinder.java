@@ -16,7 +16,6 @@ public class DungeonPathFinder
 	
 	public ArrayList<PathFindingEdge> path;
 	
-	
 	public DungeonPathFinder(Dungeon owner)
 	{
 		this.owner = owner;
@@ -52,6 +51,12 @@ public class DungeonPathFinder
 		PathFindingEdge nextEdge = null; //Next edge to be tested
 		PathFindingEdge finishEdge = null; //Final edge to consider
 		
+		//Special case where the pathfinding is to be done within the same room
+		if(initRoom.equals(goalRoom) && initRoom.pathExists(initPoint, goalPoint))
+		{
+			finishEdge = new PathFindingEdge(initRoom, goalRoom, initPoint, goalPoint, null);
+		}
+		
 		Set<RoomEdge> edges = network.incidentEdges(initRoom); //"NEIGHBORS"
 		
 		for(RoomEdge edge : edges)
@@ -68,13 +73,15 @@ public class DungeonPathFinder
 				nextRoomDoor = edge.fromPosition;
 				toRoom = edge.from;
 			}
-
-			PathFindingEdge adjacentDoor = new PathFindingEdge(initRoom, toRoom, initPoint, fromRoomDoor, nextRoomDoor);
 			
-			if(!closeList.contains(adjacentDoor))
-				openList.add(adjacentDoor);
+			if(initRoom.pathExists(initPoint, fromRoomDoor))
+			{
+				PathFindingEdge adjacentDoor = new PathFindingEdge(initRoom, toRoom, initPoint, fromRoomDoor, nextRoomDoor);
+				
+				if(!closeList.contains(adjacentDoor))
+					openList.add(adjacentDoor);
+			}
 		}
-
 
 		//THIS IS WHERE A* STARTS FOR REAL
 		while(!openList.isEmpty())
@@ -109,7 +116,7 @@ public class DungeonPathFinder
 			//If the new gathered edge is already in the goal room we may have a WINNER edge!
 			//TODO: This may change due to the fact that we want to consider going in and out of the room,
 			//or if the goal position is not actually reachable
-			if(nextEdge.connectedRoom.equals(goalRoom))
+			if(nextEdge.connectedRoom.equals(goalRoom) && nextEdge.connectedRoom.pathExists(nextEdge.positionConnectedRoom, goalPoint))
 			{
 				
 				PathFindingEdge auxEdge = new PathFindingEdge(	nextEdge, 
@@ -149,7 +156,7 @@ public class DungeonPathFinder
 				}
 				
 				//Not going backwards
-				if(!edge.to.equals(nextEdge.fromRoom) || !edge.from.equals(nextEdge.fromRoom)) // not going backwards TODO: This is for now
+				if(!edge.to.equals(nextEdge.fromRoom) || !edge.from.equals(nextEdge.fromRoom)) //TODO: This is for now
 				{
 					//new edge!
 					PathFindingEdge auxEdge = new PathFindingEdge(	nextEdge, 
@@ -165,11 +172,11 @@ public class DungeonPathFinder
 					{
 						adjacentEdge = isThere(auxEdge, openList); //Do we have this edge already pending to visit?
 						
-						if(adjacentEdge == null)
+						if(adjacentEdge == null && auxEdge.fromRoom.pathExists(auxEdge.start, auxEdge.end))
 						{
 							openList.add(auxEdge); //Now we will visit you :D 
 						}
-						else //If it is pending on visiting, is it better now with this path? if it is update!
+						else if(adjacentEdge != null)//If it is pending on visiting, is it better now with this path? if it is update!
 						{
 							if(adjacentEdge.testFScore(nextEdge))
 								adjacentEdge.updateParent(nextEdge);
@@ -183,18 +190,24 @@ public class DungeonPathFinder
 		if(finishEdge == null)
 			return false;
 		
+		fillPath(finishEdge);
+
+		return true;
+	}
+	
+	//TODO: This method is in dungeon!
+	public void calculateAllPaths(Room initRoom, Room goalRoom)
+	{
+		
+	}
+	
+	private void fillPath(PathFindingEdge finishEdge)
+	{
 		while(finishEdge != null)
 		{
 			path.add(finishEdge);
 			finishEdge = finishEdge.parent;
 		}
-		
-		return true;
-	}
-	
-	public void calculateAllPaths(Room initRoom, Room goalRoom)
-	{
-		
 	}
 	
 	/***
@@ -212,6 +225,18 @@ public class DungeonPathFinder
 		}
 		
 		return null;
+	}
+	
+	public void innerCalculation()
+	{
+		if(path == null)
+			return;
+		
+		for(PathFindingEdge pfe : path)
+		{
+			pfe.fromRoom.applyPathfinding(pfe.start, pfe.end);
+			pfe.fromRoom.paintPath(true);
+		}			
 	}
 	
 	public void printPath()

@@ -1,17 +1,21 @@
 package gui.views;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 import game.ApplicationConfig;
 import game.Dungeon;
 import game.DungeonPane;
 import game.MapContainer;
+import game.PathInformation;
 import gui.controls.LabeledCanvas;
 import gui.utils.DungeonDrawer;
+import gui.utils.DungeonDrawer.DungeonBrushes;
+import gui.utils.InterRoomBrush;
 import gui.utils.MapRenderer;
 import gui.utils.MoveElementBrush;
-import gui.utils.RoomConnector;
+import gui.utils.RoomConnectorBrush;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
@@ -20,8 +24,10 @@ import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.control.Button;
+import javafx.scene.control.ComboBox;
 import javafx.scene.control.Control;
 import javafx.scene.control.Label;
+import javafx.scene.control.ToggleButton;
 import javafx.scene.control.Tooltip;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.input.ScrollEvent;
@@ -64,11 +70,14 @@ public class WorldViewController extends BorderPane implements Listener
 	private EventRouter router = EventRouter.getInstance();
 	private boolean isActive = false;
 	
-	private Button roomNullBtn = new Button ();
+	private ToggleButton interFeasibilityToggle = new ToggleButton();
 	private Button suggestionsBtn = new Button();
 	private Button createNewRoomBtn = new Button();
 	private Button removeRoomBtn = new Button();
-	private Button changeBrushBtn = new Button();
+	private Button pickInitBtn = new Button();
+	
+	private ArrayList<Button> brushBtns = new ArrayList<Button>(); //TODO: This can be improved to be dependant on how many brushes and have maybe its own class?
+	private ComboBox<PathInformation.PathType> pathTypeComboBox = new ComboBox<>();
 	
 	private Label widthLabel = new Label("W =");
 	private Label heightLabel = new Label("H =");
@@ -190,7 +199,7 @@ public class WorldViewController extends BorderPane implements Listener
 	            @Override
 	            public void handle(MouseEvent event)
 	            {
-	            	if(DungeonDrawer.getInstance().getBrush() instanceof RoomConnector)
+	            	if(DungeonDrawer.getInstance().getBrush() instanceof InterRoomBrush)
 	            	{
 		    			auxLine.setEndX(event.getX());
 		    			auxLine.setEndY(event.getY());
@@ -231,9 +240,11 @@ public class WorldViewController extends BorderPane implements Listener
 	            	anchorX = event.getX();
 	    			anchorY = event.getY();
 	    			
-	            	if(DungeonDrawer.getInstance().getBrush() instanceof RoomConnector)
+	            	if(DungeonDrawer.getInstance().getBrush() instanceof InterRoomBrush)
 	            	{
-		    			worldPane.getChildren().add(auxLine);
+		    			if(!worldPane.getChildren().contains(auxLine))
+		    				worldPane.getChildren().add(auxLine);
+		    			
 		    			auxLine.setStartX(event.getX());
 		    			auxLine.setStartY(event.getY());
 		    			auxLine.setEndX(event.getX());
@@ -272,6 +283,20 @@ public class WorldViewController extends BorderPane implements Listener
 		buttonCanvas.setVisible(false);
 		buttonCanvas.setMouseTransparent(true);
 		
+		pathTypeComboBox.getItems().setAll(PathInformation.PathType.values());
+		pathTypeComboBox.setValue(PathInformation.getInstance().getPathType());
+		
+		
+		//some calculations for the brushes
+		double maxWidth = 250;
+		double maxHeight = 50;
+		double initXPos = -100;
+		double yPos = 0;
+		double widthPadding = 10;
+		double btnWidthSize = (maxWidth / brushBtns.size()) - (widthPadding * brushBtns.size());
+		double xStep = btnWidthSize + (btnWidthSize / 2.0) + widthPadding;
+		
+		
 		//Arrange the controls
 		
 		arrangeControls(widthLabel, -90, -300, 30, 50);
@@ -280,9 +305,18 @@ public class WorldViewController extends BorderPane implements Listener
 		arrangeControls(heightField, 50, -300, 50, 50);
 		arrangeControls(createNewRoomBtn, -100, -200, 120, 100);
 		arrangeControls(removeRoomBtn, 100, -200, 120, 100);
-		arrangeControls(getRoomNullBtn(), 0, 0, 300, 100);
-		arrangeControls(getSuggestionsBtn(), 0, 200, 300, 100);
-		arrangeControls(getChangeBrushBtn(), 0, 400, 300, 100);
+		arrangeControls(getInterFeasibilityBtn(), 0, -100, 100, 50);
+		arrangeControls(getSuggestionsBtn(), 0, 0, 300, 100);
+		arrangeControls(getPickInitBtn(), 0, 200, 300, 50);
+		arrangeControls(pathTypeComboBox, 0, 300, 300, 50);
+		
+		String[] btnsText = {"M", "C", "P"};
+		for(int i = 0; i < brushBtns.size(); i++, initXPos += xStep)
+		{
+			arrangeControls(brushBtns.get(i), initXPos, 100, btnWidthSize, maxHeight);
+			buttonPane.getChildren().add(brushBtns.get(i));
+			brushBtns.get(i).setText(btnsText[i]);
+		}
 	
 		//change color of the input fields!
 		heightField.setStyle("-fx-text-inner-color: white;");		
@@ -292,22 +326,23 @@ public class WorldViewController extends BorderPane implements Listener
 //		widthLabel.setTextFill(Paint);
 
 		//Add everything to the button pane!
-		buttonPane.getChildren().add(getRoomNullBtn());
+		buttonPane.getChildren().add(getInterFeasibilityBtn());
 		buttonPane.getChildren().add(getSuggestionsBtn());
-		buttonPane.getChildren().add(changeBrushBtn);
+		buttonPane.getChildren().add(getPickInitBtn());
 		buttonPane.getChildren().add(createNewRoomBtn);
 		buttonPane.getChildren().add(removeRoomBtn);
 		buttonPane.getChildren().add(heightField);
 		buttonPane.getChildren().add(widthField);
 		buttonPane.getChildren().add(widthLabel);
 		buttonPane.getChildren().add(heightLabel);
+		buttonPane.getChildren().add(pathTypeComboBox);
 		
 		//Change the text of the buttons!
-		changeBrushBtn.setText("Change brush");
+		pickInitBtn.setText("Pick Init Room and Pos");
 		createNewRoomBtn.setText("NEW ROOM");
 		removeRoomBtn.setText("REMOVE ROOM");
-		getRoomNullBtn().setText("Calculate paths!");
-		getRoomNullBtn().setTooltip(new Tooltip("Makes the room inaccessible for more complex designs"));
+		getInterFeasibilityBtn().setText("Inter Feasibility");
+		getInterFeasibilityBtn().setTooltip(new Tooltip("Makes the room inaccessible for more complex designs")); //LOL change this
 		getSuggestionsBtn().setText("Start with our suggestions");
 		getSuggestionsBtn().setTooltip(new Tooltip("Start with our suggested designs as generated by genetic algorithms"));
 
@@ -327,20 +362,20 @@ public class WorldViewController extends BorderPane implements Listener
 
 	}
 
-	public Button getChangeBrushBtn() {
-		return changeBrushBtn;
+	public Button getPickInitBtn() {
+		return pickInitBtn;
 	}
 
-	public void setChangeBrushBtn(Button changeBrushBtn) {
-		this.changeBrushBtn = changeBrushBtn;
+	public void setPickInitBtn(Button pickInitBtn) {
+		this.pickInitBtn = pickInitBtn;
 	}
 
-	public Button getRoomNullBtn() {
-		return roomNullBtn;
+	public ToggleButton getInterFeasibilityBtn() {
+		return interFeasibilityToggle;
 	}
 
-	public void setRoomNullBtn(Button roomNullBtn) {
-		this.roomNullBtn = roomNullBtn;
+	public void setInterFeasibilityBtn(ToggleButton interFeasibilityToggle) {
+		this.interFeasibilityToggle = interFeasibilityToggle;
 	}
 
 	public Button getSuggestionsBtn() {
@@ -350,10 +385,50 @@ public class WorldViewController extends BorderPane implements Listener
 	public void setSuggestionsBtn(Button suggestionsBtn) {
 		this.suggestionsBtn = suggestionsBtn;
 	}
+	
+	//TODO: This should check which brush was before and go back to that one!!!!
+	public void restoreBrush() //If you call this method is because you have change the initial room!!
+	{
+		DungeonDrawer.getInstance().changeBrushTo(DungeonBrushes.MOVEMENT);
+		getPickInitBtn().setText("Pick Init Room and Pos: DONE");
+	}
 
 	private void worldButtonEvents() 
 	{
+		//How many Brushes do we have? --> This should be automatic but it will be coded for the 3 dif brushes 
+		brushBtns = new ArrayList<Button>();
+		
+		brushBtns.add(new Button()); //Move
+		brushBtns.add(new Button()); //Connection
+		brushBtns.add(new Button()); //Path
+		
+		brushBtns.get(0).setOnAction(new EventHandler<ActionEvent>() {
+			@Override
+			public void handle(ActionEvent e) 
+			{
+				DungeonDrawer.getInstance().changeBrushTo(DungeonBrushes.MOVEMENT);
+			}
 
+		}); 
+		
+		brushBtns.get(1).setOnAction(new EventHandler<ActionEvent>() {
+			@Override
+			public void handle(ActionEvent e) 
+			{
+				DungeonDrawer.getInstance().changeBrushTo(DungeonBrushes.ROOM_CONNECTOR);
+			}
+
+		}); 
+		
+		brushBtns.get(2).setOnAction(new EventHandler<ActionEvent>() {
+			@Override
+			public void handle(ActionEvent e) 
+			{
+				DungeonDrawer.getInstance().changeBrushTo(DungeonBrushes.PATH_FINDING);
+			}
+
+		}); 
+		
 		getSuggestionsBtn().setOnAction(new EventHandler<ActionEvent>() {
 			@Override
 			public void handle(ActionEvent e) 
@@ -376,40 +451,59 @@ public class WorldViewController extends BorderPane implements Listener
 		}); 
 
 		//This button get all paths from room 0 to room 1
-		getRoomNullBtn().setOnAction(new EventHandler<ActionEvent>() {
+		getInterFeasibilityBtn().setOnAction(new EventHandler<ActionEvent>() {
 			@Override
 			public void handle(ActionEvent e) 
 			{
+				dungeon.checkInterFeasible(getInterFeasibilityBtn().isSelected());
 				
-//				if(dungeon.size > 1)
-//				{
-//					dungeon.testTraverseNetwork(dungeon.getRoomByIndex(0),dungeon.getRoomByIndex(1));
-//					dungeon.printRoomsPath();
-//				}
-				
-				//Arbitrary path finding
-				if(dungeon.size > 1)
+				//TODO: Simple mini-hack to get the interfeasibility 
+				if(getInterFeasibilityBtn().isSelected())
 				{
-					dungeon.getSelectedRoom().applyPathfinding(new Point(0,0), new Point(10,0));
-					dungeon.getBestPathBetweenRooms(dungeon.getRoomByIndex(0), dungeon.getRoomByIndex(1));
+					getInterFeasibilityBtn().setStyle("-fx-background-color:red");
 				}
-
+				else
+				{
+					getInterFeasibilityBtn().setStyle("");
+				}
+				
+//				System.out.println("IS IT HERE?");
+//				
+//				
+////				if(dungeon.size > 1)
+////				{
+////					dungeon.testTraverseNetwork(dungeon.getRoomByIndex(0),dungeon.getRoomByIndex(1));
+////					dungeon.printRoomsPath();
+////				}
+//				
+//				//Arbitrary path finding
+//				if(dungeon.get)
+//				{
+////					dungeon.getSelectedRoom().applyPathfinding(new Point(0,0), new Point(10,0));
+////					dungeon.getBestPathBetweenRooms(dungeon.getRoomByIndex(0), dungeon.getRoomByIndex(1));
+//					
+////					dungeon.calculateBestPath(dungeon.getRoomByIndex(0), dungeon.getRoomByIndex(1), new Point(0,0), new Point(10,0));
+//					
+//				}
 			}
 
 		}); 
 		
-		changeBrushBtn.setOnAction(new EventHandler<ActionEvent>() {
+//		DungeonDrawer.getInstance().nextBrush();
+		
+		pickInitBtn.setOnAction(new EventHandler<ActionEvent>() {
 			@Override
 			public void handle(ActionEvent e) 
 			{
-				if(DungeonDrawer.getInstance().getBrush() instanceof MoveElementBrush)
-				{
-					DungeonDrawer.getInstance().changeToConnector();
-				}
-				else
-				{
-					DungeonDrawer.getInstance().changeToMove();
-				}
+				DungeonDrawer.getInstance().changeBrushTo(DungeonBrushes.INITIAL_ROOM);
+//				if(DungeonDrawer.getInstance().getBrush() instanceof MoveElementBrush)
+//				{
+//					DungeonDrawer.getInstance().changeToConnector();
+//				}
+//				else
+//				{
+//					DungeonDrawer.getInstance().changeToMove();
+//				}
 			}
 
 		}); 
@@ -432,7 +526,15 @@ public class WorldViewController extends BorderPane implements Listener
 			}
 
 		}); 
+		
+		pathTypeComboBox.setOnAction(new EventHandler<ActionEvent>() {
+			@Override
+			public void handle(ActionEvent e) {
 
+				PathInformation.getInstance().changePathType(pathTypeComboBox.getValue());
+			}
+
+		}); 
 	}
 	
 	

@@ -29,6 +29,12 @@ public class Point {
 		return y;
 	}
 	
+	@Override
+	public boolean equals(Object obj)
+	{
+		return equals((Point)obj);
+	}
+	
 	public boolean equals(Point p){
 		return x == p.x && y == p.y;
 	}

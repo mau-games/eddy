@@ -520,14 +520,14 @@ public class RoomViewController extends BorderPane implements Listener
 		getMapView().updateMap(room);
 		redrawPatterns(room);
 		redrawLocks(room);
-		mapIsFeasible(room.isFeasible());
+		mapIsFeasible(room.isIntraFeasible());
 	}
 
 	public void updateRoom(Room room) {
 		getMapView().updateMap(room);
 
 		redrawPatterns(room);
-		mapIsFeasible(room.isFeasible());
+		mapIsFeasible(room.isIntraFeasible());
 	}
 
 	/**
@@ -1065,7 +1065,7 @@ public class RoomViewController extends BorderPane implements Listener
 //				mapView.updateTile(tile, brush, event.getButton() == MouseButton.SECONDARY, lockBrush.isSelected() || event.isControlDown());
 				mapView.updateTile(tile, myBrush);
 				mapView.getMap().forceReevaluation();
-				mapIsFeasible(mapView.getMap().isFeasible());
+				mapIsFeasible(mapView.getMap().isIntraFeasible());
 				redrawPatterns(mapView.getMap());
 				redrawLocks(mapView.getMap());
 //				redrawHeatMap(mapView.getMap());

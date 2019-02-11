@@ -5,7 +5,7 @@ import gui.controls.LabeledCanvas;
 import gui.utils.DungeonDrawer;
 import gui.utils.MapRenderer;
 import gui.utils.MoveElementBrush;
-import gui.utils.RoomConnector;
+import gui.utils.RoomConnectorBrush;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.SimpleDoubleProperty;
@@ -37,6 +37,7 @@ public class WorldViewCanvas
 	//CANVAS
 	private Canvas borderCanvas;
 	private Canvas pathCanvas;
+	private Canvas interFeasibilityCanvas; //creisi
 	
 	public DoubleProperty xPosition; //TODO: public just to test
 	public DoubleProperty yPosition;
@@ -87,11 +88,16 @@ public class WorldViewCanvas
 		worldGraphicNode.getChildren().add(pathCanvas);
 		pathCanvas.setVisible(true);
 		pathCanvas.setMouseTransparent(true);
+		
+		interFeasibilityCanvas = new Canvas(viewSizeHeight, viewSizeHeight);
+		worldGraphicNode.getChildren().add(interFeasibilityCanvas);
+		interFeasibilityCanvas.setVisible(true); //This should be controlled by a toggle button (simple)
+		interFeasibilityCanvas.setMouseTransparent(true);
 	}
 	
+	//TODO: We can delete this method... probably is not useful anymore
 	public void setParent()
 	{
-		
 		System.out.println("XPOSITION: " + xPosition.get() +", YPOSITION: " + yPosition.get());
 	}
 	
@@ -138,6 +144,9 @@ public class WorldViewCanvas
 		pathCanvas.setWidth(viewSizeWidth);
 		pathCanvas.setHeight(viewSizeHeight);
 		
+		interFeasibilityCanvas.setWidth(viewSizeWidth);
+		interFeasibilityCanvas.setHeight(viewSizeHeight);
+		
 		//Update the size of the tiles in the graphic display
 		tileSizeWidth.set(viewSizeWidth/ owner.getColCount());
 		tileSizeHeight.set(viewSizeHeight/ owner.getRowCount());
@@ -155,7 +164,7 @@ public class WorldViewCanvas
 	            @Override
 	            public void handle(MouseEvent event) 
 	            {
-	            	if(DungeonDrawer.getInstance().getBrush() instanceof RoomConnector)
+	            	if(DungeonDrawer.getInstance().getBrush() instanceof RoomConnectorBrush)
 	            	{
 		            	borderCanvas.setVisible(true);
 		            	drawBorder();
@@ -180,7 +189,7 @@ public class WorldViewCanvas
 		    			source.setTranslateX(event.getX() + source.getTranslateX() - dragAnchorX);
 		    			source.setTranslateY(event.getY() + source.getTranslateY() - dragAnchorY); 
 	            	}
-	            	else
+	            	else if(DungeonDrawer.getInstance().getBrush() instanceof RoomConnectorBrush)
 	            	{
 	            		currentBrushPosition =  new Point((int)( event.getX() / tileSizeWidth.get()), (int)( event.getY() / tileSizeHeight.get() ));
 		            	drawBorder();
@@ -195,7 +204,7 @@ public class WorldViewCanvas
 	            public void handle(MouseEvent event) 
 	            {
 	
-	            	if(DungeonDrawer.getInstance().getBrush() instanceof RoomConnector)
+	            	if(DungeonDrawer.getInstance().getBrush() instanceof RoomConnectorBrush)
 	            	{
 	            		currentBrushPosition =  new Point((int)( event.getX() / tileSizeWidth.get()), (int)( event.getY() / tileSizeHeight.get() ));
 		            	drawBorder();
@@ -212,7 +221,12 @@ public class WorldViewCanvas
 	            {
 	            	currentBrushPosition =  new Point((int)( event.getX() / tileSizeWidth.get()), (int)( event.getY() / tileSizeHeight.get() ));
 	            	
-	            	if(owner.isPointInBorder(currentBrushPosition))
+	            	if(DungeonDrawer.getInstance().getBrush() instanceof RoomConnectorBrush)
+	            	{
+	            		if(owner.isPointInBorder(currentBrushPosition))
+	            			DungeonDrawer.getInstance().getBrush().onReleaseRoom(owner, currentBrushPosition);
+	            	}
+	            	else
 	            	{
 	            		DungeonDrawer.getInstance().getBrush().onReleaseRoom(owner, currentBrushPosition);
 	            	}
@@ -246,7 +260,7 @@ public class WorldViewCanvas
 	            @Override
 	            public void handle(MouseEvent event) 
 	            {
-	            	if(DungeonDrawer.getInstance().getBrush() instanceof RoomConnector)
+	            	if(DungeonDrawer.getInstance().getBrush() instanceof RoomConnectorBrush)
 	            	{
 		            	borderCanvas.setVisible(true);
 		            	drawBorder();
@@ -256,8 +270,6 @@ public class WorldViewCanvas
 	            		highlight(true);
 	            	}
 
-	            	pathCanvas.setVisible(true);
-	            	drawPath();
 	            	DungeonDrawer.getInstance().getBrush().onEnteredRoom(owner); //This could also use the event actually :O
 	            }
 
@@ -293,9 +305,14 @@ public class WorldViewCanvas
 	            	dragAnchorY = event.getY();
 	            	currentBrushPosition =  new Point((int)( event.getX() / tileSizeWidth.get()), (int)( event.getY() / tileSizeHeight.get() ));
 	            	
-	            	if(owner.isPointInBorder(currentBrushPosition))
+	            	if(DungeonDrawer.getInstance().getBrush() instanceof RoomConnectorBrush)
 	            	{
-		            	DungeonDrawer.getInstance().getBrush().onClickRoom(owner,currentBrushPosition);
+	            		if(owner.isPointInBorder(currentBrushPosition))
+	            			DungeonDrawer.getInstance().getBrush().onClickRoom(owner,currentBrushPosition);
+	            	}
+	            	else
+	            	{
+	            		DungeonDrawer.getInstance().getBrush().onClickRoom(owner,currentBrushPosition);
 	            	}
 
 	            }
@@ -316,12 +333,21 @@ public class WorldViewCanvas
 	            public void handle(MouseEvent event) 
 	            {
 	            	borderCanvas.setVisible(false);
-	            	pathCanvas.setVisible(false);
-	            	highlight(false);
 	            }
 
 	        });
 		}
+	}
+	
+	public synchronized void forcePathDrawing(boolean visibility)
+	{
+		pathCanvas.setVisible(visibility);
+		drawPath();
+	}
+	
+	public void setInterFeasibilityVisible(boolean visibility)
+	{
+		interFeasibilityCanvas.setVisible(visibility);
 	}
 	
 	private synchronized void drawBorder() 
@@ -346,6 +372,18 @@ public class WorldViewCanvas
 	    			owner.matrix, 
 	    			owner.path, 
 	    			Color.CYAN);
+		}
+	}
+	
+	public synchronized void drawInterFeasibility()
+	{
+		if(interFeasibilityCanvas.isVisible())
+		{
+			interFeasibilityCanvas.getGraphicsContext2D().clearRect(0, 0, interFeasibilityCanvas.getWidth(), interFeasibilityCanvas.getHeight());
+	    	MapRenderer.getInstance().drawRoomPath(interFeasibilityCanvas.getGraphicsContext2D(), 
+	    			owner.matrix, 
+	    			owner.nonInterFeasibleTiles, 
+	    			Color.RED);
 		}
 	}
 	

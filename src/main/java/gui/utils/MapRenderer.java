@@ -472,7 +472,9 @@ public class MapRenderer implements Listener {
 		patternGraph.resetGraph();
 		
 		Queue<Node<Pattern>> nodeQueue = new LinkedList<Node<Pattern>>();
-		nodeQueue.add(patternGraph.getStartingPoint());
+//		nodeQueue.add(patternGraph.getStartingPoint());
+		nodeQueue.addAll(patternGraph.getNodes().values());
+		//TODO: CHANGE HERE
 		
 		while(!nodeQueue.isEmpty()){
 			Node<Pattern> current = nodeQueue.remove();

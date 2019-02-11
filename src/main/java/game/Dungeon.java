@@ -17,6 +17,15 @@ import util.eventrouting.events.FocusRoom;
 import util.eventrouting.events.RequestConnection;
 import util.eventrouting.events.RequestRoomView;
 
+/***
+ * Dungeon class holds a dungeon in the world of eddy, a dungeon is comprised of:
+ * + a Graphical Node (in charged of rendering rooms and edges)
+ * + All the rooms (including the initial room and the currently selected room)
+ * + The Graph Network that holds the internal information of connections between nodes
+ * + The HighLevel Path finder (that scans the rooms to be traversed).
+ * @author Alberto Alvarez, Malmö University
+ *
+ */
 public class Dungeon implements Listener
 {	
 	public DungeonPane dPane;
@@ -30,6 +39,7 @@ public class Dungeon implements Listener
 	
 	ArrayList<Room> rooms;
 	Room initialRoom;
+	Point initialPos;
 	Room currentEditedRoom;
 	Room selectedRoom;
 	
@@ -78,11 +88,13 @@ public class Dungeon implements Listener
 		
 		for(int i = 0; i < size; ++i)
 		{
-			Room auxR = new Room(defaultConfig, defaultWidth, defaultHeight, scaleFactor);
+			Room auxR = new Room(this, defaultConfig, defaultWidth, defaultHeight, scaleFactor);
 			rooms.add(auxR);
 			network.addNode(auxR);
 			dPane.addVisualRoom(auxR);
 		}
+		
+		setInitialRoom(rooms.get(0), new Point(0,0));
 	}
 	
 	@Override
@@ -114,20 +126,26 @@ public class Dungeon implements Listener
 		return rooms.get(index);
 	}
 	
+	
 	public void addRoom(int width, int height)
 	{
-		Room auxR = new Room(defaultConfig, height < 0 ? defaultHeight : height, width < 0 ? defaultWidth : width, scaleFactor);
+		Room auxR = new Room(this, defaultConfig, height < 0 ? defaultHeight : height, width < 0 ? defaultWidth : width, scaleFactor);
 		rooms.add(auxR);
 		network.addNode(auxR);
 		dPane.addVisualRoom(auxR);
 		this.size++;
 	}
 	
+	/**
+	 * Remove the selected room from the dungeon
+	 * @param roomToRemove
+	 */
 	public void removeRoom(Room roomToRemove)
 	{
 		//FIRST REMOVE ALL DOORS CONNECTING TO THE ROOM
 		Set<RoomEdge> edgesToRemove = network.incidentEdges(roomToRemove);
 		
+		//Check for edges in the network and also remove visual connecting lines
 		for(RoomEdge edge : edgesToRemove)
 		{
 			if(edge.from.equals(roomToRemove))
@@ -142,12 +160,31 @@ public class Dungeon implements Listener
 			dPane.removeVisualConnector(edge);
 		}
 		
+		//remove this room and its visual representation
 		dPane.removeVisualRoom(roomToRemove);
 		rooms.remove(roomToRemove);
 		network.removeNode(roomToRemove);
 		selectedRoom = null;
 		
+		//probably this should be connected to the size value of the rooms LIST
 		this.size--;
+	}
+	
+	/**
+	 * Remove the selected edge from the dungeon
+	 * @param edgeToRemove
+	 */
+	public void removeEdge(RoomEdge edgeToRemove)
+	{
+		edgeToRemove.from.removeDoor(edgeToRemove.fromPosition);
+		edgeToRemove.to.removeDoor(edgeToRemove.toPosition);
+		
+		//remove this room and its visual representation
+		dPane.removeVisualConnector(edgeToRemove);
+		network.removeEdge(edgeToRemove);
+		
+		//TODO: THIS IS WORK IN PROGRESS
+		checkInterFeasible(true);
 	}
 	
 	//Rooms could be an ID
@@ -161,9 +198,37 @@ public class Dungeon implements Listener
 		network.addEdge(from, to, edge);
 		dPane.addVisualConnector(edge);
 		
+		//TODO: THIS IS WORK IN PROGRESS
+		checkInterFeasible(true);
+		
 		for(RoomEdge e : network.edges())
 		{
 			System.out.println(e.print());
+		}
+	}
+	
+	public void setInitialRoom(Room initRoom, Point initialPos)
+	{
+		this.initialRoom = initRoom;
+		this.initialPos = initialPos;
+	}
+	
+	public Room getInitialRoom()
+	{
+		return this.initialRoom;
+	}
+	
+	public Point getInitialPosition()
+	{
+		return this.initialPos;
+	}
+	
+	//TODO: This is the method
+	public void checkInterFeasible(boolean interFeasibilityCanvas)
+	{
+		for(Room room : rooms)
+		{
+			room.isInterFeasible(interFeasibilityCanvas);
 		}
 	}
 	
@@ -202,10 +267,46 @@ public class Dungeon implements Listener
 		pathfinding.printPath();
 	}
 	
+	public void calculateBestPath(Room init, Room end, Point initPos, Point endPos)
+	{
+		if(pathfinding.calculateBestPath(init, end, initPos, endPos, network))
+		{
+			//Clear all the paths in all the rooms
+			for(Room room : rooms)
+			{
+				room.clearPath();
+			}
+			
+//			pathfinding.printPath();
+			pathfinding.innerCalculation();
+		}
+	}
+	
 	///////////////////////// TODO: TESTING TRAVERSAL AND RETRIEVAL OF ALL THE PATHS FROM A ROOM TO ANOTHER ROOM ///////////////////////////	
 
 	Stack<Room> ConnectionPath = new Stack<Room>();
 	ArrayList<Stack<Room>> connectionPaths = new ArrayList<Stack<Room>>();
+	
+	public boolean ttNetwork(Room end)
+	{
+		testTraverseNetwork(initialRoom, end);
+		
+		if(!connectionPaths.isEmpty())
+		{
+			printRoomsPath();
+			return true;
+		}
+		else
+		{
+			printRoomsPath();
+			return false;
+		}
+	}
+	
+	public boolean traverseTillDoor(Room end, Point endPos)
+	{
+		return pathfinding.calculateBestPath(initialRoom, end, initialPos, endPos, network);
+	}
 	
 	public void testTraverseNetwork(Room init, Room end)
 	{

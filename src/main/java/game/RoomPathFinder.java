@@ -27,15 +27,22 @@ public class RoomPathFinder
 		
 		ArrayList<PathFindingTile> openList = new ArrayList<PathFindingTile>();
 		ArrayList<PathFindingTile> closeList = new ArrayList<PathFindingTile>();
-		PathFindingTile next = new PathFindingTile(start, end);
+		PathFindingTile current = new PathFindingTile(start, end, owner.getTile(start).GetType(), owner.getColCount(), owner.getRowCount());
 		
-		closeList.add(next);
+		//special case that start and end are the same point
+		if(start.equals(end))
+		{
+			path.add(current);
+			return true;
+		}
 		
-		List<Point> adjacent = owner.getAvailableCoords(next.position);
+		closeList.add(current);
+		
+		List<Point> adjacent = owner.getAvailableCoords(current.position);
 		
 		for(Point adj :adjacent)
 		{
-			PathFindingTile adjacentTile = new PathFindingTile(next, adj, end);
+			PathFindingTile adjacentTile = new PathFindingTile(current, adj, end,  owner.getTile(adj).GetType(), owner.getColCount(), owner.getRowCount());
 			
 			if(!closeList.contains(adjacentTile))
 				openList.add(adjacentTile);
@@ -45,16 +52,16 @@ public class RoomPathFinder
 		{
 			Collections.sort(openList);
 			
-			next = openList.remove(0);
-			closeList.add(next);
+			current = openList.remove(0);
+			closeList.add(current);
 			
-			if(next.position.equals(end)) //We reached the end!
+			if(current.position.equals(end)) //We reached the end!
 			{
 				reached = true;
 				break;
 			}
 	
-			adjacent = owner.getAvailableCoords(next.position);
+			adjacent = owner.getAvailableCoords(current.position);
 			
 			for(Point adj :adjacent)
 			{
@@ -68,12 +75,12 @@ public class RoomPathFinder
 					
 					if(adjacentTile == null)
 					{
-						openList.add(new PathFindingTile(next, adj, end));
+						openList.add(new PathFindingTile(current, adj, end, owner.getTile(adj).GetType(), owner.getColCount(), owner.getRowCount()));
 					}
 					else
 					{
-						if(adjacentTile.testFScore(next))
-							adjacentTile.updateTile(next);
+						if(adjacentTile.testFScore(current))
+							adjacentTile.updateTile(current);
 					}
 				}
 			}
@@ -83,10 +90,10 @@ public class RoomPathFinder
 		if(!reached)
 			return false;
 
-		while(next != null)
+		while(current != null)
 		{
-			path.add(next);
-			next = next.parent;
+			path.add(current);
+			current = current.parent;
 		}
 		
 		return true;

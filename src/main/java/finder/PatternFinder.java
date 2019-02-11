@@ -30,7 +30,7 @@ import finder.geometry.Bitmap;
 import finder.geometry.Point;
 
 /**
- * PatternFinder is used to find patterns within a map.
+ * PatternFinder is used to find patterns within a room.
  * 
  * @author Johan Holmberg
  */
@@ -119,6 +119,7 @@ public class PatternFinder {
 		Populator.populate(micropatterns);
 		buildPatternGraph();
 		
+		//TODO: We need to fix this for the new way we are handling this
 		mesopatterns.addAll(ChokePoint.matches(room, patternGraph));
 		mesopatterns.addAll(DeadEnd.matches(room, patternGraph));
 		mesopatterns.addAll(GuardRoom.matches(room, patternGraph));
@@ -136,19 +137,37 @@ public class PatternFinder {
 		//Build the pattern graph
 		assignSpacialPatternsToGrid();
 		
+		//TODO: THIS STILL NEEDS A LOT OF WORK
+		
 		boolean visitedTiles[][] = new boolean[room.getRowCount()][room.getColCount()];
 		
 		patternGraph = new Graph<Pattern>();
 		Entrance entrance = (Entrance)micropatterns.stream().filter((Pattern p) -> {return p instanceof Entrance;}).findFirst().get();
 		Point entrancePosition = (Point)entrance.getGeometry();		
 		
-		Node<Pattern> start = patternGraph.addNode(spacialPatternGrid[entrancePosition.getY()][entrancePosition.getX()]);
+//		Door door = (Door)micropatterns.stream().filter((Pattern p) -> {return p instanceof Door;}).fin
+//		Point doorPos = (Point)door.getGeometry();		
+		
+//		Node<Pattern> start = patternGraph.addNode(spacialPatternGrid[entrancePosition.getY()][entrancePosition.getX()]);
 		
 		//Do a flood fill from this pattern to find all patterns
 		Queue<Node<Pattern>> patternQueue = new LinkedList<Node<Pattern>>();
 
 //		if(start.getValue() != null)
-			patternQueue.add(start);
+//		patternQueue.add(start);
+		
+		for(Pattern microPattern : micropatterns)
+		{
+			if(microPattern instanceof Door)
+			{
+				Point doorPos = (Point)microPattern.getGeometry();
+				if(!patternGraph.containsNode(spacialPatternGrid[doorPos.getY()][doorPos.getX()]))
+				{
+					patternQueue.add(patternGraph.addNode(spacialPatternGrid[doorPos.getY()][doorPos.getX()]));
+				}	
+			}
+		}
+
 	
 		
 		while(!patternQueue.isEmpty()){

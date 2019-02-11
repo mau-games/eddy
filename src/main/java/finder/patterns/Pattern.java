@@ -16,6 +16,8 @@ public abstract class Pattern {
 	
 	protected Geometry boundaries = null;
 	protected Room room = null;
+	public boolean pathTowardsDeadEnd = true;
+	
 	/**
 	 * Searches a map for instances of this pattern and returns a list of found
 	 * instances.

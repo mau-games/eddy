@@ -402,7 +402,8 @@ public class Algorithm extends Thread {
     */
 	private boolean checkZoneIndividual(ZoneIndividual ind){
 		Room room = ind.getPhenotype().getMap(roomWidth, roomHeight, roomDoorPositions, roomEntrance);
-		return room.isFeasible();
+//		return room.isFeasible();
+		return room.isIntraFeasible();
 	}
 	
 	/**
@@ -465,6 +466,7 @@ public class Algorithm extends Thread {
         double mesoPatternWeight = 0.1;
         
         
+        //TODO: Is now time to care about this :P 
         //Door Fitness - don't care about this for now
         double doorFitness = 1.0f;
         
