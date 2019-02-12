@@ -62,7 +62,7 @@ public class MAPEliteAlgorithm extends Algorithm {
 			return;
 		}
 		
-		for(int i = 0; i < dimensionSizes[dimension]; i++)
+		for(int i = 1; i < dimensionSizes[dimension] +1 ; i++)
 		{
 			indices[dimension] = i;
 			CreateCells(dimension+1, dimensionQuantity, dimensionSizes, indices);
@@ -71,6 +71,11 @@ public class MAPEliteAlgorithm extends Algorithm {
 	
 	public void initPopulations(Room room){
 		broadcastStatusUpdate("Initialising...");
+		
+		feasiblePool = new ArrayList<ZoneIndividual>();
+		infeasiblePool = new ArrayList<ZoneIndividual>();
+		feasiblePopulation = new ArrayList<ZoneIndividual>();
+		infeasiblePopulation = new ArrayList<ZoneIndividual>();
 		
 		MAPElitesDimensions = new ArrayList<GADimension>();
 		
@@ -131,6 +136,11 @@ public class MAPEliteAlgorithm extends Algorithm {
 	 */
 	public void initPopulations(){
 		broadcastStatusUpdate("Initialising...");
+		
+		feasiblePool = new ArrayList<ZoneIndividual>();
+		infeasiblePool = new ArrayList<ZoneIndividual>();
+		feasiblePopulation = new ArrayList<ZoneIndividual>();
+		infeasiblePopulation = new ArrayList<ZoneIndividual>();
 		
 		MAPElitesDimensions = new ArrayList<GADimension>();
 		
@@ -213,11 +223,11 @@ public class MAPEliteAlgorithm extends Algorithm {
         // 6- after generations 
         // 	6.1 - Replace: Eliminate low performing individual from cells that are above or at capacity
 
-        for(int generationCount = 1; generationCount <= generations; generationCount++) {
+        for(int generationCount = 1; generationCount <= 20; generationCount++) {
         	if(stop)
         		return;
         	
-        	for(int iteration = 0; iteration < 100; iteration++)
+        	for(int iteration = 0; iteration < 2; iteration++)
         	{
         		ArrayList<ZoneIndividual> parents = new ArrayList<ZoneIndividual>();
         		List<ZoneIndividual> children = new ArrayList<ZoneIndividual>();

@@ -43,7 +43,7 @@ public class GACell
 		
 		for(GADimension dimension : dimensions)
 		{
-			cellDimensions.put(dimension.GetType(), dimension.GetGranularity() / (double)indices[index]);
+			cellDimensions.put(dimension.GetType(), (double)indices[index] / dimension.GetGranularity());
 			index++;
 		}
 		

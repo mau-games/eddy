@@ -9,6 +9,7 @@ import org.slf4j.LoggerFactory;
 
 import generator.algorithm.Algorithm;
 import generator.algorithm.Algorithm.AlgorithmTypes;
+import generator.algorithm.MAPElites.MAPEliteAlgorithm;
 import generator.config.GeneratorConfig;
 import util.Point;
 import util.Util;
@@ -67,6 +68,14 @@ public class Game implements Listener{
     	Preserving,
     	OriginalConfig,
     	ComputedConfig
+    }
+    
+    private void RunMAPElites(Room room)
+    {
+    	Algorithm ga = new MAPEliteAlgorithm(room, AlgorithmTypes.Native);
+		runs.add(ga);
+		ga.initPopulations(room);
+		ga.start();
     }
 
     private void mutateFromMap(Room room, int mutations, MapMutationType mutationType, AlgorithmTypes algorithmType, boolean randomise){
@@ -241,7 +250,8 @@ public class Game implements Listener{
 			
 			StartMapMutate smm = (StartMapMutate)e;
 //			System.out.println("LETS CREATE!, mutation: " + smm.getMutations() + ", algorithmTypes: " + smm.getAlgorithmTypes());
-			mutateFromMap((Room)e.getPayload(),smm.getMutations(),smm.getMutationType(),smm.getAlgorithmTypes(),smm.getRandomiseConfig());
+			RunMAPElites((Room)e.getPayload());
+//			mutateFromMap((Room)e.getPayload(),smm.getMutations(),smm.getMutationType(),smm.getAlgorithmTypes(),smm.getRandomiseConfig());
 		} else if (e instanceof StartBatch) {
 			startBatch(((StartBatch)e).getConfig(), ((StartBatch)e).getSize());
 		} else if (e instanceof Stop) {

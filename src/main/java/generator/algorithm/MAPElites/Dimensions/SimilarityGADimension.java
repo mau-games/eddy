@@ -8,7 +8,7 @@ public class SimilarityGADimension extends GADimension
 	public SimilarityGADimension(float granularity)
 	{
 		super();
-		dimension = DimensionTypes.SYMMETRY;
+		dimension = DimensionTypes.SIMILARITY;
 		this.granularity = granularity;
 	}
 

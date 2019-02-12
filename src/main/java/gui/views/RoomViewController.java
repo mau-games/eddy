@@ -732,26 +732,26 @@ public class RoomViewController extends BorderPane implements Listener
 	public void generateNewMaps(Room room) {
 		// TODO: If we want more diversity in the generated maps, then send more StartMapMutate events.
 
-//		router.postEvent(new StartMapMutate(room, MapMutationType.Preserving, AlgorithmTypes.Native, suggestionAmount, true));
+		router.postEvent(new StartMapMutate(room, MapMutationType.Preserving, AlgorithmTypes.Native, suggestionAmount, true));
 		
-		int firstAmount = suggestionAmount/2;
-		int secondAmount = suggestionAmount - firstAmount;
-		
-		if (!similarity && !symmetry ) {
-		router.postEvent(new StartMapMutate(room, MapMutationType.Preserving, AlgorithmTypes.Native, firstAmount, true)); //TODO: Move some of this hard coding to ApplicationConfig
-		router.postEvent(new StartMapMutate(room, MapMutationType.ComputedConfig, AlgorithmTypes.Native, secondAmount, true)); //TODO: Move some of this hard coding to ApplicationConfig
-		}
-		else if (similarity && !symmetry) {
-			router.postEvent(new StartMapMutate(room, MapMutationType.Preserving, AlgorithmTypes.Similarity, suggestionAmount, true));
-		}
-		else if (!similarity && symmetry) {
-			router.postEvent(new StartMapMutate(room, MapMutationType.Preserving, AlgorithmTypes.Symmetry, firstAmount, true));
-			router.postEvent(new StartMapMutate(room, MapMutationType.ComputedConfig, AlgorithmTypes.Symmetry, secondAmount, true));
-		}
-		else if (similarity && symmetry) {
-			router.postEvent(new StartMapMutate(room, MapMutationType.Preserving, AlgorithmTypes.Similarity, firstAmount, true));
-			router.postEvent(new StartMapMutate(room, MapMutationType.ComputedConfig, AlgorithmTypes.Symmetry, secondAmount, true));
-		}
+//		int firstAmount = suggestionAmount/2;
+//		int secondAmount = suggestionAmount - firstAmount;
+//		
+//		if (!similarity && !symmetry ) {
+//		router.postEvent(new StartMapMutate(room, MapMutationType.Preserving, AlgorithmTypes.Native, firstAmount, true)); //TODO: Move some of this hard coding to ApplicationConfig
+//		router.postEvent(new StartMapMutate(room, MapMutationType.ComputedConfig, AlgorithmTypes.Native, secondAmount, true)); //TODO: Move some of this hard coding to ApplicationConfig
+//		}
+//		else if (similarity && !symmetry) {
+//			router.postEvent(new StartMapMutate(room, MapMutationType.Preserving, AlgorithmTypes.Similarity, suggestionAmount, true));
+//		}
+//		else if (!similarity && symmetry) {
+//			router.postEvent(new StartMapMutate(room, MapMutationType.Preserving, AlgorithmTypes.Symmetry, firstAmount, true));
+//			router.postEvent(new StartMapMutate(room, MapMutationType.ComputedConfig, AlgorithmTypes.Symmetry, secondAmount, true));
+//		}
+//		else if (similarity && symmetry) {
+//			router.postEvent(new StartMapMutate(room, MapMutationType.Preserving, AlgorithmTypes.Similarity, firstAmount, true));
+//			router.postEvent(new StartMapMutate(room, MapMutationType.ComputedConfig, AlgorithmTypes.Symmetry, secondAmount, true));
+//		}
 	}
 
 	public void replaceRoom()

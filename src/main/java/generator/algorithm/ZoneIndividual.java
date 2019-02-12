@@ -140,6 +140,8 @@ public class ZoneIndividual {
 
 	public void SetDimensionValues(ArrayList<GADimension> dimensions, Room original)
 	{
+		dimensionValues = new HashMap<DimensionTypes, Double>();
+		
 		for(GADimension dimension : dimensions)
 		{
 			dimensionValues.put(dimension.GetType(), dimension.CalculateValue(this, original));
