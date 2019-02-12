@@ -85,6 +85,7 @@ public class Game implements Listener{
 					gc.mutate();
 				Algorithm ga = new Algorithm(room, gc, algorithmType);
 				runs.add(ga);
+				ga.initPopulations();
 				ga.start();
 				break;
 			}
@@ -95,6 +96,7 @@ public class Game implements Listener{
 					gc.mutate();
 				Algorithm ga = new Algorithm(room, gc, algorithmType);
 				runs.add(ga);
+				ga.initPopulations();
 				ga.start();
 				break;
 			}
@@ -102,6 +104,7 @@ public class Game implements Listener{
 			{
 				Algorithm ga = new Algorithm(room, algorithmType);
 				runs.add(ga);
+				ga.initPopulations(room);
 				ga.start();
 				break;
 			}
@@ -143,6 +146,7 @@ public class Game implements Listener{
 
 			try {
 				geneticAlgorithm = new Algorithm(container.getMap(), new GeneratorConfig(c)); //TODO: You need to send the container here (the room)
+				geneticAlgorithm.initPopulations();
 				runs.add(geneticAlgorithm);
 				geneticAlgorithm.start();
 			} catch (MissingConfigurationException e) {
@@ -171,6 +175,7 @@ public class Game implements Listener{
 	private void startBatchRun(){
 		try {
 			Algorithm geneticAlgorithm = new Algorithm(new GeneratorConfig(batchConfig));
+			geneticAlgorithm.initPopulations();
 			geneticAlgorithm.start();
 			runs.add(geneticAlgorithm);
 			batchRunsLeft--;

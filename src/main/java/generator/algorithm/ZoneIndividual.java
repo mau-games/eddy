@@ -11,6 +11,8 @@ import game.Room;
 import game.Tile;
 import game.TileTypes;
 import game.ZoneNode;
+import generator.algorithm.MAPElites.Dimensions.GADimension;
+import generator.algorithm.MAPElites.Dimensions.GADimension.DimensionTypes;
 import generator.config.GeneratorConfig;
 import util.Util;
 
@@ -23,6 +25,8 @@ import util.Util;
  */
 public class ZoneIndividual {
 	private double fitness;
+	
+	protected HashMap<DimensionTypes, Double> dimensionValues;
 	
 	//TODO: Reconsider these...
 	private double treasureAndEnemyFitness;
@@ -114,14 +118,6 @@ public class ZoneIndividual {
 		this.mutationProbability = mutationProbability;
 	}
 	
-	/**
-	 * Generate a genotype
-	 * 
-	 */
-	public void initialize() {
-		genotype.randomSupervisedChromosome();
-	}
-	
 	public ZoneIndividual(Room room, float mutationProbability)
 	{
 		config = room.getConfig();
@@ -133,6 +129,28 @@ public class ZoneIndividual {
 		
 		genotype.ProduceGenotype(room);
 	}
+	
+	/**
+	 * Generate a genotype
+	 * 
+	 */
+	public void initialize() {
+		genotype.randomSupervisedChromosome();
+	}
+
+	public void SetDimensionValues(ArrayList<GADimension> dimensions, Room original)
+	{
+		for(GADimension dimension : dimensions)
+		{
+			dimensionValues.put(dimension.GetType(), dimension.CalculateValue(this, original));
+		}
+	}
+	
+	public double getDimensionValue(DimensionTypes currentDimension)
+	{
+		return dimensionValues.get(currentDimension);
+	}
+	
 	
 	/**
 	 * Two point crossover between two individuals.

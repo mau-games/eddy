@@ -32,6 +32,7 @@ public class LabeledCanvas extends BorderPane {
 	@FXML private ResizableCanvas canvas;
 	@FXML private AnchorPane canvasPane;
 	@FXML private BorderPane rootPane;
+
 	private Image rotatingThingie;
 	private RotateTransition transition;
 	
@@ -74,7 +75,7 @@ public class LabeledCanvas extends BorderPane {
 		canvas.widthProperty().bind(canvasPane.widthProperty());
 		canvas.heightProperty().bind(canvasPane.heightProperty());
 		canvasPane.setPrefSize(rootPane.widthProperty().doubleValue(), rootPane.heightProperty().doubleValue());
-
+		
 		getStyleClass().add("labeled-canvas");
 
 		gc = canvas.getGraphicsContext2D();

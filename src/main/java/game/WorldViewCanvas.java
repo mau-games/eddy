@@ -50,8 +50,8 @@ public class WorldViewCanvas
 	public WorldViewCanvas(Room owner)
 	{
 		this.owner = owner;
-		worldGraphicNode = new LabeledCanvas();
-		worldGraphicNode.setText("");
+		worldGraphicNode = new LabeledCanvas("pipote");
+		worldGraphicNode.setText("pipote");
 		//Events to the graphic node
 		worldGraphicNode.addEventFilter(MouseEvent.MOUSE_ENTERED, new MouseEventH());
 		worldGraphicNode.addEventFilter(MouseEvent.MOUSE_DRAGGED, new MouseEventDrag());

@@ -45,36 +45,45 @@ import util.eventrouting.events.GenerationDone;
 import util.eventrouting.events.MapUpdate;
 import util.eventrouting.events.StatusMessage;
 
+/**
+ * This class is the base class of genetic algorithms
+ * It implements all the basic functionality of a FI-2POP strategies
+ * -- It have lists of lists of individuals for it to be extendible to for instance, MAP-Elites, multi populations, etc.
+ * 
+ * @author Johan Holmberg, Malmö University
+ * @author Alberto Alvarez, Malmö University
+ *
+ */
 public class Algorithm extends Thread {
-	private UUID id;
-	private final Logger logger = LoggerFactory.getLogger(Algorithm.class);
-	private GeneratorConfig config;
+	protected UUID id;
+	protected final Logger logger = LoggerFactory.getLogger(Algorithm.class);
+	protected GeneratorConfig config;
 	
-	private int populationSize; 
-	private float mutationProbability;
-	private float offspringSize;
+	protected int populationSize; 
+	protected float mutationProbability;
+	protected float offspringSize;
 	
-	private List<ZoneIndividual> feasiblePopulation;
-	private List<ZoneIndividual> infeasiblePopulation;
-	private ZoneIndividual best;
-	private List<ZoneIndividual> feasiblePool;
-	private List<ZoneIndividual> infeasiblePool;
-	private boolean stop = false;
-	private int feasibleAmount;
-	private double roomTarget;
-	private double corridorTarget;
+	protected List<ZoneIndividual> feasiblePopulation;
+	protected List<ZoneIndividual> infeasiblePopulation;
+	protected ZoneIndividual best;
+	protected List<ZoneIndividual> feasiblePool;
+	protected List<ZoneIndividual> infeasiblePool;
+	protected boolean stop = false;
+	protected int feasibleAmount;
+	protected double roomTarget;
+	protected double corridorTarget;
 
-	private Room originalRoom = null;
+	protected Room originalRoom = null;
 	
-	private int infeasiblesMoved = 0;
-	private int movedInfeasiblesKept = 0;
+	protected int infeasiblesMoved = 0;
+	protected int movedInfeasiblesKept = 0;
 
-	private AlgorithmTypes algorithmTypes;
+	protected AlgorithmTypes algorithmTypes;
 	
-	private int roomWidth;
-	private int roomHeight;
-	private List<Point> roomDoorPositions;
-	private Point roomEntrance;
+	protected int roomWidth;
+	protected int roomHeight;
+	protected List<Point> roomDoorPositions;
+	protected Point roomEntrance;
 
 	public enum AlgorithmTypes //TODO: This needs to change
 	{
@@ -82,6 +91,11 @@ public class Algorithm extends Thread {
 		Symmetry,
 		Similarity,
 		SymmetryAndSimilarity
+	}
+	
+	public Algorithm()
+	{
+		//I do nothing! :D 
 	}
 	
 	public Algorithm(GeneratorConfig config) //Called by the BATCH RUN!
@@ -110,7 +124,7 @@ public class Algorithm extends Thread {
 
 		// Uncomment this for silly debugging
 //		System.out.println("Starting run #" + id);
-		initPopulations();
+//		initPopulations();
 	}
 	
 	public Algorithm(Room room, GeneratorConfig config, AlgorithmTypes algorithmTypes) //THIS IS THE ONE CALLED WHEN IS NOT PRESERVING
@@ -142,7 +156,7 @@ public class Algorithm extends Thread {
 		// Uncomment this for silly debugging
 //		System.out.println("Starting run #" + id);
 		
-		initPopulations();
+//		initPopulations();
 	}
 	
 	/**
@@ -172,7 +186,7 @@ public class Algorithm extends Thread {
 		// Uncomment this for silly debugging
 //		System.out.println("Starting run #" + id);
 		
-		initPopulations(room);
+//		initPopulations(room);
 	}
 	
 	
@@ -185,7 +199,7 @@ public class Algorithm extends Thread {
 	 * 
 	 * @param status Message to display.
 	 */
-	private synchronized void broadcastStatusUpdate(String status){
+	protected synchronized void broadcastStatusUpdate(String status){
 		EventRouter.getInstance().postEvent(new StatusMessage(status));
 	}
 	
@@ -194,7 +208,7 @@ public class Algorithm extends Thread {
 	 * 
 	 * @param best The best map from the current generation.
 	 */
-	private synchronized void broadcastMapUpdate(Room best){
+	protected synchronized void broadcastMapUpdate(Room best){
 		MapUpdate ev = new MapUpdate(best);
         ev.setID(id);
 		EventRouter.getInstance().postEvent(ev);
@@ -202,7 +216,7 @@ public class Algorithm extends Thread {
 	
 	
 
-	private void initPopulations(Room room){
+	public void initPopulations(Room room){
 		broadcastStatusUpdate("Initialising...");
 				
 		feasiblePool = new ArrayList<ZoneIndividual>();
@@ -236,7 +250,7 @@ public class Algorithm extends Thread {
 	/**
 	 * Creates lists for the valid and invalid populations and populates them with ZoneIndividuals.
 	 */
-	private void initPopulations(){
+	public void initPopulations(){
 		broadcastStatusUpdate("Initialising...");
 		
 		feasiblePool = new ArrayList<ZoneIndividual>();
@@ -357,7 +371,7 @@ public class Algorithm extends Thread {
 	/**
 	 * Evaluates the fitness of all ZoneIndividuals in pools and trims them down to the desired sizes
 	 */
-	private void evaluateAndTrimPools(){
+	protected void evaluateAndTrimPools(){
         //Evaluate valid ZoneIndividuals
         for(ZoneIndividual ind : feasiblePool)
         {
@@ -381,7 +395,7 @@ public class Algorithm extends Thread {
 	/**
 	 * Copy ZoneIndividuals from pools to populations for breeding etc.
 	 */
-	private void copyPoolsToPopulations(){
+	protected void copyPoolsToPopulations(){
 		feasiblePopulation.clear();
 		feasiblePool.forEach(ZoneIndividual -> feasiblePopulation.add(ZoneIndividual));
 		
@@ -400,7 +414,7 @@ public class Algorithm extends Thread {
 	 * @param ind The ZoneIndividual to check
 	 * @return Return true if ZoneIndividual is valid, otherwise return false
     */
-	private boolean checkZoneIndividual(ZoneIndividual ind){
+	protected boolean checkZoneIndividual(ZoneIndividual ind){
 		Room room = ind.getPhenotype().getMap(roomWidth, roomHeight, roomDoorPositions, roomEntrance);
 //		return room.isFeasible();
 		return room.isIntraFeasible();
@@ -605,7 +619,7 @@ public class Algorithm extends Thread {
      * @param newMap the newly created ZoneIndividual map
      * @param idealProcentSimilarity determines how much similar the two maps should be to be ideal.
      */
-	private double evaluateSimilarityFitnessValue(Room oldMap, Room newMap, double idealProcentSimilarity)
+	protected double evaluateSimilarityFitnessValue(Room oldMap, Room newMap, double idealProcentSimilarity)
     {
     	int[][] oldMatrix = oldMap.toMatrix();
     	int[][] newMatrix = newMap.toMatrix();
@@ -655,7 +669,7 @@ public class Algorithm extends Thread {
      *
      * @param Room the map that is evaluated
      */
-    private double evaluateSymmetryFitnessValue(Room room)
+    protected double evaluateSymmetryFitnessValue(Room room)
     {
     	int rowCounter = room.getRowCount();
     	int colCounter = room.getColCount();
@@ -797,7 +811,7 @@ public class Algorithm extends Thread {
      *  2. Crossover these ZoneIndividuals
      *  3. Add them back into the population
      */
-    private void breedFeasibleZoneIndividuals()
+    protected void breedFeasibleZoneIndividuals()
     {
         //Select parents for crossover
         List<ZoneIndividual> parents = tournamentSelection(feasiblePopulation);
@@ -813,7 +827,7 @@ public class Algorithm extends Thread {
      *  2. Crossover these ZoneIndividuals
      *  3. Add them back into the population
      */
-    private void breedInfeasibleZoneIndividuals()
+    protected void breedInfeasibleZoneIndividuals()
     {
         //Select parents for crossover
         List<ZoneIndividual> parents = tournamentSelection(infeasiblePopulation);
@@ -830,7 +844,7 @@ public class Algorithm extends Thread {
      * @param progenitors A List of ZoneIndividuals to be reproduced
      * @return A List of ZoneIndividuals
      */
-    private List<ZoneIndividual> crossOverBetweenProgenitors(List<ZoneIndividual> progenitors)
+    protected List<ZoneIndividual> crossOverBetweenProgenitors(List<ZoneIndividual> progenitors)
     {
         List<ZoneIndividual> sons = new ArrayList<ZoneIndividual>();
         int sizeProgenitors = progenitors.size();
@@ -859,7 +873,7 @@ public class Algorithm extends Thread {
      * @param population A whole population of ZoneIndividuals
      * @return A list of chosen progenitors
      */
-    private List<ZoneIndividual> tournamentSelection(List<ZoneIndividual> population)
+    protected List<ZoneIndividual> tournamentSelection(List<ZoneIndividual> population)
     { 
         List<ZoneIndividual> parents = new ArrayList<ZoneIndividual>();
         int numberOfParents = (int)(offspringSize * population.size()) / 2;
@@ -896,7 +910,7 @@ public class Algorithm extends Thread {
      * @param population
      * @return
      */
-    private List<ZoneIndividual> fitnessProportionateRouletteWheelSelection(List<ZoneIndividual> population){
+    protected List<ZoneIndividual> fitnessProportionateRouletteWheelSelection(List<ZoneIndividual> population){
     	sortPopulation(population, false);
     	
     	List<ZoneIndividual> parents = new ArrayList<ZoneIndividual>();
@@ -930,7 +944,7 @@ public class Algorithm extends Thread {
      * @param sons ZoneIndividuals to add
      * @param infeasible Are the ZoneIndividuals the offspring of infeasible parents?
      */
-    private void assignToPool(List<ZoneIndividual> sons, boolean infeasible)
+    protected void assignToPool(List<ZoneIndividual> sons, boolean infeasible)
     {
         for (ZoneIndividual son : sons)
         {
@@ -956,7 +970,7 @@ public class Algorithm extends Thread {
      * @param population A List of ZoneIndividuals to sort
      * @param ascending true for ascending order, false for descending
      */
-    private void sortPopulation(List<ZoneIndividual> population, boolean ascending)
+    protected void sortPopulation(List<ZoneIndividual> population, boolean ascending)
     {
         population.sort((x, y) -> (ascending ? 1 : -1) * Double.compare(x.getFitness(),y.getFitness()));
     }
@@ -968,7 +982,7 @@ public class Algorithm extends Thread {
      * @param saveBest Should the best ZoneIndividual be saved? True should only be used for the valid population
      * @return An array of doubles. Index 0 contain the average fitness. Index 1 contains the minimum fitness. Index 2 contains the maximum fitness.
      */
-	private double[] infoGenerational(List<ZoneIndividual> population, boolean saveBest) //default for saveBest was false
+	protected double[] infoGenerational(List<ZoneIndividual> population, boolean saveBest) //default for saveBest was false
     {
         //avg, min, max
         double[] data = new double[3];
@@ -1015,7 +1029,7 @@ public class Algorithm extends Thread {
 	 * 
 	 * @param valid A valid ZoneIndividual.
 	 */
-    private void addValidZoneIndividual(ZoneIndividual valid)
+    protected void addValidZoneIndividual(ZoneIndividual valid)
     {
         if (feasiblePopulation.size() < populationSize)
         {
@@ -1028,7 +1042,7 @@ public class Algorithm extends Thread {
 	 * 
 	 * @param invalid An invalid ZoneIndividual.
 	 */
-    private void addInvalidZoneIndividual(ZoneIndividual invalid)
+    protected void addInvalidZoneIndividual(ZoneIndividual invalid)
     {
         if (infeasiblePopulation.size() < populationSize)
         {
