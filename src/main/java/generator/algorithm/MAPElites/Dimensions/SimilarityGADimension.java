@@ -28,21 +28,24 @@ public class SimilarityGADimension extends GADimension
     	{
     		for(int j = 0; j < individualRoom.getRowCount(); ++j)
     		{
-    			switch (oldMatrix[i][j])
-    			{
-	    			case 1: // Just walls. Checking if both maps have a wall in the same place.
-	        			if(newMatrix[i][j] != 1)
-	        			{
-	        				similarTiles--;
-	        			}
-	        			break;
-        			default: // Every other floor tile. Checking if that there is no wall.
-        				if(newMatrix[i][j] == 1)
-	        			{
-	        				similarTiles--;
-	        			}
-        				break;
-    			}
+    			if(oldMatrix[j][i] != newMatrix[j][i])
+    				similarTiles--;
+    			
+//    			switch (oldMatrix[j][i])
+//    			{
+//	    			case 1: // Just walls. Checking if both maps have a wall in the same place.
+//	        			if(newMatrix[j][i] != 1)
+//	        			{
+//	        				similarTiles--;
+//	        			}
+//	        			break;
+//        			default: // Every other floor tile. Checking if that there is no wall.
+//        				if(newMatrix[j][i] == 1)
+//	        			{
+//	        				similarTiles--;
+//	        			}
+//        				break;
+//    			}
     		}
     	}
     	double procentSimilar = similarTiles / totalTiles;

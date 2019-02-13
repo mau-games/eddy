@@ -66,6 +66,7 @@ import util.eventrouting.EventRouter;
 import util.eventrouting.Listener;
 import util.eventrouting.PCGEvent;
 import util.eventrouting.events.ApplySuggestion;
+import util.eventrouting.events.MAPElitesDone;
 import util.eventrouting.events.MapUpdate;
 import util.eventrouting.events.RequestAppliedMap;
 import util.eventrouting.events.RequestRoomView;
@@ -171,7 +172,7 @@ public class RoomViewController extends BorderPane implements Listener
 	
 	int mapWidth;
 	int mapHeight;
-	private int suggestionAmount = 10; //TODO: Probably this value should be from the application config!!
+	private int suggestionAmount = 101; //TODO: Probably this value should be from the application config!!
 
 	/**
 	 * Creates an instance of this class.
@@ -192,6 +193,7 @@ public class RoomViewController extends BorderPane implements Listener
 			logger.error("Couldn't read config file.");
 		}
 
+		router.registerListener(this, new MAPElitesDone());
 		router.registerListener(this, new MapUpdate(null));
 		router.registerListener(this, new ApplySuggestion(0));
 		router.registerListener(this, new SuggestedMapsDone());
@@ -435,7 +437,53 @@ public class RoomViewController extends BorderPane implements Listener
 
 	@Override
 	public void ping(PCGEvent e) {
-		if (e instanceof MapUpdate) {
+		if(e instanceof MAPElitesDone)
+		{
+			if (isActive) {
+				
+				List<Room> generatedRooms = ((MAPElitesDone) e).GetRooms();
+//				Room room = (Room) ((MapUpdate) e).getPayload();
+//				UUID uuid = ((MapUpdate) e).getID();
+				LabeledCanvas canvas;
+				synchronized (roomDisplays) {
+					
+					for(Room room : generatedRooms)
+					{
+						if(room == null)
+						{
+							nextRoom++;
+							roomDisplays.get(nextRoom).setSuggestedRoom(null);
+							continue;
+							
+						}
+							
+						
+						roomDisplays.get(nextRoom).setSuggestedRoom(room);
+						roomDisplays.get(nextRoom).setOriginalRoom(getMapView().getMap()); //Maybe this does not make sense? Idk
+						
+						canvas = roomDisplays.get(nextRoom).getRoomCanvas();
+						canvas.setText("");
+						
+						suggestedRooms.put(nextRoom, room);
+						nextRoom++;
+					}
+				}
+				
+				Platform.runLater(() -> {
+					for(SuggestionRoom sugRoom : roomDisplays)
+					{
+						if(sugRoom.getSuggestedRoom() != null)
+						{
+							sugRoom.getRoomCanvas().draw(renderer.renderMiniSuggestedRoom(sugRoom.getSuggestedRoom()));
+						}		
+					}
+
+//					System.out.println("CANVAS WIDTH: " + canvas.getWidth() + ", CANVAS HEIGHT: " + canvas.getHeight());
+				});
+				
+			}
+		}
+		else if (e instanceof MapUpdate) {
 
 			if (isActive) {
 				//System.out.println(nextMap);

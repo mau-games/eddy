@@ -11,13 +11,17 @@ import game.Room;
 import generator.algorithm.Algorithm;
 import generator.algorithm.ZoneIndividual;
 import generator.algorithm.MAPElites.Dimensions.GADimension;
+import generator.algorithm.MAPElites.Dimensions.NPatternGADimension;
 import generator.algorithm.MAPElites.Dimensions.SimilarityGADimension;
 import generator.algorithm.MAPElites.Dimensions.SymmetryGADimension;
+import generator.algorithm.MAPElites.Dimensions.GADimension.DimensionTypes;
 import generator.algorithm.Algorithm.AlgorithmTypes;
 import generator.config.GeneratorConfig;
 import util.eventrouting.EventRouter;
 import util.eventrouting.events.AlgorithmDone;
 import util.eventrouting.events.AlgorithmStarted;
+import util.eventrouting.events.MAPElitesDone;
+import util.eventrouting.events.MapUpdate;
 
 public class MAPEliteAlgorithm extends Algorithm {
 	
@@ -80,12 +84,12 @@ public class MAPEliteAlgorithm extends Algorithm {
 		MAPElitesDimensions = new ArrayList<GADimension>();
 		
 		//Add manually two dimensions
-		MAPElitesDimensions.add(new SymmetryGADimension(3.0f));
-		MAPElitesDimensions.add(new SimilarityGADimension(3.0f));
+		MAPElitesDimensions.add(new SimilarityGADimension(5.0f));
+		MAPElitesDimensions.add(new NPatternGADimension(5.0f));
 
 		//Initialize all the cells!
 		this.cells = new ArrayList<GACell>();
-		CreateCells(0, MAPElitesDimensions.size(), new int[] {3, 3}, new int[] {0, 0}); //the two last values should be 
+		CreateCells(0, MAPElitesDimensions.size(), new int[] {5, 5}, new int[] {0, 0}); //the two last values should be 
 		cellAmounts = this.cells.size();
 		
 		int i = 0;
@@ -223,24 +227,29 @@ public class MAPEliteAlgorithm extends Algorithm {
         // 6- after generations 
         // 	6.1 - Replace: Eliminate low performing individual from cells that are above or at capacity
 
-        for(int generationCount = 1; generationCount <= 20; generationCount++) {
+        for(int generationCount = 1; generationCount <= generations; generationCount++) {
         	if(stop)
         		return;
         	
-        	for(int iteration = 0; iteration < 2; iteration++)
+        	for(int iteration = 0; iteration < 5; iteration++)
         	{
         		ArrayList<ZoneIndividual> parents = new ArrayList<ZoneIndividual>();
         		List<ZoneIndividual> children = new ArrayList<ZoneIndividual>();
         		
         		//This could actually be looped to select parents from different cells (according to TALAKAT)
         		GACell current = SelectCell(true);
-        		parents.addAll(tournamentSelection(current.GetFeasiblePopulation()));
         		
-        		//Breed!
-        		children.addAll(crossOverBetweenProgenitors(parents));
+        		if(current != null)
+        		{
+        			parents.addAll(tournamentSelection(current.GetFeasiblePopulation()));
+            		
+            		//Breed!
+            		children.addAll(crossOverBetweenProgenitors(parents));
+            		
+            		//Evaluate and assign to correct Cell
+            		CheckAndAssignToCell(children, false);
+        		}
         		
-        		//Evaluate and assign to correct Cell
-        		CheckAndAssignToCell(children, false);
         		
         		
         		////////////////////// NOW WE DO IT FOR THE INFEASIBLES! ///////////////////////
@@ -250,13 +259,18 @@ public class MAPEliteAlgorithm extends Algorithm {
         		
         		//This could actually be looped to select parents from different cells (according to TALAKAT)
         		current = SelectCell(false);
-        		parents.addAll(tournamentSelection(current.GetInfeasiblePopulation()));
         		
-        		//Breed!
-        		children.addAll(crossOverBetweenProgenitors(parents));
+        		if(current != null)
+        		{
+        			parents.addAll(tournamentSelection(current.GetInfeasiblePopulation()));
+            		
+            		//Breed!
+            		children.addAll(crossOverBetweenProgenitors(parents));
+            		
+            		//Evaluate and assign to correct Cell
+            		CheckAndAssignToCell(children, true);
+        		}
         		
-        		//Evaluate and assign to correct Cell
-        		CheckAndAssignToCell(children, true);
         	}
         	
         	//Now we sort both populations in a given cell and cut through capacity!!!
@@ -265,10 +279,19 @@ public class MAPEliteAlgorithm extends Algorithm {
 				cell.SortPopulations(false);
 				cell.ApplyElitism();
 			}
-
         }
 
-        broadcastMapUpdate(room);
+        broadcastResultedRooms();
+        for(GACell cell : cells)
+		{
+        	if(!cell.GetFeasiblePopulation().isEmpty())
+        	{
+        		room = cell.GetFeasiblePopulation().get(0).getPhenotype().getMap(-1, -1, null, null);
+        		break;
+        	}
+		}
+        
+        
         PatternFinder finder = room.getPatternFinder();
 		MapContainer result = new MapContainer();
 		result.setMap(room);
@@ -278,6 +301,37 @@ public class MAPEliteAlgorithm extends Algorithm {
         AlgorithmDone ev = new AlgorithmDone(result, this);
         ev.setID(id);
         EventRouter.getInstance().postEvent(ev);
+	}
+	
+	public void broadcastResultedRooms()
+	{
+		MAPElitesDone ev = new MAPElitesDone();
+        ev.setID(id);
+        int cellIndex = 0;
+        for(GACell cell : cells)
+		{
+        	System.out.println("CELL = " + cellIndex);
+        	System.out.println("SYMMETRY: " + cell.GetDimensionValue(DimensionTypes.SIMILARITY) + ", PAT: " + cell.GetDimensionValue(DimensionTypes.NUMBER_PATTERNS));
+        	
+        	if(cell.GetFeasiblePopulation().isEmpty())
+        	{
+        		ev.addRoom(null);
+        		System.out.println("NO FIT ROOM!");
+        	}
+        	else
+        	{
+        		ev.addRoom(cell.GetFeasiblePopulation().get(0).getPhenotype().getMap(-1, -1, null, null));
+        		
+        		System.out.println("FIT ROOM Fitness: " + cell.GetFeasiblePopulation().get(0).getFitness() + 
+        							", symmetry: " + cell.GetFeasiblePopulation().get(0).getDimensionValue(DimensionTypes.SIMILARITY) +
+        							", pat: " + cell.GetFeasiblePopulation().get(0).getDimensionValue(DimensionTypes.NUMBER_PATTERNS));
+        	}	
+        	
+        	System.out.println("------------------");
+        	cellIndex++;
+		}
+        
+		EventRouter.getInstance().postEvent(ev);
 	}
 	
 	protected void CheckAndAssignToCell(List<ZoneIndividual> individuals, boolean infeasible)
@@ -321,19 +375,37 @@ public class MAPEliteAlgorithm extends Algorithm {
 	{
 		GACell selected = null;
 		
-		while(selected == null)
+		List<GACell> cellsWithPop = new ArrayList<GACell>();
+		
+		for(GACell cell : cells)
 		{
-			selected = cells.get(rnd.nextInt(cells.size()));
-			
-			if(feasible && selected.GetFeasiblePopulation().isEmpty())
+			if(feasible && !cell.GetFeasiblePopulation().isEmpty())
 			{
-				selected = null;
+				cellsWithPop.add(cell);
 			}
-			else if(!feasible && selected.GetInfeasiblePopulation().isEmpty())
+			else if(!feasible && !cell.GetInfeasiblePopulation().isEmpty())
 			{
-				selected =null;
+				cellsWithPop.add(cell);
 			}
 		}
+		
+		if(cellsWithPop.isEmpty()) return null;
+		
+		selected = cellsWithPop.get(rnd.nextInt(cellsWithPop.size()));
+		
+//		while(selected == null)
+//		{
+//			selected = cells.get(rnd.nextInt(cells.size()));
+//			
+//			if(feasible && selected.GetFeasiblePopulation().isEmpty())
+//			{
+//				selected = null;
+//			}
+//			else if(!feasible && selected.GetInfeasiblePopulation().isEmpty())
+//			{
+//				selected =null;
+//			}
+//		}
 		
 		return selected;
 	}

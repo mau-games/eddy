@@ -50,6 +50,11 @@ public class GACell
 		best = null;
 	}
 	
+	public double GetDimensionValue(DimensionTypes dimension)
+	{
+		return cellDimensions.get(dimension);
+	}
+	
 	/**
 	 * Test if the Individual belongs to this cell! 
 	 * @param individual
