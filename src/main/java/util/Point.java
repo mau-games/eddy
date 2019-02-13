@@ -1,12 +1,17 @@
 package util;
 
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlRootElement;
+
 /**
  * This class represents a basic point in a map.
  * 
  * @author Alexander Baldwin, Malmö University
  */
+@XmlRootElement
 public class Point {
 
+	
 	private int x;
 	private int y;
 	
@@ -21,10 +26,12 @@ public class Point {
 		this.y = y;
 	}
 	
+	@XmlElement
 	public int getX(){
 		return x;
 	}
 	
+	@XmlElement
 	public int getY(){
 		return y;
 	}

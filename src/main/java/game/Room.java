@@ -16,6 +16,9 @@ import java.util.Queue;
 
 import javax.swing.text.Position;
 import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlRootElement;
+
+import export.models.RoomModel;
 
 import java.util.Map.Entry;
 
@@ -49,6 +52,7 @@ import generator.config.GeneratorConfig;
  * @author Chelsi Nolasco, Malmö University
  * @author Axel Österman, Malmö University
  */
+
 public class Room {
 	
 ////////////////////////////NEW/////////////////////////////////
@@ -75,7 +79,6 @@ public class Room {
 	private int wallCount;	// The number of wall tiles in a map
 	private List<Point> doors = new ArrayList<Point>();
 	private List<Point> treasures = new ArrayList<Point>();
-	@XmlElement
 	private List<Point> enemies = new ArrayList<Point>();
 	//private Graph<SpacialPattern> graph = new Graph<SpacialPattern>();
 	private PatternFinder finder;
@@ -209,6 +212,11 @@ public class Room {
 //		this.localConfig = new RoomConfig(this, 40); //TODO: NEW ADDITION --> HAVE TO BE ADDED EVERYWHERE
 		
 		CloneMap(rootCopy.GetMap(), chromosomes);
+	}
+	
+	public RoomModel getModel()
+	{
+		return new RoomModel(this);
 	}
 	
 	private void CloneMap(Room room, int[] chromosomes) //FROM THE PREVIOUS CONSTRUCTOR

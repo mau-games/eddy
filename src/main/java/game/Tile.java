@@ -1,27 +1,67 @@
 package game;
 
-import finder.geometry.Point;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlRootElement;
 
+//import finder.geometry.Point;
+import util.Point;
+
+@XmlRootElement
 public class Tile
 {
 	private TileTypes m_type;
 	private Point position;
 	private boolean m_immutable;
+	
+	@XmlElement
+	public TileTypes getM_type() {
+		return m_type;
+	}
+
+
+	public void setM_type(TileTypes m_type) {
+		this.m_type = m_type;
+	}
+
+	@XmlElement
+	public Point getPosition() {
+		return position;
+	}
+
+
+	public void setPosition(Point position) {
+		this.position = position;
+	}
+
+	@XmlElement
+	public boolean isM_immutable() {
+		return m_immutable;
+	}
+
+	public void setM_immutable(boolean m_immutable) {
+		this.m_immutable = m_immutable;
+	}
+
+	
+
 
 	public TileTypes GetType()
 	{
 		return m_type;
 	}
 	
+	
 	public void SetType(TileTypes type)
 	{
 		m_type = type;
 	}
 	
+	
 	public Point GetPosition()
 	{
 		return position;
 	}
+	
 	
 	public boolean GetImmutable()
 	{
@@ -32,6 +72,8 @@ public class Tile
 	{
 		m_immutable = value;
 	}
+	
+	public Tile() {}
 	
 	public Tile(Point p, TileTypes type)
 	{

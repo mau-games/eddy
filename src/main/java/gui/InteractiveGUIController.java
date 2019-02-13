@@ -10,6 +10,8 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ResourceBundle;
 import javax.imageio.ImageIO;
+import javax.xml.bind.JAXBException;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -317,15 +319,15 @@ public class InteractiveGUIController implements Initializable, Listener {
 		
 		if (selectedFile != null) {
 			logger.debug("Writing map to " + selectedFile.getPath());
-			//try {
-				//Files.write(selectedFile.toPath(), matrixToString().getBytes());
 			
-			
-				MapExporterService.SaveDungeonToXML(selectedFile.getPath(), dungeonMap.getPoco());
-			//} catch (IOException e) {
-				//logger.error("Couldn't write map to " + selectedFile +
-				//		":\n" + e.getMessage());
-			//}
+			try {
+				MapExporterService.SerializeDungeonToXML(selectedFile.getPath(), dungeonMap.getModel());
+			} catch (JAXBException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+				logger.error("Couldn't write map to " + selectedFile +
+						":\n" + e.getMessage());
+			}
 		}
 		
 		

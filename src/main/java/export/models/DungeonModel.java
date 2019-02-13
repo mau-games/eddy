@@ -3,36 +3,38 @@ package export.models;
 import java.util.ArrayList;
 
 import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlRootElement;
 
+import game.Dungeon;
 import game.Room;
 import util.Point;
 
+@XmlRootElement
 public class DungeonModel {
 
-	@XmlElement
-	ArrayList<Room> rooms;
-	@XmlElement
-	Room initialRoom;
-	@XmlElement
+	ArrayList<RoomModel> rooms;
+	RoomModel initialRoom;
 	Point initialPos;
 	
 	public DungeonModel(){}
 	
-	public DungeonModel(ArrayList<Room> rooms, Room initialRoom, Point initialPos)
+	public DungeonModel(Dungeon dungeon)
 	{
-		this.rooms = rooms;
-		this.initialRoom = initialRoom;
-		this.initialPos = initialPos;
+		rooms = dungeon.getRoomModels();
+		this.initialRoom = dungeon.getInitialRoom().getModel();
+		this.initialPos = dungeon.getInitialPosition();
 	}
 
-	public Room getInitialRoom() {
+	@XmlElement
+	public RoomModel getInitialRoom() {
 		return initialRoom;
 	}
 
-	public void setInitialRoom(Room initialRoom) {
+	public void setInitialRoom(RoomModel initialRoom) {
 		this.initialRoom = initialRoom;
 	}
 
+	@XmlElement
 	public Point getInitialPos() {
 		return initialPos;
 	}
@@ -41,11 +43,12 @@ public class DungeonModel {
 		this.initialPos = initialPos;
 	}
 	
-	public ArrayList<Room> getRooms() {
+	@XmlElement
+	public ArrayList<RoomModel> getRooms() {
 		return rooms;
 	}
 
-	public void setRooms(ArrayList<Room> rooms) {
+	public void setRooms(ArrayList<RoomModel> rooms) {
 		this.rooms = rooms;
 	}
 	

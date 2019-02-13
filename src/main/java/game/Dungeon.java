@@ -14,6 +14,7 @@ import com.google.common.graph.MutableNetwork;
 import com.google.common.graph.NetworkBuilder;
 
 import export.models.DungeonModel;
+import export.models.RoomModel;
 import generator.config.GeneratorConfig;
 import util.Point;
 import util.eventrouting.EventRouter;
@@ -250,9 +251,19 @@ public class Dungeon implements Listener
 	
 	public ArrayList<Room> getAllRooms() { return rooms; }
 	
-	public DungeonModel getPoco()
+	public DungeonModel getModel()
 	{
-		return new DungeonModel(rooms, initialRoom, initialPos);
+		return new DungeonModel(this);
+	}
+	
+	public ArrayList<RoomModel> getRoomModels()
+	{
+		ArrayList<RoomModel> roomModels = new ArrayList<RoomModel>(rooms.size());
+		for(int i = 0; i < rooms.size(); i++)
+		{
+			roomModels.add(rooms.get(i).getModel());
+		}
+		return roomModels;
 	}
 	
 	

@@ -1,43 +1,23 @@
 package export;
 
-import java.io.Console;
+
 import java.io.File;
-import java.io.IOException;
-import java.util.ArrayList;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.JAXBException;
+import javax.xml.bind.Marshaller;
 import export.models.DungeonModel;
-import game.Room;
 
-
-import java.beans.XMLEncoder;
-
-import java.io.FileOutputStream;
 
 public final class MapExporterService {
 	
 	private MapExporterService() {};
 	
-	
-	public static void SaveDungeonToXML(String fileDestination, DungeonModel dungeonPOCO)
+	public static void SerializeDungeonToXML (String fileDestination, DungeonModel d) throws JAXBException
 	{
-		try {
-			//logger.debug("Writing map to " + selectedFile.getPath());
-			System.out.print("Saving to " + fileDestination);
-			FileOutputStream fos = new FileOutputStream(new File(fileDestination));
-			XMLEncoder encoder = new XMLEncoder(fos);
-			encoder.writeObject(dungeonPOCO);
-			encoder.close();
-			fos.close();
-		} catch (IOException e) {
-			//logger.error("Couldn't write map to " + selectedFile +
-					//":\n" + e.getMessage());
-			System.out.print(e);
-		}
+		Marshaller marshaller = (JAXBContext.newInstance(new Class[] {DungeonModel.class})).createMarshaller();
+		marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT ,true);
+		marshaller.marshal(d, new File(fileDestination));
 	}
-	
-	
 	
 }
 
