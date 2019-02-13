@@ -12,7 +12,6 @@ public class RoomModel {
 	private double entranceSafety;
 	private Tile[] tiles;
 	
-	
 	public RoomModel() {};
 	
 	public RoomModel(Room room)
