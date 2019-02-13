@@ -1,6 +1,11 @@
 package game;
 
 import java.util.ArrayList;
+
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlRootElement;
 import java.util.Collections;
 import java.util.Set;
 import java.util.Stack;
@@ -8,6 +13,7 @@ import java.util.Stack;
 import com.google.common.graph.MutableNetwork;
 import com.google.common.graph.NetworkBuilder;
 
+import export.models.DungeonModel;
 import generator.config.GeneratorConfig;
 import util.Point;
 import util.eventrouting.EventRouter;
@@ -26,6 +32,8 @@ import util.eventrouting.events.RequestRoomView;
  * @author Alberto Alvarez, Malmö University
  *
  */
+@XmlAccessorType(XmlAccessType.FIELD)
+@XmlRootElement
 public class Dungeon implements Listener
 {	
 	public DungeonPane dPane;
@@ -37,8 +45,11 @@ public class Dungeon implements Listener
 	
 	public MutableNetwork<Room, RoomEdge> network; //TODO: Public for now
 	
+	@XmlElement
 	ArrayList<Room> rooms;
+	@XmlElement
 	Room initialRoom;
+	@XmlElement
 	Point initialPos;
 	Room currentEditedRoom;
 	Room selectedRoom;
@@ -238,6 +249,11 @@ public class Dungeon implements Listener
 	}
 	
 	public ArrayList<Room> getAllRooms() { return rooms; }
+	
+	public DungeonModel getPoco()
+	{
+		return new DungeonModel(rooms, initialRoom, initialPos);
+	}
 	
 	
 	/**

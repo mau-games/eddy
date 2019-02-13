@@ -12,6 +12,8 @@ import java.util.ResourceBundle;
 import javax.imageio.ImageIO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import export.MapExporterService;
 import finder.PatternFinder;
 import game.ApplicationConfig;
 import game.Dungeon;
@@ -155,7 +157,7 @@ public class InteractiveGUIController implements Initializable, Listener {
 		roomView = new RoomViewController();
 		worldView = new WorldViewController();
 		launchView = new LaunchViewController();
-
+		
 		mainPane.sceneProperty().addListener((observableScene, oldScene, newScene) -> {
 			if (newScene != null) {
 				stage = (Stage) newScene.getWindow();
@@ -302,23 +304,34 @@ public class InteractiveGUIController implements Initializable, Listener {
 				DateTimeFormatter.ofPattern("yyyy-MM-dd_HH-mm-s-n");
 		String name = "map_" +
 				LocalDateTime.now().format(format) + ".map";
-
+		
 		FileChooser fileChooser = new FileChooser();
 		fileChooser.setTitle("Save Map");
 		fileChooser.setInitialFileName(name);
 		fileChooser.getExtensionFilters().addAll(
 				new ExtensionFilter("Map Files", "*.map"),
 				new ExtensionFilter("All Files", "*.*"));
+		
+
 		File selectedFile = fileChooser.showSaveDialog(stage);
+		
 		if (selectedFile != null) {
 			logger.debug("Writing map to " + selectedFile.getPath());
-			try {
-				Files.write(selectedFile.toPath(), matrixToString().getBytes());
-			} catch (IOException e) {
-				logger.error("Couldn't write map to " + selectedFile +
-						":\n" + e.getMessage());
-			}
+			//try {
+				//Files.write(selectedFile.toPath(), matrixToString().getBytes());
+			
+			
+				MapExporterService.SaveDungeonToXML(selectedFile.getPath(), dungeonMap.getPoco());
+			//} catch (IOException e) {
+				//logger.error("Couldn't write map to " + selectedFile +
+				//		":\n" + e.getMessage());
+			//}
 		}
+		
+		
+		
+		
+		
 	}
 
 	public void exportImage() {

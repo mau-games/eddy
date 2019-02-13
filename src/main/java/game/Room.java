@@ -15,6 +15,7 @@ import java.util.List;
 import java.util.Queue;
 
 import javax.swing.text.Position;
+import javax.xml.bind.annotation.XmlElement;
 
 import java.util.Map.Entry;
 
@@ -74,6 +75,7 @@ public class Room {
 	private int wallCount;	// The number of wall tiles in a map
 	private List<Point> doors = new ArrayList<Point>();
 	private List<Point> treasures = new ArrayList<Point>();
+	@XmlElement
 	private List<Point> enemies = new ArrayList<Point>();
 	//private Graph<SpacialPattern> graph = new Graph<SpacialPattern>();
 	private PatternFinder finder;
