@@ -9,7 +9,7 @@ import game.Dungeon;
 import game.Room;
 import util.Point;
 
-@XmlRootElement
+@XmlRootElement(name="DungeonModel")
 public class DungeonModel {
 
 	ArrayList<RoomModel> rooms;
@@ -25,7 +25,7 @@ public class DungeonModel {
 		this.initialPos = dungeon.getInitialPosition();
 	}
 
-	@XmlElement
+	@XmlElement(name="InitialRoom")
 	public RoomModel getInitialRoom() {
 		return initialRoom;
 	}
@@ -34,7 +34,7 @@ public class DungeonModel {
 		this.initialRoom = initialRoom;
 	}
 
-	@XmlElement
+	@XmlElement(name="InitialPos")
 	public Point getInitialPos() {
 		return initialPos;
 	}
@@ -43,7 +43,7 @@ public class DungeonModel {
 		this.initialPos = initialPos;
 	}
 	
-	@XmlElement
+	@XmlElement(name="Rooms")
 	public ArrayList<RoomModel> getRooms() {
 		return rooms;
 	}

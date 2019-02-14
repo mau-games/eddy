@@ -6,7 +6,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 import game.Room;
 import game.Tile;
 
-@XmlRootElement
+@XmlRootElement(name="RoomModel")
 public class RoomModel {
 
 	private double entranceSafety;
@@ -20,7 +20,7 @@ public class RoomModel {
 		entranceSafety = room.getEntranceSafety();
 	}
 	
-	@XmlElement
+	@XmlElement(name="Tiles")
 	public Tile[] getTiles() {
 		return tiles;
 	}
@@ -29,7 +29,7 @@ public class RoomModel {
 		this.tiles = tile;
 	}
 	
-	@XmlElement
+	@XmlElement(name="EntranceSafety")
 	public double getEntranceSafety() {
 		return entranceSafety;
 	}

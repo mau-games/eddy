@@ -6,14 +6,14 @@ import javax.xml.bind.annotation.XmlRootElement;
 //import finder.geometry.Point;
 import util.Point;
 
-@XmlRootElement
+@XmlRootElement(name="Tile")
 public class Tile
 {
 	private TileTypes m_type;
 	private Point position;
 	private boolean m_immutable;
 	
-	@XmlElement
+	@XmlElement(name="Type")
 	public TileTypes getM_type() {
 		return m_type;
 	}
@@ -23,7 +23,7 @@ public class Tile
 		this.m_type = m_type;
 	}
 
-	@XmlElement
+	@XmlElement(name="Position")
 	public Point getPosition() {
 		return position;
 	}
@@ -33,7 +33,7 @@ public class Tile
 		this.position = position;
 	}
 
-	@XmlElement
+	@XmlElement(name="Immutable")
 	public boolean isM_immutable() {
 		return m_immutable;
 	}
