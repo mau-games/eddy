@@ -22,7 +22,7 @@
 	
 }
 
-#suggestionsPane, #suggestionsPane . viewport{
+#suggestionsPane, #suggestionsPane . viewport, #MAPElitesPane, #MAPElitesPane . viewport{
 	-fx-background-color: transparent;
 }
 
@@ -95,4 +95,98 @@
 	-fx-pref-width: 80;
 }
 
+.dimensionLabel {
+	-fx-font-weight: bold;
+	-fx-text-fill: white;
+	-fx-font: 30px "Arial";
+	
+}
 
+.tab-pane *.tab-header-area *.tab-header-background {
+  -fx-background-color:transparent;
+}
+
+.tab-pane{
+	 -fx-background-color: transparent;
+}
+
+
+#MainTable{
+	-fx-background-color: rgba(0,0,0,.2);
+}
+
+.table-view{
+   -fx-background-color: transparent;
+   -fx-border-color: transparent;
+}
+
+.table-view:focused{
+     -fx-background-color: rgba(0,0,0,.2);
+    -fx-background-opacity: 0.2;
+}
+
+.table-view .table-column{
+	-fx-alignment: CENTER;
+}
+
+.table-view .column-header-background{
+    -fx-background-color: transparent;
+}
+
+.table-view .column-header-background .label{
+    -fx-background-color: transparent;
+    -fx-text-fill: white;
+}
+
+.table-view .column-header {
+    -fx-background-color: transparent;
+    -fx-border-color: #ffffff;
+}
+
+.table-view .text-field-table-cell .text-field {
+   -fx-padding: 1;
+    -fx-text-fill: white;
+    -fx-font-weight: bold; 
+}
+
+.table-view .table-cell{
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-text-alignment: center;
+}
+
+.table-row-cell:empty {
+    -fx-background-color: transparent;
+    -fx-table-cell-border-color: transparent;
+}
+
+.table-row-cell:even:filled{
+    -fx-background-color: transparent;
+    -fx-background-insets: 0, 0 0 1 0;
+    -fx-padding: 0.0em; /* 0 */
+    -fx-table-cell-border-color: transparent;
+}
+
+.table-row-cell:odd:filled{
+    -fx-background-color: rgba(232,232,232,.1);
+     -fx-background-opacity: 0.2;
+    -fx-background-insets: 0, 0 0 1 0;
+    -fx-padding: 0.0em; /* 0 */  
+    -fx-table-cell-border-color: transparent;
+}
+
+.table-row-cell:selected {
+    -fx-border-width: 2px; 
+    -fx-border-color: #00ff00;
+}
+
+.table-view .scroll-bar:horizontal .increment-arrow,
+.table-view .scroll-bar:horizontal .decrement-arrow,
+.table-view .scroll-bar:horizontal .increment-button,
+.table-view .scroll-bar:horizontal .decrement-button {
+     -fx-background-color: null;
+     -fx-background-radius: 0;
+    -fx-background-insets: 0;
+    -fx-padding: 0;
+    -fx-shape: null;
+}

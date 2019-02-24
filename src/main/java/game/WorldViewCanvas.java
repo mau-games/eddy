@@ -58,7 +58,7 @@ public class WorldViewCanvas
 		worldGraphicNode.setOnDragDetected(new EventHandler<MouseEvent>() 
 		{
             @Override
-            public void handle(MouseEvent event) 
+            public void handle(MouseEvent event) //TODO: THERE ARE SOME ERRORS FROM THIS POINT!!
             {
             	worldGraphicNode.startFullDrag();
             }

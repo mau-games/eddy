@@ -6,6 +6,7 @@ import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 import org.slf4j.Logger;
@@ -20,46 +21,76 @@ import game.Room;
 import game.MapContainer;
 import game.TileTypes;
 import generator.algorithm.Algorithm.AlgorithmTypes;
+import generator.algorithm.MAPElites.Dimensions.GADimension.DimensionTypes;
+import generator.algorithm.MAPElites.Dimensions.MAPEDimensionFXML;
 import game.Game.MapMutationType;
 import gui.controls.Drawer;
 import gui.controls.InteractiveMap;
 import gui.controls.LabeledCanvas;
+import gui.controls.MAPEVisualizationPane;
 import gui.controls.Modifier;
 import gui.controls.SuggestionRoom;
 import gui.utils.MapRenderer;
 import gui.views.RoomViewController.EditViewEventHandler;
 import gui.views.RoomViewController.EditViewMouseHover;
 import javafx.application.Platform;
+import javafx.beans.Observable;
+import javafx.beans.property.SimpleDoubleProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
+import javafx.collections.FXCollections;
+import javafx.collections.ListChangeListener.Change;
+import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
+import javafx.geometry.HPos;
 import javafx.geometry.Insets;
+import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
 import javafx.scene.Cursor;
+import javafx.scene.Group;
 import javafx.scene.Node;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
+import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
+import javafx.scene.control.ScrollBar;
 import javafx.scene.control.Slider;
+import javafx.scene.control.Tab;
+import javafx.scene.control.TabPane;
+import javafx.scene.control.TableColumn;
+import javafx.scene.control.TableColumn.CellDataFeatures;
+import javafx.scene.control.TableRow;
+import javafx.scene.control.TableView;
 import javafx.scene.control.ToggleButton;
 import javafx.scene.control.ToggleGroup;
 import javafx.scene.control.Tooltip;
+import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.input.ClipboardContent;
+import javafx.scene.input.DataFormat;
+import javafx.scene.input.Dragboard;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.input.TransferMode;
+import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
+import javafx.scene.layout.VBox;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.ScrollPane.ScrollBarPolicy;
 import javafx.scene.paint.Color;
+import javafx.scene.text.Font;
+import javafx.util.Callback;
+import javafx.util.converter.DoubleStringConverter;
+import javafx.util.converter.IntegerStringConverter;
 import util.config.ConfigurationUtility;
 import util.config.MissingConfigurationException;
 import util.eventrouting.EventRouter;
@@ -89,6 +120,8 @@ import game.DungeonPane;
 public class RoomViewController extends BorderPane implements Listener 
 {
 
+	@FXML private ComboBox<String> DisplayCombo;
+	
 	@FXML public StackPane mapPane;
 	@FXML public Pane minimap;
 
@@ -96,7 +129,14 @@ public class RoomViewController extends BorderPane implements Listener
 	@FXML private GridPane legend;
 	@FXML private ToggleGroup brushes;
 	
+	
+	@FXML private TableView MainTable;
+	@FXML private TableView secondaryTable;
+	
 	//Suggestions
+//	@FXML private GridPane suggestionsPane;
+	@FXML private TabPane allSuggestionsPane;
+	@FXML private MAPEVisualizationPane MAPElitesPane;
 	@FXML private ScrollPane suggestionsPane;
 	@FXML private HBox suggestionsBox;
 	private ArrayList<SuggestionRoom> roomDisplays;
@@ -128,7 +168,6 @@ public class RoomViewController extends BorderPane implements Listener
 	@FXML private Label treasureSafety;
 	@FXML private Label treasureSafety2;
 
-	@FXML private Button updateMiniMapBtn; //no
 	@FXML private Button worldGridBtn; //ok
 	@FXML private Button genSuggestionsBtn; //bra
 	@FXML private Button appSuggestionsBtn; //bra
@@ -174,9 +213,13 @@ public class RoomViewController extends BorderPane implements Listener
 	int mapHeight;
 	private int suggestionAmount = 101; //TODO: Probably this value should be from the application config!!
 
+
+
+	
 	/**
 	 * Creates an instance of this class.
 	 */
+	@SuppressWarnings("unchecked")
 	public RoomViewController() {
 		super();
 		FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource(
@@ -208,15 +251,331 @@ public class RoomViewController extends BorderPane implements Listener
 		
 		
 		init();
-
-		suggestionsPane.setPrefWidth(50);
+		
 		roomDisplays = new ArrayList<SuggestionRoom>();
+		
+		//SET FOR THE BASIC EVO 
+//		suggestionsPane.setPrefWidth(50);
+		suggestionsPane.setMinWidth(50);
+		suggestionsPane.setMaxWidth(599); //This really have to be fixed
+		
+		System.out.println(this.getWidth() / 4.0);
+		suggestionsPane.setMinHeight(150);
+		suggestionsPane.setMaxHeight(750);
 		
 		for(int i = 0; i < suggestionAmount; i++) 
 		{
 			SuggestionRoom suggestion = new SuggestionRoom();
 			roomDisplays.add(suggestion);
 			suggestionsBox.getChildren().add(suggestion.getRoomCanvas());
+		}
+			
+//		suggestionsPane.setVisible(false);
+		
+		MAPElitesPane.init(roomDisplays, "","",0,0);
+		
+		secondaryTable.setPrefWidth(200);
+//		secondaryTable.setPrefHeight(200);
+		secondaryTable.setMinHeight(10);
+		secondaryTable.setMaxHeight(150);
+		secondaryTable.setEditable(true);
+		
+		TableColumn<Void, Void> col1 = (TableColumn<Void, Void>)secondaryTable.getColumns().get(0);
+		TableColumn<MAPEDimensionFXML, Integer> col2 = (TableColumn<MAPEDimensionFXML, Integer>)secondaryTable.getColumns().get(1);
+		
+		col1.prefWidthProperty().bind(secondaryTable.widthProperty().multiply(0.75));
+        col2.prefWidthProperty().bind(secondaryTable.widthProperty().multiply(0.23));
+
+        col1.setResizable(false);
+        col2.setResizable(false);
+        
+        for(DimensionTypes dimension : DimensionTypes.values())
+        {
+        	if(dimension != DimensionTypes.SIMILARITY && dimension != DimensionTypes.SYMMETRY)
+        	{
+        		secondaryTable.getItems().add(new MAPEDimensionFXML(dimension, 5));
+        	}
+            
+        }
+
+        col2.setCellValueFactory(new Callback<CellDataFeatures<MAPEDimensionFXML, Integer>, ObservableValue<Integer>>() {
+		    @Override
+		    public ObservableValue<Integer> call(CellDataFeatures<MAPEDimensionFXML, Integer> p) {
+		        return p.getValue().granularity.asObject();
+		} 
+		});
+        
+        col2.setCellFactory(TextFieldTableCell.<MAPEDimensionFXML, Integer>forTableColumn(new IntegerStringConverter()));
+
+        //TODO: THIS NEEDS TO BE CHECKED
+		secondaryTable.setRowFactory(tv -> {
+            TableRow<MAPEDimensionFXML> row = new TableRow<>();
+
+            row.setOnDragDetected(event -> {
+                if (! row.isEmpty()) {
+                    Integer index = row.getIndex();
+                    Dragboard db = row.startDragAndDrop(TransferMode.MOVE);
+                    db.setDragView(row.snapshot(null, null));
+                    ClipboardContent cc = new ClipboardContent();
+                    cc.put(SERIALIZED_MIME_TYPE, index);
+                    db.setContent(cc);
+                    event.consume();
+                }
+            });
+
+            return row ;
+        });
+		
+		secondaryTable.setOnDragOver(event -> {
+            Dragboard db = event.getDragboard();
+            if (db.hasContent(SERIALIZED_MIME_TYPE)) 
+            {
+            	event.acceptTransferModes(TransferMode.COPY_OR_MOVE);
+                event.consume();
+            }
+        });
+
+		secondaryTable.setOnDragDropped(event -> {
+            Dragboard db = event.getDragboard();
+            if (db.hasContent(SERIALIZED_MIME_TYPE)) {
+                int draggedIndex = (Integer) db.getContent(SERIALIZED_MIME_TYPE);
+
+                TableRow<MAPEDimensionFXML> tr = (TableRow<MAPEDimensionFXML>)event.getGestureSource();
+               
+                MAPEDimensionFXML draggedDimension = (MAPEDimensionFXML) tr.tableViewProperty().get().getItems().remove(draggedIndex); 
+                int dropIndex = secondaryTable.getItems().size() ;
+
+                secondaryTable.getItems().add(dropIndex, draggedDimension);
+
+                event.setDropCompleted(true);
+                secondaryTable.getSelectionModel().select(dropIndex);
+                event.consume();
+            }
+        });
+		
+		MainTable.setPrefWidth(200);
+//		secondaryTable.setPrefHeight(200);
+		MainTable.setMinHeight(10);
+		MainTable.setMaxHeight(150);
+		MainTable.setEditable(true);
+		
+		col1 = (TableColumn<Void, Void>)MainTable.getColumns().get(0);
+		col2 = (TableColumn<MAPEDimensionFXML, Integer>)MainTable.getColumns().get(1);
+		
+		col1.prefWidthProperty().bind(MainTable.widthProperty().multiply(0.75));
+        col2.prefWidthProperty().bind(MainTable.widthProperty().multiply(0.23));
+
+        col1.setResizable(false);
+        col2.setResizable(false);
+
+        col2.setCellValueFactory(new Callback<CellDataFeatures<MAPEDimensionFXML, Integer>, ObservableValue<Integer>>() {
+		    @Override
+		    public ObservableValue<Integer> call(CellDataFeatures<MAPEDimensionFXML, Integer> p) {
+		        return p.getValue().granularity.asObject();
+		} 
+		});
+        
+        col2.setCellFactory(TextFieldTableCell.<MAPEDimensionFXML, Integer>forTableColumn(new IntegerStringConverter()));
+		
+        //Creisi thing
+        ObservableList<MAPEDimensionFXML> data = FXCollections.observableArrayList(dim ->
+        new Observable[] {
+        		dim.granularity,
+        		dim.dimension
+        });
+        
+        data.addListener((Change<? extends MAPEDimensionFXML> c) -> {
+        	
+        	//This is jävla creisi
+        	if(data.size() >= 2)
+        	{
+        		MAPElitesPane.SetXLabel(data.get(0).getDimension().toString());
+        		MAPElitesPane.SetYLabel(data.get(1).getDimension().toString());
+        		
+        		MAPElitesPane.SetupInnerGrid(roomDisplays, data.get(0).getGranularity(), data.get(1).getGranularity());
+        	}
+        	
+            while (c.next()) {
+            	
+            	
+                if (c.wasAdded()) {
+                    System.out.println("Added:");
+                    c.getAddedSubList().forEach(System.out::println);
+                    System.out.println();
+                }
+                if (c.wasRemoved()) {
+                    System.out.println("Removed:");
+                    c.getRemoved().forEach(System.out::println);
+                    System.out.println();
+                }
+                if (c.wasUpdated()) {
+                    System.out.println("Updated:");
+                    data.subList(c.getFrom(), c.getTo()).forEach(System.out::println);
+                    System.out.println();
+                }
+            }
+         });
+        
+        data.addAll(
+                new MAPEDimensionFXML(DimensionTypes.SIMILARITY, 5),
+                new MAPEDimensionFXML(DimensionTypes.SYMMETRY, 5)
+        );
+        
+        MainTable.setItems(data);
+
+		MainTable.setOnDragOver(event -> {
+            Dragboard db = event.getDragboard();
+            if (db.hasContent(SERIALIZED_MIME_TYPE)) 
+            {
+            	event.acceptTransferModes(TransferMode.COPY_OR_MOVE);
+                event.consume();
+            }
+        });
+
+		MainTable.setOnDragDropped(event -> {
+            Dragboard db = event.getDragboard();
+            if (db.hasContent(SERIALIZED_MIME_TYPE)) {
+                int draggedIndex = (Integer) db.getContent(SERIALIZED_MIME_TYPE);
+
+                TableRow<MAPEDimensionFXML> tr = (TableRow<MAPEDimensionFXML>)event.getGestureSource();
+               
+                MAPEDimensionFXML draggedDimension = (MAPEDimensionFXML) tr.tableViewProperty().get().getItems().remove(draggedIndex); 
+                int dropIndex = MainTable.getItems().size() ;
+
+//                MainTable.getItems().add(dropIndex, draggedDimension);
+                data.add(dropIndex, draggedDimension);
+                event.setDropCompleted(true);
+                MainTable.getSelectionModel().select(dropIndex);
+                event.consume();
+            }
+        });
+
+
+		MainTable.setRowFactory(tv -> {
+            TableRow<MAPEDimensionFXML> row = new TableRow<>();
+
+            row.setOnDragDetected(event -> {
+                if (! row.isEmpty()) {
+                    Integer index = row.getIndex();
+                    Dragboard db = row.startDragAndDrop(TransferMode.MOVE);
+                    db.setDragView(row.snapshot(null, null));
+                    ClipboardContent cc = new ClipboardContent();
+                    cc.put(SERIALIZED_MIME_TYPE, index);
+                    db.setContent(cc);
+                    event.consume();
+                }
+            });
+
+            row.setOnDragOver(event -> {
+                Dragboard db = event.getDragboard();
+                if (db.hasContent(SERIALIZED_MIME_TYPE)) {
+                    if (row.getIndex() != ((Integer)db.getContent(SERIALIZED_MIME_TYPE)).intValue()) {
+                        event.acceptTransferModes(TransferMode.COPY_OR_MOVE);
+                        event.consume();
+                    }
+                }
+            });
+
+            row.setOnDragDropped(event -> {
+                Dragboard db = event.getDragboard();
+                if (db.hasContent(SERIALIZED_MIME_TYPE)) {
+                    int draggedIndex = (Integer) db.getContent(SERIALIZED_MIME_TYPE);
+                    TableRow<MAPEDimensionFXML> tr = (TableRow<MAPEDimensionFXML>)event.getGestureSource();
+                    MAPEDimensionFXML draggedDimension = (MAPEDimensionFXML) tr.tableViewProperty().get().getItems().remove(draggedIndex);
+
+                    int dropIndex ; 
+
+                    if (row.isEmpty()) {
+                        dropIndex = MainTable.getItems().size() ;
+                    } else {
+                        dropIndex = row.getIndex();
+                    }
+
+                    MainTable.getItems().add(dropIndex, draggedDimension);
+
+                    event.setDropCompleted(true);
+                    MainTable.getSelectionModel().select(dropIndex);
+                    event.consume();
+                }
+            });
+
+            return row ;
+        });
+	}
+	
+	@FXML
+	private void OnChangeTab()
+	{
+
+		for(Tab evoTab : allSuggestionsPane.getTabs())
+		{
+			if(evoTab.isSelected())
+			{
+				switch(evoTab.getText())
+				{
+				case "Simple Evolution":
+					if(suggestionsPane.getHeight() > 1.0f)
+					{
+						double h= 0.0;
+						AnchorPane ap = (AnchorPane)evoTab.getContent();
+						for(Node n : ap.getChildren())
+						{
+							h += n.getBoundsInLocal().getHeight();
+						}
+						allSuggestionsPane.setPrefHeight(h + allSuggestionsPane.getTabMaxHeight() + 40);
+					}
+						
+					break;
+				case "MAPE":
+					if(MAPElitesPane.getHeight() > 1.0f)
+					{
+						double h= 0.0;
+						AnchorPane ap = (AnchorPane)evoTab.getContent();
+						for(Node n : ap.getChildren())
+						{
+							h += n.getBoundsInLocal().getHeight();
+						}
+						allSuggestionsPane.setPrefHeight(h + allSuggestionsPane.getTabMaxHeight() + 40);
+					}
+					break;
+				}
+				
+				break;
+			}
+		}
+	}
+	
+	@FXML
+	private void changeEvo(ActionEvent event) 
+	{
+		System.out.println(this.getWidth() / 4.0);
+		System.out.println(this.getRight().getBoundsInLocal().getWidth());
+		System.out.println(this.getRight().getBoundsInParent().getWidth());
+		System.out.println(this.getRight().getLayoutBounds().getWidth());
+		
+		
+		
+		switch(DisplayCombo.getValue())
+		{
+		case "Simple Evo":
+//				allSuggestionsPane.getChildren().clear();
+//				allSuggestionsPane.getChildren().add(suggestionsPane);
+//				MAPElitesPane.setVisible(false);
+//				suggestionsPane.setVisible(true);
+				break;
+		case "MAP-Elites":
+//				allSuggestionsPane.getChildren().clear();
+//				allSuggestionsPane.getChildren().add(MAPElitesPane);
+//				MAPElitesPane.setVisible(true);
+//				suggestionsPane.setVisible(false);
+				break;
+		case "Grammar":
+				break;
+		case "evo":
+				break;
+			default:
+				System.out.println("Something went wrong, the displayed value is " + DisplayCombo.getValue());
+				break;
 		}
 	}
 
@@ -229,6 +588,25 @@ public class RoomViewController extends BorderPane implements Listener
 		initMapView();
 		initLegend();
 
+	}
+	
+	private void ProduceVerticalLabel()
+	{
+//		Label bl2 = new Label("SIMILARITY");
+//		bl2.setTextFill(Color.WHITE);
+//		bl2.setFont(Font.font("Monospaced", 30));
+//		bl2.setWrapText(true);
+//		bl2.setMinWidth(5);
+//		bl2.setPrefWidth(5);
+//		bl2.setMaxWidth(5);
+//		bl2.setAlignment(Pos.CENTER);
+//		StackPane p = new StackPane();
+//		p.setPrefWidth(50);
+//		p.getChildren().add(bl2);
+//		StackPane.setAlignment(bl2, Pos.CENTER);
+//		bl2.setStyle("-fx-font-weight: bold");
+//		sugs.setLeft(p);
+//		BorderPane.setAlignment(p, Pos.CENTER);
 	}
 	
 	//TODO: THAT 42 has to disappear!! 
@@ -304,7 +682,6 @@ public class RoomViewController extends BorderPane implements Listener
 		getWorldGridBtn().setTooltip(new Tooltip("View your world map"));
 		getGenSuggestionsBtn().setTooltip(new Tooltip("Generate new maps according to the current map view"));
 		getAppSuggestionsBtn().setTooltip(new Tooltip("Change the current map view with your selected generated map"));
-		getUpdateMiniMapBtn().setTooltip(new Tooltip("Refresh your minimap view"));
 
 		getPatternButton().setTooltip(new Tooltip("Toggle the game design patterns for the current map"));
 
@@ -451,8 +828,9 @@ public class RoomViewController extends BorderPane implements Listener
 					{
 						if(room == null)
 						{
-							nextRoom++;
 							roomDisplays.get(nextRoom).setSuggestedRoom(null);
+							roomDisplays.get(nextRoom).setOriginalRoom(getMapView().getMap()); //Maybe this does not make sense? Idk
+							nextRoom++;
 							continue;
 							
 						}
@@ -514,7 +892,6 @@ public class RoomViewController extends BorderPane implements Listener
 		}
 		else if(e instanceof SuggestedMapsDone) //All the evolutionary algorithms have finish their run and returned the best rooms!
 		{
-			getUpdateMiniMapBtn().setDisable(false);
 			getWorldGridBtn().setDisable(false);
 			getGenSuggestionsBtn().setDisable(false);	
 		}
@@ -701,17 +1078,6 @@ public class RoomViewController extends BorderPane implements Listener
 	}
 
 	/***
-	 * TODO: This method is very close to be extincted!! :D 
-	 * @param event
-	 * @throws IOException
-	 */
-	@FXML
-	private void updateMiniMap(ActionEvent event) throws IOException 
-	{
-		router.postEvent(new UpdateMiniMap());
-	}
-
-	/***
 	 * Applies the selected suggestion!
 	 * @param event
 	 * @throws IOException
@@ -736,7 +1102,6 @@ public class RoomViewController extends BorderPane implements Listener
 //		getMap(2).setStyle("-fx-background-color:#2c2f33;");
 //		getMap(3).setStyle("-fx-background-color:#2c2f33;");
 		clearStats();
-		getUpdateMiniMapBtn().setDisable(true);
 		getWorldGridBtn().setDisable(true);
 		getGenSuggestionsBtn().setDisable(true);
 		getAppSuggestionsBtn().setDisable(true);
@@ -1162,15 +1527,7 @@ public class RoomViewController extends BorderPane implements Listener
 	public void setMapView(InteractiveMap mapView) {
 		this.mapView = mapView;
 	}
-
-	public Button getUpdateMiniMapBtn() {
-		return updateMiniMapBtn;
-	}
-
-	public void setUpdateMiniMapBtn(Button updateMiniMapBtn) {
-		this.updateMiniMapBtn = updateMiniMapBtn;
-	}
-
+	
 	public Button getWorldGridBtn() {
 		return worldGridBtn;
 	}

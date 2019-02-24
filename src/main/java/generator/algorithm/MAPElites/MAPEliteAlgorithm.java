@@ -58,7 +58,7 @@ public class MAPEliteAlgorithm extends Algorithm {
 		super(room, algorithmTypes);
 	}
 	
-	public void CreateCells(int dimension, int dimensionQuantity, int [] dimensionSizes, int[] indices)
+	public void CreateCells(int dimension, int dimensionQuantity, float [] dimensionSizes, int[] indices)
 	{
 		if(dimension >= dimensionQuantity)
 		{
@@ -83,13 +83,16 @@ public class MAPEliteAlgorithm extends Algorithm {
 		
 		MAPElitesDimensions = new ArrayList<GADimension>();
 		
+		float dimension = 5.0f;//This should be sent when calling the algorithm!
+		
 		//Add manually two dimensions
-		MAPElitesDimensions.add(new SimilarityGADimension(5.0f));
-		MAPElitesDimensions.add(new NPatternGADimension(5.0f));
+		MAPElitesDimensions.add(new SimilarityGADimension(dimension));
+		MAPElitesDimensions.add(new SymmetryGADimension(dimension));
+//		MAPElitesDimensions.add(new NPatternGADimension(dimension));
 
 		//Initialize all the cells!
 		this.cells = new ArrayList<GACell>();
-		CreateCells(0, MAPElitesDimensions.size(), new int[] {5, 5}, new int[] {0, 0}); //the two last values should be 
+		CreateCells(0, MAPElitesDimensions.size(), new float[] {dimension, dimension}, new int[] {0, 0}); //the two last values should be 
 		cellAmounts = this.cells.size();
 		
 		int i = 0;
@@ -148,13 +151,15 @@ public class MAPEliteAlgorithm extends Algorithm {
 		
 		MAPElitesDimensions = new ArrayList<GADimension>();
 		
+		float dimension = 5.0f;//This should be sent when calling the algorithm!
+		
 		//Add manually two dimensions
-		MAPElitesDimensions.add(new SymmetryGADimension(3.0f));
-		MAPElitesDimensions.add(new SimilarityGADimension(3.0f));
+		MAPElitesDimensions.add(new SymmetryGADimension(dimension));
+		MAPElitesDimensions.add(new SimilarityGADimension(dimension));
 
 		//Initialize all the cells!
 		this.cells = new ArrayList<GACell>();
-		CreateCells(0, MAPElitesDimensions.size(), new int[] {3, 3}, new int[] {0, 0}); //the two last values should be 
+		CreateCells(0, MAPElitesDimensions.size(), new float[] {dimension, dimension}, new int[] {0, 0}); //the two last values should be 
 		cellAmounts = this.cells.size();
 		
 		int i = 0;
@@ -226,12 +231,13 @@ public class MAPEliteAlgorithm extends Algorithm {
         // 5- Simulate the individuals (in this case calculate the fitness) evaluate and place in the right cell
         // 6- after generations 
         // 	6.1 - Replace: Eliminate low performing individual from cells that are above or at capacity
-
+        
+        //200
         for(int generationCount = 1; generationCount <= generations; generationCount++) {
         	if(stop)
         		return;
         	
-        	for(int iteration = 0; iteration < 5; iteration++)
+        	for(int iteration = 0; iteration < 10; iteration++)
         	{
         		ArrayList<ZoneIndividual> parents = new ArrayList<ZoneIndividual>();
         		List<ZoneIndividual> children = new ArrayList<ZoneIndividual>();
@@ -311,7 +317,7 @@ public class MAPEliteAlgorithm extends Algorithm {
         for(GACell cell : cells)
 		{
         	System.out.println("CELL = " + cellIndex);
-        	System.out.println("SYMMETRY: " + cell.GetDimensionValue(DimensionTypes.SIMILARITY) + ", PAT: " + cell.GetDimensionValue(DimensionTypes.NUMBER_PATTERNS));
+        	System.out.println("SYMMETRY: " + cell.GetDimensionValue(DimensionTypes.SIMILARITY) + ", PAT: " + cell.GetDimensionValue(DimensionTypes.SYMMETRY));
         	
         	if(cell.GetFeasiblePopulation().isEmpty())
         	{
@@ -324,7 +330,7 @@ public class MAPEliteAlgorithm extends Algorithm {
         		
         		System.out.println("FIT ROOM Fitness: " + cell.GetFeasiblePopulation().get(0).getFitness() + 
         							", symmetry: " + cell.GetFeasiblePopulation().get(0).getDimensionValue(DimensionTypes.SIMILARITY) +
-        							", pat: " + cell.GetFeasiblePopulation().get(0).getDimensionValue(DimensionTypes.NUMBER_PATTERNS));
+        							", pat: " + cell.GetFeasiblePopulation().get(0).getDimensionValue(DimensionTypes.SYMMETRY));
         	}	
         	
         	System.out.println("------------------");

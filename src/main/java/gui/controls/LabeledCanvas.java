@@ -87,7 +87,7 @@ public class LabeledCanvas extends BorderPane {
 		transition.setToAngle(360);
 		transition.setCycleCount(Animation.INDEFINITE);
 		
-		waitForImage(true);
+//		waitForImage(true);
 //		
 //		addEventFilter(MouseEvent.MOUSE_ENTERED, new EventHandler<MouseEvent>() {
 //

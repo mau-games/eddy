@@ -7,13 +7,15 @@ public abstract class GADimension
 {
 	public enum DimensionTypes //Till example
 	{
+		SYMMETRY,
+		SIMILARITY,
 		NUMBER_PATTERNS,
 		DIFFICULTY,
-		GEOMETRICAL_COMPLEXITY,
+		GEOM_COMPLEXITY,
 		LEARNING,
 		REWARD,
-		SYMMETRY,
-		SIMILARITY
+		LINEARITY
+
 	}
 	
 	protected DimensionTypes dimension;
