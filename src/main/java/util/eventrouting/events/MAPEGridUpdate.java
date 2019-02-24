@@ -1,6 +1,5 @@
 package util.eventrouting.events;
 
-import game.Dungeon;
 import generator.algorithm.MAPElites.Dimensions.MAPEDimensionFXML;
 import util.eventrouting.PCGEvent;
 

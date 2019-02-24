@@ -2,6 +2,7 @@ package gui.controls;
 
 import java.util.ArrayList;
 
+import generator.algorithm.MAPElites.Dimensions.MAPEDimensionFXML;
 import javafx.geometry.HPos;
 import javafx.geometry.Pos;
 import javafx.scene.Group;
@@ -104,6 +105,16 @@ public class MAPEVisualizationPane extends BorderPane
 		
 		
 //		BorderPane.setAlignment(innerSuggestions, Pos.CENTER_RIGHT);
+	}
+	
+	//This method maybe can be called internally? meaning this class receive receive the event!
+	public void dimensionsUpdated(ArrayList<SuggestionRoom> roomDisplays, MAPEDimensionFXML[] dimensions)
+	{
+		//This should be extended for more dimensions but at the moment we only care about this two!
+		SetXLabel(dimensions[0].getDimension().toString());
+		SetYLabel(dimensions[1].getDimension().toString());
+		
+		SetupInnerGrid(roomDisplays, dimensions[0].getGranularity(),  dimensions[1].getGranularity());
 	}
 	
 	public void SetXLabel(String labelTitle)

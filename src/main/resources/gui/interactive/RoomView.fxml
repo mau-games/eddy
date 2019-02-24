@@ -39,6 +39,7 @@
 <?import generator.algorithm.*?>
 <?import generator.algorithm.MAPElites.Dimensions.*?>
 <?import javafx.scene.control.cell.TextFieldTableCell?>
+<?import gui.controls.DimensionsTable?>
 
 
 <fx:root type="javafx.scene.layout.BorderPane"
@@ -237,7 +238,7 @@
 										<VBox spacing="15">
 											<MAPEVisualizationPane fx:id="MAPElitesPane"/>
 											<HBox spacing="20">
-												<TableView fx:id="MainTable">
+												<DimensionsTable fx:id="MainTable">
 													<columnResizePolicy><TableView fx:constant="CONSTRAINED_RESIZE_POLICY"/></columnResizePolicy>
 												 	<columns>											 	
 														<TableColumn text="Dimension">
@@ -255,8 +256,8 @@
 														    <FXCollections fx:factory="observableArrayList">
 														    </FXCollections>
 														</items>   
-											    </TableView>
-											    <TableView fx:id="secondaryTable">
+											    </DimensionsTable>
+											    <DimensionsTable fx:id="secondaryTable">
 													<columnResizePolicy><TableView fx:constant="CONSTRAINED_RESIZE_POLICY"/></columnResizePolicy>
 												 	<columns>											 	
 														<TableColumn text="Dimension">
@@ -270,7 +271,7 @@
         													</cellValueFactory>
 														</TableColumn>
 											     	</columns> 
-											    </TableView>
+											    </DimensionsTable>
 												<VBox>
 													<HBox>
 														<Label fx:id="enemyNumbr"></Label>

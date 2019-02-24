@@ -24,6 +24,7 @@ import generator.algorithm.Algorithm.AlgorithmTypes;
 import generator.algorithm.MAPElites.Dimensions.GADimension.DimensionTypes;
 import generator.algorithm.MAPElites.Dimensions.MAPEDimensionFXML;
 import game.Game.MapMutationType;
+import gui.controls.DimensionsTable;
 import gui.controls.Drawer;
 import gui.controls.InteractiveMap;
 import gui.controls.LabeledCanvas;
@@ -97,6 +98,7 @@ import util.eventrouting.EventRouter;
 import util.eventrouting.Listener;
 import util.eventrouting.PCGEvent;
 import util.eventrouting.events.ApplySuggestion;
+import util.eventrouting.events.MAPEGridUpdate;
 import util.eventrouting.events.MAPElitesDone;
 import util.eventrouting.events.MapUpdate;
 import util.eventrouting.events.RequestAppliedMap;
@@ -130,8 +132,8 @@ public class RoomViewController extends BorderPane implements Listener
 	@FXML private ToggleGroup brushes;
 	
 	
-	@FXML private TableView MainTable;
-	@FXML private TableView secondaryTable;
+	@FXML private DimensionsTable MainTable;
+	@FXML private DimensionsTable secondaryTable;
 	
 	//Suggestions
 //	@FXML private GridPane suggestionsPane;
@@ -236,6 +238,7 @@ public class RoomViewController extends BorderPane implements Listener
 			logger.error("Couldn't read config file.");
 		}
 
+		router.registerListener(this, new MAPEGridUpdate(null));
 		router.registerListener(this, new MAPElitesDone());
 		router.registerListener(this, new MapUpdate(null));
 		router.registerListener(this, new ApplySuggestion(0));
@@ -274,22 +277,13 @@ public class RoomViewController extends BorderPane implements Listener
 		
 		MAPElitesPane.init(roomDisplays, "","",0,0);
 		
-		secondaryTable.setPrefWidth(200);
-//		secondaryTable.setPrefHeight(200);
-		secondaryTable.setMinHeight(10);
-		secondaryTable.setMaxHeight(150);
-		secondaryTable.setEditable(true);
+		MainTable.setup();
+		MainTable.InitMainTable(MAPElitesPane);
+		MainTable.setEventListeners();
 		
-		TableColumn<Void, Void> col1 = (TableColumn<Void, Void>)secondaryTable.getColumns().get(0);
-		TableColumn<MAPEDimensionFXML, Integer> col2 = (TableColumn<MAPEDimensionFXML, Integer>)secondaryTable.getColumns().get(1);
+		secondaryTable.setup();
 		
-		col1.prefWidthProperty().bind(secondaryTable.widthProperty().multiply(0.75));
-        col2.prefWidthProperty().bind(secondaryTable.widthProperty().multiply(0.23));
-
-        col1.setResizable(false);
-        col2.setResizable(false);
-        
-        for(DimensionTypes dimension : DimensionTypes.values())
+		for(DimensionTypes dimension : DimensionTypes.values())
         {
         	if(dimension != DimensionTypes.SIMILARITY && dimension != DimensionTypes.SYMMETRY)
         	{
@@ -297,210 +291,8 @@ public class RoomViewController extends BorderPane implements Listener
         	}
             
         }
-
-        col2.setCellValueFactory(new Callback<CellDataFeatures<MAPEDimensionFXML, Integer>, ObservableValue<Integer>>() {
-		    @Override
-		    public ObservableValue<Integer> call(CellDataFeatures<MAPEDimensionFXML, Integer> p) {
-		        return p.getValue().granularity.asObject();
-		} 
-		});
-        
-        col2.setCellFactory(TextFieldTableCell.<MAPEDimensionFXML, Integer>forTableColumn(new IntegerStringConverter()));
-
-        //TODO: THIS NEEDS TO BE CHECKED
-		secondaryTable.setRowFactory(tv -> {
-            TableRow<MAPEDimensionFXML> row = new TableRow<>();
-
-            row.setOnDragDetected(event -> {
-                if (! row.isEmpty()) {
-                    Integer index = row.getIndex();
-                    Dragboard db = row.startDragAndDrop(TransferMode.MOVE);
-                    db.setDragView(row.snapshot(null, null));
-                    ClipboardContent cc = new ClipboardContent();
-                    cc.put(SERIALIZED_MIME_TYPE, index);
-                    db.setContent(cc);
-                    event.consume();
-                }
-            });
-
-            return row ;
-        });
 		
-		secondaryTable.setOnDragOver(event -> {
-            Dragboard db = event.getDragboard();
-            if (db.hasContent(SERIALIZED_MIME_TYPE)) 
-            {
-            	event.acceptTransferModes(TransferMode.COPY_OR_MOVE);
-                event.consume();
-            }
-        });
-
-		secondaryTable.setOnDragDropped(event -> {
-            Dragboard db = event.getDragboard();
-            if (db.hasContent(SERIALIZED_MIME_TYPE)) {
-                int draggedIndex = (Integer) db.getContent(SERIALIZED_MIME_TYPE);
-
-                TableRow<MAPEDimensionFXML> tr = (TableRow<MAPEDimensionFXML>)event.getGestureSource();
-               
-                MAPEDimensionFXML draggedDimension = (MAPEDimensionFXML) tr.tableViewProperty().get().getItems().remove(draggedIndex); 
-                int dropIndex = secondaryTable.getItems().size() ;
-
-                secondaryTable.getItems().add(dropIndex, draggedDimension);
-
-                event.setDropCompleted(true);
-                secondaryTable.getSelectionModel().select(dropIndex);
-                event.consume();
-            }
-        });
-		
-		MainTable.setPrefWidth(200);
-//		secondaryTable.setPrefHeight(200);
-		MainTable.setMinHeight(10);
-		MainTable.setMaxHeight(150);
-		MainTable.setEditable(true);
-		
-		col1 = (TableColumn<Void, Void>)MainTable.getColumns().get(0);
-		col2 = (TableColumn<MAPEDimensionFXML, Integer>)MainTable.getColumns().get(1);
-		
-		col1.prefWidthProperty().bind(MainTable.widthProperty().multiply(0.75));
-        col2.prefWidthProperty().bind(MainTable.widthProperty().multiply(0.23));
-
-        col1.setResizable(false);
-        col2.setResizable(false);
-
-        col2.setCellValueFactory(new Callback<CellDataFeatures<MAPEDimensionFXML, Integer>, ObservableValue<Integer>>() {
-		    @Override
-		    public ObservableValue<Integer> call(CellDataFeatures<MAPEDimensionFXML, Integer> p) {
-		        return p.getValue().granularity.asObject();
-		} 
-		});
-        
-        col2.setCellFactory(TextFieldTableCell.<MAPEDimensionFXML, Integer>forTableColumn(new IntegerStringConverter()));
-		
-        //Creisi thing
-        ObservableList<MAPEDimensionFXML> data = FXCollections.observableArrayList(dim ->
-        new Observable[] {
-        		dim.granularity,
-        		dim.dimension
-        });
-        
-        data.addListener((Change<? extends MAPEDimensionFXML> c) -> {
-        	
-        	//This is jävla creisi
-        	if(data.size() >= 2)
-        	{
-        		MAPElitesPane.SetXLabel(data.get(0).getDimension().toString());
-        		MAPElitesPane.SetYLabel(data.get(1).getDimension().toString());
-        		
-        		MAPElitesPane.SetupInnerGrid(roomDisplays, data.get(0).getGranularity(), data.get(1).getGranularity());
-        	}
-        	
-            while (c.next()) {
-            	
-            	
-                if (c.wasAdded()) {
-                    System.out.println("Added:");
-                    c.getAddedSubList().forEach(System.out::println);
-                    System.out.println();
-                }
-                if (c.wasRemoved()) {
-                    System.out.println("Removed:");
-                    c.getRemoved().forEach(System.out::println);
-                    System.out.println();
-                }
-                if (c.wasUpdated()) {
-                    System.out.println("Updated:");
-                    data.subList(c.getFrom(), c.getTo()).forEach(System.out::println);
-                    System.out.println();
-                }
-            }
-         });
-        
-        data.addAll(
-                new MAPEDimensionFXML(DimensionTypes.SIMILARITY, 5),
-                new MAPEDimensionFXML(DimensionTypes.SYMMETRY, 5)
-        );
-        
-        MainTable.setItems(data);
-
-		MainTable.setOnDragOver(event -> {
-            Dragboard db = event.getDragboard();
-            if (db.hasContent(SERIALIZED_MIME_TYPE)) 
-            {
-            	event.acceptTransferModes(TransferMode.COPY_OR_MOVE);
-                event.consume();
-            }
-        });
-
-		MainTable.setOnDragDropped(event -> {
-            Dragboard db = event.getDragboard();
-            if (db.hasContent(SERIALIZED_MIME_TYPE)) {
-                int draggedIndex = (Integer) db.getContent(SERIALIZED_MIME_TYPE);
-
-                TableRow<MAPEDimensionFXML> tr = (TableRow<MAPEDimensionFXML>)event.getGestureSource();
-               
-                MAPEDimensionFXML draggedDimension = (MAPEDimensionFXML) tr.tableViewProperty().get().getItems().remove(draggedIndex); 
-                int dropIndex = MainTable.getItems().size() ;
-
-//                MainTable.getItems().add(dropIndex, draggedDimension);
-                data.add(dropIndex, draggedDimension);
-                event.setDropCompleted(true);
-                MainTable.getSelectionModel().select(dropIndex);
-                event.consume();
-            }
-        });
-
-
-		MainTable.setRowFactory(tv -> {
-            TableRow<MAPEDimensionFXML> row = new TableRow<>();
-
-            row.setOnDragDetected(event -> {
-                if (! row.isEmpty()) {
-                    Integer index = row.getIndex();
-                    Dragboard db = row.startDragAndDrop(TransferMode.MOVE);
-                    db.setDragView(row.snapshot(null, null));
-                    ClipboardContent cc = new ClipboardContent();
-                    cc.put(SERIALIZED_MIME_TYPE, index);
-                    db.setContent(cc);
-                    event.consume();
-                }
-            });
-
-            row.setOnDragOver(event -> {
-                Dragboard db = event.getDragboard();
-                if (db.hasContent(SERIALIZED_MIME_TYPE)) {
-                    if (row.getIndex() != ((Integer)db.getContent(SERIALIZED_MIME_TYPE)).intValue()) {
-                        event.acceptTransferModes(TransferMode.COPY_OR_MOVE);
-                        event.consume();
-                    }
-                }
-            });
-
-            row.setOnDragDropped(event -> {
-                Dragboard db = event.getDragboard();
-                if (db.hasContent(SERIALIZED_MIME_TYPE)) {
-                    int draggedIndex = (Integer) db.getContent(SERIALIZED_MIME_TYPE);
-                    TableRow<MAPEDimensionFXML> tr = (TableRow<MAPEDimensionFXML>)event.getGestureSource();
-                    MAPEDimensionFXML draggedDimension = (MAPEDimensionFXML) tr.tableViewProperty().get().getItems().remove(draggedIndex);
-
-                    int dropIndex ; 
-
-                    if (row.isEmpty()) {
-                        dropIndex = MainTable.getItems().size() ;
-                    } else {
-                        dropIndex = row.getIndex();
-                    }
-
-                    MainTable.getItems().add(dropIndex, draggedDimension);
-
-                    event.setDropCompleted(true);
-                    MainTable.getSelectionModel().select(dropIndex);
-                    event.consume();
-                }
-            });
-
-            return row ;
-        });
+		secondaryTable.setEventListeners();
 	}
 	
 	@FXML
@@ -814,10 +606,15 @@ public class RoomViewController extends BorderPane implements Listener
 
 	@Override
 	public void ping(PCGEvent e) {
-		if(e instanceof MAPElitesDone)
+		
+		if(e instanceof MAPEGridUpdate)
+		{
+			MAPElitesPane.dimensionsUpdated(roomDisplays, ((MAPEGridUpdate) e).getDimensions());
+		}
+		else if(e instanceof MAPElitesDone)
 		{
 			if (isActive) {
-				
+				//THIS NEED TO BE IMPROVED!
 				List<Room> generatedRooms = ((MAPElitesDone) e).GetRooms();
 //				Room room = (Room) ((MapUpdate) e).getPayload();
 //				UUID uuid = ((MapUpdate) e).getID();

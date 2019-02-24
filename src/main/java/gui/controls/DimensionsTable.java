@@ -30,7 +30,10 @@ public class DimensionsTable extends TableView<MAPEDimensionFXML>
 	public DimensionsTable()
 	{
 		super();
-		
+	}
+	
+	public void setup()
+	{
 		this.setPrefWidth(200);
 		this.setMinHeight(10);
 		this.setMaxHeight(150);
@@ -53,9 +56,6 @@ public class DimensionsTable extends TableView<MAPEDimensionFXML>
 		});
         
         col2.setCellFactory(TextFieldTableCell.<MAPEDimensionFXML, Integer>forTableColumn(new IntegerStringConverter()));
-		
-        
-	
 	}
 	
 	public void InitMainTable(MAPEVisualizationPane MAPEPane)
