@@ -3,6 +3,7 @@ package generator.algorithm.MAPElites.Dimensions;
 import game.Room;
 import generator.algorithm.ZoneIndividual;
 
+//PLS COMMENT!!
 public abstract class GADimension
 {
 	public enum DimensionTypes //Till example
@@ -44,6 +45,34 @@ public abstract class GADimension
 	public double GetGranularity()
 	{
 		return granularity;
+	}
+	
+	public static GADimension CreateDimension(DimensionTypes dim, Number granularity)
+	{
+		switch(dim)
+		{
+		case DIFFICULTY:
+			break;
+		case GEOM_COMPLEXITY:
+			break;
+		case LEARNING:
+			break;
+		case LINEARITY:
+			return new LinearityGADimension(granularity.floatValue());
+		case NUMBER_PATTERNS:
+			return new NPatternGADimension(granularity.floatValue());
+		case REWARD:
+			break;
+		case SIMILARITY:
+			return new SimilarityGADimension(granularity.floatValue());
+		case SYMMETRY:
+			return new SymmetryGADimension(granularity.floatValue());
+		default:
+			break;
+		
+		}
+		
+		return null;
 	}
 	
 	//Fuck it, add the methods here

@@ -22,8 +22,10 @@ import game.MapContainer;
 import game.TileTypes;
 import generator.algorithm.Algorithm.AlgorithmTypes;
 import generator.algorithm.MAPElites.Dimensions.GADimension.DimensionTypes;
+import generator.algorithm.MAPElites.GACell;
 import generator.algorithm.MAPElites.Dimensions.MAPEDimensionFXML;
 import game.Game.MapMutationType;
+import game.Game.PossibleGAs;
 import gui.controls.DimensionsTable;
 import gui.controls.Drawer;
 import gui.controls.InteractiveMap;
@@ -104,6 +106,7 @@ import util.eventrouting.events.MapUpdate;
 import util.eventrouting.events.RequestAppliedMap;
 import util.eventrouting.events.RequestRoomView;
 import util.eventrouting.events.RequestWorldView;
+import util.eventrouting.events.StartGA_MAPE;
 import util.eventrouting.events.StartMapMutate;
 import util.eventrouting.events.Stop;
 import util.eventrouting.events.SuggestedMapSelected;
@@ -215,7 +218,8 @@ public class RoomViewController extends BorderPane implements Listener
 	int mapHeight;
 	private int suggestionAmount = 101; //TODO: Probably this value should be from the application config!!
 
-
+	private PossibleGAs selectedGA;
+	private MAPEDimensionFXML[] currentDimensions = new MAPEDimensionFXML[] {};
 
 	
 	/**
@@ -298,7 +302,20 @@ public class RoomViewController extends BorderPane implements Listener
 	@FXML
 	private void OnChangeTab()
 	{
-
+		if(getMapView() != null && getMapView().getMap() != null)
+		{
+			int paths = getMapView().getMap().LinearityWithinRoom();
+			double doors =  getMapView().getMap().getDoors().size();
+			double maxPaths = ((double) getMapView().getMap().getPatternFinder().getPatternGraph().countNodes()) + (double)(doors * 3) + doors;
+			double finalValue = Math.min((double)paths/maxPaths, 1.0);
+			finalValue = (1.0 - finalValue);
+			
+			
+			System.out.println(paths);
+			System.out.println(finalValue);
+		}
+			
+		
 		for(Tab evoTab : allSuggestionsPane.getTabs())
 		{
 			if(evoTab.isSelected())
@@ -306,6 +323,7 @@ public class RoomViewController extends BorderPane implements Listener
 				switch(evoTab.getText())
 				{
 				case "Simple Evolution":
+					selectedGA = PossibleGAs.FI_2POP;
 					if(suggestionsPane.getHeight() > 1.0f)
 					{
 						double h= 0.0;
@@ -319,6 +337,7 @@ public class RoomViewController extends BorderPane implements Listener
 						
 					break;
 				case "MAPE":
+					selectedGA = PossibleGAs.MAP_ELITES;
 					if(MAPElitesPane.getHeight() > 1.0f)
 					{
 						double h= 0.0;
@@ -337,40 +356,6 @@ public class RoomViewController extends BorderPane implements Listener
 		}
 	}
 	
-	@FXML
-	private void changeEvo(ActionEvent event) 
-	{
-		System.out.println(this.getWidth() / 4.0);
-		System.out.println(this.getRight().getBoundsInLocal().getWidth());
-		System.out.println(this.getRight().getBoundsInParent().getWidth());
-		System.out.println(this.getRight().getLayoutBounds().getWidth());
-		
-		
-		
-		switch(DisplayCombo.getValue())
-		{
-		case "Simple Evo":
-//				allSuggestionsPane.getChildren().clear();
-//				allSuggestionsPane.getChildren().add(suggestionsPane);
-//				MAPElitesPane.setVisible(false);
-//				suggestionsPane.setVisible(true);
-				break;
-		case "MAP-Elites":
-//				allSuggestionsPane.getChildren().clear();
-//				allSuggestionsPane.getChildren().add(MAPElitesPane);
-//				MAPElitesPane.setVisible(true);
-//				suggestionsPane.setVisible(false);
-				break;
-		case "Grammar":
-				break;
-		case "evo":
-				break;
-			default:
-				System.out.println("Something went wrong, the displayed value is " + DisplayCombo.getValue());
-				break;
-		}
-	}
-
 	/**
 	 * Initialises the edit view.
 	 */
@@ -602,7 +587,26 @@ public class RoomViewController extends BorderPane implements Listener
 		deadEnd.setStyle("-fx-text-fill: white;");
 		legend.add(deadEnd, 1, 10);
 	}
-
+	
+	public void renderCell(List<Room> generatedRooms, int dimension, float [] dimensionSizes, int[] indices)
+	{
+		if(dimension < 0)
+		{
+//			MAPElitesPane.GetGridCell(, row);
+//			this.cells.add(new GACell(MAPElitesDimensions, indices));
+			
+			roomDisplays.get((int) (indices[1] * dimensionSizes[0] + indices[0])).setSuggestedRoom(generatedRooms.get((int) (indices[1] * dimensionSizes[0] + indices[0])));
+			roomDisplays.get((int) (indices[1] * dimensionSizes[0] + indices[0])).setOriginalRoom(getMapView().getMap());
+//			roomDisplays.get(nextRoom).setOriginalRoom(); //Maybe this does not make sense? Idk
+			return;
+		}
+		
+		for(int i = 0; i < dimensionSizes[dimension]; i++)
+		{
+			indices[dimension] = i;
+			renderCell(generatedRooms, dimension-1, dimensionSizes, indices);
+		}
+	}
 
 	@Override
 	public void ping(PCGEvent e) {
@@ -610,6 +614,7 @@ public class RoomViewController extends BorderPane implements Listener
 		if(e instanceof MAPEGridUpdate)
 		{
 			MAPElitesPane.dimensionsUpdated(roomDisplays, ((MAPEGridUpdate) e).getDimensions());
+			currentDimensions = ((MAPEGridUpdate) e).getDimensions(); 
 		}
 		else if(e instanceof MAPElitesDone)
 		{
@@ -621,27 +626,30 @@ public class RoomViewController extends BorderPane implements Listener
 				LabeledCanvas canvas;
 				synchronized (roomDisplays) {
 					
-					for(Room room : generatedRooms)
-					{
-						if(room == null)
-						{
-							roomDisplays.get(nextRoom).setSuggestedRoom(null);
-							roomDisplays.get(nextRoom).setOriginalRoom(getMapView().getMap()); //Maybe this does not make sense? Idk
-							nextRoom++;
-							continue;
-							
-						}
-							
-						
-						roomDisplays.get(nextRoom).setSuggestedRoom(room);
-						roomDisplays.get(nextRoom).setOriginalRoom(getMapView().getMap()); //Maybe this does not make sense? Idk
-						
-						canvas = roomDisplays.get(nextRoom).getRoomCanvas();
-						canvas.setText("");
-						
-						suggestedRooms.put(nextRoom, room);
-						nextRoom++;
-					}
+					renderCell(generatedRooms, currentDimensions.length - 1, 
+							new float [] {currentDimensions[0].getGranularity(), currentDimensions[1].getGranularity()}, new int[] {0,0});
+					
+//					for(Room room : generatedRooms)
+//					{
+//						if(room == null)
+//						{
+//							roomDisplays.get(nextRoom).setSuggestedRoom(null);
+//							roomDisplays.get(nextRoom).setOriginalRoom(getMapView().getMap()); //Maybe this does not make sense? Idk
+//							nextRoom++;
+//							continue;
+//							
+//						}
+//							
+//						
+//						roomDisplays.get(nextRoom).setSuggestedRoom(room);
+//						roomDisplays.get(nextRoom).setOriginalRoom(getMapView().getMap()); //Maybe this does not make sense? Idk
+//						
+//						canvas = roomDisplays.get(nextRoom).getRoomCanvas();
+//						canvas.setText("");
+//						
+//						suggestedRooms.put(nextRoom, room);
+//						nextRoom++;
+//					}
 				}
 				
 				Platform.runLater(() -> {
@@ -855,7 +863,7 @@ public class RoomViewController extends BorderPane implements Listener
 	 * "Why is this public?",  you ask. Because of FXML's method binding.
 	 */
 	@FXML
-	private void generateNewMaps()
+	private void generateNewMaps() //TODO: some changes here!
 	{	
 		router.postEvent(new SuggestedMapsLoading());
 		resetSuggestedRooms();
@@ -941,27 +949,42 @@ public class RoomViewController extends BorderPane implements Listener
 	 */
 	public void generateNewMaps(Room room) {
 		// TODO: If we want more diversity in the generated maps, then send more StartMapMutate events.
-
-		router.postEvent(new StartMapMutate(room, MapMutationType.Preserving, AlgorithmTypes.Native, suggestionAmount, true));
 		
-//		int firstAmount = suggestionAmount/2;
-//		int secondAmount = suggestionAmount - firstAmount;
-//		
-//		if (!similarity && !symmetry ) {
-//		router.postEvent(new StartMapMutate(room, MapMutationType.Preserving, AlgorithmTypes.Native, firstAmount, true)); //TODO: Move some of this hard coding to ApplicationConfig
-//		router.postEvent(new StartMapMutate(room, MapMutationType.ComputedConfig, AlgorithmTypes.Native, secondAmount, true)); //TODO: Move some of this hard coding to ApplicationConfig
-//		}
-//		else if (similarity && !symmetry) {
-//			router.postEvent(new StartMapMutate(room, MapMutationType.Preserving, AlgorithmTypes.Similarity, suggestionAmount, true));
-//		}
-//		else if (!similarity && symmetry) {
-//			router.postEvent(new StartMapMutate(room, MapMutationType.Preserving, AlgorithmTypes.Symmetry, firstAmount, true));
-//			router.postEvent(new StartMapMutate(room, MapMutationType.ComputedConfig, AlgorithmTypes.Symmetry, secondAmount, true));
-//		}
-//		else if (similarity && symmetry) {
-//			router.postEvent(new StartMapMutate(room, MapMutationType.Preserving, AlgorithmTypes.Similarity, firstAmount, true));
-//			router.postEvent(new StartMapMutate(room, MapMutationType.ComputedConfig, AlgorithmTypes.Symmetry, secondAmount, true));
-//		}
+		switch(selectedGA)
+		{
+		case FI_2POP:
+			int firstAmount = suggestionAmount/2;
+			int secondAmount = suggestionAmount - firstAmount;
+			
+			if (!similarity && !symmetry ) {
+			router.postEvent(new StartMapMutate(room, MapMutationType.Preserving, AlgorithmTypes.Native, firstAmount, true)); //TODO: Move some of this hard coding to ApplicationConfig
+			router.postEvent(new StartMapMutate(room, MapMutationType.ComputedConfig, AlgorithmTypes.Native, secondAmount, true)); //TODO: Move some of this hard coding to ApplicationConfig
+			}
+			else if (similarity && !symmetry) {
+				router.postEvent(new StartMapMutate(room, MapMutationType.Preserving, AlgorithmTypes.Similarity, suggestionAmount, true));
+			}
+			else if (!similarity && symmetry) {
+				router.postEvent(new StartMapMutate(room, MapMutationType.Preserving, AlgorithmTypes.Symmetry, firstAmount, true));
+				router.postEvent(new StartMapMutate(room, MapMutationType.ComputedConfig, AlgorithmTypes.Symmetry, secondAmount, true));
+			}
+			else if (similarity && symmetry) {
+				router.postEvent(new StartMapMutate(room, MapMutationType.Preserving, AlgorithmTypes.Similarity, firstAmount, true));
+				router.postEvent(new StartMapMutate(room, MapMutationType.ComputedConfig, AlgorithmTypes.Symmetry, secondAmount, true));
+			}
+			break;
+		case MAP_ELITES:
+			if(currentDimensions.length > 1)
+			{
+				router.postEvent(new StartGA_MAPE(room, currentDimensions));
+			}
+			
+			break;
+		case CVT_MAP_ELITES:
+			break;
+		default:
+			break;
+		
+		}
 	}
 
 	public void replaceRoom()

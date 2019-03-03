@@ -10,6 +10,7 @@ import org.slf4j.LoggerFactory;
 import generator.algorithm.Algorithm;
 import generator.algorithm.Algorithm.AlgorithmTypes;
 import generator.algorithm.MAPElites.MAPEliteAlgorithm;
+import generator.algorithm.MAPElites.Dimensions.MAPEDimensionFXML;
 import generator.config.GeneratorConfig;
 import util.Point;
 import util.Util;
@@ -25,6 +26,7 @@ import util.eventrouting.events.RenderingDone;
 import util.eventrouting.events.RequestSuggestionsView;
 import util.eventrouting.events.Start;
 import util.eventrouting.events.StartBatch;
+import util.eventrouting.events.StartGA_MAPE;
 import util.eventrouting.events.StartMapMutate;
 import util.eventrouting.events.Stop;
 import util.eventrouting.events.SuggestedMapsDone;
@@ -43,6 +45,20 @@ public class Game implements Listener{
 	public static int defaultWidth = 11;
 	public static int defaultHeight = 11;
 //	public static int defaultMaxDoors = 4;
+	
+
+    public enum MapMutationType {
+    	Preserving,
+    	OriginalConfig,
+    	ComputedConfig
+    }
+    
+    public enum PossibleGAs
+    {
+    	FI_2POP,
+    	MAP_ELITES,
+    	CVT_MAP_ELITES
+    }
 
 	public Game() {
 		
@@ -55,6 +71,7 @@ public class Game implements Listener{
 
 		readConfiguration();
 
+		EventRouter.getInstance().registerListener(this, new StartGA_MAPE(null, null));
         EventRouter.getInstance().registerListener(this, new Start());
         EventRouter.getInstance().registerListener(this, new StartMapMutate(null));
         EventRouter.getInstance().registerListener(this, new Stop());
@@ -64,17 +81,11 @@ public class Game implements Listener{
         EventRouter.getInstance().registerListener(this, new RequestSuggestionsView(null, 0));
 	}
 
-    public enum MapMutationType {
-    	Preserving,
-    	OriginalConfig,
-    	ComputedConfig
-    }
-    
-    private void RunMAPElites(Room room)
+    private void RunMAPElites(Room room,  MAPEDimensionFXML[] dimensions)
     {
     	Algorithm ga = new MAPEliteAlgorithm(room, AlgorithmTypes.Native);
 		runs.add(ga);
-		ga.initPopulations(room);
+		((MAPEliteAlgorithm)ga).initPopulations(room, dimensions);
 		ga.start();
     }
 
@@ -240,7 +251,12 @@ public class Game implements Listener{
 
 	@Override
 	public synchronized void ping(PCGEvent e) {
-		if(e instanceof RequestSuggestionsView){ 
+		if(e instanceof StartGA_MAPE)
+		{
+			StartGA_MAPE MAPEinfo = (StartGA_MAPE)e;
+			RunMAPElites((Room)e.getPayload(), MAPEinfo.getDimensions());
+		}
+		else if(e instanceof RequestSuggestionsView){ 
 			readConfiguration();
 			MapContainer container = (MapContainer) e.getPayload();
 			startAll(((RequestSuggestionsView) e).getNbrOfThreads(), container);
@@ -250,8 +266,7 @@ public class Game implements Listener{
 			
 			StartMapMutate smm = (StartMapMutate)e;
 //			System.out.println("LETS CREATE!, mutation: " + smm.getMutations() + ", algorithmTypes: " + smm.getAlgorithmTypes());
-			RunMAPElites((Room)e.getPayload());
-//			mutateFromMap((Room)e.getPayload(),smm.getMutations(),smm.getMutationType(),smm.getAlgorithmTypes(),smm.getRandomiseConfig());
+			mutateFromMap((Room)e.getPayload(),smm.getMutations(),smm.getMutationType(),smm.getAlgorithmTypes(),smm.getRandomiseConfig());
 		} else if (e instanceof StartBatch) {
 			startBatch(((StartBatch)e).getConfig(), ((StartBatch)e).getSize());
 		} else if (e instanceof Stop) {

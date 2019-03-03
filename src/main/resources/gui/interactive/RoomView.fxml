@@ -318,15 +318,6 @@
 				
 
 				<HBox spacing="10">
-					 <ComboBox  fx:id="DisplayCombo" prefWidth="123.0" promptText="choose EVO" onAction="#changeEvo">                
-			            <items>
-					        <FXCollections fx:factory="observableArrayList">
-					          <String fx:value="Simple Evo" />
-					          <String fx:value="MAP-Elites" />
-					          <String fx:value="Pear" />
-					        </FXCollections>
-						</items>
-			        </ComboBox>
 
 					<Button fx:id="worldGridBtn" contentDisplay="TOP"
 						mnemonicParsing="false" wrapText="true" textAlignment="CENTER"

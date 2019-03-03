@@ -3,6 +3,7 @@ package generator.algorithm.MAPElites;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
 import java.util.stream.Collectors;
 
@@ -53,6 +54,15 @@ public class GACell
 	public double GetDimensionValue(DimensionTypes dimension)
 	{
 		return cellDimensions.get(dimension);
+	}
+
+	public void BroadcastCellInfo()
+	{
+		for (Entry<DimensionTypes, Double> entry : cellDimensions.entrySet())
+		{
+		    System.out.print(entry.getKey().toString() + ": " + entry.getValue() + ", ");
+		}
+		System.out.println();
 	}
 	
 	/**

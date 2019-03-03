@@ -13,6 +13,7 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
+import java.util.Stack;
 
 import javax.swing.text.Position;
 
@@ -22,13 +23,17 @@ import finder.PatternFinder;
 import finder.Populator;
 import finder.geometry.Bitmap;
 import finder.geometry.Polygon;
+import finder.graph.Edge;
 import finder.graph.Graph;
 import util.algorithms.Node;
 import finder.patterns.Pattern;
 import finder.patterns.SpacialPattern;
+import finder.patterns.meso.DeadEnd;
 import finder.patterns.micro.Connector;
 import finder.patterns.micro.Corridor;
+import finder.patterns.micro.Door;
 import finder.patterns.micro.Enemy;
+import finder.patterns.micro.Entrance;
 import finder.patterns.micro.Chamber;
 import finder.patterns.micro.Treasure;
 import game.roomInfo.RoomSection;
@@ -1355,6 +1360,199 @@ public class Room {
 	public boolean isPointInBorder(Point p)
 	{
 		return borders.contains(Point.castToGeometry(p));
+	}
+	
+	////////////////////////// TESTING PATHS TO ALL DOORS ////////////////////////////////////////////////
+	
+	//This has problems once you start to lock rooms
+	public int LinearityWithinRoom()
+	{
+		int pathCounter = 1;
+		
+		if(getDoorCount(false) == 0) return 1;
+		
+		finder.graph.Node<Pattern> entranceSpatialPattern = null;
+		Queue<finder.graph.Node<Pattern>> patternQueue = new LinkedList<finder.graph.Node<Pattern>>();
+		
+		//We get all Spatial patterns that contains a door!
+		for(finder.graph.Node<Pattern> nodePattern : finder.getPatternGraph().getNodes().values())
+		{
+			if(nodePattern.getValue() instanceof SpacialPattern)
+			{
+				SpacialPattern sp = (SpacialPattern)nodePattern.getValue();
+				
+				if(sp.getContainedPatterns().stream().filter((Pattern p) -> {return p instanceof Entrance;}).findAny().orElse(null) != null)
+				{
+					entranceSpatialPattern = nodePattern;
+				}
+				else if(sp.getContainedPatterns().stream().filter((Pattern p) -> {return p instanceof Door;}).findAny().orElse(null) != null &&
+						!patternQueue.contains(nodePattern))
+				{
+					patternQueue.add(nodePattern);
+				}
+				
+			}
+		}
+		
+		List<Pattern> patterns = new ArrayList<Pattern>();
+		List<Pattern> finalPatterns = new ArrayList<Pattern>(); //IDK if I should add everything together! 
+		
+		while(!patternQueue.isEmpty())
+		{
+			finder.getPatternGraph().resetGraph();
+			finder.graph.Node<Pattern> current = patternQueue.remove();
+			int auxCounter = 0;
+			pathCounter += search(current, null, entranceSpatialPattern, finder.getPatternGraph(), auxCounter, new ArrayList<finder.graph.Node<Pattern>> () );
+//			
+//			for(Pattern p : patterns)
+//			{
+//				if(p.pathTowardsDeadEnd)
+//				{
+//					finalPatterns.add(p);
+//				}
+//				
+//				p.pathTowardsDeadEnd = true; //IDK ABOUT THIS
+//			}
+//			
+//			if(!finalPatterns.isEmpty())
+//			{
+//				DeadEnd deadEnd = new DeadEnd(room, room.getConfig());
+//				deadEnd.getPatterns().addAll(finalPatterns);		
+//				deadEnds.add(deadEnd);
+//			}
+//
+//			patterns.clear();
+//			finalPatterns.clear();
+		}
+		
+//		
+//		
+//		
+//		
+//		
+//		for(Point door : getDoors())
+//		{
+//			if(door.equals(entrance))
+//				continue;
+//			
+//			pathCounter = TraverseTo(0, entrance, door, new Stack<Point>(), new ArrayList<Point>());
+//		}
+		
+		return pathCounter;
+	}
+	
+	//This should return how many paths from the node pattern of the entrance to the node pattern of a door!
+	private int search(finder.graph.Node<Pattern> nodePattern, finder.graph.Node<Pattern> prev 
+			/*, List<Pattern> deadEndPatterns*/, finder.graph.Node<Pattern> target, Graph<Pattern> patternGraph, int counter,
+			List<finder.graph.Node<Pattern>> trail)
+	{
+
+		if(nodePattern.getValue() instanceof SpacialPattern)
+		{
+			SpacialPattern sp = (SpacialPattern)nodePattern.getValue();
+			trail.add(nodePattern);
+			
+			
+//			micropatterns.stream().filter((Pattern p) -> {return p instanceof Entrance;}).findFirst().get();
+			
+			if(sp.equals(target))
+			{
+				counter += 1;
+//				System.out.println("CONTAINS!");
+			}
+			
+			if(sp.getContainedPatterns().stream().filter((Pattern p) -> {return p instanceof Entrance;}).findAny().orElse(null) != null)
+			{
+				counter += 1;
+//				System.out.println("CONTAINS!");
+				return counter;
+			}
+			
+//			if(nodePattern.isVisited())
+//				return counter;
+//			
+			nodePattern.tryVisit();
+			
+			for(Edge<Pattern> e : nodePattern.getEdges())
+			{
+				finder.graph.Node<Pattern> n = getOtherNode(e,nodePattern);
+				if(n != prev && !trail.contains(n))
+				{
+//					n.tryVisit();
+					counter = search(n, nodePattern, target, patternGraph, counter, new ArrayList<finder.graph.Node<Pattern>> (trail));
+				}
+			}
+			
+			return counter;
+		}
+		
+		return counter;
+	}
+	
+	private finder.graph.Node<Pattern> getOtherNode(Edge<Pattern> e, finder.graph.Node<Pattern> node){
+		if (e.getNodeA() == node)
+			return e.getNodeB();
+		return e.getNodeA();
+	}
+	
+	public int LinearityWithinRoom2()
+	{
+		Point entrance = getEntrance();
+		int pathCounter = 1;
+		
+		if(getDoorCount(false) == 0) return 1;
+		
+		for(Point door : getDoors())
+		{
+			if(door.equals(entrance))
+				continue;
+			
+			pathCounter = TraverseTo(0, entrance, door, new Stack<Point>(), new ArrayList<Point>());
+		}
+		
+		return pathCounter;
+	}
+	
+	public int TraverseTo(int counter, Point source, Point target, Stack<Point> visited, ArrayList<Point> path)
+	{
+//		if(r == end) //Is done
+//		{
+//			Stack<Room> temp = new Stack<Room>();
+//			for(Room rcp : ConnectionPath)
+//			{
+//				temp.push(rcp);
+////				System.out.println("ROOM " + rooms.indexOf(rcp));
+//			}
+//			temp.push(r);
+////			temp.push(init);
+//			connectionPaths.add(temp);
+//		}
+//		else if(!ConnectionPath.contains(r))
+//		{
+////			ConnectionPath.push(r);
+//			testTraverseNetwork(r, end);
+//			ConnectionPath.pop();
+//		}
+		visited.push(source);
+		if(source.equals(target))
+		{
+			counter += 1;
+			return counter;
+		}
+		
+		for(Point neighbor : getAvailableCoords(source))
+		{
+			if(visited.contains(neighbor))
+				continue;
+			
+//			path.add(neighbor);
+
+			counter = TraverseTo(counter, neighbor, target, visited, path);
+			visited.pop();
+//			path.remove(neighbor);
+		}
+		
+		return counter;
 	}
 	
 	/////////////////////////////// A* INTERNAL PATHFINDING  ///////////////////////////////////////////////////

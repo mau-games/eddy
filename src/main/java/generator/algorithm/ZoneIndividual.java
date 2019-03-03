@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Random;
+import java.util.Map.Entry;
 
 import finder.geometry.Point;
 import game.Game;
@@ -153,7 +154,17 @@ public class ZoneIndividual {
 		return dimensionValues.get(currentDimension);
 	}
 	
-	
+	public void BroadcastIndividualDimensions()
+	{
+		System.out.print("Room fitness: " + getFitness());
+		
+		for (Entry<DimensionTypes, Double> entry : dimensionValues.entrySet())
+		{
+		    System.out.print(", " + entry.getKey().toString() + ": " + entry.getValue());
+		}
+				
+		System.out.println();
+	}
 	/**
 	 * Two point crossover between two individuals.
 	 * 

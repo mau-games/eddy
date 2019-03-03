@@ -146,7 +146,7 @@ public class MAPEVisualizationPane extends BorderPane
 			for(int i = 1; i < xResolution + 1; i++) 
 			{
 				GridPane.clearConstraints(roomDisplays.get((i - 1) + j * xResolution).getRoomCanvas());
-				GridPane.setConstraints(roomDisplays.get((i - 1) + j * xResolution).getRoomCanvas(), i, j);
+				GridPane.setConstraints(roomDisplays.get((i - 1) + j * xResolution).getRoomCanvas(), i, (red - 1));
 				innerSuggestions.getChildren().add(roomDisplays.get((i - 1) + j * xResolution).getRoomCanvas());
 			}
 		}
