@@ -1365,6 +1365,8 @@ public class Room {
 	////////////////////////// TESTING PATHS TO ALL DOORS ////////////////////////////////////////////////
 	
 	//This has problems once you start to lock rooms
+	//* This definetely should be done another way, I think that the paths should be calculated by the patterns itself and
+	// then used as a way to show the linearity value... moreover, maybe it is interesting to show paths within the room
 	public int LinearityWithinRoom()
 	{
 		int pathCounter = 1;
@@ -1468,9 +1470,9 @@ public class Room {
 				return counter;
 			}
 			
-//			if(nodePattern.isVisited())
-//				return counter;
-//			
+			if(nodePattern.isVisited())
+				return counter;
+			
 			nodePattern.tryVisit();
 			
 			for(Edge<Pattern> e : nodePattern.getEdges())
