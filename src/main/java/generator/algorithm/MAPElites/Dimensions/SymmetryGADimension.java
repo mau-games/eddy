@@ -59,7 +59,7 @@ public class SymmetryGADimension extends GADimension {
     		middlePoint = (int)(k * i);
     		for(int j = 0; j < middlePoint; ++j)
     		{
-    			if(mapMatrix[i][j] == 1 && mapMatrix[colCounter - 1 - i][rowCounter - 1 - j] == 1)
+    			if(mapMatrix[i][j] == 1 && mapMatrix[rowCounter - 1 - i][colCounter - 1 - j] == 1)
     			{
     				identicalFrontslashDiagonalSplit += 2;
     			}
@@ -74,7 +74,7 @@ public class SymmetryGADimension extends GADimension {
     		middlePoint = (int)(k * i);
     		for(int j = 0; j < middlePoint; ++j)
     		{
-    			if(mapMatrix[i][j] == 1 && mapMatrix[colCounter - 1 - i][rowCounter - 1 - j] == 1)
+    			if(mapMatrix[i][j] == 1 && mapMatrix[rowCounter - 1 - i][colCounter - 1 - j] == 1)
     			{
     				identicalBackslashDiagonalSplit += 2;
     			}

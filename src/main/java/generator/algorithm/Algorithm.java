@@ -503,7 +503,8 @@ public class Algorithm extends Thread {
     		treasureFitness -= p.getQuality();
     	}
         
-
+    	//FIXME: THIS HAVE A LOT TO DO! mostly because the quality is not really working as it should! --> TRIPLE CHECK THIS!
+    	//This is also called INVENTORIAL PATTERN FITNESS
         double treasureAndEnemyFitness = 0.0 * doorFitness + 0.2 * entranceFitness + 0.4 * enemyFitness + 0.4 * treasureFitness;
     	
         
@@ -526,44 +527,56 @@ public class Algorithm extends Thread {
     		corridorArea += ((Polygon)p.getGeometry()).getArea() * (p.getQuality()*microPatternWeight +mesoContribution*mesoPatternWeight);
     		
     	}
-    	double corridorFitness = corridorArea/passableTiles;
+    	double corridorFitness = corridorArea/passableTiles; //This is corridor ratio (without the connector)
     	corridorFitness = 1 - Math.abs(corridorFitness - corridorTarget)/Math.max(corridorTarget, 1.0 - corridorTarget);
     	
     	//Room fitness
     	double roomArea = 0;
     	double rawRoomArea = 0;
-    	
+    	double onlyMesoPatterns = 0.0;
+    	double counter = 0;
     	//Room fitness
     	for(Pattern p : chambers){
     		rawRoomArea += ((Polygon)p.getGeometry()).getArea();
+    		counter += 1;
     		double mesoContribution = 0.0;
     		for(DeadEnd de : deadEnds){
     			if(de.getPatterns().contains(p)){
     				mesoContribution +=de.getQuality();
+    				onlyMesoPatterns += de.getQuality();
+//    				counter += 1;
     			}	
     		}
     		
     		for(TreasureRoom t : treasureRooms){
     			if(t.getPatterns().contains(p)){
     				mesoContribution += t.getQuality();
+    				onlyMesoPatterns += t.getQuality();
+//    				counter += 1;
     			}
     		}
     		for(GuardRoom g : guardRooms){
     			if(g.getPatterns().contains(p)){
     				mesoContribution += g.getQuality();
+    				onlyMesoPatterns += g.getQuality();
+//    				counter += 1;
     			}
     		}
     		for(Ambush a : ambushes){
     			if(a.getPatterns().contains(p)){
     				mesoContribution += a.getQuality();
+    				onlyMesoPatterns += a.getQuality();
+//    				counter += 1;
     			}
     		}
     		for(GuardedTreasure gt: guardedTreasure){
     			if(gt.getPatterns().contains(p)){
     				mesoContribution += gt.getQuality();
+    				onlyMesoPatterns += gt.getQuality();
+//    				counter += 1;
     			}
     		}
-    		
+//    		
     		if(mesoContribution > 1)
     			mesoContribution = 1;
     		
@@ -572,6 +585,7 @@ public class Algorithm extends Thread {
     	
     	double roomFitness = roomArea/passableTiles;
     	roomFitness = 1 - Math.abs(roomFitness - roomTarget)/Math.max(roomTarget, 1.0 - roomTarget);
+
 
     	// Similarity Fitness 
     	double similarityFitness = 1.0;
@@ -589,10 +603,15 @@ public class Algorithm extends Thread {
     	}
     	
     	//Total fitness
-    	double fitness = ((0.35 * treasureAndEnemyFitness
-    			+  0.35 * (0.3 * roomFitness + 0.7 * corridorFitness) + (0.3 * symmetricFitnessValue))
-    			* similarityFitness);  	
+//    	double fitness = ((0.35 * treasureAndEnemyFitness
+//    			+  0.35 * (0.3 * roomFitness + 0.7 * corridorFitness) + (0.3 * symmetricFitnessValue))
+//    			* similarityFitness);  	
     	
+    	double fitness = (0.5 * treasureAndEnemyFitness)
+    			+  0.5 * (0.3 * roomFitness + 0.7 * corridorFitness); 
+    	
+    	if(counter > 0)
+    		onlyMesoPatterns = onlyMesoPatterns/counter;
     	
         //set final fitness
         ind.setFitness(fitness);

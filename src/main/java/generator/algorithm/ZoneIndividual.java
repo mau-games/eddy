@@ -471,4 +471,13 @@ public class ZoneIndividual {
 		return phenotype;
 	}
 	
+	/*
+	 * Update the config file and create once again the phenotype
+	 * This operation can be very costly!
+	 */
+	public void ResetPhenotype(GeneratorConfig config)
+	{
+		this.config = config;
+		phenotype = null;
+	}
 }

@@ -11,6 +11,7 @@ public abstract class GADimension
 		SYMMETRY,
 		SIMILARITY,
 		NUMBER_PATTERNS,
+		NUMBER_MESO_PATTERN,
 		DIFFICULTY,
 		GEOM_COMPLEXITY,
 		LEARNING,
@@ -52,16 +53,22 @@ public abstract class GADimension
 		switch(dim)
 		{
 		case DIFFICULTY:
+//			return  new DifficultyGADimension(granularity.floatValue());
 			break;
-		case GEOM_COMPLEXITY:
+		case GEOM_COMPLEXITY: //This can be the density
+//			return  new GeomComplexityGADimension(granularity.floatValue());
 			break;
 		case LEARNING:
+//			return  new LearningGADimension(granularity.floatValue());
 			break;
 		case LINEARITY:
 			return new LinearityGADimension(granularity.floatValue());
 		case NUMBER_PATTERNS:
 			return new NPatternGADimension(granularity.floatValue());
+		case NUMBER_MESO_PATTERN:
+			return new NMesoPatternGADimension(granularity.floatValue());
 		case REWARD:
+//			return  new RewardGADimension(granularity.floatValue());
 			break;
 		case SIMILARITY:
 			return new SimilarityGADimension(granularity.floatValue());

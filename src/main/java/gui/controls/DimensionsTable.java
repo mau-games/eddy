@@ -24,7 +24,7 @@ import util.eventrouting.events.SuggestedMapsLoading;
 
 public class DimensionsTable extends TableView<MAPEDimensionFXML>
 {
-	
+	public int maxSize = 0;
 	private static final DataFormat SERIALIZED_MIME_TYPE = new DataFormat("application/x-java-serialized-object");
 	
 	public DimensionsTable()
@@ -32,8 +32,10 @@ public class DimensionsTable extends TableView<MAPEDimensionFXML>
 		super();
 	}
 	
-	public void setup()
+	public void setup(int size)
 	{
+		this.maxSize = size;
+		
 		this.setPrefWidth(200);
 		this.setMinHeight(10);
 		this.setMaxHeight(150);
@@ -69,7 +71,7 @@ public class DimensionsTable extends TableView<MAPEDimensionFXML>
         
         data.addListener((Change<? extends MAPEDimensionFXML> c) -> {
         	
-        	//This is jävla creisi
+        	//This is jävla creisi - but it works :P 
         	if(data.size() >= 2)
         	{
         		EventRouter.getInstance().postEvent(new MAPEGridUpdate(new MAPEDimensionFXML[] {data.get(0), data.get(1)}));
@@ -124,8 +126,23 @@ public class DimensionsTable extends TableView<MAPEDimensionFXML>
                
                 MAPEDimensionFXML draggedDimension = (MAPEDimensionFXML) tr.tableViewProperty().get().getItems().remove(draggedIndex); 
                 int dropIndex = this.getItems().size();
-
+                
+                if(this.getItems().size() + 1 > maxSize)
+                {
+                	if(dropIndex == this.getItems().size())
+                	{
+                    	tr.tableViewProperty().get().getItems().add(this.getItems().remove(this.getItems().size() - 1));
+                    	dropIndex -= 1;
+                	}
+                	else
+                	{
+                    	tr.tableViewProperty().get().getItems().add(this.getItems().remove(dropIndex));
+                	}
+                }
+                
+                //Add the new dimension to the table
                 this.getItems().add(dropIndex, draggedDimension);
+
                 event.setDropCompleted(true);
                 this.getSelectionModel().select(dropIndex);
                 event.consume();
@@ -172,8 +189,24 @@ public class DimensionsTable extends TableView<MAPEDimensionFXML>
                     } else {
                         dropIndex = row.getIndex();
                     }
-
+//                    System.out.println(dropIndex);
+                    //If more than 2 dimensions, we remove the top dimension :D and add it to the other list
+                    if(this.getItems().size() + 1 > maxSize)
+                    {
+                    	if(dropIndex == this.getItems().size())
+                    	{
+                        	tr.tableViewProperty().get().getItems().add(this.getItems().remove(this.getItems().size() - 1));
+                        	dropIndex -= 1;
+                    	}
+                    	else
+                    	{
+                        	tr.tableViewProperty().get().getItems().add(this.getItems().remove(dropIndex));
+                    	}
+                    }
+                    
+                    //Add the new dimension to the table
                     this.getItems().add(dropIndex, draggedDimension);
+                   
 
                     event.setDropCompleted(true);
                     this.getSelectionModel().select(dropIndex);

@@ -9,6 +9,7 @@ import finder.PatternFinder;
 import game.MapContainer;
 import game.Room;
 import generator.algorithm.Algorithm;
+import generator.algorithm.ZoneGenotype;
 import generator.algorithm.ZoneIndividual;
 import generator.algorithm.MAPElites.Dimensions.GADimension;
 import generator.algorithm.MAPElites.Dimensions.MAPEDimensionFXML;
@@ -19,12 +20,15 @@ import generator.algorithm.MAPElites.Dimensions.GADimension.DimensionTypes;
 import generator.algorithm.Algorithm.AlgorithmTypes;
 import generator.config.GeneratorConfig;
 import util.eventrouting.EventRouter;
+import util.eventrouting.Listener;
+import util.eventrouting.PCGEvent;
 import util.eventrouting.events.AlgorithmDone;
 import util.eventrouting.events.AlgorithmStarted;
+import util.eventrouting.events.MAPEGridUpdate;
 import util.eventrouting.events.MAPElitesDone;
 import util.eventrouting.events.MapUpdate;
 
-public class MAPEliteAlgorithm extends Algorithm {
+public class MAPEliteAlgorithm extends Algorithm implements Listener {
 	
 	//Actually I do not create populations I create the cells and then the population is assigned to each cell! 
 	
@@ -34,6 +38,9 @@ public class MAPEliteAlgorithm extends Algorithm {
 	int cellAmounts = 1;
 	private ArrayList<GADimension> MAPElitesDimensions;
 	private Random rnd = new Random();
+	private int iterationsToPublish = 100;
+	MAPEDimensionFXML[] dimensions;
+	private boolean dimensionsChanged = false;
 
 	public MAPEliteAlgorithm(GeneratorConfig config) {
 		super(config);
@@ -51,7 +58,7 @@ public class MAPEliteAlgorithm extends Algorithm {
 	}
 	
 	/**
-	 * Create an Algorithm run using mutations of a given map
+	 * Create an Algorithm run using mutations of a given map -- actually no
 	 * @param room
 	 */
 	public MAPEliteAlgorithm(Room room, AlgorithmTypes algorithmTypes) //THIS IS CALLED WHEN WE WANT TO PRESERVE THE ROOM 
@@ -92,46 +99,20 @@ public class MAPEliteAlgorithm extends Algorithm {
 	
 	public void initPopulations(Room room, MAPEDimensionFXML[] dimensions){
 		broadcastStatusUpdate("Initialising...");
+		EventRouter.getInstance().registerListener(this, new MAPEGridUpdate(null));
 		
-		feasiblePool = new ArrayList<ZoneIndividual>();
-		infeasiblePool = new ArrayList<ZoneIndividual>();
-		feasiblePopulation = new ArrayList<ZoneIndividual>();
-		infeasiblePopulation = new ArrayList<ZoneIndividual>();
-		
-		MAPElitesDimensions = new ArrayList<GADimension>();
-		
-//		float dimension = 5.0f;//This should be sent when calling the algorithm!
-		
-		float[] dimensionsGranularity = new float[dimensions.length];
-		int counter = 0;
-		
-		for(MAPEDimensionFXML dimension : dimensions)
-		{
-			MAPElitesDimensions.add(GADimension.CreateDimension(dimension.getDimension(), dimension.getGranularity()));
-			dimensionsGranularity[counter++] = dimension.getGranularity();
-		}
-		
-		//Add manually two dimensions
-		
-		
-//		MAPElitesDimensions.add(new NPatternGADimension(dimension));
-
-		//Initialize all the cells!
-		this.cells = new ArrayList<GACell>();
-//		CreateCells(0, MAPElitesDimensions.size(), dimensionsGranularity, new int[dimensions.length]); //the two last values should be 
-		CreateCellsOpposite(MAPElitesDimensions.size() - 1, dimensionsGranularity, new int[dimensions.length]); //the two last values should be 
-		cellAmounts = this.cells.size();
+		this.dimensions = dimensions;
+		initCells(dimensions);
 		
 		int i = 0;
 		int j = 0;
-			
+
 		while((i + j) < populationSize){
 			ZoneIndividual ind = new ZoneIndividual(room, mutationProbability);
-			ind.mutateAll(0.1, roomWidth, roomHeight);
+			ind.mutateAll(0.7, roomWidth, roomHeight);
 			
 			if(checkZoneIndividual(ind)){
 				if(i < feasibleAmount){
-					feasiblePool.add(ind);
 					evaluateFeasibleZoneIndividual(ind);
 					ind.SetDimensionValues(MAPElitesDimensions, room);
 					
@@ -146,7 +127,6 @@ public class MAPEliteAlgorithm extends Algorithm {
 			}
 			else {
 				if(j < populationSize - feasibleAmount){
-					infeasiblePool.add(ind);
 					evaluateInfeasibleZoneIndividual(ind);
 					ind.SetDimensionValues(MAPElitesDimensions, room);
 					
@@ -235,6 +215,82 @@ public class MAPEliteAlgorithm extends Algorithm {
 	
 	}
 	
+	
+	private void initCells(MAPEDimensionFXML[] dimensions)
+	{
+		//Initialize cells
+		MAPElitesDimensions = new ArrayList<GADimension>();
+		
+		//Helper variables to create the cells
+		float[] dimensionsGranularity = new float[dimensions.length];
+		int counter = 0;
+		
+		for(MAPEDimensionFXML dimension : dimensions)
+		{
+			MAPElitesDimensions.add(GADimension.CreateDimension(dimension.getDimension(), dimension.getGranularity()));
+			dimensionsGranularity[counter++] = dimension.getGranularity();
+		}
+
+		//Initialize all the cells!
+		this.cells = new ArrayList<GACell>();
+		CreateCellsOpposite(MAPElitesDimensions.size() - 1, dimensionsGranularity, new int[dimensions.length]);
+		cellAmounts = this.cells.size();
+	}
+	
+	public void RecreateCells()
+	{
+		List<ZoneIndividual> children = new ArrayList<ZoneIndividual>();
+		List<ZoneIndividual> nonFeasibleChildren = new ArrayList<ZoneIndividual>();
+		for(GACell cell : cells)
+		{
+			children.addAll(cell.GetFeasiblePopulation());
+			nonFeasibleChildren.addAll(cell.GetInfeasiblePopulation());
+			cell.GetFeasiblePopulation().clear();
+			cell.GetInfeasiblePopulation().clear();
+		}
+		
+		//now init cells again!
+		initCells(this.dimensions);
+		
+		//Assign everything
+		CheckAndAssignToCell(children, false);
+		CheckAndAssignToCell(nonFeasibleChildren, true);
+	}
+	
+	
+	@Override
+	public void ping(PCGEvent e) //TODO: I SHOULD ALSO ADD THE INFO WHEN A MAP IS UPDATED --> For all the extra calculations
+	{
+		// TODO Auto-generated method stub
+		if(e instanceof MAPEGridUpdate)
+		{
+			this.dimensions = ((MAPEGridUpdate) e).getDimensions(); 
+			dimensionsChanged = true;
+		}
+	}
+	
+	
+	
+	
+	//FIXME: this is called in the loop when X amount of generations have pass. It should be called by event!
+	//FIXME: The problem is that because the original map is by reference, it gets "updated" as the reference have changed
+	public void UpdateConfigFile()
+	{
+		this.config = originalRoom.getCalculatedConfig();
+		populationSize = config.getPopulationSize();
+		mutationProbability = (float)config.getMutationProbability();
+		offspringSize = (float)config.getOffspringSize();
+		feasibleAmount = (int)((double)populationSize * config.getFeasibleProportion());
+		roomTarget = config.getRoomProportion();
+		corridorTarget = config.getCorridorProportion();
+		
+		//Extra
+		for(GACell cell : cells)
+		{
+			cell.ResetPopulation(this.config);
+		}
+	}
+	
 	/**
 	 * Starts the algorithm. Called when the thread starts.
 	 */
@@ -250,6 +306,7 @@ public class MAPEliteAlgorithm extends Algorithm {
         
         Room room = null;
         
+        
         //Simple!
         
         // 1- We have already done that but ... Create N-Dimensional  MAP of Elites
@@ -259,6 +316,99 @@ public class MAPEliteAlgorithm extends Algorithm {
         // 5- Simulate the individuals (in this case calculate the fitness) evaluate and place in the right cell
         // 6- after generations 
         // 	6.1 - Replace: Eliminate low performing individual from cells that are above or at capacity
+        
+        int currentGen = 0;
+        
+        while(!stop)
+        {
+        	if(dimensionsChanged)
+        	{
+        		RecreateCells();
+        		dimensionsChanged = false;
+        	}
+        		//CALL METHOD
+        		
+        	for(int iteration = 0; iteration < 1; iteration++)
+        	{
+        		ArrayList<ZoneIndividual> parents = new ArrayList<ZoneIndividual>();
+        		List<ZoneIndividual> children = new ArrayList<ZoneIndividual>();
+        		GACell current = null;
+        		for(int count = 0; count < 5; count++)
+            	{
+//        			children = new ArrayList<ZoneIndividual>();
+	        		//This could actually be looped to select parents from different cells (according to TALAKAT)
+	        		current = SelectCell(true);
+	        		
+	        		if(current != null)
+	        		{
+	        			current.exploreCell();
+	        			parents.addAll(tournamentSelection(current.GetFeasiblePopulation()));
+	            		
+	        		}
+	        		
+	        		//This could actually be looped to select parents from different cells (according to TALAKAT)
+        			current = SelectCell(false);
+            		
+            		if(current != null)
+            		{
+            			parents.addAll(tournamentSelection(current.GetInfeasiblePopulation()));
+            		}
+            	}
+
+        		
+        		//Breed!
+        		children.addAll(crossOverBetweenProgenitors(parents));
+        		
+        		//Evaluate and assign to correct Cell
+        		CheckAndAssignToCell(children, false);
+        		
+        	}
+        	
+        	//Now we sort both populations in a given cell and cut through capacity!!!
+        	for(GACell cell : cells)
+			{
+				cell.SortPopulations(false);
+				cell.ApplyElitism();
+			}
+        	
+        	//This is only when we want to update the current Generation
+        	if(currentGen >= iterationsToPublish)
+        	{
+        		broadcastResultedRooms();
+        		
+        		//This should be in a call when the ping happens!
+        		UpdateConfigFile();
+        		
+        		
+        		List<ZoneIndividual> children = new ArrayList<ZoneIndividual>();
+        		List<ZoneIndividual> nonFeasibleChildren = new ArrayList<ZoneIndividual>();
+        		for(GACell cell : cells)
+    			{
+        			children.addAll(createMutatedChildren(cell.GetFeasiblePopulation(), 0.6f));
+        			children.addAll(cell.GetFeasiblePopulation());
+        			nonFeasibleChildren.addAll(cell.GetInfeasiblePopulation());
+        			cell.GetFeasiblePopulation().clear();
+        			cell.GetInfeasiblePopulation().clear();
+    			}
+        		
+        		CheckAndAssignToCell(children, false);
+        		CheckAndAssignToCell(nonFeasibleChildren, true);
+        		
+            	for(GACell cell : cells)
+    			{
+    				cell.SortPopulations(false);
+    				cell.ApplyElitism();
+    			}
+        		
+        		
+        		//Maybe mutate all the cells?
+        		currentGen = 0;
+
+        	}
+        	
+    		currentGen++;
+        }
+        
         
         //200
         for(int generationCount = 1; generationCount <= generations; generationCount++) {
@@ -278,6 +428,8 @@ public class MAPEliteAlgorithm extends Algorithm {
 	        		
 	        		if(current != null)
 	        		{
+	        			System.out.println("THIS HAPPENS????");
+	        			current.exploreCell();
 	        			parents.addAll(tournamentSelection(current.GetFeasiblePopulation()));
 	            		
 	            		//Breed!
@@ -361,6 +513,7 @@ public class MAPEliteAlgorithm extends Algorithm {
         	{
         		ev.addRoom(cell.GetFeasiblePopulation().get(0).getPhenotype().getMap(-1, -1, null, null));
         		cell.GetFeasiblePopulation().get(0).BroadcastIndividualDimensions();
+        		evaluateFeasibleZoneIndividual(cell.GetFeasiblePopulation().get(0));
 //        		System.out.println("FIT ROOM Fitness: " + cell.GetFeasiblePopulation().get(0).getFitness() + 
 //        							", symmetry: " + cell.GetFeasiblePopulation().get(0).getDimensionValue(DimensionTypes.SIMILARITY) +
 //        							", pat: " + cell.GetFeasiblePopulation().get(0).getDimensionValue(DimensionTypes.SYMMETRY));
@@ -448,6 +601,26 @@ public class MAPEliteAlgorithm extends Algorithm {
 		return selected;
 	}
 	
+	protected ArrayList<ZoneIndividual> createMutatedChildren(List<ZoneIndividual> population, float mProbability)
+	{
+		ArrayList<ZoneIndividual> mutatedChildren = new ArrayList<ZoneIndividual>();
+		ZoneIndividual child = null;
+		for(ZoneIndividual ind : population)
+		{
+			if(rnd.nextFloat() < mProbability)
+			{
+				child = new ZoneIndividual(config, new ZoneGenotype(config, ind.getGenotype().getChromosome().clone(), 
+						ind.getGenotype().GetRootChromosome()), this.mutationProbability);
+				
+				child.mutateAll(mProbability, this.roomWidth, this.roomHeight);
+				mutatedChildren.add(child);
+			}
+		}
+		
+		
+		return mutatedChildren;
+	}
+	
 	//Select the parents from the popuation
 	protected void SelectParents()
 	{
@@ -463,5 +636,7 @@ public class MAPEliteAlgorithm extends Algorithm {
 	{
 		
 	}
+
+
 	
 }

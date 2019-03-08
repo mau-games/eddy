@@ -281,11 +281,11 @@ public class RoomViewController extends BorderPane implements Listener
 		
 		MAPElitesPane.init(roomDisplays, "","",0,0);
 		
-		MainTable.setup();
+		MainTable.setup(2);
 		MainTable.InitMainTable(MAPElitesPane);
 		MainTable.setEventListeners();
 		
-		secondaryTable.setup();
+		secondaryTable.setup(DimensionTypes.values().length);
 		
 		for(DimensionTypes dimension : DimensionTypes.values())
         {
@@ -302,6 +302,7 @@ public class RoomViewController extends BorderPane implements Listener
 	@FXML
 	private void OnChangeTab()
 	{
+		//TODO: Debugging here!
 		if(getMapView() != null && getMapView().getMap() != null)
 		{
 			int paths = getMapView().getMap().LinearityWithinRoom();
@@ -344,7 +345,12 @@ public class RoomViewController extends BorderPane implements Listener
 						AnchorPane ap = (AnchorPane)evoTab.getContent();
 						for(Node n : ap.getChildren())
 						{
-							h += n.getBoundsInLocal().getHeight();
+//							h += n.getBoundsInLocal().getHeight();
+							for(Node nChild : ((VBox)n).getChildren()) //I hate JAVAFX So much!!
+							{
+								h += nChild.getBoundsInLocal().getHeight();
+							}
+							
 						}
 						allSuggestionsPane.setPrefHeight(h + allSuggestionsPane.getTabMaxHeight() + 40);
 					}
@@ -615,6 +621,7 @@ public class RoomViewController extends BorderPane implements Listener
 		{
 			MAPElitesPane.dimensionsUpdated(roomDisplays, ((MAPEGridUpdate) e).getDimensions());
 			currentDimensions = ((MAPEGridUpdate) e).getDimensions(); 
+			OnChangeTab();
 		}
 		else if(e instanceof MAPElitesDone)
 		{
@@ -658,7 +665,12 @@ public class RoomViewController extends BorderPane implements Listener
 						if(sugRoom.getSuggestedRoom() != null)
 						{
 							sugRoom.getRoomCanvas().draw(renderer.renderMiniSuggestedRoom(sugRoom.getSuggestedRoom()));
-						}		
+						}
+						else
+						{
+							sugRoom.getRoomCanvas().draw(null);
+						}
+							
 					}
 
 //					System.out.println("CANVAS WIDTH: " + canvas.getWidth() + ", CANVAS HEIGHT: " + canvas.getHeight());
@@ -667,14 +679,18 @@ public class RoomViewController extends BorderPane implements Listener
 			}
 		}
 		else if (e instanceof MapUpdate) {
-
+			//FIXME: I REALLY HAVE TO GO BACK HERE TO FIX THIS TO BE ABLE TO CREATEROOMS THE OLD WAY
 			if (isActive) {
 				//System.out.println(nextMap);
 				Room room = (Room) ((MapUpdate) e).getPayload();
 				UUID uuid = ((MapUpdate) e).getID();
 				LabeledCanvas canvas;
+				nextRoom = 0;
 				synchronized (roomDisplays) {
-
+//					suggestionsBox.getChildren().add(suggestion.getRoomCanvas());
+					
+//					SuggestionRoom current = (SuggestionRoom)suggestionsBox.getChildren().get(nextRoom);
+					
 					roomDisplays.get(nextRoom).setSuggestedRoom(room);
 					roomDisplays.get(nextRoom).setOriginalRoom(getMapView().getMap()); //Maybe this does not make sense? Idk
 					

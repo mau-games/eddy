@@ -1,6 +1,7 @@
 package generator.algorithm.MAPElites.Dimensions;
 
 import game.Room;
+import game.TileTypes;
 import generator.algorithm.ZoneIndividual;
 
 public class SimilarityGADimension extends GADimension 
@@ -20,7 +21,14 @@ public class SimilarityGADimension extends GADimension
     	int[][] oldMatrix = individualRoom.toMatrix();
     	int[][] newMatrix = target.toMatrix();
     	double totalTiles = individualRoom.getColCount() * individualRoom.getRowCount();
+//    	totalTiles = target.getWallCount() + target.getEnemyCount() + target.getTreasureCount(); //testing
     	double similarTiles = totalTiles;
+    	
+    	if(totalTiles == 0)
+    	{
+    		
+    	}
+
     	
     	// Calculates how many tiles that are similar between the two maps
     	//TODO: THis looks wrong!
@@ -28,24 +36,27 @@ public class SimilarityGADimension extends GADimension
     	{
     		for(int i = 0; i < individualRoom.getColCount(); ++i)
     		{
-//    			if(oldMatrix[j][i] != newMatrix[j][i])
+//    			if((newMatrix[j][i] >= 1 && newMatrix[j][i] <= 3) && oldMatrix[j][i] != newMatrix[j][i])
 //    				similarTiles--;
     			
-    			switch (oldMatrix[j][i])
-    			{
-	    			case 1: // Just walls. Checking if both maps have a wall in the same place.
-	        			if(newMatrix[j][i] != 1)
-	        			{
-	        				similarTiles--;
-	        			}
-	        			break;
-        			default: // Every other floor tile. Checking if that there is no wall.
-        				if(newMatrix[j][i] == 1)
-	        			{
-	        				similarTiles--;
-	        			}
-        				break;
-    			}
+    			if(oldMatrix[j][i] != newMatrix[j][i])
+    				similarTiles--;
+    			
+//    			switch (oldMatrix[j][i])
+//    			{
+//	    			case 1: // Just walls. Checking if both maps have a wall in the same place.
+//	        			if(newMatrix[j][i] != 1)
+//	        			{
+//	        				similarTiles--;
+//	        			}
+//	        			break;
+//        			default: // Every other floor tile. Checking if that there is no wall.
+//        				if(newMatrix[j][i] == 1)
+//	        			{
+//	        				similarTiles--;
+//	        			}
+//        				break;
+//    			}
     		}
     	}
     	double procentSimilar = similarTiles / totalTiles;

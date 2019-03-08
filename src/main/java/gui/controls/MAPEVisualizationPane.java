@@ -35,16 +35,8 @@ public class MAPEVisualizationPane extends BorderPane
 	{
 		
 		//THIS IS SETTING UP FOR MAPELITES
-		//Basic setup of inner grid
-		innerSuggestions = new GridPane();		
-		innerSuggestions.setStyle("-fx-background-color: transparent;");
-		innerSuggestions.setHgap(5.0);
-		innerSuggestions.setVgap(5.0);
-		innerSuggestions.setAlignment(Pos.CENTER);
-		SetupInnerGrid(roomDisplays, width, height);
 
-//		innerSuggestions.setGridLinesVisible(true);
-		HBox sp = new HBox(innerSuggestions);
+
 
 		
 		//CENTER SCROLL PANE
@@ -57,6 +49,16 @@ public class MAPEVisualizationPane extends BorderPane
 		mapeScroll.setMaxWidth(599);
 		mapeScroll.setMinHeight(150);
 		mapeScroll.setMaxHeight(600);
+		
+		//Basic setup of inner grid
+		innerSuggestions = new GridPane();		
+		innerSuggestions.setStyle("-fx-background-color: transparent;");
+		innerSuggestions.setHgap(5.0);
+		innerSuggestions.setVgap(5.0);
+		innerSuggestions.setAlignment(Pos.CENTER);
+		SetupInnerGrid(roomDisplays, width, height);
+		HBox sp = new HBox(innerSuggestions);
+
 
 		mapeScroll.setContent(sp);
 //		mapeScroll.setFitToWidth(true);
@@ -103,6 +105,7 @@ public class MAPEVisualizationPane extends BorderPane
 //		this.setVisible(false);
 		sp.setAlignment(Pos.CENTER);
 		
+
 		
 //		BorderPane.setAlignment(innerSuggestions, Pos.CENTER_RIGHT);
 	}
@@ -160,6 +163,13 @@ public class MAPEVisualizationPane extends BorderPane
 			GridPane.setHalignment(boxLabel, HPos.CENTER);
 			innerSuggestions.getChildren().add(boxLabel);
 		}
+		
+		mapeScroll.setMinWidth(10);
+		mapeScroll.setMaxWidth(599);
+		mapeScroll.setMinHeight(150);
+		mapeScroll.setMaxHeight(600);
+		
+		this.autosize();
 		
 	}
 	

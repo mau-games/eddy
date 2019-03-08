@@ -10,6 +10,7 @@ import java.util.stream.Collectors;
 import generator.algorithm.ZoneIndividual;
 import generator.algorithm.MAPElites.Dimensions.GADimension;
 import generator.algorithm.MAPElites.Dimensions.GADimension.DimensionTypes;
+import generator.config.GeneratorConfig;
 
 /***
  * This Cell will contain the information of cell for MAP-Elites, which in our domain means
@@ -31,6 +32,7 @@ public class GACell
 //	protected ArrayList<GADimension> cellDimensions;
 	
 	protected HashMap<DimensionTypes, Double> cellDimensions;
+	protected int exploreCounter = 0;
 	
 	//Something about the dimensions (I have to do it as generic as i can so i can test a lot!)
 	
@@ -62,6 +64,9 @@ public class GACell
 		{
 		    System.out.print(entry.getKey().toString() + ": " + entry.getValue() + ", ");
 		}
+		
+		System.out.print("explored: " + exploreCounter);
+		
 		System.out.println();
 	}
 	
@@ -90,6 +95,18 @@ public class GACell
 		return true;
 	}
 	
+	public void ResetPopulationsFitness()
+	{
+		feasiblePopulation.forEach(ind -> ind.setEvaluate(false));
+		infeasiblePopulation.forEach(ind -> ind.setEvaluate(false));
+	}
+	
+	public void ResetPopulation(GeneratorConfig config)
+	{
+		feasiblePopulation.forEach(ind -> {ind.setEvaluate(false); ind.ResetPhenotype(config);});
+		infeasiblePopulation.forEach(ind -> {ind.setEvaluate(false); ind.ResetPhenotype(config);});
+	}
+	
 	public void SortPopulations(boolean ascending)
 	{
 		 feasiblePopulation.sort((x, y) -> (ascending ? 1 : -1) * Double.compare(x.getFitness(),y.getFitness()));
@@ -112,5 +129,15 @@ public class GACell
 	public List<ZoneIndividual> GetInfeasiblePopulation()
 	{
 		return infeasiblePopulation;
+	}
+	
+	public void exploreCell()
+	{
+		exploreCounter++;
+	}
+	
+	public int getExploration()
+	{
+		return exploreCounter;
 	}
 }

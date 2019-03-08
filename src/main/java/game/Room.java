@@ -89,7 +89,13 @@ public class Room {
 	private Point entrance;
 	private double entranceSafety;
 	private double entranceGreed;
+	
+	//THERE MUST BE TWO DIFFERENT CONFIGS!!
 	private GeneratorConfig config = null;
+	
+	private GeneratorConfig selfGeneratorConfig;
+	private GeneratorConfig targetGeneratorConfig;
+	
 	
 	//NEW THINGS
 	public ZoneNode root;
@@ -207,7 +213,7 @@ public class Room {
 	public Room(GeneratorConfig config, ZoneNode rootCopy, int[] chromosomes, int rows, int cols) //THIS IS CALLED FROM THE PHENOTYPE BUT WHEN WE HAVE THE ZONES
 	{
 		init(rows, cols);
-
+		
 		this.config = config;
 //		this.localConfig = new RoomConfig(this, 40); //TODO: NEW ADDITION --> HAVE TO BE ADDED EVERYWHERE
 		
@@ -799,6 +805,13 @@ public class Room {
 		return treasures;
 	}
 
+	private void clearFailedPaths()
+	{
+		failedPathsToTreasures = 0;
+		failedPathsToEnemies = 0;
+		failedPathsToAnotherDoor = 0;
+	}
+	
 	/**
 	 * Increases the number of failed path searches for treasures by one.
 	 */
@@ -974,7 +987,8 @@ public class Room {
 			}
 		}
 	}
-
+	
+	//TODO: THIS METHOD IS GOING TO CHANGE NOW-- SOON!
 	public GeneratorConfig getCalculatedConfig(){
 		GeneratorConfig newConfig = new GeneratorConfig(config);
 		//Make a new pattern finder in case the map has been manually edited since the patterns were found
@@ -1000,6 +1014,7 @@ public class Room {
 			}
 		}
 
+		//FIXME: Now is time to fix you! 
 		//TODO: Also take into account other patterns!!!
 
 		//CORRIDOR LENGTH
@@ -1100,6 +1115,7 @@ public class Room {
 	public boolean isIntraFeasible()
 	{
     	Queue<Node> queue = new LinkedList<Node>();
+    	clearFailedPaths();
     	int treasure = 0;
     	int enemies = 0;
     	int doors = 0;
@@ -1143,9 +1159,9 @@ public class Room {
         			section.doorFound();
         		}
         		else if (currentTile.GetType().isEnemy())
-        			enemies++;
+        			section.addEnemy();
         		else if (currentTile.GetType().isTreasure())
-        			treasure++;
+        			section.addTreasure();
         		
         		List<Point> children = getAvailableCoords(current.position);
                 for(Point child : children)
@@ -1185,6 +1201,22 @@ public class Room {
 //    	
 //    	paintPath(true);
     	//TODO: PART OF THE TESTING
+    	
+    	boolean sectionsReachable = true;
+    	
+    	//What is reachable and what is not!
+    	for(RoomSection section : walkableSections)
+		{
+			if(section.hasDoor())
+			{
+				treasure += section.getTreasures();
+				enemies += section.getEnemies();
+			}
+			else
+			{
+				sectionsReachable = false;
+			}
+		}
 
     	for(int i = treasure; i < getTreasureCount();i++)
     		addFailedPathToTreasures();
@@ -1203,7 +1235,7 @@ public class Room {
 
     	return  (treasure + doors + enemies == getTreasureCount() + getDoorCount(true) + getEnemyCount()) //Same amount of treasure+enemies+doors
     			&& getTreasureCount() > 0 && getEnemyCount() > 0 //Finns at least 1(one) enemy and one treasure
-    			&& allSectionsReachable(walkableSections); //All sections in the room are reachable!!!
+    			&& sectionsReachable; //All sections in the room are reachable!!!
 		
 //		return true;
 	}
