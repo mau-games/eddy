@@ -106,6 +106,7 @@ import util.eventrouting.events.MapUpdate;
 import util.eventrouting.events.RequestAppliedMap;
 import util.eventrouting.events.RequestRoomView;
 import util.eventrouting.events.RequestWorldView;
+import util.eventrouting.events.SaveDisplayedCells;
 import util.eventrouting.events.StartGA_MAPE;
 import util.eventrouting.events.StartMapMutate;
 import util.eventrouting.events.Stop;
@@ -179,6 +180,7 @@ public class RoomViewController extends BorderPane implements Listener
 	@FXML private Button appSuggestionsBtn; //bra
 	@FXML private Button flowControlBtn; //bra
 	@FXML private Button stopEABtn; //bra
+	@FXML private Button saveGenBtn;
 	
 	@FXML private CheckBox symmetryChoicebox; //ok, why not
 	@FXML private CheckBox similarChoicebox; //ok, why not
@@ -900,6 +902,29 @@ public class RoomViewController extends BorderPane implements Listener
 		}
 	}
 
+	/**
+	 * Generates as many suggested rooms as specified
+	 * 
+	 * "Why is this public?",  you ask. Because of FXML's method binding.
+	 */
+	@FXML
+	private void saveCurrentGeneration() //TODO: some changes here!
+	{	
+		switch(currentState)
+		{
+		case STOPPED:
+			//Nothing happens here :D 
+			break;
+		case RUNNING:
+			
+			router.postEvent(new SaveDisplayedCells());
+			MAPElitesPane.SaveDimensionalGrid();
+			MapRenderer.getInstance().saveCurrentEditedRoom(getMapView());
+			
+			break;
+		}
+
+	}
 
 	/**
 	 * Generates as many suggested rooms as specified

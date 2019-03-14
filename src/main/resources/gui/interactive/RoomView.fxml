@@ -330,6 +330,9 @@
 					<Button fx:id="appSuggestionsBtn" contentDisplay="TOP"
 						mnemonicParsing="false" wrapText="true" textAlignment="CENTER"
 						text="Apply Suggestion" onAction="#selectSuggestion" />
+					<Button fx:id="saveGenBtn" contentDisplay="TOP"
+						mnemonicParsing="false" wrapText="true" textAlignment="CENTER"
+						text="Save Current" onAction="#saveCurrentGeneration" />
 
 				</HBox>
 				<Pane fx:id="minimap" />

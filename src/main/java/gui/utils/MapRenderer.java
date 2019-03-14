@@ -16,6 +16,7 @@ import javax.imageio.ImageIO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import collectors.MAPECollector;
 import finder.geometry.Bitmap;
 import finder.geometry.Geometry;
 import finder.geometry.Point;
@@ -54,6 +55,7 @@ import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.image.Image;
 import javafx.scene.image.WritableImage;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import util.config.ConfigurationUtility;
 import util.config.MissingConfigurationException;
@@ -268,7 +270,31 @@ public class MapRenderer implements Listener {
 		final WritableImage writableImage = new WritableImage((int)gridPane.getWidth(), (int)gridPane.getHeight());
 		Image image = gridPane.snapshot(new SnapshotParameters(), writableImage);
 		
-		File file = new File("CanvasImage_" + ".png");
+		File file = new File(MAPECollector.getInstance().currentGenerationPath + "\\CellIndividuals_gen-" + MAPECollector.getInstance().currentGeneration + ".png");
+		try {
+            ImageIO.write(SwingFXUtils.fromFXImage(writableImage, null), "png", file);
+        } catch (Exception s) {
+        }
+		
+
+		return image;
+	}
+	
+	/**
+	 * Draws a matrix onto a new image.
+	 * 
+	 * @param ctx The graphics context to draw on.
+	 * @param matrix A rectangular matrix of integers. Each integer corresponds
+	 * 		to some predefined value.
+	 */
+	public synchronized Image saveCurrentEditedRoom(Pane currentEditedPane) 
+	{
+		
+		final WritableImage writableImage = new WritableImage((int)currentEditedPane.getWidth(), (int)currentEditedPane.getHeight());
+		Image image = currentEditedPane.snapshot(new SnapshotParameters(), writableImage);
+
+		
+		File file = new File(MAPECollector.getInstance().currentGenerationPath + "\\currentRoom.png");
 		try {
             ImageIO.write(SwingFXUtils.fromFXImage(writableImage, null), "png", file);
         } catch (Exception s) {

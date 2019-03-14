@@ -145,8 +145,6 @@ public class MAPEliteAlgorithm extends Algorithm implements Listener {
 					j++;
 				}
 			}
-			
-			System.out.println(i+j);
 		}
 		
 		
@@ -421,13 +419,14 @@ public class MAPEliteAlgorithm extends Algorithm implements Listener {
 			}
         	
 //        	EventRouter.getInstance().postEvent(new MAPEGenerationDone(realCurrentGen, MAPElitesDimensions, cells));
-        	MAPECollector.getInstance().SaveGeneration(realCurrentGen, MAPElitesDimensions, cells);
+//        	MAPECollector.getInstance().SaveGeneration(realCurrentGen, MAPElitesDimensions, cells, true);
         	
         	
         	//This is only when we want to update the current Generation
         	if(currentGen >= iterationsToPublish)
         	{
         		broadcastResultedRooms();
+        		MAPECollector.getInstance().SaveGeneration(realCurrentGen, MAPElitesDimensions, cells, false);
         		
         		//This should be in a call when the ping happens!
         		UpdateConfigFile();

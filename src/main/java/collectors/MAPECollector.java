@@ -21,6 +21,7 @@ import util.eventrouting.events.AlgorithmDone;
 import util.eventrouting.events.AlgorithmStarted;
 import util.eventrouting.events.GenerationDone;
 import util.eventrouting.events.MAPEGenerationDone;
+import util.eventrouting.events.SaveDisplayedCells;
 
 /**
  * This class has the functionality to store 3 different files corresponding to the MAP-Elites generation
@@ -45,13 +46,13 @@ import util.eventrouting.events.MAPEGenerationDone;
 public class MAPECollector implements Listener
 {
 	private static MAPECollector instance = null;
-	String currentProjectPath = ""; //Project path
-	String currentRunPath = ""; //Evolutionary Run path
-	String currentGenerationPath = ""; //Current Generation in the evolutionary run path
-	
+	public String currentProjectPath = ""; //Project path
+	public String currentRunPath = ""; //Evolutionary Run path
+	public String currentGenerationPath = ""; //Current Generation in the evolutionary run path
+	public int currentGeneration = 0;
 	
 	StringBuilder[] currentGenerationSummary;
-	StringBuilder[] currentGenerationCell;
+	ArrayList<StringBuilder[]> currentGenerationCell;
 	
 	/**
 	 * This constructor is only to be called by the getInstance() method.
@@ -66,6 +67,7 @@ public class MAPECollector implements Listener
 		}
 		
 		EventRouter.getInstance().registerListener(this, new GenerationDone(null));
+		EventRouter.getInstance().registerListener(this, new SaveDisplayedCells());
 	}
 	
 	/**
@@ -85,8 +87,12 @@ public class MAPECollector implements Listener
 		// TODO Auto-generated method stub
 		if (e instanceof MAPEGenerationDone) {
 			MAPEGenerationDone generationInfo = (MAPEGenerationDone)e;
-			SaveGeneration(generationInfo.getGenerationCounter(), generationInfo.getDimensions(), generationInfo.getCells());
+			SaveGeneration(generationInfo.getGenerationCounter(), generationInfo.getDimensions(), generationInfo.getCells(), false);
 			
+		}
+		else if(e instanceof SaveDisplayedCells)
+		{
+			WriteGenToFile();
 		}
 //		} else if (e instanceof AlgorithmDone) {
 //			if (active) {
@@ -103,20 +109,29 @@ public class MAPECollector implements Listener
 		currentRunPath = currentProjectPath + "\\RUN_" + runID;
 	}
 	
-	public synchronized void SaveGeneration(int generationCounter, ArrayList<GADimension> dimensions, ArrayList<GACell> cells)
+	public synchronized void SaveGeneration(int generationCounter, ArrayList<GADimension> dimensions, ArrayList<GACell> cells, boolean save)
 	{
+		this.currentGeneration = generationCounter;
 		currentGenerationPath = currentRunPath + "\\Generation-" + generationCounter;
-		new File(currentGenerationPath).mkdirs();
-		
+
+		//Save the generation summary
 		saveGenerationalSummary(dimensions, cells);
 		
+		currentGenerationCell = new ArrayList<StringBuilder[]>();
+		
 		for(int i = 0; i < cells.size(); i++)
+		{
 			saveGenerationPerCell(dimensions, cells.get(i),i);
+		}
+		
+		if(save)
+			WriteGenToFile();
+			
 	}
 	
 	private synchronized void saveGenerationPerCell(ArrayList<GADimension> dimensions, GACell cell, int cellIndex)
 	{
-		File file = new File(currentGenerationPath + "\\cell_" + cellIndex +".csv");
+		
 		/*
 		 2- Each generation cell information 
 		 *  2.1- Dimensions and their resolution
@@ -127,43 +142,36 @@ public class MAPECollector implements Listener
 		 */
 		int counter = 0;
 		
-		currentGenerationCell = new StringBuilder[cell.GetFeasiblePopulation().size() + 1];
-		currentGenerationCell[counter] = new StringBuilder();
-		currentGenerationCell[counter].append("DimensionX;DimensionX Resolution;DimensionY;DimensionY Resolution;Cell;Cell DimensionX; Cell DimensionY;"
+		currentGenerationCell.add(new StringBuilder[cell.GetFeasiblePopulation().size() + 1]);
+		currentGenerationCell.get(cellIndex)[counter] = new StringBuilder();
+		currentGenerationCell.get(cellIndex)[counter].append("DimensionX;DimensionX Resolution;DimensionY;DimensionY Resolution;Cell;Cell DimensionX; Cell DimensionY;"
 				+ "IND Fit;IND DIMX;IND DIMY" + System.lineSeparator());
 		
 		counter++;
 		for(int i = 0; i < cell.GetFeasiblePopulation().size(); i++, counter++)
 		{
 			
-			currentGenerationCell[counter] = new StringBuilder();
+			currentGenerationCell.get(cellIndex)[counter] = new StringBuilder();
 			//DimensionX, dimensionY
-			currentGenerationCell[counter].append(dimensions.get(0).GetType().toString() + ";");
-			currentGenerationCell[counter].append(dimensions.get(0).GetGranularity() + ";");
-			currentGenerationCell[counter].append(dimensions.get(1).GetType().toString()  + ";");
-			currentGenerationCell[counter].append(dimensions.get(1).GetGranularity() + ";");
-			currentGenerationCell[counter].append(cellIndex + ";");
-			currentGenerationCell[counter].append(cell.GetDimensionValue(dimensions.get(0).GetType()) + ";");
-			currentGenerationCell[counter].append(cell.GetDimensionValue(dimensions.get(1).GetType()) + ";");
-			currentGenerationCell[counter].append(cell.GetFeasiblePopulation().get(i).getFitness() + ";");
-			currentGenerationCell[counter].append(cell.GetFeasiblePopulation().get(i).getDimensionValue(dimensions.get(0).GetType()) + ";");
-			currentGenerationCell[counter].append(cell.GetFeasiblePopulation().get(i).getDimensionValue(dimensions.get(1).GetType()) + System.lineSeparator());
+			currentGenerationCell.get(cellIndex)[counter].append(dimensions.get(0).GetType().toString() + ";");
+			currentGenerationCell.get(cellIndex)[counter].append(dimensions.get(0).GetGranularity() + ";");
+			currentGenerationCell.get(cellIndex)[counter].append(dimensions.get(1).GetType().toString()  + ";");
+			currentGenerationCell.get(cellIndex)[counter].append(dimensions.get(1).GetGranularity() + ";");
+			currentGenerationCell.get(cellIndex)[counter].append(cellIndex + ";");
+			currentGenerationCell.get(cellIndex)[counter].append(cell.GetDimensionValue(dimensions.get(0).GetType()) + ";");
+			currentGenerationCell.get(cellIndex)[counter].append(cell.GetDimensionValue(dimensions.get(1).GetType()) + ";");
+			currentGenerationCell.get(cellIndex)[counter].append(cell.GetFeasiblePopulation().get(i).getFitness() + ";");
+			currentGenerationCell.get(cellIndex)[counter].append(cell.GetFeasiblePopulation().get(i).getDimensionValue(dimensions.get(0).GetType()) + ";");
+			currentGenerationCell.get(cellIndex)[counter].append(cell.GetFeasiblePopulation().get(i).getDimensionValue(dimensions.get(1).GetType()) + System.lineSeparator());
 		}
 
-		try {
-			for(StringBuilder tuple : currentGenerationCell)
-			{
-				FileUtils.write(file, tuple, true);
-			}
-		} catch (IOException e1) {
-			
-		}
+	
 		
 	}
 	
 	private synchronized void saveGenerationalSummary(ArrayList<GADimension> dimensions, ArrayList<GACell> cells) 
 	{
-		File file = new File(currentGenerationPath + "\\generational-summary.csv");
+		
 		/*
 		 *	1.1- Dimensions and their resolution
 		 *  1.2- Cells with their index, dimension index and dimension value
@@ -205,10 +213,20 @@ public class MAPECollector implements Listener
 			{
 				currentGenerationSummary[counter].append(";;" + System.lineSeparator());
 			}
-
 		}
-		
-		
+
+	}
+	
+	public synchronized void WriteGenToFile()
+	{
+		new File(currentGenerationPath).mkdirs();
+		WriteGenSummaryToFile();
+		WriteCellsToFile();
+	}
+	
+	private synchronized void WriteGenSummaryToFile()
+	{
+		File file = new File(currentGenerationPath + "\\generational-summary.csv");
 		
 		try {
 			for(StringBuilder tuple : currentGenerationSummary)
@@ -218,6 +236,24 @@ public class MAPECollector implements Listener
 			
 		} catch (IOException e1) {
 			
+		}
+	}
+	
+	private synchronized void WriteCellsToFile()
+	{
+		for(int cellIndex = 0; cellIndex < currentGenerationCell.size(); cellIndex++)
+		{
+			//Rename the file!
+			File file = new File(currentGenerationPath + "\\cell_" + cellIndex +".csv");
+			
+			try {
+				for(StringBuilder tuple : currentGenerationCell.get(cellIndex))
+				{
+					FileUtils.write(file, tuple, true);
+				}
+			} catch (IOException e1) {
+				
+			}
 		}
 		
 	}
