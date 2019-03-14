@@ -117,6 +117,7 @@ import game.DungeonPane;
 
 /**
  * This class controls the interactive application's edit view.
+ * FIXME: A lot of things need to change here! 
  * 
  * @author Johan Holmberg, Malmö University
  * @author Chelsi Nolasco, Malmö University
@@ -176,6 +177,8 @@ public class RoomViewController extends BorderPane implements Listener
 	@FXML private Button worldGridBtn; //ok
 	@FXML private Button genSuggestionsBtn; //bra
 	@FXML private Button appSuggestionsBtn; //bra
+	@FXML private Button flowControlBtn; //bra
+	@FXML private Button stopEABtn; //bra
 	
 	@FXML private CheckBox symmetryChoicebox; //ok, why not
 	@FXML private CheckBox similarChoicebox; //ok, why not
@@ -220,7 +223,16 @@ public class RoomViewController extends BorderPane implements Listener
 
 	private PossibleGAs selectedGA;
 	private MAPEDimensionFXML[] currentDimensions = new MAPEDimensionFXML[] {};
-
+	
+	
+	//PROVISIONAL FIX!
+	public enum EvoState
+	{
+		STOPPED,
+		RUNNING
+	}
+	
+	public EvoState currentState;
 	
 	/**
 	 * Creates an instance of this class.
@@ -289,7 +301,9 @@ public class RoomViewController extends BorderPane implements Listener
 		
 		for(DimensionTypes dimension : DimensionTypes.values())
         {
-        	if(dimension != DimensionTypes.SIMILARITY && dimension != DimensionTypes.SYMMETRY)
+        	if(dimension != DimensionTypes.SIMILARITY && dimension != DimensionTypes.SYMMETRY
+        			&& dimension != DimensionTypes.LEARNING && dimension != DimensionTypes.DIFFICULTY
+        			&& dimension != DimensionTypes.GEOM_COMPLEXITY && dimension != DimensionTypes.REWARD)
         	{
         		secondaryTable.getItems().add(new MAPEDimensionFXML(dimension, 5));
         	}
@@ -297,6 +311,11 @@ public class RoomViewController extends BorderPane implements Listener
         }
 		
 		secondaryTable.setEventListeners();
+		
+		currentState = EvoState.STOPPED;
+		selectedGA = PossibleGAs.MAP_ELITES;
+//		allSuggestionsPane.getSelectionModel().select(1);
+		
 	}
 	
 	@FXML
@@ -339,6 +358,7 @@ public class RoomViewController extends BorderPane implements Listener
 					break;
 				case "MAPE":
 					selectedGA = PossibleGAs.MAP_ELITES;
+
 					if(MAPElitesPane.getHeight() > 1.0f)
 					{
 						double h= 0.0;
@@ -403,7 +423,10 @@ public class RoomViewController extends BorderPane implements Listener
 		resetSuggestedRooms(); //reset the canvas of the suggestions
 		getAppSuggestionsBtn().setDisable(true); //Disable the apply suggested room
 		
-		
+		//Disable those two new buttons
+//		flowControlBtn.setDisable(true);
+//		stopEABtn.setDisable(true);
+//		
 		for(SuggestionRoom sr : roomDisplays)
 		{
 			sr.resizeCanvasForRoom(roomToBe);
@@ -412,6 +435,10 @@ public class RoomViewController extends BorderPane implements Listener
 		initMapView();
 		initLegend();
 		updateMap(roomToBe);	
+		
+//		
+//		OnChangeTab();
+//		generateNewMaps();
 	}
 
 	/**
@@ -660,17 +687,18 @@ public class RoomViewController extends BorderPane implements Listener
 				}
 				
 				Platform.runLater(() -> {
+					int i = 0;
 					for(SuggestionRoom sugRoom : roomDisplays)
 					{
 						if(sugRoom.getSuggestedRoom() != null)
 						{
-							sugRoom.getRoomCanvas().draw(renderer.renderMiniSuggestedRoom(sugRoom.getSuggestedRoom()));
+							sugRoom.getRoomCanvas().draw(renderer.renderMiniSuggestedRoom(sugRoom.getSuggestedRoom(), i));
 						}
 						else
 						{
 							sugRoom.getRoomCanvas().draw(null);
 						}
-							
+						i++;
 					}
 
 //					System.out.println("CANVAS WIDTH: " + canvas.getWidth() + ", CANVAS HEIGHT: " + canvas.getHeight());
@@ -702,7 +730,7 @@ public class RoomViewController extends BorderPane implements Listener
 				}
 
 				Platform.runLater(() -> {
-					canvas.draw(renderer.renderMiniSuggestedRoom(room));
+					canvas.draw(renderer.renderMiniSuggestedRoom(room, nextRoom - 1));
 //					System.out.println("CANVAS WIDTH: " + canvas.getWidth() + ", CANVAS HEIGHT: " + canvas.getHeight());
 				});
 			}
@@ -881,10 +909,44 @@ public class RoomViewController extends BorderPane implements Listener
 	@FXML
 	private void generateNewMaps() //TODO: some changes here!
 	{	
-		router.postEvent(new SuggestedMapsLoading());
-		resetSuggestedRooms();
-		prepareViewForSuggestions();
-		generateNewMaps(getMapView().getMap());
+		switch(currentState)
+		{
+		case STOPPED:
+			router.postEvent(new SuggestedMapsLoading());
+			resetSuggestedRooms();
+//			prepareViewForSuggestions();
+			generateNewMaps(getMapView().getMap());
+			
+			clearStats();
+			getWorldGridBtn().setDisable(true);
+			getGenSuggestionsBtn().setText("Stop Suggestions");
+			getAppSuggestionsBtn().setDisable(true);
+			currentState = EvoState.RUNNING;
+			break;
+		case RUNNING:
+			
+			router.postEvent(new Stop());
+			
+			clearStats();
+			getWorldGridBtn().setDisable(false);
+			getGenSuggestionsBtn().setText("Generate Suggestions");
+			getAppSuggestionsBtn().setDisable(false);
+			currentState = EvoState.STOPPED;
+			
+			MAPElitesPane.SaveDimensionalGrid();
+			
+			break;
+		}
+		
+		
+		
+		
+		
+//		
+//		router.postEvent(new SuggestedMapsLoading());
+//		resetSuggestedRooms();
+////		prepareViewForSuggestions();
+//		generateNewMaps(getMapView().getMap());
 	}
 
 	/***
@@ -915,6 +977,28 @@ public class RoomViewController extends BorderPane implements Listener
 //		getMap(3).setStyle("-fx-background-color:#2c2f33");
 
 	}
+	
+	
+	/***
+	 * Applies the selected suggestion!
+	 * @param event
+	 * @throws IOException
+	 */
+	@FXML
+	private void stopEA(ActionEvent event) throws IOException 
+	{
+	}
+	
+	/***
+	 * Applies the selected suggestion!
+	 * @param event
+	 * @throws IOException
+	 */
+	@FXML
+	private void controlEAFlow(ActionEvent event) throws IOException 
+	{
+	}
+	
 	
 	private void prepareViewForSuggestions()
 	{

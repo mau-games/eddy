@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Random;
 import java.util.UUID;
 
+import collectors.MAPECollector;
 import finder.PatternFinder;
 import game.MapContainer;
 import game.Room;
@@ -19,11 +20,13 @@ import generator.algorithm.MAPElites.Dimensions.SymmetryGADimension;
 import generator.algorithm.MAPElites.Dimensions.GADimension.DimensionTypes;
 import generator.algorithm.Algorithm.AlgorithmTypes;
 import generator.config.GeneratorConfig;
+import util.Util;
 import util.eventrouting.EventRouter;
 import util.eventrouting.Listener;
 import util.eventrouting.PCGEvent;
 import util.eventrouting.events.AlgorithmDone;
 import util.eventrouting.events.AlgorithmStarted;
+import util.eventrouting.events.MAPEGenerationDone;
 import util.eventrouting.events.MAPEGridUpdate;
 import util.eventrouting.events.MAPElitesDone;
 import util.eventrouting.events.MapUpdate;
@@ -38,7 +41,7 @@ public class MAPEliteAlgorithm extends Algorithm implements Listener {
 	int cellAmounts = 1;
 	private ArrayList<GADimension> MAPElitesDimensions;
 	private Random rnd = new Random();
-	private int iterationsToPublish = 100;
+	private int iterationsToPublish = 50;
 	MAPEDimensionFXML[] dimensions;
 	private boolean dimensionsChanged = false;
 
@@ -106,6 +109,9 @@ public class MAPEliteAlgorithm extends Algorithm implements Listener {
 		
 		int i = 0;
 		int j = 0;
+		
+		populationSize = 1000;
+		feasibleAmount = 750;
 
 		while((i + j) < populationSize){
 			ZoneIndividual ind = new ZoneIndividual(room, mutationProbability);
@@ -139,6 +145,8 @@ public class MAPEliteAlgorithm extends Algorithm implements Listener {
 					j++;
 				}
 			}
+			
+			System.out.println(i+j);
 		}
 		
 		
@@ -292,6 +300,46 @@ public class MAPEliteAlgorithm extends Algorithm implements Listener {
 	}
 	
 	/**
+     * Selects parents from a population using (deterministic) tournament selection - i.e. the winner is always the ZoneIndividual with the "best" fitness.
+     * See: https://en.wikipedia.org/wiki/Tournament_selection
+     * 
+     * @param population A whole population of ZoneIndividuals
+     * @return A list of chosen progenitors
+     */
+    protected List<ZoneIndividual> tournamentSelection(List<ZoneIndividual> population)
+    { 
+        List<ZoneIndividual> parents = new ArrayList<ZoneIndividual>();
+        List<ZoneIndividual> candidates = new ArrayList<ZoneIndividual>(population);
+        int numberOfParents = (int)(offspringSize * population.size()) / 2;
+
+        if(candidates.size() == 1)
+        	return candidates;
+        
+        while(parents.size() <= 0)
+        {
+        	//Select at least one ZoneIndividual to "fight" in the tournament
+            int tournamentSize = Util.getNextInt(1, candidates.size());
+
+            ZoneIndividual winner = null;
+            for(int i = 0; i < tournamentSize; i++)
+            {
+                int progenitorIndex = Util.getNextInt(0, candidates.size());
+                ZoneIndividual ZoneIndividual = candidates.remove(progenitorIndex);
+
+                //select the ZoneIndividual with the highest fitness
+                if(winner == null || (winner.getFitness() < ZoneIndividual.getFitness()))
+                {
+                	winner = ZoneIndividual;
+                }
+            }
+
+            parents.add(winner);
+        }
+
+        return parents;
+    }
+	
+	/**
 	 * Starts the algorithm. Called when the thread starts.
 	 */
 	public void run()
@@ -305,7 +353,7 @@ public class MAPEliteAlgorithm extends Algorithm implements Listener {
 //        generations = 5;
         
         Room room = null;
-        
+        MAPECollector.getInstance().MapElitesStarted(id);
         
         //Simple!
         
@@ -318,6 +366,7 @@ public class MAPEliteAlgorithm extends Algorithm implements Listener {
         // 	6.1 - Replace: Eliminate low performing individual from cells that are above or at capacity
         
         int currentGen = 0;
+        int realCurrentGen = 0;
         
         while(!stop)
         {
@@ -333,7 +382,7 @@ public class MAPEliteAlgorithm extends Algorithm implements Listener {
         		ArrayList<ZoneIndividual> parents = new ArrayList<ZoneIndividual>();
         		List<ZoneIndividual> children = new ArrayList<ZoneIndividual>();
         		GACell current = null;
-        		for(int count = 0; count < 5; count++)
+        		for(int count = 0; count < 10; count++) //Actual gens
             	{
 //        			children = new ArrayList<ZoneIndividual>();
 	        		//This could actually be looped to select parents from different cells (according to TALAKAT)
@@ -371,6 +420,10 @@ public class MAPEliteAlgorithm extends Algorithm implements Listener {
 				cell.ApplyElitism();
 			}
         	
+//        	EventRouter.getInstance().postEvent(new MAPEGenerationDone(realCurrentGen, MAPElitesDimensions, cells));
+        	MAPECollector.getInstance().SaveGeneration(realCurrentGen, MAPElitesDimensions, cells);
+        	
+        	
         	//This is only when we want to update the current Generation
         	if(currentGen >= iterationsToPublish)
         	{
@@ -405,72 +458,19 @@ public class MAPEliteAlgorithm extends Algorithm implements Listener {
         		currentGen = 0;
 
         	}
-        	
+        	realCurrentGen++;
     		currentGen++;
         }
         
+       ////////////////////////// POST END MAP-ELITES /////////////////////////////
         
-        //200
-        for(int generationCount = 1; generationCount <= generations; generationCount++) {
-        	if(stop)
-        		return;
-        	
-        	for(int iteration = 0; iteration < 1; iteration++)
-        	{
-        		ArrayList<ZoneIndividual> parents = new ArrayList<ZoneIndividual>();
-        		List<ZoneIndividual> children = new ArrayList<ZoneIndividual>();
-        		GACell current = null;
-        		for(int count = 0; count < 5; count++)
-            	{
-        			children = new ArrayList<ZoneIndividual>();
-	        		//This could actually be looped to select parents from different cells (according to TALAKAT)
-	        		current = SelectCell(true);
-	        		
-	        		if(current != null)
-	        		{
-	        			System.out.println("THIS HAPPENS????");
-	        			current.exploreCell();
-	        			parents.addAll(tournamentSelection(current.GetFeasiblePopulation()));
-	            		
-	            		//Breed!
-	            		children.addAll(crossOverBetweenProgenitors(parents));
-	            		
-	            		//Evaluate and assign to correct Cell
-	            		CheckAndAssignToCell(children, false);
-	        		}
-            	}
-        		
-        		
-        		
-        		////////////////////// NOW WE DO IT FOR THE INFEASIBLES! ///////////////////////
-        		
-        		parents = new ArrayList<ZoneIndividual>();
-         		children = new ArrayList<ZoneIndividual>();
-        		
-        		//This could actually be looped to select parents from different cells (according to TALAKAT)
-        		current = SelectCell(false);
-        		
-        		if(current != null)
-        		{
-        			parents.addAll(tournamentSelection(current.GetInfeasiblePopulation()));
-            		
-            		//Breed!
-            		children.addAll(crossOverBetweenProgenitors(parents));
-            		
-            		//Evaluate and assign to correct Cell
-            		CheckAndAssignToCell(children, true);
-        		}
-        		
-        	}
-        	
-        	//Now we sort both populations in a given cell and cut through capacity!!!
-        	for(GACell cell : cells)
-			{
-				cell.SortPopulations(false);
-				cell.ApplyElitism();
-			}
-        }
-
+        for(GACell cell : cells)
+		{
+			cell.SortPopulations(false);
+			cell.ApplyElitism();
+		}
+		
+      
         broadcastResultedRooms();
         for(GACell cell : cells)
 		{

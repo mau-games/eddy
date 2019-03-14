@@ -3,6 +3,7 @@ package gui.controls;
 import java.util.ArrayList;
 
 import generator.algorithm.MAPElites.Dimensions.MAPEDimensionFXML;
+import gui.utils.MapRenderer;
 import javafx.geometry.HPos;
 import javafx.geometry.Pos;
 import javafx.scene.Group;
@@ -16,6 +17,7 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
+import util.eventrouting.events.MapRendered;
 
 public class MAPEVisualizationPane extends BorderPane
 {
@@ -35,7 +37,7 @@ public class MAPEVisualizationPane extends BorderPane
 	{
 		
 		//THIS IS SETTING UP FOR MAPELITES
-
+		
 
 
 		
@@ -154,9 +156,9 @@ public class MAPEVisualizationPane extends BorderPane
 			}
 		}
 		
-		for(int i = 1, red = yResolution; i < xResolution + 1; i++, red--) 
+		for(int i = 1; i < xResolution + 1; i++) 
 		{
-			Label boxLabel = new Label(String.valueOf((float)(i-1)/xResolution));
+			Label boxLabel = new Label(String.valueOf((float)(i)/xResolution));
 			boxLabel.setTextFill(Color.WHITE);
 			GridPane.clearConstraints(boxLabel);
 			GridPane.setConstraints(boxLabel, i, yResolution);
@@ -190,9 +192,12 @@ public class MAPEVisualizationPane extends BorderPane
 	    return result;
 	}
 	
+	public void SaveDimensionalGrid()
+	{
+		MapRenderer.getInstance().saveMAPE(innerSuggestions);
+	}
 	
-	
-	
+
 	
 	
 	

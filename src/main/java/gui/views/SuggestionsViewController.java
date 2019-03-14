@@ -111,7 +111,7 @@ public class SuggestionsViewController extends AnchorPane implements Listener {
 					
 					int[][] matrix = container.getMap().toMatrix();
 
-					suggestion.getGraphicNode().draw(renderer.renderMiniSuggestedRoom(container.getMap()));
+					suggestion.getGraphicNode().draw(renderer.renderMiniSuggestedRoom(container.getMap(), nextMap));
 					//					renderer.renderMap(mapDisplays.get(nextMap++).getGraphicsContext(), matrix);
 					//					renderer.drawPatterns(ctx, matrix, activePatterns);
 					//					renderer.drawGraph(ctx, matrix, currentMap.getPatternFinder().getPatternGraph());				renderer.drawMesoPatterns(ctx, matrix, currentMap.getPatternFinder().findMesoPatterns());

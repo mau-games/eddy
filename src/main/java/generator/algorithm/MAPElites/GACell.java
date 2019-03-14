@@ -2,9 +2,11 @@ package generator.algorithm.MAPElites;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import generator.algorithm.ZoneIndividual;
@@ -31,7 +33,7 @@ public class GACell
 	
 //	protected ArrayList<GADimension> cellDimensions;
 	
-	protected HashMap<DimensionTypes, Double> cellDimensions;
+	protected LinkedHashMap <DimensionTypes, Double> cellDimensions;
 	protected int exploreCounter = 0;
 	
 	//Something about the dimensions (I have to do it as generic as i can so i can test a lot!)
@@ -41,7 +43,7 @@ public class GACell
 	{
 		feasiblePopulation = new ArrayList<ZoneIndividual>();
 		infeasiblePopulation = new ArrayList<ZoneIndividual>();
-		cellDimensions = new HashMap<DimensionTypes, Double>();
+		cellDimensions = new LinkedHashMap<DimensionTypes, Double>();
 		int index = 0;
 		
 		for(GADimension dimension : dimensions)
@@ -93,6 +95,11 @@ public class GACell
 			infeasiblePopulation.add(individual);
 		
 		return true;
+	}
+	
+	public DimensionTypes getDimensionType(int axisIndex)
+	{
+		return null;
 	}
 	
 	public void ResetPopulationsFitness()

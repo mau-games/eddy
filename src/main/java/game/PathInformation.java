@@ -31,9 +31,9 @@ public class PathInformation
 		
 		//this should be loaded from a config file!!!!
 		tilesInPathInfo.put(PathType.FASTEST, new TileInformation(1.0f, 1.0f, 1.0f, 1.0f));
-		tilesInPathInfo.put(PathType.REWARDING, new TileInformation(1.0f, 1.0f, 0.01f, 10.0f));
+		tilesInPathInfo.put(PathType.REWARDING, new TileInformation(5.0f, 5.0f, 0.01f, 10.0f));
 		tilesInPathInfo.put(PathType.LESS_DANGER, new TileInformation(1.0f, 1.0f, 1.0f, 20.0f));
-		tilesInPathInfo.put(PathType.MORE_DANGER, new TileInformation(1.0f, 1.0f, 1.0f, 0.1f));
+		tilesInPathInfo.put(PathType.MORE_DANGER, new TileInformation(5.0f, 1.0f, 5.0f, 0.01f));
 	}
 
 	public static PathInformation getInstance()
