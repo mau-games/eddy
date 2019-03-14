@@ -2,7 +2,6 @@ package generator.algorithm.MAPElites.Dimensions;
 
 import java.util.List;
 
-import org.hamcrest.core.IsInstanceOf;
 
 import finder.PatternFinder;
 import finder.patterns.CompositePattern;
@@ -11,7 +10,6 @@ import finder.patterns.meso.DeadEnd;
 import finder.patterns.meso.GuardedTreasure;
 import game.Room;
 import generator.algorithm.ZoneIndividual;
-import generator.algorithm.MAPElites.Dimensions.GADimension.DimensionTypes;
 
 public class NMesoPatternGADimension extends GADimension {
 

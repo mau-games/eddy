@@ -18,6 +18,6 @@ public class TileInformation
 	
 	public float getStepToTileValue(TileTypes tileType)
 	{
-		return tileValue.containsKey(tileType) ? tileValue.get(tileType) : null ;
+		return tileValue.containsKey(tileType) ? tileValue.get(tileType) : Float.MAX_VALUE;
 	}
 }
