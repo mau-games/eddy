@@ -50,6 +50,7 @@ public class MAPECollector implements Listener
 	public String currentRunPath = ""; //Evolutionary Run path
 	public String currentGenerationPath = ""; //Current Generation in the evolutionary run path
 	public int currentGeneration = 0;
+	private File currentDirectory;
 	
 	StringBuilder[] currentGenerationSummary;
 	ArrayList<StringBuilder[]> currentGenerationCell;
@@ -109,6 +110,25 @@ public class MAPECollector implements Listener
 		currentRunPath = currentProjectPath + "\\RUN_" + runID;
 	}
 	
+	public synchronized void SaveGeneration(int generationCounter, ArrayList<GADimension> dimensions, ArrayList<GACell> cells, String folderName, boolean save)
+	{
+		this.currentGeneration = generationCounter;
+		currentGenerationPath = currentRunPath + "\\" + folderName + "-" + generationCounter;
+
+		//Save the generation summary
+		saveGenerationalSummary(dimensions, cells);
+		
+		currentGenerationCell = new ArrayList<StringBuilder[]>();
+		
+		for(int i = 0; i < cells.size(); i++)
+		{
+			saveGenerationPerCell(dimensions, cells.get(i),i);
+		}
+		
+		if(save)
+			WriteGenToFile();			
+	}
+	
 	public synchronized void SaveGeneration(int generationCounter, ArrayList<GADimension> dimensions, ArrayList<GACell> cells, boolean save)
 	{
 		this.currentGeneration = generationCounter;
@@ -125,8 +145,7 @@ public class MAPECollector implements Listener
 		}
 		
 		if(save)
-			WriteGenToFile();
-			
+			WriteGenToFile();			
 	}
 	
 	private synchronized void saveGenerationPerCell(ArrayList<GADimension> dimensions, GACell cell, int cellIndex)
@@ -219,9 +238,21 @@ public class MAPECollector implements Listener
 	
 	public synchronized void WriteGenToFile()
 	{
-		new File(currentGenerationPath).mkdirs();
+		//Just checking if the directory exists!S
+		File directory = new File(currentGenerationPath);
+		if (!directory.exists()) 
+		{
+			directory.mkdir();
+			currentDirectory = directory;
+		}
+		
 		WriteGenSummaryToFile();
 		WriteCellsToFile();
+	}
+	
+	public File getDirectory()
+	{
+		return currentDirectory;
 	}
 	
 	private synchronized void WriteGenSummaryToFile()

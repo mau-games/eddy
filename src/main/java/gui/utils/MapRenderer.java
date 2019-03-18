@@ -269,8 +269,9 @@ public class MapRenderer implements Listener {
 
 		final WritableImage writableImage = new WritableImage((int)gridPane.getWidth(), (int)gridPane.getHeight());
 		Image image = gridPane.snapshot(new SnapshotParameters(), writableImage);
+
 		
-		File file = new File(MAPECollector.getInstance().currentGenerationPath + "\\CellIndividuals_gen-" + MAPECollector.getInstance().currentGeneration + ".png");
+		File file = new File(MAPECollector.getInstance().getDirectory().getAbsolutePath() + "\\CellIndividuals.png");
 		try {
             ImageIO.write(SwingFXUtils.fromFXImage(writableImage, null), "png", file);
         } catch (Exception s) {
@@ -293,8 +294,7 @@ public class MapRenderer implements Listener {
 		final WritableImage writableImage = new WritableImage((int)currentEditedPane.getWidth(), (int)currentEditedPane.getHeight());
 		Image image = currentEditedPane.snapshot(new SnapshotParameters(), writableImage);
 
-		
-		File file = new File(MAPECollector.getInstance().currentGenerationPath + "\\currentRoom.png");
+		File file = new File(MAPECollector.getInstance().getDirectory().getAbsolutePath()  + "\\currentRoom.png");
 		try {
             ImageIO.write(SwingFXUtils.fromFXImage(writableImage, null), "png", file);
         } catch (Exception s) {

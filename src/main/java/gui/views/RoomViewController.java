@@ -316,6 +316,7 @@ public class RoomViewController extends BorderPane implements Listener
 		
 		currentState = EvoState.STOPPED;
 		selectedGA = PossibleGAs.MAP_ELITES;
+		saveGenBtn.setDisable(true);
 //		allSuggestionsPane.getSelectionModel().select(1);
 		
 	}
@@ -918,8 +919,8 @@ public class RoomViewController extends BorderPane implements Listener
 		case RUNNING:
 			
 			router.postEvent(new SaveDisplayedCells());
-			MAPElitesPane.SaveDimensionalGrid();
-			MapRenderer.getInstance().saveCurrentEditedRoom(getMapView());
+//			MAPElitesPane.SaveDimensionalGrid();
+//			MapRenderer.getInstance().saveCurrentEditedRoom(getMapView());
 			
 			break;
 		}
@@ -946,6 +947,7 @@ public class RoomViewController extends BorderPane implements Listener
 			getWorldGridBtn().setDisable(true);
 			getGenSuggestionsBtn().setText("Stop Suggestions");
 			getAppSuggestionsBtn().setDisable(true);
+			saveGenBtn.setDisable(false);
 			currentState = EvoState.RUNNING;
 			break;
 		case RUNNING:
@@ -956,9 +958,8 @@ public class RoomViewController extends BorderPane implements Listener
 			getWorldGridBtn().setDisable(false);
 			getGenSuggestionsBtn().setText("Generate Suggestions");
 			getAppSuggestionsBtn().setDisable(false);
+			saveGenBtn.setDisable(true);
 			currentState = EvoState.STOPPED;
-			
-			MAPElitesPane.SaveDimensionalGrid();
 			
 			break;
 		}

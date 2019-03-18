@@ -2,6 +2,7 @@ package generator.algorithm.MAPElites.Dimensions;
 
 import game.Room;
 import generator.algorithm.ZoneIndividual;
+import generator.algorithm.MAPElites.GADimensionsGranularity;
 
 //PLS COMMENT!!
 public abstract class GADimension
@@ -21,7 +22,6 @@ public abstract class GADimension
 	}
 	
 	protected DimensionTypes dimension;
-	
 	protected double granularity; //This variable relates to how many values the dimension is divided and the assign granularity
 	
 	public GADimension()
@@ -34,9 +34,11 @@ public abstract class GADimension
 		return dimension;
 	}
 	
-	public static boolean CorrectDimensionLevel(ZoneIndividual individual, DimensionTypes type, double dimensionValue)
+	public static boolean CorrectDimensionLevel(ZoneIndividual individual, DimensionTypes type, GADimensionsGranularity dimGran)
 	{
-		return individual.getDimensionValue(type) <= dimensionValue;
+		return individual.getDimensionValue(type) <= dimGran.getMaxValue() && individual.getDimensionValue(type) >= dimGran.getMinValue();
+		
+//		return (individual.getDimensionValue(type) >= dimensionValue) && individual.getDimensionValue(type) < (double)(index+1)/5.0d;
 	}
 	
 //	public abstract boolean CorrectDimensionLevel(ZoneIndividual individual, DimensionType type);

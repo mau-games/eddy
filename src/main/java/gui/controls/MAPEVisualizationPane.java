@@ -4,6 +4,7 @@ import java.util.ArrayList;
 
 import generator.algorithm.MAPElites.Dimensions.MAPEDimensionFXML;
 import gui.utils.MapRenderer;
+import javafx.application.Platform;
 import javafx.geometry.HPos;
 import javafx.geometry.Pos;
 import javafx.scene.Group;
@@ -17,9 +18,14 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
+import util.eventrouting.EventRouter;
+import util.eventrouting.Listener;
+import util.eventrouting.PCGEvent;
 import util.eventrouting.events.MapRendered;
+import util.eventrouting.events.SaveDisplayedCells;
+import util.eventrouting.events.SuggestedMapsDone;
 
-public class MAPEVisualizationPane extends BorderPane
+public class MAPEVisualizationPane extends BorderPane implements Listener
 {
 	private Label xLabel;
 	private Label yLabel;
@@ -31,16 +37,14 @@ public class MAPEVisualizationPane extends BorderPane
 	public MAPEVisualizationPane()
 	{
 		super();
+		EventRouter.getInstance().registerListener(this, new SaveDisplayedCells());
 	}
 	
 	public void init(ArrayList<SuggestionRoom> roomDisplays, String xLabelText, String yLabelText, int width, int height)
 	{
 		
 		//THIS IS SETTING UP FOR MAPELITES
-		
 
-
-		
 		//CENTER SCROLL PANE
 		mapeScroll = new ScrollPane();
 		mapeScroll.setHbarPolicy(ScrollBarPolicy.ALWAYS);
@@ -195,6 +199,19 @@ public class MAPEVisualizationPane extends BorderPane
 	public void SaveDimensionalGrid()
 	{
 		MapRenderer.getInstance().saveMAPE(innerSuggestions);
+	}
+
+	@Override
+	public void ping(PCGEvent e) 
+	{
+		// TODO Auto-generated method stub
+		if(e instanceof SaveDisplayedCells)
+		{
+			Platform.runLater(() -> {
+				MapRenderer.getInstance().saveMAPE(innerSuggestions);
+			});
+//			SaveDimensionalGrid();
+		}
 	}
 	
 

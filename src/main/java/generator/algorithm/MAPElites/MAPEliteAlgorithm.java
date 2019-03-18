@@ -30,6 +30,7 @@ import util.eventrouting.events.MAPEGenerationDone;
 import util.eventrouting.events.MAPEGridUpdate;
 import util.eventrouting.events.MAPElitesDone;
 import util.eventrouting.events.MapUpdate;
+import util.eventrouting.events.SaveDisplayedCells;
 
 public class MAPEliteAlgorithm extends Algorithm implements Listener {
 	
@@ -41,7 +42,7 @@ public class MAPEliteAlgorithm extends Algorithm implements Listener {
 	int cellAmounts = 1;
 	private ArrayList<GADimension> MAPElitesDimensions;
 	private Random rnd = new Random();
-	private int iterationsToPublish = 50;
+	private int iterationsToPublish = 100;
 	MAPEDimensionFXML[] dimensions;
 	private boolean dimensionsChanged = false;
 
@@ -313,7 +314,7 @@ public class MAPEliteAlgorithm extends Algorithm implements Listener {
         if(candidates.size() == 1)
         	return candidates;
         
-        while(parents.size() <= 0)
+        while(parents.size() <= numberOfParents && candidates.size() > 1)
         {
         	//Select at least one ZoneIndividual to "fight" in the tournament
             int tournamentSize = Util.getNextInt(1, candidates.size());
@@ -377,10 +378,15 @@ public class MAPEliteAlgorithm extends Algorithm implements Listener {
         		
         	for(int iteration = 0; iteration < 1; iteration++)
         	{
-        		ArrayList<ZoneIndividual> parents = new ArrayList<ZoneIndividual>();
+        		ArrayList<ZoneIndividual> feasibleParents = new ArrayList<ZoneIndividual>();
+        		ArrayList<ZoneIndividual> infeasibleParents = new ArrayList<ZoneIndividual>();
+        		
         		List<ZoneIndividual> children = new ArrayList<ZoneIndividual>();
+        		
+        		List<ZoneIndividual> feasibleChildren = new ArrayList<ZoneIndividual>();
+        		List<ZoneIndividual> infeasibleChildren = new ArrayList<ZoneIndividual>();
         		GACell current = null;
-        		for(int count = 0; count < 10; count++) //Actual gens
+        		for(int count = 0; count < 5; count++) //Actual gens
             	{
 //        			children = new ArrayList<ZoneIndividual>();
 	        		//This could actually be looped to select parents from different cells (according to TALAKAT)
@@ -389,7 +395,7 @@ public class MAPEliteAlgorithm extends Algorithm implements Listener {
 	        		if(current != null)
 	        		{
 	        			current.exploreCell();
-	        			parents.addAll(tournamentSelection(current.GetFeasiblePopulation()));
+	        			feasibleParents.addAll(tournamentSelection(current.GetFeasiblePopulation()));
 	            		
 	        		}
 	        		
@@ -398,16 +404,21 @@ public class MAPEliteAlgorithm extends Algorithm implements Listener {
             		
             		if(current != null)
             		{
-            			parents.addAll(tournamentSelection(current.GetInfeasiblePopulation()));
+            			infeasibleParents.addAll(tournamentSelection(current.GetInfeasiblePopulation()));
             		}
+            		
+            		//Breed!
+            		feasibleChildren.addAll(crossOverBetweenProgenitors(feasibleParents));
+            		infeasibleChildren.addAll(crossOverBetweenProgenitors(infeasibleParents));
             	}
 
         		
         		//Breed!
-        		children.addAll(crossOverBetweenProgenitors(parents));
+//        		children.addAll(crossOverBetweenProgenitors(parents));
         		
         		//Evaluate and assign to correct Cell
-        		CheckAndAssignToCell(children, false);
+        		CheckAndAssignToCell(feasibleChildren, false);
+        		CheckAndAssignToCell(infeasibleChildren, true);
         		
         	}
         	
@@ -430,8 +441,7 @@ public class MAPEliteAlgorithm extends Algorithm implements Listener {
         		
         		//This should be in a call when the ping happens!
         		UpdateConfigFile();
-        		
-        		
+
         		List<ZoneIndividual> children = new ArrayList<ZoneIndividual>();
         		List<ZoneIndividual> nonFeasibleChildren = new ArrayList<ZoneIndividual>();
         		for(GACell cell : cells)
@@ -443,6 +453,16 @@ public class MAPEliteAlgorithm extends Algorithm implements Listener {
         			cell.GetInfeasiblePopulation().clear();
     			}
         		
+        		//TODO: THIS NEEDS TO BE DOUBLE CHECK!
+        		ZoneIndividual ind = new ZoneIndividual(originalRoom, mutationProbability);
+        		
+        		 if(checkZoneIndividual(ind))
+ 	            {
+ 	                evaluateFeasibleZoneIndividual(ind);
+ 	               ind.SetDimensionValues(MAPElitesDimensions, this.originalRoom);
+ 	            }
+
+        		children.add(ind);
         		CheckAndAssignToCell(children, false);
         		CheckAndAssignToCell(nonFeasibleChildren, true);
         		
@@ -452,11 +472,10 @@ public class MAPEliteAlgorithm extends Algorithm implements Listener {
     				cell.ApplyElitism();
     			}
         		
-        		
         		//Maybe mutate all the cells?
         		currentGen = 0;
-
         	}
+        	
         	realCurrentGen++;
     		currentGen++;
         }
@@ -469,8 +488,12 @@ public class MAPEliteAlgorithm extends Algorithm implements Listener {
 			cell.ApplyElitism();
 		}
 		
-      
         broadcastResultedRooms();
+        
+        //We save the last generation
+        MAPECollector.getInstance().SaveGeneration(realCurrentGen, MAPElitesDimensions, cells, "STOP", false);
+        EventRouter.getInstance().postEvent(new SaveDisplayedCells());
+        
         for(GACell cell : cells)
 		{
         	if(!cell.GetFeasiblePopulation().isEmpty())

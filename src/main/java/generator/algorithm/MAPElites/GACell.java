@@ -33,7 +33,9 @@ public class GACell
 	
 //	protected ArrayList<GADimension> cellDimensions;
 	
-	protected LinkedHashMap <DimensionTypes, Double> cellDimensions;
+//	protected LinkedHashMap <DimensionTypes, Double> cellDimensions;
+	protected LinkedHashMap <DimensionTypes, GADimensionsGranularity> cellDimensions;
+	protected LinkedHashMap <DimensionTypes, Integer> cellIndices;
 	protected int exploreCounter = 0;
 	
 	//Something about the dimensions (I have to do it as generic as i can so i can test a lot!)
@@ -43,12 +45,16 @@ public class GACell
 	{
 		feasiblePopulation = new ArrayList<ZoneIndividual>();
 		infeasiblePopulation = new ArrayList<ZoneIndividual>();
-		cellDimensions = new LinkedHashMap<DimensionTypes, Double>();
+		cellDimensions = new LinkedHashMap<DimensionTypes, GADimensionsGranularity>();
+		cellIndices = new LinkedHashMap<DimensionTypes, Integer>();
 		int index = 0;
 		
 		for(GADimension dimension : dimensions)
 		{
-			cellDimensions.put(dimension.GetType(), (double)indices[index] / dimension.GetGranularity());
+			cellDimensions.put(dimension.GetType(), 
+					new GADimensionsGranularity((double)indices[index] / dimension.GetGranularity(), dimension.GetGranularity(), indices[index]));
+//			cellDimensions.put(dimension.GetType(), (double)indices[index] / dimension.GetGranularity());
+			cellIndices.put(dimension.GetType(), indices[index]);
 			index++;
 		}
 		
@@ -57,18 +63,17 @@ public class GACell
 	
 	public double GetDimensionValue(DimensionTypes dimension)
 	{
-		return cellDimensions.get(dimension);
+		return cellDimensions.get(dimension).getDimensionValue();
 	}
 
 	public void BroadcastCellInfo()
 	{
-		for (Entry<DimensionTypes, Double> entry : cellDimensions.entrySet())
+		for (Entry<DimensionTypes, GADimensionsGranularity> entry : cellDimensions.entrySet())
 		{
-		    System.out.print(entry.getKey().toString() + ": " + entry.getValue() + ", ");
+		    System.out.print(entry.getKey().toString() + ": " + entry.getValue().getDimensionValue() + ", ");
 		}
 		
 		System.out.print("explored: " + exploreCounter);
-		
 		System.out.println();
 	}
 	
@@ -82,7 +87,7 @@ public class GACell
 	{
 		//If the individual do not pass the requirements for this dimension, is false
 		
-		for(Entry<DimensionTypes, Double> cellDimension : cellDimensions.entrySet())
+		for(Entry<DimensionTypes, GADimensionsGranularity> cellDimension : cellDimensions.entrySet())
 		{
 			if(!GADimension.CorrectDimensionLevel(individual, cellDimension.getKey(), cellDimension.getValue()))
 				return false;

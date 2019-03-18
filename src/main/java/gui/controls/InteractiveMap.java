@@ -7,12 +7,17 @@ import game.Room;
 import game.Tile;
 import game.TileTypes;
 import gui.utils.MapRenderer;
+import javafx.application.Platform;
 import javafx.scene.Group;
 import javafx.scene.effect.BlendMode;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.GridPane;
 import util.Point;
+import util.eventrouting.EventRouter;
+import util.eventrouting.Listener;
+import util.eventrouting.PCGEvent;
+import util.eventrouting.events.SaveDisplayedCells;
 
 /**
  * InteractiveMap describes a control that may be used to edit maps.
@@ -20,7 +25,7 @@ import util.Point;
  * @author Johan Holmberg, Malmö University
  * @modified Alberto Alvarez, Malmö University
  */
-public class InteractiveMap extends GridPane {
+public class InteractiveMap extends GridPane implements Listener {
 	
 	private Room room;
 	private int cols = 0;
@@ -36,6 +41,7 @@ public class InteractiveMap extends GridPane {
 	 */
 	public InteractiveMap() {
 		super();
+		EventRouter.getInstance().registerListener(this, new SaveDisplayedCells());
 		
 	}
 	
@@ -48,6 +54,7 @@ public class InteractiveMap extends GridPane {
 	public InteractiveMap(Room room) {
 		super();
 		updateMap(room);
+		EventRouter.getInstance().registerListener(this, new SaveDisplayedCells());
 	}
 	
 	/**
@@ -211,5 +218,18 @@ public class InteractiveMap extends GridPane {
 	private void drawTile(int x, int y, TileTypes tile) 
 	{
 		getCell(x, y).setImage(getImage(tile, scale));
+	}
+
+	@Override
+	public void ping(PCGEvent e) 
+	{
+		// TODO Auto-generated method stub
+		if(e instanceof SaveDisplayedCells)
+		{
+			Platform.runLater(() -> {
+				renderer.saveCurrentEditedRoom(this);
+			});
+		}
+		
 	}
 }
