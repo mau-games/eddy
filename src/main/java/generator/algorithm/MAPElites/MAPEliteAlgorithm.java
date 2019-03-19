@@ -42,7 +42,10 @@ public class MAPEliteAlgorithm extends Algorithm implements Listener {
 	int cellAmounts = 1;
 	private ArrayList<GADimension> MAPElitesDimensions;
 	private Random rnd = new Random();
-	private int iterationsToPublish = 100;
+	private int iterationsToPublish = 50;
+	private int breedingGenerations = 5; //this relates to how many generations will it breed 
+	private int realCurrentGen = 0;
+	private int currentGen = 0;
 	MAPEDimensionFXML[] dimensions;
 	private boolean dimensionsChanged = false;
 
@@ -305,16 +308,16 @@ public class MAPEliteAlgorithm extends Algorithm implements Listener {
      * @param population A whole population of ZoneIndividuals
      * @return A list of chosen progenitors
      */
-    protected List<ZoneIndividual> tournamentSelection(List<ZoneIndividual> population)
+    protected List<ZoneIndividual> tournamentSelection(List<ZoneIndividual> population, int parentNumber)
     { 
         List<ZoneIndividual> parents = new ArrayList<ZoneIndividual>();
         List<ZoneIndividual> candidates = new ArrayList<ZoneIndividual>(population);
-        int numberOfParents = (int)(offspringSize * population.size()) / 2;
+//        int numberOfParents = (int)(offspringSize * population.size()) / 2;
 
         if(candidates.size() == 1)
         	return candidates;
         
-        while(parents.size() <= numberOfParents && candidates.size() > 1)
+        while(parents.size() <= parentNumber && candidates.size() > 1)
         {
         	//Select at least one ZoneIndividual to "fight" in the tournament
             int tournamentSize = Util.getNextInt(1, candidates.size());
@@ -336,6 +339,306 @@ public class MAPEliteAlgorithm extends Algorithm implements Listener {
         }
 
         return parents;
+    }
+    
+    private void runExperimentRealPrevious()
+    {
+    	//If we have receive the even that the dimensions changed, please modify the dimensions and recalculate the cells!
+    	if(dimensionsChanged)
+    	{
+    		RecreateCells();
+    		dimensionsChanged = false;
+    	}
+
+
+    	ArrayList<ZoneIndividual> parents = new ArrayList<ZoneIndividual>();
+		List<ZoneIndividual> children = new ArrayList<ZoneIndividual>();
+		GACell current = null;
+		for(int count = 0; count < 10; count++) //Actual gens
+    	{
+//			children = new ArrayList<ZoneIndividual>();
+    		//This could actually be looped to select parents from different cells (according to TALAKAT)
+    		current = SelectCell(true);
+    		
+    		if(current != null)
+    		{
+    			current.exploreCell();
+    			parents.addAll(tournamentSelection(current.GetFeasiblePopulation(), 1));
+        		
+    		}
+    		
+    		//This could actually be looped to select parents from different cells (according to TALAKAT)
+			current = SelectCell(false);
+    		
+    		if(current != null)
+    		{
+    			parents.addAll(tournamentSelection(current.GetInfeasiblePopulation(), 1));
+    		}
+    	}
+
+		
+		//Breed!
+		children.addAll(crossOverBetweenProgenitors(parents));
+		
+		//Evaluate and assign to correct Cell
+		CheckAndAssignToCell(children, false);
+	
+		//Now we sort both populations in a given cell and cut through capacity!!!
+		for(GACell cell : cells)
+		{
+			cell.SortPopulations(false);
+			cell.ApplyElitism();
+		}
+		
+
+		
+    	//This is only when we want to update the current Generation
+    	if(currentGen >= iterationsToPublish)
+    	{
+
+    		publishGeneration();
+    	}
+    	else {
+    		currentGen++;
+    	}
+    	
+    	realCurrentGen++;
+    }
+    
+    private void runNoInterbreedingApplElites()
+    {
+    	//If we have receive the even that the dimensions changed, please modify the dimensions and recalculate the cells!
+    	if(dimensionsChanged)
+    	{
+    		RecreateCells();
+    		dimensionsChanged = false;
+    	}
+		ArrayList<ZoneIndividual> feasibleParents = new ArrayList<ZoneIndividual>();
+		ArrayList<ZoneIndividual> infeasibleParents = new ArrayList<ZoneIndividual>();
+		
+    	List<ZoneIndividual> feasibleChildren = new ArrayList<ZoneIndividual>();
+    	List<ZoneIndividual> infeasibleChildren = new ArrayList<ZoneIndividual>();
+		GACell current = null;
+
+		for(int count = 0; count < breedingGenerations; count++) //Actual gens
+    	{
+//    			children = new ArrayList<ZoneIndividual>();
+    		//This could actually be looped to select parents from different cells (according to TALAKAT)
+    		current = SelectCell(true);
+    		
+    		if(current != null)
+    		{
+    			current.exploreCell();
+    			feasibleParents.addAll(tournamentSelection(current.GetFeasiblePopulation(), 5));   		
+    		}
+    		
+    		//This could actually be looped to select parents from different cells (according to TALAKAT)
+			current = SelectCell(false);
+    		
+    		if(current != null)
+    		{
+    			infeasibleParents.addAll(tournamentSelection(current.GetInfeasiblePopulation(), 5));
+    		}
+    	}
+    	
+		//Breed!
+		feasibleChildren.addAll(crossOverBetweenProgenitors(feasibleParents));
+		infeasibleChildren.addAll(crossOverBetweenProgenitors(infeasibleParents));
+		
+		CheckAndAssignToCell(feasibleChildren, false);
+		CheckAndAssignToCell(infeasibleChildren, true);
+		
+    	//Now we sort both populations in a given cell and cut through capacity!!!
+    	for(GACell cell : cells)
+		{
+			cell.SortPopulations(false);
+			cell.ApplyElitism();
+		}
+    	
+		
+    	//This is only when we want to update the current Generation
+    	if(currentGen >= iterationsToPublish)
+    	{
+
+    		publishGeneration();
+    	}
+    	else {
+    		currentGen++;
+    	}
+    	
+    	realCurrentGen++;
+    }
+    
+    private void runNoInterbreedingExperiment()
+    {
+    	//If we have receive the even that the dimensions changed, please modify the dimensions and recalculate the cells!
+    	if(dimensionsChanged)
+    	{
+    		RecreateCells();
+    		dimensionsChanged = false;
+    	}
+		ArrayList<ZoneIndividual> feasibleParents = new ArrayList<ZoneIndividual>();
+		ArrayList<ZoneIndividual> infeasibleParents = new ArrayList<ZoneIndividual>();
+		
+    	List<ZoneIndividual> feasibleChildren = new ArrayList<ZoneIndividual>();
+    	List<ZoneIndividual> infeasibleChildren = new ArrayList<ZoneIndividual>();
+		GACell current = null;
+		
+		for(int count = 0; count < breedingGenerations; count++) //Actual gens
+    	{
+//    			children = new ArrayList<ZoneIndividual>();
+    		//This could actually be looped to select parents from different cells (according to TALAKAT)
+    		current = SelectCell(true);
+    		
+    		if(current != null)
+    		{
+    			current.exploreCell();
+    			feasibleParents.addAll(tournamentSelection(current.GetFeasiblePopulation(), 5));   		
+    		}
+    		
+    		//This could actually be looped to select parents from different cells (according to TALAKAT)
+			current = SelectCell(false);
+    		
+    		if(current != null)
+    		{
+    			infeasibleParents.addAll(tournamentSelection(current.GetInfeasiblePopulation(), 5));
+    		}
+    	}
+    	
+		//Breed!
+		feasibleChildren.addAll(crossOverBetweenProgenitors(feasibleParents));
+		infeasibleChildren.addAll(crossOverBetweenProgenitors(infeasibleParents));
+		
+		CheckAndAssignToCell(feasibleChildren, false);
+		CheckAndAssignToCell(infeasibleChildren, true);
+		
+    	//This is only when we want to update the current Generation
+    	if(currentGen >= iterationsToPublish)
+    	{
+        	//Now we sort both populations in a given cell and cut through capacity!!!
+        	for(GACell cell : cells)
+    		{
+    			cell.SortPopulations(false);
+    			cell.ApplyElitism();
+    		}
+        	
+    		publishGeneration();
+    	}
+    	else {
+    		currentGen++;
+    	}
+    	
+    	realCurrentGen++;
+    }
+    
+    private void runInterbreedingExperiment()
+    {
+    	//If we have receive the even that the dimensions changed, please modify the dimensions and recalculate the cells!
+    	if(dimensionsChanged)
+    	{
+    		RecreateCells();
+    		dimensionsChanged = false;
+    	}
+
+		ArrayList<ZoneIndividual> parents = new ArrayList<ZoneIndividual>();
+		List<ZoneIndividual> children = new ArrayList<ZoneIndividual>();
+		
+		GACell current = null;
+		
+		for(int count = 0; count < breedingGenerations; count++) //Actual gen
+		{
+			
+//    		children = new ArrayList<ZoneIndividual>();
+    		//This could actually be looped to select parents from different cells (according to TALAKAT)
+    		current = SelectCell(true);
+    		
+    		if(current != null)
+    		{
+    			current.exploreCell();
+    			parents.addAll(tournamentSelection(current.GetFeasiblePopulation(), 5));   		
+    		}
+    		
+    		//This could actually be looped to select parents from different cells (according to TALAKAT)
+			current = SelectCell(false);
+    		
+    		if(current != null)
+    		{
+    			parents.addAll(tournamentSelection(current.GetInfeasiblePopulation(), 5));
+    		}
+
+    	}
+		
+		//Breed!
+		children.addAll(crossOverBetweenProgenitors(parents));
+		CheckAndAssignToCell(children, false);
+    	
+    	
+    	//This is only when we want to update the current Generation
+    	if(currentGen >= iterationsToPublish)
+    	{
+        	//Now we sort both populations in a given cell and cut through capacity!!!
+        	for(GACell cell : cells)
+    		{
+    			cell.SortPopulations(false);
+    			cell.ApplyElitism();
+    		}
+        	
+    		publishGeneration();
+    	}
+    	else {
+    		currentGen++;
+    	}
+    	
+    	realCurrentGen++;
+    }
+    
+    private void publishGeneration()
+    {
+		broadcastResultedRooms();
+		MAPECollector.getInstance().SaveGeneration(realCurrentGen, MAPElitesDimensions, cells, false); //store the cells in memory
+		
+		//This should be in a call when the ping happens! --> FIXME!!
+		UpdateConfigFile();
+
+		List<ZoneIndividual> feasibleChildren = new ArrayList<ZoneIndividual>();
+		List<ZoneIndividual> nonFeasibleChildren = new ArrayList<ZoneIndividual>();
+		
+		//To impulse diversity, every 100 gens, we create a mutation of all the populations
+		//and we evaluate that new population and the previous population and assign the right to the right cell
+		for(GACell cell : cells)
+		{
+			feasibleChildren.addAll(createMutatedChildren(cell.GetFeasiblePopulation(), 0.6f));
+			feasibleChildren.addAll(cell.GetFeasiblePopulation());
+			nonFeasibleChildren.addAll(cell.GetInfeasiblePopulation());
+			cell.GetFeasiblePopulation().clear();
+			cell.GetInfeasiblePopulation().clear();
+		}
+		
+		//We add a untouched copy of the currently edited room into the population (with the hope that it will be incorporated as an elite)
+		ZoneIndividual ind = new ZoneIndividual(originalRoom, mutationProbability);
+		ind.SetDimensionValues(MAPElitesDimensions, this.originalRoom);
+		 if(checkZoneIndividual(ind))
+		 {
+			 feasibleChildren.add(ind);
+		 }
+		 else
+		 {
+			 nonFeasibleChildren.add(ind);
+		 }
+
+		 //Check and assign the cells!
+		CheckAndAssignToCell(feasibleChildren, false);
+		CheckAndAssignToCell(nonFeasibleChildren, true);
+		
+		//Sort the populations in the cell and Eliminate low performing cells individuals
+    	for(GACell cell : cells)
+		{
+			cell.SortPopulations(false);
+			cell.ApplyElitism();
+		}
+
+    	//"restart" current gen!
+		currentGen = 0;
     }
 	
 	/**
@@ -364,61 +667,67 @@ public class MAPEliteAlgorithm extends Algorithm implements Listener {
         // 6- after generations 
         // 	6.1 - Replace: Eliminate low performing individual from cells that are above or at capacity
         
-        int currentGen = 0;
-        int realCurrentGen = 0;
+        currentGen = 0;
+        realCurrentGen = 0;
         
-        while(!stop)
+        while(!stop) //continuous evolution
         {
+//        	runNoInterbreedingExperiment();
+//        	runInterbreedingExperiment(); // This one and run experiment previous are the best!
+        	runNoInterbreedingApplElites();
+//        	runExperimentRealPrevious();
+        	/*
+        	//If we have receive the even that the dimensions changed, please modify the dimensions and recalculate the cells!
         	if(dimensionsChanged)
         	{
         		RecreateCells();
         		dimensionsChanged = false;
         	}
-        		//CALL METHOD
-        		
-        	for(int iteration = 0; iteration < 1; iteration++)
+    		ArrayList<ZoneIndividual> feasibleParents = new ArrayList<ZoneIndividual>();
+    		ArrayList<ZoneIndividual> infeasibleParents = new ArrayList<ZoneIndividual>();
+    		
+    		List<ZoneIndividual> children = new ArrayList<ZoneIndividual>();
+    		
+//        		List<ZoneIndividual> feasibleChildren = new ArrayList<ZoneIndividual>();
+//        		List<ZoneIndividual> infeasibleChildren = new ArrayList<ZoneIndividual>();
+    		GACell current = null;
+    		
+    		for(int count = 0; count < breedingGenerations; count++) //Actual gens
         	{
-        		ArrayList<ZoneIndividual> feasibleParents = new ArrayList<ZoneIndividual>();
-        		ArrayList<ZoneIndividual> infeasibleParents = new ArrayList<ZoneIndividual>();
-        		
-        		List<ZoneIndividual> children = new ArrayList<ZoneIndividual>();
-        		
-        		List<ZoneIndividual> feasibleChildren = new ArrayList<ZoneIndividual>();
+    			List<ZoneIndividual> feasibleChildren = new ArrayList<ZoneIndividual>();
         		List<ZoneIndividual> infeasibleChildren = new ArrayList<ZoneIndividual>();
-        		GACell current = null;
-        		for(int count = 0; count < 5; count++) //Actual gens
-            	{
 //        			children = new ArrayList<ZoneIndividual>();
-	        		//This could actually be looped to select parents from different cells (according to TALAKAT)
-	        		current = SelectCell(true);
-	        		
-	        		if(current != null)
-	        		{
-	        			current.exploreCell();
-	        			feasibleParents.addAll(tournamentSelection(current.GetFeasiblePopulation()));
-	            		
-	        		}
-	        		
-	        		//This could actually be looped to select parents from different cells (according to TALAKAT)
-        			current = SelectCell(false);
-            		
-            		if(current != null)
-            		{
-            			infeasibleParents.addAll(tournamentSelection(current.GetInfeasiblePopulation()));
-            		}
-            		
-            		//Breed!
-            		feasibleChildren.addAll(crossOverBetweenProgenitors(feasibleParents));
-            		infeasibleChildren.addAll(crossOverBetweenProgenitors(infeasibleParents));
-            	}
+        		//This could actually be looped to select parents from different cells (according to TALAKAT)
+        		current = SelectCell(true);
+        		
+        		if(current != null)
+        		{
+        			current.exploreCell();
+        			feasibleParents.addAll(tournamentSelection(current.GetFeasiblePopulation()));   		
+        		}
+        		
+        		//This could actually be looped to select parents from different cells (according to TALAKAT)
+    			current = SelectCell(false);
+        		
+        		if(current != null)
+        		{
+        			infeasibleParents.addAll(tournamentSelection(current.GetInfeasiblePopulation()));
+        		}
+        		
+        		//Breed!
+        		feasibleChildren.addAll(crossOverBetweenProgenitors(feasibleParents));
+        		infeasibleChildren.addAll(crossOverBetweenProgenitors(infeasibleParents));
+        		
+        		CheckAndAssignToCell(feasibleChildren, false);
+        		CheckAndAssignToCell(infeasibleChildren, true);
 
         		
         		//Breed!
 //        		children.addAll(crossOverBetweenProgenitors(parents));
         		
         		//Evaluate and assign to correct Cell
-        		CheckAndAssignToCell(feasibleChildren, false);
-        		CheckAndAssignToCell(infeasibleChildren, true);
+//        		CheckAndAssignToCell(feasibleChildren, false);
+//        		CheckAndAssignToCell(infeasibleChildren, true);
         		
         	}
         	
@@ -436,48 +745,14 @@ public class MAPEliteAlgorithm extends Algorithm implements Listener {
         	//This is only when we want to update the current Generation
         	if(currentGen >= iterationsToPublish)
         	{
-        		broadcastResultedRooms();
-        		MAPECollector.getInstance().SaveGeneration(realCurrentGen, MAPElitesDimensions, cells, false);
-        		
-        		//This should be in a call when the ping happens!
-        		UpdateConfigFile();
-
-        		List<ZoneIndividual> children = new ArrayList<ZoneIndividual>();
-        		List<ZoneIndividual> nonFeasibleChildren = new ArrayList<ZoneIndividual>();
-        		for(GACell cell : cells)
-    			{
-        			children.addAll(createMutatedChildren(cell.GetFeasiblePopulation(), 0.6f));
-        			children.addAll(cell.GetFeasiblePopulation());
-        			nonFeasibleChildren.addAll(cell.GetInfeasiblePopulation());
-        			cell.GetFeasiblePopulation().clear();
-        			cell.GetInfeasiblePopulation().clear();
-    			}
-        		
-        		//TODO: THIS NEEDS TO BE DOUBLE CHECK!
-        		ZoneIndividual ind = new ZoneIndividual(originalRoom, mutationProbability);
-        		
-        		 if(checkZoneIndividual(ind))
- 	            {
- 	                evaluateFeasibleZoneIndividual(ind);
- 	               ind.SetDimensionValues(MAPElitesDimensions, this.originalRoom);
- 	            }
-
-        		children.add(ind);
-        		CheckAndAssignToCell(children, false);
-        		CheckAndAssignToCell(nonFeasibleChildren, true);
-        		
-            	for(GACell cell : cells)
-    			{
-    				cell.SortPopulations(false);
-    				cell.ApplyElitism();
-    			}
-        		
-        		//Maybe mutate all the cells?
-        		currentGen = 0;
+        		publishGeneration();
+        	}
+        	else {
+        		currentGen++;
         	}
         	
         	realCurrentGen++;
-    		currentGen++;
+        	*/
         }
         
        ////////////////////////// POST END MAP-ELITES /////////////////////////////

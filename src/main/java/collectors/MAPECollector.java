@@ -54,6 +54,7 @@ public class MAPECollector implements Listener
 	
 	StringBuilder[] currentGenerationSummary;
 	ArrayList<StringBuilder[]> currentGenerationCell;
+	ArrayList<StringBuilder> currentEliteRoom;
 	
 	/**
 	 * This constructor is only to be called by the getInstance() method.
@@ -119,6 +120,7 @@ public class MAPECollector implements Listener
 		saveGenerationalSummary(dimensions, cells);
 		
 		currentGenerationCell = new ArrayList<StringBuilder[]>();
+		currentEliteRoom = new ArrayList<StringBuilder>();
 		
 		for(int i = 0; i < cells.size(); i++)
 		{
@@ -138,6 +140,7 @@ public class MAPECollector implements Listener
 		saveGenerationalSummary(dimensions, cells);
 		
 		currentGenerationCell = new ArrayList<StringBuilder[]>();
+		currentEliteRoom = new ArrayList<StringBuilder>();
 		
 		for(int i = 0; i < cells.size(); i++)
 		{
@@ -161,10 +164,17 @@ public class MAPECollector implements Listener
 		 */
 		int counter = 0;
 		
+		currentEliteRoom.add(new StringBuilder());
 		currentGenerationCell.add(new StringBuilder[cell.GetFeasiblePopulation().size() + 1]);
 		currentGenerationCell.get(cellIndex)[counter] = new StringBuilder();
 		currentGenerationCell.get(cellIndex)[counter].append("DimensionX;DimensionX Resolution;DimensionY;DimensionY Resolution;Cell;Cell DimensionX; Cell DimensionY;"
 				+ "IND Fit;IND DIMX;IND DIMY" + System.lineSeparator());
+		
+		if(cell.GetFeasiblePopulation().size() > 0)
+		{
+			currentEliteRoom.get(currentEliteRoom.size() - 1).append(
+					cell.GetFeasiblePopulation().get(0).getPhenotype().getMap(-1, -1, null, null).toString());
+		}
 		
 		counter++;
 		for(int i = 0; i < cell.GetFeasiblePopulation().size(); i++, counter++)
@@ -248,6 +258,7 @@ public class MAPECollector implements Listener
 		
 		WriteGenSummaryToFile();
 		WriteCellsToFile();
+		WriteMapsToFile();
 	}
 	
 	public File getDirectory()
@@ -282,6 +293,23 @@ public class MAPECollector implements Listener
 				{
 					FileUtils.write(file, tuple, true);
 				}
+			} catch (IOException e1) {
+				
+			}
+		}
+		
+	}
+	
+	private synchronized void WriteMapsToFile()
+	{
+		for(int cellIndex = 0; cellIndex < currentEliteRoom.size(); cellIndex++)
+		{
+			//Rename the file!
+			File file = new File(currentGenerationPath + "\\cell_" + cellIndex +".txt");
+			
+			try {
+				FileUtils.write(file, currentEliteRoom.get(cellIndex).toString(), true);
+
 			} catch (IOException e1) {
 				
 			}

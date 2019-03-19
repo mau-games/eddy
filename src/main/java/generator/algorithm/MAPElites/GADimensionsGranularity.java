@@ -25,7 +25,7 @@ public class GADimensionsGranularity
 		this.setDimensionGranularity(gran);
 		this.setIndex(index);
 		double increment = 1/(gran * 2);
-		this.setMinValue(index <= 0 ? 0 : value - increment);
+		this.setMinValue(index <= 1 ? 0.0d : value - increment);
 		this.setMaxValue(value + increment);
 	}
 

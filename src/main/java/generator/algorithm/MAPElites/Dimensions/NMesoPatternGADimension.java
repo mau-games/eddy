@@ -39,7 +39,7 @@ public class NMesoPatternGADimension extends GADimension {
 		}
 
 		//3.0 is the min chamber size! but i should definietely use some precomputed value
-		double maxPatterns = Math.floor(Math.floor((double)individualRoom.getColCount() / 3.0) * Math.floor((double)individualRoom.getRowCount() / 3.0));
+		double maxPatterns = Math.floor(Math.floor((double)individualRoom.getColCount() / 3.5) * Math.floor((double)individualRoom.getRowCount() / 3.5));
 		
 		
 		return Math.min((double) mesoCounter / maxPatterns, 1.0);
