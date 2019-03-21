@@ -341,7 +341,7 @@ public class MAPEliteAlgorithm extends Algorithm implements Listener {
         return parents;
     }
     
-    private void runExperimentRealPrevious()
+    private void runInterbreedingApplElites()
     {
     	//If we have receive the even that the dimensions changed, please modify the dimensions and recalculate the cells!
     	if(dimensionsChanged)
@@ -363,7 +363,7 @@ public class MAPEliteAlgorithm extends Algorithm implements Listener {
     		if(current != null)
     		{
     			current.exploreCell();
-    			parents.addAll(tournamentSelection(current.GetFeasiblePopulation(), 1));
+    			parents.addAll(tournamentSelection(current.GetFeasiblePopulation(), 5));
         		
     		}
     		
@@ -372,7 +372,7 @@ public class MAPEliteAlgorithm extends Algorithm implements Listener {
     		
     		if(current != null)
     		{
-    			parents.addAll(tournamentSelection(current.GetInfeasiblePopulation(), 1));
+    			parents.addAll(tournamentSelection(current.GetInfeasiblePopulation(), 5));
     		}
     	}
 
@@ -675,7 +675,7 @@ public class MAPEliteAlgorithm extends Algorithm implements Listener {
 //        	runNoInterbreedingExperiment();
 //        	runInterbreedingExperiment(); // This one and run experiment previous are the best!
         	runNoInterbreedingApplElites();
-//        	runExperimentRealPrevious();
+//        	runInterbreedingApplElites();
         	/*
         	//If we have receive the even that the dimensions changed, please modify the dimensions and recalculate the cells!
         	if(dimensionsChanged)
@@ -798,25 +798,25 @@ public class MAPEliteAlgorithm extends Algorithm implements Listener {
         int cellIndex = 0;
         for(GACell cell : cells)
 		{
-        	System.out.println("CELL = " + cellIndex++);
+//        	System.out.println("CELL = " + cellIndex++);
 //        	System.out.println("SYMMETRY: " + cell.GetDimensionValue(DimensionTypes.SIMILARITY) + ", PAT: " + cell.GetDimensionValue(DimensionTypes.SYMMETRY));
-        	cell.BroadcastCellInfo();
+//        	cell.BroadcastCellInfo();
         	if(cell.GetFeasiblePopulation().isEmpty())
         	{
         		ev.addRoom(null);
-        		System.out.println("NO FIT ROOM!");
+//        		System.out.println("NO FIT ROOM!");
         	}
         	else //This is more tricky!!
         	{
         		ev.addRoom(cell.GetFeasiblePopulation().get(0).getPhenotype().getMap(-1, -1, null, null));
-        		cell.GetFeasiblePopulation().get(0).BroadcastIndividualDimensions();
+//        		cell.GetFeasiblePopulation().get(0).BroadcastIndividualDimensions();
         		evaluateFeasibleZoneIndividual(cell.GetFeasiblePopulation().get(0));
 //        		System.out.println("FIT ROOM Fitness: " + cell.GetFeasiblePopulation().get(0).getFitness() + 
 //        							", symmetry: " + cell.GetFeasiblePopulation().get(0).getDimensionValue(DimensionTypes.SIMILARITY) +
 //        							", pat: " + cell.GetFeasiblePopulation().get(0).getDimensionValue(DimensionTypes.SYMMETRY));
         	}	
         	
-        	System.out.println("------------------");
+//        	System.out.println("------------------");
 		}
         
 		EventRouter.getInstance().postEvent(ev);

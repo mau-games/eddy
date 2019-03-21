@@ -790,7 +790,7 @@ public class Algorithm extends Thread {
 	    if (Double.isNaN(treasures)) 
 	    	treasures = 1.0;
 	    
-	    double doors = (room.getFailedPathsToAnotherDoor() / (double)room.getDoorCount(false));
+	    double doors = (room.getFailedPathsToAnotherDoor() / (double)room.getDoorCount(false)); //I think this should be in
 	    if (Double.isNaN(doors)) 
 	    	doors = 1.0;
 	

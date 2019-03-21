@@ -33,6 +33,7 @@ public class MAPEVisualizationPane extends BorderPane implements Listener
 	private int xResolution;
 	private int yResolution;
 	private ScrollPane mapeScroll;
+	private HBox sp;
 	
 	public MAPEVisualizationPane()
 	{
@@ -63,7 +64,7 @@ public class MAPEVisualizationPane extends BorderPane implements Listener
 		innerSuggestions.setVgap(5.0);
 		innerSuggestions.setAlignment(Pos.CENTER);
 		SetupInnerGrid(roomDisplays, width, height);
-		HBox sp = new HBox(innerSuggestions);
+		sp = new HBox(innerSuggestions);
 
 
 		mapeScroll.setContent(sp);
@@ -198,7 +199,7 @@ public class MAPEVisualizationPane extends BorderPane implements Listener
 	
 	public void SaveDimensionalGrid()
 	{
-		MapRenderer.getInstance().saveMAPE(innerSuggestions);
+		MapRenderer.getInstance().saveMAPE(sp); //Needs to be fixed in next iterations
 	}
 
 	@Override
@@ -208,7 +209,7 @@ public class MAPEVisualizationPane extends BorderPane implements Listener
 		if(e instanceof SaveDisplayedCells)
 		{
 			Platform.runLater(() -> {
-				MapRenderer.getInstance().saveMAPE(innerSuggestions);
+				MapRenderer.getInstance().saveMAPE(sp);
 			});
 //			SaveDimensionalGrid();
 		}

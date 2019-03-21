@@ -264,12 +264,13 @@ public class MapRenderer implements Listener {
 		return image;
 	}
 	
-	public synchronized Image saveMAPE(GridPane gridPane)
+	public synchronized Image saveMAPE(Pane gridPane)
 	{
 
-		final WritableImage writableImage = new WritableImage((int)gridPane.getWidth(), (int)gridPane.getHeight());
+		final WritableImage writableImage = new WritableImage((int)gridPane.getWidth() + 75, (int)gridPane.getHeight() + 75);
 		Image image = gridPane.snapshot(new SnapshotParameters(), writableImage);
-
+		System.out.println(gridPane.getWidth());
+		System.out.println(gridPane.getHeight());
 		
 		File file = new File(MAPECollector.getInstance().getDirectory().getAbsolutePath() + "\\CellIndividuals.png");
 		try {
@@ -361,7 +362,7 @@ public class MapRenderer implements Listener {
 			finalMapWidth = (int)((float)config.getMapRenderWidth() * (float)((float)room.getColCount() / 10.0f));
 		}
 
-		System.out.println("FINAL MAP WIDTH: " + finalMapWidth + ", FINAL MAP HEIGHT: " + finalMapHeight);
+//		System.out.println("FINAL MAP WIDTH: " + finalMapWidth + ", FINAL MAP HEIGHT: " + finalMapHeight);
 		Canvas canvas = new Canvas(finalMapWidth, finalMapHeight);
 		renderMap(canvas.getGraphicsContext2D(), room.toMatrix());
 		
