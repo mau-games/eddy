@@ -133,6 +133,12 @@ public class PatternFinder {
 		return findMesoPatterns();
 	}
 	
+	
+	public List<Pattern> getMicroPatterns(){
+		return findMicroPatterns();
+	}
+	
+	
 	private void buildPatternGraph(){
 		//Build the pattern graph
 		assignSpacialPatternsToGrid();
