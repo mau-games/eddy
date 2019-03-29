@@ -2,7 +2,12 @@ package finder.geometry;
 
 import java.util.ArrayList;
 
+import game.PathInformation;
+
 public class Bitmap extends Polygon {
+	
+	public Point medoid;
+	
 	@Override
 	public double getArea() {
 		return points.size();
@@ -39,6 +44,30 @@ public class Bitmap extends Polygon {
 	public void clearAllPoints()
 	{
 		points.clear();
+	}
+	
+	public void CalculateMedoid()
+	{
+		int currentMin = Integer.MAX_VALUE;
+		for(Point current : points)
+		{
+			int currentAmount = 0;
+			for(Point other : points)
+			{
+				currentAmount += distManhattan(current, other);
+			}
+			
+			if(currentAmount < currentMin)
+			{
+				currentMin = currentAmount;
+				medoid = current;
+			}
+		}
+	}
+	
+	public int distManhattan(Point a, Point b)
+	{
+		return (Math.abs(b.getX() - a.getX()) + Math.abs(b.getY() - a.getY()));
 	}
 	
 }

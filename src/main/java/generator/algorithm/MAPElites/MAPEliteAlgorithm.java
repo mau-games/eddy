@@ -110,6 +110,7 @@ public class MAPEliteAlgorithm extends Algorithm implements Listener {
 		
 		this.dimensions = dimensions;
 		initCells(dimensions);
+		room.SetDimensionValues(MAPElitesDimensions);
 		
 		int i = 0;
 		int j = 0;
@@ -293,6 +294,7 @@ public class MAPEliteAlgorithm extends Algorithm implements Listener {
 		feasibleAmount = (int)((double)populationSize * config.getFeasibleProportion());
 		roomTarget = config.getRoomProportion();
 		corridorTarget = config.getCorridorProportion();
+		originalRoom.SetDimensionValues(MAPElitesDimensions);
 		
 		//Extra
 		for(GACell cell : cells)

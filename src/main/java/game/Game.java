@@ -254,6 +254,8 @@ public class Game implements Listener{
 		if(e instanceof StartGA_MAPE)
 		{
 			StartGA_MAPE MAPEinfo = (StartGA_MAPE)e;
+
+			
 			RunMAPElites((Room)e.getPayload(), MAPEinfo.getDimensions());
 		}
 		else if(e instanceof RequestSuggestionsView){ 

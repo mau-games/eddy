@@ -30,4 +30,17 @@ public class NPatternGADimension extends GADimension {
 		return Math.min((double) finder.getPatternGraph().countNodes() / maxPatterns, 1.0);
 	}
 
+	@Override
+	public double CalculateValue(Room individualRoom, Room target) {
+		PatternFinder finder = individualRoom.getPatternFinder();
+		finder.findMesoPatterns();
+		
+		double maxPatterns = individualRoom.getColCount() <= individualRoom.getRowCount() 
+							? individualRoom.getColCount() -1 : individualRoom.getRowCount() - 1;
+							
+		maxPatterns = Math.max(maxPatterns * patternMultiplier, 1.0);
+		
+		return Math.min((double) finder.getPatternGraph().countNodes() / maxPatterns, 1.0);
+	}
+
 }

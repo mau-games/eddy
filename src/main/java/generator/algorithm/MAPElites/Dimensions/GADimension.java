@@ -44,6 +44,7 @@ public abstract class GADimension
 //	public abstract boolean CorrectDimensionLevel(ZoneIndividual individual, DimensionType type);
 	
 	public abstract double CalculateValue(ZoneIndividual individual, Room target);
+	public abstract double CalculateValue(Room individualRoom, Room target);
 	
 	public double GetGranularity()
 	{

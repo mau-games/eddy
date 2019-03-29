@@ -147,6 +147,8 @@ public class ZoneIndividual {
 		{
 			dimensionValues.put(dimension.GetType(), dimension.CalculateValue(this, original));
 		}
+		
+		this.getPhenotype().getMap(-1, 1, null, null).SetDimensionValues(dimensionValues);
 	}
 	
 	public double getDimensionValue(DimensionTypes currentDimension)

@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import java.lang.*?>
+<?import javafx.scene.layout.*?>
+
+<fx:root fx:id="mainBorderPane" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" stylesheets="@../styling.css" type="javafx.scene.layout.BorderPane" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1">
+   <left>
+      <Button mnemonicParsing="false" onAction="#userDisliked" text="NO" BorderPane.alignment="CENTER" />
+   </left>
+   <right>
+      <Button mnemonicParsing="false" onAction="#userLiked" text="YES" BorderPane.alignment="CENTER" />
+   </right>
+   <bottom>
+      <VBox alignment="CENTER" prefHeight="72.0" prefWidth="600.0" spacing="20.0" BorderPane.alignment="CENTER">
+         <children>
+            <Button alignment="CENTER" mnemonicParsing="false" onAction="#generateForMe" text="FOR ME" textAlignment="CENTER" />
+            <Button alignment="CENTER" mnemonicParsing="false" onAction="#showStats" text="STATS" />
+         </children>
+      </VBox>
+   </bottom>
+   <center>
+      <VBox fx:id="centerPane" alignment="CENTER" prefHeight="498.0" prefWidth="529.0" BorderPane.alignment="CENTER">
+         <children>
+            <StackPane fx:id="roomPane" alignment="CENTER" prefHeight="150.0" prefWidth="200.0" />
+         </children>
+      </VBox>
+   </center>
+</fx:root>
