@@ -1,5 +1,6 @@
 package generator.algorithm.MAPElites.Dimensions;
 
+import finder.PatternFinder;
 import game.Room;
 import game.TileTypes;
 import generator.algorithm.ZoneIndividual;
@@ -138,5 +139,10 @@ public class SimilarityGADimension extends GADimension
 //    	}
     	return similarityFitness;
 
+	}
+	
+	public static double getValue(Room individualRoom)
+	{
+		return -1.0;
 	}
 }

@@ -1,14 +1,25 @@
-package ml;
+package machineLearning;
 
+import java.io.File;
+import java.io.IOException;
 import java.text.DecimalFormat;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map.Entry;
+
+import org.apache.commons.io.FileUtils;
+
 import java.util.Stack;
 
 import game.Room;
 import generator.algorithm.MAPElites.Dimensions.GADimension.DimensionTypes;
 import gui.views.TinderViewController;
+import machineLearning.neuralnetwork.DataTupleManager;
+import machineLearning.neuralnetwork.MapPreferenceModelTuple;
+import machineLearning.neuralnetwork.PreferenceModelDataTuple;
+import util.eventrouting.EventRouter;
+import util.eventrouting.events.UpdatePreferenceModel;
 
 /****
  * This model is a very big simplification!
@@ -31,36 +42,22 @@ public class PreferenceModel
 	
 	public HashMap<PreferenceAttributes, Double> preferences = new HashMap<PreferenceAttributes, Double>();
 	
-	double symmetry;
-	double wallDensity;
-	double wallSparsity;
-	double enemyDensity;
-	double enemySparsity;
-	double treasureDensity;
-	double treasureSparsity;
-	double challenge;
-	
-	double learningRate = 0.2;
-	Room room;
-	boolean dislike;
+	protected double learningRate = 0.2;
+	public Room room;
+	public boolean like;
 	
 	Stack<PreferenceModel> prevStates;
-	private static DecimalFormat df3 = new DecimalFormat("#.###");
+	protected static DecimalFormat df3 = new DecimalFormat("#.###");
+	protected String projectPath;
 	
-	public PreferenceModel(double sym, double den, double challenge, Room room, boolean dislike)
-	{
-		this.symmetry =sym;
-		this.wallDensity = den;
-		this.challenge = challenge;
-		this.room = room;
-		this.dislike = dislike;
-	}
+	protected ArrayList<PreferenceModelDataTuple> tuples = new ArrayList<PreferenceModelDataTuple>();
+	protected ArrayList<MapPreferenceModelTuple> mapTuples = new ArrayList<MapPreferenceModelTuple>();
 	
-	public PreferenceModel(HashMap<PreferenceAttributes, Double> otherPreferences, Room room, boolean dislike)
+	public PreferenceModel(HashMap<PreferenceAttributes, Double> otherPreferences, Room room, boolean like)
 	{
 		this.preferences = new HashMap<PreferenceAttributes, Double>(otherPreferences);
 		this.room = room;
-		this.dislike = dislike;
+		this.like = like;
 	}
 	
 	public PreferenceModel()
@@ -78,12 +75,13 @@ public class PreferenceModel
 		}
 		
 		prevStates = new Stack<PreferenceModel>();
+		projectPath = System.getProperty("user.dir") + "\\my-data\\PreferenceModels";
 //		symmetry = 0.5;
 //		density = 0.5;
 //		challenge = 0.5;
 	}
 	
-	public void UpdateModel(boolean dislike, Room usedRoom)
+	public void UpdateModel(boolean like, Room usedRoom)
 	{
 		//This should be for each vaLUE
 //		double newSym = (usedRoom.getDimensionValue(DimensionTypes.SYMMETRY) - symmetry) * learningRate;
@@ -100,37 +98,37 @@ public class PreferenceModel
 				break;
 			case ENEMY_DENSITY:
 				auxAttPrime = (usedRoom.calculateEnemyDensity() - auxAtt) * learningRate;
-				auxAtt = dislike ? auxAtt + (auxAttPrime * -1.0) : auxAtt + auxAttPrime;
+				auxAtt = !like ? auxAtt + (auxAttPrime * -1.0) : auxAtt + auxAttPrime;
 				auxAtt = Math.max(Math.min(auxAtt, 1.0), 0.0);
 				break;
 			case ENEMY_SPARSITY:
 				auxAttPrime = (usedRoom.calculateEnemySparsity() - auxAtt) * learningRate;
-				auxAtt = dislike ? auxAtt + (auxAttPrime * -1.0) : auxAtt + auxAttPrime;
+				auxAtt = !like ? auxAtt + (auxAttPrime * -1.0) : auxAtt + auxAttPrime;
 				auxAtt = Math.max(Math.min(auxAtt, 1.0), 0.0);
 				break;
 			case SYMMETRY:
 				auxAttPrime = (usedRoom.getDimensionValue(DimensionTypes.SYMMETRY) - auxAtt) * learningRate;
-				auxAtt = dislike ? auxAtt + (auxAttPrime * -1.0) : auxAtt + auxAttPrime;
+				auxAtt = !like ? auxAtt + (auxAttPrime * -1.0) : auxAtt + auxAttPrime;
 				auxAtt = Math.max(Math.min(auxAtt, 1.0), 0.0);
 				break;
 			case TREASURE_DENSITY:
 				auxAttPrime = (usedRoom.calculateTreasureDensity() - auxAtt) * learningRate;
-				auxAtt = dislike ? auxAtt + (auxAttPrime * -1.0) : auxAtt + auxAttPrime;
+				auxAtt = !like ? auxAtt + (auxAttPrime * -1.0) : auxAtt + auxAttPrime;
 				auxAtt = Math.max(Math.min(auxAtt, 1.0), 0.0);
 				break;
 			case TREASURE_SPARSITY:
 				auxAttPrime = (usedRoom.calculateTreasureSparsity() - auxAtt) * learningRate;
-				auxAtt = dislike ? auxAtt + (auxAttPrime * -1.0) : auxAtt + auxAttPrime;
+				auxAtt = !like ? auxAtt + (auxAttPrime * -1.0) : auxAtt + auxAttPrime;
 				auxAtt = Math.max(Math.min(auxAtt, 1.0), 0.0);
 				break;
 			case WALL_DENSITY:
 				auxAttPrime = (usedRoom.calculateWallDensity() - auxAtt) * learningRate;
-				auxAtt = dislike ? auxAtt + (auxAttPrime * -1.0) : auxAtt + auxAttPrime;
+				auxAtt = !like ? auxAtt + (auxAttPrime * -1.0) : auxAtt + auxAttPrime;
 				auxAtt = Math.max(Math.min(auxAtt, 1.0), 0.0);
 				break;
 			case WALL_SPARSITY:
 				auxAttPrime = (usedRoom.calculateWallSparsity() - auxAtt) * learningRate;
-				auxAtt = dislike ? auxAtt + (auxAttPrime * -1.0) : auxAtt + auxAttPrime;
+				auxAtt = !like ? auxAtt + (auxAttPrime * -1.0) : auxAtt + auxAttPrime;
 				auxAtt = Math.max(Math.min(auxAtt, 1.0), 0.0);
 				break;
 			default:
@@ -141,9 +139,14 @@ public class PreferenceModel
 			preferences.put(entry.getKey(), auxAtt);
 		}
 		
-		
-//		prevStates.push(new PreferenceModel(symmetry, density, challenge, new Room(usedRoom), dislike));
-		prevStates.push(new PreferenceModel(preferences, new Room(usedRoom), dislike));
+		prevStates.push(new PreferenceModel(preferences, new Room(usedRoom), like));
+		tuples.add(new PreferenceModelDataTuple(prevStates.peek(), like));
+		mapTuples.add(new MapPreferenceModelTuple(usedRoom, like));
+	}
+	
+	public void broadcastPreferences()
+	{
+		EventRouter.getInstance().postEvent(new UpdatePreferenceModel(this));
 	}
 	
 	public double testWithPreference(Room room)
@@ -183,7 +186,12 @@ public class PreferenceModel
 			}
 		}
 		
-		System.out.println(PreferenceAttributes.values().length);
+//		System.out.println(PreferenceAttributes.values().length);
+		
+		if(preferenceValue/(PreferenceAttributes.values().length - 1) > 0.99)
+		{
+			System.out.println("PREF!");
+		}
 		
 		return preferenceValue/(PreferenceAttributes.values().length - 1);
 		
@@ -236,18 +244,54 @@ public class PreferenceModel
 			System.out.println("_______________________________");
 			System.out.println();
 		}
-		
-//		while (iter.hasNext())
-//		{
-//		    System.out.println("Sym: " + iter.next().symmetry + ", Challenge: " + iter.next().challenge + ", density: " + iter.next().density );
-//		    System.out.println();
-//		    System.out.println(iter.next().room.toString());
-//		    System.out.println("_______________________________");
-//		}
+
 	}
 	
-	public void SaveDataset()
+	public void SaveDataset(String userName)
 	{
-		System.out.println("to be implemented");
+		DataTupleManager.SaveHeader(tuples.get(0), "\\PreferenceModels", userName);
+		DataTupleManager.SaveHeader(mapTuples.get(0), "\\PreferenceModels", userName + "_map");
+		
+		for(int i = 0; i < tuples.size() ;i++)
+		{
+			DataTupleManager.SaveData(tuples.get(i), "\\PreferenceModels", userName);
+			DataTupleManager.SaveData(mapTuples.get(i), "\\PreferenceModels", userName + "_map");
+		}
+//		
+//		for(PreferenceModelDataTuple tuple : tuples)
+//		{
+//			DataTupleManager.SaveData(tuple, "\\PreferenceModels", userName);
+//		}
+		
+//		File file = new File(projectPath + "\\" + userName +".csv");
+//		
+//		try {
+//			
+//			
+//			StringBuilder prefTuple = new StringBuilder();
+//			prefTuple.append("symmetry;enemyDensity;enemySparsity;treasureDensity;treasureSparsity;wallDensity;wallSparsity;numberSpatialPat;numberMesoPat;class" + System.lineSeparator());
+//			FileUtils.write(file, prefTuple.toString(), true);
+//			
+//			for(PreferenceModel obj : prevStates)
+//			{
+//				prefTuple = new StringBuilder();
+//				
+//				prefTuple.append(obj.room.getDimensionValue(DimensionTypes.SYMMETRY) + ";");
+//				prefTuple.append(obj.room.calculateEnemyDensity()+ ";");
+//				prefTuple.append(obj.room.calculateEnemySparsity()+ ";");
+//				prefTuple.append(obj.room.calculateTreasureDensity()+ ";");
+//				prefTuple.append(obj.room.calculateTreasureSparsity()+ ";");
+//				prefTuple.append(obj.room.calculateWallDensity()+ ";");
+//				prefTuple.append(obj.room.calculateWallSparsity()+ ";");
+//				prefTuple.append(obj.room.getDimensionValue(DimensionTypes.NUMBER_PATTERNS)+ ";");
+//				prefTuple.append(obj.room.getDimensionValue(DimensionTypes.NUMBER_MESO_PATTERN)+ ";");
+//				prefTuple.append(obj.like + System.lineSeparator());
+//				
+//				FileUtils.write(file, prefTuple.toString(), true);
+//			}
+//
+//		} catch (IOException e1) {
+//			
+//		}
 	}
 }

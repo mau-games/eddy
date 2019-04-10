@@ -28,11 +28,13 @@ import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Pos;
 import javafx.scene.control.Label;
+import javafx.scene.control.TextField;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
-import ml.PreferenceModel;
+import machineLearning.NNPreferenceModel;
+import machineLearning.PreferenceModel;
 import util.Point;
 import util.config.MissingConfigurationException;
 import util.eventrouting.EventRouter;
@@ -57,6 +59,7 @@ public class TinderViewController extends BorderPane implements Listener
 	
 	@FXML private StackPane roomPane; 
 	@FXML private VBox centerPane;
+	@FXML private TextField userName;
 	private List<Label> dimensionLabels;
 	private InteractiveMap mapView;
 	private Room originalRoom;
@@ -179,7 +182,8 @@ public class TinderViewController extends BorderPane implements Listener
 		originalRoom.createDoor(new Point(5, 10));
 //		originalRoom.addDoor(new Point(5, 9));
 		
-		userPreferenceModel = new PreferenceModel();
+//		userPreferenceModel = new PreferenceModel();
+		userPreferenceModel = new NNPreferenceModel();
 
 	}
 	
@@ -259,6 +263,11 @@ public class TinderViewController extends BorderPane implements Listener
 		roomPane.getChildren().add(getMapView());
 	}
 	
+	public void onUserNameChanged()
+	{
+		
+	}
+	
 	/***
 	 * Generate rooms following the preference model!
 	 */
@@ -268,6 +277,8 @@ public class TinderViewController extends BorderPane implements Listener
 		dimensionLabels.get(dimensionLabels.size() - 1).setText("Preference: " + 
 				df3.format(userPreferenceModel.testWithPreference(currentRoom)));
 		
+//		userPreferenceModel.broadcastPreferences();
+		
 	}
 	
 	//When the user liked the image
@@ -275,7 +286,7 @@ public class TinderViewController extends BorderPane implements Listener
 	{
 		System.out.println("dislike");
 		System.out.println(EARooms.size());
-		userPreferenceModel.UpdateModel(true, currentRoom);
+		userPreferenceModel.UpdateModel(false, currentRoom);
 		currentRoom = EARooms.get((int)(Math.random() * EARooms.size()));
 		getMapView().updateMap(currentRoom); 
 		SetStats();
@@ -287,7 +298,7 @@ public class TinderViewController extends BorderPane implements Listener
 	{
 		System.out.println("like");
 		System.out.println(EARooms.size());
-		userPreferenceModel.UpdateModel(false, currentRoom);
+		userPreferenceModel.UpdateModel(true, currentRoom);
 		currentRoom = EARooms.get((int)(Math.random() * EARooms.size()));
 		getMapView().updateMap(currentRoom); 
 		SetStats();
@@ -297,6 +308,7 @@ public class TinderViewController extends BorderPane implements Listener
 	{
 //		router.postEvent(new Stop());
 		userPreferenceModel.printAllStates();
+		userPreferenceModel.SaveDataset(userName.getText());
 	}
 	
 	public InteractiveMap getMapView() {

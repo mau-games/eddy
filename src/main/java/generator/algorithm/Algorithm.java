@@ -33,6 +33,7 @@ import game.Room;
 import game.MapContainer;
 import game.TileTypes;
 import generator.config.GeneratorConfig;
+import machineLearning.PreferenceModel;
 import util.Point;
 import util.Util;
 import util.algorithms.Node;
@@ -84,6 +85,9 @@ public class Algorithm extends Thread {
 	protected int roomHeight;
 	protected List<Point> roomDoorPositions;
 	protected Point roomEntrance;
+	
+	//This is for testing the preference MODEL TODO: for fitness
+	protected PreferenceModel userPreferences;
 
 	public enum AlgorithmTypes //TODO: This needs to change
 	{
@@ -609,6 +613,12 @@ public class Algorithm extends Thread {
     	
     	double fitness = (0.5 * treasureAndEnemyFitness)
     			+  0.5 * (0.3 * roomFitness + 0.7 * corridorFitness); 
+    	
+    	if(userPreferences != null)
+    	{
+    		fitness = fitness * userPreferences.testWithPreference(room);
+//    		fitness = userPreferences.testWithPreference(room);
+    	}
     	
     	if(counter > 0)
     		onlyMesoPatterns = onlyMesoPatterns/counter;

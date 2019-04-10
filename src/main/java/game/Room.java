@@ -1500,6 +1500,11 @@ public class Room {
 			}
 		}
 		
+		if(wallPoints.isEmpty())
+		{
+			return 0.0;
+		}
+		
 		Node root = new Node(0.0f, wallPoints.remove(0), null);
     	queue.add(root);
     	
@@ -1598,6 +1603,11 @@ public class Room {
 		Queue<Node> queue = new LinkedList<Node>();
 		ArrayList<Bitmap> enemyChunks = new ArrayList<Bitmap>();
 		ArrayList<Point> enemyPoints = new ArrayList<Point>(enemies);
+		
+		if(enemyPoints.isEmpty())
+		{
+			return 0.0;
+		}
 
 		Node root = new Node(0.0f, enemyPoints.remove(0), null);
     	queue.add(root);
@@ -1679,6 +1689,11 @@ public class Room {
 		Queue<Node> queue = new LinkedList<Node>();
 		ArrayList<Bitmap> treasureChunks = new ArrayList<Bitmap>();
 		ArrayList<Point> treasurePoints = new ArrayList<Point>(treasures);
+		
+		if(treasurePoints.isEmpty())
+		{
+			return 0.0;
+		}
 
 		Node root = new Node(0.0f, treasurePoints.remove(0), null);
     	queue.add(root);

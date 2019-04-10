@@ -31,6 +31,7 @@ import util.eventrouting.events.MAPEGridUpdate;
 import util.eventrouting.events.MAPElitesDone;
 import util.eventrouting.events.MapUpdate;
 import util.eventrouting.events.SaveDisplayedCells;
+import util.eventrouting.events.UpdatePreferenceModel;
 
 public class MAPEliteAlgorithm extends Algorithm implements Listener {
 	
@@ -107,6 +108,7 @@ public class MAPEliteAlgorithm extends Algorithm implements Listener {
 	public void initPopulations(Room room, MAPEDimensionFXML[] dimensions){
 		broadcastStatusUpdate("Initialising...");
 		EventRouter.getInstance().registerListener(this, new MAPEGridUpdate(null));
+		EventRouter.getInstance().registerListener(this, new UpdatePreferenceModel(null));
 		
 		this.dimensions = dimensions;
 		initCells(dimensions);
@@ -192,8 +194,8 @@ public class MAPEliteAlgorithm extends Algorithm implements Listener {
 			if(checkZoneIndividual(ind)){
 				if(i < feasibleAmount){
 					feasiblePool.add(ind);
-					evaluateFeasibleZoneIndividual(ind);
 					ind.SetDimensionValues(MAPElitesDimensions, null);
+					evaluateFeasibleZoneIndividual(ind);
 					
 					for(GACell cell : cells)
 					{
@@ -207,8 +209,8 @@ public class MAPEliteAlgorithm extends Algorithm implements Listener {
 			else {
 				if(j < populationSize - feasibleAmount){
 					infeasiblePool.add(ind);
-					evaluateInfeasibleZoneIndividual(ind);
 					ind.SetDimensionValues(MAPElitesDimensions, null);
+					evaluateInfeasibleZoneIndividual(ind);
 					
 					for(GACell cell : cells)
 					{
@@ -269,13 +271,19 @@ public class MAPEliteAlgorithm extends Algorithm implements Listener {
 	}
 	
 	
-	@Override
 	public void ping(PCGEvent e) //TODO: I SHOULD ALSO ADD THE INFO WHEN A MAP IS UPDATED --> For all the extra calculations
 	{
 		// TODO Auto-generated method stub
 		if(e instanceof MAPEGridUpdate)
 		{
 			this.dimensions = ((MAPEGridUpdate) e).getDimensions(); 
+			dimensionsChanged = true;
+		}
+		else if(e instanceof UpdatePreferenceModel) 
+		{
+			this.userPreferences = ((UpdatePreferenceModel) e).getCurrentUserModel(); 
+			//TODO: PLEASE CHANGE THIS
+//			RecreateCells();
 			dimensionsChanged = true;
 		}
 	}
@@ -836,10 +844,10 @@ public class MAPEliteAlgorithm extends Algorithm implements Listener {
 	            {
 	            	if(infeasible)
 	            		infeasiblesMoved++;
-	            	
-	                evaluateFeasibleZoneIndividual(individual);
+	            	               
 	                individual.SetDimensionValues(MAPElitesDimensions, this.originalRoom);
-					
+	                evaluateFeasibleZoneIndividual(individual);
+	                
 					for(GACell cell : cells)
 					{
 						if(cell.BelongToCell(individual, true))
@@ -848,8 +856,8 @@ public class MAPEliteAlgorithm extends Algorithm implements Listener {
 	            }
 	            else
 	            {
-					evaluateInfeasibleZoneIndividual(individual);
 					individual.SetDimensionValues(MAPElitesDimensions, this.originalRoom);
+					evaluateInfeasibleZoneIndividual(individual);
 					
 					for(GACell cell : cells)
 					{

@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.geometry.*?>
 <?import javafx.scene.control.*?>
 <?import java.lang.*?>
 <?import javafx.scene.layout.*?>
@@ -14,9 +15,17 @@
    <bottom>
       <VBox alignment="CENTER" prefHeight="72.0" prefWidth="600.0" spacing="20.0" BorderPane.alignment="CENTER">
          <children>
-            <Button alignment="CENTER" mnemonicParsing="false" onAction="#generateForMe" text="FOR ME" textAlignment="CENTER" />
+            <HBox alignment="CENTER" prefHeight="100.0" prefWidth="200.0" spacing="10.0">
+               <children>
+                  <Button alignment="CENTER" mnemonicParsing="false" onAction="#generateForMe" text="FOR ME" textAlignment="CENTER" />
+                  <TextField fx:id="userName" onKeyTyped="#onUserNameChanged" style="-fx-text-fill: white;" text="username" />
+               </children>
+            </HBox>
             <Button alignment="CENTER" mnemonicParsing="false" onAction="#showStats" text="STATS" />
          </children>
+         <padding>
+            <Insets bottom="10.0" />
+         </padding>
       </VBox>
    </bottom>
    <center>
