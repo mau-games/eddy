@@ -6,6 +6,9 @@ import java.util.Random;
 
 import collectors.DataSaverLoader;
 import machineLearning.neuralnetwork.Neuron.NeuronTypes;
+import machineLearning.neuralnetwork.activationFunction.ActivationFunction;
+import machineLearning.neuralnetwork.activationFunction.LogisticSigmoid;
+import machineLearning.neuralnetwork.activationFunction.ReLU;
 
 public class NeuralNetwork <T extends DataTuple>
 {
@@ -47,23 +50,29 @@ public class NeuralNetwork <T extends DataTuple>
 //	public double lowerBoundLR = 0.001;
 //	public double upperBoundLR = 0.01;
 	public double lowerBoundLR = 0.5;
-	public double upperBoundLR = 0.001;
+	public double upperBoundLR = 0.01;
 	
 	String networkName = "";
 	
 	public static void main(String[] args)
 	{
-		System.out.println("STARTING NN WITH attribute values");
-		System.out.println();
-		NeuralNetwork<PreferenceModelDataTuple> attributeValues = new NeuralNetwork<PreferenceModelDataTuple>(new int[] {100}, 
-				DataTupleManager.LoadPreferenceModelDataList("PreferenceModels", "newmap"), "VALUE_NETWORK_TES");	
-		
-		System.out.println("___________________________________");
+//		System.out.println("STARTING NN WITH attribute values");
+//		System.out.println();
+//		NeuralNetwork<PreferenceModelDataTuple> attributeValues = new NeuralNetwork<PreferenceModelDataTuple>(new int[] {200, 100}, 
+//				DataTupleManager.LoadPreferenceModelDataList("PreferenceModels", "newmap"), "VALUE_NETWORK_TES", new ReLU());	
+//		
+//		System.out.println("___________________________________");
 
 		System.out.println("STARTING NN WITH VALUE MAP");
 		System.out.println();
-		NeuralNetwork<MapPreferenceModelTuple> mapValues = new NeuralNetwork<MapPreferenceModelTuple>(new int[] {200}, 
-				DataTupleManager.LoadValueMapDataList("PreferenceModels", "newmap_map"), "MAP_NETWORK_TES");
+		NeuralNetwork<MapPreferenceModelTuple> mapValues = new NeuralNetwork<MapPreferenceModelTuple>(new int[] {256,100}, 
+				DataTupleManager.LoadValueMapDataList("PreferenceModels", "newmap_map"), "MAP_NETWORK_TES", new ReLU());
+		System.out.println("___________________________________");
+		
+		System.out.println("STARTING NN WITH VALUE MAP");
+		System.out.println();
+		NeuralNetwork<MapPreferenceModelTuple> mapValues2 = new NeuralNetwork<MapPreferenceModelTuple>(new int[] {256,256}, 
+				DataTupleManager.LoadValueMapDataList("PreferenceModels", "newmap_map"), "MAP_NETWORK_TEST_2", new ReLU());
 		System.out.println("___________________________________");
 
 	}
@@ -84,7 +93,7 @@ public class NeuralNetwork <T extends DataTuple>
 		}
 	}
 	
-	public NeuralNetwork(int[] hiddenLayers, ArrayList<T> data, String networkName)
+	public NeuralNetwork(int[] hiddenLayers, ArrayList<T> data, String networkName, ActivationFunction neuralActivation)
 	{
 		this.networkName = networkName;
 //		dataset = DataManager.LoadNeuralNetworkDataset("average_player.csv");
@@ -109,20 +118,20 @@ public class NeuralNetwork <T extends DataTuple>
 		////////////// GENERATE ANN ////////////////////
 
 		//Fill the input neurons
-		this.neuralLayers.add(new Layer(input_neurons_quantity, NeuronTypes.INPUT));
-		this.neuralLayers.get(0).populateLayer();
+		this.neuralLayers.add(new Layer(input_neurons_quantity, NeuronTypes.INPUT, 0.0));
+		this.neuralLayers.get(0).populateLayer(neuralActivation);
 		
 		//Fill the hidden neurons
 		for(int hiddenLayer : hiddenLayers)
 		{
-			Layer layer = new Layer(hiddenLayer, NeuronTypes.HIDDEN);
-			layer.populateLayer();
+			Layer layer = new Layer(hiddenLayer, NeuronTypes.HIDDEN, 0.5);
+			layer.populateLayer(neuralActivation);
 			this.neuralLayers.add(layer);
 		}
 		
 		//Fill the output neurons
-		this.neuralLayers.add(new Layer(output_neurons_quantity, NeuronTypes.OUTPUT));
-		this.neuralLayers.get(this.neuralLayers.size() - 1).populateLayer();
+		this.neuralLayers.add(new Layer(output_neurons_quantity, NeuronTypes.OUTPUT, 0.0));
+		this.neuralLayers.get(this.neuralLayers.size() - 1).populateLayer(new LogisticSigmoid());
 		
 		//Go through the layers (from the second one) and connect each neuron in that layer to all the neurons in the prev layer
 		//As bonus, add the Bias too!
@@ -131,12 +140,12 @@ public class NeuralNetwork <T extends DataTuple>
 		{
 			for(int currentNeuron = 0; currentNeuron < this.neuralLayers.get(layerCount).size; currentNeuron++)
 			{
-				Neuron neuron = this.neuralLayers.get(layerCount).getNeuron(currentNeuron);
-				neuron.AddConnection(new Neuron(NeuronTypes.BIAS, 1.0));
+				Neuron neuron = this.neuralLayers.get(layerCount).getNeuron(currentNeuron, DatasetUses.VALIDATION);
+				neuron.AddConnection(new Neuron(NeuronTypes.BIAS, neuralActivation, 0.1f));
 				
 				for(int prevLayerNeuron = 0; prevLayerNeuron < this.neuralLayers.get(layerCount - 1).size; prevLayerNeuron++)
 				{
-					neuron.AddConnection(this.neuralLayers.get(layerCount - 1).getNeuron(prevLayerNeuron));
+					neuron.AddConnection(this.neuralLayers.get(layerCount - 1).getNeuron(prevLayerNeuron, DatasetUses.VALIDATION));
 				}
 			}
 		}
@@ -204,7 +213,7 @@ public class NeuralNetwork <T extends DataTuple>
 				for(int tuple = currentBatch; tuple < currentBatch + batchGrow; tuple++)
 				{
 					//step 1: feedforward
-					FeedForward(tuple, trainingSet);
+					FeedForward(tuple, trainingSet, DatasetUses.TRAINING);
 					int expectedOutput = trainingSet.get(tuple).label == true ? 1 : 0;
 					
 					//This work unless you have connections within the same layer --> Then you need to handle it in a different way
@@ -212,7 +221,10 @@ public class NeuralNetwork <T extends DataTuple>
 					{
 						for(int currentNeuron = 0; currentNeuron < this.neuralLayers.get(layerCount).size; currentNeuron++)
 						{
-							Neuron neuron = this.neuralLayers.get(layerCount).getNeuron(currentNeuron);
+							Neuron neuron = this.neuralLayers.get(layerCount).getNeuron(currentNeuron, DatasetUses.TEST);
+							
+							if(neuron == null)
+								continue;
 							
 							//Step 2: Calculate accumulated error (only important for hidden neurons)
 							if(layerCount !=  this.neuralLayers.size() - 1)
@@ -229,16 +241,16 @@ public class NeuralNetwork <T extends DataTuple>
 							}
 							
 							//Step 4: Accumulate the delta weights
-							currDelta = neuron.AccumulateWeights(learningRate);
+							currDelta = neuron.AccumulateWeights(learningRate, 0.9);
 						}
 					}
 					
-					//Step 5: Correct all the weights (This is Online)
+					//Step 6: Correct all the weights (This is Online)
 					for(int layerCount = this.neuralLayers.size() - 1; layerCount > 1; layerCount--)
 					{
 						for(int currentNeuron = 0; currentNeuron < this.neuralLayers.get(layerCount).size; currentNeuron++)
 						{
-							this.neuralLayers.get(layerCount).getNeuron(currentNeuron).ChangeWeights(learningRate);;
+							this.neuralLayers.get(layerCount).getNeuron(currentNeuron, DatasetUses.TEST).ChangeWeights(learningRate);;
 						}
 					}
 				}
@@ -261,7 +273,7 @@ public class NeuralNetwork <T extends DataTuple>
 	
 	public double decreaseLR(int epoch, double current_lr)
 	{
-		return current_lr/(1.0+(double)(epoch)/45.0);
+		return Math.max(0.05,current_lr/(1.0+(double)(epoch)/45.0)); //45 is max epoch
 	}
 	
 	
@@ -272,7 +284,7 @@ public class NeuralNetwork <T extends DataTuple>
 	public void NonBatchBackPropagation(float learning_rate)
 	{
 		double deltaThreshold = 0.0001f;
-		double accuracyThreshold = 0.9;
+		double accuracyThreshold = 0.85;
 		double learningRate = 0.2;
 		int iterations = (int)(trainingSet.size() * batchSize);
 		int currentBatch = 0;
@@ -294,10 +306,11 @@ public class NeuralNetwork <T extends DataTuple>
 //				lowerBoundLR = lowerBoundLR/2.0;
 //			}
 			lowerBoundLR = decreaseLR(epoch, 0.5); 
-			System.out.println(learningRate);
 			
 //			learningRate = 0.01;
 //			learningRate = 0.1;
+			
+			System.out.println(learningRate);
 			
 			for(int iter = 0; iter < iterations; iter++ )
 			{
@@ -306,10 +319,17 @@ public class NeuralNetwork <T extends DataTuple>
 				currentAccuracy = 0.0;
 				currentBatch = iter * batchGrow;
 				
+				//Step 0: create the dropoutlayers
+				for(int layerCount = 0; layerCount < this.neuralLayers.size(); layerCount++)
+				{
+					this.neuralLayers.get(layerCount).createDropoutLayer();
+				}
+				
 				for(int tuple = currentBatch; tuple < currentBatch + batchGrow; tuple++)
 				{
+
 					//step 1: feedforward
-					FeedForward(tuple, trainingSet);
+					FeedForward(tuple, trainingSet, DatasetUses.TRAINING);
 					int expectedOutput = trainingSet.get(tuple).label == true ? 1 : 0;
 					
 					//This work unless you have connections within the same layer --> Then you need to handle it in a different way
@@ -317,7 +337,10 @@ public class NeuralNetwork <T extends DataTuple>
 					{
 						for(int currentNeuron = 0; currentNeuron < this.neuralLayers.get(layerCount).size; currentNeuron++)
 						{
-							Neuron neuron = this.neuralLayers.get(layerCount).getNeuron(currentNeuron);
+							Neuron neuron = this.neuralLayers.get(layerCount).getNeuron(currentNeuron, DatasetUses.TEST);
+							
+							if(neuron == null)
+								continue;
 							
 							//Step 2: Calculate accumulated error (only important for hidden neurons)
 							if(layerCount !=  this.neuralLayers.size() - 1)
@@ -334,7 +357,7 @@ public class NeuralNetwork <T extends DataTuple>
 							}
 							
 							//Step 4: Accumulate the delta weights
-							currDelta = neuron.AccumulateWeights(learningRate);
+							currDelta = neuron.AccumulateWeights(learningRate, 0.9);
 							if(currDelta > currentHighestDelta)
 								currentHighestDelta = currDelta;
 						}
@@ -348,6 +371,14 @@ public class NeuralNetwork <T extends DataTuple>
 //						}
 //					}
 					
+					for(int layerCount = 0; layerCount < this.neuralLayers.size(); layerCount++)
+					{
+						for(Neuron n : this.neuralLayers.get(layerCount).getNeurons())
+						{
+							n.dropoutMultiplier = 1.0;
+						}
+					}
+					
 				}
 				
 				//Step 5: Correct all the weights (This is offline)
@@ -355,7 +386,7 @@ public class NeuralNetwork <T extends DataTuple>
 				{
 					for(int currentNeuron = 0; currentNeuron < this.neuralLayers.get(layerCount).size; currentNeuron++)
 					{
-						this.neuralLayers.get(layerCount).getNeuron(currentNeuron).ChangeWeights(learningRate);;
+						this.neuralLayers.get(layerCount).getNeuron(currentNeuron, DatasetUses.TEST).ChangeWeights(learningRate);;
 					}
 				}
 				
@@ -387,13 +418,14 @@ public class NeuralNetwork <T extends DataTuple>
 			{
 				System.out.println("IS OVER, ACCURATE ENOUGH for Validadation, accuracy threshold: " + accuracyThreshold);
 				TestNetwork(epoch, -1, testSet, DatasetUses.TEST, true, false, currentModel, DebugMode.EVERYTHING);
+				saveModelInformation("Execution-" + LocalDateTime.now().getNano());
 				return;
 			}
 		
 		}
 		ModelInformation currentModel = new ModelInformation(learningRate, 0, -1, batchSize, iterations, max_epochs);
 		TestNetwork(0, -1, testSet, DatasetUses.TEST, true, false, currentModel, DebugMode.EVERYTHING);
-//		saveModelInformation("Execution-" + LocalDateTime.now().getNano());
+		saveModelInformation("Execution-" + LocalDateTime.now().getNano());
 		System.out.println("IS OVER!");
 	}
 	
@@ -410,7 +442,7 @@ public class NeuralNetwork <T extends DataTuple>
 		{
 
 			//step 1: feedforward
-			FeedForward(k, set);
+			FeedForward(k, set, DatasetUses.TEST);
 			
 			//step 2: check if it was good classifications!
 			if(Classify(k, set, false))
@@ -554,36 +586,41 @@ public class NeuralNetwork <T extends DataTuple>
 		return (tuple.label == true ? 1 : 0) == selected_index;
 	}
 	
-	public void FeedForward(int index, ArrayList<T> set)
+	public void FeedForward(int index, ArrayList<T> set, DatasetUses dataset)
 	{
 		for(int i = 0; i < neuralLayers.get(0).neurons.size(); ++i)
 		{
-			neuralLayers.get(0).getNeuron(i).CalculateOutput(set.get(index).numericalData.get(i));
+			Neuron n = neuralLayers.get(0).getNeuron(i, dataset);
+			
+			n.CalculateOutput(set.get(index).numericalData.get(i));
 		}
 		
 		//Calculate the output of hidden and output neurons
 		for(int layerCount = 1; layerCount < this.neuralLayers.size(); layerCount++)
 		{
-			for(Neuron neuron : this.neuralLayers.get(layerCount).getNeurons())
+			for(int i = 0; i < neuralLayers.get(layerCount).neurons.size(); ++i)
 			{
-				neuron.CalculateOutput(0.0);
+				Neuron n = neuralLayers.get(layerCount).getNeuron(i, dataset);
+				n.CalculateOutput(0.0);
 			}
 		}
 	}
 	
-	public void FeedForward(/*ArrayList<Double> tuple*/ T tuple)
+	public void FeedForward(/*ArrayList<Double> tuple*/ T tuple, DatasetUses dataset)
 	{
 		for(int i = 0; i < neuralLayers.get(0).neurons.size(); ++i)
 		{
-			neuralLayers.get(0).getNeuron(i).CalculateOutput(tuple.numericalData.get(i));
+			Neuron n = neuralLayers.get(0).getNeuron(i, dataset);
+			n.CalculateOutput(tuple.numericalData.get(i));
 		}
 		
 		//Calculate the output of hidden and output neurons
 		for(int layerCount = 1; layerCount < this.neuralLayers.size(); layerCount++)
 		{
-			for(Neuron neuron : this.neuralLayers.get(layerCount).getNeurons())
+			for(int i = 0; i < neuralLayers.get(layerCount).neurons.size(); ++i)
 			{
-				neuron.CalculateOutput(0.0);
+				Neuron n = neuralLayers.get(layerCount).getNeuron(i, dataset);
+				n.CalculateOutput(0.0);
 			}
 		}
 	}

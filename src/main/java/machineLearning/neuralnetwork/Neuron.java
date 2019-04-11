@@ -3,6 +3,8 @@ package machineLearning.neuralnetwork;
 import java.util.ArrayList;
 import java.util.Random;
 
+import machineLearning.neuralnetwork.activationFunction.ActivationFunction;
+
 public class Neuron 
 {
 	public ArrayList<Connection> connections = new ArrayList<Connection>();
@@ -10,6 +12,8 @@ public class Neuron
 	public double output = 0.0;
 	//public double desired_output;
 	public double error = 0.0;
+	public double dropoutMultiplier = 1.0;
+	ActivationFunction activation;
 	
 	public enum NeuronTypes
 	{
@@ -21,20 +25,19 @@ public class Neuron
 	
 	public NeuronTypes neuron_type;
 	
-	public Neuron(NeuronTypes nt)
+	public Neuron(NeuronTypes nt, ActivationFunction activation)
 	{
 		neuron_type = nt;
-		
-		
+		this.activation = activation;
 //		if(neuron_type != NeuronTypes.INPUT)
 //		{
 //			AddConnection(new Neuron(NeuronTypes.BIAS, 1.0));
 //		}
 	}
 	
-	public Neuron(NeuronTypes nt, double value)
+	public Neuron(NeuronTypes nt, ActivationFunction activation, float value)
 	{
-		neuron_type = nt;
+		this(nt, activation);
 		output = value;
 	}
 	
@@ -74,17 +77,43 @@ public class Neuron
 			break;
 		case HIDDEN:
 		case OUTPUT:
+			
 			for(Connection c : connections)
 			{
 				output += (c.weight * c.from.output);
 			}
 			
-			output = ApplyActivationFunction(output);
+			output *= dropoutMultiplier;
+			output = activation.applyActivationFunction(output);
 			break;
 			
 		default:
 			System.out.println("ERROR NO VALID NEURON TYPE");
 			break;
+		}
+		
+
+	}
+	
+	private void maxNormWeights(double K)
+	{
+		double wMagnitude = 0.0;
+		
+		for(Connection c : connections)
+		{
+			wMagnitude += Math.pow(c.weight, 2.0);
+		}
+		
+		wMagnitude = Math.sqrt(wMagnitude);
+		
+		if(wMagnitude > K)
+		{
+			wMagnitude = K/wMagnitude;
+			
+			for(Connection c : connections)
+			{
+				c.weight *= wMagnitude;
+			}
 		}
 	}
 	
@@ -95,7 +124,7 @@ public class Neuron
 		case HIDDEN:
 
 			//ONLY FOR SIGMOID
-			error *= (output * (1 - output));
+			error *= activation.derivateActivationFunction(0, output);
 			
 			break;
 			
@@ -107,13 +136,15 @@ public class Neuron
 				return;
 			}
 			
-			error = (expectedOutput - output) * (output * (1 - output));
+			error = (expectedOutput - output) * activation.derivateActivationFunction(0, output);
 			break;
 			
 		default:
 			System.out.println("ERROR NO VALID NEURON TYPE");
 			break;
 		}
+		
+//		error *= dropoutMultiplier;
 	}
 	
 	public void GetAccumulatedError(ArrayList<Neuron> nextLayerNeurons)
@@ -142,12 +173,15 @@ public class Neuron
 		}
 	}
 	
-	public double AccumulateWeights(double learning_rate)
+	public double AccumulateWeights(double learning_rate, double momentum)
 	{
 		double highestDelta = 0.0;
 		for(Connection c : connections)
 		{
-			c.delta_weight += learning_rate * error * c.from.output;
+//			c.previous_delta = momentum * c.previous_delta + (error * c.from.output);
+//			c.previous_delta = (learning_rate * error * c.from.output) + momentum*c.previous_delta;
+			c.previous_delta = (learning_rate * error * c.from.output);
+			c.delta_weight += c.previous_delta;
 			
 			if(Math.abs(c.delta_weight) > highestDelta)
 			{
@@ -164,7 +198,10 @@ public class Neuron
 		{
 			c.weight += c.delta_weight;
 			c.delta_weight = 0.0f; //reset that delta weight!
+//			c.previous_delta = 0.0;
 		}
+		
+		maxNormWeights(3); //Maybe this instead of modifying the weights is a regulator? and is the same for when we 
 	}
 	
 	public double ApplyActivationFunction(double output)
