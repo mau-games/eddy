@@ -10,6 +10,7 @@ import machineLearning.neuralnetwork.MapPreferenceModelTuple;
 import machineLearning.neuralnetwork.NeuralNetwork;
 import machineLearning.neuralnetwork.PreferenceModelDataTuple;
 import machineLearning.neuralnetwork.activationFunction.ActivationFunction;
+import machineLearning.neuralnetwork.activationFunction.LeakyReLU;
 import machineLearning.neuralnetwork.activationFunction.ReLU;
 import machineLearning.neuralnetwork.activationFunction.SoftMax;
 
@@ -23,12 +24,12 @@ public class NNPreferenceModel extends PreferenceModel
 		prevStates = new Stack<PreferenceModel>();
 		projectPath = System.getProperty("user.dir") + "\\my-data\\PreferenceModels";
 		
-		mapValues = new NeuralNetwork<MapPreferenceModelTuple>(new int[] {256,100}, 
+		mapValues = new NeuralNetwork<MapPreferenceModelTuple>(new int[] {256, 200, 100}, 
 				DataTupleManager.LoadValueMapDataList("PreferenceModels", "newmap_map"), "MAP_NETWORK_256_100_RELU", 
-				new ActivationFunction[] {new ActivationFunction(), new ReLU(), new ReLU(), new SoftMax()});
-		attributeValues = new NeuralNetwork<PreferenceModelDataTuple>(new int[] {100,100}, 
+				new ActivationFunction[] {new ActivationFunction(), new LeakyReLU(), new LeakyReLU(), new LeakyReLU(), new SoftMax()});
+		attributeValues = new NeuralNetwork<PreferenceModelDataTuple>(new int[] {100,100, 100, 100}, 
 				DataTupleManager.LoadPreferenceModelDataList("PreferenceModels", "newmap"), "MAP_NETWORK_100_100_RELU", 
-				new ActivationFunction[] {new ActivationFunction(), new ReLU(), new ReLU(), new SoftMax()});
+				new ActivationFunction[] {new ActivationFunction(), new ReLU(), new ReLU(),  new ReLU(), new ReLU(), new SoftMax()});
 		
 	}
 	
