@@ -3,6 +3,7 @@ package game;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.nio.file.Watchable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -43,6 +44,8 @@ import util.eventrouting.EventRouter;
 import util.eventrouting.events.AlgorithmDone;
 import util.eventrouting.events.MapLoaded;
 import util.eventrouting.events.MapUpdate;
+import generator.algorithm.MAPElites.Dimensions.GADimension;
+import generator.algorithm.MAPElites.Dimensions.GADimension.DimensionTypes;
 import generator.config.GeneratorConfig;
 
 /**
@@ -68,6 +71,9 @@ public class Room {
 	
 	public RoomPathFinder pathfinder;
 	public Dungeon owner;
+	
+	//Might be interesting to know the dimension of the room?
+	protected HashMap<DimensionTypes, Double> dimensionValues;
 
 /////////////////////////OLD///////////////////////////
 
@@ -169,6 +175,46 @@ public class Room {
 		root = new ZoneNode(null, this, getColCount(), getRowCount());
 		node = new finder.graph.Node<Room>(this);
 
+	}
+	
+	public Room(Room copyMap) //THIS IS CALLED WHEN CREATING A ZONE IN THE TREE (TO HAVE A COPY OF THE DOORS)
+	{
+		init(copyMap.getRowCount(), copyMap.getColCount());
+		this.config = copyMap.config;
+		
+		for (int j = 0; j < height; j++)
+		{
+			for (int i = 0; i < width; i++) 
+			{
+				matrix[j][i] = copyMap.matrix[j][i];
+				tileMap[j * width + i] = new Tile(copyMap.tileMap[j * width + i]);
+			}
+		}	
+		
+		for (int j = 0; j < height; j++){
+			for (int i = 0; i < width; i++) {
+				switch (TileTypes.toTileType(matrix[j][i])) {
+				case WALL:
+					wallCount++;
+					break;
+				case ENEMY:
+					enemies.add(new Point(i, j));
+					break;
+				case TREASURE:
+					treasures.add(new Point(i, j));
+					break;
+				default:
+					break;
+				}
+			}
+		}
+
+		copyDoors(copyMap.getDoors(), copyMap.getEntrance());
+		SetDimensionValues(copyMap.dimensionValues);
+		
+		finder = new PatternFinder(this);
+		pathfinder = new RoomPathFinder(this);
+		root = new ZoneNode(null, this, getColCount(), getRowCount());	
 	}
 	
 	public Room(Room copyMap, ZoneNode zones) //THIS IS CALLED WHEN CREATING A ZONE IN THE TREE (TO HAVE A COPY OF THE DOORS)
@@ -571,6 +617,61 @@ public class Room {
 
 		return availableCoords;
 	}
+	
+	/**
+	 * Gets a list of positions of tiles adjacent to a given position which are not walls (passable tiles)
+	 * 
+	 * @param position The position of a tile
+	 * @return A list of points 
+	 */
+	public List<Point> getNonAvailableCoords(Point position){
+		List<Point> availableCoords = new ArrayList<Point>();
+
+		if(position.getX() > 0 && getTile((int)position.getX() - 1, (int)position.getY()).GetType() == TileTypes.WALL)
+			availableCoords.add(new Point(position.getX()-1,position.getY()));
+		if(position.getX() < width - 1 && getTile((int)position.getX() + 1, (int)position.getY()).GetType() == TileTypes.WALL)
+			availableCoords.add(new Point(position.getX()+1,position.getY()));
+		if(position.getY() > 0 && getTile((int)position.getX(), (int)position.getY() - 1).GetType() == TileTypes.WALL)
+			availableCoords.add(new Point(position.getX(),position.getY() - 1));
+		if(position.getY() < height - 1 && getTile((int)position.getX(), (int)position.getY() + 1).GetType() == TileTypes.WALL)
+			availableCoords.add(new Point(position.getX(),position.getY() + 1));
+
+		return availableCoords;
+	}
+	
+	private void ChangeQuantities(int x, int y, TileTypes newTile)
+	{
+		if(newTile.equals(TileTypes.toTileType(matrix[y][x])))
+			return;
+		
+		switch (TileTypes.toTileType(matrix[y][x])) {
+		case WALL:
+			wallCount--;
+			break;
+		case ENEMY:
+			enemies.remove(new Point(x, y));
+			break;
+		case TREASURE:
+			treasures.remove(new Point(x, y));
+			break;
+		default:
+			break;
+		}
+		
+		switch (newTile) {
+		case WALL:
+			wallCount++;
+			break;
+		case ENEMY:
+			enemies.add(new Point(x, y));
+			break;
+		case TREASURE:
+			treasures.add(new Point(x, y));
+			break;
+		default:
+			break;
+		}
+	}
 
 	/**
 	 * Sets a specific tile to a value.
@@ -582,6 +683,7 @@ public class Room {
 	public void setTile(int x, int y, TileTypes tile) 
 	{
 		if(localConfig != null) localConfig.getWorldCanvas().setRendered(false); //THIS IS NEEDED TO FORCE RENDERING IN THE WORLD VIEW
+		ChangeQuantities(x, y, tile);
 		matrix[y][x] = tile.getValue();
 		tileMap[y * width + x].SetType(tile);
 	}
@@ -596,6 +698,7 @@ public class Room {
 	public void setTile(int x, int y, Tile tile) 
 	{
 		if(localConfig != null) localConfig.getWorldCanvas().setRendered(false); //THIS IS NEEDED TO FORCE RENDERING IN THE WORLD VIEW
+		ChangeQuantities(x, y, tile.GetType());
 		matrix[y][x] = tile.GetType().getValue();
 		tileMap[y * width + x] = new Tile(tile);
 	}
@@ -610,6 +713,7 @@ public class Room {
 	public void setTile(int x, int y, int tileValue)
 	{
 		if(localConfig != null) localConfig.getWorldCanvas().setRendered(false); //THIS IS NEEDED TO FORCE RENDERING IN THE WORLD VIEW
+		ChangeQuantities(x, y, TileTypes.toTileType(tileValue));
 		matrix[y][x] = tileValue;
 		tileMap[y * width + x].SetType(TileTypes.toTileType(tileValue));
 	}
@@ -722,7 +826,7 @@ public class Room {
 	 * @return The enemy density.
 	 */
 	public double calculateEnemyDensity() {
-		return enemies.size() / countTraversables();
+		return (double)enemies.size() / (double)countTraversables();
 	}
 
 	/**
@@ -741,7 +845,9 @@ public class Room {
 	 * @return The treasure density.
 	 */
 	public double calculateTreasureDensity() {
-		return treasures.size() / countTraversables();
+//		System.out.println("TRABERSE: " + countTraversables());
+//		System.out.println("TREASUREEEES: " + treasures.size());
+		return (double)treasures.size() / (double)countTraversables();
 	}
 
 	/***
@@ -1301,54 +1407,6 @@ public class Room {
 		return interFeasible;
 	}
 
-	public boolean isFeasible(){
-		List<Node> visited = new ArrayList<Node>();
-    	Queue<Node> queue = new LinkedList<Node>();
-    	int treasure = 0;
-    	int enemies = 0;
-    	int doors = 0;
-    	
-    	Node root = new Node(0.0f, getEntrance(), null);
-    	queue.add(root);
-    	
-    	while(!queue.isEmpty()){
-    		Node current = queue.remove();
-    		visited.add(current);
-    		Tile currentTile = getTile(current.position);
-    		
-    		if(currentTile.GetType() == TileTypes.DOOR)
-    			doors++;
-    		else if (currentTile.GetType().isEnemy())
-    			enemies++;
-    		else if (currentTile.GetType().isTreasure())
-    			treasure++;
-    		
-    		List<Point> children = getAvailableCoords(current.position);
-            for(Point child : children)
-            {
-                if (visited.stream().filter(x->x.equals(child)).findFirst().isPresent() 
-                		|| queue.stream().filter(x->x.equals(child)).findFirst().isPresent()) 
-                	continue;
-
-                //Create child node
-                Node n = new Node(0.0f, child, current);
-                queue.add(n);
-            }
-    	}
-    	
-    	//TODO: I think there is a problem here of not updating the correct values ----- maybe change back?
-    	for(int i = treasure; i < getTreasureCount();i++)
-    		addFailedPathToTreasures();
-    	for(int i = doors; i < getDoorCount(false);i++)
-    		addFailedPathToDoors();
-    	for(int i = enemies; i < getEnemyCount();i++)
-    		addFailedPathToEnemies();
-
-    	return visited.size() == getNonWallTileCount() 
-    			&& (treasure + doors + enemies == getTreasureCount() + getDoorCount(false) + getEnemyCount())
-    			&& getTreasureCount() > 0 && getEnemyCount() > 0;
-	}
-
 	//TODO: Double check maybe it can be useful to know this
 	public boolean EveryRoomVisitable(){
 		List<Node> visited = new ArrayList<Node>();
@@ -1393,6 +1451,326 @@ public class Room {
 	{
 		return borders.contains(Point.castToGeometry(p));
 	}
+	
+	public void SetDimensionValues(ArrayList<GADimension> dimensions)
+	{
+		dimensionValues = new HashMap<DimensionTypes, Double>();
+		
+		for(GADimension dimension : dimensions)
+		{
+			dimensionValues.put(dimension.GetType(), dimension.CalculateValue(this, this));
+		}
+	}
+	
+	public void SetDimensionValues(HashMap<DimensionTypes, Double> dimensions)
+	{
+		dimensionValues = new HashMap<DimensionTypes, Double>(dimensions);
+		
+//		for(GADimension dimension : dimensions)
+//		{
+//			dimensionValues.put(dimension.GetType(), dimension.CalculateValue(this, this));
+//		}
+	}
+	
+	public double getDimensionValue(DimensionTypes currentDimension)
+	{
+		return dimensionValues.get(currentDimension);
+	}
+	
+	public double calculateWallDensity()
+	{
+//		double wc = (double)getWallCount();
+//		double size =(double)(getRowCount() * getColCount());
+//		double den = (double)getWallCount() / (double)(getRowCount() * getColCount());
+		return (double)getWallCount() / (double)((getRowCount() -1) * (getColCount() -1));
+	}
+	
+	public double calculateWallSparsity()
+	{
+		Queue<Node> queue = new LinkedList<Node>();
+		ArrayList<Bitmap> wallChunks = new ArrayList<Bitmap>();
+		ArrayList<Point> wallPoints = new ArrayList<Point>();
+		
+		for (int j = 0; j < height; j++)
+		{
+			for (int i = 0; i < width; i++) 
+			{
+				if(tileMap[j * width + i].GetType() == TileTypes.WALL)
+					wallPoints.add(new Point(i,j));
+			}
+		}
+		
+		if(wallPoints.isEmpty())
+		{
+			return 0.0;
+		}
+		
+		Node root = new Node(0.0f, wallPoints.remove(0), null);
+    	queue.add(root);
+    	
+    	while(!wallPoints.isEmpty())
+    	{
+    		Bitmap wallChunk = new Bitmap();
+    		
+    		while(!queue.isEmpty()){
+        		Node current = queue.remove();
+        		Tile currentTile = getTile(current.position);
+        		
+        		//We need to remove the door!
+        		wallPoints.remove(current.position);
+        		wallChunk.addPoint(Point.castToGeometry(current.position));
+        		
+        		
+        		List<Point> children = getNonAvailableCoords(current.position);
+                for(Point child : children)
+                {
+                	if(!wallPoints.contains(child))
+                		continue;
+
+                    //Create child node
+                    Node n = new Node(0.0f, child, current);
+                    queue.add(n);
+                }
+        	}
+    		
+    		wallChunk.CalculateMedoid();
+    		wallChunks.add(wallChunk);
+    		
+    		if(!wallPoints.isEmpty())
+    			queue.add(new Node(0.0f, wallPoints.get(0), null));
+    	}
+    	
+    	if(wallChunks.size() < 2)
+    	{
+    		return 0.0;
+    	}
+    	
+//    	Bitmap current = wallChunks.remove(0);
+    	double sparseness = 0.0;
+    	double chunkSizes = wallChunks.size();
+//    	while(!wallChunks.isEmpty())
+//    	{
+//    		int minDist = Integer.MAX_VALUE;
+//    		Bitmap next = null;
+//    		for(Bitmap otherChunk : wallChunks)
+//        	{
+//    			int dist = current.distManhattan(current.medoid, otherChunk.medoid);
+//    			if(dist < minDist)
+//    			{
+//    				minDist = dist;
+//    				next = otherChunk;
+//    			}
+//        		
+//        	}
+//    		
+//    		sparseness += minDist;
+//    		current = next;
+//    		wallChunks.remove(next);
+//    	}
+    	
+    	for(Bitmap otherChunk : wallChunks)
+    	{
+    		int minDist = Integer.MAX_VALUE;
+//    		Bitmap next = null;
+    		for(Bitmap o : wallChunks)
+        	{
+    			if(o.equals(otherChunk))
+    				continue;
+    			
+    			int dist = otherChunk.distManhattan(otherChunk.medoid, o.medoid);
+    			if(dist < minDist)
+    			{
+    				minDist = dist;
+//    				next = otherChunk;
+    			}
+        	}
+    		sparseness += minDist;
+    	
+    	}
+    	
+//    	System.out.println("SPARSE: " + sparseness);
+//    	System.out.println("DENOMINATOR: " + (double)((height-1 + width-1)*chunkSizes));
+//    	System.out.println("ANOTHER CALCULATION: " + chunkSizes/sparseness);
+//    	System.out.println("MAYBE CORRECT: " + (1.0 - chunkSizes/sparseness)); // TODO:CHECK THIS
+//    	System.out.println("FINAL: " + (chunkSizes/sparseness)/(height-1 + width-1));
+    	sparseness = sparseness/(double)((height-1 + width-1)*chunkSizes);
+//    	System.out.println("SPARSE I USE: " + sparseness); // TODO:CHECK THIS
+    	return sparseness;
+	}
+	
+	public double calculateEnemySparsity()
+	{
+		Queue<Node> queue = new LinkedList<Node>();
+		ArrayList<Bitmap> enemyChunks = new ArrayList<Bitmap>();
+		ArrayList<Point> enemyPoints = new ArrayList<Point>(enemies);
+		
+		if(enemyPoints.isEmpty())
+		{
+			return 0.0;
+		}
+
+		Node root = new Node(0.0f, enemyPoints.remove(0), null);
+    	queue.add(root);
+    	
+    	while(!enemyPoints.isEmpty())
+    	{
+    		Bitmap enemyChunk = new Bitmap();
+    		
+    		while(!queue.isEmpty()){
+        		Node current = queue.remove();
+        		Tile currentTile = getTile(current.position);
+        		
+        		//We need to remove the door!
+        		enemyPoints.remove(current.position);
+        		enemyChunk.addPoint(Point.castToGeometry(current.position));
+        		
+        		
+        		List<Point> children = getAvailableCoords(current.position);
+                for(Point child : children)
+                {
+                	 
+                	if(!enemyPoints.contains(child))
+                		continue;
+
+                    //Create child node
+                    Node n = new Node(0.0f, child, current);
+                    queue.add(n);
+                }
+        	}
+    		
+    		enemyChunk.CalculateMedoid();
+    		enemyChunks.add(enemyChunk);
+    		
+    		if(!enemyPoints.isEmpty())
+    			queue.add(new Node(0.0f, enemyPoints.get(0), null));
+    	}
+    	
+    	if(enemyChunks.size() < 2)
+    	{
+    		return 0.0;
+    	}
+    	
+//    	Bitmap current = wallChunks.remove(0);
+    	double sparseness = 0.0;
+    	double chunkSizes = enemyChunks.size();
+    	
+    	for(Bitmap otherChunk : enemyChunks)
+    	{
+    		int minDist = Integer.MAX_VALUE;
+//    		Bitmap next = null;
+    		for(Bitmap o : enemyChunks)
+        	{
+    			if(o.equals(otherChunk))
+    				continue;
+    			
+    			int dist = otherChunk.distManhattan(otherChunk.medoid, o.medoid);
+    			if(dist < minDist)
+    			{
+    				minDist = dist;
+//    				next = otherChunk;
+    			}
+        	}
+    		sparseness += minDist;
+    	
+    	}
+    	
+//    	System.out.println("SPARSE: " + sparseness);
+//    	System.out.println("DENOMINATOR: " + (double)((height-1 + width-1)*chunkSizes));
+//    	System.out.println("ANOTHER CALCULATION: " + chunkSizes/sparseness);
+//    	System.out.println("MAYBE CORRECT: " + (1.0 - chunkSizes/sparseness)); // TODO:CHECK THIS
+//    	System.out.println("FINAL: " + (chunkSizes/sparseness)/(height-1 + width-1));
+    	sparseness = sparseness/(double)((height-1 + width-1)*chunkSizes);
+//    	System.out.println("SPARSE I USE: " + sparseness); // TODO:CHECK THIS
+    	return sparseness;
+	}
+	
+	public double calculateTreasureSparsity()
+	{
+		Queue<Node> queue = new LinkedList<Node>();
+		ArrayList<Bitmap> treasureChunks = new ArrayList<Bitmap>();
+		ArrayList<Point> treasurePoints = new ArrayList<Point>(treasures);
+		
+		if(treasurePoints.isEmpty())
+		{
+			return 0.0;
+		}
+
+		Node root = new Node(0.0f, treasurePoints.remove(0), null);
+    	queue.add(root);
+    	
+    	while(!treasurePoints.isEmpty())
+    	{
+    		Bitmap treasureChunk = new Bitmap();
+    		
+    		while(!queue.isEmpty()){
+        		Node current = queue.remove();
+        		Tile currentTile = getTile(current.position);
+        		
+        		//We need to remove the door!
+        		treasurePoints.remove(current.position);
+        		treasureChunk.addPoint(Point.castToGeometry(current.position));
+        		
+        		
+        		List<Point> children = getAvailableCoords(current.position);
+                for(Point child : children)
+                {
+                	 
+                	if(!treasurePoints.contains(child))
+                		continue;
+
+                    //Create child node
+                    Node n = new Node(0.0f, child, current);
+                    queue.add(n);
+                }
+        	}
+    		
+    		treasureChunk.CalculateMedoid();
+    		treasureChunks.add(treasureChunk);
+    		
+    		if(!treasurePoints.isEmpty())
+    			queue.add(new Node(0.0f, treasurePoints.get(0), null));
+    	}
+    	
+    	if(treasureChunks.size() < 2)
+    	{
+    		return 0.0;
+    	}
+    	
+//    	Bitmap current = wallChunks.remove(0);
+    	double sparseness = 0.0;
+    	double chunkSizes = treasureChunks.size();
+    	
+    	for(Bitmap otherChunk : treasureChunks)
+    	{
+    		int minDist = Integer.MAX_VALUE;
+//    		Bitmap next = null;
+    		for(Bitmap o : treasureChunks)
+        	{
+    			if(o.equals(otherChunk))
+    				continue;
+    			
+    			int dist = otherChunk.distManhattan(otherChunk.medoid, o.medoid);
+    			if(dist < minDist)
+    			{
+    				minDist = dist;
+//    				next = otherChunk;
+    			}
+        	}
+    		sparseness += minDist;
+    	
+    	}
+    	
+//    	System.out.println("SPARSE: " + sparseness);
+//    	System.out.println("DENOMINATOR: " + (double)((height-1 + width-1)*chunkSizes));
+//    	System.out.println("ANOTHER CALCULATION: " + chunkSizes/sparseness);
+//    	System.out.println("MAYBE CORRECT: " + (1.0 - chunkSizes/sparseness)); // TODO:CHECK THIS
+//    	System.out.println("FINAL: " + (chunkSizes/sparseness)/(height-1 + width-1));
+    	sparseness = sparseness/(double)((height-1 + width-1)*chunkSizes);
+//    	System.out.println("SPARSE I USE: " + sparseness);//TODO: CHECK THIS
+    	return sparseness;
+	}
+	
+	
 	
 	////////////////////////// TESTING PATHS TO ALL DOORS ////////////////////////////////////////////////
 	

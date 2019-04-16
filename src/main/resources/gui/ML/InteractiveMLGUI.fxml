@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Menu?>
+<?import javafx.scene.control.MenuBar?>
+<?import javafx.scene.control.MenuItem?>
+<?import javafx.scene.control.SeparatorMenuItem?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.VBox?>
+
+<VBox prefHeight="400.0" prefWidth="640.0" xmlns="http://javafx.com/javafx/9.0.1"
+	stylesheets="@../styling.css" xmlns:fx="http://javafx.com/fxml/1" fx:controller="gui.InteractiveMLGUIController">
+	<children>
+		<MenuBar VBox.vgrow="NEVER">
+			<menus>
+				<Menu fx:id="fileBtn" mnemonicParsing="false" text="File" >
+					<items>
+						<MenuItem fx:id="newItem" mnemonicParsing="false"
+							onAction="#startNewFlow" text="New workflow" />
+						<MenuItem fx:id="openItem" mnemonicParsing="false"
+							onAction="#openMap" text="Open…" />
+						<!-- <Menu mnemonicParsing="false" text="Open Recent" /> -->
+						<SeparatorMenuItem mnemonicParsing="false" />
+						<MenuItem fx:id="saveItem" mnemonicParsing="false"
+							onAction="#saveMap" text="Save Dungeon" />
+					<MenuItem fx:id="saveAsItem" mnemonicParsing="false"
+							onAction="#saveMap" text="Save As…" /> 
+						<MenuItem fx:id="exportItem" mnemonicParsing="false"
+							onAction="#exportImage" text="Export map's image" />
+						<!-- <SeparatorMenuItem mnemonicParsing="false" /> <MenuItem mnemonicParsing="false" 
+							fx:id="prefsItem" onAction="#openPreferences" text="Preferences…" /> -->
+						<SeparatorMenuItem mnemonicParsing="false" />
+						<MenuItem fx:id="exitItem" mnemonicParsing="false"
+							onAction="#exitApplication" text="Quit" />
+					</items>
+				</Menu>
+				<Menu fx:id="helpBtn" mnemonicParsing="false" text="Help" style="-fx-text-fill: white;">
+					<items>
+						<MenuItem fx:id="aboutItem" mnemonicParsing="false" text="About Eddy" />
+					</items>
+				</Menu>
+
+			</menus>
+		</MenuBar>
+		<AnchorPane fx:id="mainPane" maxHeight="-1.0" maxWidth="-1.0"
+			prefHeight="-1.0" prefWidth="-1.0" VBox.vgrow="ALWAYS" />
+	</children>
+</VBox>

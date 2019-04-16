@@ -44,6 +44,7 @@ public abstract class GADimension
 //	public abstract boolean CorrectDimensionLevel(ZoneIndividual individual, DimensionType type);
 	
 	public abstract double CalculateValue(ZoneIndividual individual, Room target);
+	public abstract double CalculateValue(Room individualRoom, Room target);
 	
 	public double GetGranularity()
 	{
@@ -84,7 +85,33 @@ public abstract class GADimension
 		return null;
 	}
 	
-	//Fuck it, add the methods here
-	//No! 
+	public static double calculateIndividualValue(DimensionTypes dim, Room individualRoom)
+	{
+		switch(dim)
+		{
+		case DIFFICULTY:
+			return -1.0; //Not implemented
+		case GEOM_COMPLEXITY:
+			return -1.0; //Not implemented
+		case LEARNING:
+			return -1.0; //Not implemented
+		case LINEARITY:
+			return LinearityGADimension.getValue(individualRoom);
+		case NUMBER_MESO_PATTERN:
+			return NMesoPatternGADimension.getValue(individualRoom);
+		case NUMBER_PATTERNS:
+			return NPatternGADimension.getValue(individualRoom);
+		case REWARD:
+			return -1.0; //Not implemented
+		case SIMILARITY:
+			return SimilarityGADimension.getValue(individualRoom);
+		case SYMMETRY:
+			return SymmetryGADimension.getValue(individualRoom);
+		default:
+			return -1.0;
+		
+		}
+	}
+
 	
 }

@@ -8,6 +8,7 @@ import game.Tile;
 import game.TileTypes;
 import gui.utils.MapRenderer;
 import javafx.application.Platform;
+import javafx.geometry.Pos;
 import javafx.scene.Group;
 import javafx.scene.effect.BlendMode;
 import javafx.scene.image.Image;
@@ -134,7 +135,7 @@ public class InteractiveMap extends GridPane implements Listener {
 	 */
 	public void updateMap(Room room) {
 		this.room = room;
-		
+		this.setAlignment(Pos.CENTER);
 		if (cols != room.getColCount() || rows != room.getRowCount()) {
 			cols = room.getColCount();
 			rows = room.getRowCount();
