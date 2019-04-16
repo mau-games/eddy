@@ -1,8 +1,8 @@
 package machineLearning.neuralnetwork.activationFunction;
 
-public class LogisticSigmoid extends ActivationFunction 
+public class Swish extends ActivationFunction 
 {
-	public LogisticSigmoid()
+	public Swish()
 	{
 		
 	}
@@ -10,14 +10,12 @@ public class LogisticSigmoid extends ActivationFunction
 	@Override
 	public double applyActivationFunction(double value)
 	{
-		double return_value = (1.0/(1.0 + Math.pow(Math.E, (-1.0*value))));
-		return return_value;
+		return (value/(1.0 + Math.pow(Math.E, (-1.0*value))));
 	}
 	
 	@Override
 	public double derivateActivationFunction(double input, double output)
 	{
-		return output * (1.0 - output);
+		return output + output * (1.0-output);
 	}
-	
 }

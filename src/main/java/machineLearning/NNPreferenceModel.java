@@ -5,9 +5,13 @@ import java.util.Map.Entry;
 
 import game.Room;
 import machineLearning.neuralnetwork.DataTupleManager;
+import machineLearning.neuralnetwork.DatasetUses;
 import machineLearning.neuralnetwork.MapPreferenceModelTuple;
 import machineLearning.neuralnetwork.NeuralNetwork;
 import machineLearning.neuralnetwork.PreferenceModelDataTuple;
+import machineLearning.neuralnetwork.activationFunction.ActivationFunction;
+import machineLearning.neuralnetwork.activationFunction.ReLU;
+import machineLearning.neuralnetwork.activationFunction.SoftMax;
 
 public class NNPreferenceModel extends PreferenceModel 
 {
@@ -19,10 +23,12 @@ public class NNPreferenceModel extends PreferenceModel
 		prevStates = new Stack<PreferenceModel>();
 		projectPath = System.getProperty("user.dir") + "\\my-data\\PreferenceModels";
 		
-		mapValues = new NeuralNetwork<MapPreferenceModelTuple>(new int[] {200, 200}, 
-				DataTupleManager.LoadValueMapDataList("PreferenceModels", "newmap_map"), "mapValues");
-		attributeValues = new NeuralNetwork<PreferenceModelDataTuple>(new int[] {20, 20}, 
-				DataTupleManager.LoadPreferenceModelDataList("PreferenceModels", "newmap"), "AttributeValues");	
+		mapValues = new NeuralNetwork<MapPreferenceModelTuple>(new int[] {256,100}, 
+				DataTupleManager.LoadValueMapDataList("PreferenceModels", "newmap_map"), "MAP_NETWORK_256_100_RELU", 
+				new ActivationFunction[] {new ActivationFunction(), new ReLU(), new ReLU(), new SoftMax()});
+		attributeValues = new NeuralNetwork<PreferenceModelDataTuple>(new int[] {100,100}, 
+				DataTupleManager.LoadPreferenceModelDataList("PreferenceModels", "newmap"), "MAP_NETWORK_100_100_RELU", 
+				new ActivationFunction[] {new ActivationFunction(), new ReLU(), new ReLU(), new SoftMax()});
 		
 	}
 	
@@ -36,10 +42,10 @@ public class NNPreferenceModel extends PreferenceModel
 		tuples.add(new PreferenceModelDataTuple(prevStates.peek(), like));
 		mapTuples.add(new MapPreferenceModelTuple(usedRoom, like));
 		
-		mapValues.FeedForward(mapTuples.get(mapTuples.size() - 1));
+		mapValues.FeedForward(mapTuples.get(mapTuples.size() - 1), DatasetUses.TEST);
 		System.out.println(mapValues.Classify(mapTuples.get(mapTuples.size() - 1)));
 		
-		attributeValues.FeedForward(tuples.get(tuples.size() - 1));
+		attributeValues.FeedForward(tuples.get(tuples.size() - 1), DatasetUses.TEST);
 		System.out.println(attributeValues.Classify(tuples.get(tuples.size() - 1)));
 	}
 	
@@ -59,10 +65,10 @@ public class NNPreferenceModel extends PreferenceModel
 		PreferenceModelDataTuple pdt = new PreferenceModelDataTuple(room, false);
 		MapPreferenceModelTuple mpdt = new MapPreferenceModelTuple(room, false);
 		
-		mapValues.FeedForward(mpdt);
+		mapValues.FeedForward(mpdt, DatasetUses.TEST);
 		preferenceValue = mapValues.neuralLayers.get(mapValues.neuralLayers.size() - 1).getNeurons().get(1).output;
 //		secondPreferenceValue = mapValues.neuralLayers.get(mapValues.neuralLayers.size() - 1).getNeurons().get(0).output;
-		attributeValues.FeedForward(pdt);
+		attributeValues.FeedForward(pdt, DatasetUses.TEST);
 		secondPreferenceValue = attributeValues.neuralLayers.get(attributeValues.neuralLayers.size() - 1).getNeurons().get(1).output;
 //		System.out.println(attributeValues.Classify(pdt));
 		

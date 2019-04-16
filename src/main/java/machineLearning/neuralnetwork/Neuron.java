@@ -1,6 +1,7 @@
 package machineLearning.neuralnetwork;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
 
 import machineLearning.neuralnetwork.activationFunction.ActivationFunction;
@@ -9,6 +10,7 @@ public class Neuron
 {
 	public ArrayList<Connection> connections = new ArrayList<Connection>();
 	
+	public double input = 0.0;
 	public double output = 0.0;
 	//public double desired_output;
 	public double error = 0.0;
@@ -51,7 +53,7 @@ public class Neuron
 				return;
 			}
 		}	
-		connections.add(new Connection(n, this, (rnd.nextDouble() * 2.0f) - 1.0f));
+		connections.add(new Connection(n, this, ((rnd.nextDouble() * 2.0f) - 1.0f) * Math.sqrt(2.0/100.0)));
 	}
 	
 	public void AddConnection(Neuron n, double weight)
@@ -69,30 +71,42 @@ public class Neuron
 	public void CalculateOutput(double value)
 	{
 		output = 0.0;
+		input = value;
 		
-		switch(neuron_type)
+		for(Connection c : connections)
 		{
-		case INPUT:
-			output = value;
-			break;
-		case HIDDEN:
-		case OUTPUT:
-			
-			for(Connection c : connections)
-			{
-				output += (c.weight * c.from.output);
-			}
-			
-			output *= dropoutMultiplier;
-			output = activation.applyActivationFunction(output);
-			break;
-			
-		default:
-			System.out.println("ERROR NO VALID NEURON TYPE");
-			break;
+			input += (c.weight * c.from.output);
 		}
 		
-
+		input *= dropoutMultiplier;
+		output = activation.applyActivationFunction(input);
+		
+//		switch(neuron_type)
+//		{
+//		case INPUT:
+//			output = value;
+//			break;
+//		case HIDDEN:
+//		case OUTPUT:
+//			
+//			for(Connection c : connections)
+//			{
+//				input += (c.weight * c.from.output);
+//			}
+//			
+//			input *= dropoutMultiplier;
+//			output = activation.applyActivationFunction(input);
+//			break;
+//			
+//		default:
+//			System.out.println("ERROR NO VALID NEURON TYPE");
+//			break;
+//		}
+	}
+	
+	public void postFeedForward(List<Neuron> others)
+	{
+		output = activation.postFeedForward(output, others, this);
 	}
 	
 	private void maxNormWeights(double K)
@@ -124,7 +138,7 @@ public class Neuron
 		case HIDDEN:
 
 			//ONLY FOR SIGMOID
-			error *= activation.derivateActivationFunction(0, output);
+			error *= activation.derivateActivationFunction(input, output);
 			
 			break;
 			
@@ -136,13 +150,18 @@ public class Neuron
 				return;
 			}
 			
-			error = (expectedOutput - output) * activation.derivateActivationFunction(0, output);
+			error = (expectedOutput - output) * activation.derivateActivationFunction(input, output);
 			break;
 			
 		default:
 			System.out.println("ERROR NO VALID NEURON TYPE");
 			break;
 		}
+		
+		if(Double.isNaN(error)) 
+			{
+				error = 0.0;
+			}
 		
 //		error *= dropoutMultiplier;
 	}
@@ -181,7 +200,8 @@ public class Neuron
 //			c.previous_delta = momentum * c.previous_delta + (error * c.from.output);
 //			c.previous_delta = (learning_rate * error * c.from.output) + momentum*c.previous_delta;
 			c.previous_delta = (learning_rate * error * c.from.output);
-			c.delta_weight += c.previous_delta;
+//			c.previous_delta = (momentum * c.previous_delta) - (learning_rate * error * c.from.output);
+			c.delta_weight -= c.previous_delta;
 			
 			if(Math.abs(c.delta_weight) > highestDelta)
 			{
@@ -196,7 +216,7 @@ public class Neuron
 	{		
 		for(Connection c : connections)
 		{
-			c.weight += c.delta_weight;
+			c.weight -= c.delta_weight;
 			c.delta_weight = 0.0f; //reset that delta weight!
 //			c.previous_delta = 0.0;
 		}

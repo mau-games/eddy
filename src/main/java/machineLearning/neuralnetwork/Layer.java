@@ -16,6 +16,7 @@ public class Layer
 	public ArrayList<Neuron> neurons;
 	public ArrayList<Integer> dropoutLayer;
 	public double dropoutRate;
+	public ActivationFunction layerActivationFunction;
 	
 	public Layer(int size, NeuronTypes layerType, double dropoutRate)
 	{
@@ -30,6 +31,7 @@ public class Layer
 	 */
 	public void populateLayer(ActivationFunction neuralActivation)
 	{
+		this.layerActivationFunction= neuralActivation;
 		for(int i = 0; i < size; i++)
 		{
 			addNeuron(new Neuron(layerType, neuralActivation));
