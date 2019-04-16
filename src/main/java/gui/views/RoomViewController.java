@@ -142,10 +142,7 @@ public class RoomViewController extends BorderPane implements Listener
 	
 	//Suggestions
 //	@FXML private GridPane suggestionsPane;
-	@FXML private TabPane allSuggestionsPane;
 	@FXML private MAPEVisualizationPane MAPElitesPane;
-	@FXML private ScrollPane suggestionsPane;
-	@FXML private HBox suggestionsBox;
 	private ArrayList<SuggestionRoom> roomDisplays;
 	
 	//All the buttons to the left
@@ -275,20 +272,10 @@ public class RoomViewController extends BorderPane implements Listener
 		
 		roomDisplays = new ArrayList<SuggestionRoom>();
 		
-		//SET FOR THE BASIC EVO 
-//		suggestionsPane.setPrefWidth(50);
-		suggestionsPane.setMinWidth(50);
-		suggestionsPane.setMaxWidth(599); //This really have to be fixed
-		
-		System.out.println(this.getWidth() / 4.0);
-		suggestionsPane.setMinHeight(150);
-		suggestionsPane.setMaxHeight(750);
-		
 		for(int i = 0; i < suggestionAmount; i++) 
 		{
 			SuggestionRoom suggestion = new SuggestionRoom();
 			roomDisplays.add(suggestion);
-			suggestionsBox.getChildren().add(suggestion.getRoomCanvas());
 		}
 			
 //		suggestionsPane.setVisible(false);
@@ -336,52 +323,6 @@ public class RoomViewController extends BorderPane implements Listener
 			
 			System.out.println(paths);
 			System.out.println(finalValue);
-		}
-			
-		
-		for(Tab evoTab : allSuggestionsPane.getTabs())
-		{
-			if(evoTab.isSelected())
-			{
-				switch(evoTab.getText())
-				{
-				case "Simple Evolution":
-					selectedGA = PossibleGAs.FI_2POP;
-					if(suggestionsPane.getHeight() > 1.0f)
-					{
-						double h= 0.0;
-						AnchorPane ap = (AnchorPane)evoTab.getContent();
-						for(Node n : ap.getChildren())
-						{
-							h += n.getBoundsInLocal().getHeight();
-						}
-						allSuggestionsPane.setPrefHeight(h + allSuggestionsPane.getTabMaxHeight() + 40);
-					}
-						
-					break;
-				case "MAPE":
-					selectedGA = PossibleGAs.MAP_ELITES;
-
-					if(MAPElitesPane.getHeight() > 1.0f)
-					{
-						double h= 0.0;
-						AnchorPane ap = (AnchorPane)evoTab.getContent();
-						for(Node n : ap.getChildren())
-						{
-//							h += n.getBoundsInLocal().getHeight();
-							for(Node nChild : ((VBox)n).getChildren()) //I hate JAVAFX So much!!
-							{
-								h += nChild.getBoundsInLocal().getHeight();
-							}
-							
-						}
-						allSuggestionsPane.setPrefHeight(h + allSuggestionsPane.getTabMaxHeight() + 40);
-					}
-					break;
-				}
-				
-				break;
-			}
 		}
 	}
 	
@@ -528,26 +469,6 @@ public class RoomViewController extends BorderPane implements Listener
 		gc.setStroke(Color.rgb(255, 0, 0, 0.1));
 		gc.strokeRect(11, 11, mapWidth - 22, mapHeight - 22);
 		
-		
-		symmetryChoicebox.selectedProperty().addListener(new ChangeListener<Boolean>() {
-
-			@Override
-			public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
-				symmetry = !symmetry;
-			}
-		}
-			
-		);
-		
-		similarChoicebox.selectedProperty().addListener(new ChangeListener<Boolean>() {
-
-			@Override
-			public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
-				similarity = !similarity;
-			}
-		}
-			
-		);
 //		
 //		mapView.addEventFilter(MouseEvent.MOUSE_CLICKED, new EditViewEventHandler());
 //		mapView.addEventFilter(MouseEvent.MOUSE_MOVED, new EditViewMouseHover());

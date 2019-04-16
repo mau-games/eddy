@@ -87,7 +87,7 @@ public class Algorithm extends Thread {
 	protected Point roomEntrance;
 	
 	//This is for testing the preference MODEL TODO: for fitness
-	protected PreferenceModel userPreferences;
+	protected PreferenceModel userPreferences; //TODO: PROBABLY THIS WILL BE REPLACED for a class to calculate fitness in different manners!
 
 	public enum AlgorithmTypes //TODO: This needs to change
 	{
