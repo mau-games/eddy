@@ -13,6 +13,7 @@ import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.Queue;
 import java.util.Stack;
 
@@ -91,10 +92,16 @@ public class Room {
 	private int failedPathsToTreasures;
 	private int failedPathsToEnemies;
 	private int failedPathsToAnotherDoor;
-	private Dictionary<Point, Double> treasureSafety;
+	private Dictionary<Point, Double> treasureSafety; //ODL
+	
+	//TODO: EVERYTHING RELATED TO ENTRANCE WILL BE GONE!
 	private Point entrance;
-	private double entranceSafety;
-	private double entranceGreed;
+	private double doorSafety; //Sum of all the safeties
+	private double doorGreed; //Sum of all the greeds
+	
+	//DOORS IMPROVED INFO!!!!
+	private Map<Point, Double> doorsSafety;
+	private Map<Point, Double> doorsGreed;
 	
 	//THERE MUST BE TWO DIFFERENT CONFIGS!!
 	private GeneratorConfig config = null;
@@ -322,6 +329,9 @@ public class Room {
 	{
 
 		treasureSafety = new Hashtable<Point, Double>();
+		doorsSafety = new Hashtable<Point, Double>();
+		doorsGreed = new Hashtable<Point, Double>();
+		
 		this.width = cols;
 		this.height = rows;
 		wallCount = 0;
@@ -773,6 +783,29 @@ public class Room {
 	public int countTraversables() {
 		return width * height - wallCount;
 	}
+	
+	/**
+	 * Returns the closest door to the specified point p
+	 * @param p
+	 * @return
+	 */
+	public Point getClosestDoor(Point p)
+	{
+		Point closestDoor = null;
+		int dist = 10000;
+		
+		for(Point door : getDoors())
+		{
+			int cur = Math.abs(door.getX() - p.getX()) + Math.abs(door.getY() - p.getY());
+			if(cur < dist)
+			{
+				dist = cur;
+				closestDoor = door;
+			}
+		}
+		
+		return closestDoor;
+	}
 
 	/**
 	 * Returns the position of the entry door.
@@ -1015,13 +1048,50 @@ public class Room {
     	return enemies;
     }
     
+    public void setDoorSafety(Point door, double safety)
+    {
+    	doorsSafety.put(door, safety);
+    }
+    
+    public void calculateDoorSafeness()
+    {
+    	double value = 0.0;
+    	
+    	for (Double safety : doorsSafety.values()) {
+    	    value += safety;
+    	}
+    	
+    	doorSafety = value / (double)doorsSafety.size();
+    }
+    
+    public double getDoorSafeness() {return doorSafety;}
+    
+    public void setDoorGreed(Point door, double greed)
+    {
+    	doorsGreed.put(door, greed);
+    }
+    
+    public void calculateDoorGreedness()
+    {
+    	double value = 0.0;
+    	
+    	for (Double safety : doorsGreed.values()) {
+    	    value += safety;
+    	}
+    	
+    	doorGreed = value / (double)doorsGreed.size();
+    }
+    
+    public double getDoorGreedness() {return doorGreed;}
+    
     /**
      * Sets the safety value for the map's entry point.
+     *TODO: THIS CODE MUST DISAPPEAR
      * 
      * @param safety A safety value.
      */
     public void setEntranceSafety(double safety) {
-    	entranceSafety = safety;
+    	//TODO:
     }
     
     /**
@@ -1030,7 +1100,7 @@ public class Room {
      * @param safety A safety value.
      */
     public void setEntranceGreed(double greed) {
-    	entranceGreed = greed;
+    	//FIXME
     }
     
     /**
@@ -1039,7 +1109,7 @@ public class Room {
      * @return The safety value.
      */
     public double getEntranceSafety() {
-    	return entranceSafety;
+    	return -1.0;
     }
     
     /**
@@ -1783,7 +1853,7 @@ public class Room {
 		
 		if(getDoorCount(false) == 0) return 1;
 		
-		finder.graph.Node<Pattern> entranceSpatialPattern = null;
+		finder.graph.Node<Pattern> anyDoor = null;
 		Queue<finder.graph.Node<Pattern>> patternQueue = new LinkedList<finder.graph.Node<Pattern>>();
 		
 		//We get all Spatial patterns that contains a door!
@@ -1793,14 +1863,21 @@ public class Room {
 			{
 				SpacialPattern sp = (SpacialPattern)nodePattern.getValue();
 				
-				if(sp.getContainedPatterns().stream().filter((Pattern p) -> {return p instanceof Entrance;}).findAny().orElse(null) != null)
-				{
-					entranceSpatialPattern = nodePattern;
-				}
-				else if(sp.getContainedPatterns().stream().filter((Pattern p) -> {return p instanceof Door;}).findAny().orElse(null) != null &&
+//				if(sp.getContainedPatterns().stream().filter((Pattern p) -> {return p instanceof Entrance;}).findAny().orElse(null) != null)
+//				{
+//					anyDoor = nodePattern;
+//				}
+//				else 
+				if(sp.getContainedPatterns().stream().filter((Pattern p) -> {return p instanceof Door;}).findAny().orElse(null) != null &&
 						!patternQueue.contains(nodePattern))
 				{
 					patternQueue.add(nodePattern);
+					
+					if(anyDoor == null)
+					{
+						anyDoor = nodePattern;
+					}
+					
 				}
 				
 			}
@@ -1809,46 +1886,20 @@ public class Room {
 		List<Pattern> patterns = new ArrayList<Pattern>();
 		List<Pattern> finalPatterns = new ArrayList<Pattern>(); //IDK if I should add everything together! 
 		
+		if(patternQueue.size() == 1)
+			return 1;
+		
 		while(!patternQueue.isEmpty())
 		{
 			finder.getPatternGraph().resetGraph();
 			finder.graph.Node<Pattern> current = patternQueue.remove();
 			int auxCounter = 0;
-			pathCounter += search(current, null, entranceSpatialPattern, finder.getPatternGraph(), auxCounter, new ArrayList<finder.graph.Node<Pattern>> () );
-//			
-//			for(Pattern p : patterns)
-//			{
-//				if(p.pathTowardsDeadEnd)
-//				{
-//					finalPatterns.add(p);
-//				}
-//				
-//				p.pathTowardsDeadEnd = true; //IDK ABOUT THIS
-//			}
-//			
-//			if(!finalPatterns.isEmpty())
-//			{
-//				DeadEnd deadEnd = new DeadEnd(room, room.getConfig());
-//				deadEnd.getPatterns().addAll(finalPatterns);		
-//				deadEnds.add(deadEnd);
-//			}
-//
-//			patterns.clear();
-//			finalPatterns.clear();
+			
+			if(current.getValue().equals(anyDoor.getValue()))
+				continue;
+			
+			pathCounter += search(current, null, anyDoor, finder.getPatternGraph(), auxCounter, new ArrayList<finder.graph.Node<Pattern>> () );
 		}
-		
-//		
-//		
-//		
-//		
-//		
-//		for(Point door : getDoors())
-//		{
-//			if(door.equals(entrance))
-//				continue;
-//			
-//			pathCounter = TraverseTo(0, entrance, door, new Stack<Point>(), new ArrayList<Point>());
-//		}
 		
 		return pathCounter;
 	}
@@ -1867,19 +1918,13 @@ public class Room {
 			
 //			micropatterns.stream().filter((Pattern p) -> {return p instanceof Entrance;}).findFirst().get();
 			
-			if(sp.equals(target))
+			if(sp.getContainedPatterns().contains(target.getValue()) || sp.equals(target.getValue()))
 			{
 				counter += 1;
-//				System.out.println("CONTAINS!");
-			}
-			
-			if(sp.getContainedPatterns().stream().filter((Pattern p) -> {return p instanceof Entrance;}).findAny().orElse(null) != null)
-			{
-				counter += 1;
-//				System.out.println("CONTAINS!");
 				return counter;
+//				System.out.println("CONTAINS!");
 			}
-			
+
 			if(nodePattern.isVisited())
 				return counter;
 			

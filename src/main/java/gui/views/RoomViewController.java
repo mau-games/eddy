@@ -178,12 +178,6 @@ public class RoomViewController extends BorderPane implements Listener
 	@FXML private Button flowControlBtn; //bra
 	@FXML private Button stopEABtn; //bra
 	@FXML private Button saveGenBtn;
-	
-	@FXML private CheckBox symmetryChoicebox; //ok, why not
-	@FXML private CheckBox similarChoicebox; //ok, why not
-
-	private boolean symmetry = false; //Probably can use the checkbox
-	private boolean similarity = false; //Probably can use the checkbox
 
 	private SuggestionRoom selectedSuggestion;
 
@@ -304,8 +298,6 @@ public class RoomViewController extends BorderPane implements Listener
 		currentState = EvoState.STOPPED;
 		selectedGA = PossibleGAs.MAP_ELITES;
 		saveGenBtn.setDisable(true);
-//		allSuggestionsPane.getSelectionModel().select(1);
-		
 	}
 	
 	@FXML
@@ -754,6 +746,9 @@ public class RoomViewController extends BorderPane implements Listener
 	 * I'm sorry, this is a disgusting way of handling things...
 	 */
 	public void selectBrush() {
+		
+		OnChangeTab();
+		
 		if (brushes.getSelectedToggle() == null) {
 			mapView.setCursor(Cursor.DEFAULT);
 			myBrush.SetMainComponent(null);
@@ -1003,21 +998,9 @@ public class RoomViewController extends BorderPane implements Listener
 			int firstAmount = suggestionAmount/2;
 			int secondAmount = suggestionAmount - firstAmount;
 			
-			if (!similarity && !symmetry ) {
 			router.postEvent(new StartMapMutate(room, MapMutationType.Preserving, AlgorithmTypes.Native, firstAmount, true)); //TODO: Move some of this hard coding to ApplicationConfig
 			router.postEvent(new StartMapMutate(room, MapMutationType.ComputedConfig, AlgorithmTypes.Native, secondAmount, true)); //TODO: Move some of this hard coding to ApplicationConfig
-			}
-			else if (similarity && !symmetry) {
-				router.postEvent(new StartMapMutate(room, MapMutationType.Preserving, AlgorithmTypes.Similarity, suggestionAmount, true));
-			}
-			else if (!similarity && symmetry) {
-				router.postEvent(new StartMapMutate(room, MapMutationType.Preserving, AlgorithmTypes.Symmetry, firstAmount, true));
-				router.postEvent(new StartMapMutate(room, MapMutationType.ComputedConfig, AlgorithmTypes.Symmetry, secondAmount, true));
-			}
-			else if (similarity && symmetry) {
-				router.postEvent(new StartMapMutate(room, MapMutationType.Preserving, AlgorithmTypes.Similarity, firstAmount, true));
-				router.postEvent(new StartMapMutate(room, MapMutationType.ComputedConfig, AlgorithmTypes.Symmetry, secondAmount, true));
-			}
+
 			break;
 		case MAP_ELITES:
 			if(currentDimensions.length > 1)
@@ -1247,21 +1230,21 @@ public class RoomViewController extends BorderPane implements Listener
 
 		str.append("Entrance safety: ");
 
-		str.append(round(getMapView().getMap().getEntranceSafety()* 100, 2 ));
+		str.append(round(getMapView().getMap().getDoorSafeness()* 100, 2 ));
 		str.append("%");
 
 		str.append(" ➤  ");
 		entranceSafety.setText(str.toString());	
 		str = new StringBuilder();
 
-		str.append(round(toCompare.getEntranceSafety()* 100, 2 ));
+		str.append(round(toCompare.getDoorSafeness()* 100, 2 ));
 		str.append("%");
 
-		if (getMapView().getMap().getEntranceSafety() > toCompare.getEntranceSafety()) {
+		if (getMapView().getMap().getDoorSafeness() > toCompare.getDoorSafeness()) {
 			str.append(" ▼");
 			entranceSafety2.setText(str.toString());
 			entranceSafety2.setStyle("-fx-text-fill: red");
-		} else if (getMapView().getMap().getEntranceSafety() < toCompare.getEntranceSafety()) {			
+		} else if (getMapView().getMap().getDoorSafeness() < toCompare.getDoorSafeness()) {			
 			str.append(" ▲");
 			entranceSafety2.setText(str.toString());
 			entranceSafety2.setStyle("-fx-text-fill: green");
