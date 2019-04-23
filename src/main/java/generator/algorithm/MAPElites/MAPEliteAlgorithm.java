@@ -684,85 +684,8 @@ public class MAPEliteAlgorithm extends Algorithm implements Listener {
         {
 //        	runNoInterbreedingExperiment();
 //        	runInterbreedingExperiment(); // This one and run experiment previous are the best!
-        	runNoInterbreedingApplElites();
+        	runNoInterbreedingApplElites(); //This is actually the good one!! 2019-04-23
 //        	runInterbreedingApplElites();
-        	/*
-        	//If we have receive the even that the dimensions changed, please modify the dimensions and recalculate the cells!
-        	if(dimensionsChanged)
-        	{
-        		RecreateCells();
-        		dimensionsChanged = false;
-        	}
-    		ArrayList<ZoneIndividual> feasibleParents = new ArrayList<ZoneIndividual>();
-    		ArrayList<ZoneIndividual> infeasibleParents = new ArrayList<ZoneIndividual>();
-    		
-    		List<ZoneIndividual> children = new ArrayList<ZoneIndividual>();
-    		
-//        		List<ZoneIndividual> feasibleChildren = new ArrayList<ZoneIndividual>();
-//        		List<ZoneIndividual> infeasibleChildren = new ArrayList<ZoneIndividual>();
-    		GACell current = null;
-    		
-    		for(int count = 0; count < breedingGenerations; count++) //Actual gens
-        	{
-    			List<ZoneIndividual> feasibleChildren = new ArrayList<ZoneIndividual>();
-        		List<ZoneIndividual> infeasibleChildren = new ArrayList<ZoneIndividual>();
-//        			children = new ArrayList<ZoneIndividual>();
-        		//This could actually be looped to select parents from different cells (according to TALAKAT)
-        		current = SelectCell(true);
-        		
-        		if(current != null)
-        		{
-        			current.exploreCell();
-        			feasibleParents.addAll(tournamentSelection(current.GetFeasiblePopulation()));   		
-        		}
-        		
-        		//This could actually be looped to select parents from different cells (according to TALAKAT)
-    			current = SelectCell(false);
-        		
-        		if(current != null)
-        		{
-        			infeasibleParents.addAll(tournamentSelection(current.GetInfeasiblePopulation()));
-        		}
-        		
-        		//Breed!
-        		feasibleChildren.addAll(crossOverBetweenProgenitors(feasibleParents));
-        		infeasibleChildren.addAll(crossOverBetweenProgenitors(infeasibleParents));
-        		
-        		CheckAndAssignToCell(feasibleChildren, false);
-        		CheckAndAssignToCell(infeasibleChildren, true);
-
-        		
-        		//Breed!
-//        		children.addAll(crossOverBetweenProgenitors(parents));
-        		
-        		//Evaluate and assign to correct Cell
-//        		CheckAndAssignToCell(feasibleChildren, false);
-//        		CheckAndAssignToCell(infeasibleChildren, true);
-        		
-        	}
-        	
-        	//Now we sort both populations in a given cell and cut through capacity!!!
-        	for(GACell cell : cells)
-			{
-				cell.SortPopulations(false);
-				cell.ApplyElitism();
-			}
-        	
-//        	EventRouter.getInstance().postEvent(new MAPEGenerationDone(realCurrentGen, MAPElitesDimensions, cells));
-//        	MAPECollector.getInstance().SaveGeneration(realCurrentGen, MAPElitesDimensions, cells, true);
-        	
-        	
-        	//This is only when we want to update the current Generation
-        	if(currentGen >= iterationsToPublish)
-        	{
-        		publishGeneration();
-        	}
-        	else {
-        		currentGen++;
-        	}
-        	
-        	realCurrentGen++;
-        	*/
         }
         
        ////////////////////////// POST END MAP-ELITES /////////////////////////////
@@ -773,7 +696,7 @@ public class MAPEliteAlgorithm extends Algorithm implements Listener {
 			cell.ApplyElitism();
 		}
 		
-        broadcastResultedRooms();
+//        broadcastResultedRooms();
         
         //We save the last generation
         MAPECollector.getInstance().SaveGeneration(realCurrentGen, MAPElitesDimensions, cells, "STOP", false);

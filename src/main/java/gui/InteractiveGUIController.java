@@ -219,7 +219,7 @@ public class InteractiveGUIController implements Initializable, Listener {
 			}
 
 		} else if (e instanceof RequestWorldView) {
-
+			router.postEvent(new Stop());
 			backToWorldView();
 
 		} else if (e instanceof RequestEmptyRoom) {
@@ -233,6 +233,7 @@ public class InteractiveGUIController implements Initializable, Listener {
 			size = ((StartWorld) e).getSize();
 			if (size != 0) {
 				initWorldView();
+				worldView.initialSetup();
 			}
 
 		}
@@ -509,7 +510,7 @@ public class InteractiveGUIController implements Initializable, Listener {
 			e.printStackTrace();
 		}
 		
-		dungeonMap = new Dungeon(gc, 1, width, height);
+		dungeonMap = new Dungeon(gc, 2, width, height);
 		
 		return dungeonMap;
 	}

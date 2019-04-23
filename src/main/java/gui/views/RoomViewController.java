@@ -149,14 +149,13 @@ public class RoomViewController extends BorderPane implements Listener
 	@FXML private ToggleButton patternButton;
 	@FXML private ToggleButton lockBrush;
 	@FXML private ToggleButton lockButton;
-	@FXML private ToggleButton zoneButton;
 	@FXML private ToggleButton floorBtn;
 	@FXML private ToggleButton wallBtn;
 	@FXML private ToggleButton treasureBtn;
 	@FXML private ToggleButton enemyBtn;
 	
 	//Brush Slider
-	@FXML private Slider zoneSlider;
+	@FXML private Slider brushSlider;
 	
 	//Abusive amount of labels for info
 	@FXML private Label enemyNumbr;
@@ -186,7 +185,6 @@ public class RoomViewController extends BorderPane implements Listener
 	private Room largeMap;
 	private Canvas patternCanvas;
 	private Canvas warningCanvas;
-	private Canvas zoneCanvas;
 	private Canvas lockCanvas;
 	private Canvas brushCanvas;
 
@@ -257,7 +255,7 @@ public class RoomViewController extends BorderPane implements Listener
 		myBrush = new Drawer();
 		myBrush.AddmodifierComponent("Lock", new Modifier(lockBrush));
 
-		zoneSlider.valueProperty().addListener((obs, oldval, newVal) -> { 
+		brushSlider.valueProperty().addListener((obs, oldval, newVal) -> { 
 			redrawPatterns(mapView.getMap());
 			});
 		
@@ -356,13 +354,6 @@ public class RoomViewController extends BorderPane implements Listener
 		mapHeight = (int)(42.0 * (float)((float)roomToBe.getRowCount())); //Recalculate map size
 		mapWidth = (int)(42.0 * (float)((float)roomToBe.getColCount()));//Recalculate map size
 
-		resetSuggestedRooms(); //reset the canvas of the suggestions
-		getAppSuggestionsBtn().setDisable(true); //Disable the apply suggested room
-		
-		//Disable those two new buttons
-//		flowControlBtn.setDisable(true);
-//		stopEABtn.setDisable(true);
-//		
 		for(SuggestionRoom sr : roomDisplays)
 		{
 			sr.resizeCanvasForRoom(roomToBe);
@@ -370,8 +361,9 @@ public class RoomViewController extends BorderPane implements Listener
 		
 		initMapView();
 		initLegend();
+		resetView();
 		updateMap(roomToBe);	
-		
+		generateNewMaps();
 //		
 //		OnChangeTab();
 //		generateNewMaps();
@@ -405,13 +397,6 @@ public class RoomViewController extends BorderPane implements Listener
 		lockCanvas.setVisible(false);
 		lockCanvas.setMouseTransparent(true);
 		lockCanvas.setOpacity(0.4f);
-		
-		zoneCanvas = new Canvas(mapWidth, mapHeight);
-		StackPane.setAlignment(zoneCanvas, Pos.CENTER);
-		mapPane.getChildren().add(zoneCanvas);
-		zoneCanvas.setVisible(false);
-		zoneCanvas.setMouseTransparent(true);
-
 
 		patternCanvas = new Canvas(mapWidth, mapHeight);
 		StackPane.setAlignment(patternCanvas, Pos.CENTER);
@@ -466,6 +451,19 @@ public class RoomViewController extends BorderPane implements Listener
 //		mapView.addEventFilter(MouseEvent.MOUSE_MOVED, new EditViewMouseHover());
 
 	}
+	
+	public void resetView()
+	{
+		//Reset all selectables
+		brushes.selectToggle(null);
+		getPatternButton().setSelected(false);
+		lockBrush.setSelected(false);
+		
+		selectBrush();
+		togglePatterns();
+		selectLockModifier();		
+		
+	}
 
 	public void setContainer(MapContainer map) {
 		map = this.map;
@@ -478,7 +476,7 @@ public class RoomViewController extends BorderPane implements Listener
 		ConfigurationUtility c = config.getInternalConfig();
 
 		legend.setVgap(5);
-		legend.setHgap(10);
+		legend.setHgap(11);
 		legend.setPadding(new Insets(5, 10, 5, 10));
 
 		Label title = new Label("Pattern legend");
@@ -535,6 +533,11 @@ public class RoomViewController extends BorderPane implements Listener
 		Label deadEnd = new Label("Dead end");
 		deadEnd.setStyle("-fx-text-fill: white;");
 		legend.add(deadEnd, 1, 10);
+		
+		legend.add(new ImageView(new Image(c.getString("map.examples.lock"), 20, 20, true, true)), 0, 11);
+		Label lock = new Label("Lock tile");
+		lock.setStyle("-fx-text-fill: white;");
+		legend.add(lock, 1, 11);
 	}
 	
 	public void renderCell(List<Room> generatedRooms, int dimension, float [] dimensionSizes, int[] indices)
@@ -802,18 +805,6 @@ public class RoomViewController extends BorderPane implements Listener
 	 * Toggles the display of zones on top of the map.
 	 * 
 	 */
-	public void toggleZones() {
-		if (zoneButton.isSelected()) {
-			zoneCanvas.setVisible(true);
-		} else {
-			zoneCanvas.setVisible(false);
-		}
-	}
-	
-	/**
-	 * Toggles the display of zones on top of the map.
-	 * 
-	 */
 	public void toggleLocks() {
 		if (lockButton.isSelected()) {
 			lockCanvas.setVisible(true);
@@ -854,44 +845,38 @@ public class RoomViewController extends BorderPane implements Listener
 	@FXML
 	private void generateNewMaps() //TODO: some changes here!
 	{	
-		switch(currentState)
-		{
-		case STOPPED:
-			router.postEvent(new SuggestedMapsLoading());
-			resetSuggestedRooms();
-//			prepareViewForSuggestions();
-			generateNewMaps(getMapView().getMap());
-			
-			clearStats();
-			getWorldGridBtn().setDisable(true);
-			getGenSuggestionsBtn().setText("Stop Suggestions");
-			getAppSuggestionsBtn().setDisable(true);
-			saveGenBtn.setDisable(false);
-			currentState = EvoState.RUNNING;
-			break;
-		case RUNNING:
-			
-			router.postEvent(new Stop());
-			
-			clearStats();
-			getWorldGridBtn().setDisable(false);
-			getGenSuggestionsBtn().setText("Generate Suggestions");
-			getAppSuggestionsBtn().setDisable(false);
-			saveGenBtn.setDisable(true);
-			currentState = EvoState.STOPPED;
-			
-			break;
-		}
+		resetSuggestedRooms();
+		generateNewMaps(getMapView().getMap());
 		
-		
-		
-		
-		
+//		switch(currentState)
+//		{
+//		case STOPPED:
+//			router.postEvent(new SuggestedMapsLoading());
+//			resetSuggestedRooms();
+////			prepareViewForSuggestions();
+//			generateNewMaps(getMapView().getMap());
+//			
+//			clearStats();
+//			getWorldGridBtn().setDisable(true);
+////			getGenSuggestionsBtn().setText("Stop Suggestions");
+//			getAppSuggestionsBtn().setDisable(true);
+//			saveGenBtn.setDisable(false);
+//			currentState = EvoState.RUNNING;
+//			break;
+//		case RUNNING:
+//			
+//			router.postEvent(new Stop());
+//			
+//			clearStats();
+//			getWorldGridBtn().setDisable(false);
+////			getGenSuggestionsBtn().setText("Generate Suggestions");
+//			getAppSuggestionsBtn().setDisable(false);
+//			saveGenBtn.setDisable(true);
+//			currentState = EvoState.STOPPED;
+//			
+//			break;
+//		}
 //		
-//		router.postEvent(new SuggestedMapsLoading());
-//		resetSuggestedRooms();
-////		prepareViewForSuggestions();
-//		generateNewMaps(getMapView().getMap());
 	}
 
 	/***
@@ -963,6 +948,7 @@ public class RoomViewController extends BorderPane implements Listener
 	private void resetSuggestedRooms() 
 	{
 		nextRoom = 0;
+		router.postEvent(new Stop());
 		
 		if(selectedSuggestion != null)
 			selectedSuggestion.setSelected(false);
@@ -972,6 +958,7 @@ public class RoomViewController extends BorderPane implements Listener
 		
 		for(SuggestionRoom sr : roomDisplays)
 		{
+			sr.getRoomCanvas().resizeRotatingThingie();
 			sr.getRoomCanvas().draw(null);
 			sr.getRoomCanvas().setText("Waiting for map...");
 		}
@@ -1075,12 +1062,10 @@ public class RoomViewController extends BorderPane implements Listener
 		//Change those 2 width and height hardcoded values (420,420)
 		//And change zone to its own method
 		patternCanvas.getGraphicsContext2D().clearRect(0, 0, mapWidth, mapHeight);
-		zoneCanvas.getGraphicsContext2D().clearRect(0, 0, mapWidth, mapHeight);
 
 		renderer.drawPatterns(patternCanvas.getGraphicsContext2D(), room.toMatrix(), colourPatterns(room.getPatternFinder().findMicroPatterns()));
 		renderer.drawGraph(patternCanvas.getGraphicsContext2D(), room.toMatrix(), room.getPatternFinder().getPatternGraph());
 		renderer.drawMesoPatterns(patternCanvas.getGraphicsContext2D(), room.toMatrix(), room.getPatternFinder().getMesoPatterns());
-		renderer.drawZones(zoneCanvas.getGraphicsContext2D(), room.toMatrix(), room.root, (int)(zoneSlider.getValue()),Color.BLACK);
 	}
 
 	/***
@@ -1353,7 +1338,7 @@ public class RoomViewController extends BorderPane implements Listener
 			{
 				// Show the brush canvas
 				ImageView tile = (ImageView) event.getTarget();
-				myBrush.SetBrushSize((int)(zoneSlider.getValue()));
+				myBrush.SetBrushSize((int)(brushSlider.getValue()));
 				brushCanvas.getGraphicsContext2D().clearRect(0, 0, mapWidth, mapHeight);
 				brushCanvas.setVisible(true);
 				util.Point p = mapView.CheckTile(tile);

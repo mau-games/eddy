@@ -9,6 +9,7 @@ import game.Dungeon;
 import game.DungeonPane;
 import game.MapContainer;
 import game.PathInformation;
+import game.Room;
 import gui.controls.LabeledCanvas;
 import gui.utils.DungeonDrawer;
 import gui.utils.DungeonDrawer.DungeonBrushes;
@@ -51,6 +52,7 @@ import util.eventrouting.EventRouter;
 import util.eventrouting.Listener;
 import util.eventrouting.PCGEvent;
 import util.eventrouting.events.MapUpdate;
+import util.eventrouting.events.RequestConnection;
 import util.eventrouting.events.RequestEmptyRoom;
 import util.eventrouting.events.RequestNewRoom;
 import util.eventrouting.events.RequestRoomRemoval;
@@ -81,8 +83,8 @@ public class WorldViewController extends BorderPane implements Listener
 	
 	private Label widthLabel = new Label("W =");
 	private Label heightLabel = new Label("H =");
-	private IntField widthField = new IntField(1, 20, 11);
-	private IntField heightField = new IntField(1, 20, 11);
+	private IntField widthField = new IntField(3, 20, 13);
+	private IntField heightField = new IntField(3, 20, 7);
 
 	private Canvas buttonCanvas;
 	private MapRenderer renderer = MapRenderer.getInstance();
@@ -163,6 +165,27 @@ public class WorldViewController extends BorderPane implements Listener
 		
 		dungeon.dPane.renderAll();
 		worldPane.getChildren().add(dungeon.dPane);
+	}
+	
+	public void initialSetup()
+	{
+		ArrayList<Room> initRooms = dungeon.getAllRooms();
+		
+		initRooms.get(1).localConfig.getWorldCanvas().getCanvas().setTranslateX(
+				initRooms.get(1).localConfig.getWorldCanvas().viewSizeWidth + 
+				initRooms.get(1).localConfig.getWorldCanvas().viewSizeWidth / 2.0);
+		
+		EventRouter.getInstance().postEvent(new RequestConnection(null, 
+				-1, 
+				initRooms.get(0), initRooms.get(1), 
+				new Point(initRooms.get(0).getColCount() -1, initRooms.get(0).getRowCount()/2), 
+				new Point(0, initRooms.get(1).getRowCount()/2)));	
+		
+		for(Node child : worldPane.getChildren())
+		{
+			child.setLayoutX(child.getLayoutX() + (200));
+			child.setLayoutY(child.getLayoutY() + 200); 
+		}
 	}
 	
 	public class MouseEventWorldPane implements EventHandler<MouseEvent>

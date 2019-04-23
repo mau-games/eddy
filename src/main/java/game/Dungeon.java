@@ -88,7 +88,7 @@ public class Dungeon implements Listener
 		
 		for(int i = 0; i < size; ++i)
 		{
-			Room auxR = new Room(this, defaultConfig, defaultWidth, defaultHeight, scaleFactor);
+			Room auxR = new Room(this, defaultConfig, defaultHeight, defaultWidth, scaleFactor);
 			rooms.add(auxR);
 			network.addNode(auxR);
 			dPane.addVisualRoom(auxR);
