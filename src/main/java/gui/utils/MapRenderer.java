@@ -742,9 +742,6 @@ public class MapRenderer implements Listener {
 		case FLOOR:
 			color = Color.WHITE;
 			break;
-		case DOORENTER:
-			color = Color.MAGENTA;
-			break;
 		default:
 			color = Color.WHITE;
 		}
@@ -781,9 +778,9 @@ public class MapRenderer implements Listener {
 		case FLOOR:
 			image = new Image("/" + config.getInternalConfig().getString("map.tiles.floor"), width, height, false, true);
 			break;
-		case DOORENTER:
-			image = new Image("/" + config.getInternalConfig().getString("map.tiles.doorenter"), width, height, false, true);
-			break;
+//		case DOORENTER:
+//			image = new Image("/" + config.getInternalConfig().getString("map.tiles.doorenter"), width, height, false, true);
+//			break;
 		default:
 			image = null;
 		}
@@ -817,9 +814,9 @@ public class MapRenderer implements Listener {
 			case FLOOR:
 				image = new Image("/" + config.getInternalConfig().getString("map.tiles.floor"));
 				break;
-			case DOORENTER:
-				image = new Image("/" + config.getInternalConfig().getString("map.tiles.doorenter"));
-				break;
+//			case DOORENTER:
+//				image = new Image("/" + config.getInternalConfig().getString("map.tiles.doorenter"));
+//				break;
 			default:
 				image = null;
 			}

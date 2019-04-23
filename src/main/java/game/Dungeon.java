@@ -94,6 +94,7 @@ public class Dungeon implements Listener
 			dPane.addVisualRoom(auxR);
 		}
 		
+		//We set this created room as the initial room
 		setInitialRoom(rooms.get(0), new Point(0,0));
 	}
 	
@@ -134,6 +135,11 @@ public class Dungeon implements Listener
 		network.addNode(auxR);
 		dPane.addVisualRoom(auxR);
 		this.size++;
+		
+		if(initialRoom == null)
+		{
+			setInitialRoom(auxR, new Point(0,0));
+		}
 	}
 	
 	/**
@@ -165,6 +171,20 @@ public class Dungeon implements Listener
 		rooms.remove(roomToRemove);
 		network.removeNode(roomToRemove);
 		selectedRoom = null;
+		
+		//check if this was the initial room, in which case the next one should be the initial one
+		if(initialRoom.equals(roomToRemove))
+		{
+			if(!rooms.isEmpty())
+			{
+				setInitialRoom(rooms.get(0), new Point(0,0));
+			}
+			else
+			{
+				setInitialRoom(null, null);
+			}
+			
+		}
 		
 		//probably this should be connected to the size value of the rooms LIST
 		this.size--;
@@ -208,7 +228,7 @@ public class Dungeon implements Listener
 	}
 	
 	public void setInitialRoom(Room initRoom, Point initialPos)
-	{
+	{	
 		this.initialRoom = initRoom;
 		this.initialPos = initialPos;
 	}

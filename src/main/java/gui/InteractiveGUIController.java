@@ -207,13 +207,13 @@ public class InteractiveGUIController implements Initializable, Listener {
 			
 			//Yeah dont care about matrix but we do care about doors!
 			
-			if(((MapContainer) e.getPayload()).getMap().getDoorCount(true) > 0)
+			if(((MapContainer) e.getPayload()).getMap().getDoorCount() > 0)
 				initRoomView((MapContainer) e.getPayload());
 
 		} else if (e instanceof RequestSuggestionsView) 
 		{
 			MapContainer container = (MapContainer) e.getPayload();
-			if(container.getMap().getDoorCount(true) > 0)
+			if(container.getMap().getDoorCount() > 0)
 			{
 				initSuggestionsView(container.getMap());
 			}

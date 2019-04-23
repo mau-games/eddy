@@ -747,7 +747,7 @@ public class RoomViewController extends BorderPane implements Listener
 	 */
 	public void selectBrush() {
 		
-		OnChangeTab();
+//		OnChangeTab();
 		
 		if (brushes.getSelectedToggle() == null) {
 			mapView.setCursor(Cursor.DEFAULT);
@@ -780,6 +780,9 @@ public class RoomViewController extends BorderPane implements Listener
 	public void selectLockModifier()
 	{
 		myBrush.ChangeModifierMainValue("Lock", lockBrush.isSelected());
+		lockButton.setSelected(lockBrush.isSelected());
+		toggleLocks();
+		lockButton.setDisable(lockBrush.isSelected());
 	}	
 	
 	/**

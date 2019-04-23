@@ -94,8 +94,6 @@ public class Room {
 	private int failedPathsToAnotherDoor;
 	private Dictionary<Point, Double> treasureSafety; //ODL
 	
-	//TODO: EVERYTHING RELATED TO ENTRANCE WILL BE GONE!
-	private Point entrance;
 	private double doorSafety; //Sum of all the safeties
 	private double doorGreed; //Sum of all the greeds
 	
@@ -145,14 +143,14 @@ public class Room {
 	 * @param cols The number of columns in a map.
 	 * @param doorCount The number of doors to be seeded in a map.
 	 */
-	public Room(GeneratorConfig config, TileTypes[] types, int rows, int cols, List<Point> doorPositions, Point entrance) { //THIS IS CALLED WHEN CREATIMNG THE PHENOTYPE
+	public Room(GeneratorConfig config, TileTypes[] types, int rows, int cols, List<Point> doorPositions) { //THIS IS CALLED WHEN CREATIMNG THE PHENOTYPE
 		init(rows, cols);
 
 		this.config = config;
 //		localConfig = new RoomConfig(this, 40); //TODO: NEW ADDITION --> HAVE TO BE ADDED EVERYWHERE
 
 		initMapFromTypes(types);
-		copyDoors(doorPositions, entrance);
+		copyDoors(doorPositions);
 
 		finder = new PatternFinder(this);
 		pathfinder = new RoomPathFinder(this);
@@ -216,7 +214,7 @@ public class Room {
 			}
 		}
 
-		copyDoors(copyMap.getDoors(), copyMap.getEntrance());
+		copyDoors(copyMap.getDoors());
 		SetDimensionValues(copyMap.dimensionValues);
 		
 		finder = new PatternFinder(this);
@@ -256,7 +254,7 @@ public class Room {
 			}
 		}
 
-		copyDoors(copyMap.getDoors(), copyMap.getEntrance());
+		copyDoors(copyMap.getDoors());
 		
 		finder = new PatternFinder(this);
 		pathfinder = new RoomPathFinder(this);
@@ -277,6 +275,8 @@ public class Room {
 	{
 		this.tileMap = room.tileMap.clone();
 		this.matrix = room.matrix.clone();
+		enemies.clear();
+		treasures.clear();
 
 		for (int j = 0; j < height; j++)
 		{
@@ -312,7 +312,7 @@ public class Room {
 			}
 		}
 		
-		copyDoors(room.getDoors(), room.getEntrance());
+		copyDoors(room.getDoors());
 //		
 		finder = new PatternFinder(this);
 		pathfinder = new RoomPathFinder(this);
@@ -331,6 +331,9 @@ public class Room {
 		treasureSafety = new Hashtable<Point, Double>();
 		doorsSafety = new Hashtable<Point, Double>();
 		doorsGreed = new Hashtable<Point, Double>();
+		enemies.clear();
+		treasures.clear();
+		doors.clear();
 		
 		this.width = cols;
 		this.height = rows;
@@ -362,13 +365,10 @@ public class Room {
 	 * @param doorPositions
 	 * @param entrance
 	 */
-	private void copyDoors(List<Point> doorPositions, Point entrance)
+	private void copyDoors(List<Point> doorPositions)
 	{
-		setEntrance(entrance);
-		
 		for(int i = 0; i < doorPositions.size(); i++)
         {
-           
             if (TileTypes.toTileType(matrix[doorPositions.get(i).getY()][doorPositions.get(i).getX()]).isEnemy())  // Check if door overrides an enemy
             {
             	int ii = i;
@@ -383,16 +383,8 @@ public class Room {
             {
                 wallCount--;
             } 
-            
-            if(doorPositions.get(i).equals(entrance))
-            {
-            	setTile(doorPositions.get(i).getX(), doorPositions.get(i).getY(), TileTypes.DOORENTER);
-            }
-            else
-            {
-            	setTile(doorPositions.get(i).getX(), doorPositions.get(i).getY(), TileTypes.DOOR);
-            }
-            
+
+        	setTile(doorPositions.get(i).getX(), doorPositions.get(i).getY(), TileTypes.DOOR);
             addDoor(doorPositions.get(i));
             borders.removePoint(Point.castToGeometry(doorPositions.get(i))); //remove this point from the "usable" border
             
@@ -420,19 +412,8 @@ public class Room {
         {
             wallCount--;
         } 
-        
-        if(doors.size() == 0) //TODO: PLEASE CHANGE ME!!! Based on the set of the initial room!! or from where you start
-        {
-        	setTile(doorPosition.getX(), doorPosition.getY(), TileTypes.DOORENTER);
-        	entrance = doorPosition;
 
-        }
-        else
-        {
-        	setTile(doorPosition.getX(), doorPosition.getY(), TileTypes.DOOR);
-
-        }
-        
+        setTile(doorPosition.getX(), doorPosition.getY(), TileTypes.DOOR);
         addDoor(doorPosition);
         borders.removePoint(Point.castToGeometry(doorPosition)); //remove this point from the "usable" border
 	}
@@ -443,66 +424,127 @@ public class Room {
 	 */
 	public void removeDoor(Point doorPosition) 
 	{
-		if(doors.size() == 0)
-        {
-        	setTile(doorPosition.getX(), doorPosition.getY(), TileTypes.DOORENTER);
-        	entrance = doorPosition;
-
-        }
-        else
-        {
-        	setTile(doorPosition.getX(), doorPosition.getY(), TileTypes.DOOR);
-
-        }
-        
 		doors.remove(doorPosition);
 		setTile(doorPosition.getX(), doorPosition.getY(), TileTypes.FLOOR);
 		borders.addPoint(Point.castToGeometry(doorPosition));
 		
-		if(doors.size() == 0)
-		{
-			entrance = null;
-		}
-		
 	}
+	
+//	public void applySuggestion(Room suggestions)
+//	{
+//		
+//		//TODO:: THE PROBLEM IS HEREEEE!!!!!
+//		treasureSafety = new Hashtable<Point, Double>();
+//		doorsSafety = new Hashtable<Point, Double>();
+//		doorsGreed = new Hashtable<Point, Double>();
+//		enemies.clear();
+//		treasures.clear();
+//		wallCount = 0;
+//		
+//		matrix = new int[height][width];
+//		allocated = new boolean[height][width];
+//		tileMap = new Tile[height * width];
+//		
+//		wallCount = 0;
+//		enemies.clear();
+//		treasures.clear();
+//		treasureSafety = new Hashtable<Point, Double>();
+//		allocated = new boolean[height][width];
+//		
+//		for (int j = 0; j < height; j++) 
+//		{
+//			for (int i = 0; i < width; i++) 
+//			{
+//				setTile(i, j, suggestions.getTile(i, j));
+////				allocated[j][i] = suggestions.getAllocationMatrix()[j][i];
+//			}
+//		}
+//		
+//		pathfinder = new RoomPathFinder(this);
+//		finder = new PatternFinder(this);
+//		finder.findMicroPatterns();
+//		finder.findMesoPatterns();
+//		finder.findMacroPatterns();
+//		root = new ZoneNode(null, this, getColCount(), getRowCount());
+//	}
 	
 	public void applySuggestion(Room suggestions)
 	{
-		wallCount = 0;
-		enemies.clear();
-		treasures.clear();
-		treasureSafety = new Hashtable<Point, Double>();
-		allocated = new boolean[height][width];
+		//TODO: NOW THE PROBLEM IS WITH THE DOORS!!!!
+		init(suggestions.getRowCount(), suggestions.getColCount());
+		this.config = suggestions.config;
 		
-		for (int j = 0; j < height; j++) 
+		for (int j = 0; j < height; j++)
 		{
 			for (int i = 0; i < width; i++) 
 			{
 				setTile(i, j, suggestions.getTile(i, j));
-//				allocated[j][i] = suggestions.getAllocationMatrix()[j][i];
-				
-				switch (TileTypes.toTileType(matrix[j][i])) {
-				case WALL:
-					wallCount++;
-					break;
-				case ENEMY:
-					enemies.add(new Point(i, j));
-					break;
-				case TREASURE:
-					treasures.add(new Point(i, j));
-					break;
-				default:
-					break;
-				}
+//				matrix[j][i] = suggestions.matrix[j][i];
+//				tileMap[j * width + i] = new Tile(suggestions.tileMap[j * width + i]);
 			}
-		}
+		}	
 		
-		pathfinder = new RoomPathFinder(this);
+//		for (int j = 0; j < height; j++){
+//			for (int i = 0; i < width; i++) {
+//				switch (TileTypes.toTileType(matrix[j][i])) {
+//				case WALL:
+//					wallCount++;
+//					break;
+//				case ENEMY:
+//					enemies.add(new Point(i, j));
+//					break;
+//				case TREASURE:
+//					treasures.add(new Point(i, j));
+//					break;
+//				default:
+//					break;
+//				}
+//			}
+//		}
+
+		copyDoors(suggestions.getDoors());
+		SetDimensionValues(suggestions.dimensionValues);
+		
 		finder = new PatternFinder(this);
-		finder.findMicroPatterns();
-		finder.findMesoPatterns();
-		finder.findMacroPatterns();
-		root = new ZoneNode(null, this, getColCount(), getRowCount());
+		pathfinder = new RoomPathFinder(this);
+		root = suggestions.root;	
+		
+//		wallCount = 0;
+//		enemies.clear();
+//		treasures.clear();
+//		treasureSafety = new Hashtable<Point, Double>();
+//		allocated = new boolean[height][width];
+//		init(height, width);
+//		
+//		for (int j = 0; j < height; j++) 
+//		{
+//			for (int i = 0; i < width; i++) 
+//			{
+//				setTile(i, j, suggestions.getTile(i, j));
+////				allocated[j][i] = suggestions.getAllocationMatrix()[j][i];
+//				
+//				switch (TileTypes.toTileType(matrix[j][i])) {
+//				case WALL:
+//					wallCount++;
+//					break;
+//				case ENEMY:
+//					enemies.add(new Point(i, j));
+//					break;
+//				case TREASURE:
+//					treasures.add(new Point(i, j));
+//					break;
+//				default:
+//					break;
+//				}
+//			}
+//		}
+//		
+//		pathfinder = new RoomPathFinder(this);
+//		finder = new PatternFinder(this);
+//		finder.findMicroPatterns();
+//		finder.findMesoPatterns();
+//		finder.findMacroPatterns();
+//		root = new ZoneNode(null, this, getColCount(), getRowCount());
 	}
 	
 	
@@ -576,10 +618,6 @@ public class Room {
 				case DOOR:
 					addDoor(new Point(i, j));
 					break;
-				case DOORENTER:
-					setEntrance(new Point(i, j));
-					addDoor(new Point(i, j));
-					break;
 				default:
 					break;
 				}
@@ -651,6 +689,7 @@ public class Room {
 	
 	private void ChangeQuantities(int x, int y, TileTypes newTile)
 	{
+		//TODO: I THINK THE PROBLEM CAN BE HERE!
 		if(newTile.equals(TileTypes.toTileType(matrix[y][x])))
 			return;
 		
@@ -808,24 +847,6 @@ public class Room {
 	}
 
 	/**
-	 * Returns the position of the entry door.
-	 * 
-	 * @return The entry door's position.
-	 */
-	public Point getEntrance() {
-		return entrance;
-	}
-
-	/**
-	 * Sets the position of the entry door.
-	 * 
-	 * @param door The position of the new door.
-	 */
-	public void setEntrance(Point door) {
-		entrance = door;
-	}
-
-	/**
 	 * Adds a door to the map.
 	 * 
 	 * @param door The position of a new door.
@@ -888,9 +909,9 @@ public class Room {
 	 * @param entrance if you want to count or not the entrance
 	 * @return
 	 */
-	public int getDoorCount(boolean entrance) 
+	public int getDoorCount() 
 	{
-		return entrance == true ? doors.size() : doors.size() - 1;
+		return doors.size();
 	}
 	
 
@@ -1141,6 +1162,9 @@ public class Room {
 	 * @param tiles A list of tiles.
 	 */
 	private void initMapFromTypes(TileTypes[] tiles) {
+		enemies.clear();
+		treasures.clear();
+		
 		int tile = 0;
 		for (int j = 0; j < height; j++) {
 			for (int i = 0; i < width; i++) {
@@ -1315,7 +1339,7 @@ public class Room {
 		}
 		
     	
-    	Node root = new Node(0.0f, getEntrance(), null);
+    	Node root = new Node(0.0f, this.getDoors().get(0), null);
     	queue.add(root);
     	
     	while(!walkableSpaces.isEmpty())
@@ -1329,7 +1353,7 @@ public class Room {
         		//We need to remove the door!
         		walkableSpaces.remove(current.position);
 
-        		if(currentTile.GetType() == TileTypes.DOOR || currentTile.GetType() == TileTypes.DOORENTER)
+        		if(currentTile.GetType() == TileTypes.DOOR)
         		{
         			doors++;
         			section.doorFound();
@@ -1396,7 +1420,7 @@ public class Room {
 
     	for(int i = treasure; i < getTreasureCount();i++)
     		addFailedPathToTreasures();
-    	for(int i = doors; i < getDoorCount(true);i++)
+    	for(int i = doors; i < getDoorCount();i++)
     		addFailedPathToDoors();
     	for(int i = enemies; i < getEnemyCount();i++)
     		addFailedPathToEnemies();
@@ -1409,7 +1433,7 @@ public class Room {
 //    	System.out.println(enemies + "=" + getEnemyCount());
 //    	System.out.println(allSectionsReachable(walkableSections));
 
-    	return  (treasure + doors + enemies == getTreasureCount() + getDoorCount(true) + getEnemyCount()) //Same amount of treasure+enemies+doors
+    	return  (treasure + doors + enemies == getTreasureCount() + getDoorCount() + getEnemyCount()) //Same amount of treasure+enemies+doors
     			&& getTreasureCount() > 0 && getEnemyCount() > 0 //Finns at least 1(one) enemy and one treasure
     			&& sectionsReachable; //All sections in the room are reachable!!!
 		
@@ -1485,7 +1509,7 @@ public class Room {
     	int enemies = 0;
     	int doors = 0;
     	
-    	Node root = new Node(0.0f, getEntrance(), null);
+    	Node root = new Node(0.0f, this.doors.get(0), null);
     	queue.add(root);
     	
     	while(!queue.isEmpty()){
@@ -1851,7 +1875,7 @@ public class Room {
 	{
 		int pathCounter = 1;
 		
-		if(getDoorCount(false) == 0) return 1;
+		if(getDoorCount() == 1) return 1;
 		
 		finder.graph.Node<Pattern> anyDoor = null;
 		Queue<finder.graph.Node<Pattern>> patternQueue = new LinkedList<finder.graph.Node<Pattern>>();
@@ -1950,24 +1974,6 @@ public class Room {
 		if (e.getNodeA() == node)
 			return e.getNodeB();
 		return e.getNodeA();
-	}
-	
-	public int LinearityWithinRoom2()
-	{
-		Point entrance = getEntrance();
-		int pathCounter = 1;
-		
-		if(getDoorCount(false) == 0) return 1;
-		
-		for(Point door : getDoors())
-		{
-			if(door.equals(entrance))
-				continue;
-			
-			pathCounter = TraverseTo(0, entrance, door, new Stack<Point>(), new ArrayList<Point>());
-		}
-		
-		return pathCounter;
 	}
 	
 	public int TraverseTo(int counter, Point source, Point target, Stack<Point> visited, ArrayList<Point> path)

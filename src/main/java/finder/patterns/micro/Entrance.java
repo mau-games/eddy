@@ -67,7 +67,8 @@ public class Entrance extends InventorialPattern {
 		
 		double quality = calculateEntranceQuality(room);
 		
-		util.Point p = room.getEntrance();
+//		util.Point p = room.getEntrance();
+		util.Point p = room.getDoors().get(0);
 		Point p_ = new Point(p.getX(),p.getY());
 		if(((Rectangle)boundary).contains(p_)){
 			Entrance e = new Entrance(p_,room);
@@ -128,7 +129,8 @@ public class Entrance extends InventorialPattern {
         List<Node> visited = new ArrayList<Node>();
     	Queue<Node> queue = new LinkedList<Node>();
     	
-    	Node root = new Node(0.0f, room.getEntrance(), null);
+//    	Node root = new Node(0.0f, room.getEntrance(), null);
+    	Node root = new Node(0.0f, room.getDoors().get(0), null);
     	queue.add(root);
     	
     	while(!queue.isEmpty()){
@@ -170,7 +172,8 @@ public class Entrance extends InventorialPattern {
         List<Node> visited = new ArrayList<Node>();
     	Queue<Node> queue = new LinkedList<Node>();
     	
-    	Node root = new Node(0.0f, room.getEntrance(), null);
+//    	Node root = new Node(0.0f, room.getEntrance(), null);
+    	Node root = new Node(0.0f, room.getDoors().get(0), null);
     	queue.add(root);
     	
     	while(!queue.isEmpty()){
@@ -207,8 +210,8 @@ public class Entrance extends InventorialPattern {
 	    if(room.getEnemyCount() > 0)
 	    {
 
-	        util.Point doorEnter = room.getEntrance();
-	        
+//	        util.Point doorEnter = room.getEntrance();
+	    	 util.Point doorEnter = room.getDoors().get(0);
 	        Pathfinder pathfinder = new Pathfinder(room);
 	
 	        for (util.Point treasure: room.getTreasures())

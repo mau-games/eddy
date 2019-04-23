@@ -10,7 +10,6 @@ public class TileInformation
 	{
 		tileValue.put(TileTypes.FLOOR, floorValue);
 		tileValue.put(TileTypes.DOOR, floorValue);
-		tileValue.put(TileTypes.DOORENTER, floorValue);
 		tileValue.put(TileTypes.WALL, wallValue);
 		tileValue.put(TileTypes.TREASURE, treasureValue);
 		tileValue.put(TileTypes.ENEMY, enemyValue);

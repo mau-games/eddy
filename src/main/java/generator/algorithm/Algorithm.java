@@ -84,7 +84,6 @@ public class Algorithm extends Thread {
 	protected int roomWidth;
 	protected int roomHeight;
 	protected List<Point> roomDoorPositions;
-	protected Point roomEntrance;
 	
 	//This is for testing the preference MODEL TODO: for fitness
 	protected PreferenceModel userPreferences; //TODO: PROBABLY THIS WILL BE REPLACED for a class to calculate fitness in different manners!
@@ -115,7 +114,6 @@ public class Algorithm extends Thread {
 		this.roomWidth = originalRoom.getColCount();
 		this.roomHeight = originalRoom.getRowCount();
 		this.roomDoorPositions = originalRoom.getDoors();
-		this.roomEntrance = originalRoom.getEntrance();
 		
 		this.config = config;
 		id = UUID.randomUUID();
@@ -138,7 +136,6 @@ public class Algorithm extends Thread {
 		this.roomWidth = originalRoom.getColCount();
 		this.roomHeight = originalRoom.getRowCount();
 		this.roomDoorPositions = originalRoom.getDoors();
-		this.roomEntrance = originalRoom.getEntrance();
 			
 		this.config = config;
 		
@@ -173,7 +170,6 @@ public class Algorithm extends Thread {
 		this.roomWidth = originalRoom.getColCount();
 		this.roomHeight = originalRoom.getRowCount();
 		this.roomDoorPositions = originalRoom.getDoors();
-		this.roomEntrance = originalRoom.getEntrance();
 		
 		this.config = room.getCalculatedConfig();
 		this.algorithmTypes = algorithmTypes;
@@ -316,7 +312,7 @@ public class Algorithm extends Thread {
 //            broadcastStatusUpdate("BEST fitness: " + best.getFitness());
 //            System.out.println("DOORS: " + best.getPhenotype().getMap().getDoorCount());
             
-            room = best.getPhenotype().getMap(roomWidth, roomHeight, roomDoorPositions, roomEntrance);
+            room = best.getPhenotype().getMap(roomWidth, roomHeight, roomDoorPositions);
            
             //broadcastMapUpdate(map);
             
@@ -419,7 +415,7 @@ public class Algorithm extends Thread {
 	 * @return Return true if ZoneIndividual is valid, otherwise return false
     */
 	protected boolean checkZoneIndividual(ZoneIndividual ind){
-		Room room = ind.getPhenotype().getMap(roomWidth, roomHeight, roomDoorPositions, roomEntrance);
+		Room room = ind.getPhenotype().getMap(roomWidth, roomHeight, roomDoorPositions);
 //		return room.isFeasible();
 		return room.isIntraFeasible();
 	}
@@ -436,7 +432,7 @@ public class Algorithm extends Thread {
 	 */
     public void evaluateFeasibleZoneIndividual(ZoneIndividual ind)
     {
-        Room room = ind.getPhenotype().getMap(roomWidth, roomHeight, roomDoorPositions, roomEntrance);
+        Room room = ind.getPhenotype().getMap(roomWidth, roomHeight, roomDoorPositions);
         PatternFinder finder = room.getPatternFinder();
         List<Enemy> enemies = new ArrayList<Enemy>();
         List<Treasure> treasures = new ArrayList<Treasure>();
@@ -790,7 +786,7 @@ public class Algorithm extends Thread {
 	public void evaluateInfeasibleZoneIndividual(ZoneIndividual ind)
 	{
 		double fitness = 0.0;
-	    Room room = ind.getPhenotype().getMap(roomWidth, roomHeight, roomDoorPositions, roomEntrance);
+	    Room room = ind.getPhenotype().getMap(roomWidth, roomHeight, roomDoorPositions);
 	
 	    double enemies = (room.getFailedPathsToEnemies() / (double)room.getEnemyCount());
 	    if (Double.isNaN(enemies)) 
@@ -800,7 +796,7 @@ public class Algorithm extends Thread {
 	    if (Double.isNaN(treasures)) 
 	    	treasures = 1.0;
 	    
-	    double doors = (room.getFailedPathsToAnotherDoor() / (double)room.getDoorCount(false)); //I think this should be in
+	    double doors = (room.getFailedPathsToAnotherDoor() / (double)room.getDoorCount()); //I think this should be in
 	    if (Double.isNaN(doors)) 
 	    	doors = 1.0;
 	

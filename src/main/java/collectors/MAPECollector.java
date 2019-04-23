@@ -173,7 +173,7 @@ public class MAPECollector implements Listener
 		if(cell.GetFeasiblePopulation().size() > 0)
 		{
 			currentEliteRoom.get(currentEliteRoom.size() - 1).append(
-					cell.GetFeasiblePopulation().get(0).getPhenotype().getMap(-1, -1, null, null).toString());
+					cell.GetFeasiblePopulation().get(0).getPhenotype().getMap(-1, -1, null).toString());
 		}
 		
 		counter++;

@@ -433,7 +433,7 @@ public class WorldViewController extends BorderPane implements Listener
 			@Override
 			public void handle(ActionEvent e) 
 			{
-				if(dungeon.getSelectedRoom().getDoorCount(true) > 0)
+				if(dungeon.getSelectedRoom().getDoorCount() > 0)
 				{
 					MapContainer mc = new MapContainer();
 					mc.setMap(dungeon.getSelectedRoom());
