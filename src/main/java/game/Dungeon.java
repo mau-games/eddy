@@ -16,6 +16,8 @@ import util.eventrouting.PCGEvent;
 import util.eventrouting.events.FocusRoom;
 import util.eventrouting.events.RequestConnection;
 import util.eventrouting.events.RequestRoomView;
+import util.eventrouting.events.RequestWorldView;
+import util.eventrouting.events.Stop;
 
 /***
  * Dungeon class holds a dungeon in the world of eddy, a dungeon is comprised of:
@@ -72,6 +74,7 @@ public class Dungeon implements Listener
 		
 		//Listening to events
 		EventRouter.getInstance().registerListener(this, new FocusRoom(null, null));
+		EventRouter.getInstance().registerListener(this, new RequestWorldView());
 		
 		//Create the amount of rooms with the default values -->
 		this.size = size;
@@ -88,12 +91,13 @@ public class Dungeon implements Listener
 		
 		for(int i = 0; i < size; ++i)
 		{
-			Room auxR = new Room(this, defaultConfig, defaultWidth, defaultHeight, scaleFactor);
+			Room auxR = new Room(this, defaultConfig, defaultHeight, defaultWidth, scaleFactor);
 			rooms.add(auxR);
 			network.addNode(auxR);
 			dPane.addVisualRoom(auxR);
 		}
 		
+		//We set this created room as the initial room
 		setInitialRoom(rooms.get(0), new Point(0,0));
 	}
 	
@@ -108,6 +112,9 @@ public class Dungeon implements Listener
 				selectedRoom = frEvent.getRoom();
 			}
 		}	
+		else if (e instanceof RequestWorldView) {
+			checkInterFeasible(true);
+		}
 	}
 	
 	public void editFocusedRoom()
@@ -134,6 +141,13 @@ public class Dungeon implements Listener
 		network.addNode(auxR);
 		dPane.addVisualRoom(auxR);
 		this.size++;
+		
+		if(initialRoom == null)
+		{
+			setInitialRoom(auxR, new Point(0,0));
+		}
+		
+		checkInterFeasible(true);
 	}
 	
 	/**
@@ -166,6 +180,20 @@ public class Dungeon implements Listener
 		network.removeNode(roomToRemove);
 		selectedRoom = null;
 		
+		//check if this was the initial room, in which case the next one should be the initial one
+		if(initialRoom.equals(roomToRemove))
+		{
+			if(!rooms.isEmpty())
+			{
+				setInitialRoom(rooms.get(0), new Point(0,0));
+			}
+			else
+			{
+				setInitialRoom(null, null);
+			}
+			
+		}
+		checkInterFeasible(true);
 		//probably this should be connected to the size value of the rooms LIST
 		this.size--;
 	}
@@ -208,9 +236,11 @@ public class Dungeon implements Listener
 	}
 	
 	public void setInitialRoom(Room initRoom, Point initialPos)
-	{
+	{	
 		this.initialRoom = initRoom;
 		this.initialPos = initialPos;
+		
+		checkInterFeasible(true);
 	}
 	
 	public Room getInitialRoom()

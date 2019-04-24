@@ -32,12 +32,12 @@ public class ZonePhenotype {
 	 * 
 	 * @return The Map for this Genotype
 	 */
-	public Room getMap(int width, int height, List<Point> doorPositions, Point entrance) {
+	public Room getMap(int width, int height, List<Point> doorPositions) {
 		if(room == null)
 		{
 			if(genotype.GetRootChromosome() != null)
 			{
-				room = new Room(config, genotype.GetRootChromosome(), genotype.getChromosome(), height, width);
+				room = new Room(config, genotype.GetRootChromosome(), genotype.getChromosome(), genotype.GetRootChromosome().getHeight(), genotype.GetRootChromosome().getWidth());
 //				TileTypes[] tileTypes = Arrays.stream(genotype.getChromosome()).boxed().map(x -> TileTypes.toTileType(x)).toArray(TileTypes[]::new);
 //				map = new Map(config, tileTypes, Game.sizeHeight, Game.sizeWidth, Game.doorCount);
 				genotype.SetRootChromosome(room.root);
@@ -45,7 +45,7 @@ public class ZonePhenotype {
 			else
 			{
 				TileTypes[] tileTypes = Arrays.stream(genotype.getChromosome()).boxed().map(x -> TileTypes.toTileType(x)).toArray(TileTypes[]::new);
-				room = new Room(config, tileTypes, height, width, doorPositions, entrance);
+				room = new Room(config, tileTypes, height, width, doorPositions);
 				genotype.SetRootChromosome(room.root);
 			}
 			

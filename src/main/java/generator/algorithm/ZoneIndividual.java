@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Random;
+import java.util.Map.Entry;
 
 import finder.geometry.Point;
 import game.Game;
@@ -11,6 +12,8 @@ import game.Room;
 import game.Tile;
 import game.TileTypes;
 import game.ZoneNode;
+import generator.algorithm.MAPElites.Dimensions.GADimension;
+import generator.algorithm.MAPElites.Dimensions.GADimension.DimensionTypes;
 import generator.config.GeneratorConfig;
 import util.Util;
 
@@ -23,6 +26,8 @@ import util.Util;
  */
 public class ZoneIndividual {
 	private double fitness;
+	
+	protected HashMap<DimensionTypes, Double> dimensionValues;
 	
 	//TODO: Reconsider these...
 	private double treasureAndEnemyFitness;
@@ -114,14 +119,6 @@ public class ZoneIndividual {
 		this.mutationProbability = mutationProbability;
 	}
 	
-	/**
-	 * Generate a genotype
-	 * 
-	 */
-	public void initialize() {
-		genotype.randomSupervisedChromosome();
-	}
-	
 	public ZoneIndividual(Room room, float mutationProbability)
 	{
 		config = room.getConfig();
@@ -134,6 +131,42 @@ public class ZoneIndividual {
 		genotype.ProduceGenotype(room);
 	}
 	
+	/**
+	 * Generate a genotype
+	 * 
+	 */
+	public void initialize() {
+		genotype.randomSupervisedChromosome();
+	}
+
+	public void SetDimensionValues(ArrayList<GADimension> dimensions, Room original)
+	{
+		dimensionValues = new HashMap<DimensionTypes, Double>();
+		
+		for(GADimension dimension : dimensions)
+		{
+			dimensionValues.put(dimension.GetType(), dimension.CalculateValue(this, original));
+		}
+		
+		this.getPhenotype().getMap(-1, 1, null).SetDimensionValues(dimensionValues);
+	}
+	
+	public double getDimensionValue(DimensionTypes currentDimension)
+	{
+		return dimensionValues.get(currentDimension);
+	}
+	
+	public void BroadcastIndividualDimensions()
+	{
+		System.out.print("Room fitness: " + getFitness());
+		
+		for (Entry<DimensionTypes, Double> entry : dimensionValues.entrySet())
+		{
+		    System.out.print(", " + entry.getKey().toString() + ": " + entry.getValue());
+		}
+				
+		System.out.println();
+	}
 	/**
 	 * Two point crossover between two individuals.
 	 * 
@@ -440,4 +473,13 @@ public class ZoneIndividual {
 		return phenotype;
 	}
 	
+	/*
+	 * Update the config file and create once again the phenotype
+	 * This operation can be very costly!
+	 */
+	public void ResetPhenotype(GeneratorConfig config)
+	{
+		this.config = config;
+		phenotype = null;
+	}
 }

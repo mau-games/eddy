@@ -66,7 +66,7 @@ public class PathFindingTile implements Comparable<PathFindingTile>
 	//We normalize the value
 	private void calculateH(Point endPosition)
 	{
-		hScore = (Math.abs(endPosition.getX() - position.getX()) + Math.abs(endPosition.getY() - position.getY()))/roomSize;
+		hScore = ((Math.abs(endPosition.getX() - position.getX()) + Math.abs(endPosition.getY() - position.getY()))/roomSize)*PathInformation.getInstance().getTileInformation().getStepToTileValue(this.type);
 	}
 	
 	public void updateTile(PathFindingTile newParent)

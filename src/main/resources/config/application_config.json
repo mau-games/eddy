@@ -20,7 +20,8 @@
             "chamber": "graphics/examples/chamber.png",
             "connector": "graphics/examples/connector.png",
             "corridor": "graphics/examples/corridor.png",
-            "dead_end": "graphics/examples/dead_end.png"
+            "dead_end": "graphics/examples/dead_end.png",
+            "lock": "graphics/tiles/lock.png"
         },
         "render": {
             "height": 1000,

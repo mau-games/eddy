@@ -16,6 +16,7 @@ import javax.imageio.ImageIO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import collectors.MAPECollector;
 import finder.geometry.Bitmap;
 import finder.geometry.Geometry;
 import finder.geometry.Point;
@@ -53,6 +54,8 @@ import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.image.Image;
 import javafx.scene.image.WritableImage;
+import javafx.scene.layout.GridPane;
+import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import util.config.ConfigurationUtility;
 import util.config.MissingConfigurationException;
@@ -261,6 +264,24 @@ public class MapRenderer implements Listener {
 		return image;
 	}
 	
+	public synchronized Image saveMAPE(Pane gridPane)
+	{
+
+		final WritableImage writableImage = new WritableImage((int)gridPane.getWidth() + 75, (int)gridPane.getHeight() + 75);
+		Image image = gridPane.snapshot(new SnapshotParameters(), writableImage);
+		System.out.println(gridPane.getWidth());
+		System.out.println(gridPane.getHeight());
+		
+		File file = new File(MAPECollector.getInstance().getDirectory().getAbsolutePath() + "\\CellIndividuals.png");
+		try {
+            ImageIO.write(SwingFXUtils.fromFXImage(writableImage, null), "png", file);
+        } catch (Exception s) {
+        }
+		
+
+		return image;
+	}
+	
 	/**
 	 * Draws a matrix onto a new image.
 	 * 
@@ -268,7 +289,30 @@ public class MapRenderer implements Listener {
 	 * @param matrix A rectangular matrix of integers. Each integer corresponds
 	 * 		to some predefined value.
 	 */
-	public synchronized Image renderMiniSuggestedRoom(Room room) 
+	public synchronized Image saveCurrentEditedRoom(Pane currentEditedPane) 
+	{
+		
+		final WritableImage writableImage = new WritableImage((int)currentEditedPane.getWidth(), (int)currentEditedPane.getHeight());
+		Image image = currentEditedPane.snapshot(new SnapshotParameters(), writableImage);
+
+		File file = new File(MAPECollector.getInstance().getDirectory().getAbsolutePath()  + "\\currentRoom.png");
+		try {
+            ImageIO.write(SwingFXUtils.fromFXImage(writableImage, null), "png", file);
+        } catch (Exception s) {
+        }
+		
+
+		return image;
+	}
+	
+	/**
+	 * Draws a matrix onto a new image.
+	 * 
+	 * @param ctx The graphics context to draw on.
+	 * @param matrix A rectangular matrix of integers. Each integer corresponds
+	 * 		to some predefined value.
+	 */
+	public synchronized Image saveSuggestion(Room room, int index) 
 	{
 
 		if(room.localConfig != null)
@@ -282,7 +326,43 @@ public class MapRenderer implements Listener {
 			finalMapWidth = (int)((float)config.getMapRenderWidth() * (float)((float)room.getColCount() / 10.0f));
 		}
 
-		System.out.println("FINAL MAP WIDTH: " + finalMapWidth + ", FINAL MAP HEIGHT: " + finalMapHeight);
+		Canvas canvas = new Canvas(finalMapWidth, finalMapHeight);
+
+		final WritableImage writableImage = new WritableImage((int) canvas.getWidth(), (int) canvas.getHeight());
+		Image image = canvas.snapshot(new SnapshotParameters(), writableImage);
+		
+		File file = new File("CanvasImage_" + index + ".png");
+		try {
+            ImageIO.write(SwingFXUtils.fromFXImage(writableImage, null), "png", file);
+        } catch (Exception s) {
+        }
+		
+
+		return image;
+	}
+	
+	/**
+	 * Draws a matrix onto a new image.
+	 * 
+	 * @param ctx The graphics context to draw on.
+	 * @param matrix A rectangular matrix of integers. Each integer corresponds
+	 * 		to some predefined value.
+	 */
+	public synchronized Image renderMiniSuggestedRoom(Room room, int index) 
+	{
+
+		if(room.localConfig != null)
+		{
+			finalMapHeight = room.localConfig.getRenderSizeHeight();
+			finalMapWidth = room.localConfig.getRenderSizeWidth();
+		}
+		else
+		{
+			finalMapHeight = (int)((float)config.getMapRenderHeight() * (float)((float)room.getRowCount() / 10.0f));
+			finalMapWidth = (int)((float)config.getMapRenderWidth() * (float)((float)room.getColCount() / 10.0f));
+		}
+
+//		System.out.println("FINAL MAP WIDTH: " + finalMapWidth + ", FINAL MAP HEIGHT: " + finalMapHeight);
 		Canvas canvas = new Canvas(finalMapWidth, finalMapHeight);
 		renderMap(canvas.getGraphicsContext2D(), room.toMatrix());
 		
@@ -291,7 +371,7 @@ public class MapRenderer implements Listener {
 //		final WritableImage writableImage = new WritableImage((int) canvas.getWidth(), (int) canvas.getHeight());
 //		Image image = canvas.snapshot(new SnapshotParameters(), writableImage);
 //		
-//		File file = new File("CanvasImage" + finalMapHeight + ".png");
+//		File file = new File("CanvasImage_" + index + ".png");
 //		try {
 //            ImageIO.write(SwingFXUtils.fromFXImage(writableImage, null), "png", file);
 //        } catch (Exception s) {
@@ -662,9 +742,6 @@ public class MapRenderer implements Listener {
 		case FLOOR:
 			color = Color.WHITE;
 			break;
-		case DOORENTER:
-			color = Color.MAGENTA;
-			break;
 		default:
 			color = Color.WHITE;
 		}
@@ -701,9 +778,9 @@ public class MapRenderer implements Listener {
 		case FLOOR:
 			image = new Image("/" + config.getInternalConfig().getString("map.tiles.floor"), width, height, false, true);
 			break;
-		case DOORENTER:
-			image = new Image("/" + config.getInternalConfig().getString("map.tiles.doorenter"), width, height, false, true);
-			break;
+//		case DOORENTER:
+//			image = new Image("/" + config.getInternalConfig().getString("map.tiles.doorenter"), width, height, false, true);
+//			break;
 		default:
 			image = null;
 		}
@@ -737,9 +814,9 @@ public class MapRenderer implements Listener {
 			case FLOOR:
 				image = new Image("/" + config.getInternalConfig().getString("map.tiles.floor"));
 				break;
-			case DOORENTER:
-				image = new Image("/" + config.getInternalConfig().getString("map.tiles.doorenter"));
-				break;
+//			case DOORENTER:
+//				image = new Image("/" + config.getInternalConfig().getString("map.tiles.doorenter"));
+//				break;
 			default:
 				image = null;
 			}

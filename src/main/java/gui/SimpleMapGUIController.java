@@ -196,7 +196,7 @@ public class SimpleMapGUIController  implements Initializable, Listener
 //		}
 		
 //		System.out.println();
-		currentMap = new Room(basicConfig, ex, roomHeight, roomWidth, /*Doors positions*/ null, /*Entrance position*/ null);
+		currentMap = new Room(basicConfig, ex, roomHeight, roomWidth, /*Doors positions*/ null);
 		RenderMap(currentMap);
 	}
 	

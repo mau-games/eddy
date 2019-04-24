@@ -9,6 +9,8 @@ import org.slf4j.LoggerFactory;
 
 import generator.algorithm.Algorithm;
 import generator.algorithm.Algorithm.AlgorithmTypes;
+import generator.algorithm.MAPElites.MAPEliteAlgorithm;
+import generator.algorithm.MAPElites.Dimensions.MAPEDimensionFXML;
 import generator.config.GeneratorConfig;
 import util.Point;
 import util.Util;
@@ -24,6 +26,7 @@ import util.eventrouting.events.RenderingDone;
 import util.eventrouting.events.RequestSuggestionsView;
 import util.eventrouting.events.Start;
 import util.eventrouting.events.StartBatch;
+import util.eventrouting.events.StartGA_MAPE;
 import util.eventrouting.events.StartMapMutate;
 import util.eventrouting.events.Stop;
 import util.eventrouting.events.SuggestedMapsDone;
@@ -39,9 +42,23 @@ public class Game implements Listener{
 	private String batchConfig = "";
 	private static final int batchThreads = 8;
 	
-	public static int defaultWidth = 11;
-	public static int defaultHeight = 11;
+	public static int defaultWidth = 13;
+	public static int defaultHeight = 7;
 //	public static int defaultMaxDoors = 4;
+	
+
+    public enum MapMutationType {
+    	Preserving,
+    	OriginalConfig,
+    	ComputedConfig
+    }
+    
+    public enum PossibleGAs
+    {
+    	FI_2POP,
+    	MAP_ELITES,
+    	CVT_MAP_ELITES
+    }
 
 	public Game() {
 		
@@ -54,6 +71,7 @@ public class Game implements Listener{
 
 		readConfiguration();
 
+		EventRouter.getInstance().registerListener(this, new StartGA_MAPE(null, null));
         EventRouter.getInstance().registerListener(this, new Start());
         EventRouter.getInstance().registerListener(this, new StartMapMutate(null));
         EventRouter.getInstance().registerListener(this, new Stop());
@@ -63,10 +81,12 @@ public class Game implements Listener{
         EventRouter.getInstance().registerListener(this, new RequestSuggestionsView(null, 0));
 	}
 
-    public enum MapMutationType {
-    	Preserving,
-    	OriginalConfig,
-    	ComputedConfig
+    private void RunMAPElites(Room room,  MAPEDimensionFXML[] dimensions)
+    {
+    	Algorithm ga = new MAPEliteAlgorithm(room, AlgorithmTypes.Native);
+		runs.add(ga);
+		((MAPEliteAlgorithm)ga).initPopulations(room, dimensions);
+		ga.start();
     }
 
     private void mutateFromMap(Room room, int mutations, MapMutationType mutationType, AlgorithmTypes algorithmType, boolean randomise){
@@ -85,6 +105,7 @@ public class Game implements Listener{
 					gc.mutate();
 				Algorithm ga = new Algorithm(room, gc, algorithmType);
 				runs.add(ga);
+				ga.initPopulations();
 				ga.start();
 				break;
 			}
@@ -95,6 +116,7 @@ public class Game implements Listener{
 					gc.mutate();
 				Algorithm ga = new Algorithm(room, gc, algorithmType);
 				runs.add(ga);
+				ga.initPopulations();
 				ga.start();
 				break;
 			}
@@ -102,6 +124,7 @@ public class Game implements Listener{
 			{
 				Algorithm ga = new Algorithm(room, algorithmType);
 				runs.add(ga);
+				ga.initPopulations(room);
 				ga.start();
 				break;
 			}
@@ -143,6 +166,7 @@ public class Game implements Listener{
 
 			try {
 				geneticAlgorithm = new Algorithm(container.getMap(), new GeneratorConfig(c)); //TODO: You need to send the container here (the room)
+				geneticAlgorithm.initPopulations();
 				runs.add(geneticAlgorithm);
 				geneticAlgorithm.start();
 			} catch (MissingConfigurationException e) {
@@ -171,6 +195,7 @@ public class Game implements Listener{
 	private void startBatchRun(){
 		try {
 			Algorithm geneticAlgorithm = new Algorithm(new GeneratorConfig(batchConfig));
+			geneticAlgorithm.initPopulations();
 			geneticAlgorithm.start();
 			runs.add(geneticAlgorithm);
 			batchRunsLeft--;
@@ -226,7 +251,14 @@ public class Game implements Listener{
 
 	@Override
 	public synchronized void ping(PCGEvent e) {
-		if(e instanceof RequestSuggestionsView){ 
+		if(e instanceof StartGA_MAPE)
+		{
+			StartGA_MAPE MAPEinfo = (StartGA_MAPE)e;
+
+			
+			RunMAPElites((Room)e.getPayload(), MAPEinfo.getDimensions());
+		}
+		else if(e instanceof RequestSuggestionsView){ 
 			readConfiguration();
 			MapContainer container = (MapContainer) e.getPayload();
 			startAll(((RequestSuggestionsView) e).getNbrOfThreads(), container);

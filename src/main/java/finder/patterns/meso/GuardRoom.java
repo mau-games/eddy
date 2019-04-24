@@ -14,7 +14,9 @@ import finder.patterns.CompositePattern;
 import finder.patterns.InventorialPattern;
 import finder.patterns.Pattern;
 import finder.patterns.micro.Enemy;
+import finder.patterns.micro.Entrance;
 import finder.patterns.micro.Chamber;
+import finder.patterns.micro.Door;
 import finder.patterns.micro.Treasure;
 import game.Room;
 import generator.config.GeneratorConfig;
@@ -28,7 +30,8 @@ public class GuardRoom extends CompositePattern {
 	}
 	
 	public GuardRoom(GeneratorConfig config, int enemyCount){
-		quality = Math.min((double)enemyCount/config.getGuardRoomTargetEnemyAmount(),1.0);
+//		quality = Math.min((double)enemyCount/config.getGuardRoomTargetEnemyAmount(),1.0); //previous
+		quality = Math.max(0, 1.0 - (double)Math.abs(enemyCount - config.getGuardRoomTargetEnemyAmount())/config.getGuardRoomTargetEnemyAmount());
 	}	
 	
 	public static List<CompositePattern> matches(Room room, Graph<Pattern> patternGraph) {
@@ -36,17 +39,15 @@ public class GuardRoom extends CompositePattern {
 		
 		patternGraph.resetGraph();
 		
-		Queue<Node<Pattern>> nodeQueue = new LinkedList<Node<Pattern>>();
-//		nodeQueue.add(patternGraph.getStartingPoint());
-		nodeQueue.addAll(patternGraph.getNodes().values());
-		
-		while(!nodeQueue.isEmpty()){
-			Node<Pattern> current = nodeQueue.remove();
-			current.tryVisit();
-			if(current.getValue() instanceof Chamber){
+		for(Node<Pattern> current : patternGraph.getNodes().values()) //this can be cache
+		{
+			if(current.getValue() instanceof Chamber)
+			{
 				List<InventorialPattern> containedEnemies = ((Chamber)current.getValue()).getContainedPatterns().stream().filter(p->{return p instanceof Enemy;}).collect(Collectors.toList());
 				List<InventorialPattern> containedTreasure = ((Chamber)current.getValue()).getContainedPatterns().stream().filter(p->{return p instanceof Treasure;}).collect(Collectors.toList());
-				if(containedEnemies.size() >= 2 && containedTreasure.size() == 0){
+				Pattern containDoor = (Pattern)((Chamber)current.getValue()).getContainedPatterns().stream().filter(p->{return p instanceof Door;}).findAny().orElse(null); 
+				if(containDoor == null && containedEnemies.size() >= 2 && containedTreasure.size() == 0)
+				{
 					GuardRoom g = new GuardRoom(room.getConfig(), containedEnemies.size());
 					g.patterns.add(current.getValue());
 					g.patterns.addAll(containedEnemies);
@@ -54,27 +55,6 @@ public class GuardRoom extends CompositePattern {
 					//System.out.println("Got a guard room!");
 				}
 			}
-			
-			for(Edge<Pattern> e : current.getEdges()){
-				Node<Pattern> other = null;
-				if(e.getNodeA() == current)
-					other = e.getNodeB();
-				else
-					other = e.getNodeA();
-				if(!other.isVisited())
-				{
-					other.tryVisit();
-					nodeQueue.add(other);
-				}
-			}
-//			nodeQueue.addAll(current.getEdges().stream().map((Edge<Pattern> e)->{
-//				Node<Pattern> ret = null;
-//				if(e.getNodeA() == current)
-//					ret = e.getNodeB();
-//				else
-//					ret = e.getNodeA();
-//				return ret;
-//				}).filter((Node<Pattern> n)->{return !n.isVisited();}).collect(Collectors.toList()));
 		}
 		
 		return guardRooms;

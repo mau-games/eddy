@@ -32,8 +32,8 @@ public class ZoneNode
 		s = new HashMap<Integer, Point>();
 		this.parent = parent;
 		this.refMap = room;
-		this.width = w;
-		this.height = h;
+		this.setWidth(w);
+		this.setHeight(h);
 		this.children = new ArrayList<ZoneNode>();
 		this.section = FillSection();
 		
@@ -62,8 +62,8 @@ public class ZoneNode
 			s.put(p.getY() * refMap.getColCount() + p.getX(), p);
 		}
 		
-		this.width = w;
-		this.height = h;
+		this.setWidth(w);
+		this.setHeight(h);
 		this.children = new ArrayList<ZoneNode>();
 
 		Validation();
@@ -84,8 +84,8 @@ public class ZoneNode
 		this.s = new HashMap<Integer, Point>();
 		this.parent = copy.parent;
 		this.refMap = new Room(copy.refMap, this);
-		this.width = copy.width;
-		this.height = copy.height;
+		this.setWidth(copy.getWidth());
+		this.setHeight(copy.getHeight());
 		this.section = FillSection();
 		this.children = new ArrayList<ZoneNode>();
 		this.valid = copy.valid;
@@ -109,7 +109,7 @@ public class ZoneNode
 		{
 			for(int x = init_x; x < w; ++x)
 			{
-				sec.addPoint(sectionPoints.get(y * width + x));
+				sec.addPoint(sectionPoints.get(y * getWidth() + x));
 				s.put(y * refMap.getColCount() + x, new Point(x,y));
 			}
 		}
@@ -121,9 +121,9 @@ public class ZoneNode
 	{
 		Bitmap sec = new Bitmap();
 		
-		for(int y = 0; y < height; ++y)
+		for(int y = 0; y < getHeight(); ++y)
 		{
-			for(int x = 0; x < width; ++x)
+			for(int x = 0; x < getWidth(); ++x)
 			{
 				sec.addPoint(new Point(x,y));
 				s.put(y * refMap.getColCount() + x, new Point(x,y));
@@ -160,7 +160,7 @@ public class ZoneNode
 			c.removeAll(secPoints);
 			Bitmap sec = new Bitmap();
 			sec.AddAllPoints(secPoints);
-			children.add(new ZoneNode(-1, sec, this, refMap, width, height)); //Check these values
+			children.add(new ZoneNode(-1, sec, this, refMap, getWidth(), getHeight())); //Check these values
 		}
 	}
 	
@@ -227,13 +227,13 @@ public class ZoneNode
 	 */
 	private void RectangleDivision(int n)
 	{
-		int new_width = (width)/2;
-		int new_height = (height)/2;
+		int new_width = (getWidth())/2;
+		int new_height = (getHeight())/2;
 		
 		children.add(new ZoneNode(n - 1, FillSection(0, 0, new_width, new_height), this, refMap, new_width, new_height));
-		children.add(new ZoneNode(n - 1, FillSection(new_width, 0, width, new_height), this, refMap, width - new_width, new_height));
-		children.add(new ZoneNode(n - 1, FillSection(0, new_height, new_width, height), this, refMap, new_width, height - new_height));
-		children.add(new ZoneNode(n - 1, FillSection(new_width, new_height, width, height), this, refMap, width - new_width, height - new_height));
+		children.add(new ZoneNode(n - 1, FillSection(new_width, 0, getWidth(), new_height), this, refMap, getWidth() - new_width, new_height));
+		children.add(new ZoneNode(n - 1, FillSection(0, new_height, new_width, getHeight()), this, refMap, new_width, getHeight() - new_height));
+		children.add(new ZoneNode(n - 1, FillSection(new_width, new_height, getWidth(), getHeight()), this, refMap, getWidth() - new_width, getHeight() - new_height));
 	}
 	
 	/***
@@ -343,5 +343,21 @@ public class ZoneNode
 		}
 		
 		return returnNodes;
+	}
+
+	public int getWidth() {
+		return width;
+	}
+
+	public void setWidth(int width) {
+		this.width = width;
+	}
+
+	public int getHeight() {
+		return height;
+	}
+
+	public void setHeight(int height) {
+		this.height = height;
 	}
 }

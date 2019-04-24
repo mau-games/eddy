@@ -104,7 +104,7 @@ public class SuggestionRoom
 	{
 		selected = false;
 		this.originalRoom = original;
-		roomViewNode.setPrefSize(140, 140);
+		roomViewNode.setPrefSize(140,140);
 		
 		float proportion = (float)(Math.min(original.getColCount(), original.getRowCount()))/(float)(Math.max(original.getColCount(), original.getRowCount()));
 		

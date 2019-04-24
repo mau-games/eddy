@@ -15,6 +15,7 @@ import javafx.scene.Node;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.Label;
 import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.BorderPane;
@@ -32,7 +33,9 @@ public class LabeledCanvas extends BorderPane {
 	@FXML private ResizableCanvas canvas;
 	@FXML private AnchorPane canvasPane;
 	@FXML private BorderPane rootPane;
+
 	private Image rotatingThingie;
+	private ImageView actualRotatingThingie;
 	private RotateTransition transition;
 	
 	private GraphicsContext gc;
@@ -74,19 +77,21 @@ public class LabeledCanvas extends BorderPane {
 		canvas.widthProperty().bind(canvasPane.widthProperty());
 		canvas.heightProperty().bind(canvasPane.heightProperty());
 		canvasPane.setPrefSize(rootPane.widthProperty().doubleValue(), rootPane.heightProperty().doubleValue());
-
+		
 		getStyleClass().add("labeled-canvas");
 
 		gc = canvas.getGraphicsContext2D();
 		
+		actualRotatingThingie = new ImageView();
 		rotatingThingie = new Image("/graphics/waiting.png");
+		actualRotatingThingie.setImage(rotatingThingie);
 		transition = new RotateTransition(Duration.millis(5000), canvas);
 		transition.setInterpolator(Interpolator.LINEAR);
 		transition.setFromAngle(0);
 		transition.setToAngle(360);
 		transition.setCycleCount(Animation.INDEFINITE);
 		
-		waitForImage(true);
+//		waitForImage(true);
 //		
 //		addEventFilter(MouseEvent.MOUSE_ENTERED, new EventHandler<MouseEvent>() {
 //
@@ -189,5 +194,18 @@ public class LabeledCanvas extends BorderPane {
     		rt.setCycleCount(1);
     		rt.play();
     	}
+    }
+    
+    public void resizeRotatingThingie()
+    {
+//    	actualRotatingThingie = new Image(ro)
+    	double minSize = Math.min(getPrefHeight(), getPrefWidth());
+    	System.out.println(minSize);
+    	actualRotatingThingie.setFitWidth(5);
+    	actualRotatingThingie.setFitHeight(50);
+    	actualRotatingThingie.setPreserveRatio(true);
+    	actualRotatingThingie.setSmooth(true);
+        actualRotatingThingie.setCache(true); 
+//    	rotatingThingie = new Image("/graphics/waiting.png", minSize, minSize, true, true);
     }
 }

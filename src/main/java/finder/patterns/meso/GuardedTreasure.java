@@ -34,7 +34,8 @@ public class GuardedTreasure extends CompositePattern {
 	}
 	
 	public GuardedTreasure(GeneratorConfig config, int enemies){
-		quality = Math.min((double)enemies/config.getGuardedTreasureEnemies(),1.0);
+//		quality = Math.min((double)enemies/config.getGuardedTreasureEnemies(),1.0); //previous
+		quality = Math.max(0, 1.0 - (double)Math.abs(enemies - config.getGuardedTreasureEnemies())/config.getGuardedTreasureEnemies());
 	}
 	
 	public static List<CompositePattern> matches(Room room, Graph<Pattern> patternGraph) {
