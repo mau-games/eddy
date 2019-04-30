@@ -42,8 +42,8 @@ public class Game implements Listener{
 	private String batchConfig = "";
 	private static final int batchThreads = 8;
 	
-	public static int defaultWidth = 11;
-	public static int defaultHeight = 11;
+	public static int defaultWidth = 13;
+	public static int defaultHeight = 7;
 //	public static int defaultMaxDoors = 4;
 	
 

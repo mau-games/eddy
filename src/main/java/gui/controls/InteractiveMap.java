@@ -83,7 +83,6 @@ public class InteractiveMap extends GridPane implements Listener {
 		
 		// Let's discard any attempts at erasing the doors
 		if (p == null
-				|| currentTile.GetType() == TileTypes.DOORENTER
 				|| currentTile.GetType() == TileTypes.DOOR) {
 			return;
 		}
@@ -94,8 +93,7 @@ public class InteractiveMap extends GridPane implements Listener {
 			currentTile = room.getTile(position.getX(), position.getY());
 			
 			// Let's discard any attempts at erasing the doors
-			if(currentTile.GetType() == TileTypes.DOORENTER
-				|| currentTile.GetType() == TileTypes.DOOR)
+			if(currentTile.GetType() == TileTypes.DOOR)
 				continue;
 			
 			currentTile.SetImmutable(brush.GetModifierValue("Lock"));

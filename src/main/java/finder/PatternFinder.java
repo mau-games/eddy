@@ -83,7 +83,6 @@ public class PatternFinder {
 		micropatterns.addAll(Treasure.matches(room, null));
 		micropatterns.addAll(Enemy.matches(room, null));
 		micropatterns.addAll(Door.matches(room, null));
-		micropatterns.addAll(Entrance.matches(room, null));
 		micropatterns.addAll(Nothing.matches(room, null)); // This MUST come last
 		
 		return micropatterns;
@@ -147,12 +146,7 @@ public class PatternFinder {
 		
 		boolean visitedTiles[][] = new boolean[room.getRowCount()][room.getColCount()];
 		
-		patternGraph = new Graph<Pattern>();
-		Entrance entrance = (Entrance)micropatterns.stream().filter((Pattern p) -> {return p instanceof Entrance;}).findFirst().get();
-		Point entrancePosition = (Point)entrance.getGeometry();		
-		
-//		Door door = (Door)micropatterns.stream().filter((Pattern p) -> {return p instanceof Door;}).fin
-//		Point doorPos = (Point)door.getGeometry();		
+		patternGraph = new Graph<Pattern>();	
 		
 //		Node<Pattern> start = patternGraph.addNode(spacialPatternGrid[entrancePosition.getY()][entrancePosition.getX()]);
 		

@@ -15,6 +15,7 @@ import javafx.scene.Node;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.Label;
 import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.BorderPane;
@@ -34,6 +35,7 @@ public class LabeledCanvas extends BorderPane {
 	@FXML private BorderPane rootPane;
 
 	private Image rotatingThingie;
+	private ImageView actualRotatingThingie;
 	private RotateTransition transition;
 	
 	private GraphicsContext gc;
@@ -80,7 +82,9 @@ public class LabeledCanvas extends BorderPane {
 
 		gc = canvas.getGraphicsContext2D();
 		
+		actualRotatingThingie = new ImageView();
 		rotatingThingie = new Image("/graphics/waiting.png");
+		actualRotatingThingie.setImage(rotatingThingie);
 		transition = new RotateTransition(Duration.millis(5000), canvas);
 		transition.setInterpolator(Interpolator.LINEAR);
 		transition.setFromAngle(0);
@@ -190,5 +194,18 @@ public class LabeledCanvas extends BorderPane {
     		rt.setCycleCount(1);
     		rt.play();
     	}
+    }
+    
+    public void resizeRotatingThingie()
+    {
+//    	actualRotatingThingie = new Image(ro)
+    	double minSize = Math.min(getPrefHeight(), getPrefWidth());
+    	System.out.println(minSize);
+    	actualRotatingThingie.setFitWidth(5);
+    	actualRotatingThingie.setFitHeight(50);
+    	actualRotatingThingie.setPreserveRatio(true);
+    	actualRotatingThingie.setSmooth(true);
+        actualRotatingThingie.setCache(true); 
+//    	rotatingThingie = new Image("/graphics/waiting.png", minSize, minSize, true, true);
     }
 }

@@ -207,19 +207,19 @@ public class InteractiveGUIController implements Initializable, Listener {
 			
 			//Yeah dont care about matrix but we do care about doors!
 			
-			if(((MapContainer) e.getPayload()).getMap().getDoorCount(true) > 0)
+			if(((MapContainer) e.getPayload()).getMap().getDoorCount() > 0)
 				initRoomView((MapContainer) e.getPayload());
 
 		} else if (e instanceof RequestSuggestionsView) 
 		{
 			MapContainer container = (MapContainer) e.getPayload();
-			if(container.getMap().getDoorCount(true) > 0)
+			if(container.getMap().getDoorCount() > 0)
 			{
 				initSuggestionsView(container.getMap());
 			}
 
 		} else if (e instanceof RequestWorldView) {
-
+			router.postEvent(new Stop());
 			backToWorldView();
 
 		} else if (e instanceof RequestEmptyRoom) {
@@ -233,6 +233,7 @@ public class InteractiveGUIController implements Initializable, Listener {
 			size = ((StartWorld) e).getSize();
 			if (size != 0) {
 				initWorldView();
+				worldView.initialSetup();
 			}
 
 		}
@@ -509,7 +510,7 @@ public class InteractiveGUIController implements Initializable, Listener {
 			e.printStackTrace();
 		}
 		
-		dungeonMap = new Dungeon(gc, 1, width, height);
+		dungeonMap = new Dungeon(gc, 2, width, height);
 		
 		return dungeonMap;
 	}
