@@ -100,6 +100,7 @@ public class SuggestionRoom
 	}
 	
 	//TODO: Change magic numbers
+	//Force me! 
 	public void resizeCanvasForRoom(Room original) //ReINIT
 	{
 		selected = false;

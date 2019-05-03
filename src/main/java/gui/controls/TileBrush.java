@@ -17,4 +17,10 @@ public class TileBrush extends Brush {
 		
 	}
 
+	@Override
+	protected void createCopy() {
+		// TODO Auto-generated method stub
+		
+	}
+
 }

@@ -106,6 +106,18 @@
 						</ImageView>
 					</graphic>
 				</ToggleButton>
+				<ToggleButton contentDisplay="TOP" prefWidth="75.0"
+					mnemonicParsing="false" text="BOSS" toggleGroup="$brushes"
+					onAction="#selectBrush" fx:id="bossEnemyBtn">
+					<graphic>
+						<ImageView fitWidth="40.0" pickOnBounds="true"
+							preserveRatio="true">
+							<image>
+								<Image url="@../../graphics/tiles/enemy.png" />
+							</image>
+						</ImageView>
+					</graphic>
+				</ToggleButton>
 				<ToggleButton fx:id="lockBrush" prefWidth="1" maxWidth="30" maxHeight="20" contentDisplay="TOP" mnemonicParsing="false" text=""  onAction="#selectLockModifier">
 	               <graphic>
 	                  <ImageView fitWidth="20.0" pickOnBounds="true" preserveRatio="true">

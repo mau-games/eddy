@@ -14,7 +14,8 @@ public enum TileTypes {
     TREASURE(2),
     ENEMY(3),
     DOOR(4),
-    NONE(5);
+    ENEMY_BOSS(5),
+    NONE(6);
 	
 	private final int value;
 	

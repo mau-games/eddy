@@ -401,8 +401,38 @@ public class MapRenderer implements Listener {
 
 		for (int j = 0; j < height; j++) {
 			 for (int i = 0; i < width; i++){
-				image = getTileImage(matrix[j][i]);
-				ctx.drawImage(image, i * tileSize, j * tileSize, tileSize, tileSize);
+				 if(matrix[j][i] != 3)
+				 {
+					image = getTileImage(matrix[j][i]);
+					ctx.drawImage(image, i * tileSize, j * tileSize, tileSize, tileSize);
+				 }
+			}
+		}
+		
+		for (int j = 0; j < height; j++) {
+			 for (int i = 0; i < width; i++){
+				
+				 if(matrix[j][i] == 3)
+				 {
+					 image = new Image("/" + config.getInternalConfig().getString("map.tiles.enemy"), tileSize *3, tileSize*3, false,false);
+					 
+					 for(int K = 0, spaceY = -1; K < 3; K++, spaceY++)
+					 {
+						for(int D = 0, spaceX = -1; D< 3;D++, spaceX++)
+						{
+//								byte[] buffer = new byte[42*42*4];
+//								m.getPixelReader().getPixels(42*j, 42*i, 42*(1+j), 42*(i+1), PixelFormat.getByteBgraInstance(), buffer, 0, 42*4);
+							
+							WritableImage a = new WritableImage(image.getPixelReader(), (int)tileSize*D, (int)tileSize*K, (int)tileSize, (int)tileSize);
+//								getCell(x + spaceX, y + spaceY).setImage(a);
+							ctx.drawImage(a, (i + spaceX) * tileSize, (j+ spaceY) * tileSize, tileSize, tileSize);
+							
+						}
+					 }
+				 }
+				 
+//				image = getTileImage(matrix[j][i]);
+//				ctx.drawImage(image, i * tileSize, j * tileSize, tileSize, tileSize);
 			}
 		}
 	}

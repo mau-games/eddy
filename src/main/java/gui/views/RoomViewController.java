@@ -18,8 +18,13 @@ import finder.patterns.micro.Corridor;
 import finder.patterns.micro.Chamber;
 import game.ApplicationConfig;
 import game.Room;
+import game.Tile;
 import game.MapContainer;
 import game.TileTypes;
+import game.tiles.EnemyTile;
+import game.tiles.FloorTile;
+import game.tiles.TreasureTile;
+import game.tiles.WallTile;
 import generator.algorithm.Algorithm.AlgorithmTypes;
 import generator.algorithm.MAPElites.Dimensions.GADimension.DimensionTypes;
 import generator.algorithm.MAPElites.GACell;
@@ -153,6 +158,7 @@ public class RoomViewController extends BorderPane implements Listener
 	@FXML private ToggleButton wallBtn;
 	@FXML private ToggleButton treasureBtn;
 	@FXML private ToggleButton enemyBtn;
+	@FXML private ToggleButton bossEnemyBtn;
 	
 	//Brush Slider
 	@FXML private Slider brushSlider;
@@ -187,6 +193,7 @@ public class RoomViewController extends BorderPane implements Listener
 	private Canvas warningCanvas;
 	private Canvas lockCanvas;
 	private Canvas brushCanvas;
+	private Canvas tileCanvas;
 
 	private MapContainer map;
 
@@ -403,10 +410,17 @@ public class RoomViewController extends BorderPane implements Listener
 		mapPane.getChildren().add(patternCanvas);
 		patternCanvas.setVisible(false);
 		patternCanvas.setMouseTransparent(true);
+		
+		tileCanvas = new Canvas(mapWidth, mapHeight);
+		StackPane.setAlignment(tileCanvas, Pos.CENTER);
+		mapPane.getChildren().add(tileCanvas);
+		tileCanvas.setVisible(true);
+		tileCanvas.setMouseTransparent(true);
 
 		floorBtn.setMinWidth(75);
 		wallBtn.setMinWidth(75);
 		enemyBtn.setMinWidth(75);
+		bossEnemyBtn.setMinWidth(75);
 		treasureBtn.setMinWidth(75);
 
 
@@ -754,22 +768,25 @@ public class RoomViewController extends BorderPane implements Listener
 		
 		if (brushes.getSelectedToggle() == null) {
 			mapView.setCursor(Cursor.DEFAULT);
-			myBrush.SetMainComponent(null);
+			myBrush.SetMainComponent(new Tile());
 			
 		} else {
 			mapView.setCursor(Cursor.HAND);
 			switch (((ToggleButton) brushes.getSelectedToggle()).getText()) {
 			case "Floor":
-				myBrush.SetMainComponent(TileTypes.FLOOR);
+				myBrush.SetMainComponent(new FloorTile());
 				break;
 			case "Wall":
-				myBrush.SetMainComponent(TileTypes.WALL);
+				myBrush.SetMainComponent(new WallTile());
 				break;
 			case "Treasure":
-				myBrush.SetMainComponent(TileTypes.TREASURE);
+				myBrush.SetMainComponent(new TreasureTile());
 				break;
 			case "Enemy":
-				myBrush.SetMainComponent(TileTypes.ENEMY);
+				myBrush.SetMainComponent(new EnemyTile());
+				break;		
+			case "BOSS":
+				myBrush.SetMainComponent(TileTypes.ENEMY_BOSS);
 				break;
 			}
 		}
@@ -958,7 +975,7 @@ public class RoomViewController extends BorderPane implements Listener
 		
 		for(SuggestionRoom sr : roomDisplays)
 		{
-			sr.getRoomCanvas().resizeRotatingThingie();
+//			sr.getRoomCanvas().resizeRotatingThingie();
 			sr.getRoomCanvas().draw(null);
 			sr.getRoomCanvas().setText("Waiting for map...");
 		}
@@ -995,7 +1012,7 @@ public class RoomViewController extends BorderPane implements Listener
 		case MAP_ELITES:
 			if(currentDimensions.length > 1)
 			{
-				router.postEvent(new StartGA_MAPE(room, currentDimensions));
+				router.postEvent(new StartGA_MAPE(room, currentDimensions)); 
 			}
 			
 			break;
@@ -1083,6 +1100,7 @@ public class RoomViewController extends BorderPane implements Listener
 				if(room.getTile(j, i).GetImmutable())
 				{
 					lockCanvas.getGraphicsContext2D().drawImage(renderer.GetLock(mapView.scale * 0.75f, mapView.scale * 0.75f), j * mapView.scale, i * mapView.scale);
+//					lockCanvas.getGraphicsContext2D().drawImage(renderer.GetLock(mapView.scale * 3.0f, mapView.scale * 3.0f), (j-1) * mapView.scale, (i-1) * mapView.scale);
 				}
 			}
 		}

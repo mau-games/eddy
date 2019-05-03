@@ -9,6 +9,7 @@ import finder.geometry.Point;
 import game.Room;
 import game.Tile;
 import game.TileTypes;
+import gui.controls.Brush.BrushUsage;
 import javafx.scene.input.MouseEvent;
 
 /***
@@ -43,8 +44,8 @@ public class Drawer
 	
 	private void InitializeBrushes()
 	{
-		brushes = Arrays.asList(new BasicBrush(), new Bucket());
-		brush = brushes.get(0);
+		brushes = Arrays.asList(new BasicBrush(), new Bucket(), new CustomBrush());
+		brush = brushes.get(BrushUsage.DEFAULT.ordinal());
 	}
 	
 	public void SetMainComponent(TileTypes type)
@@ -53,6 +54,16 @@ public class Drawer
 		{
 			b.SetMainComponent(type);
 		}
+	}
+	
+	public void SetMainComponent(Tile type)
+	{
+		for(Brush b : brushes)
+		{
+			b.SetMainComponent(type);
+		}
+		
+		brush = brushes.get(type.getBrushUsage().ordinal());
 	}
 	
 	public TileTypes GetMainComponent()
@@ -84,7 +95,8 @@ public class Drawer
 	{
 		for(Brush b : brushes)
 		{
-			b.SetBrushSize(value);
+			if(!(b instanceof CustomBrush))
+				b.SetBrushSize(value);
 		}
 	}
 	
@@ -209,11 +221,14 @@ public class Drawer
 	 */
 	public void Update(MouseEvent event, util.Point p, Room room)
 	{
-		if(event.isShiftDown())
-			brush = brushes.get(1);
-		else 
-			brush = brushes.get(0);
-		 
+		if(!(brush instanceof CustomBrush))
+		{
+			if(event.isShiftDown())
+				brush = brushes.get(BrushUsage.BUCKET.ordinal());
+			else 
+				brush = brushes.get(BrushUsage.DEFAULT.ordinal());
+		}
+		
 		if(p != null)
 			brush.UpdateDrawableTiles(p.getX(), p.getY(), room);
 

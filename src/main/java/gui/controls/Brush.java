@@ -2,19 +2,41 @@ package gui.controls;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.function.Function;
 
 import finder.geometry.Bitmap;
 import finder.geometry.Point;
 import game.Room;
+import game.Tile;
 import game.TileTypes;
 
 public abstract class Brush 
 {
+	public enum BrushUsage
+	{
+		DEFAULT, //if tile has brush usage as default, the default use (one selected by the user is going to be used)
+		BUCKET, 
+		CUSTOM //if tile has brush usage as custom, the tile will provide size or even shape
+	}
+	
+	public enum NeighborhoodStyle
+	{
+		NEUMANN,
+		MOORE
+	}
+	
+
 	protected TileTypes mainComponent; //Main "Color" of the brush
 	protected Bitmap drawableTiles;
 	protected int size;
 	protected Point center;
 	protected boolean drew;
+	
+	protected Brush prevBrush;
+	protected Runnable neighborFunction;
+	
+	protected NeighborhoodStyle neighborStyle; //this info is set only if custom
+	protected boolean immutable = false; //this info is set only if custom
 	
 	public Brush()
 	{
@@ -29,6 +51,30 @@ public abstract class Brush
 	{
 		mainComponent = type;
 	}
+	
+	public void SetMainComponent(Tile type)
+	{
+		mainComponent = type.GetType();
+	}
+	
+	public void setNeighborhoodStyle(NeighborhoodStyle style) {
+		neighborStyle = style;
+	}
+	
+	public void setImmutable(boolean value) {
+		immutable = value;
+	}
+
+	private void restore(Brush prev)
+	{
+		this.drawableTiles = prev.drawableTiles;
+		this.size = prev.size;
+		this.center = prev.center;
+		this.drew = prev.drew;
+		
+	}
+	
+	protected abstract void createCopy();
 	
 	public TileTypes GetMainComponent()
 	{
@@ -102,4 +148,23 @@ public abstract class Brush
 								new Point(p.getX() - 1, p.getY()),
 								new Point(p.getX() - 1, p.getY() + 1));		
 	}
+	
+	Function<Point, List<Point>> f = new Function<Point, List<Point>>() {
+		public List<Point> GetMooreNeighborhood(Point p)
+		{
+			return Arrays.asList(	new Point(p.getX(), p.getY() + 1),
+									new Point(p.getX() + 1, p.getY() + 1),				
+									new Point(p.getX() + 1, p.getY()),
+									new Point(p.getX() + 1, p.getY() - 1),	
+									new Point(p.getX(), p.getY() - 1),
+									new Point(p.getX() - 1, p.getY() - 1),
+									new Point(p.getX() - 1, p.getY()),
+									new Point(p.getX() - 1, p.getY() + 1));		
+		}
+
+		@Override
+		public List<Point> apply(Point t) {
+			return GetMooreNeighborhood(t);
+		}
+	};
 }

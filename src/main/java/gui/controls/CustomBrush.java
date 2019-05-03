@@ -5,9 +5,29 @@ import java.util.List;
 import finder.geometry.Bitmap;
 import finder.geometry.Point;
 import game.Room;
+import game.Tile;
+import game.TileTypes;
+import gui.controls.Brush.BrushUsage;
 
-public class BasicBrush extends Brush
+public class CustomBrush extends Brush 
 {
+	@Override
+	public void SetMainComponent(Tile type)
+	{
+		mainComponent = type.GetType();
+		
+		if(type.getBrushUsage().equals(BrushUsage.CUSTOM))
+		{
+			type.modification(this);		
+		}
+
+	}
+
+	@Override
+	protected void createCopy() {
+		// TODO Auto-generated method stub
+
+	}
 
 	@Override
 	public void UpdateDrawableTiles(int x, int y, Room room) 
@@ -36,8 +56,11 @@ public class BasicBrush extends Brush
 		if(layer - 1 <= 0)
 			return;
 		
-		List<Point> neighborhood = GetNeumannNeighborhood(p);
-//		List<Point> neighborhood = GetMooreNeighborhood(p);
+//		List<Point> neighborhood = GetNeumannNeighborhood(p);
+		List<Point> neighborhood = null;
+		
+		if(neighborStyle == NeighborhoodStyle.NEUMANN) neighborhood = GetNeumannNeighborhood(p);
+		else neighborhood = GetMooreNeighborhood(p);
 		
 		for(Point neighbor : neighborhood)
 		{
@@ -45,15 +68,4 @@ public class BasicBrush extends Brush
 		}
 	}
 
-	@Override
-	protected void createCopy() {
-		
-		this.prevBrush = new BasicBrush();
-		this.prevBrush.drawableTiles = this.drawableTiles;
-		this.prevBrush.size = this.size;
-		this.prevBrush.center = this.center;
-		this.prevBrush.drew = this.drew;
-			
-	}
-	
 }

@@ -8,12 +8,18 @@ import game.Tile;
 import game.TileTypes;
 import gui.utils.MapRenderer;
 import javafx.application.Platform;
+import javafx.geometry.HPos;
 import javafx.geometry.Pos;
+import javafx.geometry.VPos;
 import javafx.scene.Group;
 import javafx.scene.effect.BlendMode;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.image.PixelFormat;
+import javafx.scene.image.PixelWriter;
+import javafx.scene.image.WritableImage;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.Priority;
 import util.Point;
 import util.eventrouting.EventRouter;
 import util.eventrouting.Listener;
@@ -70,6 +76,8 @@ public class InteractiveMap extends GridPane implements Listener {
 		if (room == null) {
 			return;
 		}
+		
+//		this.setGridLinesVisible(true);
 
 		//Safety checkup
 		Point p = coords.get(tile);
@@ -88,6 +96,7 @@ public class InteractiveMap extends GridPane implements Listener {
 		}
 		
 		//The brush has all the points that will be modified
+		//TODO: I THINK THAT the brush should do this part!
 		for(finder.geometry.Point position : brush.GetDrawableTiles().getPoints())
 		{
 			currentTile = room.getTile(position.getX(), position.getY());
@@ -216,7 +225,87 @@ public class InteractiveMap extends GridPane implements Listener {
 	 */
 	private void drawTile(int x, int y, TileTypes tile) 
 	{
-		getCell(x, y).setImage(getImage(tile, scale));
+//		GridPane.setConstraints(null, x, y-1);
+//		GridPane.setConstraints(null, x, y);
+//		GridPane.setConstraints(null, x, y+1);
+//		
+//		GridPane.setConstraints(null, x+1, y-1);
+//		GridPane.setConstraints(null, x+1, y);
+//		GridPane.setConstraints(null, x+1, y+1);
+//		
+//		GridPane.setConstraints(null, x-1, y);
+//		GridPane.setConstraints(null, x-1, y+1);
+		
+//		GridPane.setColumnSpan(getCell(x, y-1)  , null);
+//		GridPane.setColumnSpan(getCell(x, y)   , null);
+//		GridPane.setColumnSpan(getCell(x, y+1)  , null);
+//		                                         
+//		GridPane.setColumnSpan(getCell(x+1, y-1), null);
+//		GridPane.setColumnSpan(getCell(x+1, y)  , null);
+//		GridPane.setColumnSpan(getCell(x+1, y+1), null);
+//		                                         
+//		GridPane.setColumnSpan(getCell(x-1, y)  , null);
+//		GridPane.setColumnSpan(getCell(x-1, y+1), null);
+//		
+//		GridPane.setRowSpan(getCell(x, y-1)  , null);
+//		GridPane.setRowSpan(getCell(x, y)   , null);
+//		GridPane.setRowSpan(getCell(x, y+1)  , null);
+//		                                         
+//		GridPane.setRowSpan(getCell(x+1, y-1), null);
+//		GridPane.setRowSpan(getCell(x+1, y)  , null);
+//		GridPane.setRowSpan(getCell(x+1, y+1), null);
+//		                                         
+//		GridPane.setRowSpan(getCell(x-1, y)  , null);
+//		GridPane.setRowSpan(getCell(x-1, y+1), null);
+		
+//		getCell(x , y - 1).setImage(null);
+//		getCell(x , y).setImage(null);
+//		getCell(x, y + 1).setImage(null);
+//		
+//		getCell(x + 1, y - 1).setImage(null);
+//		getCell(x + 1, y).setImage(null);
+//		getCell(x + 1, y + 1).setImage(null);
+//		
+//		getCell(x - 1, y).setImage(null);
+//		getCell(x - 1, y + 1).setImage(null);
+//		
+		
+
+		
+//		this.getChildren().remove(y * cols +x);
+//		this.getChildren().remove((y - 1) * cols +x);
+//		this.getChildren().remove((y + 1) * cols +x);
+//		
+//		this.getChildren().remove(y * cols + (x + 1));
+//		this.getChildren().remove((y - 1) * cols + (x +1));
+//		this.getChildren().remove((y + 1) * cols + (x + 1));
+//		
+//		this.getChildren().remove((y) * cols + (x -1));
+//		this.getChildren().remove((y + 1) * cols + (x -1));
+
+//		getCell(x - 1, y - 1).setImage(getImage(tile, 126));
+//		getCell(x - 1, y - 1).getImage().getPixelReader().getPixels(x, y, w, h, pixelformat, buffer, scanlineStride);
+		
+		Image m = getImage(tile, 126);
+		
+		for(int i = 0, spaceY = -1; i < 3; i++, spaceY++)
+		{
+			for(int j = 0, spaceX = -1; j< 3;j++, spaceX++)
+			{
+//				byte[] buffer = new byte[42*42*4];
+//				m.getPixelReader().getPixels(42*j, 42*i, 42*(1+j), 42*(i+1), PixelFormat.getByteBgraInstance(), buffer, 0, 42*4);
+				
+				WritableImage a = new WritableImage(m.getPixelReader(), 42*j, 42*i, 42, 42);
+				getCell(x + spaceX, y + spaceY).setImage(a);
+				
+				
+			}
+		}
+		
+//		GridPane.setColumnSpan(getCell(x - 1, y - 1), 3);
+//		GridPane.setConstraints(getCell(x, y), x, y, 3, 3, HPos.LEFT , VPos.CENTER, Priority.ALWAYS, Priority.ALWAYS);
+//		GridPane.const
+//		GridPane.setRowSpan(getCell(x - 1, y - 1), 3);
 	}
 
 	@Override
