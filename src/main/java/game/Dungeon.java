@@ -8,6 +8,8 @@ import java.util.Stack;
 import com.google.common.graph.MutableNetwork;
 import com.google.common.graph.NetworkBuilder;
 
+import finder.patterns.micro.Boss;
+import game.tiles.BossEnemyTile;
 import generator.config.GeneratorConfig;
 import util.Point;
 import util.eventrouting.EventRouter;
@@ -54,6 +56,9 @@ public class Dungeon implements Listener
 	private int defaultMaxScaleFactor = 45;
 	public GeneratorConfig defaultConfig;
 	
+	//The start from information that is collected from the dungeon as a spatial platform for interconnected rooms.
+	private ArrayList<BossEnemyTile> bosses;
+	
 	//scale factor of the (canvas) view
 	private int scaleFactor;
 
@@ -67,6 +72,9 @@ public class Dungeon implements Listener
 	{
 		this.id = ID_COUNTER;
 		ID_COUNTER += 1;
+		
+		//Initialize neccesary information
+		bosses = new ArrayList<BossEnemyTile>();
 		
 		dPane = new DungeonPane(this);
 		pathfinding = new DungeonPathFinder(this);
@@ -152,10 +160,21 @@ public class Dungeon implements Listener
 	
 	/**
 	 * Remove the selected room from the dungeon
+	 * +++ Remove the general information the dungeon have about the room!
 	 * @param roomToRemove
 	 */
 	public void removeRoom(Room roomToRemove)
 	{
+		//Actually, first remove any general info we had about the room!!!
+		for(Tile custom : roomToRemove.customTiles)
+		{
+			if(custom instanceof BossEnemyTile)
+			{
+				bosses.remove(custom);
+			}
+		}
+		
+		
 		//FIRST REMOVE ALL DOORS CONNECTING TO THE ROOM
 		Set<RoomEdge> edgesToRemove = network.incidentEdges(roomToRemove);
 		
@@ -310,6 +329,22 @@ public class Dungeon implements Listener
 //			pathfinding.printPath();
 			pathfinding.innerCalculation();
 		}
+	}
+	
+	public void addBoss(BossEnemyTile bossTile)
+	{
+		bosses.add(bossTile);
+	}
+	
+	public void replaceBoss(BossEnemyTile bossTile, BossEnemyTile prevbossTile)
+	{
+		bosses.remove(prevbossTile);
+		bosses.add(bossTile);
+	}
+	
+	public ArrayList<BossEnemyTile> getBosses()
+	{
+		return bosses;
 	}
 	
 	///////////////////////// TODO: TESTING TRAVERSAL AND RETRIEVAL OF ALL THE PATHS FROM A ROOM TO ANOTHER ROOM ///////////////////////////	

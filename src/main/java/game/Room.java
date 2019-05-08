@@ -148,7 +148,7 @@ public class Room {
 	 * @param cols The number of columns in a map.
 	 * @param doorCount The number of doors to be seeded in a map.
 	 */
-	public Room(GeneratorConfig config, TileTypes[] types, int rows, int cols, List<Point> doorPositions, List<Tile> customTiles) { //THIS IS CALLED WHEN CREATIMNG THE PHENOTYPE
+	public Room(GeneratorConfig config, TileTypes[] types, int rows, int cols, List<Point> doorPositions, List<Tile> customTiles, Dungeon owner) { //THIS IS CALLED WHEN CREATIMNG THE PHENOTYPE
 		init(rows, cols);
 
 		this.config = config;
@@ -157,6 +157,7 @@ public class Room {
 		initMapFromTypes(types);
 		copyDoors(doorPositions);
 		copyCustomTiles(customTiles);
+		this.owner = owner;
 
 		finder = new PatternFinder(this);
 		pathfinder = new RoomPathFinder(this);
@@ -222,6 +223,7 @@ public class Room {
 
 		copyDoors(copyMap.getDoors());
 		copyCustomTiles(copyMap.customTiles);
+		this.owner = copyMap.owner;
 		SetDimensionValues(copyMap.dimensionValues);
 		
 		finder = new PatternFinder(this);
@@ -263,6 +265,7 @@ public class Room {
 
 		copyDoors(copyMap.getDoors());
 		copyCustomTiles(copyMap.customTiles);
+		this.owner = copyMap.owner;
 		
 		finder = new PatternFinder(this);
 		pathfinder = new RoomPathFinder(this);
@@ -322,6 +325,7 @@ public class Room {
 		
 		copyDoors(room.getDoors());
 		copyCustomTiles(room.customTiles);
+		this.owner = room.owner;
 //		
 		finder = new PatternFinder(this);
 		pathfinder = new RoomPathFinder(this);
@@ -525,6 +529,8 @@ public class Room {
 
 		copyDoors(suggestions.getDoors());
 		copyCustomTiles(suggestions.customTiles);
+		this.owner = suggestions.owner; //NOt clear
+		
 		SetDimensionValues(suggestions.dimensionValues);
 		
 		finder = new PatternFinder(this);
@@ -2114,6 +2120,12 @@ public class Room {
 		if(CheckCustomTile(customTile, maxAmount))
 		{
 			customTiles.add(customTile);
+			
+			if(customTile instanceof BossEnemyTile)
+			{
+				owner.addBoss((BossEnemyTile) customTile);
+			}
+			
 		}
 		else
 		{
@@ -2121,6 +2133,11 @@ public class Room {
 			
 			if(prevCustom != null)
 			{
+				if(customTile instanceof BossEnemyTile)
+				{
+					owner.replaceBoss((BossEnemyTile) customTile, (BossEnemyTile) prevCustom);
+				}
+				
 				ReplaceAllTiles(prevCustom);
 				customTiles.remove(prevCustom);
 				customTiles.add(customTile);

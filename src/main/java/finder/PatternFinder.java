@@ -24,6 +24,7 @@ import finder.patterns.micro.Door;
 import finder.patterns.micro.Enemy;
 import finder.patterns.micro.Entrance;
 import finder.patterns.micro.Nothing;
+import finder.patterns.micro.Boss;
 import finder.patterns.micro.Chamber;
 import finder.patterns.micro.Treasure;
 import finder.geometry.Bitmap;
@@ -82,6 +83,7 @@ public class PatternFinder {
 		micropatterns.addAll(Chamber.matches(room, null));
 		micropatterns.addAll(Treasure.matches(room, null));
 		micropatterns.addAll(Enemy.matches(room, null));
+		micropatterns.addAll(Boss.matches(room, null)); //NEWLY ADDED
 		micropatterns.addAll(Door.matches(room, null));
 		micropatterns.addAll(Nothing.matches(room, null)); // This MUST come last
 		
