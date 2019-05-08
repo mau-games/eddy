@@ -100,9 +100,19 @@ public class Drawer
 		}
 	}
 	
+	public boolean possibleToDraw()
+	{
+		return brush.canBrushDraw();
+	}
+	
 	public Bitmap GetDrawableTiles()
 	{
 		return brush.GetDrawableTiles();
+	}
+	
+	public void Draw(Point p, Room room, InteractiveMap interactiveCanvas)
+	{
+		brush.Draw(p, room, this, interactiveCanvas);
 	}
 	
 	public void DoneDrawing()

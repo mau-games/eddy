@@ -1,17 +1,25 @@
 package game;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import finder.geometry.Point;
 import gui.controls.Brush;
+import gui.controls.Drawer;
+import gui.controls.InteractiveMap;
+import javafx.scene.canvas.GraphicsContext;
 import gui.controls.Brush.BrushUsage;
+import javafx.scene.image.Image;
 
 public class Tile
 {
 	protected TileTypes m_type;
 	private ArrayList<Point> positions;
-	private Point center;
+	protected Point center;
 	private boolean m_immutable;
+	public int maxAmountPerRoom;
+	public int width = 1; //tile size
+	public int height = 1; //tile size
 	
 	//When using the tile as a brush
 	protected BrushUsage usage = BrushUsage.DEFAULT;
@@ -31,9 +39,21 @@ public class Tile
 		return center;
 	}
 	
+	public void setCenterPosition(Point center)
+	{
+		this.center = center;
+	}
+	
 	public ArrayList<Point> GetPositions()
 	{
 		return positions;
+	}
+	
+	//TODO: BUGG FOR THE Boss enemy TILE
+	public void setPositions(List<Point> positions)
+	{
+		this.positions.clear();
+		this.positions.addAll(positions);
 	}
 	
 	public boolean GetImmutable()
@@ -54,6 +74,7 @@ public class Tile
 	protected void setBrushUsage()
 	{
 		usage = BrushUsage.DEFAULT;
+		maxAmountPerRoom = -1;
 	}
 	
 	public Brush modification(Brush brush)
@@ -61,9 +82,20 @@ public class Tile
 		return brush;
 	}
 	
-	public Tile()
+	public void PaintTile(Point currentCenter, Room room, Drawer drawer, InteractiveMap interactiveCanvas)
+	{
+		//TODO: This needs to be done too
+	}
+	
+	public void PaintCanvasTile(Image tileImage, GraphicsContext ctx, double tileSize)
 	{
 		
+	}
+	
+	public Tile()
+	{
+		this.positions = new ArrayList<Point>();
+//		this.center = 
 	}
 	
 	public Tile(Point p, TileTypes type)
@@ -109,6 +141,11 @@ public class Tile
 		this.positions = new ArrayList<Point>();
 		this.positions.addAll(copyTile.GetPositions());
 		this.m_immutable = copyTile.GetImmutable();
+	}
+	
+	public Tile copy()
+	{
+		return new Tile();
 	}
 	
 	public void ToggleImmutable()

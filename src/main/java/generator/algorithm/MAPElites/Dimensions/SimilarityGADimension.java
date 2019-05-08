@@ -17,7 +17,7 @@ public class SimilarityGADimension extends GADimension
 	@Override
 	public double CalculateValue(ZoneIndividual individual, Room target)
 	{
-		Room individualRoom = individual.getPhenotype().getMap(-1, -1, null);
+		Room individualRoom = individual.getPhenotype().getMap(-1, -1, null, null);
 		
     	int[][] oldMatrix = individualRoom.toMatrix();
     	int[][] newMatrix = target.toMatrix();

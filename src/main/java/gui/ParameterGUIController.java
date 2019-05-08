@@ -201,7 +201,7 @@ public class ParameterGUIController implements Initializable, Listener {
 		
 		if (currentMap != null) {
 			Platform.runLater(() -> {
-				drawMatrix(currentMap.toMatrix());
+				drawMatrix(currentMap);
 				if(renderPatterns){
 					selectAllPatterns();
 				} else {
@@ -288,12 +288,12 @@ public class ParameterGUIController implements Initializable, Listener {
 	 * @param matrix A rectangular matrix of integers. Each integer corresponds
 	 * 		to some predefined colour.
 	 */
-	private synchronized void drawMatrix(int[][] matrix) {
+	private synchronized void drawMatrix(Room room) {
 		Platform.runLater(() -> {
 			if (render) {
-				renderer.renderMap(ctx, matrix);
+				renderer.renderMap(ctx, room);
 			} else {
-				renderer.sketchMap(ctx, matrix);
+				renderer.sketchMap(ctx, room.toMatrix());
 			}
 		});
 	}
@@ -306,7 +306,7 @@ public class ParameterGUIController implements Initializable, Listener {
 			Platform.runLater(() -> {
 				int[][] matrix = currentMap.toMatrix();
 				if (render) {
-					renderer.renderMap(ctx, matrix);
+					renderer.renderMap(ctx, currentMap);
 				} else {
 					renderer.sketchMap(ctx, matrix);
 				}

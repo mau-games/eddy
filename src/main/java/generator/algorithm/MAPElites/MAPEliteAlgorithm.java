@@ -706,7 +706,7 @@ public class MAPEliteAlgorithm extends Algorithm implements Listener {
 		{
         	if(!cell.GetFeasiblePopulation().isEmpty())
         	{
-        		room = cell.GetFeasiblePopulation().get(0).getPhenotype().getMap(-1, -1, null);
+        		room = cell.GetFeasiblePopulation().get(0).getPhenotype().getMap(-1, -1, null, null);
         		break;
         	}
 		}
@@ -741,7 +741,7 @@ public class MAPEliteAlgorithm extends Algorithm implements Listener {
         	}
         	else //This is more tricky!!
         	{
-        		ev.addRoom(cell.GetFeasiblePopulation().get(0).getPhenotype().getMap(-1, -1, null));
+        		ev.addRoom(cell.GetFeasiblePopulation().get(0).getPhenotype().getMap(-1, -1, null, null));
 //        		cell.GetFeasiblePopulation().get(0).BroadcastIndividualDimensions();
         		evaluateFeasibleZoneIndividual(cell.GetFeasiblePopulation().get(0));
 //        		System.out.println("FIT ROOM Fitness: " + cell.GetFeasiblePopulation().get(0).getFitness() + 

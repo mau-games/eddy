@@ -464,7 +464,7 @@ public class InteractiveGUIController implements Initializable, Listener {
 		AnchorPane.setBottomAnchor(roomView, 0.0);
 		AnchorPane.setLeftAnchor(roomView, 0.0);
 		mainPane.getChildren().add(roomView);
-		roomView.updateMap(map.getMap());	
+		roomView.updateRoom(map.getMap());	
 		setCurrentQuadMap(map);
 
 		

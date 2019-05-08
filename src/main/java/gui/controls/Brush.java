@@ -32,9 +32,7 @@ public abstract class Brush
 	protected Point center;
 	protected boolean drew;
 	
-	protected Brush prevBrush;
-	protected Runnable neighborFunction;
-	
+	protected Tile brushTile;
 	protected NeighborhoodStyle neighborStyle; //this info is set only if custom
 	protected boolean immutable = false; //this info is set only if custom
 	
@@ -54,6 +52,7 @@ public abstract class Brush
 	
 	public void SetMainComponent(Tile type)
 	{
+		brushTile = type;
 		mainComponent = type.GetType();
 	}
 	
@@ -73,8 +72,6 @@ public abstract class Brush
 		this.drew = prev.drew;
 		
 	}
-	
-	protected abstract void createCopy();
 	
 	public TileTypes GetMainComponent()
 	{
@@ -101,6 +98,11 @@ public abstract class Brush
 		drew = true;
 	}
 	
+	public boolean canBrushDraw()
+	{
+		return true;
+	}
+	
 	/**
 	 * Updates the tiles that are drawable for this brush based
 	 * based on the position of the tile and the brush size
@@ -118,6 +120,36 @@ public abstract class Brush
 	 * @param layer Current evaluated size (evaluated size - 1)
 	 */
 	abstract protected void FillDrawable(Point p, int width, int height, int layer);
+	
+	/**
+	 * Fill the Bitmap based on its neighbors and brush size
+	 * @param p Point to be evaluated
+	 * @param width Width of the map
+	 * @param height Height of the map
+	 * @param layer Current evaluated size (evaluated size - 1)
+	 */
+	public void Draw(Point currentCenter, Room room, Drawer boss, InteractiveMap interactiveCanvas)
+	{
+		if(GetMainComponent() == null)
+			return;
+		
+		Tile currentTile = null;
+		this.immutable = boss.GetModifierValue("Lock");
+		
+		for(Point position : GetDrawableTiles().getPoints())
+		{
+			currentTile = room.getTile(position.getX(), position.getY());
+			
+			// Let's discard any attempts at erasing the doors
+			if(currentTile.GetType() == TileTypes.DOOR)
+				continue;
+			
+			currentTile.SetImmutable(immutable);
+			room.setTile(position.getX(), position.getY(), GetMainComponent());
+			interactiveCanvas.getCell(position.getX(), position.getY()).
+				setImage(interactiveCanvas.getImage(GetMainComponent(), interactiveCanvas.scale));
+		}
+	}
 	
 	/***
 	 * Calculates the neighborhood given a certain point

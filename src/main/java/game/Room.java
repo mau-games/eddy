@@ -39,6 +39,8 @@ import finder.patterns.micro.Entrance;
 import finder.patterns.micro.Chamber;
 import finder.patterns.micro.Treasure;
 import game.roomInfo.RoomSection;
+import game.tiles.BossEnemyTile;
+import game.tiles.FloorTile;
 import util.Point;
 import util.config.MissingConfigurationException;
 import util.eventrouting.EventRouter;
@@ -101,6 +103,9 @@ public class Room {
 	private Map<Point, Double> doorsSafety;
 	private Map<Point, Double> doorsGreed;
 	
+	//Custom tiles (only the center or main needed?) this needs to be copied!
+	public ArrayList<Tile> customTiles = new ArrayList<Tile>();
+	
 	//THERE MUST BE TWO DIFFERENT CONFIGS!!
 	private GeneratorConfig config = null;
 	
@@ -143,7 +148,7 @@ public class Room {
 	 * @param cols The number of columns in a map.
 	 * @param doorCount The number of doors to be seeded in a map.
 	 */
-	public Room(GeneratorConfig config, TileTypes[] types, int rows, int cols, List<Point> doorPositions) { //THIS IS CALLED WHEN CREATIMNG THE PHENOTYPE
+	public Room(GeneratorConfig config, TileTypes[] types, int rows, int cols, List<Point> doorPositions, List<Tile> customTiles) { //THIS IS CALLED WHEN CREATIMNG THE PHENOTYPE
 		init(rows, cols);
 
 		this.config = config;
@@ -151,6 +156,7 @@ public class Room {
 
 		initMapFromTypes(types);
 		copyDoors(doorPositions);
+		copyCustomTiles(customTiles);
 
 		finder = new PatternFinder(this);
 		pathfinder = new RoomPathFinder(this);
@@ -215,6 +221,7 @@ public class Room {
 		}
 
 		copyDoors(copyMap.getDoors());
+		copyCustomTiles(copyMap.customTiles);
 		SetDimensionValues(copyMap.dimensionValues);
 		
 		finder = new PatternFinder(this);
@@ -255,6 +262,7 @@ public class Room {
 		}
 
 		copyDoors(copyMap.getDoors());
+		copyCustomTiles(copyMap.customTiles);
 		
 		finder = new PatternFinder(this);
 		pathfinder = new RoomPathFinder(this);
@@ -313,6 +321,7 @@ public class Room {
 		}
 		
 		copyDoors(room.getDoors());
+		copyCustomTiles(room.customTiles);
 //		
 		finder = new PatternFinder(this);
 		pathfinder = new RoomPathFinder(this);
@@ -389,6 +398,18 @@ public class Room {
             borders.removePoint(Point.castToGeometry(doorPositions.get(i))); //remove this point from the "usable" border
             
     	}
+	}
+	
+	/**
+	 * Copy doors from a list of existing ones (/another room) and override whatever tile was there
+	 * This is for the new phenotypes when created
+	 * @param doorPositions
+	 * @param entrance
+	 */
+	private void copyCustomTiles(List<Tile> customs)
+	{
+		customTiles.clear();
+		customTiles.addAll(customs);
 	}
 	
 	/***
@@ -503,6 +524,7 @@ public class Room {
 //		}
 
 		copyDoors(suggestions.getDoors());
+		copyCustomTiles(suggestions.customTiles);
 		SetDimensionValues(suggestions.dimensionValues);
 		
 		finder = new PatternFinder(this);
@@ -734,7 +756,7 @@ public class Room {
 		if(localConfig != null) localConfig.getWorldCanvas().setRendered(false); //THIS IS NEEDED TO FORCE RENDERING IN THE WORLD VIEW
 		ChangeQuantities(x, y, tile);
 		matrix[y][x] = tile.getValue();
-		tileMap[y * width + x].SetType(tile);
+		tileMap[y * width + x].SetType(tile); //Just changing the type but not changing the tile? //FIXME!!
 	}
 	
 	/**
@@ -2048,6 +2070,68 @@ public class Room {
 	}
 	
 	///////////////////////////////END ---- A* INTERNAL PATHFINDING  ///////////////////////////////////////////////////
+	
+	////////////////////////////// TILE INFORMATION /////////////////////////////
+	
+	private boolean CheckCustomTile(Tile tileToCheck, int maxAmount)
+	{
+		int current = 0;
+		
+		for(Tile tile : customTiles)
+		{
+			if(tile.GetType().equals(tileToCheck.GetType()))
+			{
+				current++;
+			}
+		}
+		
+		return !(current == maxAmount); //Return false if we cannot place the tile
+	}
+	
+	private void ReplaceAllTiles(Tile prevCustom)
+	{
+		for(finder.geometry.Point p : prevCustom.GetPositions())
+		{
+			setTile(p.getX(), p.getY(), new FloorTile(p, TileTypes.FLOOR));
+		}
+	}
+	
+	private Tile returnFirstInstance(Tile customTile)
+	{
+		for(Tile tile : customTiles)
+		{
+			if(tile.GetType().equals(customTile.GetType()))
+			{
+				return tile;
+			}
+		}
+		
+		return null;
+	}
+	
+	public Tile addCustomTile(Tile customTile, int maxAmount)
+	{
+		if(CheckCustomTile(customTile, maxAmount))
+		{
+			customTiles.add(customTile);
+		}
+		else
+		{
+			Tile prevCustom = returnFirstInstance(customTile);
+			
+			if(prevCustom != null)
+			{
+				ReplaceAllTiles(prevCustom);
+				customTiles.remove(prevCustom);
+				customTiles.add(customTile);
+				return new FloorTile(prevCustom);
+			}
+		}
+		
+		return null;
+	}
+	
+	
 	
 	/////////////////////////////// LOADING MAPS AND STRING DEBUG //////////////////////////////////////////////
 

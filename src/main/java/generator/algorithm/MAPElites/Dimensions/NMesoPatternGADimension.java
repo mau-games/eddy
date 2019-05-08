@@ -24,7 +24,7 @@ public class NMesoPatternGADimension extends GADimension {
 
 	@Override
 	public double CalculateValue(ZoneIndividual individual, Room target) {
-		Room individualRoom = individual.getPhenotype().getMap(-1, -1, null);
+		Room individualRoom = individual.getPhenotype().getMap(-1, -1, null, null);
 		PatternFinder finder = individualRoom.getPatternFinder();
 		List<CompositePattern> mesos = finder.getMesoPatterns();
 		float mesoCounter = 0.0f;

@@ -5,6 +5,8 @@ import java.util.List;
 import finder.geometry.Bitmap;
 import finder.geometry.Point;
 import game.Room;
+import game.Tile;
+import game.TileTypes;
 
 public class BasicBrush extends Brush
 {
@@ -45,15 +47,5 @@ public class BasicBrush extends Brush
 		}
 	}
 
-	@Override
-	protected void createCopy() {
-		
-		this.prevBrush = new BasicBrush();
-		this.prevBrush.drawableTiles = this.drawableTiles;
-		this.prevBrush.size = this.size;
-		this.prevBrush.center = this.center;
-		this.prevBrush.drew = this.drew;
-			
-	}
-	
+
 }

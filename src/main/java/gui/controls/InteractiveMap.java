@@ -83,35 +83,31 @@ public class InteractiveMap extends GridPane implements Listener {
 		Point p = coords.get(tile);
 		Tile currentTile = room.getTile(p);
 		
-//		// Let's discard any attempts at erasing the doors
-//		if (map.getDoors().contains(new Point(x, y))) {
-//			return;
-//		}
-				
-		
 		// Let's discard any attempts at erasing the doors
 		if (p == null
 				|| currentTile.GetType() == TileTypes.DOOR) {
 			return;
 		}
 		
-		//The brush has all the points that will be modified
-		//TODO: I THINK THAT the brush should do this part!
-		for(finder.geometry.Point position : brush.GetDrawableTiles().getPoints())
-		{
-			currentTile = room.getTile(position.getX(), position.getY());
-			
-			// Let's discard any attempts at erasing the doors
-			if(currentTile.GetType() == TileTypes.DOOR)
-				continue;
-			
-			currentTile.SetImmutable(brush.GetModifierValue("Lock"));
-			if(brush.GetMainComponent() != null)
-			{
-				room.setTile(position.getX(), position.getY(), brush.GetMainComponent());
-				drawTile(position.getX(), position.getY(), brush.GetMainComponent());
-			}
-		}
+		brush.Draw(Point.castToGeometry(p), room, this);
+//		
+//		//The brush has all the points that will be modified
+//		//TODO: I THINK THAT the brush should do this part!
+//		for(finder.geometry.Point position : brush.GetDrawableTiles().getPoints())
+//		{
+//			currentTile = room.getTile(position.getX(), position.getY());
+//			
+//			// Let's discard any attempts at erasing the doors
+//			if(currentTile.GetType() == TileTypes.DOOR)
+//				continue;
+//			
+//			currentTile.SetImmutable(brush.GetModifierValue("Lock"));
+//			if(brush.GetMainComponent() != null)
+//			{
+//				room.setTile(position.getX(), position.getY(), brush.GetMainComponent());
+//				drawTile(position.getX(), position.getY(), brush.GetMainComponent());
+//			}
+//		}
 		
 		brush.DoneDrawing();
 	}
@@ -155,7 +151,7 @@ public class InteractiveMap extends GridPane implements Listener {
 	/**
 	 * Initialises the controller.
 	 */
-	private void initialise() {
+	private void initialise() { //FIXME: HERE IS THE CHANGE
 		autosize();
 		double width = getWidth() / cols;
 		double height = getHeight() / rows;
@@ -164,8 +160,8 @@ public class InteractiveMap extends GridPane implements Listener {
 		getChildren().clear();
 		coords.clear();
 
-		 for (int j = 0; j < rows; j++)
-		 {
+		for (int j = 0; j < rows; j++)
+		{
 			 for (int i = 0; i < cols; i++) 
 			 {
 				ImageView iv = new ImageView(getImage(room.getTile(i, j).GetType(), scale));
@@ -174,10 +170,21 @@ public class InteractiveMap extends GridPane implements Listener {
 				add(iv, i, j);
 				coords.put(iv, new Point(i, j));
 			}
-	 	}
+		}
+		
+		for(Tile customTile : room.customTiles)
+		{
+			customTile.PaintTile(null, null, null, this);
+		}
+		
 	}
 	
-	private Image getImage(TileTypes type, double size) 
+	public Image getCustomSizeImage(TileTypes type, double width, double height)
+	{
+		return renderer.renderTile(type, width, height);
+	}
+	
+	public Image getImage(TileTypes type, double size) 
 	{
 		Image tile = images.get(type);
 		
@@ -191,7 +198,7 @@ public class InteractiveMap extends GridPane implements Listener {
 		return tile;
 	}
 	
-	private Image getImage(TileTypes type, double width, double height) 
+	public Image getImage(TileTypes type, double width, double height) 
 	{
 		Image tile = images.get(type);
 		
@@ -212,7 +219,7 @@ public class InteractiveMap extends GridPane implements Listener {
 	 * @param y The Y coordinate of the cell.
 	 * @return The image view in the cell.
 	 */
-	private ImageView getCell(int x, int y) {
+	public ImageView getCell(int x, int y) {
 		return (ImageView) getChildren().get(y * cols + x);
 	}
 	

@@ -11,12 +11,6 @@ public class Bucket extends Brush
 {
 
 	@Override
-	protected void createCopy() {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
 	public void UpdateDrawableTiles(int x, int y, Room room)
 	{	
 		//Avoid updating the tiles if it is inside of the bucket already
@@ -60,6 +54,5 @@ public class Bucket extends Brush
 		
 		
 	}
-
 
 }

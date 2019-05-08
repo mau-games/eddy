@@ -21,6 +21,7 @@ import game.Room;
 import game.Tile;
 import game.MapContainer;
 import game.TileTypes;
+import game.tiles.BossEnemyTile;
 import game.tiles.EnemyTile;
 import game.tiles.FloorTile;
 import game.tiles.TreasureTile;
@@ -369,7 +370,7 @@ public class RoomViewController extends BorderPane implements Listener
 		initMapView();
 		initLegend();
 		resetView();
-		updateMap(roomToBe);	
+		updateRoom(roomToBe);	
 		generateNewMaps();
 //		
 //		OnChangeTab();
@@ -723,17 +724,10 @@ public class RoomViewController extends BorderPane implements Listener
 	 * 
 	 * @param room The new map.
 	 */
-	public void updateMap(Room room) {
+	public void updateRoom(Room room) {
 		getMapView().updateMap(room);
 		redrawPatterns(room);
 		redrawLocks(room);
-		mapIsFeasible(room.isIntraFeasible());
-	}
-
-	public void updateRoom(Room room) {
-		getMapView().updateMap(room);
-
-		redrawPatterns(room);
 		mapIsFeasible(room.isIntraFeasible());
 	}
 
@@ -752,8 +746,8 @@ public class RoomViewController extends BorderPane implements Listener
 	 * 
 	 * @return A rendered version of the map.
 	 */
-	public Image getRenderedMap() {
-		return renderer.renderMap(getMapView().getMap().toMatrix());
+	public Image getRenderedMap() { //TODO: THERE CAN BE SOME PROBLEM HERE
+		return renderer.renderMap(getMapView().getMap());
 	}
 
 	/**
@@ -786,13 +780,12 @@ public class RoomViewController extends BorderPane implements Listener
 				myBrush.SetMainComponent(new EnemyTile());
 				break;		
 			case "BOSS":
-				myBrush.SetMainComponent(TileTypes.ENEMY_BOSS);
+				myBrush.SetMainComponent(new BossEnemyTile());
 				break;
 			}
 		}
 		
 	}
-
 	
 	/**
 	 * Toggles the main use of the lock modifier in the brush
@@ -1031,7 +1024,7 @@ public class RoomViewController extends BorderPane implements Listener
 		if(selectedSuggestion != null)
 		{
 			mapView.getMap().applySuggestion(selectedSuggestion.getSuggestedRoom());
-			updateMap(mapView.getMap());
+			updateRoom(mapView.getMap());
 		}
 	}
 
@@ -1332,6 +1325,10 @@ public class RoomViewController extends BorderPane implements Listener
 //				else if()
 				myBrush.UpdateModifiers(event);
 //				mapView.updateTile(tile, brush, event.getButton() == MouseButton.SECONDARY, lockBrush.isSelected() || event.isControlDown());
+				
+				if(!myBrush.possibleToDraw())
+					return;
+				
 				mapView.updateTile(tile, myBrush);
 				mapView.getMap().forceReevaluation();
 				mapIsFeasible(mapView.getMap().isIntraFeasible());
@@ -1362,7 +1359,8 @@ public class RoomViewController extends BorderPane implements Listener
 				util.Point p = mapView.CheckTile(tile);
 				myBrush.Update(event, p, mapView.getMap());
 				
-				renderer.drawBrush(brushCanvas.getGraphicsContext2D(), mapView.getMap().toMatrix(), myBrush, Color.WHITE);
+				renderer.drawBrush(brushCanvas.getGraphicsContext2D(), mapView.getMap().toMatrix(), myBrush, 
+						myBrush.possibleToDraw() ? Color.WHITE : Color.RED);
 			}
 		}
 		

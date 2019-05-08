@@ -43,6 +43,7 @@ import game.ApplicationConfig;
 import game.Game;
 import game.MapContainer;
 import game.Room;
+import game.Tile;
 import game.TileTypes;
 import game.ZoneNode;
 import gui.ParameterGUIController;
@@ -247,7 +248,7 @@ public class MapRenderer implements Listener {
 		}
 
 		Canvas canvas = new Canvas(finalMapWidth, finalMapHeight);
-		renderMap(canvas.getGraphicsContext2D(), room.toMatrix());
+		renderMap(canvas.getGraphicsContext2D(), room);
 		
 		Image image = canvas.snapshot(new SnapshotParameters(), null);
 //	
@@ -364,7 +365,7 @@ public class MapRenderer implements Listener {
 
 //		System.out.println("FINAL MAP WIDTH: " + finalMapWidth + ", FINAL MAP HEIGHT: " + finalMapHeight);
 		Canvas canvas = new Canvas(finalMapWidth, finalMapHeight);
-		renderMap(canvas.getGraphicsContext2D(), room.toMatrix());
+		renderMap(canvas.getGraphicsContext2D(), room);
 		
 		Image image = canvas.snapshot(new SnapshotParameters(), null);
 //	
@@ -380,6 +381,44 @@ public class MapRenderer implements Listener {
 
 		return image;
 	}
+	
+	/**
+	 * Draws a matrix onto an extisting graphics context.
+	 * 
+	 * @param ctx The graphics context to draw on.
+	 * @param matrix A rectangular matrix of integers. Each integer corresponds
+	 * 		to some predefined value.
+	 */
+	public synchronized void renderMap(GraphicsContext ctx, Room room) {
+		ctx.clearRect(0, 0, ctx.getCanvas().getWidth(), ctx.getCanvas().getHeight());
+		int width = room.getColCount();
+		int height = room.getRowCount();
+		double pWidth = ctx.getCanvas().getWidth() / (double)Math.max(width, height);
+		
+		double tileSize = width >= height ? ctx.getCanvas().getWidth() / width : ctx.getCanvas().getHeight() / height;
+		
+		Image image = null;
+		int[][] roomMatrix = room.toMatrix();
+
+		for (int j = 0; j < height; j++) {
+			 for (int i = 0; i < width; i++){
+				 if(roomMatrix[j][i] != 5)
+				 {
+					image = getTileImage(roomMatrix[j][i]);
+					ctx.drawImage(image, i * tileSize, j * tileSize, tileSize, tileSize);
+				 }
+			}
+		}
+		
+		for(Tile custom : room.customTiles)
+		{
+			//Iterate the custom tiles
+			//2. I don't know if the custom tiles should know how to be rendered but they know the size and 
+			image = getTileImage(custom.GetType().ordinal(), tileSize * custom.width, tileSize * custom.height);
+			custom.PaintCanvasTile(image, ctx, tileSize);
+		}
+	}
+	
 	
 
 	/**
@@ -401,7 +440,7 @@ public class MapRenderer implements Listener {
 
 		for (int j = 0; j < height; j++) {
 			 for (int i = 0; i < width; i++){
-				 if(matrix[j][i] != 3)
+				 if(matrix[j][i] != 5)
 				 {
 					image = getTileImage(matrix[j][i]);
 					ctx.drawImage(image, i * tileSize, j * tileSize, tileSize, tileSize);
@@ -409,10 +448,14 @@ public class MapRenderer implements Listener {
 			}
 		}
 		
+		
+		//This needs to be fix obviously 
+		//Probably the division of the image should be cached!
+		//TODO: IMPORTANTT!!!!!!
 		for (int j = 0; j < height; j++) {
 			 for (int i = 0; i < width; i++){
 				
-				 if(matrix[j][i] == 3)
+				 if(matrix[j][i] == 5)
 				 {
 					 image = new Image("/" + config.getInternalConfig().getString("map.tiles.enemy"), tileSize *3, tileSize*3, false,false);
 					 
@@ -436,6 +479,8 @@ public class MapRenderer implements Listener {
 			}
 		}
 	}
+	
+	
 	
 	/**
 	 * Draws patterns on a map.
@@ -740,7 +785,7 @@ public class MapRenderer implements Listener {
 		finalMapHeight = config.getMapRenderHeight();
 		finalMapWidth = config.getMapRenderWidth();
 		Canvas canvas = new Canvas(finalMapWidth, finalMapHeight);
-		renderMap(canvas.getGraphicsContext2D(), room.toMatrix());
+		renderMap(canvas.getGraphicsContext2D(), room);
 		Image image = canvas.snapshot(new SnapshotParameters(), null);
 		MapRendered mr = new MapRendered(image);
 		mr.setID(runID);
@@ -802,6 +847,9 @@ public class MapRenderer implements Listener {
 		case ENEMY:
 			image = new Image("/" + config.getInternalConfig().getString("map.tiles.enemy"), width, height, false, true);
 			break;
+		case ENEMY_BOSS:
+			image = new Image("/" + config.getInternalConfig().getString("map.tiles.enemy"), width, height, false, true);
+			break;
 		case WALL:
 			image = new Image("/" + config.getInternalConfig().getString("map.tiles.wall"), width, height, false, true);
 			break;
@@ -836,6 +884,9 @@ public class MapRenderer implements Listener {
 				image = new Image("/" + config.getInternalConfig().getString("map.tiles.treasure"));
 				break;
 			case ENEMY:
+				image = new Image("/" + config.getInternalConfig().getString("map.tiles.enemy"));
+				break;
+			case ENEMY_BOSS:
 				image = new Image("/" + config.getInternalConfig().getString("map.tiles.enemy"));
 				break;
 			case WALL:
