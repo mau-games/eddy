@@ -336,6 +336,11 @@ public class Dungeon implements Listener
 		bosses.add(bossTile);
 	}
 	
+	public void removeBoss(BossEnemyTile bossTile)
+	{
+		bosses.remove(bossTile);
+	}
+	
 	public void replaceBoss(BossEnemyTile bossTile, BossEnemyTile prevbossTile)
 	{
 		bosses.remove(prevbossTile);

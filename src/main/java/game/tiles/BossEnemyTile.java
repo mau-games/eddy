@@ -103,7 +103,7 @@ public class BossEnemyTile extends EnemyTile
 	@Override
 	public Tile copy()
 	{
-		return new BossEnemyTile();
+		return new BossEnemyTile(this);
 	}
 	
 }

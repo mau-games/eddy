@@ -9,6 +9,7 @@ import finder.geometry.Point;
 import game.Room;
 import game.Tile;
 import game.TileTypes;
+import game.tiles.BossEnemyTile;
 
 public abstract class Brush 
 {
@@ -143,6 +144,21 @@ public abstract class Brush
 			// Let's discard any attempts at erasing the doors
 			if(currentTile.GetType() == TileTypes.DOOR)
 				continue;
+			
+			//Check if we are about to paint over a boss --> We can also just check if the tile is in the custom tiles
+			if(currentTile.GetType() == TileTypes.ENEMY_BOSS)
+			{
+				Tile prev = room.replaceCustomForNormal(currentTile);
+				
+				if(prev != null) //We actually erased something
+				{
+					//"ERASE" TILES
+					for(Point prevPosition :prev.GetPositions())
+					{
+						prev.PaintTile(prevPosition, room, boss, interactiveCanvas);
+					}
+				}
+			}
 			
 			currentTile.SetImmutable(immutable);
 			room.setTile(position.getX(), position.getY(), GetMainComponent());

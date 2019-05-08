@@ -145,7 +145,7 @@ public class Tile
 	
 	public Tile copy()
 	{
-		return new Tile();
+		return new Tile(this);
 	}
 	
 	public void ToggleImmutable()

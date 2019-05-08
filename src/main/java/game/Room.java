@@ -777,7 +777,7 @@ public class Room {
 		if(localConfig != null) localConfig.getWorldCanvas().setRendered(false); //THIS IS NEEDED TO FORCE RENDERING IN THE WORLD VIEW
 		ChangeQuantities(x, y, tile.GetType());
 		matrix[y][x] = tile.GetType().getValue();
-		tileMap[y * width + x] = new Tile(tile);
+		tileMap[y * width + x] = tile;
 	}
 	
 	/**
@@ -2146,6 +2146,22 @@ public class Room {
 		}
 		
 		return null;
+	}
+	
+	public Tile replaceCustomForNormal(Tile customTile)
+	{
+		Tile test = getTile(customTile.GetCenterPosition().getX(), customTile.GetCenterPosition().getY());
+		
+		System.out.println(owner.getBosses().contains(test));
+		
+		if(customTile.GetType() == TileTypes.ENEMY_BOSS)
+		{
+			owner.removeBoss((BossEnemyTile) customTile);
+		}
+		
+		ReplaceAllTiles(customTile);
+		customTiles.remove(customTile);
+		return new FloorTile(customTile);
 	}
 	
 	

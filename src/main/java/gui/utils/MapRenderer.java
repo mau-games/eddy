@@ -402,11 +402,12 @@ public class MapRenderer implements Listener {
 
 		for (int j = 0; j < height; j++) {
 			 for (int i = 0; i < width; i++){
-				 if(roomMatrix[j][i] != 5)
-				 {
-					image = getTileImage(roomMatrix[j][i]);
+//				 if(roomMatrix[j][i] != 5)
+//				 {
+//					
+//				 }
+				 image = getTileImage(roomMatrix[j][i]);
 					ctx.drawImage(image, i * tileSize, j * tileSize, tileSize, tileSize);
-				 }
 			}
 		}
 		
