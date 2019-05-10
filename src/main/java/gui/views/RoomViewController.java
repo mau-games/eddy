@@ -370,6 +370,7 @@ public class RoomViewController extends BorderPane implements Listener
 		initMapView();
 		initLegend();
 		resetView();
+		roomToBe.forceReevaluation();
 		updateRoom(roomToBe);	
 		generateNewMaps();
 //		

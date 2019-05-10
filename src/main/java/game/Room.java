@@ -194,6 +194,16 @@ public class Room {
 		init(copyMap.getRowCount(), copyMap.getColCount());
 		this.config = copyMap.config;
 		
+//		for (int j = 0; j < height; j++)
+//		{
+//			for (int i = 0; i < width; i++) 
+//			{
+//				setTile(i, j, copyMap.getTile(i, j));
+////				matrix[j][i] = suggestions.matrix[j][i];
+////				tileMap[j * width + i] = new Tile(suggestions.tileMap[j * width + i]);
+//			}
+//		}	
+		
 		for (int j = 0; j < height; j++)
 		{
 			for (int i = 0; i < width; i++) 
@@ -203,27 +213,27 @@ public class Room {
 			}
 		}	
 		
-		for (int j = 0; j < height; j++){
-			for (int i = 0; i < width; i++) {
-				switch (TileTypes.toTileType(matrix[j][i])) {
-				case WALL:
-					wallCount++;
-					break;
-				case ENEMY:
-					enemies.add(new Point(i, j));
-					break;
-				case TREASURE:
-					treasures.add(new Point(i, j));
-					break;
-				default:
-					break;
-				}
-			}
-		}
+//		for (int j = 0; j < height; j++){
+//			for (int i = 0; i < width; i++) {
+//				switch (TileTypes.toTileType(matrix[j][i])) {
+//				case WALL:
+//					wallCount++;
+//					break;
+//				case ENEMY:
+//					enemies.add(new Point(i, j));
+//					break;
+//				case TREASURE:
+//					treasures.add(new Point(i, j));
+//					break;
+//				default:
+//					break;
+//				}
+//			}
+//		}
 
+		this.owner = copyMap.owner;
 		copyDoors(copyMap.getDoors());
 		copyCustomTiles(copyMap.customTiles);
-		this.owner = copyMap.owner;
 		SetDimensionValues(copyMap.dimensionValues);
 		
 		finder = new PatternFinder(this);
@@ -232,9 +242,19 @@ public class Room {
 	}
 	
 	public Room(Room copyMap, ZoneNode zones) //THIS IS CALLED WHEN CREATING A ZONE IN THE TREE (TO HAVE A COPY OF THE DOORS)
-	{
+	{	
 		init(copyMap.getRowCount(), copyMap.getColCount());
 		this.config = copyMap.config;
+		
+//		for (int j = 0; j < height; j++)
+//		{
+//			for (int i = 0; i < width; i++) 
+//			{
+//				setTile(i, j, copyMap.getTile(i, j));
+////				matrix[j][i] = suggestions.matrix[j][i];
+////				tileMap[j * width + i] = new Tile(suggestions.tileMap[j * width + i]);
+//			}
+//		}	
 		
 		for (int j = 0; j < height; j++)
 		{
@@ -245,28 +265,28 @@ public class Room {
 			}
 		}	
 		
-		for (int j = 0; j < height; j++){
-			for (int i = 0; i < width; i++) {
-				switch (TileTypes.toTileType(matrix[j][i])) {
-				case WALL:
-					wallCount++;
-					break;
-				case ENEMY:
-					enemies.add(new Point(i, j));
-					break;
-				case TREASURE:
-					treasures.add(new Point(i, j));
-					break;
-				default:
-					break;
-				}
-			}
-		}
+//		for (int j = 0; j < height; j++){
+//			for (int i = 0; i < width; i++) {
+//				switch (TileTypes.toTileType(matrix[j][i])) {
+//				case WALL:
+//					wallCount++;
+//					break;
+//				case ENEMY:
+//					enemies.add(new Point(i, j));
+//					break;
+//				case TREASURE:
+//					treasures.add(new Point(i, j));
+//					break;
+//				default:
+//					break;
+//				}
+//			}
+//		}
 
+		this.owner = copyMap.owner;
 		copyDoors(copyMap.getDoors());
 		copyCustomTiles(copyMap.customTiles);
-		this.owner = copyMap.owner;
-		
+
 		finder = new PatternFinder(this);
 		pathfinder = new RoomPathFinder(this);
 		root = zones;	
@@ -284,8 +304,8 @@ public class Room {
 	
 	private void CloneMap(Room room, int[] chromosomes) //FROM THE PREVIOUS CONSTRUCTOR
 	{
-		this.tileMap = room.tileMap.clone();
-		this.matrix = room.matrix.clone();
+//		this.tileMap = room.tileMap.clone();
+//		this.matrix = room.matrix.clone();
 		enemies.clear();
 		treasures.clear();
 
@@ -293,9 +313,15 @@ public class Room {
 		{
 			for (int i = 0; i < width; i++) 
 			{
+//				if(room.tileMap[j * width + i].GetType() == TileTypes.ENEMY_BOSS)
+//				{
+//					System.out.println();
+//				}
+//				
+//				setTile(i, j, room.tileMap[j * width + i]);
 				if(!room.tileMap[j * width + i].GetImmutable())
 				{
-					setTile(i, j, chromosomes[j * width + i]);
+					setTile(i, j, room.tileMap[j * width + i]);
 				}
 				else
 				{
@@ -304,28 +330,28 @@ public class Room {
 				}
 			}
 		}	
-		
-		for (int j = 0; j < height; j++){
-			for (int i = 0; i < width; i++) {
-				switch (TileTypes.toTileType(matrix[j][i])) {
-				case WALL:
-					wallCount++;
-					break;
-				case ENEMY:
-					enemies.add(new Point(i, j));
-					break;
-				case TREASURE:
-					treasures.add(new Point(i, j));
-					break;
-				default:
-					break;
-				}
-			}
-		}
-		
+//		
+//		for (int j = 0; j < height; j++){
+//			for (int i = 0; i < width; i++) {
+//				switch (TileTypes.toTileType(matrix[j][i])) {
+//				case WALL:
+//					wallCount++;
+//					break;
+//				case ENEMY:
+//					enemies.add(new Point(i, j));
+//					break;
+//				case TREASURE:
+//					treasures.add(new Point(i, j));
+//					break;
+//				default:
+//					break;
+//				}
+//			}
+//		}
+		this.owner = room.owner;
 		copyDoors(room.getDoors());
 		copyCustomTiles(room.customTiles);
-		this.owner = room.owner;
+
 //		
 		finder = new PatternFinder(this);
 		pathfinder = new RoomPathFinder(this);
@@ -455,44 +481,6 @@ public class Room {
 		
 	}
 	
-//	public void applySuggestion(Room suggestions)
-//	{
-//		
-//		//TODO:: THE PROBLEM IS HEREEEE!!!!!
-//		treasureSafety = new Hashtable<Point, Double>();
-//		doorsSafety = new Hashtable<Point, Double>();
-//		doorsGreed = new Hashtable<Point, Double>();
-//		enemies.clear();
-//		treasures.clear();
-//		wallCount = 0;
-//		
-//		matrix = new int[height][width];
-//		allocated = new boolean[height][width];
-//		tileMap = new Tile[height * width];
-//		
-//		wallCount = 0;
-//		enemies.clear();
-//		treasures.clear();
-//		treasureSafety = new Hashtable<Point, Double>();
-//		allocated = new boolean[height][width];
-//		
-//		for (int j = 0; j < height; j++) 
-//		{
-//			for (int i = 0; i < width; i++) 
-//			{
-//				setTile(i, j, suggestions.getTile(i, j));
-////				allocated[j][i] = suggestions.getAllocationMatrix()[j][i];
-//			}
-//		}
-//		
-//		pathfinder = new RoomPathFinder(this);
-//		finder = new PatternFinder(this);
-//		finder.findMicroPatterns();
-//		finder.findMesoPatterns();
-//		finder.findMacroPatterns();
-//		root = new ZoneNode(null, this, getColCount(), getRowCount());
-//	}
-	
 	public void applySuggestion(Room suggestions)
 	{
 		//TODO: NOW THE PROBLEM IS WITH THE DOORS!!!!
@@ -509,70 +497,26 @@ public class Room {
 			}
 		}	
 		
-//		for (int j = 0; j < height; j++){
-//			for (int i = 0; i < width; i++) {
-//				switch (TileTypes.toTileType(matrix[j][i])) {
-//				case WALL:
-//					wallCount++;
-//					break;
-//				case ENEMY:
-//					enemies.add(new Point(i, j));
-//					break;
-//				case TREASURE:
-//					treasures.add(new Point(i, j));
-//					break;
-//				default:
-//					break;
-//				}
-//			}
-//		}
-
-		copyDoors(suggestions.getDoors());
-		copyCustomTiles(suggestions.customTiles);
 		this.owner = suggestions.owner; //NOt clear
+		copyDoors(suggestions.getDoors());
+		
+		for(Tile custom : this.customTiles)
+		{
+			owner.removeBoss((BossEnemyTile) custom);
+		}
+		
+		copyCustomTiles(suggestions.customTiles);
+		
+		for(Tile custom : this.customTiles)
+		{
+			owner.addBoss((BossEnemyTile) custom);
+		}
 		
 		SetDimensionValues(suggestions.dimensionValues);
 		
 		finder = new PatternFinder(this);
 		pathfinder = new RoomPathFinder(this);
 		root = suggestions.root;	
-		
-//		wallCount = 0;
-//		enemies.clear();
-//		treasures.clear();
-//		treasureSafety = new Hashtable<Point, Double>();
-//		allocated = new boolean[height][width];
-//		init(height, width);
-//		
-//		for (int j = 0; j < height; j++) 
-//		{
-//			for (int i = 0; i < width; i++) 
-//			{
-//				setTile(i, j, suggestions.getTile(i, j));
-////				allocated[j][i] = suggestions.getAllocationMatrix()[j][i];
-//				
-//				switch (TileTypes.toTileType(matrix[j][i])) {
-//				case WALL:
-//					wallCount++;
-//					break;
-//				case ENEMY:
-//					enemies.add(new Point(i, j));
-//					break;
-//				case TREASURE:
-//					treasures.add(new Point(i, j));
-//					break;
-//				default:
-//					break;
-//				}
-//			}
-//		}
-//		
-//		pathfinder = new RoomPathFinder(this);
-//		finder = new PatternFinder(this);
-//		finder.findMicroPatterns();
-//		finder.findMesoPatterns();
-//		finder.findMacroPatterns();
-//		root = new ZoneNode(null, this, getColCount(), getRowCount());
 	}
 	
 	
@@ -620,7 +564,7 @@ public class Room {
 	 * 
 	 * TODO: This isn't very efficient, but shouldn't be so frequently used, as
 	 * to warrant any particular worry. Maybe replace it with a more granular
-	 * approach sometime?
+	 * approach sometime? indeed
 	 * 
 	 */
 	public void forceReevaluation() {
@@ -1586,7 +1530,10 @@ public class Room {
 	
 	public void SetDimensionValues(HashMap<DimensionTypes, Double> dimensions)
 	{
-		dimensionValues = new HashMap<DimensionTypes, Double>(dimensions);
+		if(dimensions != null)
+		{
+			dimensionValues = new HashMap<DimensionTypes, Double>(dimensions);
+		}
 		
 //		for(GADimension dimension : dimensions)
 //		{
@@ -2148,20 +2095,32 @@ public class Room {
 		return null;
 	}
 	
-	public Tile replaceCustomForNormal(Tile customTile)
+	private Tile getCustom(Tile other)
 	{
-		Tile test = getTile(customTile.GetCenterPosition().getX(), customTile.GetCenterPosition().getY());
-		
-		System.out.println(owner.getBosses().contains(test));
-		
-		if(customTile.GetType() == TileTypes.ENEMY_BOSS)
+		for(Tile tile : customTiles)
 		{
-			owner.removeBoss((BossEnemyTile) customTile);
+			if(tile.GetPositions().contains(other.GetCenterPosition()))
+			{
+				return tile;
+			}
 		}
 		
-		ReplaceAllTiles(customTile);
-		customTiles.remove(customTile);
-		return new FloorTile(customTile);
+		return null;
+	}
+	
+	public Tile replaceCustomForNormal(Tile customTile)
+	{
+		Tile custom = getCustom(customTile);
+		System.out.println(owner.getBosses().contains(custom));
+		
+		if(custom.GetType() == TileTypes.ENEMY_BOSS)
+		{
+			owner.removeBoss((BossEnemyTile) custom);
+		}
+		
+		ReplaceAllTiles(custom);
+		customTiles.remove(custom);
+		return new FloorTile(custom);
 	}
 	
 	
