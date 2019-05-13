@@ -38,6 +38,7 @@ import gui.controls.InteractiveMap;
 import gui.controls.LabeledCanvas;
 import gui.controls.MAPEVisualizationPane;
 import gui.controls.Modifier;
+import gui.controls.Popup;
 import gui.controls.SuggestionRoom;
 import gui.utils.MapRenderer;
 import gui.views.RoomViewController.EditViewEventHandler;
@@ -145,6 +146,9 @@ public class RoomViewController extends BorderPane implements Listener
 	
 	@FXML private DimensionsTable MainTable;
 	@FXML private DimensionsTable secondaryTable;
+	
+	//RIGHT SIDE!
+	@FXML private VBox rightSidePane;
 	
 	//Suggestions
 //	@FXML private GridPane suggestionsPane;
@@ -373,6 +377,10 @@ public class RoomViewController extends BorderPane implements Listener
 		roomToBe.forceReevaluation();
 		updateRoom(roomToBe);	
 		generateNewMaps();
+//		
+		Popup popup = new Popup();
+		rightSidePane.getChildren().add(popup);
+		//TODO: I ENDED HERE!
 //		
 //		OnChangeTab();
 //		generateNewMaps();

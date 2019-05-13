@@ -190,3 +190,19 @@
     -fx-padding: 0;
     -fx-shape: null;
 }
+
+#popupMain {
+	-fx-pref-width: 400;
+	-fx-max-width: 400;
+	-fx-alignment: center;
+	-fx-background-color: rgba(232,232,232,.1);
+     -fx-background-opacity: 0.2;
+      -fx-background-radius: 18 18 18 18;
+    -fx-border-radius: 18 18 18 18;
+}
+
+#popupMain .label
+{
+	-fx-text-alignment: center;
+		-fx-text-fill: white;
+}
