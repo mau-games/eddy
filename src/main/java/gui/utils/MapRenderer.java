@@ -292,10 +292,41 @@ public class MapRenderer implements Listener {
 	 */
 	public synchronized Image saveCurrentEditedRoom(Pane currentEditedPane) 
 	{
+		System.out.println(currentEditedPane); //TODO: PROBLEMS HERE!
+		System.out.println(currentEditedPane.getWidth());
+		System.out.println(currentEditedPane.getHeight());
 		
 		final WritableImage writableImage = new WritableImage((int)currentEditedPane.getWidth(), (int)currentEditedPane.getHeight());
 		Image image = currentEditedPane.snapshot(new SnapshotParameters(), writableImage);
 
+		File file = new File(MAPECollector.getInstance().getDirectory().getAbsolutePath()  + "\\currentRoom.png");
+		try {
+            ImageIO.write(SwingFXUtils.fromFXImage(writableImage, null), "png", file);
+        } catch (Exception s) {
+        }
+		
+
+		return image;
+	}
+	
+	public synchronized Image saveCurrentEditedRoom(Room editedRoom) 
+	{
+		if(editedRoom.localConfig != null)
+		{
+			finalMapHeight = editedRoom.localConfig.getRenderSizeHeight();
+			finalMapWidth = editedRoom.localConfig.getRenderSizeWidth();
+		}
+		else
+		{
+			finalMapHeight = (int)((float)config.getMapRenderHeight() * (float)((float)editedRoom.getRowCount() / 10.0f));
+			finalMapWidth = (int)((float)config.getMapRenderWidth() * (float)((float)editedRoom.getColCount() / 10.0f));
+		}
+
+		Canvas canvas = new Canvas(finalMapWidth, finalMapHeight);
+
+		final WritableImage writableImage = new WritableImage((int) canvas.getWidth(), (int) canvas.getHeight());
+		Image image = canvas.snapshot(new SnapshotParameters(), writableImage);
+		
 		File file = new File(MAPECollector.getInstance().getDirectory().getAbsolutePath()  + "\\currentRoom.png");
 		try {
             ImageIO.write(SwingFXUtils.fromFXImage(writableImage, null), "png", file);

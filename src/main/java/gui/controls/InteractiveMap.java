@@ -2,6 +2,10 @@ package gui.controls;
 
 import java.util.HashMap;
 
+import collectors.ActionLogger;
+import collectors.ActionLogger.ActionType;
+import collectors.ActionLogger.TargetPane;
+import collectors.ActionLogger.View;
 import game.Game;
 import game.Room;
 import game.Tile;
@@ -24,6 +28,7 @@ import util.Point;
 import util.eventrouting.EventRouter;
 import util.eventrouting.Listener;
 import util.eventrouting.PCGEvent;
+import util.eventrouting.events.RequestWorldView;
 import util.eventrouting.events.SaveDisplayedCells;
 
 /**
@@ -39,7 +44,7 @@ public class InteractiveMap extends GridPane implements Listener {
 	private int rows = 0;
 	public double scale = 0;
 	
-	private final MapRenderer renderer = MapRenderer.getInstance();
+	private  MapRenderer renderer = MapRenderer.getInstance();
 	private final HashMap<ImageView, Point> coords = new HashMap<ImageView, Point>();
 	private final static HashMap<TileTypes, Image> images = new HashMap<TileTypes, Image>();
 	
@@ -62,6 +67,15 @@ public class InteractiveMap extends GridPane implements Listener {
 		super();
 		updateMap(room);
 		EventRouter.getInstance().registerListener(this, new SaveDisplayedCells());
+	}
+	
+	public void destructor()
+	{
+		EventRouter.getInstance().unregisterListener(this, new SaveDisplayedCells());
+		room = null;
+		coords.clear();
+		images.clear();
+		renderer = null;
 	}
 	
 	/**
@@ -90,6 +104,7 @@ public class InteractiveMap extends GridPane implements Listener {
 		}
 		
 		brush.Draw(Point.castToGeometry(p), room, this);
+		ActionLogger.getInstance().storeAction(ActionType.CHANGE_VALUE, View.ROOM, TargetPane.MAP_PANE, null);
 //		
 //		//The brush has all the points that will be modified
 //		//TODO: I THINK THAT the brush should do this part!

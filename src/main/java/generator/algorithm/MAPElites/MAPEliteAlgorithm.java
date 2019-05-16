@@ -119,7 +119,11 @@ public class MAPEliteAlgorithm extends Algorithm implements Listener {
 		
 		populationSize = 1000;
 		feasibleAmount = 750;
-
+		
+		//TODO: THIS IS CREISI!mutate
+		System.out.println(mutationProbability);
+		mutationProbability = 0.3f;
+		
 		while((i + j) < populationSize){
 			ZoneIndividual ind = new ZoneIndividual(room, mutationProbability);
 			ind.mutateAll(0.7, roomWidth, roomHeight);
@@ -721,6 +725,17 @@ public class MAPEliteAlgorithm extends Algorithm implements Listener {
         AlgorithmDone ev = new AlgorithmDone(result, this);
         ev.setID(id);
         EventRouter.getInstance().postEvent(ev);
+        destructor();
+	}
+	
+	//TODO: this still needs to be checked!
+	public void destructor()
+	{
+		EventRouter.getInstance().unregisterListener(this, new MAPEGridUpdate(null));
+		EventRouter.getInstance().unregisterListener(this, new UpdatePreferenceModel(null));
+		
+		cells.clear();
+		MAPElitesDimensions.clear();
 	}
 	
 	//TODO: There are problems on how the cells are rendered!

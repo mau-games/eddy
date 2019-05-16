@@ -2,6 +2,10 @@ package gui.views;
 
 import java.io.IOException;
 
+import collectors.ActionLogger;
+import collectors.ActionLogger.ActionType;
+import collectors.ActionLogger.TargetPane;
+import collectors.ActionLogger.View;
 import game.ApplicationConfig;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -67,6 +71,7 @@ public class LaunchViewController extends BorderPane implements Listener{
 	
 	@FXML
 	private void createWorld(ActionEvent event) throws IOException {
+		ActionLogger.getInstance().storeAction(ActionType.CLICK, View.LAUNCH, TargetPane.BUTTON_PANE, null);
 		router.postEvent(new StartWorld(1));
 	}
 

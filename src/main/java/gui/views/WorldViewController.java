@@ -4,6 +4,10 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import collectors.ActionLogger;
+import collectors.ActionLogger.ActionType;
+import collectors.ActionLogger.TargetPane;
+import collectors.ActionLogger.View;
 import game.ApplicationConfig;
 import game.Dungeon;
 import game.DungeonPane;
@@ -11,12 +15,17 @@ import game.MapContainer;
 import game.PathInformation;
 import game.Room;
 import gui.controls.LabeledCanvas;
+import gui.utils.AnimatedGif;
+import gui.utils.Animation;
 import gui.utils.DungeonDrawer;
+import gui.utils.InformativePopupManager;
 import gui.utils.DungeonDrawer.DungeonBrushes;
+import gui.utils.InformativePopupManager.PresentableInformation;
 import gui.utils.InterRoomBrush;
 import gui.utils.MapRenderer;
 import gui.utils.MoveElementBrush;
 import gui.utils.RoomConnectorBrush;
+import javafx.animation.Timeline;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
@@ -30,6 +39,8 @@ import javafx.scene.control.Control;
 import javafx.scene.control.Label;
 import javafx.scene.control.ToggleButton;
 import javafx.scene.control.Tooltip;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.input.ScrollEvent;
 import javafx.scene.layout.Border;
@@ -164,6 +175,11 @@ public class WorldViewController extends BorderPane implements Listener
 		
 		dungeon.dPane.renderAll();
 		worldPane.getChildren().add(dungeon.dPane);
+		
+		if(this.dungeon.getAllRooms().size() > 3 && this.dungeon.getBosses().isEmpty())
+		{
+			InformativePopupManager.getInstance().requestPopup(dungeon.dPane, PresentableInformation.NO_BOSS_YET, "");
+		}
 	}
 	
 	/**
@@ -321,7 +337,10 @@ public class WorldViewController extends BorderPane implements Listener
 		double btnWidthSize = (maxWidth / brushBtns.size()) - (widthPadding * brushBtns.size());
 		double xStep = btnWidthSize + (btnWidthSize / 2.0) + widthPadding;
 		
-		
+//		ImageView mView = new ImageView(new Image(this.getClass().getResource("/graphics/player.gif").toExternalForm()));
+		 Animation ani = new AnimatedGif(getClass().getResource("/graphics/player.gif").toExternalForm(), 1000);
+	        ani.setCycleCount(Timeline.INDEFINITE);
+	        ani.play();
 		//Arrange the controls
 		
 		arrangeControls(widthLabel, -90, -300, 30, 50);
@@ -332,6 +351,11 @@ public class WorldViewController extends BorderPane implements Listener
 		arrangeControls(removeRoomBtn, 100, -200, 120, 100);
 		arrangeControls(getSuggestionsBtn(), 0, 0, 300, 100);
 		arrangeControls(getPickInitBtn(), 0, 200, 300, 50);
+//		arrangeControls(mView, 0, 200, 50, 50);
+		ani.getView().setX(0);
+		ani.getView().setY(200);
+		ani.getView().setFitWidth(50);
+		ani.getView().setFitHeight(50);
 		arrangeControls(pathTypeComboBox, 0, 300, 300, 50);
 		
 		String[] btnsText = {"M", "C", "P"};
@@ -359,6 +383,10 @@ public class WorldViewController extends BorderPane implements Listener
 		buttonPane.getChildren().add(widthLabel);
 		buttonPane.getChildren().add(heightLabel);
 		buttonPane.getChildren().add(pathTypeComboBox);
+		buttonPane.getChildren().add(ani.getView());
+		
+//		createNewRoomBtn.setOnAction( e -> ani.pause());
+//		removeRoomBtn.setOnAction( e -> ani.play());
 		
 		//Change the text of the buttons!
 		pickInitBtn.setText("Pick Init Room and Pos");
@@ -419,6 +447,7 @@ public class WorldViewController extends BorderPane implements Listener
 			@Override
 			public void handle(ActionEvent e) 
 			{
+				ActionLogger.getInstance().storeAction(ActionType.CLICK, View.WORLD, TargetPane.BUTTON_PANE, null);
 				DungeonDrawer.getInstance().changeBrushTo(DungeonBrushes.MOVEMENT);
 			}
 
@@ -428,6 +457,7 @@ public class WorldViewController extends BorderPane implements Listener
 			@Override
 			public void handle(ActionEvent e) 
 			{
+				ActionLogger.getInstance().storeAction(ActionType.CLICK, View.WORLD, TargetPane.BUTTON_PANE, null);
 				DungeonDrawer.getInstance().changeBrushTo(DungeonBrushes.ROOM_CONNECTOR);
 			}
 
@@ -437,6 +467,7 @@ public class WorldViewController extends BorderPane implements Listener
 			@Override
 			public void handle(ActionEvent e) 
 			{
+				ActionLogger.getInstance().storeAction(ActionType.CLICK, View.WORLD, TargetPane.BUTTON_PANE, null);
 				DungeonDrawer.getInstance().changeBrushTo(DungeonBrushes.PATH_FINDING);
 			}
 
@@ -446,6 +477,7 @@ public class WorldViewController extends BorderPane implements Listener
 			@Override
 			public void handle(ActionEvent e) 
 			{
+				ActionLogger.getInstance().storeAction(ActionType.CLICK, View.WORLD, TargetPane.BUTTON_PANE, null);
 				if(dungeon.getSelectedRoom().getDoorCount() > 0)
 				{
 					MapContainer mc = new MapContainer();
@@ -486,6 +518,7 @@ public class WorldViewController extends BorderPane implements Listener
 			@Override
 			public void handle(ActionEvent e) {
 				System.out.println("Creating a new room");
+				ActionLogger.getInstance().storeAction(ActionType.CREATE, View.WORLD, TargetPane.BUTTON_PANE, null);
 				router.postEvent(new RequestNewRoom(dungeon, -1, widthField.getValue(), heightField.getValue()));
 			}
 
@@ -496,7 +529,11 @@ public class WorldViewController extends BorderPane implements Listener
 			public void handle(ActionEvent e) {
 
 				if(dungeon.getSelectedRoom() != null)
+				{
+					ActionLogger.getInstance().storeAction(ActionType.REMOVE, View.WORLD, TargetPane.BUTTON_PANE, null);
 					router.postEvent(new RequestRoomRemoval(dungeon.getSelectedRoom(), dungeon, -1));
+				}
+					
 			}
 
 		}); 

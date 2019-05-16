@@ -40,6 +40,8 @@ import gui.controls.MAPEVisualizationPane;
 import gui.controls.Modifier;
 import gui.controls.Popup;
 import gui.controls.SuggestionRoom;
+import gui.utils.InformativePopupManager;
+import gui.utils.InformativePopupManager.PresentableInformation;
 import gui.utils.MapRenderer;
 import gui.views.RoomViewController.EditViewEventHandler;
 import gui.views.RoomViewController.EditViewMouseHover;
@@ -88,7 +90,13 @@ import javafx.scene.input.Dragboard;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.input.TransferMode;
 import javafx.scene.layout.AnchorPane;
+import javafx.scene.layout.Border;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.BorderStroke;
+import javafx.scene.layout.BorderStrokeStyle;
+import javafx.scene.layout.BorderWidths;
+import javafx.scene.layout.CornerRadii;
+import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
@@ -133,7 +141,6 @@ import game.DungeonPane;
  */
 public class RoomViewController extends BorderPane implements Listener 
 {
-
 	@FXML private ComboBox<String> DisplayCombo;
 	
 	@FXML public StackPane mapPane;
@@ -270,8 +277,7 @@ public class RoomViewController extends BorderPane implements Listener
 		brushSlider.valueProperty().addListener((obs, oldval, newVal) -> { 
 			redrawPatterns(mapView.getMap());
 			});
-		
-		
+
 		init();
 		
 		roomDisplays = new ArrayList<SuggestionRoom>();
@@ -308,6 +314,8 @@ public class RoomViewController extends BorderPane implements Listener
 		currentState = EvoState.STOPPED;
 		selectedGA = PossibleGAs.MAP_ELITES;
 		saveGenBtn.setDisable(true);
+		
+
 	}
 	
 	@FXML
@@ -370,20 +378,14 @@ public class RoomViewController extends BorderPane implements Listener
 		{
 			sr.resizeCanvasForRoom(roomToBe);
 		}
-		
+
 		initMapView();
 		initLegend();
 		resetView();
 		roomToBe.forceReevaluation();
 		updateRoom(roomToBe);	
 		generateNewMaps();
-//		
-		Popup popup = new Popup();
-		rightSidePane.getChildren().add(popup);
-		//TODO: I ENDED HERE!
-//		
-//		OnChangeTab();
-//		generateNewMaps();
+
 	}
 
 	/**
@@ -391,6 +393,11 @@ public class RoomViewController extends BorderPane implements Listener
 	 * infeasibility notifications.
 	 */
 	private void initMapView() {
+		
+		if(getMapView() != null)
+		{
+			getMapView().destructor();
+		}
 		
 		mapPane.getChildren().clear();
 
@@ -432,7 +439,6 @@ public class RoomViewController extends BorderPane implements Listener
 		enemyBtn.setMinWidth(75);
 		bossEnemyBtn.setMinWidth(75);
 		treasureBtn.setMinWidth(75);
-
 
 		getWorldGridBtn().setTooltip(new Tooltip("View your world map"));
 		getGenSuggestionsBtn().setTooltip(new Tooltip("Generate new maps according to the current map view"));
@@ -906,6 +912,7 @@ public class RoomViewController extends BorderPane implements Listener
 	@FXML
 	private void backWorldView(ActionEvent event) throws IOException 
 	{
+		router.postEvent(new Stop());
 		router.postEvent(new RequestWorldView());	
 	}
 
@@ -991,6 +998,9 @@ public class RoomViewController extends BorderPane implements Listener
 	public void mapIsFeasible(boolean state) {
 		isFeasible = state;
 		warningCanvas.setVisible(!isFeasible);
+		
+		if(!state)
+			InformativePopupManager.getInstance().requestPopup(mapView, PresentableInformation.ROOM_INFEASIBLE, "");
 	}
 
 	/**
@@ -1284,7 +1294,10 @@ public class RoomViewController extends BorderPane implements Listener
 		for (double d : safeties) {
 			totalSafety2 += d;
 		}
-		totalSafety2 = totalSafety2/safeties.length;
+		
+		if (safeties.length != 0) {
+			totalSafety2 = totalSafety2/safeties.length;
+		}
 
 		str.append(round(totalSafety * 100, 2));
 		str.append("%");
@@ -1337,6 +1350,12 @@ public class RoomViewController extends BorderPane implements Listener
 				
 				if(!myBrush.possibleToDraw())
 					return;
+				
+				if(myBrush.GetModifierValue("Lock"))
+				{
+					InformativePopupManager.getInstance().requestPopup(mapView, PresentableInformation.LOCK_RESTART, "");
+
+				}
 				
 				mapView.updateTile(tile, myBrush);
 				mapView.getMap().forceReevaluation();

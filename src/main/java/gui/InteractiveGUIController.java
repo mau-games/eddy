@@ -12,6 +12,11 @@ import java.util.ResourceBundle;
 import javax.imageio.ImageIO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import collectors.ActionLogger;
+import collectors.ActionLogger.ActionType;
+import collectors.ActionLogger.TargetPane;
+import collectors.ActionLogger.View;
 import finder.PatternFinder;
 import game.ApplicationConfig;
 import game.Dungeon;
@@ -21,6 +26,7 @@ import game.RoomEdge;
 import game.MapContainer;
 import game.TileTypes;
 import generator.config.GeneratorConfig;
+import gui.utils.InformativePopupManager;
 import gui.utils.MapRenderer;
 import gui.views.LaunchViewController;
 import gui.views.RoomViewController;
@@ -163,7 +169,10 @@ public class InteractiveGUIController implements Initializable, Listener {
 			}
 
 		});
-
+		
+		ActionLogger.getInstance().init();
+		InformativePopupManager.getInstance().setMainPane(mainPane);
+//		mainPane.getChildren().add(new Popup(200,200));
 		initLaunchView();
 
 
@@ -219,7 +228,7 @@ public class InteractiveGUIController implements Initializable, Listener {
 			}
 
 		} else if (e instanceof RequestWorldView) {
-			router.postEvent(new Stop());
+//			router.postEvent(new Stop());
 			backToWorldView();
 
 		} else if (e instanceof RequestEmptyRoom) {
@@ -261,6 +270,17 @@ public class InteractiveGUIController implements Initializable, Listener {
 	 */
 
 	public void startNewFlow() {
+		//TODO: There is mucho more than this, a lot of things need to be redone!
+		
+		ActionLogger.getInstance().saveNFlush();
+		
+		suggestionsView = new SuggestionsViewController();
+		roomView = new RoomViewController();
+		worldView = new WorldViewController();
+		launchView = new LaunchViewController();
+		dungeonMap = null;
+
+		
 		initLaunchView();
 	}
 
@@ -464,7 +484,7 @@ public class InteractiveGUIController implements Initializable, Listener {
 		AnchorPane.setBottomAnchor(roomView, 0.0);
 		AnchorPane.setLeftAnchor(roomView, 0.0);
 		mainPane.getChildren().add(roomView);
-		roomView.updateRoom(map.getMap());	
+//		roomView.updateRoom(map.getMap());	
 		setCurrentQuadMap(map);
 
 		

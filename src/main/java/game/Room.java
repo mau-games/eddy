@@ -1406,7 +1406,7 @@ public class Room {
 //    	System.out.println(allSectionsReachable(walkableSections));
 
     	return  (treasure + doors + enemies == getTreasureCount() + getDoorCount() + getEnemyCount()) //Same amount of treasure+enemies+doors
-    			&& getTreasureCount() > 0 && getEnemyCount() > 0 //Finns at least 1(one) enemy and one treasure
+//    			&& getTreasureCount() > 0 && getEnemyCount() > 0 //Finns at least 1(one) enemy and one treasure
     			&& sectionsReachable; //All sections in the room are reachable!!!
 		
 //		return true;

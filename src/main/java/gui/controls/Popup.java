@@ -3,7 +3,11 @@ package gui.controls;
 import java.io.IOException;
 
 import game.ApplicationConfig;
+import gui.utils.InformativePopupManager;
+import gui.utils.InformativePopupManager.PresentableInformation;
 import javafx.animation.FadeTransition;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.control.Label;
@@ -18,8 +22,9 @@ public class Popup extends BorderPane
 	@FXML public Label information;
 	
 	FadeTransition fadeOut;
+	protected PresentableInformation informationType;
 	
-	public Popup()
+	public Popup(PresentableInformation type)
 	{
 		super();
 		FXMLLoader loader = new FXMLLoader(getClass().getResource("/gui/controls/PopupInfo.fxml"));
@@ -32,11 +37,38 @@ public class Popup extends BorderPane
 			throw new RuntimeException(exception);
 		}
 		show();
+		informationType = type;
+	}
+	
+	public Popup(double x, double y, PresentableInformation type)
+	{
+		super();
+		FXMLLoader loader = new FXMLLoader(getClass().getResource("/gui/controls/PopupInfo.fxml"));
+		loader.setRoot(this);
+		loader.setController(this);
+		
+		try {
+			loader.load();
+		} catch (IOException exception) {
+			throw new RuntimeException(exception);
+		}
+		
+		show();
+		
+		setLayoutX(x);
+		setLayoutY(y);
+		informationType = type;
 	}
 	
 	public void setInformation(String text)
 	{
 		information.setText(text);
+	}
+	
+	public void setPosition(double x, double y)
+	{
+		setLayoutX(x);
+		setLayoutY(y);
 	}
 	
 	public void detach()
@@ -56,5 +88,12 @@ public class Popup extends BorderPane
 		fadeOut.setToValue(0.0);
 		fadeOut.setDelay(Duration.millis(5000));
 		fadeOut.play();
+		
+		fadeOut.onFinishedProperty().set(new EventHandler<ActionEvent>() {
+	        @Override 
+	        public void handle(ActionEvent actionEvent) {
+	            InformativePopupManager.getInstance().popupFinished(informationType);
+	        }
+	    });
 	}
 }

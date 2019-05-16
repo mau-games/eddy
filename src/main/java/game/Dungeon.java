@@ -11,6 +11,8 @@ import com.google.common.graph.NetworkBuilder;
 import finder.patterns.micro.Boss;
 import game.tiles.BossEnemyTile;
 import generator.config.GeneratorConfig;
+import gui.utils.InformativePopupManager;
+import gui.utils.InformativePopupManager.PresentableInformation;
 import util.Point;
 import util.eventrouting.EventRouter;
 import util.eventrouting.Listener;
@@ -156,6 +158,7 @@ public class Dungeon implements Listener
 		}
 		
 		checkInterFeasible(true);
+		InformativePopupManager.getInstance().requestPopup(dPane, PresentableInformation.ROOMS_CONNECTED, "");
 	}
 	
 	/**
