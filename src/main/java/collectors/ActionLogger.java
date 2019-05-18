@@ -67,9 +67,9 @@ public class ActionLogger {
 		return instance;
 	}
 	
-	public void storeAction(ActionType action, View currentView, TargetPane targetPane, PCGEvent event)
+	public void storeAction(ActionType action, View currentView, TargetPane targetPane, boolean grouped, Object... event)
 	{
-		ActionLog log = new ActionLog(new Timestamp(System.currentTimeMillis()), action, currentView, targetPane, false, event);
+		ActionLog log = new ActionLog(new Timestamp(System.currentTimeMillis()), action, currentView, targetPane, grouped, event);
 		logs.add(log);
 	}
 	
@@ -102,23 +102,23 @@ public class ActionLogger {
 		ActionType action;
 		View currentView;
 		TargetPane targetPane;
-		PCGEvent event; //This wont be 
+		TargetHolder event; //This wont be 
 		Boolean grouped;
 		
-		public ActionLog(Timestamp timeStamp, ActionType action, View currentView, TargetPane targetPane, Boolean grouped, PCGEvent event)
+		public ActionLog(Timestamp timeStamp, ActionType action, View currentView, TargetPane targetPane, Boolean grouped, Object... information)
 		{
 			this.timeStamp = timeStamp;
 			this.action = action;
 			this.currentView = currentView;
 			this.targetPane = targetPane;
-			this.event = event;
 			this.grouped = grouped;
+			this.event = new TargetHolder(information);
 		}
 		
 		@Override
 		public String toString()
 		{
-			return timeStamp + ";" + currentView + ";" + targetPane + ";" + action + ";" + grouped+ ";" + "event";
+			return timeStamp + ";" + currentView + ";" + targetPane + ";" + action + ";" + grouped+ ";" + event.getInformation();
 		}
 		
 	}
@@ -135,6 +135,22 @@ public class ActionLogger {
 			{
 				information[index++] = object;
 			}
+		}
+		
+		public String getInformation()
+		{
+			String result = "";
+			for(int i = 0; i < information.length; i++)
+			{
+				result += information[i].toString();
+				
+				if(i != information.length -1 )
+				{
+					result += ";";
+				}
+			}
+			
+			return result;
 		}
 	}
 	

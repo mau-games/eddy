@@ -8,6 +8,10 @@ import java.util.Stack;
 import com.google.common.graph.MutableNetwork;
 import com.google.common.graph.NetworkBuilder;
 
+import collectors.ActionLogger;
+import collectors.ActionLogger.ActionType;
+import collectors.ActionLogger.TargetPane;
+import collectors.ActionLogger.View;
 import finder.patterns.micro.Boss;
 import game.tiles.BossEnemyTile;
 import generator.config.GeneratorConfig;
@@ -159,6 +163,14 @@ public class Dungeon implements Listener
 		
 		checkInterFeasible(true);
 		InformativePopupManager.getInstance().requestPopup(dPane, PresentableInformation.ROOMS_CONNECTED, "");
+		
+		ActionLogger.getInstance().storeAction(ActionType.CREATE_ROOM, 
+												View.WORLD, 
+												TargetPane.WORLD_MAP_PANE, 
+												false,
+												auxR,
+												width,
+												height);
 	}
 	
 	/**
@@ -194,6 +206,15 @@ public class Dungeon implements Listener
 			}
 			
 			dPane.removeVisualConnector(edge);
+			
+			ActionLogger.getInstance().storeAction(ActionType.REMOVE_CONNECTION, 
+													View.WORLD, 
+													TargetPane.WORLD_MAP_PANE, 
+													true,
+													edge.from,
+													edge.fromPosition,
+													edge.to,
+													edge.toPosition);
 		}
 		
 		//remove this room and its visual representation
@@ -218,6 +239,12 @@ public class Dungeon implements Listener
 		checkInterFeasible(true);
 		//probably this should be connected to the size value of the rooms LIST
 		this.size--;
+		
+		ActionLogger.getInstance().storeAction(ActionType.REMOVE_ROOM, 
+												View.WORLD, 
+												TargetPane.WORLD_MAP_PANE, 
+												false,
+												roomToRemove);
 	}
 	
 	/**
@@ -235,6 +262,15 @@ public class Dungeon implements Listener
 		
 		//TODO: THIS IS WORK IN PROGRESS
 		checkInterFeasible(true);
+		
+		ActionLogger.getInstance().storeAction(ActionType.REMOVE_CONNECTION, 
+												View.WORLD, 
+												TargetPane.WORLD_MAP_PANE, 
+												false,
+												edgeToRemove.from,
+												edgeToRemove.fromPosition,
+												edgeToRemove.to,
+												edgeToRemove.toPosition);
 	}
 	
 	//Rooms could be an ID
@@ -255,6 +291,16 @@ public class Dungeon implements Listener
 		{
 			System.out.println(e.print());
 		}
+		
+
+		ActionLogger.getInstance().storeAction(ActionType.CREATE_CONNECTION, 
+												View.WORLD, 
+												TargetPane.WORLD_MAP_PANE, 
+												false,
+												from,
+												fromPosition,
+												to,
+												toPosition);
 	}
 	
 	public void setInitialRoom(Room initRoom, Point initialPos)

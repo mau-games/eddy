@@ -161,7 +161,7 @@ public class WorldViewController extends BorderPane implements Listener
 	
 	public void initWorldMap(Dungeon dungeon) 
 	{
-		
+		//CHECK THE PROPERTY
 		if(widthField == null)
 			widthField = new IntField(1, 20, dungeon.defaultWidth);
 		
@@ -447,7 +447,12 @@ public class WorldViewController extends BorderPane implements Listener
 			@Override
 			public void handle(ActionEvent e) 
 			{
-				ActionLogger.getInstance().storeAction(ActionType.CLICK, View.WORLD, TargetPane.BUTTON_PANE, null);
+				ActionLogger.getInstance().storeAction(ActionType.CLICK,
+														View.WORLD, 
+														TargetPane.BUTTON_PANE, 
+														false,
+														DungeonBrushes.MOVEMENT);
+				
 				DungeonDrawer.getInstance().changeBrushTo(DungeonBrushes.MOVEMENT);
 			}
 
@@ -457,7 +462,12 @@ public class WorldViewController extends BorderPane implements Listener
 			@Override
 			public void handle(ActionEvent e) 
 			{
-				ActionLogger.getInstance().storeAction(ActionType.CLICK, View.WORLD, TargetPane.BUTTON_PANE, null);
+				ActionLogger.getInstance().storeAction(ActionType.CLICK,
+														View.WORLD, 
+														TargetPane.BUTTON_PANE, 
+														false,
+														DungeonBrushes.ROOM_CONNECTOR);
+				
 				DungeonDrawer.getInstance().changeBrushTo(DungeonBrushes.ROOM_CONNECTOR);
 			}
 
@@ -467,7 +477,12 @@ public class WorldViewController extends BorderPane implements Listener
 			@Override
 			public void handle(ActionEvent e) 
 			{
-				ActionLogger.getInstance().storeAction(ActionType.CLICK, View.WORLD, TargetPane.BUTTON_PANE, null);
+				ActionLogger.getInstance().storeAction(ActionType.CLICK,
+														View.WORLD, 
+														TargetPane.BUTTON_PANE, 
+														false,
+														DungeonBrushes.PATH_FINDING);
+				
 				DungeonDrawer.getInstance().changeBrushTo(DungeonBrushes.PATH_FINDING);
 			}
 
@@ -477,9 +492,14 @@ public class WorldViewController extends BorderPane implements Listener
 			@Override
 			public void handle(ActionEvent e) 
 			{
-				ActionLogger.getInstance().storeAction(ActionType.CLICK, View.WORLD, TargetPane.BUTTON_PANE, null);
 				if(dungeon.getSelectedRoom().getDoorCount() > 0)
 				{
+					ActionLogger.getInstance().storeAction(ActionType.CLICK,
+															View.WORLD, 
+															TargetPane.BUTTON_PANE, 
+															false,
+															"Suggestions");
+					
 					MapContainer mc = new MapContainer();
 					mc.setMap(dungeon.getSelectedRoom());
 					router.postEvent(new RequestSuggestionsView(mc, 6));
@@ -518,7 +538,11 @@ public class WorldViewController extends BorderPane implements Listener
 			@Override
 			public void handle(ActionEvent e) {
 				System.out.println("Creating a new room");
-				ActionLogger.getInstance().storeAction(ActionType.CREATE, View.WORLD, TargetPane.BUTTON_PANE, null);
+				ActionLogger.getInstance().storeAction(ActionType.CLICK, 
+														View.WORLD, 
+														TargetPane.BUTTON_PANE, 
+														false,
+														"Create Room");
 				router.postEvent(new RequestNewRoom(dungeon, -1, widthField.getValue(), heightField.getValue()));
 			}
 
@@ -530,7 +554,11 @@ public class WorldViewController extends BorderPane implements Listener
 
 				if(dungeon.getSelectedRoom() != null)
 				{
-					ActionLogger.getInstance().storeAction(ActionType.REMOVE, View.WORLD, TargetPane.BUTTON_PANE, null);
+					ActionLogger.getInstance().storeAction(ActionType.CLICK, 
+															View.WORLD, 
+															TargetPane.BUTTON_PANE, 
+															false,
+															"Remove Room");
 					router.postEvent(new RequestRoomRemoval(dungeon.getSelectedRoom(), dungeon, -1));
 				}
 					

@@ -104,7 +104,7 @@ public class InteractiveMap extends GridPane implements Listener {
 		}
 		
 		brush.Draw(Point.castToGeometry(p), room, this);
-		ActionLogger.getInstance().storeAction(ActionType.CHANGE_VALUE, View.ROOM, TargetPane.MAP_PANE, null);
+
 //		
 //		//The brush has all the points that will be modified
 //		//TODO: I THINK THAT the brush should do this part!

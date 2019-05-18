@@ -12,6 +12,10 @@ import java.util.UUID;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import collectors.ActionLogger;
+import collectors.ActionLogger.ActionType;
+import collectors.ActionLogger.TargetPane;
+import collectors.ActionLogger.View;
 import finder.patterns.Pattern;
 import finder.patterns.micro.Connector;
 import finder.patterns.micro.Corridor;
@@ -276,6 +280,12 @@ public class RoomViewController extends BorderPane implements Listener
 
 		brushSlider.valueProperty().addListener((obs, oldval, newVal) -> { 
 			redrawPatterns(mapView.getMap());
+			ActionLogger.getInstance().storeAction(ActionType.CHANGE_VALUE, 
+													View.ROOM, 
+													TargetPane.BRUSH_PANE,
+													false,
+													oldval,
+													newVal); //Point 
 			});
 
 		init();
@@ -699,6 +709,17 @@ public class RoomViewController extends BorderPane implements Listener
 				selectedSuggestion.setSelected(false);
 			
 			selectedSuggestion = (SuggestionRoom) ((SuggestedMapSelected) e).getPayload();
+			ActionLogger.getInstance().storeAction(ActionType.CLICK,
+													View.ROOM, 
+													TargetPane.SUGGESTION_PANE, 
+													false,
+													currentDimensions[0].getDimension(),
+													currentDimensions[0].getGranularity(),
+													selectedSuggestion.getSuggestedRoom().getDimensionValue(currentDimensions[0].getDimension()),
+													currentDimensions[1].getDimension(),
+													currentDimensions[1].getGranularity(),
+													selectedSuggestion.getSuggestedRoom().getDimensionValue(currentDimensions[1].getDimension()),
+													selectedSuggestion.getSuggestedRoom());
 			clearStats();
 			displayStats();
 			getAppSuggestionsBtn().setDisable(false);
@@ -1042,6 +1063,18 @@ public class RoomViewController extends BorderPane implements Listener
 		
 		if(selectedSuggestion != null)
 		{
+			ActionLogger.getInstance().storeAction(ActionType.CHANGE_VALUE,
+													View.ROOM, 
+													TargetPane.SUGGESTION_PANE, 
+													false,
+													currentDimensions[0].getDimension(),
+													currentDimensions[0].getGranularity(),
+													selectedSuggestion.getSuggestedRoom().getDimensionValue(currentDimensions[0].getDimension()),
+													currentDimensions[1].getDimension(),
+													currentDimensions[1].getGranularity(),
+													selectedSuggestion.getSuggestedRoom().getDimensionValue(currentDimensions[1].getDimension()),
+													selectedSuggestion.getSuggestedRoom());
+			
 			mapView.getMap().applySuggestion(selectedSuggestion.getSuggestedRoom());
 			updateRoom(mapView.getMap());
 		}

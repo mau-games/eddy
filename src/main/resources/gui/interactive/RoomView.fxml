@@ -180,7 +180,7 @@
 								<DimensionsTable fx:id="MainTable">
 									<columnResizePolicy><TableView fx:constant="CONSTRAINED_RESIZE_POLICY"/></columnResizePolicy>
 								 	<columns>											 	
-										<TableColumn text="Dimension">
+										<TableColumn text="Current Dimension">
 											<cellValueFactory>
 												<PropertyValueFactory property="dimension" />
 											</cellValueFactory>
@@ -199,7 +199,7 @@
 							    <DimensionsTable fx:id="secondaryTable">
 									<columnResizePolicy><TableView fx:constant="CONSTRAINED_RESIZE_POLICY"/></columnResizePolicy>
 								 	<columns>											 	
-										<TableColumn text="Dimension">
+										<TableColumn text="Available Dimensions">
 											<cellValueFactory>
 												<PropertyValueFactory property="dimension" />
 											</cellValueFactory>

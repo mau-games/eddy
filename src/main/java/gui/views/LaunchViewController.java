@@ -71,7 +71,11 @@ public class LaunchViewController extends BorderPane implements Listener{
 	
 	@FXML
 	private void createWorld(ActionEvent event) throws IOException {
-		ActionLogger.getInstance().storeAction(ActionType.CLICK, View.LAUNCH, TargetPane.BUTTON_PANE, null);
+		ActionLogger.getInstance().storeAction(ActionType.CLICK, 
+												View.LAUNCH, 
+												TargetPane.BUTTON_PANE, 
+												false, 
+												createWorldBtn.getText());
 		router.postEvent(new StartWorld(1));
 	}
 

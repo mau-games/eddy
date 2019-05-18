@@ -16,6 +16,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Queue;
 import java.util.Stack;
+import java.util.UUID;
 
 import javax.swing.text.Position;
 
@@ -51,6 +52,13 @@ import generator.algorithm.MAPElites.Dimensions.GADimension;
 import generator.algorithm.MAPElites.Dimensions.GADimension.DimensionTypes;
 import generator.config.GeneratorConfig;
 
+import javax.xml.parsers.*;
+import javax.xml.transform.*;
+import javax.xml.transform.dom.*;
+import javax.xml.transform.stream.*;
+import org.xml.sax.*;
+import org.w3c.dom.*;
+
 /**
  * This class represents a dungeon room map.
  * 
@@ -77,6 +85,8 @@ public class Room {
 	
 	//Might be interesting to know the dimension of the room?
 	protected HashMap<DimensionTypes, Double> dimensionValues;
+	//I need a special ID for rooms
+	UUID specificID = UUID.randomUUID();
 
 /////////////////////////OLD///////////////////////////
 
@@ -2278,19 +2288,29 @@ public class Room {
 
 		return room;
 	}
-
+//
+//	@Override
+//	public String toString() {
+//		StringBuilder map = new StringBuilder();
+//
+//		for (int j = 0; j < height; j++){
+//			for (int i = 0; i < width; i++)  {
+//				map.append(Integer.toHexString(matrix[j][i]));
+//			}
+//			map.append("\n");
+//		}
+//
+//		return map.toString();
+//	}
+	
 	@Override
 	public String toString() {
-		StringBuilder map = new StringBuilder();
-
-		for (int j = 0; j < height; j++){
-			for (int i = 0; i < width; i++)  {
-				map.append(Integer.toHexString(matrix[j][i]));
-			}
-			map.append("\n");
-		}
-
-		return map.toString();
+		return specificID.toString();
+	}
+	
+	public void getRoominXML()
+	{
+		Document dom;
 	}
 
 	

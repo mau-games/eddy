@@ -1,5 +1,9 @@
 package gui.controls;
 
+import collectors.ActionLogger;
+import collectors.ActionLogger.ActionType;
+import collectors.ActionLogger.TargetPane;
+import collectors.ActionLogger.View;
 import game.Room;
 import game.WorldViewCanvas.MouseEventH;
 import gui.utils.DungeonDrawer;
@@ -75,7 +79,7 @@ public class SuggestionRoom
 	            	EventRouter.getInstance().postEvent(new SuggestedMapSelected(self));
 	            	selected = true;
 	            	highlight(true);
-
+	            	
 	            }
 	        });
 			

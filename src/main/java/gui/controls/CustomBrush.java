@@ -2,6 +2,10 @@ package gui.controls;
 
 import java.util.List;
 
+import collectors.ActionLogger;
+import collectors.ActionLogger.ActionType;
+import collectors.ActionLogger.TargetPane;
+import collectors.ActionLogger.View;
 import finder.geometry.Bitmap;
 import finder.geometry.Point;
 import game.Room;
@@ -113,6 +117,15 @@ public class CustomBrush extends Brush
 		for(Point position : GetDrawableTiles().getPoints())
 		{
 			currentTile = room.getTile(position.getX(), position.getY());
+			
+			ActionLogger.getInstance().storeAction(ActionType.CHANGE_TILE, 
+													View.ROOM, 
+													TargetPane.MAP_PANE,
+													true,
+													room, //ROOM A
+													position, //Pos A
+													currentTile.GetType(), //TILE A
+													GetMainComponent()); //TILE B
 			
 			// Let's discard any attempts at erasing the doors
 			if(currentTile.GetType() == TileTypes.DOOR)

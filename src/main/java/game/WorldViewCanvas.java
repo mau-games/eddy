@@ -1,6 +1,10 @@
 package game;
 
 
+import collectors.ActionLogger;
+import collectors.ActionLogger.ActionType;
+import collectors.ActionLogger.TargetPane;
+import collectors.ActionLogger.View;
 import gui.controls.LabeledCanvas;
 import gui.utils.DungeonDrawer;
 import gui.utils.MapRenderer;
@@ -30,6 +34,10 @@ public class WorldViewCanvas
 	public float viewSizeWidth;
 	private double dragAnchorX;
 	private double dragAnchorY;
+	private double prevPositionX;
+	private double prevPositionY;
+	
+	
 //	public double tileSizeWidth; //TODO: public just to test
 //	public double tileSizeHeight;
 	private Node source;
@@ -230,6 +238,16 @@ public class WorldViewCanvas
 	            	{
 	            		DungeonDrawer.getInstance().getBrush().onReleaseRoom(owner, currentBrushPosition);
 	            	}
+	            	
+	            	ActionLogger.getInstance().storeAction(ActionType.CHANGE_POSITION, 
+															View.WORLD, 
+															TargetPane.WORLD_MAP_PANE,
+															false,
+															owner,
+															prevPositionX, //Point A
+															prevPositionY, //Point A
+															worldGraphicNode.getLayoutX(), //Point B
+															worldGraphicNode.getLayoutY());//Point B
 	            }
 
 	        });
@@ -303,6 +321,9 @@ public class WorldViewCanvas
 	            	
 	            	dragAnchorX = event.getX();
 	            	dragAnchorY = event.getY();
+	            	prevPositionX = worldGraphicNode.getLayoutX();
+	            	prevPositionX = worldGraphicNode.getLayoutY();
+	            	
 	            	currentBrushPosition =  new Point((int)( event.getX() / tileSizeWidth.get()), (int)( event.getY() / tileSizeHeight.get() ));
 	            	
 	            	if(DungeonDrawer.getInstance().getBrush() instanceof RoomConnectorBrush)
