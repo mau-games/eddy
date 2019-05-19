@@ -1,9 +1,24 @@
 package generator.algorithm.MAPElites;
 
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 import java.util.UUID;
+
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.OutputKeys;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerException;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
+
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 
 import collectors.MAPECollector;
 import finder.PatternFinder;
@@ -20,6 +35,7 @@ import generator.algorithm.MAPElites.Dimensions.SymmetryGADimension;
 import generator.algorithm.MAPElites.Dimensions.GADimension.DimensionTypes;
 import generator.algorithm.Algorithm.AlgorithmTypes;
 import generator.config.GeneratorConfig;
+import gui.InteractiveGUIController;
 import util.Util;
 import util.eventrouting.EventRouter;
 import util.eventrouting.Listener;
@@ -30,6 +46,7 @@ import util.eventrouting.events.MAPEGenerationDone;
 import util.eventrouting.events.MAPEGridUpdate;
 import util.eventrouting.events.MAPElitesDone;
 import util.eventrouting.events.MapUpdate;
+import util.eventrouting.events.SaveCurrentGeneration;
 import util.eventrouting.events.SaveDisplayedCells;
 import util.eventrouting.events.UpdatePreferenceModel;
 
@@ -109,6 +126,7 @@ public class MAPEliteAlgorithm extends Algorithm implements Listener {
 		broadcastStatusUpdate("Initialising...");
 		EventRouter.getInstance().registerListener(this, new MAPEGridUpdate(null));
 		EventRouter.getInstance().registerListener(this, new UpdatePreferenceModel(null));
+		EventRouter.getInstance().registerListener(this, new SaveCurrentGeneration());
 		
 		this.dimensions = dimensions;
 		initCells(dimensions);
@@ -289,6 +307,10 @@ public class MAPEliteAlgorithm extends Algorithm implements Listener {
 			//TODO: PLEASE CHANGE THIS
 //			RecreateCells();
 			dimensionsChanged = true;
+		}
+		else if(e instanceof SaveCurrentGeneration)
+		{
+			storeMAPELITESXml();
 		}
 	}
 	
@@ -733,6 +755,7 @@ public class MAPEliteAlgorithm extends Algorithm implements Listener {
 	{
 		EventRouter.getInstance().unregisterListener(this, new MAPEGridUpdate(null));
 		EventRouter.getInstance().unregisterListener(this, new UpdatePreferenceModel(null));
+		EventRouter.getInstance().unregisterListener(this, new SaveCurrentGeneration());
 		
 		cells.clear();
 		MAPElitesDimensions.clear();
@@ -866,22 +889,83 @@ public class MAPEliteAlgorithm extends Algorithm implements Listener {
 		return mutatedChildren;
 	}
 	
-	//Select the parents from the popuation
-	protected void SelectParents()
+	protected void storeMAPELITESXml()
 	{
-		//This method
-	}
-	
-	protected void BreedFeasibleIndividuals()
-	{
-		
-	}
-	
-	protected void BreedInfeasibleIndividuals()
-	{
-		
-	}
+		Document dom;
+	    Element e = null;
+	    Element next = null;
+	    String xml = System.getProperty("user.dir") + "\\my-data\\summer-school\\"+ InteractiveGUIController.runID + "\\algorithm\\algorithm-" + id + ".xml";
 
+	    // instance of a DocumentBuilderFactory
+	    DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+	    try {
+	        // use factory to get an instance of document builder
+	        DocumentBuilder db = dbf.newDocumentBuilder();
+	        // create instance of DOM
+	        dom = db.newDocument();
+
+	        // create the root element
+	        Element rootEle = dom.createElement("Run");
+	        rootEle.setAttribute("ID", id.toString());
+//	        rootEle.setAttribute("TIME", TIMESTAMP);
+	        
+	        // create data elements and place them under root
+	        e = dom.createElement("Dimensions");
+	        rootEle.appendChild(e);
+	        
+	        //DIMENSIONS
+	        for(GADimension dimension : MAPElitesDimensions)
+	        {
+	        	 next = dom.createElement("Dimension");
+	 	        next.setAttribute("name", dimension.GetType().toString());
+	 	        next.setAttribute("granularity", Double.toString(dimension.GetGranularity()));
+	 	        e.appendChild(next);
+	        }
+	       
+	        //ROOMS
+	        e = dom.createElement("Cells");
+	        rootEle.appendChild(e);
+	        
+	        for(GACell cell : cells)
+			{
+		        next = dom.createElement("Cell");
+		        if(cell.GetFeasiblePopulation().isEmpty())
+		        {
+		        	next.setAttribute("ROOM_ID", "NULL");
+		        }
+		        else
+		        {
+		        	cell.GetFeasiblePopulation().get(0).getPhenotype().getMap(-1, -1, null, null, null).getRoomXML("algorithm\\");
+		        	next.setAttribute("ROOM_ID", cell.GetFeasiblePopulation().get(0).getPhenotype().getMap(-1, -1, null, null, null).toString());
+			        next.setAttribute("fitness", Double.toString(cell.GetFeasiblePopulation().get(0).getFitness()));
+			       
+		        }
+		        e.appendChild(next);
+			}
+
+	        dom.appendChild(rootEle);
+
+	        try {
+	            Transformer tr = TransformerFactory.newInstance().newTransformer();
+	            tr.setOutputProperty(OutputKeys.INDENT, "yes");
+	            tr.setOutputProperty(OutputKeys.METHOD, "xml");
+	            tr.setOutputProperty(OutputKeys.ENCODING, "UTF-8");
+	            tr.setOutputProperty(OutputKeys.DOCTYPE_SYSTEM, "algorithm.dtd");
+	            tr.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "4");
+
+	            // send DOM to file
+	            tr.transform(new DOMSource(dom), 
+	                                 new StreamResult(new FileOutputStream(xml)));
+
+	        } catch (TransformerException te) {
+	            System.out.println(te.getMessage());
+	        } catch (IOException ioe) {
+	            System.out.println(ioe.getMessage());
+	        }
+	    } catch (ParserConfigurationException pce) {
+	        System.out.println("UsersXML: Error trying to instantiate DocumentBuilder " + pce);
+	    }
+	}
 
 	
 }

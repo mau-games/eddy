@@ -9,11 +9,14 @@ import java.nio.file.Files;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ResourceBundle;
+import java.util.UUID;
+
 import javax.imageio.ImageIO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import collectors.ActionLogger;
+import collectors.DataSaverLoader;
 import collectors.ActionLogger.ActionType;
 import collectors.ActionLogger.TargetPane;
 import collectors.ActionLogger.View;
@@ -131,6 +134,8 @@ public class InteractiveGUIController implements Initializable, Listener {
 	//NEW
 	private Dungeon dungeonMap = new Dungeon();
 	
+	public static UUID runID;
+	
 
 	@Override
 	public void initialize(URL location, ResourceBundle resources) {
@@ -169,6 +174,22 @@ public class InteractiveGUIController implements Initializable, Listener {
 			}
 
 		});
+		
+		runID = UUID.randomUUID();
+
+		File file = new File(DataSaverLoader.projectPath + "\\summer-school\\" + runID + "\\algorithm\\");
+		if (!file.exists()) {
+			file.mkdirs();
+		}
+		file = new File(DataSaverLoader.projectPath + "\\summer-school\\" + runID + "\\dungeon\\");
+		if (!file.exists()) {
+			file.mkdirs();
+		}
+		file = new File(DataSaverLoader.projectPath + "\\summer-school\\" + runID + "\\room\\");
+		if (!file.exists()) {
+			file.mkdirs();
+		}
+		
 		
 		ActionLogger.getInstance().init();
 		InformativePopupManager.getInstance().setMainPane(mainPane);
@@ -279,8 +300,20 @@ public class InteractiveGUIController implements Initializable, Listener {
 		worldView = new WorldViewController();
 		launchView = new LaunchViewController();
 		dungeonMap = null;
-
 		
+		runID = UUID.randomUUID();
+		File file = new File(DataSaverLoader.projectPath + "\\summer-school\\" + runID + "\\algorithm\\");
+		if (!file.exists()) {
+			file.mkdirs();
+		}
+		file = new File(DataSaverLoader.projectPath + "\\summer-school\\" + runID + "\\dungeon\\");
+		if (!file.exists()) {
+			file.mkdirs();
+		}
+		file = new File(DataSaverLoader.projectPath + "\\summer-school\\" + runID + "\\room\\");
+		if (!file.exists()) {
+			file.mkdirs();
+		}
 		initLaunchView();
 	}
 

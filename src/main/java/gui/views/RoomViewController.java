@@ -125,6 +125,7 @@ import util.eventrouting.events.MapUpdate;
 import util.eventrouting.events.RequestAppliedMap;
 import util.eventrouting.events.RequestRoomView;
 import util.eventrouting.events.RequestWorldView;
+import util.eventrouting.events.SaveCurrentGeneration;
 import util.eventrouting.events.SaveDisplayedCells;
 import util.eventrouting.events.StartGA_MAPE;
 import util.eventrouting.events.StartMapMutate;
@@ -605,6 +606,23 @@ public class RoomViewController extends BorderPane implements Listener
 		
 		if(e instanceof MAPEGridUpdate)
 		{
+			if(currentDimensions != null && currentDimensions.length > 0)
+			{
+				ActionLogger.getInstance().storeAction(ActionType.CHANGE_VALUE,
+														View.ROOM, 
+														TargetPane.SUGGESTION_PANE, 
+														false,
+														currentDimensions[0].getDimension(),
+														currentDimensions[0].getGranularity(),
+														currentDimensions[1].getDimension(),
+														currentDimensions[1].getGranularity(),
+														((MAPEGridUpdate) e).getDimensions()[0].getDimension(),
+														((MAPEGridUpdate) e).getDimensions()[0].getGranularity(),
+														((MAPEGridUpdate) e).getDimensions()[1].getDimension(),
+														((MAPEGridUpdate) e).getDimensions()[1].getGranularity()
+														);
+			}
+			
 			MAPElitesPane.dimensionsUpdated(roomDisplays, ((MAPEGridUpdate) e).getDimensions());
 			currentDimensions = ((MAPEGridUpdate) e).getDimensions(); 
 			OnChangeTab();
@@ -1075,6 +1093,8 @@ public class RoomViewController extends BorderPane implements Listener
 													selectedSuggestion.getSuggestedRoom().getDimensionValue(currentDimensions[1].getDimension()),
 													selectedSuggestion.getSuggestedRoom());
 			
+			router.postEvent(new SaveCurrentGeneration());
+			
 			mapView.getMap().applySuggestion(selectedSuggestion.getSuggestedRoom());
 			updateRoom(mapView.getMap());
 		}
@@ -1392,6 +1412,7 @@ public class RoomViewController extends BorderPane implements Listener
 				
 				mapView.updateTile(tile, myBrush);
 				mapView.getMap().forceReevaluation();
+				mapView.getMap().getRoomXML("room\\");
 				mapIsFeasible(mapView.getMap().isIntraFeasible());
 				redrawPatterns(mapView.getMap());
 				redrawLocks(mapView.getMap());

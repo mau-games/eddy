@@ -1,6 +1,7 @@
 package game;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
 import java.nio.file.Watchable;
@@ -51,6 +52,7 @@ import util.eventrouting.events.MapUpdate;
 import generator.algorithm.MAPElites.Dimensions.GADimension;
 import generator.algorithm.MAPElites.Dimensions.GADimension.DimensionTypes;
 import generator.config.GeneratorConfig;
+import gui.InteractiveGUIController;
 
 import javax.xml.parsers.*;
 import javax.xml.transform.*;
@@ -87,6 +89,7 @@ public class Room {
 	protected HashMap<DimensionTypes, Double> dimensionValues;
 	//I need a special ID for rooms
 	UUID specificID = UUID.randomUUID();
+	int saveCounter = 1;
 
 /////////////////////////OLD///////////////////////////
 
@@ -1553,6 +1556,7 @@ public class Room {
 	
 	public double getDimensionValue(DimensionTypes currentDimension)
 	{
+		if(dimensionValues == null || !dimensionValues.containsKey(currentDimension)) return -1.0;
 		return dimensionValues.get(currentDimension);
 	}
 	
@@ -2308,9 +2312,94 @@ public class Room {
 		return specificID.toString();
 	}
 	
-	public void getRoominXML()
+	public void getRoomXML(String prefix)
 	{
 		Document dom;
+	    Element e = null;
+	    Element next = null;
+	    String xml = System.getProperty("user.dir") + "\\my-data\\summer-school\\" + InteractiveGUIController.runID + "\\" + prefix + "room-" + this.toString() + "_" + saveCounter++ + ".xml";
+
+	    // instance of a DocumentBuilderFactory
+	    DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+	    try {
+	        // use factory to get an instance of document builder
+	        DocumentBuilder db = dbf.newDocumentBuilder();
+	        // create instance of DOM
+	        dom = db.newDocument();
+
+	        // create the root element
+	        Element rootEle = dom.createElement("Room");
+	        rootEle.setAttribute("ID", this.toString());
+	        rootEle.setAttribute("width", Integer.toString(this.getColCount()));
+	        rootEle.setAttribute("height", Integer.toString(this.getRowCount()));
+//	        rootEle.setAttribute("TIME", this.toString());
+//	        rootEle.setAttribute("type", "SUGGESTIONS OR MAIN");
+	        
+	        // create data elements and place them under root
+	        e = dom.createElement("Dimensions");
+	        rootEle.appendChild(e);
+	        
+	        //DIMENSIONS
+	        next = dom.createElement("Dimension");
+	        next.setAttribute("name", DimensionTypes.SIMILARITY.toString());
+	        next.setAttribute("value", Double.toString(getDimensionValue(DimensionTypes.SIMILARITY)));
+	        e.appendChild(next);
+	        
+	        next = dom.createElement("Dimension");
+	        next.setAttribute("name", DimensionTypes.SYMMETRY.toString());
+	        next.setAttribute("value", Double.toString(getDimensionValue(DimensionTypes.SYMMETRY)));
+	        e.appendChild(next);
+	        
+	        //TILES
+	        e = dom.createElement("Tiles");
+	        rootEle.appendChild(e);
+	        
+	        for (int j = 0; j < height; j++) 
+			{
+				for (int i = 0; i < width; i++) 
+				{
+					next = dom.createElement("Tile");
+			        next.setAttribute("value", getTile(i, j).GetType().toString());
+			        next.setAttribute("immutable", Boolean.toString(getTile(i, j).GetImmutable()));
+			        e.appendChild(next);
+				}
+			}
+	        
+	        e = dom.createElement("Customs");
+	        rootEle.appendChild(e);
+	        
+	        for(Tile custom : customTiles)
+	        {
+	        	next = dom.createElement("Custom");
+		        next.setAttribute("value", custom.GetType().toString());
+		        next.setAttribute("immutable", Boolean.toString(custom.GetImmutable()));
+		        next.setAttribute("centerX", Integer.toString(custom.GetCenterPosition().getX()));
+		        next.setAttribute("centerY", Integer.toString(custom.GetCenterPosition().getY()));
+		        e.appendChild(next);
+	        }
+
+	        dom.appendChild(rootEle);
+
+	        try {
+	            Transformer tr = TransformerFactory.newInstance().newTransformer();
+	            tr.setOutputProperty(OutputKeys.INDENT, "yes");
+	            tr.setOutputProperty(OutputKeys.METHOD, "xml");
+	            tr.setOutputProperty(OutputKeys.ENCODING, "UTF-8");
+	            tr.setOutputProperty(OutputKeys.DOCTYPE_SYSTEM, "room.dtd");
+	            tr.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "4");
+
+	            // send DOM to file
+	            tr.transform(new DOMSource(dom), 
+	                                 new StreamResult(new FileOutputStream(xml)));
+
+	        } catch (TransformerException te) {
+	            System.out.println(te.getMessage());
+	        } catch (IOException ioe) {
+	            System.out.println(ioe.getMessage());
+	        }
+	    } catch (ParserConfigurationException pce) {
+	        System.out.println("UsersXML: Error trying to instantiate DocumentBuilder " + pce);
+	    }
 	}
 
 	

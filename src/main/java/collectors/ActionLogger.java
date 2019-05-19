@@ -5,6 +5,7 @@ import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.UUID;
 
+import gui.InteractiveGUIController;
 import javafx.util.Duration;
 import machineLearning.neuralnetwork.DataTupleManager;
 import util.eventrouting.PCGEvent;
@@ -75,7 +76,7 @@ public class ActionLogger {
 	
 	public void init()
 	{
-		DataSaverLoader.SaveData(getHeader(), "\\summer-school\\" + id.toString(), "actionLogs");
+		DataSaverLoader.SaveData(getHeader(), "\\summer-school\\" + InteractiveGUIController.runID , "actionLogs");
 	}
 	
 	private String getHeader()
@@ -92,7 +93,7 @@ public class ActionLogger {
 			inf.append(log.toString() + System.lineSeparator());;
 		}
 		
-		DataSaverLoader.SaveData(inf.toString(), "\\summer-school\\" + id.toString(), "actionLogs");
+		DataSaverLoader.SaveData(inf.toString(), "\\summer-school\\" + InteractiveGUIController.runID , "actionLogs");
 		logs.clear();
 	}
 	

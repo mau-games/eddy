@@ -12,7 +12,7 @@ import machineLearning.neuralnetwork.DataTuple;
 public class DataSaverLoader {
 	
 	public static final String DIRECTORY= System.getProperty("user.dir") + "\\my-data\\";
-	private static String projectPath = System.getProperty("user.dir") + "\\my-data";
+	public static String projectPath = System.getProperty("user.dir") + "\\my-data";
 	
 	public static boolean saveFile(String directoryName, String fileName,String data,boolean append)
 	{
