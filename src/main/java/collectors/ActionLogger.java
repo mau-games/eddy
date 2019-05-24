@@ -3,6 +3,8 @@ package collectors;
 import java.io.File;
 import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.UUID;
 
 import gui.InteractiveGUIController;
@@ -19,6 +21,9 @@ public class ActionLogger {
 	protected UUID id;
 	private ArrayList<ActionLog> logs;
 	private File directory;
+	
+	private Timer timer;
+	
 	//General information to be saved
 	public enum ActionType
 	{
@@ -58,6 +63,14 @@ public class ActionLogger {
 	{
 		id = UUID.randomUUID();
 		logs = new ArrayList<ActionLog>();
+		timer = new Timer();
+		
+		timer.schedule(new TimerTask() {
+			  @Override
+			  public void run() {
+			    saveNFlush();
+			  }
+			}, 30000);
 	}
 	
 	public static ActionLogger getInstance()

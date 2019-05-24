@@ -5,6 +5,7 @@ import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
 import java.nio.file.Watchable;
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -2408,7 +2409,7 @@ public class Room {
 	        rootEle.setAttribute("ID", this.toString());
 	        rootEle.setAttribute("width", Integer.toString(this.getColCount()));
 	        rootEle.setAttribute("height", Integer.toString(this.getRowCount()));
-//	        rootEle.setAttribute("TIME", this.toString());
+	        rootEle.setAttribute("time", new Timestamp(System.currentTimeMillis()).toString());
 //	        rootEle.setAttribute("type", "SUGGESTIONS OR MAIN");
 	        
 	        // create data elements and place them under root
@@ -2437,6 +2438,8 @@ public class Room {
 					next = dom.createElement("Tile");
 			        next.setAttribute("value", getTile(i, j).GetType().toString());
 			        next.setAttribute("immutable", Boolean.toString(getTile(i, j).GetImmutable()));
+			        next.setAttribute("PosX", Integer.toString(i));
+			        next.setAttribute("PosY", Integer.toString(j));
 			        e.appendChild(next);
 				}
 			}

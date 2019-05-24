@@ -356,8 +356,8 @@ public class WorldViewController extends BorderPane implements Listener
 		arrangeControls(heightField, 140, -260, 50, 30);
 		arrangeControls(createNewRoomBtn, -50, -300, -1, -1);
 		arrangeControls(removeRoomBtn, 0, -150, -1, -1);
-		arrangeControls(getSuggestionsBtn(), 0, 50, -1, -1);
-		arrangeControls(getPickInitBtn(), 0, 200, 300, 50);
+		arrangeControls(getSuggestionsBtn(), 0, 50, 200, 50);
+//		arrangeControls(getPickInitBtn(), 0, 200, 300, 50);
 //		arrangeControls(mView, 0, 200, 50, 50);
 
 		
@@ -432,7 +432,7 @@ public class WorldViewController extends BorderPane implements Listener
 
 		//Add everything to the button pane!
 		buttonPane.getChildren().add(getSuggestionsBtn());
-		buttonPane.getChildren().add(getPickInitBtn());
+//		buttonPane.getChildren().add(getPickInitBtn());
 		buttonPane.getChildren().add(createNewRoomBtn);
 		buttonPane.getChildren().add(removeRoomBtn);
 		buttonPane.getChildren().add(heightField);
@@ -457,6 +457,7 @@ public class WorldViewController extends BorderPane implements Listener
 		removeRoomBtn.setTooltip(new Tooltip("Remove currently selected room"));
 		brushBtns.get(0).setTooltip(new Tooltip("Press and Hold over a room to move"));
 		brushBtns.get(1).setTooltip(new Tooltip("Connect 2 rooms with a door. Drag with your mouse from one room's border to another room's border"));
+		brushBtns.get(2).setTooltip(new Tooltip("Place the hero in a room and position as starting point!"));
 
 	}
 	

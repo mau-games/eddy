@@ -814,6 +814,7 @@ public class RoomViewController extends BorderPane implements Listener
 		
 //		OnChangeTab();
 		
+		
 		if (brushes.getSelectedToggle() == null) {
 			mapView.setCursor(Cursor.DEFAULT);
 			myBrush.SetMainComponent(new Tile());
@@ -837,7 +838,16 @@ public class RoomViewController extends BorderPane implements Listener
 				myBrush.SetMainComponent(new BossEnemyTile());
 				break;
 			}
+		
+			ActionLogger.getInstance().storeAction(ActionType.CHANGE_VALUE, 
+													View.ROOM, 
+													TargetPane.TILE_PANE,
+													false,
+													myBrush.GetMainComponent()); //tile type
+		
 		}
+		
+		
 		
 	}
 	
