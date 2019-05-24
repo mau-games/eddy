@@ -314,10 +314,10 @@ public class Dungeon implements Listener
 		//TODO: THIS IS WORK IN PROGRESS
 		checkInterFeasible(true);
 		
-		for(RoomEdge e : network.edges())
-		{
-			System.out.println(e.print());
-		}
+//		for(RoomEdge e : network.edges())
+//		{
+//			System.out.println(e.print());
+//		}
 		
 
 		ActionLogger.getInstance().storeAction(ActionType.CREATE_CONNECTION, 
@@ -334,6 +334,12 @@ public class Dungeon implements Listener
 	
 	public void setInitialRoom(Room initRoom, Point initialPos)
 	{	
+		if(this.initialRoom != null)
+		{
+			this.initialRoom.removeHero(this.initialPos);
+			this.initialRoom.localConfig.getWorldCanvas().setRendered(false);
+		}
+		
 		this.initialRoom = initRoom;
 		this.initialPos = initialPos;
 		
@@ -346,6 +352,9 @@ public class Dungeon implements Listener
 												);
 		
 		checkInterFeasible(true);
+		
+		initRoom.setHeroPosition(initialPos);
+		this.initialRoom.localConfig.getWorldCanvas().setRendered(false);
 	}
 	
 	public Room getInitialRoom()

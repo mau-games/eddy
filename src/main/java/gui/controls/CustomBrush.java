@@ -98,6 +98,18 @@ public class CustomBrush extends Brush
 		if(!this.immutable)
 			this.immutable = boss.GetModifierValue("Lock");
 		
+		for(Point position : GetDrawableTiles().getPoints())
+		{
+			currentTile = room.getTile(position.getX(), position.getY());
+			
+			if(currentTile.GetType() == TileTypes.DOOR
+					|| currentTile.GetType() == TileTypes.ENEMY_BOSS
+					|| currentTile.GetType() == TileTypes.HERO)
+			{
+				return;
+			}
+		}
+		
 		brushTile = brushTile.copy();
 		brushTile.SetImmutable(this.immutable);
 		brushTile.setCenterPosition(center);

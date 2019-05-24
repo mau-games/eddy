@@ -99,7 +99,9 @@ public class InteractiveMap extends GridPane implements Listener {
 		
 		// Let's discard any attempts at erasing the doors
 		if (p == null
-				|| currentTile.GetType() == TileTypes.DOOR) {
+				|| currentTile.GetType() == TileTypes.DOOR
+				|| currentTile.GetType() == TileTypes.ENEMY_BOSS
+				|| currentTile.GetType() == TileTypes.HERO) {
 			return;
 		}
 		

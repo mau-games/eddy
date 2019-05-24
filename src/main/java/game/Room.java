@@ -43,6 +43,7 @@ import finder.patterns.micro.Treasure;
 import game.roomInfo.RoomSection;
 import game.tiles.BossEnemyTile;
 import game.tiles.FloorTile;
+import game.tiles.HeroTile;
 import util.Point;
 import util.config.MissingConfigurationException;
 import util.eventrouting.EventRouter;
@@ -453,6 +454,60 @@ public class Room {
 	{
 		customTiles.clear();
 		customTiles.addAll(customs);
+	}
+	
+	public void setHeroPosition(Point heroPosition)
+	{
+		 if (TileTypes.toTileType(matrix[heroPosition.getY()][heroPosition.getX()]).isEnemy())
+        {
+        	enemies.removeIf((x)->x.equals(heroPosition));
+        }
+        else if (TileTypes.toTileType(matrix[heroPosition.getY()][heroPosition.getX()]).isTreasure())   // Check if door overrides a treasure
+        {
+        	treasures.removeIf((x)->x.equals(heroPosition));
+        }
+        else if (matrix[heroPosition.getY()][heroPosition.getX()] == TileTypes.WALL.getValue()) // Check if door overrides a wall
+        {
+            wallCount--;
+        } 
+		 
+        setTile(heroPosition.getX(), heroPosition.getY(), new HeroTile());
+//        addDoor(heroPosition);
+        borders.removePoint(Point.castToGeometry(heroPosition)); //remove this point from the "usable" border
+	}
+	
+	/**
+	 * To be called when you remove a room or a connection
+	 * @param heroPosition
+	 */
+	public void removeHero(Point heroPosition) 
+	{
+		doors.remove(heroPosition);
+		setTile(heroPosition.getX(), heroPosition.getY(), new FloorTile());
+		if(isBorder(heroPosition))borders.addPoint(Point.castToGeometry(heroPosition));
+		
+	}
+	
+	private boolean isBorder(Point point)
+	{
+		for(int y = 0; y < height; y++)
+		{
+			for(int x = 0; x < width; x++)
+			{
+				if(y == 0 || y == height - 1)
+				{
+					if(point.getY() == y && point.getX() == x)
+						return true;
+				}
+				else if(x == 0 || x == width - 1 )
+				{
+					if(point.getY() == y && point.getX() == x)
+						return true;
+				}	
+			}
+		}
+		
+		return false;
 	}
 	
 	/***

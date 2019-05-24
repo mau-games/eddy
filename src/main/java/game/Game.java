@@ -166,7 +166,7 @@ public class Game implements Listener{
 
 			try {
 				geneticAlgorithm = new Algorithm(container.getMap(), new GeneratorConfig(c)); //TODO: You need to send the container here (the room)
-				geneticAlgorithm.initPopulations();
+				geneticAlgorithm.initPopulations(container.getMap());
 				runs.add(geneticAlgorithm);
 				geneticAlgorithm.start();
 			} catch (MissingConfigurationException e) {

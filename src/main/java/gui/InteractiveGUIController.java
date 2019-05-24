@@ -215,6 +215,7 @@ public class InteractiveGUIController implements Initializable, Listener {
 			
 			dungeonMap.setInitialRoom(initRoom.getPickedRoom(), initRoom.getRoomPos());
 			worldView.restoreBrush();
+			worldView.initWorldMap(dungeonMap);
 		}
 		else if(e instanceof RequestPathFinding)
 		{

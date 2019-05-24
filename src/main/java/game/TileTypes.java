@@ -77,6 +77,9 @@ public enum TileTypes {
 		case 5:
 			tile = TileTypes.ENEMY_BOSS;
 			break;
+		case 6:
+			tile = TileTypes.HERO;
+			break;
 		default:
 			tile = TileTypes.NONE;
 		}

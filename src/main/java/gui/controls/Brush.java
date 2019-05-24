@@ -155,7 +155,8 @@ public abstract class Brush
 													GetMainComponent()); //TILE B
 			
 			// Let's discard any attempts at erasing the doors
-			if(currentTile.GetType() == TileTypes.DOOR)
+			if(currentTile.GetType() == TileTypes.DOOR
+					|| currentTile.GetType() == TileTypes.HERO)
 				continue;
 			
 			//Check if we are about to paint over a boss --> We can also just check if the tile is in the custom tiles

@@ -83,7 +83,7 @@ public class MapRenderer implements Listener {
 
 	private ArrayList<Image> tiles = new ArrayList<Image>();
 	private double patternOpacity = 0;
-	private int nbrOfTiles = 6;
+	private int nbrOfTiles = 7;
 	
 	private int finalMapWidth;
 	private int finalMapHeight;
@@ -433,10 +433,6 @@ public class MapRenderer implements Listener {
 
 		for (int j = 0; j < height; j++) {
 			 for (int i = 0; i < width; i++){
-//				 if(roomMatrix[j][i] != 5)
-//				 {
-//					
-//				 }
 				 image = getTileImage(roomMatrix[j][i]);
 					ctx.drawImage(image, i * tileSize, j * tileSize, tileSize, tileSize);
 			}
@@ -888,6 +884,9 @@ public class MapRenderer implements Listener {
 		case FLOOR:
 			image = new Image("/" + config.getInternalConfig().getString("map.tiles.floor"), width, height, false, true);
 			break;
+		case HERO:
+			image = new Image("/" + config.getInternalConfig().getString("map.tiles.hero"), width, height, false, true);
+			break;
 //		case DOORENTER:
 //			image = new Image("/" + config.getInternalConfig().getString("map.tiles.doorenter"), width, height, false, true);
 //			break;
@@ -926,6 +925,9 @@ public class MapRenderer implements Listener {
 				break;
 			case FLOOR:
 				image = new Image("/" + config.getInternalConfig().getString("map.tiles.floor"));
+				break;
+			case HERO:
+				image = new Image("/" + config.getInternalConfig().getString("map.tiles.hero"));
 				break;
 //			case DOORENTER:
 //				image = new Image("/" + config.getInternalConfig().getString("map.tiles.doorenter"));
