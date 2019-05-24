@@ -121,12 +121,12 @@ public class PatternFinder {
 		buildPatternGraph();
 		
 		//TODO: We need to fix this for the new way we are handling this
-		mesopatterns.addAll(ChokePoint.matches(room, patternGraph));
-		mesopatterns.addAll(DeadEnd.matches(room, patternGraph));
-		mesopatterns.addAll(GuardRoom.matches(room, patternGraph));
-		mesopatterns.addAll(TreasureRoom.matches(room, patternGraph));
-		mesopatterns.addAll(Ambush.matches(room, patternGraph));
-		mesopatterns.addAll(GuardedTreasure.matches(room, patternGraph)); //Do this last!
+		mesopatterns.addAll(ChokePoint.matches(room, patternGraph, mesopatterns));
+		mesopatterns.addAll(DeadEnd.matches(room, patternGraph, mesopatterns));
+		mesopatterns.addAll(Ambush.matches(room, patternGraph, mesopatterns));
+		mesopatterns.addAll(GuardRoom.matches(room, patternGraph, mesopatterns));
+		mesopatterns.addAll(TreasureRoom.matches(room, patternGraph, mesopatterns));
+		mesopatterns.addAll(GuardedTreasure.matches(room, patternGraph, mesopatterns)); //Do this last!
 		return mesopatterns;
 	}
 	

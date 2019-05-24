@@ -60,6 +60,12 @@ import javax.xml.transform.*;
 import javax.xml.transform.dom.*;
 import javax.xml.transform.stream.*;
 import org.xml.sax.*;
+
+import collectors.ActionLogger;
+import collectors.ActionLogger.ActionType;
+import collectors.ActionLogger.TargetPane;
+import collectors.ActionLogger.View;
+
 import org.w3c.dom.*;
 
 /**
@@ -470,22 +476,37 @@ public class Room {
         {
             wallCount--;
         } 
-		 
+ 
+	    ActionLogger.getInstance().storeAction(ActionType.CHANGE_TILE, 
+													View.WORLD, 
+													TargetPane.WORLD_MAP_PANE,
+													true,
+													this, //ROOM A
+													heroPosition, //Pos A
+													getTile(heroPosition).GetType(), //TILE A
+													TileTypes.HERO); //TILE B
+	    
         setTile(heroPosition.getX(), heroPosition.getY(), new HeroTile());
-//        addDoor(heroPosition);
         borders.removePoint(Point.castToGeometry(heroPosition)); //remove this point from the "usable" border
 	}
 	
 	/**
-	 * To be called when you remove a room or a connection
+	 * To be called when you change the position of the hero
 	 * @param heroPosition
 	 */
 	public void removeHero(Point heroPosition) 
 	{
-		doors.remove(heroPosition);
+		 ActionLogger.getInstance().storeAction(ActionType.CHANGE_TILE, 
+												View.WORLD, 
+												TargetPane.WORLD_MAP_PANE,
+												true,
+												this, //ROOM A
+												heroPosition, //Pos A
+												TileTypes.HERO, //TILE A
+												TileTypes.FLOOR); //TILE B
+		 
 		setTile(heroPosition.getX(), heroPosition.getY(), new FloorTile());
 		if(isBorder(heroPosition))borders.addPoint(Point.castToGeometry(heroPosition));
-		
 	}
 	
 	private boolean isBorder(Point point)

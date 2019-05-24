@@ -139,8 +139,8 @@ public class MAPEliteAlgorithm extends Algorithm implements Listener {
 		feasibleAmount = 750;
 		
 		//TODO: THIS IS CREISI!mutate
-		System.out.println(mutationProbability);
-		mutationProbability = 0.3f;
+//		System.out.println(mutationProbability);
+//		mutationProbability = 0.3f;
 		
 		while((i + j) < populationSize){
 			ZoneIndividual ind = new ZoneIndividual(room, mutationProbability);
@@ -175,7 +175,6 @@ public class MAPEliteAlgorithm extends Algorithm implements Listener {
 				}
 			}
 		}
-		
 		
 		broadcastStatusUpdate("Population generated.");
 	}

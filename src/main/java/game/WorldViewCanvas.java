@@ -14,6 +14,7 @@ import javafx.beans.binding.Bindings;
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.event.EventHandler;
+import javafx.geometry.Bounds;
 import javafx.scene.Node;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.input.MouseEvent;
@@ -211,7 +212,6 @@ public class WorldViewCanvas
 	            @Override
 	            public void handle(MouseEvent event) 
 	            {
-	
 	            	if(DungeonDrawer.getInstance().getBrush() instanceof RoomConnectorBrush)
 	            	{
 	            		currentBrushPosition =  new Point((int)( event.getX() / tileSizeWidth.get()), (int)( event.getY() / tileSizeHeight.get() ));
@@ -239,6 +239,10 @@ public class WorldViewCanvas
 	            		DungeonDrawer.getInstance().getBrush().onReleaseRoom(owner, currentBrushPosition);
 	            	}
 	            	
+	            	Bounds ltoS = worldGraphicNode.localToScene(worldGraphicNode.getBoundsInLocal());
+	            	double newPositionX = ltoS.getMaxX() - (ltoS.getWidth() / 2.0);
+	            	double newPositionY = ltoS.getMaxY() - (ltoS.getHeight() / 2.0);
+	            	
 	            	ActionLogger.getInstance().storeAction(ActionType.CHANGE_POSITION, 
 															View.WORLD, 
 															TargetPane.WORLD_MAP_PANE,
@@ -246,9 +250,9 @@ public class WorldViewCanvas
 															owner,
 															prevPositionX, //Point A
 															prevPositionY, //Point A
-															worldGraphicNode.getLayoutX(), //Point B
-															worldGraphicNode.getLayoutY());//Point B
-	            }
+															newPositionX, //Point B
+															newPositionY //point B
+														);}
 
 	        });
 			
@@ -321,8 +325,9 @@ public class WorldViewCanvas
 	            	
 	            	dragAnchorX = event.getX();
 	            	dragAnchorY = event.getY();
-	            	prevPositionX = worldGraphicNode.getLayoutX();
-	            	prevPositionX = worldGraphicNode.getLayoutY();
+	            	Bounds ltoS = worldGraphicNode.localToScene(worldGraphicNode.getBoundsInLocal());
+	            	prevPositionX = ltoS.getMaxX() - (ltoS.getWidth() / 2.0);
+	            	prevPositionY = ltoS.getMaxY() - (ltoS.getHeight() / 2.0);
 	            	
 	            	currentBrushPosition =  new Point((int)( event.getX() / tileSizeWidth.get()), (int)( event.getY() / tileSizeHeight.get() ));
 	            	

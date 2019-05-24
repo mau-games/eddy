@@ -35,7 +35,7 @@ public class GuardRoom extends CompositePattern {
 		quality = Math.max(0, 1.0 - (double)Math.abs(enemyCount - config.getGuardRoomTargetEnemyAmount())/config.getGuardRoomTargetEnemyAmount());
 	}	
 	
-	public static List<CompositePattern> matches(Room room, Graph<Pattern> patternGraph) {
+	public static List<CompositePattern> matches(Room room, Graph<Pattern> patternGraph, List<CompositePattern> currentMeso) {
 		List<CompositePattern> guardRooms = new ArrayList<CompositePattern>();
 		
 		patternGraph.resetGraph();

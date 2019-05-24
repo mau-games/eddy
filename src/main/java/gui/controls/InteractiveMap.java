@@ -97,10 +97,9 @@ public class InteractiveMap extends GridPane implements Listener {
 		Point p = coords.get(tile);
 		Tile currentTile = room.getTile(p);
 		
-		// Let's discard any attempts at erasing the doors
+		// Let's discard any attempts at erasing the doors or the hero
 		if (p == null
 				|| currentTile.GetType() == TileTypes.DOOR
-				|| currentTile.GetType() == TileTypes.ENEMY_BOSS
 				|| currentTile.GetType() == TileTypes.HERO) {
 			return;
 		}

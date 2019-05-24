@@ -26,6 +26,7 @@ import finder.patterns.micro.Connector;
 import finder.patterns.micro.Corridor;
 import finder.patterns.micro.Enemy;
 import finder.patterns.micro.Entrance;
+import finder.patterns.micro.Boss;
 import finder.patterns.micro.Chamber;
 import finder.patterns.micro.Treasure;
 import game.Dungeon;
@@ -446,6 +447,7 @@ public class Algorithm extends Thread {
         Room room = ind.getPhenotype().getMap(roomWidth, roomHeight, roomDoorPositions, roomCustomTiles, roomOwner);
         PatternFinder finder = room.getPatternFinder();
         List<Enemy> enemies = new ArrayList<Enemy>();
+        List<Boss> bosses = new ArrayList<Boss>();
         List<Treasure> treasures = new ArrayList<Treasure>();
         List<Corridor> corridors = new ArrayList<Corridor>();
         List<Connector> connectors = new ArrayList<Connector>();

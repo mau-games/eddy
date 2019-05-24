@@ -31,7 +31,7 @@ public class TreasureRoom extends CompositePattern {
 		//quality = Math.min((double)treasureCount/config.getTreasureRoomTargetTreasureAmount(),1.0);
 	}	
 	
-	public static List<CompositePattern> matches(Room room, Graph<Pattern> patternGraph) 
+	public static List<CompositePattern> matches(Room room, Graph<Pattern> patternGraph, List<CompositePattern> currentMeso) 
 	{
 		List<CompositePattern> treasureRooms = new ArrayList<>();		
 		patternGraph.resetGraph(); //This maybe can be avoided and everything and/or rather than adding a new list we can just change the chamber to treasure chamber?
@@ -40,8 +40,20 @@ public class TreasureRoom extends CompositePattern {
 		//Why not just iterate through all the patterns and just check for the chambers
 		for(Node<Pattern> current : patternGraph.getNodes().values()) //this can be cache
 		{
+			
+			boolean contained = false;
 			if(current.getValue() instanceof Chamber)
 			{
+				for(CompositePattern cp : currentMeso)
+				{
+					if(cp.getPatterns().contains(current.getValue()))
+					{
+						contained = true;
+					}
+				}
+				
+				if(contained) continue;
+				
 				List<InventorialPattern> containedTreasure = ((Chamber)current.getValue()).getContainedPatterns().stream().filter(p->{return p instanceof Treasure;}).collect(Collectors.toList());
 				List<InventorialPattern> containedEnemies = ((Chamber)current.getValue()).getContainedPatterns().stream().filter(p->{return p instanceof Enemy;}).collect(Collectors.toList());
 				if(containedTreasure.size() >= 2 && containedEnemies.size() == 0) //TODO: this hard code can be changed
