@@ -11,10 +11,12 @@ import generator.algorithm.Algorithm;
 public class AlgorithmDone extends AlgorithmEvent {
 	
 	private Algorithm algorithm;
+	public String configName;
 	
-	public AlgorithmDone(MapContainer map, Algorithm algorithm) {
+	public AlgorithmDone(MapContainer map, Algorithm algorithm, String configurationName) {
 		setPayload(map);
 		this.algorithm = algorithm;
+		this.configName = configurationName;
 	}
 	
 	public Algorithm getAlgorithm()

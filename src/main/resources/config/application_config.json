@@ -8,7 +8,8 @@
             "treasure": "graphics/tiles/treasure.png",
             "doorenter": "graphics/tiles/entrydoor.png",
             "door": "graphics/tiles/door.png",
-            "lock": "graphics/tiles/lock.png"
+            "lock": "graphics/tiles/lock.png",
+            "hero": "graphics/tiles/heroTile.png"
         },
         "mesopatterns": {
             "ambush": "graphics/mesopatterns/ambush.png",
@@ -22,6 +23,13 @@
             "corridor": "graphics/examples/corridor.png",
             "dead_end": "graphics/examples/dead_end.png",
             "lock": "graphics/tiles/lock.png"
+        },
+        "dungeonbrushes": {
+            "move": "graphics/dungeonbrushes/move-2-colored.png",
+            "connector": "graphics/dungeonbrushes/connection.png",
+             "addRoom": "graphics/dungeonbrushes/room-add-2.png",
+             "removeRoom": "graphics/dungeonbrushes/room-remove.png",
+             "init": "graphics/dungeonbrushes/heroBrush.png"
         },
         "render": {
             "height": 1000,

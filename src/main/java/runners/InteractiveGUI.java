@@ -11,6 +11,7 @@ import gui.utils.MapRenderer;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
+import javafx.scene.ImageCursor;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.image.Image;
@@ -66,6 +67,7 @@ public class InteractiveGUI extends Application {
 			scene.getStylesheets().add(this.getClass().getResource("/gui/bootstrap3.css").toExternalForm());
 			stage.setMaximized(true);
 			EventRouter router = EventRouter.getInstance();
+
 			
 			// Set up a new game
 			game = new Game();

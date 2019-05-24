@@ -143,8 +143,15 @@ public class ActionLogger {
 			String result = "";
 			for(int i = 0; i < information.length; i++)
 			{
-				result += information[i].toString();
-				
+				if(information[i] == null)
+				{
+					result += "null";
+				}
+				else
+				{
+					result += information[i].toString();
+				}
+			
 				if(i != information.length -1 )
 				{
 					result += ";";

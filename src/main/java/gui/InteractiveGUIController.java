@@ -41,12 +41,14 @@ import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.scene.ImageCursor;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.MenuButton;
 //import javafx.scene.control.Alert;
 //import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.MenuItem;
+import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
@@ -60,6 +62,7 @@ import util.eventrouting.Listener;
 import util.eventrouting.PCGEvent;
 import util.eventrouting.events.AlgorithmDone;
 import util.eventrouting.events.ApplySuggestion;
+import util.eventrouting.events.ChangeCursor;
 import util.eventrouting.events.InitialRoom;
 import util.eventrouting.events.MapLoaded;
 import util.eventrouting.events.RequestAppliedMap;
@@ -145,12 +148,13 @@ public class InteractiveGUIController implements Initializable, Listener {
 			logger.error("Couldn't read config file.");
 		}
 
+		router.registerListener(this, new ChangeCursor(null));
 		router.registerListener(this, new InitialRoom(null, null));
 		router.registerListener(this, new RequestPathFinding(null, -1, null, null, null, null));
 		router.registerListener(this, new RequestConnection(null, -1, null, null, null, null));
 		router.registerListener(this, new RequestNewRoom(null, -1, -1, -1));
 		router.registerListener(this, new StatusMessage(null));
-		router.registerListener(this, new AlgorithmDone(null, null));
+		router.registerListener(this, new AlgorithmDone(null, null, null));
 		router.registerListener(this, new RequestRedraw());
 		router.registerListener(this, new RequestRoomView(null, 0, 0, null));
 		router.registerListener(this, new MapLoaded(null));
@@ -170,11 +174,10 @@ public class InteractiveGUIController implements Initializable, Listener {
 		mainPane.sceneProperty().addListener((observableScene, oldScene, newScene) -> {
 			if (newScene != null) {
 				stage = (Stage) newScene.getWindow();
-
 			}
 
 		});
-		
+
 		runID = UUID.randomUUID();
 
 		File file = new File(DataSaverLoader.projectPath + "\\summer-school\\" + runID + "\\algorithm\\");
@@ -196,14 +199,17 @@ public class InteractiveGUIController implements Initializable, Listener {
 //		mainPane.getChildren().add(new Popup(200,200));
 		initLaunchView();
 
-
 	}
 
 
 	@Override
 	public synchronized void ping(PCGEvent e) 
 	{
-		if(e instanceof InitialRoom)
+		if(e instanceof ChangeCursor)
+		{
+			mainPane.getScene().setCursor(new ImageCursor(((ChangeCursor)e).getCursorImage()));
+		}
+		else if(e instanceof InitialRoom)
 		{
 			InitialRoom initRoom = (InitialRoom)e;
 			

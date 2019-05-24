@@ -631,7 +631,7 @@ public class MAPEliteAlgorithm extends Algorithm implements Listener {
     private void publishGeneration()
     {
 		broadcastResultedRooms();
-		MAPECollector.getInstance().SaveGeneration(realCurrentGen, MAPElitesDimensions, cells, false); //store the cells in memory
+//		MAPECollector.getInstance().SaveGeneration(realCurrentGen, MAPElitesDimensions, cells, false); //store the cells in memory
 		
 		//This should be in a call when the ping happens! --> FIXME!!
 		UpdateConfigFile();
@@ -725,8 +725,8 @@ public class MAPEliteAlgorithm extends Algorithm implements Listener {
 //        broadcastResultedRooms();
         
         //We save the last generation
-        MAPECollector.getInstance().SaveGeneration(realCurrentGen, MAPElitesDimensions, cells, "STOP", false);
-        EventRouter.getInstance().postEvent(new SaveDisplayedCells());
+//        MAPECollector.getInstance().SaveGeneration(realCurrentGen, MAPElitesDimensions, cells, "STOP", false);
+//        EventRouter.getInstance().postEvent(new SaveDisplayedCells());
         
         for(GACell cell : cells)
 		{
@@ -744,7 +744,7 @@ public class MAPEliteAlgorithm extends Algorithm implements Listener {
 		result.setMicroPatterns(finder.findMicroPatterns());
 		result.setMesoPatterns(finder.findMesoPatterns());
 		result.setMacroPatterns(finder.findMacroPatterns());
-        AlgorithmDone ev = new AlgorithmDone(result, this);
+        AlgorithmDone ev = new AlgorithmDone(result, this, config.fileName);
         ev.setID(id);
         EventRouter.getInstance().postEvent(ev);
         destructor();

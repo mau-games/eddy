@@ -49,7 +49,7 @@ public class MapCollector implements Listener {
 			logger.error("Couldn't read configuration file:\n" + e.getMessage());
 		}
 		EventRouter.getInstance().registerListener(this, new MapUpdate(null));
-		EventRouter.getInstance().registerListener(this, new AlgorithmDone(null, null));
+		EventRouter.getInstance().registerListener(this, new AlgorithmDone(null, null, null));
 		EventRouter.getInstance().registerListener(this, new AlgorithmStarted());
 		path = Util.normalisePath(config.getMapCollectorPath());
 		active = config.getMapCollectorActive();

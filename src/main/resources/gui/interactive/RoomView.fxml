@@ -41,6 +41,7 @@
 <?import generator.algorithm.MAPElites.Dimensions.*?>
 <?import javafx.scene.control.cell.TextFieldTableCell?>
 <?import gui.controls.DimensionsTable?>
+<?import gui.controls.Popup?>
 
 
 <fx:root type="javafx.scene.layout.BorderPane"
@@ -247,6 +248,8 @@
 						</VBox>
 					</children>
 				</AnchorPane>
+				
+				<Popup text="add me"/>
 
 				<HBox spacing="10">
 

@@ -116,7 +116,7 @@ public class InteractiveMLGUIController implements Initializable, Listener {
 		router.registerListener(this, new RequestConnection(null, -1, null, null, null, null));
 		router.registerListener(this, new RequestNewRoom(null, -1, -1, -1));
 		router.registerListener(this, new StatusMessage(null));
-		router.registerListener(this, new AlgorithmDone(null, null));
+		router.registerListener(this, new AlgorithmDone(null, null, null));
 		router.registerListener(this, new RequestRedraw());
 		router.registerListener(this, new RequestRoomView(null, 0, 0, null));
 		router.registerListener(this, new MapLoaded(null));

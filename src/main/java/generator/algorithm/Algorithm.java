@@ -374,7 +374,7 @@ public class Algorithm extends Thread {
 		result.setMicroPatterns(finder.findMicroPatterns());
 		result.setMesoPatterns(finder.findMesoPatterns());
 		result.setMacroPatterns(finder.findMacroPatterns());
-        AlgorithmDone ev = new AlgorithmDone(result, this);
+        AlgorithmDone ev = new AlgorithmDone(result, this, config.fileName);
         ev.setID(id);
         EventRouter.getInstance().postEvent(ev);
 	}

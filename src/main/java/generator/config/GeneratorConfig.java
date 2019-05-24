@@ -23,12 +23,14 @@ public class GeneratorConfig {
 	private static String defaultConfig = "config/generator_config.json";
 	private static final float mutationAmount = 0.2f;
 	private ConfigurationUtility config;
+	public String fileName = "";
 	
 	public GeneratorConfig() throws MissingConfigurationException{
 		config = new ConfigurationUtility(defaultConfig, true);
 	}
 	
 	public GeneratorConfig(String file) throws MissingConfigurationException{
+		fileName = file;
 		config = new ConfigurationUtility(file,true);
 	}
 	

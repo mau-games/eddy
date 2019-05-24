@@ -58,10 +58,12 @@ import javafx.scene.paint.Paint;
 import javafx.scene.shape.Line;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.transform.Scale;
+import util.config.ConfigurationUtility;
 import util.config.MissingConfigurationException;
 import util.eventrouting.EventRouter;
 import util.eventrouting.Listener;
 import util.eventrouting.PCGEvent;
+import util.eventrouting.events.ChangeCursor;
 import util.eventrouting.events.MapUpdate;
 import util.eventrouting.events.RequestConnection;
 import util.eventrouting.events.RequestEmptyRoom;
@@ -91,8 +93,8 @@ public class WorldViewController extends BorderPane implements Listener
 	private ArrayList<Button> brushBtns = new ArrayList<Button>(); //TODO: This can be improved to be dependant on how many brushes and have maybe its own class?
 	private ComboBox<PathInformation.PathType> pathTypeComboBox = new ComboBox<>();
 	
-	private Label widthLabel = new Label("W =");
-	private Label heightLabel = new Label("H =");
+	private Label widthLabel = new Label("Width =");
+	private Label heightLabel = new Label("Height =");
 	private IntField widthField = new IntField(3, 20, 13);
 	private IntField heightField = new IntField(3, 20, 7);
 
@@ -324,8 +326,8 @@ public class WorldViewController extends BorderPane implements Listener
 		buttonCanvas.setVisible(false);
 		buttonCanvas.setMouseTransparent(true);
 		
-		pathTypeComboBox.getItems().setAll(PathInformation.PathType.values());
-		pathTypeComboBox.setValue(PathInformation.getInstance().getPathType());
+//		pathTypeComboBox.getItems().setAll(PathInformation.PathType.values());
+//		pathTypeComboBox.setValue(PathInformation.getInstance().getPathType());
 		
 		
 		//some calculations for the brushes
@@ -338,33 +340,88 @@ public class WorldViewController extends BorderPane implements Listener
 		double xStep = btnWidthSize + (btnWidthSize / 2.0) + widthPadding;
 		
 //		ImageView mView = new ImageView(new Image(this.getClass().getResource("/graphics/player.gif").toExternalForm()));
-		 Animation ani = new AnimatedGif(getClass().getResource("/graphics/player.gif").toExternalForm(), 1000);
-	        ani.setCycleCount(Timeline.INDEFINITE);
-	        ani.play();
+//		 Animation ani = new AnimatedGif(getClass().getResource("/graphics/player.gif").toExternalForm(), 1000);
+//	        ani.setCycleCount(Timeline.INDEFINITE);
+//	        ani.play();
+			
+//			ani.getView().setX(0);
+//			ani.getView().setY(200);
+//			ani.getView().setFitWidth(50);
+//			ani.getView().setFitHeight(50);
 		//Arrange the controls
 		
-		arrangeControls(widthLabel, -90, -300, 30, 50);
-		arrangeControls(heightLabel, 10, -300, 30, 50);
-		arrangeControls(widthField, -55, -300, 50, 50);
-		arrangeControls(heightField, 50, -300, 50, 50);
-		arrangeControls(createNewRoomBtn, -100, -200, 120, 100);
-		arrangeControls(removeRoomBtn, 100, -200, 120, 100);
-		arrangeControls(getSuggestionsBtn(), 0, 0, 300, 100);
+		arrangeControls(widthLabel, 90, -310, 50, 50);
+		arrangeControls(heightLabel, 90, -260, 50, 50);
+		arrangeControls(widthField, 140, -310, 50, 30);
+		arrangeControls(heightField, 140, -260, 50, 30);
+		arrangeControls(createNewRoomBtn, -50, -300, -1, -1);
+		arrangeControls(removeRoomBtn, 0, -150, -1, -1);
+		arrangeControls(getSuggestionsBtn(), 0, 50, -1, -1);
 		arrangeControls(getPickInitBtn(), 0, 200, 300, 50);
 //		arrangeControls(mView, 0, 200, 50, 50);
-		ani.getView().setX(0);
-		ani.getView().setY(200);
-		ani.getView().setFitWidth(50);
-		ani.getView().setFitHeight(50);
-		arrangeControls(pathTypeComboBox, 0, 300, 300, 50);
+
 		
-		String[] btnsText = {"M", "C", "P"};
+//		arrangeControls(pathTypeComboBox, 0, 300, 300, 50);
+		
+//		String[] btnsText = {"M", "C", "P"};
 		for(int i = 0; i < brushBtns.size(); i++, initXPos += xStep)
 		{
-			arrangeControls(brushBtns.get(i), initXPos, 100, btnWidthSize, maxHeight);
+//			arrangeControls(brushBtns.get(i), initXPos, 0, btnWidthSize, maxHeight);
+			arrangeControls(brushBtns.get(i), initXPos, -25, -1, -1);
 			buttonPane.getChildren().add(brushBtns.get(i));
-			brushBtns.get(i).setText(btnsText[i]);
+//			brushBtns.get(i).setText(btnsText[i]);
 		}
+		
+		try {
+			config = ApplicationConfig.getInstance();
+		} catch (MissingConfigurationException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		//all of this is so ugly!! :( :( 
+		ConfigurationUtility c = config.getInternalConfig();
+		
+		//ADD ROOM
+		ImageView brushBtnImage = new ImageView(new Image(c.getString("map.dungeonbrushes.addRoom"), 200, 200, true, true));
+//		BorderPane imageViewWrapper = new BorderPane(brushBtnImage);
+		createNewRoomBtn.setGraphic(brushBtnImage);
+		createNewRoomBtn.setStyle("-fx-background-color: transparent; -fx-padding: 5;\r\n" + 
+				"    -fx-border-style: none;\r\n" + 
+				"    -fx-border-width: 0;\r\n" + 
+				"    -fx-border-insets: 0;");
+//		
+//		imageViewWrapper.setOnMouseEntered(new EventHandler<MouseEvent>() {
+//
+//            @Override
+//            public void handle(MouseEvent event) 
+//            {
+////            	ImageView iv = (ImageView)createNewRoomBtn.getGraphic();
+//            	imageViewWrapper.setStyle("-fx-border-width: 2px; -fx-border-color: #6b87f9;");
+////            	iv.setcolorfi
+////            	createNewRoomBtn.setStyle("-fx-background-color: transparent; -fx-padding: 6 4 4 6;");
+//            }
+//
+//        });
+		
+		//REMOVE ROOM
+		brushBtnImage = new ImageView(new Image(c.getString("map.dungeonbrushes.removeRoom"), 200, 200, true, true));
+		removeRoomBtn.setGraphic(brushBtnImage);
+		removeRoomBtn.setStyle("-fx-background-color: transparent; -fx-padding: 5;\r\n" + 
+				"    -fx-border-style: none;\r\n" + 
+				"    -fx-border-width: 0;\r\n" + 
+				"    -fx-border-insets: 0;");
+		//MOVE
+		brushBtnImage = new ImageView(new Image(c.getString("map.dungeonbrushes.move"), 40, 40, true, true));
+		brushBtns.get(0).setGraphic(brushBtnImage);
+		//CONNECTOR
+		brushBtnImage = new ImageView(new Image(c.getString("map.dungeonbrushes.connector"), 80, 80, true, true));
+//		brushBtnImage.setStyle("-fx-background-color: transparent");
+		brushBtns.get(1).setGraphic(brushBtnImage);
+		
+		brushBtnImage = new ImageView(new Image(c.getString("map.dungeonbrushes.init"), 40, 40, true, true));
+//		brushBtnImage.setStyle("-fx-background-color: transparent");
+		brushBtns.get(2).setGraphic(brushBtnImage);
 	
 		//change color of the input fields!
 		heightField.setStyle("-fx-text-inner-color: white;");		
@@ -382,18 +439,24 @@ public class WorldViewController extends BorderPane implements Listener
 		buttonPane.getChildren().add(widthField);
 		buttonPane.getChildren().add(widthLabel);
 		buttonPane.getChildren().add(heightLabel);
-		buttonPane.getChildren().add(pathTypeComboBox);
-		buttonPane.getChildren().add(ani.getView());
+//		buttonPane.getChildren().add(pathTypeComboBox);
+//		buttonPane.getChildren().add(ani.getView());
 		
 //		createNewRoomBtn.setOnAction( e -> ani.pause());
 //		removeRoomBtn.setOnAction( e -> ani.play());
 		
 		//Change the text of the buttons!
 		pickInitBtn.setText("Pick Init Room and Pos");
-		createNewRoomBtn.setText("NEW ROOM");
-		removeRoomBtn.setText("REMOVE ROOM");
+//		createNewRoomBtn.setText("NEW ROOM");
+//		removeRoomBtn.setText("REMOVE ROOM");
 		getSuggestionsBtn().setText("Start with our suggestions");
 		getSuggestionsBtn().setTooltip(new Tooltip("Start with our suggested designs as generated by genetic algorithms"));
+		
+		//Tooltips!
+		createNewRoomBtn.setTooltip(new Tooltip("Create and Add new room to dungeon with specified Width and Height"));
+		removeRoomBtn.setTooltip(new Tooltip("Remove currently selected room"));
+		brushBtns.get(0).setTooltip(new Tooltip("Press and Hold over a room to move"));
+		brushBtns.get(1).setTooltip(new Tooltip("Connect 2 rooms with a door. Drag with your mouse from one room's border to another room's border"));
 
 	}
 	
@@ -401,8 +464,11 @@ public class WorldViewController extends BorderPane implements Listener
 	{
 		obj.setTranslateX(xPos);
 		obj.setTranslateY(yPos);
-		obj.setMinSize(sizeWidth, sizeHeight);
-		obj.setMaxSize(sizeWidth, sizeHeight);
+		if(sizeWidth > 0 && sizeHeight > 0)
+		{
+			obj.setMinSize(sizeWidth, sizeHeight);
+			obj.setMaxSize(sizeWidth, sizeHeight);
+		}
 	}
 
 	@Override
@@ -481,12 +547,27 @@ public class WorldViewController extends BorderPane implements Listener
 														View.WORLD, 
 														TargetPane.BUTTON_PANE, 
 														false,
-														DungeonBrushes.PATH_FINDING);
+														DungeonBrushes.INITIAL_ROOM);
 				
-				DungeonDrawer.getInstance().changeBrushTo(DungeonBrushes.PATH_FINDING);
+				DungeonDrawer.getInstance().changeBrushTo(DungeonBrushes.INITIAL_ROOM);
 			}
 
 		}); 
+		
+//		brushBtns.get(2).setOnAction(new EventHandler<ActionEvent>() {
+//			@Override
+//			public void handle(ActionEvent e) 
+//			{
+//				ActionLogger.getInstance().storeAction(ActionType.CLICK,
+//														View.WORLD, 
+//														TargetPane.BUTTON_PANE, 
+//														false,
+//														DungeonBrushes.PATH_FINDING);
+//				
+//				DungeonDrawer.getInstance().changeBrushTo(DungeonBrushes.PATH_FINDING);
+//			}
+//
+//		}); 
 		
 		getSuggestionsBtn().setOnAction(new EventHandler<ActionEvent>() {
 			@Override
@@ -499,7 +580,7 @@ public class WorldViewController extends BorderPane implements Listener
 															TargetPane.BUTTON_PANE, 
 															false,
 															"Suggestions");
-					
+					DungeonDrawer.getInstance().changeBrushTo(DungeonBrushes.MOVEMENT);
 					MapContainer mc = new MapContainer();
 					mc.setMap(dungeon.getSelectedRoom());
 					router.postEvent(new RequestSuggestionsView(mc, 6));
@@ -522,14 +603,7 @@ public class WorldViewController extends BorderPane implements Listener
 			public void handle(ActionEvent e) 
 			{
 				DungeonDrawer.getInstance().changeBrushTo(DungeonBrushes.INITIAL_ROOM);
-//				if(DungeonDrawer.getInstance().getBrush() instanceof MoveElementBrush)
-//				{
-//					DungeonDrawer.getInstance().changeToConnector();
-//				}
-//				else
-//				{
-//					DungeonDrawer.getInstance().changeToMove();
-//				}
+				
 			}
 
 		}); 
@@ -543,10 +617,31 @@ public class WorldViewController extends BorderPane implements Listener
 														TargetPane.BUTTON_PANE, 
 														false,
 														"Create Room");
+				
 				router.postEvent(new RequestNewRoom(dungeon, -1, widthField.getValue(), heightField.getValue()));
+				DungeonDrawer.getInstance().changeBrushTo(DungeonBrushes.MOVEMENT);
 			}
-
 		}); 
+		
+		createNewRoomBtn.setOnMouseEntered(new EventHandler<MouseEvent>() {
+
+            @Override
+            public void handle(MouseEvent event) 
+            {
+            	createNewRoomBtn.setStyle("-fx-border-width: 2px; -fx-border-color: #6b87f9;");
+            }
+
+        });
+//		
+		createNewRoomBtn.setOnMouseExited(new EventHandler<MouseEvent>() {
+
+            @Override
+            public void handle(MouseEvent event) 
+            {
+            	createNewRoomBtn.setStyle("-fx-border-width: 0px; -fx-background-color:#2c2f33;");
+            }
+
+        });
 		
 		removeRoomBtn.setOnAction(new EventHandler<ActionEvent>() {
 			@Override
@@ -560,11 +655,32 @@ public class WorldViewController extends BorderPane implements Listener
 															false,
 															"Remove Room");
 					router.postEvent(new RequestRoomRemoval(dungeon.getSelectedRoom(), dungeon, -1));
+					DungeonDrawer.getInstance().changeBrushTo(DungeonBrushes.MOVEMENT);
 				}
 					
 			}
 
 		}); 
+		
+		removeRoomBtn.setOnMouseEntered(new EventHandler<MouseEvent>() {
+
+            @Override
+            public void handle(MouseEvent event) 
+            {
+            	removeRoomBtn.setStyle("-fx-border-width: 2px; -fx-border-color: #6b87f9;");
+            }
+
+        });
+//		
+		removeRoomBtn.setOnMouseExited(new EventHandler<MouseEvent>() {
+
+            @Override
+            public void handle(MouseEvent event) 
+            {
+            	removeRoomBtn.setStyle("-fx-border-width: 0px; -fx-background-color:#2c2f33;");
+            }
+
+        });
 		
 		pathTypeComboBox.setOnAction(new EventHandler<ActionEvent>() {
 			@Override

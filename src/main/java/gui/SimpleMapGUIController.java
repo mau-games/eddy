@@ -110,7 +110,7 @@ public class SimpleMapGUIController  implements Initializable, Listener
 		}
 		
 		router.registerListener(this, new StatusMessage(null));
-		router.registerListener(this, new AlgorithmDone(null, null));
+		router.registerListener(this, new AlgorithmDone(null, null, null));
 		router.registerListener(this, new RequestRedraw());
 		router.registerListener(this, new MapLoaded(null));
 

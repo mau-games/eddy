@@ -337,6 +337,14 @@ public class Dungeon implements Listener
 		this.initialRoom = initRoom;
 		this.initialPos = initialPos;
 		
+		ActionLogger.getInstance().storeAction(ActionType.CHANGE_VALUE,
+												View.WORLD, 
+												TargetPane.WORLD_MAP_PANE, 
+												false,
+												initRoom,
+												initialPos
+												);
+		
 		checkInterFeasible(true);
 	}
 	

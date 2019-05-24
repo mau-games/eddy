@@ -75,7 +75,7 @@ public class Game implements Listener{
         EventRouter.getInstance().registerListener(this, new Start());
         EventRouter.getInstance().registerListener(this, new StartMapMutate(null));
         EventRouter.getInstance().registerListener(this, new Stop());
-        EventRouter.getInstance().registerListener(this, new AlgorithmDone(null, null));
+        EventRouter.getInstance().registerListener(this, new AlgorithmDone(null, null, null));
         EventRouter.getInstance().registerListener(this, new RenderingDone());
         EventRouter.getInstance().registerListener(this, new StartBatch());
         EventRouter.getInstance().registerListener(this, new RequestSuggestionsView(null, 0));

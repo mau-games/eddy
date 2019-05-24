@@ -6,6 +6,7 @@ import game.ApplicationConfig;
 import gui.utils.InformativePopupManager;
 import gui.utils.InformativePopupManager.PresentableInformation;
 import javafx.animation.FadeTransition;
+import javafx.beans.NamedArg;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
@@ -23,6 +24,22 @@ public class Popup extends BorderPane
 	
 	FadeTransition fadeOut;
 	protected PresentableInformation informationType;
+	
+	public Popup(@NamedArg("text") String text)
+	{
+		super();
+		FXMLLoader loader = new FXMLLoader(getClass().getResource("/gui/controls/PopupInfo.fxml"));
+		loader.setRoot(this);
+		loader.setController(this);
+		
+		try {
+			loader.load();
+		} catch (IOException exception) {
+			throw new RuntimeException(exception);
+		}
+		
+		setInformation(text);
+	}
 	
 	public Popup(PresentableInformation type)
 	{

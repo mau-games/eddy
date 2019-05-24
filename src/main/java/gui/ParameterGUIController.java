@@ -234,7 +234,7 @@ public class ParameterGUIController implements Initializable, Listener {
 	public void initialize(URL location, ResourceBundle resources) {
 		router.registerListener(this, new MapUpdate(null));
 		router.registerListener(this, new StatusMessage(null));
-		router.registerListener(this, new AlgorithmDone(null, null));
+		router.registerListener(this, new AlgorithmDone(null, null, null));
 		router.registerListener(this, new RequestRedraw());
 		messageDisplayer.setText("Awaiting commands");
 	}

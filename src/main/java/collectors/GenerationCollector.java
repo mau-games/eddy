@@ -47,7 +47,7 @@ public class GenerationCollector implements Listener {
 			logger.error("Couldn't read configuration file:\n" + e.getMessage());
 		}
 		EventRouter.getInstance().registerListener(this, new GenerationDone(null));
-		EventRouter.getInstance().registerListener(this, new AlgorithmDone(null, null));
+		EventRouter.getInstance().registerListener(this, new AlgorithmDone(null, null, null));
 		EventRouter.getInstance().registerListener(this, new AlgorithmStarted());
 		path = Util.normalisePath(config.getGenerationCollectorPath());
 		active = config.getGenerationCollectorActive();

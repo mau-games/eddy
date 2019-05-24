@@ -97,7 +97,7 @@ public class MapRenderer implements Listener {
 			logger.error("Couldn't read config: " + e.getMessage());
 		}
 		
-		router.registerListener(this, new AlgorithmDone(null, null));
+		router.registerListener(this, new AlgorithmDone(null, null, null));
 
 		finalMapHeight = config.getMapRenderHeight();
 		finalMapWidth = config.getMapRenderWidth();
