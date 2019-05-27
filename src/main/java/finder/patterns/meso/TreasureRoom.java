@@ -46,7 +46,7 @@ public class TreasureRoom extends CompositePattern {
 			{
 				for(CompositePattern cp : currentMeso)
 				{
-					if(cp.getPatterns().contains(current.getValue()))
+					if(cp.getPatterns().contains(current.getValue()) && !(cp instanceof DeadEnd) && !(cp instanceof ChokePoint))
 					{
 						contained = true;
 					}
