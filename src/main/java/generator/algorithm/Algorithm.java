@@ -9,8 +9,6 @@ import java.util.Queue;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import finder.PatternFinder;
 import finder.Populator;
@@ -60,7 +58,7 @@ import util.eventrouting.events.StatusMessage;
  */
 public class Algorithm extends Thread {
 	protected UUID id;
-	protected final Logger logger = LoggerFactory.getLogger(Algorithm.class);
+//	protected final Logger logger = LoggerFactory.getLogger(Algorithm.class);
 	protected GeneratorConfig config;
 	
 	protected int populationSize; 

@@ -1,22 +1,14 @@
 package runners;
 
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import collectors.GenerationCollector;
-import collectors.MapCollector;
-import collectors.RenderedMapCollector;
 import game.Game;
 import gui.utils.MapRenderer;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
-import javafx.scene.ImageCursor;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.image.Image;
 import javafx.stage.Stage;
-import util.config.ConfigurationUtility;
 import util.eventrouting.EventRouter;
 import util.eventrouting.events.Start;
 
@@ -29,13 +21,9 @@ import util.eventrouting.events.Start;
  */
 public class InteractiveGUI extends Application {
 
-	final static Logger logger = LoggerFactory.getLogger(InteractiveGUI.class);
-	private static ConfigurationUtility config;
+//	final static Logger logger = LoggerFactory.getLogger(InteractiveGUI.class);
 
 	private Game game;
-	private MapCollector mapCollector;
-	private RenderedMapCollector renderedMapCollector;
-	private GenerationCollector generationCollector;
 
 	/**
 	 * This is the GUI entry point.
@@ -57,7 +45,7 @@ public class InteractiveGUI extends Application {
 		});
 		
 		try {
-//			System.out.println(getClass().getResource("/gui/interactive/InteractiveGUI.fxml"));
+			System.out.println(getClass().getResource("/gui/interactive/InteractiveGUI.fxml"));
 			root = FXMLLoader.load(getClass().getResource("/gui/interactive/InteractiveGUI.fxml"));
 
 			Scene scene = new Scene(root, 1900, 1060);

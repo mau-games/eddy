@@ -9,9 +9,6 @@ import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import collectors.ActionLogger;
 import collectors.ActionLogger.ActionType;
 import collectors.ActionLogger.TargetPane;
@@ -221,7 +218,7 @@ public class RoomViewController extends BorderPane implements Listener
 
 	private MapRenderer renderer = MapRenderer.getInstance();
 	private static EventRouter router = EventRouter.getInstance();
-	private final static Logger logger = LoggerFactory.getLogger(RoomViewController.class);
+//	private final static Logger logger = LoggerFactory.getLogger(RoomViewController.class);
 	private ApplicationConfig config;
 
 	private int prevRow;
@@ -266,7 +263,7 @@ public class RoomViewController extends BorderPane implements Listener
 		} catch (IOException exception) {
 			throw new RuntimeException(exception);
 		} catch (MissingConfigurationException e) {
-			logger.error("Couldn't read config file.");
+//			logger.error("Couldn't read config file.");
 		}
 
 		router.registerListener(this, new MAPEGridUpdate(null));

@@ -6,9 +6,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import game.ApplicationConfig;
 import game.Room;
 import game.TileTypes;
@@ -54,7 +51,7 @@ public class TinderViewController extends BorderPane implements Listener
 
 	private MapRenderer renderer = MapRenderer.getInstance();
 	private static EventRouter router = EventRouter.getInstance();
-	private final static Logger logger = LoggerFactory.getLogger(RoomViewController.class);
+//	private final static Logger logger = LoggerFactory.getLogger(RoomViewController.class);
 	private ApplicationConfig config;
 	
 	@FXML private StackPane roomPane; 
@@ -85,7 +82,7 @@ public class TinderViewController extends BorderPane implements Listener
 		} catch (IOException exception) {
 			throw new RuntimeException(exception);
 		} catch (MissingConfigurationException e) {
-			logger.error("Couldn't read config file.");
+//			logger.error("Couldn't read config file.");
 		}
 
 		router.registerListener(this, new MAPEGridUpdate(null));

@@ -13,9 +13,6 @@ import java.util.stream.Collectors;
 
 import javax.imageio.ImageIO;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import collectors.MAPECollector;
 import finder.geometry.Bitmap;
 import finder.geometry.Geometry;
@@ -77,7 +74,7 @@ public class MapRenderer implements Listener {
 	
 	private static MapRenderer instance = null;
 	
-	final static Logger logger = LoggerFactory.getLogger(MapRenderer.class);
+//	final static Logger logger = LoggerFactory.getLogger(MapRenderer.class);
 	private static EventRouter router = EventRouter.getInstance();
 	private ApplicationConfig config;
 
@@ -94,7 +91,7 @@ public class MapRenderer implements Listener {
 		try {
 			config = ApplicationConfig.getInstance();
 		} catch (MissingConfigurationException e) {
-			logger.error("Couldn't read config: " + e.getMessage());
+//			logger.error("Couldn't read config: " + e.getMessage());
 		}
 		
 		router.registerListener(this, new AlgorithmDone(null, null, null));

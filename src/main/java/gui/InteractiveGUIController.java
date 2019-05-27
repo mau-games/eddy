@@ -12,8 +12,6 @@ import java.util.ResourceBundle;
 import java.util.UUID;
 
 import javax.imageio.ImageIO;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import collectors.ActionLogger;
 import collectors.DataSaverLoader;
@@ -96,13 +94,13 @@ public class InteractiveGUIController implements Initializable, Listener {
 
 	@FXML private AnchorPane mainPane;
 	@FXML private MenuItem newItem;
-	@FXML private MenuItem openItem;
-	@FXML private MenuItem saveItem;
-	@FXML private MenuItem saveAsItem;
-	@FXML private MenuItem exportItem;
-	@FXML private MenuItem prefsItem;
-	@FXML private MenuItem exitItem;
-	@FXML private MenuItem aboutItem;
+//	@FXML private MenuItem openItem;
+//	@FXML private MenuItem saveItem;
+//	@FXML private MenuItem saveAsItem;
+//	@FXML private MenuItem exportItem;
+//	@FXML private MenuItem prefsItem;
+//	@FXML private MenuItem exitItem;
+//	@FXML private MenuItem aboutItem;
 	public boolean firstIsClicked = false;
 	public boolean secondIsClicked = false;
 	public boolean thirdIsClicked = false;
@@ -115,7 +113,7 @@ public class InteractiveGUIController implements Initializable, Listener {
 	LaunchViewController launchView = null;
 	EventHandler<MouseEvent> mouseEventHandler = null;
 
-	final static Logger logger = LoggerFactory.getLogger(InteractiveGUIController.class);
+//	final static Logger logger = LoggerFactory.getLogger(InteractiveGUIController.class);
 	private static EventRouter router = EventRouter.getInstance();
 	private ApplicationConfig config;
 
@@ -145,7 +143,7 @@ public class InteractiveGUIController implements Initializable, Listener {
 		try {
 			config = ApplicationConfig.getInstance();
 		} catch (MissingConfigurationException e) {
-			logger.error("Couldn't read config file.");
+//			logger.error("Couldn't read config file.");
 		}
 
 		router.registerListener(this, new ChangeCursor(null));
@@ -372,12 +370,12 @@ public class InteractiveGUIController implements Initializable, Listener {
 				new ExtensionFilter("All Files", "*.*"));
 		File selectedFile = fileChooser.showSaveDialog(stage);
 		if (selectedFile != null) {
-			logger.debug("Writing map to " + selectedFile.getPath());
+//			logger.debug("Writing map to " + selectedFile.getPath());
 			try {
 				Files.write(selectedFile.toPath(), matrixToString().getBytes());
 			} catch (IOException e) {
-				logger.error("Couldn't write map to " + selectedFile +
-						":\n" + e.getMessage());
+//				logger.error("Couldn't write map to " + selectedFile +
+//						":\n" + e.getMessage());
 			}
 		}
 	}
@@ -396,14 +394,14 @@ public class InteractiveGUIController implements Initializable, Listener {
 				new ExtensionFilter("All Files", "*.*"));
 		File selectedFile = fileChooser.showSaveDialog(stage);
 		if (selectedFile != null && roomView.getCurrentMap() != null) {
-			logger.debug("Exporting map to " + selectedFile.getPath());
+//			logger.debug("Exporting map to " + selectedFile.getPath());
 			BufferedImage image = SwingFXUtils.fromFXImage(roomView.getRenderedMap(), null);
 
 			try {
 				ImageIO.write(image, "png", selectedFile);
 			} catch (IOException e1) {
-				logger.error("Couldn't export map to " + selectedFile +
-						":\n" + e1.getMessage());
+//				logger.error("Couldn't export map to " + selectedFile +
+//						":\n" + e1.getMessage());
 			}
 		}
 	}
@@ -437,9 +435,9 @@ public class InteractiveGUIController implements Initializable, Listener {
 		AnchorPane.setLeftAnchor(suggestionsView, 0.0);
 		mainPane.getChildren().add(suggestionsView);
 
-		saveItem.setDisable(true);
-		saveAsItem.setDisable(true);
-		exportItem.setDisable(true);
+//		saveItem.setDisable(true);
+//		saveAsItem.setDisable(true);
+//		exportItem.setDisable(true);
 
 
 		suggestionsView.setActive(true);
