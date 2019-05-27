@@ -25,6 +25,30 @@ public class Popup extends BorderPane
 	FadeTransition fadeOut;
 	protected PresentableInformation informationType;
 	
+	//To be called from the fxml
+	public Popup(@NamedArg("text") String text, @NamedArg("width") double width,  @NamedArg("height") double height, @NamedArg("image") boolean image)
+	{
+		super();
+		FXMLLoader loader = new FXMLLoader(getClass().getResource("/gui/controls/PopupInfo.fxml"));
+		loader.setRoot(this);
+		loader.setController(this);
+		
+		try {
+			loader.load();
+		} catch (IOException exception) {
+			throw new RuntimeException(exception);
+		}
+		
+		if(!image)
+		{
+			setLeft(null);
+		}
+		
+		setInformation(text);
+		setWidth(width);
+		setHeight(height);
+	}
+	
 	public Popup(@NamedArg("text") String text)
 	{
 		super();
@@ -100,10 +124,10 @@ public class Popup extends BorderPane
 	
 	public void show()
 	{
-		fadeOut = new FadeTransition(Duration.millis(3000), this);
+		fadeOut = new FadeTransition(Duration.millis(1500), this);
 		fadeOut.setFromValue(1.0);
 		fadeOut.setToValue(0.0);
-		fadeOut.setDelay(Duration.millis(5000));
+		fadeOut.setDelay(Duration.millis(3000));
 		fadeOut.play();
 		
 		fadeOut.onFinishedProperty().set(new EventHandler<ActionEvent>() {

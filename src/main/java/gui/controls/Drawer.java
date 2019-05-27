@@ -115,6 +115,12 @@ public class Drawer
 		brush.Draw(p, room, this, interactiveCanvas);
 	}
 	
+	public void simulateDrawing(Point p, Room room, InteractiveMap interactiveCanvas)
+	{
+		brush.simulateDrawing(p, room, this, interactiveCanvas);
+	}
+	
+	
 	public void DoneDrawing()
 	{
 		for(Brush b : brushes)

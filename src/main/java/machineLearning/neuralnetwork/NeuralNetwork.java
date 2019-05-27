@@ -4,8 +4,6 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Random;
 
-import org.hamcrest.core.IsInstanceOf;
-
 import collectors.DataSaverLoader;
 import machineLearning.neuralnetwork.LossCalculator.lossFunctions;
 import machineLearning.neuralnetwork.Neuron.NeuronTypes;

@@ -133,6 +133,50 @@ public abstract class Brush
 	 * @param height Height of the map
 	 * @param layer Current evaluated size (evaluated size - 1)
 	 */
+	public void simulateDrawing(Point currentCenter, Room room, Drawer boss, InteractiveMap interactiveCanvas)
+	{
+		if(GetMainComponent() == null)
+			return;
+		
+		Tile currentTile = null;
+		this.immutable = boss.GetModifierValue("Lock");
+		
+		for(Point position : GetDrawableTiles().getPoints())
+		{
+			currentTile = room.getTile(position.getX(), position.getY());
+			
+			// Let's discard any attempts at erasing the doors
+			if(currentTile.GetType() == TileTypes.DOOR
+					|| currentTile.GetType() == TileTypes.HERO)
+				continue;
+			
+			//Check if we are about to paint over a boss --> We can also just check if the tile is in the custom tiles
+			if(currentTile.GetType() == TileTypes.ENEMY_BOSS)
+			{
+				Tile prev = room.replaceCustomForNormal(currentTile);
+				
+				if(prev != null) //We actually erased something
+				{
+					//"ERASE" TILES
+					for(Point prevPosition :prev.GetPositions())
+					{
+						prev.PaintTile(prevPosition, room, boss, interactiveCanvas);
+					}
+				}
+			}
+			
+			currentTile.SetImmutable(immutable);
+			room.setTile(position.getX(), position.getY(), GetMainComponent());
+		}
+	}
+	
+	/**
+	 * Fill the Bitmap based on its neighbors and brush size
+	 * @param p Point to be evaluated
+	 * @param width Width of the map
+	 * @param height Height of the map
+	 * @param layer Current evaluated size (evaluated size - 1)
+	 */
 	public void Draw(Point currentCenter, Room room, Drawer boss, InteractiveMap interactiveCanvas)
 	{
 		if(GetMainComponent() == null)

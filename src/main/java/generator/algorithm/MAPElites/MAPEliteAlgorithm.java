@@ -1,5 +1,6 @@
 package generator.algorithm.MAPElites;
 
+import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -20,6 +21,7 @@ import javax.xml.transform.stream.StreamResult;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
+import collectors.DataSaverLoader;
 import collectors.MAPECollector;
 import finder.PatternFinder;
 import game.MapContainer;
@@ -27,6 +29,7 @@ import game.Room;
 import generator.algorithm.Algorithm;
 import generator.algorithm.ZoneGenotype;
 import generator.algorithm.ZoneIndividual;
+import generator.algorithm.ZonePhenotype;
 import generator.algorithm.MAPElites.Dimensions.GADimension;
 import generator.algorithm.MAPElites.Dimensions.MAPEDimensionFXML;
 import generator.algorithm.MAPElites.Dimensions.NPatternGADimension;
@@ -66,6 +69,11 @@ public class MAPEliteAlgorithm extends Algorithm implements Listener {
 	private int currentGen = 0;
 	MAPEDimensionFXML[] dimensions;
 	private boolean dimensionsChanged = false;
+	
+	private int saveCounter = 0;
+	
+	//UGLY WAY OF DOING THIS!
+	ArrayList<ZoneIndividual> currentRendered = new ArrayList<ZoneIndividual>();
 
 	public MAPEliteAlgorithm(GeneratorConfig config) {
 		super(config);
@@ -269,6 +277,15 @@ public class MAPEliteAlgorithm extends Algorithm implements Listener {
 		this.cells = new ArrayList<GACell>();
 		CreateCellsOpposite(MAPElitesDimensions.size() - 1, dimensionsGranularity, new int[dimensions.length]);
 		cellAmounts = this.cells.size();
+		
+		//New addition
+		currentRendered.clear();
+		
+		for(int i = 0; i < cellAmounts; i++)
+		{
+			currentRendered.add(null);
+		}
+		
 	}
 	
 	public void RecreateCells()
@@ -333,6 +350,15 @@ public class MAPEliteAlgorithm extends Algorithm implements Listener {
 		for(GACell cell : cells)
 		{
 			cell.ResetPopulation(this.config);
+		}
+		
+		for(ZoneIndividual rend : currentRendered)
+		{
+			if(rend != null)
+			{
+				rend.ResetPhenotype(this.config);
+				evaluateFeasibleZoneIndividual(rend);
+			}
 		}
 	}
 	
@@ -448,6 +474,7 @@ public class MAPEliteAlgorithm extends Algorithm implements Listener {
     		RecreateCells();
     		dimensionsChanged = false;
     	}
+    	
 		ArrayList<ZoneIndividual> feasibleParents = new ArrayList<ZoneIndividual>();
 		ArrayList<ZoneIndividual> infeasibleParents = new ArrayList<ZoneIndividual>();
 		
@@ -763,11 +790,13 @@ public class MAPEliteAlgorithm extends Algorithm implements Listener {
 	//TODO: There are problems on how the cells are rendered!
 	public void broadcastResultedRooms()
 	{
+		//TODO: CHECK FOR THE OTHER THAT ARE ALREADY RENDERED
 		MAPElitesDone ev = new MAPElitesDone();
         ev.setID(id);
         int cellIndex = 0;
         for(GACell cell : cells)
 		{
+
 //        	System.out.println("CELL = " + cellIndex++);
 //        	System.out.println("SYMMETRY: " + cell.GetDimensionValue(DimensionTypes.SIMILARITY) + ", PAT: " + cell.GetDimensionValue(DimensionTypes.SYMMETRY));
 //        	cell.BroadcastCellInfo();
@@ -778,7 +807,24 @@ public class MAPEliteAlgorithm extends Algorithm implements Listener {
         	}
         	else //This is more tricky!!
         	{
-        		ev.addRoom(cell.GetFeasiblePopulation().get(0).getPhenotype().getMap(-1, -1, null, null, null));
+        		if(currentRendered.get(cellIndex) != null)
+        		{
+        			double increasedAmount = currentRendered.get(cellIndex).getFitness() * 0.01; //1% different
+        			
+        			if(cell.GetFeasiblePopulation().get(0).getFitness() >= currentRendered.get(cellIndex).getFitness() + increasedAmount)
+        			{
+        				currentRendered.set(cellIndex, cell.GetFeasiblePopulation().get(0));
+        			}
+        		}
+        		else
+        		{
+        			currentRendered.set(cellIndex, cell.GetFeasiblePopulation().get(0));
+        		}
+        		
+//        		ev.addRoom(currentRendered.get(cellIndex).getPhenotype().getMap(-1, -1, null, null, null));
+        		ev.addRoom(cell.GetFeasiblePopulation().get(0).getPhenotype().getMap(-1, -1, null, null, null)); 
+        		//Uncomment top to get previous result!
+        		
 //        		cell.GetFeasiblePopulation().get(0).BroadcastIndividualDimensions();
         		evaluateFeasibleZoneIndividual(cell.GetFeasiblePopulation().get(0));
 //        		System.out.println("FIT ROOM Fitness: " + cell.GetFeasiblePopulation().get(0).getFitness() + 
@@ -787,6 +833,8 @@ public class MAPEliteAlgorithm extends Algorithm implements Listener {
         	}	
         	
 //        	System.out.println("------------------");
+        	
+        	cellIndex++;
 		}
         
 		EventRouter.getInstance().postEvent(ev);
@@ -893,7 +941,13 @@ public class MAPEliteAlgorithm extends Algorithm implements Listener {
 		Document dom;
 	    Element e = null;
 	    Element next = null;
-	    String xml = System.getProperty("user.dir") + "\\my-data\\summer-school\\"+ InteractiveGUIController.runID + "\\algorithm\\algorithm-" + id + ".xml";
+	    
+	    File file = new File(DataSaverLoader.projectPath + "\\summer-school\\" + InteractiveGUIController.runID + "\\algorithm\\" + id);
+		if (!file.exists()) {
+			file.mkdirs();
+		}
+	    
+	    String xml = System.getProperty("user.dir") + "\\my-data\\summer-school\\"+ InteractiveGUIController.runID + "\\algorithm\\" + id + "\\algorithm-" + id + "_" + saveCounter + ".xml";
 
 	    // instance of a DocumentBuilderFactory
 	    DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
@@ -934,7 +988,7 @@ public class MAPEliteAlgorithm extends Algorithm implements Listener {
 		        }
 		        else
 		        {
-		        	cell.GetFeasiblePopulation().get(0).getPhenotype().getMap(-1, -1, null, null, null).getRoomXML("algorithm\\");
+		        	cell.GetFeasiblePopulation().get(0).getPhenotype().getMap(-1, -1, null, null, null).saveRoomXMLMapElites("algorithm\\" + id + "\\algorithm-" + saveCounter + "_");
 		        	next.setAttribute("ROOM_ID", cell.GetFeasiblePopulation().get(0).getPhenotype().getMap(-1, -1, null, null, null).toString());
 			        next.setAttribute("fitness", Double.toString(cell.GetFeasiblePopulation().get(0).getFitness()));
 			       
@@ -964,6 +1018,8 @@ public class MAPEliteAlgorithm extends Algorithm implements Listener {
 	    } catch (ParserConfigurationException pce) {
 	        System.out.println("UsersXML: Error trying to instantiate DocumentBuilder " + pce);
 	    }
+	    
+	    saveCounter++;
 	}
 
 	

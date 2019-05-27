@@ -14,6 +14,7 @@ public class InformativePopupManager
 	{
 		LOCK_RESTART,
 		ROOM_INFEASIBLE,
+		ROOM_INFEASIBLE_LOCK,
 		CHANGE_DIMENSIONS,
 		NO_BOSS_YET,
 		ROOMS_CONNECTED
@@ -96,6 +97,9 @@ public class InformativePopupManager
 		case ROOM_INFEASIBLE:
 			text="Your room is infeasible due to unreachable areas. Not even my Deep Neural Network was able to play!";
 			break;
+		case ROOM_INFEASIBLE_LOCK:
+			text="If you lock an unpassable region, it will always be infeasible!";
+			break;
 		case LOCK_RESTART:
 			text="The locked tiles will appear after you RESTART the EA.";
 			break;
@@ -103,7 +107,7 @@ public class InformativePopupManager
 			text="There are no bosses yet, don't you want challenge?";
 			break;
 		case ROOMS_CONNECTED:
-			text="Room is infeasible... How do you plan the player to use it? CONNECT IT!";
+			text="Rooms must be connected and all areas should be reachable, else they are infeasible!";
 			break;
 		default:
 			break;

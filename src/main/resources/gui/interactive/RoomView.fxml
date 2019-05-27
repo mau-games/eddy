@@ -249,7 +249,7 @@
 					</children>
 				</AnchorPane>
 				
-				<Popup text="add me"/>
+				<Popup text="Drag dimensions from available to current (Max. 2). To see your locked tiles, you must press Restart!" width="150" height="100" image="FALSE"/>
 
 				<HBox spacing="10">
 

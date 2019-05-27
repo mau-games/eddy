@@ -65,12 +65,12 @@ public class ActionLogger {
 		logs = new ArrayList<ActionLog>();
 		timer = new Timer();
 		
-		timer.schedule(new TimerTask() {
+		timer.scheduleAtFixedRate(new TimerTask() {
 			  @Override
 			  public void run() {
 			    saveNFlush();
 			  }
-			}, 30000);
+			}, 20000, 20000);
 	}
 	
 	public static ActionLogger getInstance()

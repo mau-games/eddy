@@ -43,7 +43,7 @@ public class InteractiveGUI extends Application {
 	 * @param args Those arguments aren't used.
 	 */
 	public static void main(String[] args) {
-		logger.info("Starting program");
+//		logger.info("Starting program");
 		launch(args);
 	}
 
@@ -57,6 +57,7 @@ public class InteractiveGUI extends Application {
 		});
 		
 		try {
+//			System.out.println(getClass().getResource("/gui/interactive/InteractiveGUI.fxml"));
 			root = FXMLLoader.load(getClass().getResource("/gui/interactive/InteractiveGUI.fxml"));
 
 			Scene scene = new Scene(root, 1900, 1060);
@@ -77,7 +78,7 @@ public class InteractiveGUI extends Application {
 
 
 		} catch (Exception e) {
-			logger.error("Couldn't load GUI: " + e.getMessage(), e);
+//			logger.error("Couldn't load GUI: " + e.getMessage(), e);
 			System.exit(0);
 		}
 	}

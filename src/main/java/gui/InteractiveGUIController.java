@@ -465,9 +465,9 @@ public class InteractiveGUIController implements Initializable, Listener {
 
 		worldView.initWorldMap(initDungeon());
 
-		saveItem.setDisable(false);
-		saveAsItem.setDisable(false);
-		exportItem.setDisable(false);
+//		saveItem.setDisable(false);
+//		saveAsItem.setDisable(false);
+//		exportItem.setDisable(false);
 
 		suggestionsView.setActive(false);
 		roomView.setActive(false);
@@ -503,9 +503,9 @@ public class InteractiveGUIController implements Initializable, Listener {
 
 		worldView.initWorldMap(dungeonMap);
 
-		saveItem.setDisable(false);
-		saveAsItem.setDisable(false);
-		exportItem.setDisable(false);
+//		saveItem.setDisable(false);
+//		saveAsItem.setDisable(false);
+//		exportItem.setDisable(false);
 
 		suggestionsView.setActive(false);
 		roomView.setActive(false);
@@ -541,9 +541,9 @@ public class InteractiveGUIController implements Initializable, Listener {
 //		dungeonMap.dPane.setPrefSize(roomView.minimap.getPrefWidth(), roomView.minimap.getPrefHeight());
 		
 
-		saveItem.setDisable(false);
-		saveAsItem.setDisable(false);
-		exportItem.setDisable(false);
+//		saveItem.setDisable(false);
+//		saveAsItem.setDisable(false);
+//		exportItem.setDisable(false);
 
 		worldView.setActive(false);
 		roomView.setActive(true);		

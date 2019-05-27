@@ -127,6 +127,28 @@ public class InteractiveMap extends GridPane implements Listener {
 		
 		brush.DoneDrawing();
 	}
+	
+	public void updateTileInARoom(Room aRoom, ImageView tile, Drawer brush)
+	{
+		if (aRoom == null) {
+			return;
+		}
+		
+//		this.setGridLinesVisible(true);
+
+		//Safety checkup
+		Point p = coords.get(tile);
+		Tile currentTile = aRoom.getTile(p);
+		
+		// Let's discard any attempts at erasing the doors or the hero
+		if (p == null
+				|| currentTile.GetType() == TileTypes.DOOR
+				|| currentTile.GetType() == TileTypes.HERO) {
+			return;
+		}
+		
+		brush.simulateDrawing(Point.castToGeometry(p), aRoom, this);
+	}
 
 	public Point CheckTile(ImageView tile)
 	{

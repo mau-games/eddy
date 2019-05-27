@@ -15,6 +15,7 @@ import game.MapContainer;
 import game.PathInformation;
 import game.Room;
 import gui.controls.LabeledCanvas;
+import gui.controls.Popup;
 import gui.utils.AnimatedGif;
 import gui.utils.Animation;
 import gui.utils.DungeonDrawer;
@@ -177,11 +178,11 @@ public class WorldViewController extends BorderPane implements Listener
 		
 		dungeon.dPane.renderAll();
 		worldPane.getChildren().add(dungeon.dPane);
-		
-		if(this.dungeon.getAllRooms().size() > 3 && this.dungeon.getBosses().isEmpty())
-		{
-			InformativePopupManager.getInstance().requestPopup(dungeon.dPane, PresentableInformation.NO_BOSS_YET, "");
-		}
+//		
+//		if(this.dungeon.getAllRooms().size() > 3 && this.dungeon.getBosses().isEmpty())
+//		{
+//			InformativePopupManager.getInstance().requestPopup(dungeon.dPane, PresentableInformation.NO_BOSS_YET, "");
+//		}
 	}
 	
 	/**
@@ -335,8 +336,8 @@ public class WorldViewController extends BorderPane implements Listener
 		double maxHeight = 50;
 		double initXPos = -100;
 		double yPos = 0;
-		double widthPadding = 10;
-		double btnWidthSize = (maxWidth / brushBtns.size()) - (widthPadding * brushBtns.size());
+		double widthPadding = 30;
+		double btnWidthSize = (maxWidth / brushBtns.size()) - (10 * brushBtns.size());
 		double xStep = btnWidthSize + (btnWidthSize / 2.0) + widthPadding;
 		
 //		ImageView mView = new ImageView(new Image(this.getClass().getResource("/graphics/player.gif").toExternalForm()));
@@ -360,6 +361,13 @@ public class WorldViewController extends BorderPane implements Listener
 //		arrangeControls(getPickInitBtn(), 0, 200, 300, 50);
 //		arrangeControls(mView, 0, 200, 50, 50);
 
+		Popup restartProgram = new Popup("If you are a new user, please restart the workflow by \"File/New Workflow\" at the top menu", 50, 100, false);
+		restartProgram.setMaxHeight(100);
+		restartProgram.setMinHeight(100);
+		restartProgram.setPrefHeight(100);
+		restartProgram.setTranslateX(0);
+		restartProgram.setTranslateY(150);
+//		restartProgram.setPosition(0, 250);
 		
 //		arrangeControls(pathTypeComboBox, 0, 300, 300, 50);
 		
@@ -439,6 +447,8 @@ public class WorldViewController extends BorderPane implements Listener
 		buttonPane.getChildren().add(widthField);
 		buttonPane.getChildren().add(widthLabel);
 		buttonPane.getChildren().add(heightLabel);
+		buttonPane.getChildren().add(restartProgram);
+
 //		buttonPane.getChildren().add(pathTypeComboBox);
 //		buttonPane.getChildren().add(ani.getView());
 		

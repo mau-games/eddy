@@ -727,6 +727,14 @@ public class RoomViewController extends BorderPane implements Listener
 				selectedSuggestion.setSelected(false);
 			
 			selectedSuggestion = (SuggestionRoom) ((SuggestedMapSelected) e).getPayload();
+			clearStats();
+			
+			if(selectedSuggestion == null || selectedSuggestion.getSuggestedRoom() == null)
+			{
+				getAppSuggestionsBtn().setDisable(true);
+				return;
+			}
+			
 			ActionLogger.getInstance().storeAction(ActionType.CLICK,
 													View.ROOM, 
 													TargetPane.SUGGESTION_PANE, 
@@ -738,7 +746,7 @@ public class RoomViewController extends BorderPane implements Listener
 													currentDimensions[1].getGranularity(),
 													selectedSuggestion.getSuggestedRoom().getDimensionValue(currentDimensions[1].getDimension()),
 													selectedSuggestion.getSuggestedRoom());
-			clearStats();
+//			clearStats();
 			displayStats();
 			getAppSuggestionsBtn().setDisable(false);
 		}
@@ -1391,6 +1399,21 @@ public class RoomViewController extends BorderPane implements Listener
 		getMapView().addEventFilter(MouseEvent.MOUSE_CLICKED, new EditViewEventHandler());
 		getMapView().addEventFilter(MouseEvent.MOUSE_MOVED, new EditViewMouseHover());
 	}
+	
+	public boolean checkInfeasibleLockedRoom(ImageView tile)
+	{
+		Room auxRoom = new Room(mapView.getMap());
+		mapView.updateTileInARoom(auxRoom, tile, myBrush);
+		
+		if(!auxRoom.walkableSectionsReachable())
+		{
+			System.out.println("I DETECTED IT!!");
+			InformativePopupManager.getInstance().requestPopup(mapView, PresentableInformation.ROOM_INFEASIBLE_LOCK, "");
+			return true;
+		}
+		
+		return false;
+	}
 
 	/*
 	 * Event handlers
@@ -1411,7 +1434,7 @@ public class RoomViewController extends BorderPane implements Listener
 				myBrush.UpdateModifiers(event);
 //				mapView.updateTile(tile, brush, event.getButton() == MouseButton.SECONDARY, lockBrush.isSelected() || event.isControlDown());
 				
-				if(!myBrush.possibleToDraw())
+				if(!myBrush.possibleToDraw() || (myBrush.GetModifierValue("Lock") && checkInfeasibleLockedRoom(tile)))
 					return;
 				
 				if(myBrush.GetModifierValue("Lock"))

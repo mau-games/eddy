@@ -206,4 +206,6 @@
 {
 	-fx-text-alignment: center;
 		-fx-text-fill: white;
+		 -fx-font-size:14px;  
+		 -fx-padding: 0 5 0 5;
 }

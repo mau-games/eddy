@@ -571,7 +571,7 @@ public class Dungeon implements Listener
 	        
 	       for(Room node : network.nodes())
 	       {
-	    	   node.getRoomXML("dungeon\\");
+	    	   node.getRoomFromDungeonXML("dungeon\\");
 	    	   next = dom.createElement("Room");
 	    	   next.setAttribute("ID",  node.toString());
 	    	   e.appendChild(next);
