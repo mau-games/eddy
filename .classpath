@@ -36,6 +36,5 @@
 			<accessrule kind="accessible" pattern="javafx/**"/>
 		</accessrules>
 	</classpathentry>
-	<classpathentry kind="lib" path="C:/Users/ai5982/.m2/repository/com/google/code/gson/gson/2.8.0/gson-2.8.0.jar"/>
 	<classpathentry kind="output" path="target/classes"/>
 </classpath>
