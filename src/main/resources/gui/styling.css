@@ -19,7 +19,6 @@
 
 #mainBorderPane, #suggestionsView, #rootWorldViewPane {
 		-fx-background-color: #2c2f33;
-	
 }
 
 #suggestionsPane, #suggestionsPane . viewport, #MAPElitesPane, #MAPElitesPane . viewport{
@@ -209,3 +208,11 @@
 		 -fx-font-size:14px;  
 		 -fx-padding: 0 5 0 5;
 }
+
+#launchLabel
+{
+	-fx-text-alignment: center;
+		-fx-text-fill: white;
+		 -fx-font-size:16px;  
+}
+
