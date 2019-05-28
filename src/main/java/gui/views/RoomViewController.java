@@ -1209,9 +1209,15 @@ public class RoomViewController extends BorderPane implements Listener
 		Room original = getMapView().getMap();
 		Room toCompare = selectedSuggestion.getSuggestedRoom();
 		
+		int originalEnemies = 0;
+		int compareEnemies = 0;
+		
+		getMapView().getMap().createLists();
+		toCompare.createLists();
+		
 		StringBuilder str = new StringBuilder();
 		str.append("Number of enemies: ");
-
+		
 		str.append(getMapView().getMap().getEnemyCount());
 		str.append(" ➤  ");
 		enemyNumbr.setText(str.toString());	

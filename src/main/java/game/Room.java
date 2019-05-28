@@ -138,6 +138,16 @@ public class Room {
 	//NEW THINGS
 	public ZoneNode root;
 
+	//SIDE!!!
+	public void createLists()
+	{
+		if(enemies == null)
+			enemies = new ArrayList<Point>();
+		
+		if(treasures == null)
+			treasures = new ArrayList<Point>();
+	}
+	
 	/**
 	 * Creates an instance of map.
 	 * 
