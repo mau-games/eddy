@@ -743,6 +743,9 @@ public class RoomViewController extends BorderPane implements Listener
 													currentDimensions[1].getGranularity(),
 													selectedSuggestion.getSuggestedRoom().getDimensionValue(currentDimensions[1].getDimension()),
 													selectedSuggestion.getSuggestedRoom());
+			
+			selectedSuggestion.getSuggestedRoom().getRoomXML("clicked-suggestion\\");
+			
 //			clearStats();
 			displayStats();
 			getAppSuggestionsBtn().setDisable(false);
@@ -1107,6 +1110,10 @@ public class RoomViewController extends BorderPane implements Listener
 													currentDimensions[1].getGranularity(),
 													selectedSuggestion.getSuggestedRoom().getDimensionValue(currentDimensions[1].getDimension()),
 													selectedSuggestion.getSuggestedRoom());
+			
+			
+//			selectedSuggestion.getSuggestedRoom()(prefix);
+			selectedSuggestion.getSuggestedRoom().getRoomXML("picked-room\\");
 			
 			router.postEvent(new SaveCurrentGeneration());
 			
