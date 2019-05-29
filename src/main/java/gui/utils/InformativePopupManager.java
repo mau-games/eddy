@@ -51,6 +51,15 @@ public class InformativePopupManager
 		mainPane = main;
 	}
 	
+	public void restartPopups()
+	{
+		popupCounter.clear();
+		popupActive.clear();
+		
+		popupCounter = new HashMap<PresentableInformation, Integer>();
+		popupActive = new HashMap<PresentableInformation, Popup>();
+	}
+	
 	public void requestPopup(Pane requestingPane, PresentableInformation type, String info)
 	{
 		if(popupActive.containsKey(type) || (popupCounter.containsKey(type) && popupCounter.get(type) > 2))

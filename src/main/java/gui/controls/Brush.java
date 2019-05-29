@@ -151,20 +151,20 @@ public abstract class Brush
 				continue;
 			
 			//Check if we are about to paint over a boss --> We can also just check if the tile is in the custom tiles
-			if(currentTile.GetType() == TileTypes.ENEMY_BOSS)
-			{
-				Tile prev = room.replaceCustomForNormal(currentTile);
-				
-				if(prev != null) //We actually erased something
-				{
-					//"ERASE" TILES
-					for(Point prevPosition :prev.GetPositions())
-					{
-						prev.PaintTile(prevPosition, room, boss, interactiveCanvas);
-					}
-				}
-			}
-			
+//			if(currentTile.GetType() == TileTypes.ENEMY_BOSS)
+//			{
+//				Tile prev = room.replaceCustomForNormal(currentTile);
+//				
+//				if(prev != null) //We actually erased something
+//				{
+//					//"ERASE" TILES
+//					for(Point prevPosition :prev.GetPositions())
+//					{
+//						prev.PaintTile(prevPosition, room, boss, interactiveCanvas);
+//					}
+//				}
+//			}
+//			
 			currentTile.SetImmutable(immutable);
 			room.setTile(position.getX(), position.getY(), GetMainComponent());
 		}

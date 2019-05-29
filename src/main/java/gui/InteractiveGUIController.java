@@ -299,6 +299,7 @@ public class InteractiveGUIController implements Initializable, Listener {
 		//TODO: There is mucho more than this, a lot of things need to be redone!
 		
 		ActionLogger.getInstance().saveNFlush();
+		InformativePopupManager.getInstance().restartPopups();
 		
 		suggestionsView = new SuggestionsViewController();
 		roomView = new RoomViewController();
@@ -319,6 +320,9 @@ public class InteractiveGUIController implements Initializable, Listener {
 		if (!file.exists()) {
 			file.mkdirs();
 		}
+		
+		ActionLogger.getInstance().init();
+		
 		initLaunchView();
 	}
 
