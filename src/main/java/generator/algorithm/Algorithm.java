@@ -610,9 +610,12 @@ public class Algorithm extends Thread {
     	double fitness = (0.5 * treasureAndEnemyFitness)
     			+  0.5 * (0.3 * roomFitness + 0.7 * corridorFitness); 
     	
+    	double fitnessWeight = 0.1;
+    	double preferenceWeight = 0.9;
+    	
     	if(userPreferences != null)
     	{
-    		fitness = fitness * userPreferences.testWithPreference(room);
+    		fitness = (fitnessWeight * fitness) + (preferenceWeight * userPreferences.testWithPreference(room));
 //    		fitness = userPreferences.testWithPreference(room);
     	}
     	

@@ -40,24 +40,24 @@ public class SimilarityGADimension extends GADimension
 //    			if((newMatrix[j][i] >= 1 && newMatrix[j][i] <= 3) && oldMatrix[j][i] != newMatrix[j][i])
 //    				similarTiles--;
     			
-    			if(oldMatrix[j][i] != newMatrix[j][i])
-    				similarTiles--;
+//    			if(oldMatrix[j][i] != newMatrix[j][i])
+//    				similarTiles--;
     			
-//    			switch (oldMatrix[j][i])
-//    			{
-//	    			case 1: // Just walls. Checking if both maps have a wall in the same place.
-//	        			if(newMatrix[j][i] != 1)
-//	        			{
-//	        				similarTiles--;
-//	        			}
-//	        			break;
-//        			default: // Every other floor tile. Checking if that there is no wall.
-//        				if(newMatrix[j][i] == 1)
-//	        			{
-//	        				similarTiles--;
-//	        			}
-//        				break;
-//    			}
+    			switch (oldMatrix[j][i])
+    			{
+	    			case 1: // Just walls. Checking if both maps have a wall in the same place.
+	        			if(newMatrix[j][i] != 1)
+	        			{
+	        				similarTiles--;
+	        			}
+	        			break;
+        			default: // Every other floor tile. Checking if that there is no wall.
+        				if(newMatrix[j][i] == 1)
+	        			{
+	        				similarTiles--;
+	        			}
+        				break;
+    			}
     		}
     	}
     	double procentSimilar = similarTiles / totalTiles;

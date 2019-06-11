@@ -6,6 +6,7 @@ public class ModelInformation {
 	
 	protected double[] accuracy;
 	protected double[] loss;
+	protected int[] datasetSize;
 	public double inGameAccuracy;
 	public double learningRate;
 	public int epoch;
@@ -27,6 +28,7 @@ public class ModelInformation {
 	{
 		accuracy = new double[] {0.0, 0.0, 0.0};
 		loss = new double[] {0.0, 0.0, 0.0};
+		datasetSize = new int[] {0, 0, 0};
 		
 		this.learningRate = learningRate;
 		this.epoch = epoch;
@@ -46,6 +48,11 @@ public class ModelInformation {
 		return loss[index.ordinal()];
 	}
 	
+	public int getDatasetSize(DatasetUses index)
+	{
+		return datasetSize[index.ordinal()];
+	}
+	
 	public void setAccuracy(DatasetUses index, double value)
 	{
 		accuracy[index.ordinal()] = value;
@@ -56,6 +63,11 @@ public class ModelInformation {
 		loss[index.ordinal()] = value;
 	}
 	
+	public void setDatasetSize(DatasetUses index, int value)
+	{
+		datasetSize[index.ordinal()] = value;
+	}
+	
 	public double[] getAccuracies()
 	{
 		return accuracy;
@@ -64,6 +76,11 @@ public class ModelInformation {
 	public double[] getLosses()
 	{
 		return loss;
+	}
+	
+	public int[] getDatasetSizes()
+	{
+		return datasetSize;
 	}
 	
 }

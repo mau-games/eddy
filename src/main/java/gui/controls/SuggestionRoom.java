@@ -39,6 +39,15 @@ public class SuggestionRoom
 		selected = false;
 	}
 	
+	public SuggestionRoom(LabeledCanvas linkedNode)
+	{
+		roomViewNode = linkedNode;
+		roomViewNode.setPrefSize(140, 140);
+		roomViewNode.addEventFilter(MouseEvent.MOUSE_ENTERED, new MouseEventH());
+		self = this;
+		selected = false;
+	}
+	
 	public class MouseEventH implements EventHandler<MouseEvent>
 	{
 		@Override

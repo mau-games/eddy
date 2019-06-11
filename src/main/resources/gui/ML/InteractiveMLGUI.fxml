@@ -7,7 +7,7 @@
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.VBox?>
 
-<VBox prefHeight="400.0" prefWidth="640.0" xmlns="http://javafx.com/javafx/9.0.1"
+<VBox prefHeight="1900.0" prefWidth="1060.0" xmlns="http://javafx.com/javafx/9.0.1"
 	stylesheets="@../styling.css" xmlns:fx="http://javafx.com/fxml/1" fx:controller="gui.InteractiveMLGUIController">
 	<children>
 		<MenuBar VBox.vgrow="NEVER">

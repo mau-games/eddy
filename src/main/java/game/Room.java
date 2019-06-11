@@ -187,6 +187,16 @@ public class Room {
 		init(copyMap.getRowCount(), copyMap.getColCount());
 		this.config = copyMap.config;
 		
+//		for (int j = 0; j < height; j++)
+//		{
+//			for (int i = 0; i < width; i++) 
+//			{
+//				setTile(i, j, copyMap.getTile(i, j));
+////				matrix[j][i] = suggestions.matrix[j][i];
+////				tileMap[j * width + i] = new Tile(suggestions.tileMap[j * width + i]);
+//			}
+//		}	
+		
 		for (int j = 0; j < height; j++)
 		{
 			for (int i = 0; i < width; i++) 
@@ -196,25 +206,27 @@ public class Room {
 			}
 		}	
 		
-		for (int j = 0; j < height; j++){
-			for (int i = 0; i < width; i++) {
-				switch (TileTypes.toTileType(matrix[j][i])) {
-				case WALL:
-					wallCount++;
-					break;
-				case ENEMY:
-					enemies.add(new Point(i, j));
-					break;
-				case TREASURE:
-					treasures.add(new Point(i, j));
-					break;
-				default:
-					break;
-				}
-			}
-		}
+//		for (int j = 0; j < height; j++){
+//			for (int i = 0; i < width; i++) {
+//				switch (TileTypes.toTileType(matrix[j][i])) {
+//				case WALL:
+//					wallCount++;
+//					break;
+//				case ENEMY:
+//					enemies.add(new Point(i, j));
+//					break;
+//				case TREASURE:
+//					treasures.add(new Point(i, j));
+//					break;
+//				default:
+//					break;
+//				}
+//			}
+//		}
 
+		this.owner = copyMap.owner;
 		copyDoors(copyMap.getDoors());
+//		copyCustomTiles(copyMap.customTiles);
 		SetDimensionValues(copyMap.dimensionValues);
 		
 		finder = new PatternFinder(this);
@@ -223,9 +235,19 @@ public class Room {
 	}
 	
 	public Room(Room copyMap, ZoneNode zones) //THIS IS CALLED WHEN CREATING A ZONE IN THE TREE (TO HAVE A COPY OF THE DOORS)
-	{
+	{	
 		init(copyMap.getRowCount(), copyMap.getColCount());
 		this.config = copyMap.config;
+		
+//		for (int j = 0; j < height; j++)
+//		{
+//			for (int i = 0; i < width; i++) 
+//			{
+//				setTile(i, j, copyMap.getTile(i, j));
+////				matrix[j][i] = suggestions.matrix[j][i];
+////				tileMap[j * width + i] = new Tile(suggestions.tileMap[j * width + i]);
+//			}
+//		}	
 		
 		for (int j = 0; j < height; j++)
 		{
@@ -236,26 +258,28 @@ public class Room {
 			}
 		}	
 		
-		for (int j = 0; j < height; j++){
-			for (int i = 0; i < width; i++) {
-				switch (TileTypes.toTileType(matrix[j][i])) {
-				case WALL:
-					wallCount++;
-					break;
-				case ENEMY:
-					enemies.add(new Point(i, j));
-					break;
-				case TREASURE:
-					treasures.add(new Point(i, j));
-					break;
-				default:
-					break;
-				}
-			}
-		}
+//		for (int j = 0; j < height; j++){
+//			for (int i = 0; i < width; i++) {
+//				switch (TileTypes.toTileType(matrix[j][i])) {
+//				case WALL:
+//					wallCount++;
+//					break;
+//				case ENEMY:
+//					enemies.add(new Point(i, j));
+//					break;
+//				case TREASURE:
+//					treasures.add(new Point(i, j));
+//					break;
+//				default:
+//					break;
+//				}
+//			}
+//		}
 
+		this.owner = copyMap.owner;
 		copyDoors(copyMap.getDoors());
-		
+//		copyCustomTiles(copyMap.customTiles);
+
 		finder = new PatternFinder(this);
 		pathfinder = new RoomPathFinder(this);
 		root = zones;	
@@ -273,8 +297,8 @@ public class Room {
 	
 	private void CloneMap(Room room, int[] chromosomes) //FROM THE PREVIOUS CONSTRUCTOR
 	{
-		this.tileMap = room.tileMap.clone();
-		this.matrix = room.matrix.clone();
+//		this.tileMap = room.tileMap.clone();
+//		this.matrix = room.matrix.clone();
 		enemies.clear();
 		treasures.clear();
 
@@ -282,37 +306,59 @@ public class Room {
 		{
 			for (int i = 0; i < width; i++) 
 			{
+//				if(room.tileMap[j * width + i].GetType() == TileTypes.ENEMY_BOSS)
+//				{
+//					System.out.println();
+//				}
+//				
+//				setTile(i, j, room.tileMap[j * width + i]);
 				if(!room.tileMap[j * width + i].GetImmutable())
 				{
-					setTile(i, j, chromosomes[j * width + i]);
+					setTile(i, j, room.tileMap[j * width + i]);
 				}
 				else
 				{
 					tileMap[j * width + i] = new Tile(room.tileMap[j * width + i]);
 					matrix[j][i] = chromosomes[j * width + i];
+					
+					switch (TileTypes.toTileType(matrix[j][i])) {
+					case WALL:
+						wallCount++;
+						break;
+					case ENEMY:
+						enemies.add(new Point(i, j));
+						break;
+					case TREASURE:
+						treasures.add(new Point(i, j));
+						break;
+					default:
+						break;
+					}
 				}
 			}
 		}	
-		
-		for (int j = 0; j < height; j++){
-			for (int i = 0; i < width; i++) {
-				switch (TileTypes.toTileType(matrix[j][i])) {
-				case WALL:
-					wallCount++;
-					break;
-				case ENEMY:
-					enemies.add(new Point(i, j));
-					break;
-				case TREASURE:
-					treasures.add(new Point(i, j));
-					break;
-				default:
-					break;
-				}
-			}
-		}
-		
+//		
+//		for (int j = 0; j < height; j++){
+//			for (int i = 0; i < width; i++) {
+//				switch (TileTypes.toTileType(matrix[j][i])) {
+//				case WALL:
+//					wallCount++;
+//					break;
+//				case ENEMY:
+//					enemies.add(new Point(i, j));
+//					break;
+//				case TREASURE:
+//					treasures.add(new Point(i, j));
+//					break;
+//				default:
+//					break;
+//				}
+//			}
+//		}
+		this.owner = room.owner;
 		copyDoors(room.getDoors());
+//		copyCustomTiles(room.customTiles);
+
 //		
 		finder = new PatternFinder(this);
 		pathfinder = new RoomPathFinder(this);
@@ -749,7 +795,7 @@ public class Room {
 		if(localConfig != null) localConfig.getWorldCanvas().setRendered(false); //THIS IS NEEDED TO FORCE RENDERING IN THE WORLD VIEW
 		ChangeQuantities(x, y, tile.GetType());
 		matrix[y][x] = tile.GetType().getValue();
-		tileMap[y * width + x] = new Tile(tile);
+		tileMap[y * width + x] = tile;
 	}
 	
 	/**
@@ -1433,8 +1479,8 @@ public class Room {
 //    	System.out.println(enemies + "=" + getEnemyCount());
 //    	System.out.println(allSectionsReachable(walkableSections));
 
-    	return  (treasure + doors + enemies == getTreasureCount() + getDoorCount() + getEnemyCount()) //Same amount of treasure+enemies+doors
-    			&& getTreasureCount() > 0 && getEnemyCount() > 0 //Finns at least 1(one) enemy and one treasure
+    	return  (treasure + enemies == getTreasureCount() + getEnemyCount()) //Same amount of treasure+enemies+doors
+//    			&& getTreasureCount() > 0 && getEnemyCount() > 0 //Finns at least 1(one) enemy and one treasure
     			&& sectionsReachable; //All sections in the room are reachable!!!
 		
 //		return true;
@@ -1558,7 +1604,12 @@ public class Room {
 	
 	public void SetDimensionValues(HashMap<DimensionTypes, Double> dimensions)
 	{
-		dimensionValues = new HashMap<DimensionTypes, Double>(dimensions);
+//		dimensionValues = new HashMap<DimensionTypes, Double>(dimensions);
+		
+		if(dimensions != null)
+		{
+			dimensionValues = new HashMap<DimensionTypes, Double>(dimensions);
+		}
 		
 //		for(GADimension dimension : dimensions)
 //		{
@@ -1568,6 +1619,7 @@ public class Room {
 	
 	public double getDimensionValue(DimensionTypes currentDimension)
 	{
+		if(dimensionValues == null || !dimensionValues.containsKey(currentDimension)) return -1.0;
 		return dimensionValues.get(currentDimension);
 	}
 	

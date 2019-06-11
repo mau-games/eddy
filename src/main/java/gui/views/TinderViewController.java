@@ -70,6 +70,8 @@ public class TinderViewController extends BorderPane implements Listener
 	private MAPEDimensionFXML[] currentDimensions;
 	private PreferenceModel userPreferenceModel;
 	
+	private boolean isActive = false;
+	
 	private static DecimalFormat df2 = new DecimalFormat("#.##");
 	private static DecimalFormat df3 = new DecimalFormat("#.###");
 	public TinderViewController() {
@@ -105,7 +107,7 @@ public class TinderViewController extends BorderPane implements Listener
 		}
 		EARooms = new ArrayList<Room>();
 		currentDimensions = new MAPEDimensionFXML[] {new MAPEDimensionFXML(DimensionTypes.SYMMETRY, 5), 
-													new MAPEDimensionFXML(DimensionTypes.NUMBER_PATTERNS, 5),
+//													new MAPEDimensionFXML(DimensionTypes.NUMBER_PATTERNS, 5),
 //													new MAPEDimensionFXML(DimensionTypes.LINEARITY, 5),
 													new MAPEDimensionFXML(DimensionTypes.NUMBER_MESO_PATTERN, 5)};
 		
@@ -157,19 +159,19 @@ public class TinderViewController extends BorderPane implements Listener
 		
 		
 		centerPane.getChildren().addAll(dimensionLabels);
-		originalRoom = new Room(null, gc, 11, 11, 30);
+		originalRoom = new Room(null, gc, 7, 13, 30);
 		originalRoom.setTile(0, 0, TileTypes.WALL);
 		originalRoom.setTile(1, 0, TileTypes.WALL);
 		originalRoom.setTile(0, 1, TileTypes.WALL);
 		originalRoom.setTile(2, 0, TileTypes.WALL);
 		originalRoom.setTile(0, 2, TileTypes.WALL);
 		originalRoom.setTile(1, 1, TileTypes.WALL);
+		originalRoom.setTile(12, 0, TileTypes.WALL);
+		originalRoom.setTile(12, 1, TileTypes.WALL);
+		originalRoom.setTile(11, 0, TileTypes.WALL);
 		originalRoom.setTile(10, 0, TileTypes.WALL);
-		originalRoom.setTile(10, 1, TileTypes.WALL);
-		originalRoom.setTile(9, 0, TileTypes.WALL);
-		originalRoom.setTile(8, 0, TileTypes.WALL);
-		originalRoom.setTile(10, 2, TileTypes.WALL);
-		originalRoom.setTile(9, 1, TileTypes.WALL);
+		originalRoom.setTile(12, 2, TileTypes.WALL);
+		originalRoom.setTile(11, 1, TileTypes.WALL);
 //		originalRoom.setTile(5, 0, TileTypes.WALL);
 //		originalRoom.setTile(5, 1, TileTypes.WALL);
 //		originalRoom.setTile(10, 10, TileTypes.WALL);
@@ -179,14 +181,14 @@ public class TinderViewController extends BorderPane implements Listener
 		originalRoom.setTile(1, 2, TileTypes.ENEMY);
 		originalRoom.setTile(1, 3, TileTypes.TREASURE);
 		originalRoom.createDoor(new Point(0, 5));
-		originalRoom.createDoor(new Point(5, 10));
+		originalRoom.createDoor(new Point(5, 6));
 //		originalRoom.addDoor(new Point(5, 9));
 		
 //		userPreferenceModel = new PreferenceModel();
 		userPreferenceModel = new NNPreferenceModel();
 
 	}
-	
+
 	@Override
 	public void ping(PCGEvent e) {
 		//THIS NEED TO BE IMPROVED!

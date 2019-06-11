@@ -88,6 +88,6 @@ public class MapPreferenceModelTuple extends DataTuple
 	
 	private double CategoryToNumeric(TileTypes tile)
 	{
-		return (double)(tile.getValue())/(double)(TileTypes.NONE.ordinal());
+		return (double)(TileTypes.NONE.ordinal() - tile.getValue())/(double)(TileTypes.NONE.ordinal());
 	}
 }

@@ -53,6 +53,8 @@ public class PreferenceModel
 	protected ArrayList<PreferenceModelDataTuple> tuples = new ArrayList<PreferenceModelDataTuple>();
 	protected ArrayList<MapPreferenceModelTuple> mapTuples = new ArrayList<MapPreferenceModelTuple>();
 	
+	private boolean broadcasted = false;
+	
 	public PreferenceModel(HashMap<PreferenceAttributes, Double> otherPreferences, Room room, boolean like)
 	{
 		this.preferences = new HashMap<PreferenceAttributes, Double>(otherPreferences);
@@ -146,7 +148,17 @@ public class PreferenceModel
 	
 	public void broadcastPreferences()
 	{
-		EventRouter.getInstance().postEvent(new UpdatePreferenceModel(this));
+		if(!broadcasted)
+		{
+			EventRouter.getInstance().postEvent(new UpdatePreferenceModel(this));
+			broadcasted = true;
+		}
+		else
+		{
+			EventRouter.getInstance().postEvent(new UpdatePreferenceModel(null));
+			broadcasted = false;
+		}
+
 	}
 	
 	public double testWithPreference(Room room)
@@ -245,6 +257,16 @@ public class PreferenceModel
 			System.out.println();
 		}
 
+	}
+	
+	public void SaveMapTuples(String userName)
+	{
+		DataTupleManager.SaveHeader(mapTuples.get(0), "\\PreferenceModels", userName + "_map");
+		
+		for(int i = 0; i < mapTuples.size() ;i++)
+		{
+			DataTupleManager.SaveData(mapTuples.get(i), "\\PreferenceModels", userName + "_map");
+		}
 	}
 	
 	public void SaveDataset(String userName)

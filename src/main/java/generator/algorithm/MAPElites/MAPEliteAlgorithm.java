@@ -29,6 +29,7 @@ import util.eventrouting.events.AlgorithmStarted;
 import util.eventrouting.events.MAPEGenerationDone;
 import util.eventrouting.events.MAPEGridUpdate;
 import util.eventrouting.events.MAPElitesDone;
+import util.eventrouting.events.MapElitesDoneAllRooms;
 import util.eventrouting.events.MapUpdate;
 import util.eventrouting.events.SaveDisplayedCells;
 import util.eventrouting.events.UpdatePreferenceModel;
@@ -605,6 +606,7 @@ public class MAPEliteAlgorithm extends Algorithm implements Listener {
     private void publishGeneration()
     {
 		broadcastResultedRooms();
+		broadcastNetworkRooms();
 		MAPECollector.getInstance().SaveGeneration(realCurrentGen, MAPElitesDimensions, cells, false); //store the cells in memory
 		
 		//This should be in a call when the ping happens! --> FIXME!!
@@ -752,6 +754,30 @@ public class MAPEliteAlgorithm extends Algorithm implements Listener {
 //        	System.out.println("------------------");
 		}
         
+		EventRouter.getInstance().postEvent(ev);
+	}
+	
+	private void broadcastNetworkRooms()
+	{
+		MapElitesDoneAllRooms ev = new MapElitesDoneAllRooms();
+        ev.setID(id);
+        int cellIndex = 0;
+		for(GACell cell : cells)
+		{
+//        	System.out.println("CELL = " + cellIndex++);
+//        	System.out.println("SYMMETRY: " + cell.GetDimensionValue(DimensionTypes.SIMILARITY) + ", PAT: " + cell.GetDimensionValue(DimensionTypes.SYMMETRY));
+//        	cell.BroadcastCellInfo();
+        	if(!cell.GetFeasiblePopulation().isEmpty())
+        	{
+//        		ev.addRoom(null);
+//        		System.out.println("NO FIT ROOM!");
+        		for(ZoneIndividual zi : cell.GetFeasiblePopulation())
+        		{
+        			ev.addRoom(zi.getPhenotype().getMap(-1, -1, null));
+        		}
+        	}
+		}
+		
 		EventRouter.getInstance().postEvent(ev);
 	}
 	

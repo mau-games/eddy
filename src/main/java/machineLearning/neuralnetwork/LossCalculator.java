@@ -6,6 +6,8 @@ public class LossCalculator {
 	public enum lossFunctions
 	{
 		MSE,
+		MAE,
+		SIMPLIFIED_CROSSENTROPY,
 		CROSSENTROPY,
 		MULTI_CROSSENTROPY,
 		HINGE
@@ -16,13 +18,17 @@ public class LossCalculator {
 		switch(lossFunction)
 		{
 		case CROSSENTROPY:
-			return crossEntropy(network, expectedIndex);
+			return binaryCrossEntropy(network, expectedIndex);
+		case SIMPLIFIED_CROSSENTROPY:
+			return simplifiedCrossEntropy(network, expectedIndex);
 		case MULTI_CROSSENTROPY:
 			return multiCrossEntropy(network, expectedIndex);
 		case HINGE:
 			return Hinge(network, expectedIndex);
 		case MSE:
 			return MSE(network, expectedIndex);
+		case MAE:
+			return MAE(network, expectedIndex);
 		default:
 			break;
 		
@@ -31,6 +37,12 @@ public class LossCalculator {
 		return 0.0;
 	}
 	
+	/***
+	 * Cross-entropy loss function to be called when we have more than 2 classes (M > 2)
+	 * @param network
+	 * @param expectedIndex
+	 * @return
+	 */
 	private static <T extends DataTuple> double multiCrossEntropy(NeuralNetwork<T> network, int expectedIndex)
 	{
 		double crossEntropy = 0.0;
@@ -49,7 +61,33 @@ public class LossCalculator {
 		return crossEntropy/ (double)outputNeurons.size(); ///divide by N
 	}
 	
-	private static <T extends DataTuple> double crossEntropy(NeuralNetwork<T> network, int expectedIndex)
+	/***
+	 * Cross-entropy loss function to be called when we have more than 2 classes (M > 2)
+	 * But a bit special, I should double check this method
+	 * @param network The network
+	 * @param expectedIndex Correct label index
+	 * @return
+	 */
+	private static <T extends DataTuple> double simplifiedCrossEntropy(NeuralNetwork<T> network, int expectedIndex) //These ints have to disappear for classes
+	{
+		Neuron outputN =  network.neuralLayers.get(network.neuralLayers.size() - 1).getNeuron(expectedIndex, DatasetUses.TEST);
+		double result = 0.0;
+		Layer outputLayer = network.neuralLayers.get(network.neuralLayers.size() - 1);
+		
+		for(int i = 0; i < outputLayer.getNeurons().size(); i++)
+		{
+			double expectedOutput = network.getClassificationOutput(outputN.activation, i == expectedIndex);
+			double neuralOutput =  outputLayer.getNeuron(i, DatasetUses.TEST).output;
+			if(neuralOutput == 0.0) neuralOutput = 0.000000001; //Avoid LOG(0)
+			
+			result -= expectedOutput * Math.log(neuralOutput);
+		}
+		
+		return result/(double)outputLayer.getNeurons().size();
+	}
+	
+	
+	private static <T extends DataTuple> double binaryCrossEntropy(NeuralNetwork<T> network, int expectedIndex)
 	{
 		Neuron outputN =  network.neuralLayers.get(network.neuralLayers.size() - 1).getNeuron(expectedIndex, DatasetUses.TEST);
 		
@@ -61,9 +99,33 @@ public class LossCalculator {
 			differenceNeural = 0.000000001;
 
 		return -(expectedOutput * Math.log(neuralOutput) + (1.0-expectedOutput)*Math.log(differenceNeural));
-
 	}
 	
+	/**
+	 * Mean Absolute Error - L1 Loss method
+	 * @param network
+	 * @param expectedIndex
+	 * @return
+	 */
+	private static <T extends DataTuple> double MAE(NeuralNetwork<T> network, int expectedIndex)
+	{
+		double absoluteError = 0.0;
+		ArrayList<Neuron> outputNeurons = network.neuralLayers.get(network.neuralLayers.size() - 1).getNeurons();
+		for(int currentNeuron = 0; currentNeuron < outputNeurons.size(); currentNeuron++)
+		{
+			absoluteError += Math.abs(network.getClassificationOutput(outputNeurons.get(currentNeuron).activation, expectedIndex == currentNeuron)
+										- outputNeurons.get(currentNeuron).output);
+		}
+		
+		return absoluteError/(double)outputNeurons.size();
+	}
+	
+	/**
+	 * Mean Squared Error - L2 Loss method
+	 * @param network
+	 * @param expectedIndex
+	 * @return
+	 */
 	private static <T extends DataTuple> double MSE(NeuralNetwork<T> network, int expectedIndex)
 	{
 		double squaredError = 0.0;

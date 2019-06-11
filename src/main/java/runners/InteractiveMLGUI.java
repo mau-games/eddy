@@ -48,7 +48,6 @@ public class InteractiveMLGUI extends Application {
 		Parent root;
 		// Set up a new game
 		game = new Game();
-
 		
 		stage.setOnCloseRequest(e ->{
 			Platform.exit();
@@ -58,18 +57,17 @@ public class InteractiveMLGUI extends Application {
 		try {
 			root = FXMLLoader.load(getClass().getResource("/gui/ML/InteractiveMLGUI.fxml"));
 
-			Scene scene = new Scene(root, 600, 1000);
+//			Scene scene = new Scene(root, 600, 1000);
+			Scene scene = new Scene(root, 1900, 1060);
 			stage.getIcons().add(new Image(getClass().getResourceAsStream("/graphics/icon.png"))); 
 			stage.setTitle("Eddy - Evolutionary Dungeon Designer");
 			stage.setScene(scene);
 			stage.show();
 			scene.getStylesheets().add(this.getClass().getResource("/gui/bootstrap3.css").toExternalForm());
-//			stage.setMaximized(true);
+			stage.setMaximized(true);
 			EventRouter router = EventRouter.getInstance();
-			
 
 			MapRenderer.getInstance();
-
 
 		} catch (Exception e) {
 			logger.error("Couldn't load GUI: " + e.getMessage(), e);
