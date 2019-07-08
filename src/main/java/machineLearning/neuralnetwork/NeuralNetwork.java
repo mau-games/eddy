@@ -948,21 +948,21 @@ public class NeuralNetwork <T extends DataTuple>
 			ModelInformation currentModel = new ModelInformation(learningRate, epoch, -1, batchSize, iterations, max_epochs);
 			modelInfoEachStep.add(currentModel);
 			
-			TestNetwork(epoch, -1, validationSet, DatasetUses.VALIDATION, true, false, currentModel, DebugMode.EVERYTHING, lossFunctions.MSE);
-			TestNetwork(epoch, -1, trainingSet, DatasetUses.TRAINING, true, false, currentModel, DebugMode.EVERYTHING,lossFunctions.MSE);
+			TestNetwork(epoch, -1, validationSet, DatasetUses.VALIDATION, true, false, currentModel, DebugMode.EVERYTHING, lossFunctions.CROSSENTROPY);
+			TestNetwork(epoch, -1, trainingSet, DatasetUses.TRAINING, true, false, currentModel, DebugMode.EVERYTHING,lossFunctions.CROSSENTROPY);
 			System.out.println("----------------------------------");
 
 			if(currentModel.getAccuracy(DatasetUses.VALIDATION) >= accuracyThreshold)
 			{
 				System.out.println("IS OVER, ACCURATE ENOUGH for Validadation, accuracy threshold: " + accuracyThreshold);
-				TestNetwork(epoch, -1, testSet, DatasetUses.TEST, true, false, currentModel, DebugMode.EVERYTHING, lossFunctions.MSE);
+				TestNetwork(epoch, -1, testSet, DatasetUses.TEST, true, false, currentModel, DebugMode.EVERYTHING, lossFunctions.CROSSENTROPY);
 				saveModelInformation("Execution-" + LocalDateTime.now().getNano());
 				return;
 			}
 		
 		}
 		ModelInformation currentModel = new ModelInformation(learningRate, 0, -1, batchSize, iterations, max_epochs);
-		TestNetwork(0, -1, testSet, DatasetUses.TEST, true, false, currentModel, DebugMode.EVERYTHING, lossFunctions.MSE);
+		TestNetwork(0, -1, testSet, DatasetUses.TEST, true, false, currentModel, DebugMode.EVERYTHING, lossFunctions.CROSSENTROPY);
 		saveModelInformation("Execution-" + LocalDateTime.now().getNano());
 		System.out.println("IS OVER!");
 	}

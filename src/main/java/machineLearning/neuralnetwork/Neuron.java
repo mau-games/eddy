@@ -131,6 +131,7 @@ public class Neuron
 		}
 	}
 	
+	//The cost function should be linked to the loss function class
 	public void CalculateError(double expectedOutput)
 	{
 		switch(neuron_type)
@@ -150,7 +151,8 @@ public class Neuron
 				return;
 			}
 			
-			error = (expectedOutput - output) * activation.derivateActivationFunction(input, output);
+			error = (expectedOutput - output) * activation.derivateActivationFunction(input, output); //Quadratic cost function
+//			error = (expectedOutput - output); //Cross-entropy cost function
 			break;
 			
 		default:
@@ -161,6 +163,7 @@ public class Neuron
 		if(Double.isNaN(error)) 
 			{
 				error = 0.0;
+				System.out.println("NAN");
 			}
 		
 //		error *= dropoutMultiplier;
