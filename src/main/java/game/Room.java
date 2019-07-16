@@ -52,6 +52,7 @@ import util.eventrouting.events.AlgorithmDone;
 import util.eventrouting.events.MapLoaded;
 import util.eventrouting.events.MapUpdate;
 import generator.algorithm.MAPElites.Dimensions.GADimension;
+import generator.algorithm.MAPElites.Dimensions.MAPEDimensionFXML;
 import generator.algorithm.MAPElites.Dimensions.GADimension.DimensionTypes;
 import generator.config.GeneratorConfig;
 import gui.InteractiveGUIController;
@@ -128,12 +129,18 @@ public class Room {
 	//Custom tiles (only the center or main needed?) this needs to be copied!
 	public ArrayList<Tile> customTiles = new ArrayList<Tile>();
 	
-	//THERE MUST BE TWO DIFFERENT CONFIGS!!
+	//THERE MUST BE TWO DIFFERENT CONFIGS!! //TODO: This really needs to be done already!
 	private GeneratorConfig config = null;
 	
 	private GeneratorConfig selfGeneratorConfig;
 	private GeneratorConfig targetGeneratorConfig;
 	
+	private double wallDensity 		= -1.0f;
+	private double wallSparsity 	= -1.0f;
+	private double treasureDensity 	= -1.0f;
+	private double treasureSparsity = -1.0f;
+	private double enemyDensity 	= -1.0f;
+	private double enemySparsity 	= -1.0f;
 	
 	//NEW THINGS
 	public ZoneNode root;
@@ -245,30 +252,31 @@ public class Room {
 			}
 		}	
 		
-//		for (int j = 0; j < height; j++){
-//			for (int i = 0; i < width; i++) {
-//				switch (TileTypes.toTileType(matrix[j][i])) {
-//				case WALL:
-//					wallCount++;
-//					break;
-//				case ENEMY:
-//					enemies.add(new Point(i, j));
-//					break;
-//				case TREASURE:
-//					treasures.add(new Point(i, j));
-//					break;
-//				default:
-//					break;
-//				}
-//			}
-//		}
+		for (int j = 0; j < height; j++){
+			for (int i = 0; i < width; i++) {
+				switch (TileTypes.toTileType(matrix[j][i])) {
+				case WALL:
+					wallCount++;
+					break;
+				case ENEMY:
+					enemies.add(new Point(i, j));
+					break;
+				case TREASURE:
+					treasures.add(new Point(i, j));
+					break;
+				default:
+					break;
+				}
+			}
+		}
+		
 
-		this.owner = copyMap.owner;
+		this.owner = copyMap.owner;	
 		copyDoors(copyMap.getDoors());
 		copyCustomTiles(copyMap.customTiles);
-		SetDimensionValues(copyMap.dimensionValues);
 		
 		finder = new PatternFinder(this);
+		SetDimensionValues(copyMap.dimensionValues);
 		pathfinder = new RoomPathFinder(this);
 		root = new ZoneNode(null, this, getColCount(), getRowCount());	
 	}
@@ -398,7 +406,13 @@ public class Room {
 	 */
 	private void init(int rows, int cols) 
 	{
-
+		wallDensity 		= -1.0f;
+		wallSparsity 		= -1.0f;
+		treasureDensity 	= -1.0f;
+		treasureSparsity 	= -1.0f;
+		enemyDensity 		= -1.0f;
+		enemySparsity 		= -1.0f;
+		
 		treasureSafety = new Hashtable<Point, Double>();
 		doorsSafety = new Hashtable<Point, Double>();
 		doorsGreed = new Hashtable<Point, Double>();
@@ -804,6 +818,13 @@ public class Room {
 	 */
 	public void setTile(int x, int y, TileTypes tile) 
 	{
+		wallDensity 		= -1.0f;
+		wallSparsity 		= -1.0f;
+		treasureDensity 	= -1.0f;
+		treasureSparsity 	= -1.0f;
+		enemyDensity 		= -1.0f;
+		enemySparsity 		= -1.0f;
+		
 		if(localConfig != null) localConfig.getWorldCanvas().setRendered(false); //THIS IS NEEDED TO FORCE RENDERING IN THE WORLD VIEW
 		ChangeQuantities(x, y, tile);
 		matrix[y][x] = tile.getValue();
@@ -819,6 +840,13 @@ public class Room {
 	 */
 	public void setTile(int x, int y, Tile tile) 
 	{
+		wallDensity 		= -1.0f;
+		wallSparsity 		= -1.0f;
+		treasureDensity 	= -1.0f;
+		treasureSparsity 	= -1.0f;
+		enemyDensity 		= -1.0f;
+		enemySparsity 		= -1.0f;
+		
 		if(localConfig != null) localConfig.getWorldCanvas().setRendered(false); //THIS IS NEEDED TO FORCE RENDERING IN THE WORLD VIEW
 		ChangeQuantities(x, y, tile.GetType());
 		matrix[y][x] = tile.GetType().getValue();
@@ -834,6 +862,13 @@ public class Room {
 	 */
 	public void setTile(int x, int y, int tileValue)
 	{
+		wallDensity 		= -1.0f;
+		wallSparsity 		= -1.0f;
+		treasureDensity 	= -1.0f;
+		treasureSparsity 	= -1.0f;
+		enemyDensity 		= -1.0f;
+		enemySparsity 		= -1.0f;
+		
 		if(localConfig != null) localConfig.getWorldCanvas().setRendered(false); //THIS IS NEEDED TO FORCE RENDERING IN THE WORLD VIEW
 		ChangeQuantities(x, y, TileTypes.toTileType(tileValue));
 		matrix[y][x] = tileValue;
@@ -896,6 +931,11 @@ public class Room {
 		return width * height - wallCount;
 	}
 	
+	public double emptySpacesRate()
+	{
+		return (double)countTraversables()/(double)(width * height);
+	}
+	
 	/**
 	 * Returns the closest door to the specified point p
 	 * @param p
@@ -952,8 +992,13 @@ public class Room {
 	 * 
 	 * @return The enemy density.
 	 */
-	public double calculateEnemyDensity() {
-		return (double)enemies.size() / (double)countTraversables();
+	public double calculateEnemyDensity()
+	{
+		if(enemyDensity > -1.0)
+			return enemyDensity;
+		
+		enemyDensity = (double)enemies.size() / (double)countTraversables();
+		return enemyDensity;
 	}
 
 	/**
@@ -974,7 +1019,12 @@ public class Room {
 	public double calculateTreasureDensity() {
 //		System.out.println("TRABERSE: " + countTraversables());
 //		System.out.println("TREASUREEEES: " + treasures.size());
-		return (double)treasures.size() / (double)countTraversables();
+		
+		if(treasureDensity > -1.0)
+			return treasureDensity;
+		
+		treasureDensity = (double)treasures.size() / (double)countTraversables();
+		return treasureDensity;
 	}
 
 	/***
@@ -1709,6 +1759,24 @@ public class Room {
 		return borders.contains(Point.castToGeometry(p));
 	}
 	
+	public void calculateAllDimensionalValues() //TODO:
+	{
+		dimensionValues = new HashMap<DimensionTypes, Double>();
+		
+		for(DimensionTypes dimension : DimensionTypes.values())
+        {
+        	if(dimension != DimensionTypes.DIFFICULTY && dimension != DimensionTypes.GEOM_COMPLEXITY && dimension != DimensionTypes.REWARD)
+        	{
+        		dimensionValues.put(dimension, GADimension.calculateIndividualValue(dimension, this));
+        	}
+        }
+	}
+	
+	public void setSpeficidDimensionValue(DimensionTypes dimension, double value)
+	{
+		dimensionValues.put(dimension, value);
+	}
+	
 	public void SetDimensionValues(ArrayList<GADimension> dimensions)
 	{
 		dimensionValues = new HashMap<DimensionTypes, Double>();
@@ -1743,11 +1811,18 @@ public class Room {
 //		double wc = (double)getWallCount();
 //		double size =(double)(getRowCount() * getColCount());
 //		double den = (double)getWallCount() / (double)(getRowCount() * getColCount());
-		return (double)getWallCount() / (double)((getRowCount() -1) * (getColCount() -1));
+		if(wallDensity > -1.0f)
+			return wallDensity;
+		
+		wallDensity = (double)getWallCount() / (double)((getRowCount() -1) * (getColCount() -1));
+		return wallDensity;
 	}
 	
 	public double calculateWallSparsity()
 	{
+		if(wallSparsity > -1.0f)
+			return wallSparsity;
+			
 		Queue<Node> queue = new LinkedList<Node>();
 		ArrayList<Bitmap> wallChunks = new ArrayList<Bitmap>();
 		ArrayList<Point> wallPoints = new ArrayList<Point>();
@@ -1763,6 +1838,7 @@ public class Room {
 		
 		if(wallPoints.isEmpty())
 		{
+			wallSparsity = 0.0;
 			return 0.0;
 		}
 		
@@ -1803,6 +1879,7 @@ public class Room {
     	
     	if(wallChunks.size() < 2)
     	{
+    		wallSparsity = 0.0;
     		return 0.0;
     	}
     	
@@ -1856,17 +1933,22 @@ public class Room {
 //    	System.out.println("FINAL: " + (chunkSizes/sparseness)/(height-1 + width-1));
     	sparseness = sparseness/(double)((height-1 + width-1)*chunkSizes);
 //    	System.out.println("SPARSE I USE: " + sparseness); // TODO:CHECK THIS
-    	return sparseness;
+    	wallSparsity = sparseness;
+    	return wallSparsity;
 	}
 	
 	public double calculateEnemySparsity()
 	{
+		if(enemySparsity > -1.0f)
+			return enemySparsity;
+		
 		Queue<Node> queue = new LinkedList<Node>();
 		ArrayList<Bitmap> enemyChunks = new ArrayList<Bitmap>();
 		ArrayList<Point> enemyPoints = new ArrayList<Point>(enemies);
 		
 		if(enemyPoints.isEmpty())
 		{
+			enemySparsity = 0.0;
 			return 0.0;
 		}
 
@@ -1908,6 +1990,7 @@ public class Room {
     	
     	if(enemyChunks.size() < 2)
     	{
+    		enemySparsity = 0.0;
     		return 0.0;
     	}
     	
@@ -1942,17 +2025,23 @@ public class Room {
 //    	System.out.println("FINAL: " + (chunkSizes/sparseness)/(height-1 + width-1));
     	sparseness = sparseness/(double)((height-1 + width-1)*chunkSizes);
 //    	System.out.println("SPARSE I USE: " + sparseness); // TODO:CHECK THIS
-    	return sparseness;
+    	
+    	enemySparsity = sparseness;
+    	return enemySparsity;
 	}
 	
 	public double calculateTreasureSparsity()
 	{
+		if(treasureSparsity > -1.0f)
+			return treasureSparsity;
+		
 		Queue<Node> queue = new LinkedList<Node>();
 		ArrayList<Bitmap> treasureChunks = new ArrayList<Bitmap>();
 		ArrayList<Point> treasurePoints = new ArrayList<Point>(treasures);
 		
 		if(treasurePoints.isEmpty())
 		{
+			treasureSparsity = 0.0;
 			return 0.0;
 		}
 
@@ -1994,6 +2083,7 @@ public class Room {
     	
     	if(treasureChunks.size() < 2)
     	{
+    		treasureSparsity = 0.0;
     		return 0.0;
     	}
     	
@@ -2028,7 +2118,8 @@ public class Room {
 //    	System.out.println("FINAL: " + (chunkSizes/sparseness)/(height-1 + width-1));
     	sparseness = sparseness/(double)((height-1 + width-1)*chunkSizes);
 //    	System.out.println("SPARSE I USE: " + sparseness);//TODO: CHECK THIS
-    	return sparseness;
+    	treasureSparsity = sparseness;
+    	return treasureSparsity;
 	}
 	
 	

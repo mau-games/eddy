@@ -11,11 +11,12 @@ public abstract class GADimension
 	{
 		SYMMETRY,
 		SIMILARITY,
+		INNER_SIMILARITY,
 		NUMBER_PATTERNS,
 		NUMBER_MESO_PATTERN,
 		DIFFICULTY,
 		GEOM_COMPLEXITY,
-		LEARNING,
+		LENENCY,
 		REWARD,
 		LINEARITY
 
@@ -55,15 +56,14 @@ public abstract class GADimension
 	{
 		switch(dim)
 		{
-		case DIFFICULTY:
+		case DIFFICULTY: //difficulty and lenency can be very very similar
 //			return  new DifficultyGADimension(granularity.floatValue());
 			break;
-		case GEOM_COMPLEXITY: //This can be the density
+		case GEOM_COMPLEXITY: //This can be the density and sparsity
 //			return  new GeomComplexityGADimension(granularity.floatValue());
 			break;
-		case LEARNING:
-//			return  new LearningGADimension(granularity.floatValue());
-			break;
+		case LENENCY:
+			return new LenencyGADimension(granularity.floatValue());
 		case LINEARITY:
 			return new LinearityGADimension(granularity.floatValue());
 		case NUMBER_PATTERNS:
@@ -76,7 +76,9 @@ public abstract class GADimension
 		case SIMILARITY:
 			return new SimilarityGADimension(granularity.floatValue());
 		case SYMMETRY:
-			return new SymmetryGADimension(granularity.floatValue());
+			return new SymmetryGADimension(granularity.floatValue());			
+		case INNER_SIMILARITY:
+			return new CharacteristicSimilarityGADimension(granularity.floatValue());
 		default:
 			break;
 		
@@ -93,8 +95,8 @@ public abstract class GADimension
 			return -1.0; //Not implemented
 		case GEOM_COMPLEXITY:
 			return -1.0; //Not implemented
-		case LEARNING:
-			return -1.0; //Not implemented
+		case LENENCY:
+			return LenencyGADimension.getValue(individualRoom);
 		case LINEARITY:
 			return LinearityGADimension.getValue(individualRoom);
 		case NUMBER_MESO_PATTERN:
@@ -105,6 +107,8 @@ public abstract class GADimension
 			return -1.0; //Not implemented
 		case SIMILARITY:
 			return SimilarityGADimension.getValue(individualRoom);
+		case INNER_SIMILARITY:
+			return CharacteristicSimilarityGADimension.getValue(individualRoom);
 		case SYMMETRY:
 			return SymmetryGADimension.getValue(individualRoom);
 		default:

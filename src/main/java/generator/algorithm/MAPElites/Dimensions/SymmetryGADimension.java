@@ -93,6 +93,9 @@ public class SymmetryGADimension extends GADimension {
     	
 		//logger.info("rowCounter " + rowCounter + " colCounter " + colCounter + " middlePoint " + middlePoint + " highestSymmetric " + highestSymmetric + " totalWalls " + totalWalls + " symmetricFitness " + symmetricFitness);
     	
+    	if(symmetricFitness > 1)
+    		System.out.println("PROBLEM HERE!");
+    	
 		return symmetricFitness;
 
 	}
@@ -177,7 +180,8 @@ public class SymmetryGADimension extends GADimension {
     		symmetricFitness = (double)highestSymmetric / (double)1;
     	
 		//logger.info("rowCounter " + rowCounter + " colCounter " + colCounter + " middlePoint " + middlePoint + " highestSymmetric " + highestSymmetric + " totalWalls " + totalWalls + " symmetricFitness " + symmetricFitness);
-    	
+    	if(symmetricFitness > 1)
+    		System.out.println("PROBLEM HERE!");
 		return symmetricFitness;
 
 	}
@@ -261,6 +265,9 @@ public class SymmetryGADimension extends GADimension {
     		symmetricFitness = (double)highestSymmetric / (double)1;
     	
 		//logger.info("rowCounter " + rowCounter + " colCounter " + colCounter + " middlePoint " + middlePoint + " highestSymmetric " + highestSymmetric + " totalWalls " + totalWalls + " symmetricFitness " + symmetricFitness);
+    	
+    	if(symmetricFitness > 1)
+    		System.out.println("PROBLEM HERE!");
     	
 		return symmetricFitness;
 	}

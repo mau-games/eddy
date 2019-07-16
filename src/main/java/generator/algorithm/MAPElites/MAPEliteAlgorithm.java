@@ -3,8 +3,13 @@ package generator.algorithm.MAPElites;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.ArrayList;
+import java.util.Dictionary;
+import java.util.HashMap;
+import java.util.Hashtable;
 import java.util.List;
+import java.util.Map.Entry;
 import java.util.Random;
 import java.util.UUID;
 
@@ -18,6 +23,7 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
+import org.apache.commons.io.FileUtils;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
@@ -30,6 +36,7 @@ import generator.algorithm.Algorithm;
 import generator.algorithm.ZoneGenotype;
 import generator.algorithm.ZoneIndividual;
 import generator.algorithm.ZonePhenotype;
+import generator.algorithm.MAPElites.Dimensions.CharacteristicSimilarityGADimension;
 import generator.algorithm.MAPElites.Dimensions.GADimension;
 import generator.algorithm.MAPElites.Dimensions.MAPEDimensionFXML;
 import generator.algorithm.MAPElites.Dimensions.NPatternGADimension;
@@ -72,8 +79,12 @@ public class MAPEliteAlgorithm extends Algorithm implements Listener {
 	
 	private int saveCounter = 0;
 	
+	//For the Expressive range test
+//	ArrayList<Room> uniqueGeneratedRooms = new ArrayList<Room>();
+	HashMap<Room, Double> uniqueGeneratedRooms = new HashMap<Room, Double>();
+	
 	//UGLY WAY OF DOING THIS!
-	ArrayList<ZoneIndividual> currentRendered = new ArrayList<ZoneIndividual>();
+	ArrayList<ZoneIndividual> currentRendered = new ArrayList<ZoneIndividual>(); //I think this didn't work
 
 	public MAPEliteAlgorithm(GeneratorConfig config) {
 		super(config);
@@ -468,7 +479,9 @@ public class MAPEliteAlgorithm extends Algorithm implements Listener {
     
     private void runNoInterbreedingApplElites()
     {
-    	//If we have receive the even that the dimensions changed, please modify the dimensions and recalculate the cells!
+    	storeUniqueRooms();
+    	
+    	//If we have receive the event that the dimensions changed, please modify the dimensions and recalculate the cells!
     	if(dimensionsChanged)
     	{
     		RecreateCells();
@@ -526,6 +539,12 @@ public class MAPEliteAlgorithm extends Algorithm implements Listener {
     	}
     	else {
     		currentGen++;
+    	}
+    	
+    	if(realCurrentGen == 10000)
+    	{
+    		System.out.println(uniqueGeneratedRooms.size());
+    		saveUniqueRoomsToFile();
     	}
     	
     	realCurrentGen++;
@@ -936,6 +955,99 @@ public class MAPEliteAlgorithm extends Algorithm implements Listener {
 		return mutatedChildren;
 	}
 	
+	protected void saveUniqueRoomsToFile()
+	{
+		String DIRECTORY= System.getProperty("user.dir") + "\\my-data\\";
+		StringBuilder data = new StringBuilder();
+		
+		data.append("Lenency;Linearity;Similarity;NMesoPatterns;NSpatialPatterns;Symmetry;Inner Similarity;Fitness;Score" + System.lineSeparator());
+		
+		//Create the data:
+		for (Entry<Room, Double> entry : uniqueGeneratedRooms.entrySet()) 
+		{
+		    Room currentRoom = entry.getKey();
+		    data.append(currentRoom.getDimensionValue(DimensionTypes.LENENCY) + ";");
+		    data.append(currentRoom.getDimensionValue(DimensionTypes.LINEARITY) + ";");
+		    data.append(currentRoom.getDimensionValue(DimensionTypes.SIMILARITY) + ";");
+		    data.append(currentRoom.getDimensionValue(DimensionTypes.NUMBER_MESO_PATTERN) + ";");
+		    data.append(currentRoom.getDimensionValue(DimensionTypes.NUMBER_PATTERNS) + ";");
+		    data.append(currentRoom.getDimensionValue(DimensionTypes.SYMMETRY) + ";");
+		    data.append(currentRoom.getDimensionValue(DimensionTypes.INNER_SIMILARITY) + ";");
+		    data.append(entry.getValue() + ";");
+		    data.append("1.0" + System.lineSeparator());
+		}
+		
+
+		File file = new File(DIRECTORY + "first_expressive_range" + ".csv");
+		try {
+			FileUtils.write(file, data, true);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+//		IO.saveFile(FileName, data.getSaveString(), true);
+	}
+
+	
+	protected void storeUniqueRooms() //Only feasible
+	{
+		for(GACell cell : cells)
+		{
+			for(ZoneIndividual ind : cell.GetFeasiblePopulation())
+			{
+				boolean unique = true;
+				Room individualRoom = ind.getPhenotype().getMap(roomWidth, roomHeight, roomDoorPositions, roomCustomTiles, roomOwner);
+				for (Room key : uniqueGeneratedRooms.keySet()) 
+				{
+				    if(SimilarityGADimension.sameRooms(key, individualRoom))
+				    {
+				    	unique = false;
+				    	break;
+				    }
+				}
+				
+				if(unique)
+				{
+					Room copy = new Room(individualRoom);
+					copy.calculateAllDimensionalValues();
+					copy.setSpeficidDimensionValue(DimensionTypes.SIMILARITY, 
+							SimilarityGADimension.calculateValueIndependently(copy, originalRoom));
+					copy.setSpeficidDimensionValue(DimensionTypes.INNER_SIMILARITY, 
+							CharacteristicSimilarityGADimension.calculateValueIndependently(copy, originalRoom));
+					uniqueGeneratedRooms.put(copy, ind.getFitness());
+				}
+				
+			}
+		}
+	}
+	
+	protected void storeRoom(ZoneIndividual ind ) //Only feasible
+	{
+		boolean unique = true;
+		Room individualRoom = ind.getPhenotype().getMap(roomWidth, roomHeight, roomDoorPositions, roomCustomTiles, roomOwner);
+		for (Room key : uniqueGeneratedRooms.keySet()) 
+		{
+		    if(SimilarityGADimension.sameRooms(key, individualRoom))
+		    {
+		    	unique = false;
+		    	break;
+		    }
+		}
+		
+		if(unique)
+		{
+			Room copy = new Room(individualRoom);
+			copy.calculateAllDimensionalValues();
+			copy.setSpeficidDimensionValue(DimensionTypes.SIMILARITY, 
+					SimilarityGADimension.calculateValueIndependently(copy, originalRoom));
+			copy.setSpeficidDimensionValue(DimensionTypes.INNER_SIMILARITY, 
+					CharacteristicSimilarityGADimension.calculateValueIndependently(copy, originalRoom));
+			uniqueGeneratedRooms.put(copy, ind.getFitness());
+		}
+
+	}
+	
+	//ok
 	protected void storeMAPELITESXml()
 	{
 		Document dom;
