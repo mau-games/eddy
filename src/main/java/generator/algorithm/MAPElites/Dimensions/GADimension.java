@@ -16,7 +16,7 @@ public abstract class GADimension
 		NUMBER_MESO_PATTERN,
 		DIFFICULTY,
 		GEOM_COMPLEXITY,
-		LENENCY,
+		LENIENCY,
 		REWARD,
 		LINEARITY
 
@@ -62,7 +62,7 @@ public abstract class GADimension
 		case GEOM_COMPLEXITY: //This can be the density and sparsity
 //			return  new GeomComplexityGADimension(granularity.floatValue());
 			break;
-		case LENENCY:
+		case LENIENCY:
 			return new LenencyGADimension(granularity.floatValue());
 		case LINEARITY:
 			return new LinearityGADimension(granularity.floatValue());
@@ -95,7 +95,7 @@ public abstract class GADimension
 			return -1.0; //Not implemented
 		case GEOM_COMPLEXITY:
 			return -1.0; //Not implemented
-		case LENENCY:
+		case LENIENCY:
 			return LenencyGADimension.getValue(individualRoom);
 		case LINEARITY:
 			return LinearityGADimension.getValue(individualRoom);

@@ -18,7 +18,7 @@ public class LenencyGADimension extends GADimension {
 	public LenencyGADimension(float granularity)
 	{
 		super();
-		dimension = DimensionTypes.LENENCY;
+		dimension = DimensionTypes.LENIENCY;
 		this.granularity = granularity;
 	}
 
@@ -26,49 +26,92 @@ public class LenencyGADimension extends GADimension {
 	public double CalculateValue(ZoneIndividual individual, Room target) 
 	{
 		Room individualRoom = individual.getPhenotype().getMap(-1, -1, null, null, null);
-		
-		double enemyDensityWeight = 0.3;
-		double doorsSafetyWeight = 0.3;
-		double generalDangerWeight = 0.4;
-		double dangerRate = Math.log(individualRoom.getEnemyCount()) * individualRoom.calculateEnemySparsity();
-//		individualRoom.calculateDoorSafeness();
+		individualRoom.getPatternFinder().findMicroPatterns();
 
-		double firstValue = (enemyDensityWeight * individualRoom.calculateEnemyDensity());
-		double secondValue = (doorsSafetyWeight * (1.0 - individualRoom.getDoorSafeness()));
-		double thirdValue = (generalDangerWeight * (individualRoom.emptySpacesRate() - dangerRate));
+		double traversableWeight = 0.1;
+		double doorsSafetyWeight = 0.45;
+		double generalDangerWeight = 0.45;
+		double enemyToleranceThreshold = 1.0;
 		
-		return firstValue + secondValue + thirdValue;
+//		double enemies = individualRoom.getEnemyCount();
+//		double logEnemyCount = Math.log(enemies);
+//		double enemySparse = individualRoom.calculateEnemySparsity();
+//		
+//		double combo = logEnemyCount * enemySparse;
+		double dangerRate = 0.0;
+		
+		if(individualRoom.getEnemyCount() != 0)
+			dangerRate = Math.min(1.0, (0.5* individualRoom.calculateEnemySparsity() + 0.5* individualRoom.calculateEnemyDensity()));
+		
+//		 Math.log10(individualRoom.getEnemyCount()) *
+		individualRoom.calculateDoorSafeness();
+		
+		double v = individualRoom.getDoorSafeness();
+
+		double firstValue = (traversableWeight * individualRoom.emptySpacesRate());
+		double secondValue = (doorsSafetyWeight * (1.0 - individualRoom.getDoorSafeness()));
+//		double thirdValue = (generalDangerWeight * (individualRoom.emptySpacesRate() - dangerRate));
+		double thirdValue = (generalDangerWeight * (dangerRate));
+		double enemyTolerance = traversableWeight * (enemyToleranceThreshold - Math.log10(individualRoom.getEnemyCount()));
+		
+//		return Math.min(1.0, 1.0 - (firstValue + secondValue - thirdValue));
+		
+		double resultA = 1.0 - (firstValue + secondValue - thirdValue);
+		double resultB = 1.0 - (firstValue + secondValue + thirdValue);
+		double resultA_e = 1.0 - (firstValue + secondValue - (generalDangerWeight * (individualRoom.emptySpacesRate() - dangerRate)));
+		double resultB_e = 1.0 - (firstValue + secondValue + (generalDangerWeight * (individualRoom.emptySpacesRate() - dangerRate)));
+		double resultC = 1.0 - (secondValue + thirdValue + enemyTolerance);
+		
+		return Math.min(1.0, resultC);
 
 	}
 
 	@Override
 	public double CalculateValue(Room individualRoom, Room target) {
 
+		individualRoom.getPatternFinder().findMicroPatterns();
+		
 		double enemyDensityWeight = 0.3;
 		double doorsSafetyWeight = 0.3;
 		double generalDangerWeight = 0.4;
-		double dangerRate = Math.log(individualRoom.getEnemyCount()) * individualRoom.calculateEnemySparsity();
-//		individualRoom.calculateDoorSafeness();
+		double dangerRate = 0.0;
+		
+		if(individualRoom.getEnemyCount() != 0)
+			dangerRate = Math.log10(individualRoom.getEnemyCount()) * individualRoom.calculateEnemySparsity();
+		
+		individualRoom.calculateDoorSafeness();
+		
+		double v = individualRoom.getDoorSafeness();
 
 		double firstValue = (enemyDensityWeight * individualRoom.calculateEnemyDensity());
 		double secondValue = (doorsSafetyWeight * (1.0 - individualRoom.getDoorSafeness()));
-		double thirdValue = (generalDangerWeight * (individualRoom.emptySpacesRate() - dangerRate));
+//		double thirdValue = (generalDangerWeight * (individualRoom.emptySpacesRate() - dangerRate));
+		double thirdValue = (generalDangerWeight * (dangerRate));
 		
-		return firstValue + secondValue + thirdValue;
+//		return Math.min(1.0, 1.0 - (firstValue + secondValue - thirdValue));
+		return Math.min(1.0, 1.0 - (firstValue + secondValue + thirdValue));
 	}
 	
 	public static double getValue(Room individualRoom)
 	{
+		individualRoom.getPatternFinder().findMicroPatterns();
+		
 		double enemyDensityWeight = 0.3;
 		double doorsSafetyWeight = 0.3;
 		double generalDangerWeight = 0.4;
-		double dangerRate = Math.log(individualRoom.getEnemyCount()) * individualRoom.calculateEnemySparsity();
+		double dangerRate = 0.0;
+		
+		if(individualRoom.getEnemyCount() != 0)
+			dangerRate = Math.log10(individualRoom.getEnemyCount()) * individualRoom.calculateEnemySparsity();
+		
 		individualRoom.calculateDoorSafeness();
 
 		double firstValue = (enemyDensityWeight * individualRoom.calculateEnemyDensity());
 		double secondValue = (doorsSafetyWeight * (1.0 - individualRoom.getDoorSafeness()));
-		double thirdValue = (generalDangerWeight * (individualRoom.emptySpacesRate() - dangerRate));
+//		double thirdValue = (generalDangerWeight * (individualRoom.emptySpacesRate() - dangerRate));
+		double thirdValue = (generalDangerWeight * (dangerRate));
 		
-		return firstValue + secondValue + thirdValue;
+//		return Math.min(1.0, 1.0 - (firstValue + secondValue - thirdValue));
+		return Math.min(1.0, 1.0 - (firstValue + secondValue + thirdValue));
 	}
 }

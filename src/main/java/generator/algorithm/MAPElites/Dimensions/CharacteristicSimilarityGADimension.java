@@ -23,27 +23,27 @@ public class CharacteristicSimilarityGADimension extends GADimension {
 		
 		double enemyDensityDifference = Math.abs(target.calculateEnemyDensity() - individualRoom.calculateEnemyDensity());
 		if(enemyDensityDifference != 0.0)
-			enemyDensityDifference = Math.min(1.0, Math.abs(Math.log(enemyDensityDifference)));
+			enemyDensityDifference = Math.min(1.0, Math.abs(Math.log10(enemyDensityDifference)));
 		
 		double enemySparsityDifference = Math.abs(target.calculateEnemySparsity() - individualRoom.calculateEnemySparsity());
 		if(enemySparsityDifference != 0.0)
-			enemySparsityDifference = Math.min(1.0, Math.abs(Math.log(enemySparsityDifference)));
+			enemySparsityDifference = Math.min(1.0, Math.abs(Math.log10(enemySparsityDifference)));
 		
 		double treasureDensityDifference = Math.abs(target.calculateTreasureDensity() - individualRoom.calculateTreasureDensity());
 		if(treasureDensityDifference != 0.0)
-			treasureDensityDifference = Math.min(1.0, Math.abs(Math.log(treasureDensityDifference)));
+			treasureDensityDifference = Math.min(1.0, Math.abs(Math.log10(treasureDensityDifference)));
 		
 		double treasureSparsityDifference = Math.abs(target.calculateTreasureSparsity() - individualRoom.calculateTreasureSparsity());
 		if(treasureSparsityDifference != 0.0)
-			treasureSparsityDifference = Math.min(1.0, Math.abs(Math.log(treasureSparsityDifference)));
+			treasureSparsityDifference = Math.min(1.0, Math.abs(Math.log10(treasureSparsityDifference)));
 		
 		double wallDensityDifference = Math.abs(target.calculateWallDensity() - individualRoom.calculateWallDensity());
 		if(wallDensityDifference != 0.0)
-			wallDensityDifference = Math.min(1.0, Math.abs(Math.log(wallDensityDifference)));
+			wallDensityDifference = Math.min(1.0, Math.abs(Math.log10(wallDensityDifference)));
 		
 		double wallSparsityDifference = Math.abs(target.calculateWallSparsity() - individualRoom.calculateWallSparsity());
 		if(wallSparsityDifference != 0.0)
-			wallSparsityDifference = Math.min(1.0, Math.abs(Math.log(wallSparsityDifference)));
+			wallSparsityDifference = Math.min(1.0, Math.abs(Math.log10(wallSparsityDifference)));
 
 		abstractSimilarity += enemyDensityDifference + enemySparsityDifference + 
 								treasureDensityDifference + treasureSparsityDifference +
@@ -57,31 +57,31 @@ public class CharacteristicSimilarityGADimension extends GADimension {
 	@Override
 	public double CalculateValue(Room individualRoom, Room target) {
 
-		double abstractSimilarity = 0.0;
+double abstractSimilarity = 0.0;
 		
 		double enemyDensityDifference = Math.abs(target.calculateEnemyDensity() - individualRoom.calculateEnemyDensity());
 		if(enemyDensityDifference != 0.0)
-			enemyDensityDifference = Math.min(1.0, Math.abs(Math.log(enemyDensityDifference)));
+			enemyDensityDifference = Math.min(1.0, Math.abs(Math.log10(enemyDensityDifference)));
 		
 		double enemySparsityDifference = Math.abs(target.calculateEnemySparsity() - individualRoom.calculateEnemySparsity());
 		if(enemySparsityDifference != 0.0)
-			enemySparsityDifference = Math.min(1.0, Math.abs(Math.log(enemySparsityDifference)));
+			enemySparsityDifference = Math.min(1.0, Math.abs(Math.log10(enemySparsityDifference)));
 		
 		double treasureDensityDifference = Math.abs(target.calculateTreasureDensity() - individualRoom.calculateTreasureDensity());
 		if(treasureDensityDifference != 0.0)
-			treasureDensityDifference = Math.min(1.0, Math.abs(Math.log(treasureDensityDifference)));
+			treasureDensityDifference = Math.min(1.0, Math.abs(Math.log10(treasureDensityDifference)));
 		
 		double treasureSparsityDifference = Math.abs(target.calculateTreasureSparsity() - individualRoom.calculateTreasureSparsity());
 		if(treasureSparsityDifference != 0.0)
-			treasureSparsityDifference = Math.min(1.0, Math.abs(Math.log(treasureSparsityDifference)));
+			treasureSparsityDifference = Math.min(1.0, Math.abs(Math.log10(treasureSparsityDifference)));
 		
 		double wallDensityDifference = Math.abs(target.calculateWallDensity() - individualRoom.calculateWallDensity());
 		if(wallDensityDifference != 0.0)
-			wallDensityDifference = Math.min(1.0, Math.abs(Math.log(wallDensityDifference)));
+			wallDensityDifference = Math.min(1.0, Math.abs(Math.log10(wallDensityDifference)));
 		
 		double wallSparsityDifference = Math.abs(target.calculateWallSparsity() - individualRoom.calculateWallSparsity());
 		if(wallSparsityDifference != 0.0)
-			wallSparsityDifference = Math.min(1.0, Math.abs(Math.log(wallSparsityDifference)));
+			wallSparsityDifference = Math.min(1.0, Math.abs(Math.log10(wallSparsityDifference)));
 
 		abstractSimilarity += enemyDensityDifference + enemySparsityDifference + 
 								treasureDensityDifference + treasureSparsityDifference +
@@ -107,27 +107,27 @@ public class CharacteristicSimilarityGADimension extends GADimension {
 		
 		double enemyDensityDifference = Math.abs(other.calculateEnemyDensity() - individualRoom.calculateEnemyDensity());
 		if(enemyDensityDifference != 0.0)
-			enemyDensityDifference = Math.min(1.0, Math.abs(Math.log(enemyDensityDifference)));
+			enemyDensityDifference = Math.min(1.0, Math.abs(Math.log10(enemyDensityDifference)));
 		
 		double enemySparsityDifference = Math.abs(other.calculateEnemySparsity() - individualRoom.calculateEnemySparsity());
 		if(enemySparsityDifference != 0.0)
-			enemySparsityDifference = Math.min(1.0, Math.abs(Math.log(enemySparsityDifference)));
+			enemySparsityDifference = Math.min(1.0, Math.abs(Math.log10(enemySparsityDifference)));
 		
 		double treasureDensityDifference = Math.abs(other.calculateTreasureDensity() - individualRoom.calculateTreasureDensity());
 		if(treasureDensityDifference != 0.0)
-			treasureDensityDifference = Math.min(1.0, Math.abs(Math.log(treasureDensityDifference)));
+			treasureDensityDifference = Math.min(1.0, Math.abs(Math.log10(treasureDensityDifference)));
 		
 		double treasureSparsityDifference = Math.abs(other.calculateTreasureSparsity() - individualRoom.calculateTreasureSparsity());
 		if(treasureSparsityDifference != 0.0)
-			treasureSparsityDifference = Math.min(1.0, Math.abs(Math.log(treasureSparsityDifference)));
+			treasureSparsityDifference = Math.min(1.0, Math.abs(Math.log10(treasureSparsityDifference)));
 		
 		double wallDensityDifference = Math.abs(other.calculateWallDensity() - individualRoom.calculateWallDensity());
 		if(wallDensityDifference != 0.0)
-			wallDensityDifference = Math.min(1.0, Math.abs(Math.log(wallDensityDifference)));
+			wallDensityDifference = Math.min(1.0, Math.abs(Math.log10(wallDensityDifference)));
 		
 		double wallSparsityDifference = Math.abs(other.calculateWallSparsity() - individualRoom.calculateWallSparsity());
 		if(wallSparsityDifference != 0.0)
-			wallSparsityDifference = Math.min(1.0, Math.abs(Math.log(wallSparsityDifference)));
+			wallSparsityDifference = Math.min(1.0, Math.abs(Math.log10(wallSparsityDifference)));
 
 		abstractSimilarity += enemyDensityDifference + enemySparsityDifference + 
 								treasureDensityDifference + treasureSparsityDifference +

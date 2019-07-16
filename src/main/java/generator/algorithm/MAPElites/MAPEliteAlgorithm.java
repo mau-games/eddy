@@ -541,11 +541,13 @@ public class MAPEliteAlgorithm extends Algorithm implements Listener {
     		currentGen++;
     	}
     	
-    	if(realCurrentGen == 10000)
+    	if(realCurrentGen == 5000)
     	{
     		System.out.println(uniqueGeneratedRooms.size());
     		saveUniqueRoomsToFile();
     	}
+
+    	System.out.println("Current Generation: " + realCurrentGen);
     	
     	realCurrentGen++;
     }
@@ -957,7 +959,7 @@ public class MAPEliteAlgorithm extends Algorithm implements Listener {
 	
 	protected void saveUniqueRoomsToFile()
 	{
-		String DIRECTORY= System.getProperty("user.dir") + "\\my-data\\";
+		String DIRECTORY= System.getProperty("user.dir") + "\\my-data\\expressive-range\\";
 		StringBuilder data = new StringBuilder();
 		
 		data.append("Lenency;Linearity;Similarity;NMesoPatterns;NSpatialPatterns;Symmetry;Inner Similarity;Fitness;Score" + System.lineSeparator());
@@ -966,7 +968,7 @@ public class MAPEliteAlgorithm extends Algorithm implements Listener {
 		for (Entry<Room, Double> entry : uniqueGeneratedRooms.entrySet()) 
 		{
 		    Room currentRoom = entry.getKey();
-		    data.append(currentRoom.getDimensionValue(DimensionTypes.LENENCY) + ";");
+		    data.append(currentRoom.getDimensionValue(DimensionTypes.LENIENCY) + ";");
 		    data.append(currentRoom.getDimensionValue(DimensionTypes.LINEARITY) + ";");
 		    data.append(currentRoom.getDimensionValue(DimensionTypes.SIMILARITY) + ";");
 		    data.append(currentRoom.getDimensionValue(DimensionTypes.NUMBER_MESO_PATTERN) + ";");
@@ -978,7 +980,7 @@ public class MAPEliteAlgorithm extends Algorithm implements Listener {
 		}
 		
 
-		File file = new File(DIRECTORY + "first_expressive_range" + ".csv");
+		File file = new File(DIRECTORY + "expressive_range-" + dimensions[0].getDimension() + "_" + dimensions[1].getDimension() + ".csv");
 		try {
 			FileUtils.write(file, data, true);
 		} catch (IOException e) {

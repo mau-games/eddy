@@ -636,7 +636,7 @@ public class Room {
 	
 	
 	/***
-	 * Updates the different tile-matrix-components of the room based on changes in the zones
+	 * Updates the different tile-matrix-components of the room based on changes in the zones //TODO: THIS NEEDS TO BE FIX!!!
 	 * @param updatedMatrix
 	 */
 	public void Update(int[] updatedMatrix)
