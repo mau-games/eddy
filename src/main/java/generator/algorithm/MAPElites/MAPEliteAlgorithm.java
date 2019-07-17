@@ -962,7 +962,7 @@ public class MAPEliteAlgorithm extends Algorithm implements Listener {
 		String DIRECTORY= System.getProperty("user.dir") + "\\my-data\\expressive-range\\";
 		StringBuilder data = new StringBuilder();
 		
-		data.append("Lenency;Linearity;Similarity;NMesoPatterns;NSpatialPatterns;Symmetry;Inner Similarity;Fitness;Score" + System.lineSeparator());
+		data.append("Leniency;Linearity;Similarity;NMesoPatterns;NSpatialPatterns;Symmetry;Inner Similarity;Fitness;Score" + System.lineSeparator());
 		
 		//Create the data:
 		for (Entry<Room, Double> entry : uniqueGeneratedRooms.entrySet()) 

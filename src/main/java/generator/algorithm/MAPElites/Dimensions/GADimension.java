@@ -63,7 +63,7 @@ public abstract class GADimension
 //			return  new GeomComplexityGADimension(granularity.floatValue());
 			break;
 		case LENIENCY:
-			return new LenencyGADimension(granularity.floatValue());
+			return new LeniencyGADimension(granularity.floatValue());
 		case LINEARITY:
 			return new LinearityGADimension(granularity.floatValue());
 		case NUMBER_PATTERNS:
@@ -96,7 +96,7 @@ public abstract class GADimension
 		case GEOM_COMPLEXITY:
 			return -1.0; //Not implemented
 		case LENIENCY:
-			return LenencyGADimension.getValue(individualRoom);
+			return LeniencyGADimension.getValue(individualRoom);
 		case LINEARITY:
 			return LinearityGADimension.getValue(individualRoom);
 		case NUMBER_MESO_PATTERN:

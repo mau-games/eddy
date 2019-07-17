@@ -11,11 +11,11 @@ import finder.patterns.meso.GuardedTreasure;
 import game.Room;
 import generator.algorithm.ZoneIndividual;
 
-public class LenencyGADimension extends GADimension {
+public class LeniencyGADimension extends GADimension {
 
 	double patternMultiplier = 4.0; 
 	
-	public LenencyGADimension(float granularity)
+	public LeniencyGADimension(float granularity)
 	{
 		super();
 		dimension = DimensionTypes.LENIENCY;
@@ -27,42 +27,54 @@ public class LenencyGADimension extends GADimension {
 	{
 		Room individualRoom = individual.getPhenotype().getMap(-1, -1, null, null, null);
 		individualRoom.getPatternFinder().findMicroPatterns();
-
-		double traversableWeight = 0.1;
-		double doorsSafetyWeight = 0.45;
-		double generalDangerWeight = 0.45;
-		double enemyToleranceThreshold = 1.0;
 		
-//		double enemies = individualRoom.getEnemyCount();
-//		double logEnemyCount = Math.log(enemies);
-//		double enemySparse = individualRoom.calculateEnemySparsity();
-//		
-//		double combo = logEnemyCount * enemySparse;
-		double dangerRate = 0.0;
+		double w1 = 0.3;
+		double w2 = 0.3;
+		double w3 = 0.4;
 		
-		if(individualRoom.getEnemyCount() != 0)
-			dangerRate = Math.min(1.0, (0.5* individualRoom.calculateEnemySparsity() + 0.5* individualRoom.calculateEnemyDensity()));
-		
-//		 Math.log10(individualRoom.getEnemyCount()) *
+		double a = w1 *  (Math.log10(individualRoom.getEnemyCount()) * individualRoom.calculateEnemySparsity());
+		double b = w2 * (Math.log10(individualRoom.getEnemyCount()) * individualRoom.calculateEnemyDensity());
 		individualRoom.calculateDoorSafeness();
 		
-		double v = individualRoom.getDoorSafeness();
-
-		double firstValue = (traversableWeight * individualRoom.emptySpacesRate());
-		double secondValue = (doorsSafetyWeight * (1.0 - individualRoom.getDoorSafeness()));
-//		double thirdValue = (generalDangerWeight * (individualRoom.emptySpacesRate() - dangerRate));
-		double thirdValue = (generalDangerWeight * (dangerRate));
-		double enemyTolerance = traversableWeight * (enemyToleranceThreshold - Math.log10(individualRoom.getEnemyCount()));
+		double c = w3 * (1.0 - individualRoom.getDoorSafeness());
 		
-//		return Math.min(1.0, 1.0 - (firstValue + secondValue - thirdValue));
-		
-		double resultA = 1.0 - (firstValue + secondValue - thirdValue);
-		double resultB = 1.0 - (firstValue + secondValue + thirdValue);
-		double resultA_e = 1.0 - (firstValue + secondValue - (generalDangerWeight * (individualRoom.emptySpacesRate() - dangerRate)));
-		double resultB_e = 1.0 - (firstValue + secondValue + (generalDangerWeight * (individualRoom.emptySpacesRate() - dangerRate)));
-		double resultC = 1.0 - (secondValue + thirdValue + enemyTolerance);
-		
-		return Math.min(1.0, resultC);
+		return 1.0 - ((a + b + c));
+//
+//		double traversableWeight = 0.1;
+//		double doorsSafetyWeight = 0.45;
+//		double generalDangerWeight = 0.45;
+//		double enemyToleranceThreshold = 1.0;
+//		
+////		double enemies = individualRoom.getEnemyCount();
+////		double logEnemyCount = Math.log(enemies);
+////		double enemySparse = individualRoom.calculateEnemySparsity();
+////		
+////		double combo = logEnemyCount * enemySparse;
+//		double dangerRate = 0.0;
+//		
+//		if(individualRoom.getEnemyCount() != 0)
+//			dangerRate = Math.min(1.0, (0.5* individualRoom.calculateEnemySparsity() + 0.5* individualRoom.calculateEnemyDensity()));
+//		
+////		 Math.log10(individualRoom.getEnemyCount()) *
+//		individualRoom.calculateDoorSafeness();
+//		
+//		double v = individualRoom.getDoorSafeness();
+//
+//		double firstValue = (traversableWeight * individualRoom.emptySpacesRate());
+//		double secondValue = (doorsSafetyWeight * (1.0 - individualRoom.getDoorSafeness()));
+////		double thirdValue = (generalDangerWeight * (individualRoom.emptySpacesRate() - dangerRate));
+//		double thirdValue = (generalDangerWeight * (dangerRate));
+//		double enemyTolerance = traversableWeight * (enemyToleranceThreshold - Math.log10(individualRoom.getEnemyCount()));
+//		
+////		return Math.min(1.0, 1.0 - (firstValue + secondValue - thirdValue));
+//		
+//		double resultA = 1.0 - (firstValue + secondValue - thirdValue);
+//		double resultB = 1.0 - (firstValue + secondValue + thirdValue);
+//		double resultA_e = 1.0 - (firstValue + secondValue - (generalDangerWeight * (individualRoom.emptySpacesRate() - dangerRate)));
+//		double resultB_e = 1.0 - (firstValue + secondValue + (generalDangerWeight * (individualRoom.emptySpacesRate() - dangerRate)));
+//		double resultC = 1.0 - (secondValue + thirdValue + enemyTolerance);
+//		
+//		return Math.min(1.0, resultC);
 
 	}
 
