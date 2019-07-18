@@ -26,19 +26,29 @@ public class LeniencyGADimension extends GADimension {
 	public double CalculateValue(ZoneIndividual individual, Room target) 
 	{
 		Room individualRoom = individual.getPhenotype().getMap(-1, -1, null, null, null);
-		individualRoom.getPatternFinder().findMicroPatterns();
 		
+		//needed values to be calculated
+		individualRoom.getPatternFinder().findMicroPatterns();
+		individualRoom.calculateEnemyDensitySparsity();
+		individualRoom.calculateTreasureDensitySparsity();
+		individualRoom.calculateDoorSafeness();
+		
+		//weights for the sum
 		double w1 = 0.3;
 		double w2 = 0.3;
 		double w3 = 0.4;
 		
+		//Independent calculation
 		double a = w1 *  (Math.log10(individualRoom.getEnemyCount()) * individualRoom.calculateEnemySparsity());
 		double b = w2 * (Math.log10(individualRoom.getEnemyCount()) * individualRoom.calculateEnemyDensity());
-		individualRoom.calculateDoorSafeness();
-		
 		double c = w3 * (1.0 - individualRoom.getDoorSafeness());
 		
-		return 1.0 - ((a + b + c));
+		//Treasure calculation to increase leniency!
+		double d = 0.5 *  (Math.log10(individualRoom.getTreasureCount()) * individualRoom.calculateTreasureSparsity());
+		double f = 0.5 * (Math.log10(individualRoom.getTreasureCount()) * individualRoom.calculateTreasureDensity());
+		
+		//Final Leniency
+		return 1.0 - ((1.0 * (a + b + c)) - (0.5 * (d+f)));
 //
 //		double traversableWeight = 0.1;
 //		double doorsSafetyWeight = 0.45;
@@ -81,49 +91,53 @@ public class LeniencyGADimension extends GADimension {
 	@Override
 	public double CalculateValue(Room individualRoom, Room target) {
 
+		//needed values to be calculated
 		individualRoom.getPatternFinder().findMicroPatterns();
-		
-		double enemyDensityWeight = 0.3;
-		double doorsSafetyWeight = 0.3;
-		double generalDangerWeight = 0.4;
-		double dangerRate = 0.0;
-		
-		if(individualRoom.getEnemyCount() != 0)
-			dangerRate = Math.log10(individualRoom.getEnemyCount()) * individualRoom.calculateEnemySparsity();
-		
+		individualRoom.calculateEnemyDensitySparsity();
+		individualRoom.calculateTreasureDensitySparsity();
 		individualRoom.calculateDoorSafeness();
 		
-		double v = individualRoom.getDoorSafeness();
-
-		double firstValue = (enemyDensityWeight * individualRoom.calculateEnemyDensity());
-		double secondValue = (doorsSafetyWeight * (1.0 - individualRoom.getDoorSafeness()));
-//		double thirdValue = (generalDangerWeight * (individualRoom.emptySpacesRate() - dangerRate));
-		double thirdValue = (generalDangerWeight * (dangerRate));
+		//weights for the sum
+		double w1 = 0.3;
+		double w2 = 0.3;
+		double w3 = 0.4;
 		
-//		return Math.min(1.0, 1.0 - (firstValue + secondValue - thirdValue));
-		return Math.min(1.0, 1.0 - (firstValue + secondValue + thirdValue));
+		//Independent calculation
+		double a = w1 *  (Math.log10(individualRoom.getEnemyCount()) * individualRoom.calculateEnemySparsity());
+		double b = w2 * (Math.log10(individualRoom.getEnemyCount()) * individualRoom.calculateEnemyDensity());
+		double c = w3 * (1.0 - individualRoom.getDoorSafeness());
+		
+		//Treasure calculation to increase leniency!
+		double d = 0.5 *  (Math.log10(individualRoom.getTreasureCount()) * individualRoom.calculateTreasureSparsity());
+		double f = 0.5 * (Math.log10(individualRoom.getTreasureCount()) * individualRoom.calculateTreasureDensity());
+		
+		//Final Leniency
+		return 1.0 - ((1.0 * (a + b + c)) - (0.5 * (d+f)));
 	}
 	
 	public static double getValue(Room individualRoom)
 	{
+		//needed values to be calculated
 		individualRoom.getPatternFinder().findMicroPatterns();
-		
-		double enemyDensityWeight = 0.3;
-		double doorsSafetyWeight = 0.3;
-		double generalDangerWeight = 0.4;
-		double dangerRate = 0.0;
-		
-		if(individualRoom.getEnemyCount() != 0)
-			dangerRate = Math.log10(individualRoom.getEnemyCount()) * individualRoom.calculateEnemySparsity();
-		
+		individualRoom.calculateEnemyDensitySparsity();
+		individualRoom.calculateTreasureDensitySparsity();
 		individualRoom.calculateDoorSafeness();
-
-		double firstValue = (enemyDensityWeight * individualRoom.calculateEnemyDensity());
-		double secondValue = (doorsSafetyWeight * (1.0 - individualRoom.getDoorSafeness()));
-//		double thirdValue = (generalDangerWeight * (individualRoom.emptySpacesRate() - dangerRate));
-		double thirdValue = (generalDangerWeight * (dangerRate));
 		
-//		return Math.min(1.0, 1.0 - (firstValue + secondValue - thirdValue));
-		return Math.min(1.0, 1.0 - (firstValue + secondValue + thirdValue));
+		//weights for the sum
+		double w1 = 0.3;
+		double w2 = 0.3;
+		double w3 = 0.4;
+		
+		//Independent calculation
+		double a = w1 *  (Math.log10(individualRoom.getEnemyCount()) * individualRoom.calculateEnemySparsity());
+		double b = w2 * (Math.log10(individualRoom.getEnemyCount()) * individualRoom.calculateEnemyDensity());
+		double c = w3 * (1.0 - individualRoom.getDoorSafeness());
+		
+		//Treasure calculation to increase leniency!
+		double d = 0.5 *  (Math.log10(individualRoom.getTreasureCount()) * individualRoom.calculateTreasureSparsity());
+		double f = 0.5 * (Math.log10(individualRoom.getTreasureCount()) * individualRoom.calculateTreasureDensity());
+		
+		//Final Leniency
+		return 1.0 - ((1.0 * (a + b + c)) - (0.5 * (d+f)));
 	}
 }

@@ -64,7 +64,7 @@ public class InformativePopupManager
 	{
 		if(popupActive.containsKey(type) || (popupCounter.containsKey(type) && popupCounter.get(type) > 2))
 		{
-			System.out.println("NOUP");
+			System.out.println("Cannot spawn Informative Popup!");
 			return;
 		}
 		

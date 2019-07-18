@@ -56,6 +56,7 @@ import generator.algorithm.MAPElites.Dimensions.MAPEDimensionFXML;
 import generator.algorithm.MAPElites.Dimensions.GADimension.DimensionTypes;
 import generator.config.GeneratorConfig;
 import gui.InteractiveGUIController;
+import gui.controls.Brush.NeighborhoodStyle;
 
 import javax.xml.parsers.*;
 import javax.xml.transform.*;
@@ -346,8 +347,7 @@ public class Room {
 	{
 //		this.tileMap = room.tileMap.clone();
 //		this.matrix = room.matrix.clone();
-		enemies.clear();
-		treasures.clear();
+
 
 		for (int j = 0; j < height; j++)
 		{
@@ -370,24 +370,29 @@ public class Room {
 				}
 			}
 		}	
+		
+		wallCount = 0;
+		enemies.clear();
+		treasures.clear();
 //		
-//		for (int j = 0; j < height; j++){
-//			for (int i = 0; i < width; i++) {
-//				switch (TileTypes.toTileType(matrix[j][i])) {
-//				case WALL:
-//					wallCount++;
-//					break;
-//				case ENEMY:
-//					enemies.add(new Point(i, j));
-//					break;
-//				case TREASURE:
-//					treasures.add(new Point(i, j));
-//					break;
-//				default:
-//					break;
-//				}
-//			}
-//		}
+		for (int j = 0; j < height; j++){
+			for (int i = 0; i < width; i++) {
+				switch (TileTypes.toTileType(matrix[j][i])) {
+				case WALL:
+					wallCount++;
+					break;
+				case ENEMY:
+					enemies.add(new Point(i, j));
+					break;
+				case TREASURE:
+					treasures.add(new Point(i, j));
+					break;
+				default:
+					break;
+				}
+			}
+		}
+		
 		this.owner = room.owner;
 		copyDoors(room.getDoors());
 		copyCustomTiles(room.customTiles);
@@ -642,9 +647,6 @@ public class Room {
 	public void Update(int[] updatedMatrix)
 	{
 		int tile = 0;
-		wallCount = 0;
-		enemies.clear();
-		treasures.clear();
 		treasureSafety = new Hashtable<Point, Double>();
 		
 		for (int j = 0; j < height; j++) 
@@ -652,7 +654,17 @@ public class Room {
 			for (int i = 0; i < width; i++) 
 			{
 				setTile(i, j, updatedMatrix[tile++]);
-				
+			}
+		}
+		
+		wallCount = 0;
+		enemies.clear();
+		treasures.clear();
+		
+		for (int j = 0; j < height; j++) 
+		{
+			for (int i = 0; i < width; i++) 
+			{	
 				switch (TileTypes.toTileType(matrix[j][i])) {
 				case WALL:
 					wallCount++;
@@ -999,6 +1011,288 @@ public class Room {
 		
 		enemyDensity = (double)enemies.size() / (double)countTraversables();
 		return enemyDensity;
+	}
+	
+	/**
+	 * Calculates the enemy density by comparing the number of traversable
+	 * tiles to the number of enemies.
+	 * 
+	 * @return The enemy density.
+	 */
+	public double calculateEnemyDensitySparsity()
+	{
+		if(enemyDensity > -1.0)
+			return enemyDensity;
+		
+		double denseThreshold = 4.0;
+		
+		if(enemies.isEmpty())
+		{
+			enemySparsity = 0.0;
+			enemyDensity = 0.0;
+			return 0.0;
+		}
+		
+		Queue<Node> queue = new LinkedList<Node>();
+		ArrayList<Bitmap> enemyChunks = new ArrayList<Bitmap>();
+		ArrayList<Point> enemyPoints = new ArrayList<Point>(enemies);
+
+		Node root = new Node(0.0f, enemyPoints.remove(0), null);
+    	queue.add(root);
+    	
+    	while(!enemyPoints.isEmpty())
+    	{
+    		Bitmap enemyChunk = new Bitmap();
+    		
+    		while(!queue.isEmpty()){
+        		Node current = queue.remove();
+        		Tile currentTile = getTile(current.position);
+        		
+        		//We need to remove the door!
+        		enemyPoints.remove(current.position);
+        		enemyChunk.addPoint(Point.castToGeometry(current.position));
+        		
+        		
+        		List<Point> children = getAvailableCoords(current.position);
+                for(Point child : children)
+                {
+                	 
+                	if(!enemyPoints.contains(child))
+                		continue;
+
+                    //Create child node
+                    Node n = new Node(0.0f, child, current);
+                    queue.add(n);
+                }
+        	}
+    		
+    		enemyChunk.CalculateMedoid();
+    		enemyChunks.add(enemyChunk);
+    		
+    		if(!enemyPoints.isEmpty())
+    			queue.add(new Node(0.0f, enemyPoints.get(0), null));
+    	}
+		
+    	double dens = 0.0;
+    	double sparse = 0.0;
+    	double distances = 0.0;
+    	
+    	boolean calculateSparsity = enemyChunks.size() > 1;
+    	
+		//CLusters are done, now calculate density
+    	for(Bitmap enemyChunk : enemyChunks)
+    	{
+    		dens += Math.min(1.0, (double)enemyChunk.getPoints().size()/denseThreshold);
+    		
+    		if(calculateSparsity)
+    		{
+	    		//CLusters are done, now calculate density
+	        	for(Bitmap otherChunk : enemyChunks)
+	        	{
+	        		if(otherChunk.equals(enemyChunk))
+	        			continue;
+	        		
+	        		sparse += (double)otherChunk.distManhattan(otherChunk.medoid, enemyChunk.medoid)/(width + height);
+	        		distances++;
+	        	}
+    		}
+    	}
+    	
+    	enemyDensity = dens/(double)enemyChunks.size();
+		enemySparsity = calculateSparsity == true ? sparse/distances : 0.0;
+		
+		return enemyDensity;
+	}
+	
+	/**
+	 * Calculates the enemy density by comparing the number of traversable
+	 * tiles to the number of enemies.
+	 * 
+	 * @return The enemy density.
+	 */
+	public double calculateTreasureDensitySparsity()
+	{
+		if(treasureDensity > -1.0)
+			return treasureDensity;
+		
+		double denseThreshold = 4.0;
+		
+		if(treasures.isEmpty())
+		{
+			treasureSparsity = 0.0;
+			treasureDensity = 0.0;
+			return 0.0;
+		}
+		
+		Queue<Node> queue = new LinkedList<Node>();
+		ArrayList<Bitmap> treasureChunks = new ArrayList<Bitmap>();
+		ArrayList<Point> treasurePoints = new ArrayList<Point>(treasures);
+		
+		Node root = new Node(0.0f, treasurePoints.remove(0), null);
+    	queue.add(root);
+    	
+    	while(!treasurePoints.isEmpty())
+    	{
+    		Bitmap treasureChunk = new Bitmap();
+    		
+    		while(!queue.isEmpty()){
+        		Node current = queue.remove();
+        		Tile currentTile = getTile(current.position);
+        		
+        		//We need to remove the door!
+        		treasurePoints.remove(current.position);
+        		treasureChunk.addPoint(Point.castToGeometry(current.position));
+        		
+        		
+        		List<Point> children = getAvailableCoords(current.position);
+                for(Point child : children)
+                {
+                	 
+                	if(!treasurePoints.contains(child))
+                		continue;
+
+                    //Create child node
+                    Node n = new Node(0.0f, child, current);
+                    queue.add(n);
+                }
+        	}
+    		
+    		treasureChunk.CalculateMedoid();
+    		treasureChunks.add(treasureChunk);
+    		
+    		if(!treasurePoints.isEmpty())
+    			queue.add(new Node(0.0f, treasurePoints.get(0), null));
+    	}
+		
+    	double dens = 0.0;
+    	double sparse = 0.0;
+    	double distances = 0.0;
+    	
+    	boolean calculateSparsity = treasureChunks.size() > 1;
+    	
+		//CLusters are done, now calculate density
+    	for(Bitmap treasureChunk : treasureChunks)
+    	{
+    		dens += Math.min(1.0, (double)treasureChunk.getPoints().size()/denseThreshold);
+    		
+    		if(calculateSparsity)
+    		{
+	    		//CLusters are done, now calculate density
+	        	for(Bitmap otherChunk : treasureChunks)
+	        	{
+	        		if(otherChunk.equals(treasureChunk))
+	        			continue;
+	        		
+	        		sparse += (double)otherChunk.distManhattan(otherChunk.medoid, treasureChunk.medoid)/(width + height);
+	        		distances++;
+	        	}
+    		}
+    	}
+    	
+    	treasureDensity = dens/(double)treasureChunks.size();
+		treasureSparsity = calculateSparsity == true ? sparse/distances : 0.0;
+		
+		return treasureDensity;
+	}
+	
+	/**
+	 * Calculates the enemy density by comparing the number of traversable
+	 * tiles to the number of enemies.
+	 * 
+	 * @return The enemy density.
+	 */
+	public double calculateWallDensitySparsity()
+	{
+		if(wallDensity > -1.0)
+			return wallDensity;
+		
+		double denseThreshold = 6.0;
+
+		Queue<Node> queue = new LinkedList<Node>();
+		ArrayList<Bitmap> wallChunks = new ArrayList<Bitmap>();
+		ArrayList<Point> wallPoints = new ArrayList<Point>();
+		
+		for (int j = 0; j < height; j++)
+		{
+			for (int i = 0; i < width; i++) 
+			{
+				if(tileMap[j * width + i].GetType() == TileTypes.WALL)
+					wallPoints.add(new Point(i,j));
+			}
+		}
+		
+		if(wallPoints.isEmpty())
+		{
+			wallSparsity = 0.0;
+			wallDensity = 0.0;
+			return 0.0;
+		}
+
+		Node root = new Node(0.0f, wallPoints.remove(0), null);
+    	queue.add(root);
+    	
+    	while(!wallPoints.isEmpty())
+    	{
+    		Bitmap wallChunk = new Bitmap();
+    		
+    		while(!queue.isEmpty()){
+        		Node current = queue.remove();
+        		Tile currentTile = getTile(current.position);
+        		
+        		//We need to remove the door!
+        		wallPoints.remove(current.position);
+        		wallChunk.addPoint(Point.castToGeometry(current.position));
+        		
+        		
+        		List<Point> children = getAvailableCoords(current.position);
+                for(Point child : children)
+                {
+                	 
+                	if(!wallPoints.contains(child))
+                		continue;
+
+                    //Create child node
+                    Node n = new Node(0.0f, child, current);
+                    queue.add(n);
+                }
+        	}
+    		
+    		wallChunk.CalculateMedoid();
+    		wallChunks.add(wallChunk);
+    		
+    		if(!wallPoints.isEmpty())
+    			queue.add(new Node(0.0f, wallPoints.get(0), null));
+    	}
+		
+    	double dens = 0.0;
+    	double sparse = 0.0;
+    	double distances = 0.0;
+    	
+    	boolean calculateSparsity = wallChunks.size() > 1;
+    	
+		//CLusters are done, now calculate density
+    	for(Bitmap wallChunk : wallChunks)
+    	{
+    		dens += Math.min(1.0, (double)wallChunk.getPoints().size()/denseThreshold);
+    		
+    		if(calculateSparsity)
+    		{
+	    		//CLusters are done, now calculate density
+	        	for(Bitmap otherChunk : wallChunks)
+	        	{
+	        		if(otherChunk.equals(wallChunk))
+	        			continue;
+	        		
+	        		sparse += (double)otherChunk.distManhattan(otherChunk.medoid, wallChunk.medoid)/(width + height);
+	        		distances++;
+	        	}
+    		}
+    	}
+    	
+    	wallDensity = dens/(double)wallChunks.size();
+		wallSparsity = calculateSparsity == true ? sparse/distances : 0.0;
+		
+		return wallDensity;
 	}
 
 	/**

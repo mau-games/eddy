@@ -20,6 +20,13 @@ public class CharacteristicSimilarityGADimension extends GADimension {
 		Room individualRoom = individual.getPhenotype().getMap(-1, -1, null, null, null);
 		
 		double abstractSimilarity = 0.0;
+		target.calculateEnemyDensitySparsity(); 
+		target.calculateTreasureDensitySparsity(); 
+		target.calculateWallDensitySparsity();
+		
+		individualRoom.calculateEnemyDensitySparsity(); 
+		individualRoom.calculateTreasureDensitySparsity(); 
+		individualRoom.calculateWallDensitySparsity();
 		
 		double enemyDensityDifference = Math.abs(target.calculateEnemyDensity() - individualRoom.calculateEnemyDensity());
 		if(enemyDensityDifference != 0.0)
@@ -57,7 +64,14 @@ public class CharacteristicSimilarityGADimension extends GADimension {
 	@Override
 	public double CalculateValue(Room individualRoom, Room target) {
 
-double abstractSimilarity = 0.0;
+		double abstractSimilarity = 0.0;
+		target.calculateEnemyDensitySparsity(); 
+		target.calculateTreasureDensitySparsity(); 
+		target.calculateWallDensitySparsity();
+		
+		individualRoom.calculateEnemyDensitySparsity(); 
+		individualRoom.calculateTreasureDensitySparsity(); 
+		individualRoom.calculateWallDensitySparsity();
 		
 		double enemyDensityDifference = Math.abs(target.calculateEnemyDensity() - individualRoom.calculateEnemyDensity());
 		if(enemyDensityDifference != 0.0)
@@ -104,6 +118,13 @@ double abstractSimilarity = 0.0;
 	public static double calculateValueIndependently(Room individualRoom, Room other)
 	{
 		double abstractSimilarity = 0.0;
+		other.calculateEnemyDensitySparsity(); 
+		other.calculateTreasureDensitySparsity(); 
+		other.calculateWallDensitySparsity();
+		
+		individualRoom.calculateEnemyDensitySparsity(); 
+		individualRoom.calculateTreasureDensitySparsity(); 
+		individualRoom.calculateWallDensitySparsity();
 		
 		double enemyDensityDifference = Math.abs(other.calculateEnemyDensity() - individualRoom.calculateEnemyDensity());
 		if(enemyDensityDifference != 0.0)
