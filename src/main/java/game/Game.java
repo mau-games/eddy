@@ -3,9 +3,6 @@ package game;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.omg.Messaging.SyncScopeHelper;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import generator.algorithm.Algorithm;
 import generator.algorithm.Algorithm.AlgorithmTypes;
@@ -32,7 +29,7 @@ import util.eventrouting.events.Stop;
 import util.eventrouting.events.SuggestedMapsDone;
 
 public class Game implements Listener{
-	private final Logger logger = LoggerFactory.getLogger(Game.class);
+//	private final Logger logger = LoggerFactory.getLogger(Game.class);
 
 	private ApplicationConfig config;
 	private List<Algorithm> runs = new ArrayList<Algorithm>();
@@ -66,7 +63,7 @@ public class Game implements Listener{
 		try {
 			config = ApplicationConfig.getInstance();
 		} catch (MissingConfigurationException e) {
-			logger.error("Couldn't read configuration file:\n" + e.getMessage());
+//			logger.error("Couldn't read configuration file:\n" + e.getMessage());
 		}
 
 		readConfiguration();
@@ -75,7 +72,7 @@ public class Game implements Listener{
         EventRouter.getInstance().registerListener(this, new Start());
         EventRouter.getInstance().registerListener(this, new StartMapMutate(null));
         EventRouter.getInstance().registerListener(this, new Stop());
-        EventRouter.getInstance().registerListener(this, new AlgorithmDone(null, null));
+        EventRouter.getInstance().registerListener(this, new AlgorithmDone(null, null, null));
         EventRouter.getInstance().registerListener(this, new RenderingDone());
         EventRouter.getInstance().registerListener(this, new StartBatch());
         EventRouter.getInstance().registerListener(this, new RequestSuggestionsView(null, 0));
@@ -166,11 +163,11 @@ public class Game implements Listener{
 
 			try {
 				geneticAlgorithm = new Algorithm(container.getMap(), new GeneratorConfig(c)); //TODO: You need to send the container here (the room)
-				geneticAlgorithm.initPopulations();
+				geneticAlgorithm.initPopulations(container.getMap());
 				runs.add(geneticAlgorithm);
 				geneticAlgorithm.start();
 			} catch (MissingConfigurationException e) {
-				logger.error("Couldn't read generator configuration file:\n" + e.getMessage());
+//				logger.error("Couldn't read generator configuration file:\n" + e.getMessage());
 			}
 		}
 

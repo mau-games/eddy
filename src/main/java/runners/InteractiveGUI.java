@@ -1,11 +1,5 @@
 package runners;
 
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import collectors.GenerationCollector;
-import collectors.MapCollector;
-import collectors.RenderedMapCollector;
 import game.Game;
 import gui.utils.MapRenderer;
 import javafx.application.Application;
@@ -15,7 +9,6 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.image.Image;
 import javafx.stage.Stage;
-import util.config.ConfigurationUtility;
 import util.eventrouting.EventRouter;
 import util.eventrouting.events.Start;
 
@@ -28,13 +21,9 @@ import util.eventrouting.events.Start;
  */
 public class InteractiveGUI extends Application {
 
-	final static Logger logger = LoggerFactory.getLogger(InteractiveGUI.class);
-	private static ConfigurationUtility config;
+//	final static Logger logger = LoggerFactory.getLogger(InteractiveGUI.class);
 
 	private Game game;
-	private MapCollector mapCollector;
-	private RenderedMapCollector renderedMapCollector;
-	private GenerationCollector generationCollector;
 
 	/**
 	 * This is the GUI entry point.
@@ -42,7 +31,7 @@ public class InteractiveGUI extends Application {
 	 * @param args Those arguments aren't used.
 	 */
 	public static void main(String[] args) {
-		logger.info("Starting program");
+//		logger.info("Starting program");
 		launch(args);
 	}
 
@@ -56,6 +45,7 @@ public class InteractiveGUI extends Application {
 		});
 		
 		try {
+			System.out.println(getClass().getResource("/gui/interactive/InteractiveGUI.fxml"));
 			root = FXMLLoader.load(getClass().getResource("/gui/interactive/InteractiveGUI.fxml"));
 
 			Scene scene = new Scene(root, 1900, 1060);
@@ -66,6 +56,7 @@ public class InteractiveGUI extends Application {
 			scene.getStylesheets().add(this.getClass().getResource("/gui/bootstrap3.css").toExternalForm());
 			stage.setMaximized(true);
 			EventRouter router = EventRouter.getInstance();
+
 			
 			// Set up a new game
 			game = new Game();
@@ -75,7 +66,7 @@ public class InteractiveGUI extends Application {
 
 
 		} catch (Exception e) {
-			logger.error("Couldn't load GUI: " + e.getMessage(), e);
+//			logger.error("Couldn't load GUI: " + e.getMessage(), e);
 			System.exit(0);
 		}
 	}

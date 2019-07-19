@@ -6,7 +6,9 @@ import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.event.EventHandler;
 import javafx.scene.control.TextField;
+import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
+import javafx.stage.WindowEvent;
 
 //helper text field subclass which restricts text input to a given range of natural int numbers
 //and exposes the current numeric int value of the edit box as a value property.
@@ -50,6 +52,12 @@ public class IntField extends TextField
 	     if (newValue == null) {
 	       intField.setText("");
 	     } else {
+	    	
+	    	if(textProperty().get().length() == 1 && newValue.intValue() != intField.minValue)
+	    	{
+	    		return;
+	    	}
+	    	 
 	       if (newValue.intValue() < intField.minValue) {
 	         value.setValue(intField.minValue);
 	         return;
@@ -77,6 +85,22 @@ public class IntField extends TextField
 	     }
 	   }
 	 });
+	 
+	 this.addEventFilter(KeyEvent.KEY_RELEASED, new EventHandler<KeyEvent>() {
+	   @Override public void handle(KeyEvent keyEvent) {
+		   if (keyEvent.getCode() == KeyCode.ENTER && value.get() < intField.minValue)
+		   {
+			   value.setValue(intField.minValue);
+		   }
+	   }
+	 });
+	 
+	 this.focusedProperty().addListener((ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) -> {
+		    if(!newValue&& value.get() < intField.minValue)
+		   {
+			   value.setValue(intField.minValue);
+		   }
+		});
 	
 	 // ensure any entered values lie inside the required range.
 	 this.textProperty().addListener(new ChangeListener<String>() {
@@ -85,10 +109,10 @@ public class IntField extends TextField
 	       value.setValue(0);
 	       return;
 	     }
-	
+
 	     final int intValue = Integer.parseInt(newValue);
 	
-	     if (intField.minValue > intValue || intValue > intField.maxValue) {
+	     if (newValue.length() != 1 && (intField.minValue > intValue || intValue > intField.maxValue)) {
 	       textProperty().setValue(oldValue);
 	     }
 	

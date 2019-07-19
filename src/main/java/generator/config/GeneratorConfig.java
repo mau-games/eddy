@@ -1,17 +1,5 @@
 package generator.config;
 
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.Reader;
-import java.net.URL;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.google.gson.JsonIOException;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
-import com.google.gson.JsonSyntaxException;
 
 import game.ApplicationConfig;
 import game.TileTypes;
@@ -23,12 +11,14 @@ public class GeneratorConfig {
 	private static String defaultConfig = "config/generator_config.json";
 	private static final float mutationAmount = 0.2f;
 	private ConfigurationUtility config;
+	public String fileName = "";
 	
 	public GeneratorConfig() throws MissingConfigurationException{
 		config = new ConfigurationUtility(defaultConfig, true);
 	}
 	
 	public GeneratorConfig(String file) throws MissingConfigurationException{
+		fileName = file;
 		config = new ConfigurationUtility(file,true);
 	}
 	

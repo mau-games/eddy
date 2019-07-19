@@ -25,7 +25,7 @@ public abstract class CompositePattern extends Pattern {
 		return patterns;
 	}
 	
-	public static List<CompositePattern> matches(Room room, Graph<Pattern> patternGraph) {
+	public static List<CompositePattern> matches(Room room, Graph<Pattern> patternGraph, List<CompositePattern> currentMeso) {
 		return new ArrayList<CompositePattern>();
 	}
 }

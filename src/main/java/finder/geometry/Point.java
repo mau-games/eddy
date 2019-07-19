@@ -80,4 +80,10 @@ public class Point extends Geometry {
 		
 		return hash;
 	}
+	
+	@Override
+	public String toString()
+	{
+		return "(" + x + "," + y + ")";
+	}
 }

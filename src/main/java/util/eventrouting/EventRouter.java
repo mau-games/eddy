@@ -69,4 +69,20 @@ public class EventRouter {
 		
 		listeners.add(listener);
 	}
+	
+	
+	/**
+	 * Registers a listener to listen for events.
+	 * 
+	 * @param listener A listener, e.g. a part of a GUI.
+	 * @param eventType The type of events to listen for.
+	 */
+	public synchronized void unregisterListener(Listener listener,
+			Object eventType) {
+		List<Listener> listeners = roster.get(eventType.getClass().getName());
+
+		if (listeners != null) {
+			listeners.remove(listener);
+		}
+	}
 }

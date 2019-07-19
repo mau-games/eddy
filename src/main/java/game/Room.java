@@ -1,9 +1,11 @@
 package game;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
 import java.nio.file.Watchable;
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -16,6 +18,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Queue;
 import java.util.Stack;
+import java.util.UUID;
 
 import javax.swing.text.Position;
 
@@ -39,6 +42,9 @@ import finder.patterns.micro.Entrance;
 import finder.patterns.micro.Chamber;
 import finder.patterns.micro.Treasure;
 import game.roomInfo.RoomSection;
+import game.tiles.BossEnemyTile;
+import game.tiles.FloorTile;
+import game.tiles.HeroTile;
 import util.Point;
 import util.config.MissingConfigurationException;
 import util.eventrouting.EventRouter;
@@ -46,8 +52,25 @@ import util.eventrouting.events.AlgorithmDone;
 import util.eventrouting.events.MapLoaded;
 import util.eventrouting.events.MapUpdate;
 import generator.algorithm.MAPElites.Dimensions.GADimension;
+import generator.algorithm.MAPElites.Dimensions.MAPEDimensionFXML;
 import generator.algorithm.MAPElites.Dimensions.GADimension.DimensionTypes;
 import generator.config.GeneratorConfig;
+import gui.InteractiveGUIController;
+import gui.controls.Brush.NeighborhoodStyle;
+
+import javax.xml.parsers.*;
+import javax.xml.transform.*;
+import javax.xml.transform.dom.*;
+import javax.xml.transform.stream.*;
+import org.xml.sax.*;
+
+import collectors.ActionLogger;
+import collectors.DataSaverLoader;
+import collectors.ActionLogger.ActionType;
+import collectors.ActionLogger.TargetPane;
+import collectors.ActionLogger.View;
+
+import org.w3c.dom.*;
 
 /**
  * This class represents a dungeon room map.
@@ -75,6 +98,9 @@ public class Room {
 	
 	//Might be interesting to know the dimension of the room?
 	protected HashMap<DimensionTypes, Double> dimensionValues;
+	//I need a special ID for rooms
+	UUID specificID = UUID.randomUUID();
+	int saveCounter = 1;
 
 /////////////////////////OLD///////////////////////////
 
@@ -101,16 +127,35 @@ public class Room {
 	private Map<Point, Double> doorsSafety;
 	private Map<Point, Double> doorsGreed;
 	
-	//THERE MUST BE TWO DIFFERENT CONFIGS!!
+	//Custom tiles (only the center or main needed?) this needs to be copied!
+	public ArrayList<Tile> customTiles = new ArrayList<Tile>();
+	
+	//THERE MUST BE TWO DIFFERENT CONFIGS!! //TODO: This really needs to be done already!
 	private GeneratorConfig config = null;
 	
 	private GeneratorConfig selfGeneratorConfig;
 	private GeneratorConfig targetGeneratorConfig;
 	
+	private double wallDensity 		= -1.0f;
+	private double wallSparsity 	= -1.0f;
+	private double treasureDensity 	= -1.0f;
+	private double treasureSparsity = -1.0f;
+	private double enemyDensity 	= -1.0f;
+	private double enemySparsity 	= -1.0f;
 	
 	//NEW THINGS
 	public ZoneNode root;
 
+	//SIDE!!!
+	public void createLists()
+	{
+		if(enemies == null)
+			enemies = new ArrayList<Point>();
+		
+		if(treasures == null)
+			treasures = new ArrayList<Point>();
+	}
+	
 	/**
 	 * Creates an instance of map.
 	 * 
@@ -143,7 +188,7 @@ public class Room {
 	 * @param cols The number of columns in a map.
 	 * @param doorCount The number of doors to be seeded in a map.
 	 */
-	public Room(GeneratorConfig config, TileTypes[] types, int rows, int cols, List<Point> doorPositions) { //THIS IS CALLED WHEN CREATIMNG THE PHENOTYPE
+	public Room(GeneratorConfig config, TileTypes[] types, int rows, int cols, List<Point> doorPositions, List<Tile> customTiles, Dungeon owner) { //THIS IS CALLED WHEN CREATIMNG THE PHENOTYPE
 		init(rows, cols);
 
 		this.config = config;
@@ -151,6 +196,8 @@ public class Room {
 
 		initMapFromTypes(types);
 		copyDoors(doorPositions);
+		copyCustomTiles(customTiles);
+		this.owner = owner;
 
 		finder = new PatternFinder(this);
 		pathfinder = new RoomPathFinder(this);
@@ -187,6 +234,16 @@ public class Room {
 		init(copyMap.getRowCount(), copyMap.getColCount());
 		this.config = copyMap.config;
 		
+//		for (int j = 0; j < height; j++)
+//		{
+//			for (int i = 0; i < width; i++) 
+//			{
+//				setTile(i, j, copyMap.getTile(i, j));
+////				matrix[j][i] = suggestions.matrix[j][i];
+////				tileMap[j * width + i] = new Tile(suggestions.tileMap[j * width + i]);
+//			}
+//		}	
+		
 		for (int j = 0; j < height; j++)
 		{
 			for (int i = 0; i < width; i++) 
@@ -213,19 +270,32 @@ public class Room {
 				}
 			}
 		}
+		
 
+		this.owner = copyMap.owner;	
 		copyDoors(copyMap.getDoors());
-		SetDimensionValues(copyMap.dimensionValues);
+		copyCustomTiles(copyMap.customTiles);
 		
 		finder = new PatternFinder(this);
+		SetDimensionValues(copyMap.dimensionValues);
 		pathfinder = new RoomPathFinder(this);
 		root = new ZoneNode(null, this, getColCount(), getRowCount());	
 	}
 	
 	public Room(Room copyMap, ZoneNode zones) //THIS IS CALLED WHEN CREATING A ZONE IN THE TREE (TO HAVE A COPY OF THE DOORS)
-	{
+	{	
 		init(copyMap.getRowCount(), copyMap.getColCount());
 		this.config = copyMap.config;
+		
+//		for (int j = 0; j < height; j++)
+//		{
+//			for (int i = 0; i < width; i++) 
+//			{
+//				setTile(i, j, copyMap.getTile(i, j));
+////				matrix[j][i] = suggestions.matrix[j][i];
+////				tileMap[j * width + i] = new Tile(suggestions.tileMap[j * width + i]);
+//			}
+//		}	
 		
 		for (int j = 0; j < height; j++)
 		{
@@ -236,26 +306,28 @@ public class Room {
 			}
 		}	
 		
-		for (int j = 0; j < height; j++){
-			for (int i = 0; i < width; i++) {
-				switch (TileTypes.toTileType(matrix[j][i])) {
-				case WALL:
-					wallCount++;
-					break;
-				case ENEMY:
-					enemies.add(new Point(i, j));
-					break;
-				case TREASURE:
-					treasures.add(new Point(i, j));
-					break;
-				default:
-					break;
-				}
-			}
-		}
+//		for (int j = 0; j < height; j++){
+//			for (int i = 0; i < width; i++) {
+//				switch (TileTypes.toTileType(matrix[j][i])) {
+//				case WALL:
+//					wallCount++;
+//					break;
+//				case ENEMY:
+//					enemies.add(new Point(i, j));
+//					break;
+//				case TREASURE:
+//					treasures.add(new Point(i, j));
+//					break;
+//				default:
+//					break;
+//				}
+//			}
+//		}
 
+		this.owner = copyMap.owner;
 		copyDoors(copyMap.getDoors());
-		
+		copyCustomTiles(copyMap.customTiles);
+
 		finder = new PatternFinder(this);
 		pathfinder = new RoomPathFinder(this);
 		root = zones;	
@@ -273,18 +345,23 @@ public class Room {
 	
 	private void CloneMap(Room room, int[] chromosomes) //FROM THE PREVIOUS CONSTRUCTOR
 	{
-		this.tileMap = room.tileMap.clone();
-		this.matrix = room.matrix.clone();
-		enemies.clear();
-		treasures.clear();
+//		this.tileMap = room.tileMap.clone();
+//		this.matrix = room.matrix.clone();
+
 
 		for (int j = 0; j < height; j++)
 		{
 			for (int i = 0; i < width; i++) 
 			{
+//				if(room.tileMap[j * width + i].GetType() == TileTypes.ENEMY_BOSS)
+//				{
+//					System.out.println();
+//				}
+//				
+//				setTile(i, j, room.tileMap[j * width + i]);
 				if(!room.tileMap[j * width + i].GetImmutable())
 				{
-					setTile(i, j, chromosomes[j * width + i]);
+					setTile(i, j, room.tileMap[j * width + i]);
 				}
 				else
 				{
@@ -294,6 +371,10 @@ public class Room {
 			}
 		}	
 		
+		wallCount = 0;
+		enemies.clear();
+		treasures.clear();
+//		
 		for (int j = 0; j < height; j++){
 			for (int i = 0; i < width; i++) {
 				switch (TileTypes.toTileType(matrix[j][i])) {
@@ -312,7 +393,10 @@ public class Room {
 			}
 		}
 		
+		this.owner = room.owner;
 		copyDoors(room.getDoors());
+		copyCustomTiles(room.customTiles);
+
 //		
 		finder = new PatternFinder(this);
 		pathfinder = new RoomPathFinder(this);
@@ -327,7 +411,13 @@ public class Room {
 	 */
 	private void init(int rows, int cols) 
 	{
-
+		wallDensity 		= -1.0f;
+		wallSparsity 		= -1.0f;
+		treasureDensity 	= -1.0f;
+		treasureSparsity 	= -1.0f;
+		enemyDensity 		= -1.0f;
+		enemySparsity 		= -1.0f;
+		
 		treasureSafety = new Hashtable<Point, Double>();
 		doorsSafety = new Hashtable<Point, Double>();
 		doorsGreed = new Hashtable<Point, Double>();
@@ -391,6 +481,87 @@ public class Room {
     	}
 	}
 	
+	/**
+	 * Copy doors from a list of existing ones (/another room) and override whatever tile was there
+	 * This is for the new phenotypes when created
+	 * @param doorPositions
+	 * @param entrance
+	 */
+	private void copyCustomTiles(List<Tile> customs)
+	{
+		customTiles.clear();
+		customTiles.addAll(customs);
+	}
+	
+	public void setHeroPosition(Point heroPosition)
+	{
+		 if (TileTypes.toTileType(matrix[heroPosition.getY()][heroPosition.getX()]).isEnemy())
+        {
+        	enemies.removeIf((x)->x.equals(heroPosition));
+        }
+        else if (TileTypes.toTileType(matrix[heroPosition.getY()][heroPosition.getX()]).isTreasure())   // Check if door overrides a treasure
+        {
+        	treasures.removeIf((x)->x.equals(heroPosition));
+        }
+        else if (matrix[heroPosition.getY()][heroPosition.getX()] == TileTypes.WALL.getValue()) // Check if door overrides a wall
+        {
+            wallCount--;
+        } 
+ 
+	    ActionLogger.getInstance().storeAction(ActionType.CHANGE_TILE, 
+													View.WORLD, 
+													TargetPane.WORLD_MAP_PANE,
+													true,
+													this, //ROOM A
+													heroPosition, //Pos A
+													getTile(heroPosition).GetType(), //TILE A
+													TileTypes.HERO); //TILE B
+	    
+        setTile(heroPosition.getX(), heroPosition.getY(), new HeroTile());
+        borders.removePoint(Point.castToGeometry(heroPosition)); //remove this point from the "usable" border
+	}
+	
+	/**
+	 * To be called when you change the position of the hero
+	 * @param heroPosition
+	 */
+	public void removeHero(Point heroPosition) 
+	{
+		 ActionLogger.getInstance().storeAction(ActionType.CHANGE_TILE, 
+												View.WORLD, 
+												TargetPane.WORLD_MAP_PANE,
+												true,
+												this, //ROOM A
+												heroPosition, //Pos A
+												TileTypes.HERO, //TILE A
+												TileTypes.FLOOR); //TILE B
+		 
+		setTile(heroPosition.getX(), heroPosition.getY(), new FloorTile());
+		if(isBorder(heroPosition))borders.addPoint(Point.castToGeometry(heroPosition));
+	}
+	
+	private boolean isBorder(Point point)
+	{
+		for(int y = 0; y < height; y++)
+		{
+			for(int x = 0; x < width; x++)
+			{
+				if(y == 0 || y == height - 1)
+				{
+					if(point.getY() == y && point.getX() == x)
+						return true;
+				}
+				else if(x == 0 || x == width - 1 )
+				{
+					if(point.getY() == y && point.getX() == x)
+						return true;
+				}	
+			}
+		}
+		
+		return false;
+	}
+	
 	/***
 	 * Create a door in the specified location (It should be guaranteed to be in the border of the room)
 	 * This method is for when you connect two different rooms through doors
@@ -430,44 +601,6 @@ public class Room {
 		
 	}
 	
-//	public void applySuggestion(Room suggestions)
-//	{
-//		
-//		//TODO:: THE PROBLEM IS HEREEEE!!!!!
-//		treasureSafety = new Hashtable<Point, Double>();
-//		doorsSafety = new Hashtable<Point, Double>();
-//		doorsGreed = new Hashtable<Point, Double>();
-//		enemies.clear();
-//		treasures.clear();
-//		wallCount = 0;
-//		
-//		matrix = new int[height][width];
-//		allocated = new boolean[height][width];
-//		tileMap = new Tile[height * width];
-//		
-//		wallCount = 0;
-//		enemies.clear();
-//		treasures.clear();
-//		treasureSafety = new Hashtable<Point, Double>();
-//		allocated = new boolean[height][width];
-//		
-//		for (int j = 0; j < height; j++) 
-//		{
-//			for (int i = 0; i < width; i++) 
-//			{
-//				setTile(i, j, suggestions.getTile(i, j));
-////				allocated[j][i] = suggestions.getAllocationMatrix()[j][i];
-//			}
-//		}
-//		
-//		pathfinder = new RoomPathFinder(this);
-//		finder = new PatternFinder(this);
-//		finder.findMicroPatterns();
-//		finder.findMesoPatterns();
-//		finder.findMacroPatterns();
-//		root = new ZoneNode(null, this, getColCount(), getRowCount());
-//	}
-	
 	public void applySuggestion(Room suggestions)
 	{
 		//TODO: NOW THE PROBLEM IS WITH THE DOORS!!!!
@@ -484,80 +617,36 @@ public class Room {
 			}
 		}	
 		
-//		for (int j = 0; j < height; j++){
-//			for (int i = 0; i < width; i++) {
-//				switch (TileTypes.toTileType(matrix[j][i])) {
-//				case WALL:
-//					wallCount++;
-//					break;
-//				case ENEMY:
-//					enemies.add(new Point(i, j));
-//					break;
-//				case TREASURE:
-//					treasures.add(new Point(i, j));
-//					break;
-//				default:
-//					break;
-//				}
-//			}
-//		}
-
+		this.owner = suggestions.owner; //NOt clear
 		copyDoors(suggestions.getDoors());
+		
+		for(Tile custom : this.customTiles)
+		{
+			owner.removeBoss((BossEnemyTile) custom);
+		}
+		
+		copyCustomTiles(suggestions.customTiles);
+		
+		for(Tile custom : this.customTiles)
+		{
+			owner.addBoss((BossEnemyTile) custom);
+		}
+		
 		SetDimensionValues(suggestions.dimensionValues);
 		
 		finder = new PatternFinder(this);
 		pathfinder = new RoomPathFinder(this);
 		root = suggestions.root;	
-		
-//		wallCount = 0;
-//		enemies.clear();
-//		treasures.clear();
-//		treasureSafety = new Hashtable<Point, Double>();
-//		allocated = new boolean[height][width];
-//		init(height, width);
-//		
-//		for (int j = 0; j < height; j++) 
-//		{
-//			for (int i = 0; i < width; i++) 
-//			{
-//				setTile(i, j, suggestions.getTile(i, j));
-////				allocated[j][i] = suggestions.getAllocationMatrix()[j][i];
-//				
-//				switch (TileTypes.toTileType(matrix[j][i])) {
-//				case WALL:
-//					wallCount++;
-//					break;
-//				case ENEMY:
-//					enemies.add(new Point(i, j));
-//					break;
-//				case TREASURE:
-//					treasures.add(new Point(i, j));
-//					break;
-//				default:
-//					break;
-//				}
-//			}
-//		}
-//		
-//		pathfinder = new RoomPathFinder(this);
-//		finder = new PatternFinder(this);
-//		finder.findMicroPatterns();
-//		finder.findMesoPatterns();
-//		finder.findMacroPatterns();
-//		root = new ZoneNode(null, this, getColCount(), getRowCount());
 	}
 	
 	
 	/***
-	 * Updates the different tile-matrix-components of the room based on changes in the zones
+	 * Updates the different tile-matrix-components of the room based on changes in the zones //TODO: THIS NEEDS TO BE FIX!!!
 	 * @param updatedMatrix
 	 */
 	public void Update(int[] updatedMatrix)
 	{
 		int tile = 0;
-		wallCount = 0;
-		enemies.clear();
-		treasures.clear();
 		treasureSafety = new Hashtable<Point, Double>();
 		
 		for (int j = 0; j < height; j++) 
@@ -565,7 +654,17 @@ public class Room {
 			for (int i = 0; i < width; i++) 
 			{
 				setTile(i, j, updatedMatrix[tile++]);
-				
+			}
+		}
+		
+		wallCount = 0;
+		enemies.clear();
+		treasures.clear();
+		
+		for (int j = 0; j < height; j++) 
+		{
+			for (int i = 0; i < width; i++) 
+			{	
 				switch (TileTypes.toTileType(matrix[j][i])) {
 				case WALL:
 					wallCount++;
@@ -592,7 +691,7 @@ public class Room {
 	 * 
 	 * TODO: This isn't very efficient, but shouldn't be so frequently used, as
 	 * to warrant any particular worry. Maybe replace it with a more granular
-	 * approach sometime?
+	 * approach sometime? indeed
 	 * 
 	 */
 	public void forceReevaluation() {
@@ -731,10 +830,17 @@ public class Room {
 	 */
 	public void setTile(int x, int y, TileTypes tile) 
 	{
+		wallDensity 		= -1.0f;
+		wallSparsity 		= -1.0f;
+		treasureDensity 	= -1.0f;
+		treasureSparsity 	= -1.0f;
+		enemyDensity 		= -1.0f;
+		enemySparsity 		= -1.0f;
+		
 		if(localConfig != null) localConfig.getWorldCanvas().setRendered(false); //THIS IS NEEDED TO FORCE RENDERING IN THE WORLD VIEW
 		ChangeQuantities(x, y, tile);
 		matrix[y][x] = tile.getValue();
-		tileMap[y * width + x].SetType(tile);
+		tileMap[y * width + x].SetType(tile); //Just changing the type but not changing the tile? //FIXME!!
 	}
 	
 	/**
@@ -746,10 +852,17 @@ public class Room {
 	 */
 	public void setTile(int x, int y, Tile tile) 
 	{
+		wallDensity 		= -1.0f;
+		wallSparsity 		= -1.0f;
+		treasureDensity 	= -1.0f;
+		treasureSparsity 	= -1.0f;
+		enemyDensity 		= -1.0f;
+		enemySparsity 		= -1.0f;
+		
 		if(localConfig != null) localConfig.getWorldCanvas().setRendered(false); //THIS IS NEEDED TO FORCE RENDERING IN THE WORLD VIEW
 		ChangeQuantities(x, y, tile.GetType());
 		matrix[y][x] = tile.GetType().getValue();
-		tileMap[y * width + x] = new Tile(tile);
+		tileMap[y * width + x] = tile;
 	}
 	
 	/**
@@ -761,6 +874,13 @@ public class Room {
 	 */
 	public void setTile(int x, int y, int tileValue)
 	{
+		wallDensity 		= -1.0f;
+		wallSparsity 		= -1.0f;
+		treasureDensity 	= -1.0f;
+		treasureSparsity 	= -1.0f;
+		enemyDensity 		= -1.0f;
+		enemySparsity 		= -1.0f;
+		
 		if(localConfig != null) localConfig.getWorldCanvas().setRendered(false); //THIS IS NEEDED TO FORCE RENDERING IN THE WORLD VIEW
 		ChangeQuantities(x, y, TileTypes.toTileType(tileValue));
 		matrix[y][x] = tileValue;
@@ -823,6 +943,11 @@ public class Room {
 		return width * height - wallCount;
 	}
 	
+	public double emptySpacesRate()
+	{
+		return (double)countTraversables()/(double)(width * height);
+	}
+	
 	/**
 	 * Returns the closest door to the specified point p
 	 * @param p
@@ -879,8 +1004,295 @@ public class Room {
 	 * 
 	 * @return The enemy density.
 	 */
-	public double calculateEnemyDensity() {
-		return (double)enemies.size() / (double)countTraversables();
+	public double calculateEnemyDensity()
+	{
+		if(enemyDensity > -1.0)
+			return enemyDensity;
+		
+		enemyDensity = (double)enemies.size() / (double)countTraversables();
+		return enemyDensity;
+	}
+	
+	/**
+	 * Calculates the enemy density by comparing the number of traversable
+	 * tiles to the number of enemies.
+	 * 
+	 * @return The enemy density.
+	 */
+	public double calculateEnemyDensitySparsity()
+	{
+		if(enemyDensity > -1.0)
+			return enemyDensity;
+		
+		double denseThreshold = 4.0;
+		
+		if(enemies.isEmpty())
+		{
+			enemySparsity = 0.0;
+			enemyDensity = 0.0;
+			return 0.0;
+		}
+		
+		Queue<Node> queue = new LinkedList<Node>();
+		ArrayList<Bitmap> enemyChunks = new ArrayList<Bitmap>();
+		ArrayList<Point> enemyPoints = new ArrayList<Point>(enemies);
+
+		Node root = new Node(0.0f, enemyPoints.remove(0), null);
+    	queue.add(root);
+    	
+    	while(!enemyPoints.isEmpty())
+    	{
+    		Bitmap enemyChunk = new Bitmap();
+    		
+    		while(!queue.isEmpty()){
+        		Node current = queue.remove();
+        		Tile currentTile = getTile(current.position);
+        		
+        		//We need to remove the door!
+        		enemyPoints.remove(current.position);
+        		enemyChunk.addPoint(Point.castToGeometry(current.position));
+        		
+        		
+        		List<Point> children = getAvailableCoords(current.position);
+                for(Point child : children)
+                {
+                	 
+                	if(!enemyPoints.contains(child))
+                		continue;
+
+                    //Create child node
+                    Node n = new Node(0.0f, child, current);
+                    queue.add(n);
+                }
+        	}
+    		
+    		enemyChunk.CalculateMedoid();
+    		enemyChunks.add(enemyChunk);
+    		
+    		if(!enemyPoints.isEmpty())
+    			queue.add(new Node(0.0f, enemyPoints.get(0), null));
+    	}
+		
+    	double dens = 0.0;
+    	double sparse = 0.0;
+    	double distances = 0.0;
+    	
+    	boolean calculateSparsity = enemyChunks.size() > 1;
+    	
+		//CLusters are done, now calculate density
+    	for(Bitmap enemyChunk : enemyChunks)
+    	{
+    		dens += Math.min(1.0, (double)enemyChunk.getPoints().size()/denseThreshold);
+    		
+    		if(calculateSparsity)
+    		{
+	    		//CLusters are done, now calculate density
+	        	for(Bitmap otherChunk : enemyChunks)
+	        	{
+	        		if(otherChunk.equals(enemyChunk))
+	        			continue;
+	        		
+	        		sparse += (double)otherChunk.distManhattan(otherChunk.medoid, enemyChunk.medoid)/(width + height);
+	        		distances++;
+	        	}
+    		}
+    	}
+    	
+    	enemyDensity = dens/(double)enemyChunks.size();
+		enemySparsity = calculateSparsity == true ? sparse/distances : 0.0;
+		
+		return enemyDensity;
+	}
+	
+	/**
+	 * Calculates the enemy density by comparing the number of traversable
+	 * tiles to the number of enemies.
+	 * 
+	 * @return The enemy density.
+	 */
+	public double calculateTreasureDensitySparsity()
+	{
+		if(treasureDensity > -1.0)
+			return treasureDensity;
+		
+		double denseThreshold = 4.0;
+		
+		if(treasures.isEmpty())
+		{
+			treasureSparsity = 0.0;
+			treasureDensity = 0.0;
+			return 0.0;
+		}
+		
+		Queue<Node> queue = new LinkedList<Node>();
+		ArrayList<Bitmap> treasureChunks = new ArrayList<Bitmap>();
+		ArrayList<Point> treasurePoints = new ArrayList<Point>(treasures);
+		
+		Node root = new Node(0.0f, treasurePoints.remove(0), null);
+    	queue.add(root);
+    	
+    	while(!treasurePoints.isEmpty())
+    	{
+    		Bitmap treasureChunk = new Bitmap();
+    		
+    		while(!queue.isEmpty()){
+        		Node current = queue.remove();
+        		Tile currentTile = getTile(current.position);
+        		
+        		//We need to remove the door!
+        		treasurePoints.remove(current.position);
+        		treasureChunk.addPoint(Point.castToGeometry(current.position));
+        		
+        		
+        		List<Point> children = getAvailableCoords(current.position);
+                for(Point child : children)
+                {
+                	 
+                	if(!treasurePoints.contains(child))
+                		continue;
+
+                    //Create child node
+                    Node n = new Node(0.0f, child, current);
+                    queue.add(n);
+                }
+        	}
+    		
+    		treasureChunk.CalculateMedoid();
+    		treasureChunks.add(treasureChunk);
+    		
+    		if(!treasurePoints.isEmpty())
+    			queue.add(new Node(0.0f, treasurePoints.get(0), null));
+    	}
+		
+    	double dens = 0.0;
+    	double sparse = 0.0;
+    	double distances = 0.0;
+    	
+    	boolean calculateSparsity = treasureChunks.size() > 1;
+    	
+		//CLusters are done, now calculate density
+    	for(Bitmap treasureChunk : treasureChunks)
+    	{
+    		dens += Math.min(1.0, (double)treasureChunk.getPoints().size()/denseThreshold);
+    		
+    		if(calculateSparsity)
+    		{
+	    		//CLusters are done, now calculate density
+	        	for(Bitmap otherChunk : treasureChunks)
+	        	{
+	        		if(otherChunk.equals(treasureChunk))
+	        			continue;
+	        		
+	        		sparse += (double)otherChunk.distManhattan(otherChunk.medoid, treasureChunk.medoid)/(width + height);
+	        		distances++;
+	        	}
+    		}
+    	}
+    	
+    	treasureDensity = dens/(double)treasureChunks.size();
+		treasureSparsity = calculateSparsity == true ? sparse/distances : 0.0;
+		
+		return treasureDensity;
+	}
+	
+	/**
+	 * Calculates the enemy density by comparing the number of traversable
+	 * tiles to the number of enemies.
+	 * 
+	 * @return The enemy density.
+	 */
+	public double calculateWallDensitySparsity()
+	{
+		if(wallDensity > -1.0)
+			return wallDensity;
+		
+		double denseThreshold = 6.0;
+
+		Queue<Node> queue = new LinkedList<Node>();
+		ArrayList<Bitmap> wallChunks = new ArrayList<Bitmap>();
+		ArrayList<Point> wallPoints = new ArrayList<Point>();
+		
+		for (int j = 0; j < height; j++)
+		{
+			for (int i = 0; i < width; i++) 
+			{
+				if(tileMap[j * width + i].GetType() == TileTypes.WALL)
+					wallPoints.add(new Point(i,j));
+			}
+		}
+		
+		if(wallPoints.isEmpty())
+		{
+			wallSparsity = 0.0;
+			wallDensity = 0.0;
+			return 0.0;
+		}
+
+		Node root = new Node(0.0f, wallPoints.remove(0), null);
+    	queue.add(root);
+    	
+    	while(!wallPoints.isEmpty())
+    	{
+    		Bitmap wallChunk = new Bitmap();
+    		
+    		while(!queue.isEmpty()){
+        		Node current = queue.remove();
+        		Tile currentTile = getTile(current.position);
+        		
+        		//We need to remove the door!
+        		wallPoints.remove(current.position);
+        		wallChunk.addPoint(Point.castToGeometry(current.position));
+        		
+        		
+        		List<Point> children = getAvailableCoords(current.position);
+                for(Point child : children)
+                {
+                	 
+                	if(!wallPoints.contains(child))
+                		continue;
+
+                    //Create child node
+                    Node n = new Node(0.0f, child, current);
+                    queue.add(n);
+                }
+        	}
+    		
+    		wallChunk.CalculateMedoid();
+    		wallChunks.add(wallChunk);
+    		
+    		if(!wallPoints.isEmpty())
+    			queue.add(new Node(0.0f, wallPoints.get(0), null));
+    	}
+		
+    	double dens = 0.0;
+    	double sparse = 0.0;
+    	double distances = 0.0;
+    	
+    	boolean calculateSparsity = wallChunks.size() > 1;
+    	
+		//CLusters are done, now calculate density
+    	for(Bitmap wallChunk : wallChunks)
+    	{
+    		dens += Math.min(1.0, (double)wallChunk.getPoints().size()/denseThreshold);
+    		
+    		if(calculateSparsity)
+    		{
+	    		//CLusters are done, now calculate density
+	        	for(Bitmap otherChunk : wallChunks)
+	        	{
+	        		if(otherChunk.equals(wallChunk))
+	        			continue;
+	        		
+	        		sparse += (double)otherChunk.distManhattan(otherChunk.medoid, wallChunk.medoid)/(width + height);
+	        		distances++;
+	        	}
+    		}
+    	}
+    	
+    	wallDensity = dens/(double)wallChunks.size();
+		wallSparsity = calculateSparsity == true ? sparse/distances : 0.0;
+		
+		return wallDensity;
 	}
 
 	/**
@@ -901,7 +1313,12 @@ public class Room {
 	public double calculateTreasureDensity() {
 //		System.out.println("TRABERSE: " + countTraversables());
 //		System.out.println("TREASUREEEES: " + treasures.size());
-		return (double)treasures.size() / (double)countTraversables();
+		
+		if(treasureDensity > -1.0)
+			return treasureDensity;
+		
+		treasureDensity = (double)treasures.size() / (double)countTraversables();
+		return treasureDensity;
 	}
 
 	/***
@@ -1434,10 +1851,100 @@ public class Room {
 //    	System.out.println(allSectionsReachable(walkableSections));
 
     	return  (treasure + doors + enemies == getTreasureCount() + getDoorCount() + getEnemyCount()) //Same amount of treasure+enemies+doors
-    			&& getTreasureCount() > 0 && getEnemyCount() > 0 //Finns at least 1(one) enemy and one treasure
+//    			&& getTreasureCount() > 0 && getEnemyCount() > 0 //Finns at least 1(one) enemy and one treasure
     			&& sectionsReachable; //All sections in the room are reachable!!!
 		
 //		return true;
+	}
+	
+	public boolean walkableSectionsReachable()
+	{
+		Queue<Node> queue = new LinkedList<Node>();
+    	int treasure = 0;
+    	int enemies = 0;
+    	int doors = 0;
+    	
+    	//TODO: CREISI
+    	ArrayList<Point> walkableSpaces = new ArrayList<Point>();
+    	ArrayList<RoomSection> walkableSections = new ArrayList<RoomSection>();
+    	
+    	for (int j = 0; j < height; j++) 
+		{
+			for (int i = 0; i < width; i++) 
+			{	
+				switch (TileTypes.toTileType(matrix[j][i])) {
+				case WALL:
+					break;
+				default:
+					walkableSpaces.add(new Point(i,j));
+					break;
+				}
+			}
+		}
+		
+    	
+    	Node root = new Node(0.0f, this.getDoors().get(0), null);
+    	queue.add(root);
+    	
+    	while(!walkableSpaces.isEmpty())
+    	{
+    		RoomSection section = new RoomSection();
+    		
+    		while(!queue.isEmpty()){
+        		Node current = queue.remove();
+        		Tile currentTile = getTile(current.position);
+        		
+        		//We need to remove the door!
+        		walkableSpaces.remove(current.position);
+
+        		if(currentTile.GetType() == TileTypes.DOOR)
+        		{
+        			doors++;
+        			section.doorFound();
+        		}
+        		else if (currentTile.GetType().isEnemy())
+        			section.addEnemy();
+        		else if (currentTile.GetType().isTreasure())
+        			section.addTreasure();
+        		
+        		List<Point> children = getAvailableCoords(current.position);
+                for(Point child : children)
+                {
+                	if(!walkableSpaces.contains(child))
+                		continue;
+                	
+            		walkableSpaces.remove(child);
+            		section.addPoint(child);
+
+                    //Create child node
+                    Node n = new Node(0.0f, child, current);
+                    queue.add(n);
+                }
+        	}
+    		
+    		walkableSections.add(section);
+    		
+    		if(!walkableSpaces.isEmpty())
+    			queue.add(new Node(0.0f, walkableSpaces.get(0), null));
+    	}
+    	
+    	boolean sectionsReachable = true;
+    	
+    	//What is reachable and what is not!
+    	for(RoomSection section : walkableSections)
+		{
+			if(section.hasDoor())
+			{
+				treasure += section.getTreasures();
+				enemies += section.getEnemies();
+			}
+			else
+			{
+				sectionsReachable = false;
+			}
+		}
+    	
+    	return sectionsReachable;
 	}
 	
 	private boolean allSectionsReachable(ArrayList<RoomSection> sections)
@@ -1546,6 +2053,24 @@ public class Room {
 		return borders.contains(Point.castToGeometry(p));
 	}
 	
+	public void calculateAllDimensionalValues() //TODO:
+	{
+		dimensionValues = new HashMap<DimensionTypes, Double>();
+		
+		for(DimensionTypes dimension : DimensionTypes.values())
+        {
+        	if(dimension != DimensionTypes.DIFFICULTY && dimension != DimensionTypes.GEOM_COMPLEXITY && dimension != DimensionTypes.REWARD)
+        	{
+        		dimensionValues.put(dimension, GADimension.calculateIndividualValue(dimension, this));
+        	}
+        }
+	}
+	
+	public void setSpeficidDimensionValue(DimensionTypes dimension, double value)
+	{
+		dimensionValues.put(dimension, value);
+	}
+	
 	public void SetDimensionValues(ArrayList<GADimension> dimensions)
 	{
 		dimensionValues = new HashMap<DimensionTypes, Double>();
@@ -1558,7 +2083,10 @@ public class Room {
 	
 	public void SetDimensionValues(HashMap<DimensionTypes, Double> dimensions)
 	{
-		dimensionValues = new HashMap<DimensionTypes, Double>(dimensions);
+		if(dimensions != null)
+		{
+			dimensionValues = new HashMap<DimensionTypes, Double>(dimensions);
+		}
 		
 //		for(GADimension dimension : dimensions)
 //		{
@@ -1568,6 +2096,7 @@ public class Room {
 	
 	public double getDimensionValue(DimensionTypes currentDimension)
 	{
+		if(dimensionValues == null || !dimensionValues.containsKey(currentDimension)) return -1.0;
 		return dimensionValues.get(currentDimension);
 	}
 	
@@ -1576,11 +2105,18 @@ public class Room {
 //		double wc = (double)getWallCount();
 //		double size =(double)(getRowCount() * getColCount());
 //		double den = (double)getWallCount() / (double)(getRowCount() * getColCount());
-		return (double)getWallCount() / (double)((getRowCount() -1) * (getColCount() -1));
+		if(wallDensity > -1.0f)
+			return wallDensity;
+		
+		wallDensity = (double)getWallCount() / (double)((getRowCount() -1) * (getColCount() -1));
+		return wallDensity;
 	}
 	
 	public double calculateWallSparsity()
 	{
+		if(wallSparsity > -1.0f)
+			return wallSparsity;
+			
 		Queue<Node> queue = new LinkedList<Node>();
 		ArrayList<Bitmap> wallChunks = new ArrayList<Bitmap>();
 		ArrayList<Point> wallPoints = new ArrayList<Point>();
@@ -1596,6 +2132,7 @@ public class Room {
 		
 		if(wallPoints.isEmpty())
 		{
+			wallSparsity = 0.0;
 			return 0.0;
 		}
 		
@@ -1636,6 +2173,7 @@ public class Room {
     	
     	if(wallChunks.size() < 2)
     	{
+    		wallSparsity = 0.0;
     		return 0.0;
     	}
     	
@@ -1689,17 +2227,22 @@ public class Room {
 //    	System.out.println("FINAL: " + (chunkSizes/sparseness)/(height-1 + width-1));
     	sparseness = sparseness/(double)((height-1 + width-1)*chunkSizes);
 //    	System.out.println("SPARSE I USE: " + sparseness); // TODO:CHECK THIS
-    	return sparseness;
+    	wallSparsity = sparseness;
+    	return wallSparsity;
 	}
 	
 	public double calculateEnemySparsity()
 	{
+		if(enemySparsity > -1.0f)
+			return enemySparsity;
+		
 		Queue<Node> queue = new LinkedList<Node>();
 		ArrayList<Bitmap> enemyChunks = new ArrayList<Bitmap>();
 		ArrayList<Point> enemyPoints = new ArrayList<Point>(enemies);
 		
 		if(enemyPoints.isEmpty())
 		{
+			enemySparsity = 0.0;
 			return 0.0;
 		}
 
@@ -1741,6 +2284,7 @@ public class Room {
     	
     	if(enemyChunks.size() < 2)
     	{
+    		enemySparsity = 0.0;
     		return 0.0;
     	}
     	
@@ -1775,17 +2319,23 @@ public class Room {
 //    	System.out.println("FINAL: " + (chunkSizes/sparseness)/(height-1 + width-1));
     	sparseness = sparseness/(double)((height-1 + width-1)*chunkSizes);
 //    	System.out.println("SPARSE I USE: " + sparseness); // TODO:CHECK THIS
-    	return sparseness;
+    	
+    	enemySparsity = sparseness;
+    	return enemySparsity;
 	}
 	
 	public double calculateTreasureSparsity()
 	{
+		if(treasureSparsity > -1.0f)
+			return treasureSparsity;
+		
 		Queue<Node> queue = new LinkedList<Node>();
 		ArrayList<Bitmap> treasureChunks = new ArrayList<Bitmap>();
 		ArrayList<Point> treasurePoints = new ArrayList<Point>(treasures);
 		
 		if(treasurePoints.isEmpty())
 		{
+			treasureSparsity = 0.0;
 			return 0.0;
 		}
 
@@ -1827,6 +2377,7 @@ public class Room {
     	
     	if(treasureChunks.size() < 2)
     	{
+    		treasureSparsity = 0.0;
     		return 0.0;
     	}
     	
@@ -1861,7 +2412,8 @@ public class Room {
 //    	System.out.println("FINAL: " + (chunkSizes/sparseness)/(height-1 + width-1));
     	sparseness = sparseness/(double)((height-1 + width-1)*chunkSizes);
 //    	System.out.println("SPARSE I USE: " + sparseness);//TODO: CHECK THIS
-    	return sparseness;
+    	treasureSparsity = sparseness;
+    	return treasureSparsity;
 	}
 	
 	
@@ -2049,6 +2601,107 @@ public class Room {
 	
 	///////////////////////////////END ---- A* INTERNAL PATHFINDING  ///////////////////////////////////////////////////
 	
+	////////////////////////////// TILE INFORMATION /////////////////////////////
+	
+	private boolean CheckCustomTile(Tile tileToCheck, int maxAmount)
+	{
+		int current = 0;
+		
+		for(Tile tile : customTiles)
+		{
+			if(tile.GetType().equals(tileToCheck.GetType()))
+			{
+				current++;
+			}
+		}
+		
+		return !(current == maxAmount); //Return false if we cannot place the tile
+	}
+	
+	private void ReplaceAllTiles(Tile prevCustom)
+	{
+		for(finder.geometry.Point p : prevCustom.GetPositions())
+		{
+			setTile(p.getX(), p.getY(), new FloorTile(p, TileTypes.FLOOR));
+		}
+	}
+	
+	private Tile returnFirstInstance(Tile customTile)
+	{
+		for(Tile tile : customTiles)
+		{
+			if(tile.GetType().equals(customTile.GetType()))
+			{
+				return tile;
+			}
+		}
+		
+		return null;
+	}
+	
+	public Tile addCustomTile(Tile customTile, int maxAmount)
+	{
+		if(CheckCustomTile(customTile, maxAmount))
+		{
+			customTiles.add(customTile);
+			
+			if(customTile instanceof BossEnemyTile)
+			{
+				owner.addBoss((BossEnemyTile) customTile);
+			}
+			
+		}
+		else
+		{
+			Tile prevCustom = returnFirstInstance(customTile);
+			
+			if(prevCustom != null)
+			{
+				if(customTile instanceof BossEnemyTile)
+				{
+					owner.replaceBoss((BossEnemyTile) customTile, (BossEnemyTile) prevCustom);
+				}
+				
+				ReplaceAllTiles(prevCustom);
+				customTiles.remove(prevCustom);
+				customTiles.add(customTile);
+				return new FloorTile(prevCustom);
+			}
+		}
+		
+		return null;
+	}
+	
+	private Tile getCustom(Tile other)
+	{
+		for(Tile tile : customTiles)
+		{
+			if(tile.GetPositions().contains(other.GetCenterPosition()))
+			{
+				return tile;
+			}
+		}
+		
+		return null;
+	}
+	
+	public Tile replaceCustomForNormal(Tile customTile)
+	{
+		Tile custom = getCustom(customTile);
+		System.out.println(owner.getBosses().contains(custom));
+		
+		if(custom.GetType() == TileTypes.ENEMY_BOSS)
+		{
+			owner.removeBoss((BossEnemyTile) custom);
+		}
+		
+		ReplaceAllTiles(custom);
+		customTiles.remove(custom);
+		return new FloorTile(custom);
+	}
+	
+	
+	
 	/////////////////////////////// LOADING MAPS AND STRING DEBUG //////////////////////////////////////////////
 
 	//TODO: This will need to be REMADE how to load/save
@@ -2202,19 +2855,308 @@ public class Room {
 
 		return room;
 	}
-
+//
+//	@Override
+//	public String toString() {
+//		StringBuilder map = new StringBuilder();
+//
+//		for (int j = 0; j < height; j++){
+//			for (int i = 0; i < width; i++)  {
+//				map.append(Integer.toHexString(matrix[j][i]));
+//			}
+//			map.append("\n");
+//		}
+//
+//		return map.toString();
+//	}
+	
 	@Override
 	public String toString() {
-		StringBuilder map = new StringBuilder();
+		return specificID.toString();
+	}
+	
+	public void getRoomFromDungeonXML(String prefix)
+	{
+		Document dom;
+	    Element e = null;
+	    Element next = null;
+	    String xml = System.getProperty("user.dir") + "\\my-data\\summer-school\\" + InteractiveGUIController.runID + "\\" + prefix + "room-" + this.toString() + ".xml";
 
-		for (int j = 0; j < height; j++){
-			for (int i = 0; i < width; i++)  {
-				map.append(Integer.toHexString(matrix[j][i]));
+	    // instance of a DocumentBuilderFactory
+	    DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+	    try {
+	        // use factory to get an instance of document builder
+	        DocumentBuilder db = dbf.newDocumentBuilder();
+	        // create instance of DOM
+	        dom = db.newDocument();
+
+	        // create the root element
+	        Element rootEle = dom.createElement("Room");
+	        rootEle.setAttribute("ID", this.toString());
+	        rootEle.setAttribute("width", Integer.toString(this.getColCount()));
+	        rootEle.setAttribute("height", Integer.toString(this.getRowCount()));
+	        rootEle.setAttribute("time", new Timestamp(System.currentTimeMillis()).toString());
+//	        rootEle.setAttribute("type", "SUGGESTIONS OR MAIN");
+	        
+	        // create data elements and place them under root
+	        e = dom.createElement("Dimensions");
+	        rootEle.appendChild(e);
+	        
+	        //DIMENSIONS --> THIS IS IMPORTANT TO CHANGE!! TODO:!!
+	        next = dom.createElement("Dimension");
+	        next.setAttribute("name", DimensionTypes.SIMILARITY.toString());
+	        next.setAttribute("value", Double.toString(getDimensionValue(DimensionTypes.SIMILARITY)));
+	        e.appendChild(next);
+	        
+	        next = dom.createElement("Dimension");
+	        next.setAttribute("name", DimensionTypes.SYMMETRY.toString());
+	        next.setAttribute("value", Double.toString(getDimensionValue(DimensionTypes.SYMMETRY)));
+	        e.appendChild(next);
+	        
+	        //TILES
+	        e = dom.createElement("Tiles");
+	        rootEle.appendChild(e);
+	        
+	        for (int j = 0; j < height; j++) 
+			{
+				for (int i = 0; i < width; i++) 
+				{
+					next = dom.createElement("Tile");
+			        next.setAttribute("value", getTile(i, j).GetType().toString());
+			        next.setAttribute("immutable", Boolean.toString(getTile(i, j).GetImmutable()));
+			        next.setAttribute("PosX", Integer.toString(i));
+			        next.setAttribute("PosY", Integer.toString(j));
+			        e.appendChild(next);
+				}
 			}
-			map.append("\n");
-		}
+	        
+	        e = dom.createElement("Customs");
+	        rootEle.appendChild(e);
+	        
+	        for(Tile custom : customTiles)
+	        {
+	        	next = dom.createElement("Custom");
+		        next.setAttribute("value", custom.GetType().toString());
+		        next.setAttribute("immutable", Boolean.toString(custom.GetImmutable()));
+		        next.setAttribute("centerX", Integer.toString(custom.GetCenterPosition().getX()));
+		        next.setAttribute("centerY", Integer.toString(custom.GetCenterPosition().getY()));
+		        e.appendChild(next);
+	        }
 
-		return map.toString();
+	        dom.appendChild(rootEle);
+
+	        try {
+	            Transformer tr = TransformerFactory.newInstance().newTransformer();
+	            tr.setOutputProperty(OutputKeys.INDENT, "yes");
+	            tr.setOutputProperty(OutputKeys.METHOD, "xml");
+	            tr.setOutputProperty(OutputKeys.ENCODING, "UTF-8");
+	            tr.setOutputProperty(OutputKeys.DOCTYPE_SYSTEM, "room.dtd");
+	            tr.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "4");
+
+	            // send DOM to file
+	            tr.transform(new DOMSource(dom), 
+	                                 new StreamResult(new FileOutputStream(xml)));
+
+	        } catch (TransformerException te) {
+	            System.out.println(te.getMessage());
+	        } catch (IOException ioe) {
+	            System.out.println(ioe.getMessage());
+	        }
+	    } catch (ParserConfigurationException pce) {
+	        System.out.println("UsersXML: Error trying to instantiate DocumentBuilder " + pce);
+	    }
+	}
+	
+	public void saveRoomXMLMapElites(String prefix)
+	{
+		Document dom;
+	    Element e = null;
+	    Element next = null;
+	    
+	    String xml = System.getProperty("user.dir") + "\\my-data\\summer-school\\" + InteractiveGUIController.runID + "\\" + prefix + "room-" + this.toString() + "_" + saveCounter++ + ".xml";
+
+	    // instance of a DocumentBuilderFactory
+	    DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+	    try {
+	        // use factory to get an instance of document builder
+	        DocumentBuilder db = dbf.newDocumentBuilder();
+	        // create instance of DOM
+	        dom = db.newDocument();
+
+	        // create the root element
+	        Element rootEle = dom.createElement("Room");
+	        rootEle.setAttribute("ID", this.toString());
+	        rootEle.setAttribute("width", Integer.toString(this.getColCount()));
+	        rootEle.setAttribute("height", Integer.toString(this.getRowCount()));
+	        rootEle.setAttribute("time", new Timestamp(System.currentTimeMillis()).toString());
+//	        rootEle.setAttribute("type", "SUGGESTIONS OR MAIN");
+	        
+	        // create data elements and place them under root
+	        e = dom.createElement("Dimensions");
+	        rootEle.appendChild(e);
+	        
+	        //DIMENSIONS --> THIS IS IMPORTANT TO CHANGE!! TODO:!!
+	        next = dom.createElement("Dimension");
+	        next.setAttribute("name", DimensionTypes.SIMILARITY.toString());
+	        next.setAttribute("value", Double.toString(getDimensionValue(DimensionTypes.SIMILARITY)));
+	        e.appendChild(next);
+	        
+	        next = dom.createElement("Dimension");
+	        next.setAttribute("name", DimensionTypes.SYMMETRY.toString());
+	        next.setAttribute("value", Double.toString(getDimensionValue(DimensionTypes.SYMMETRY)));
+	        e.appendChild(next);
+	        
+	        //TILES
+	        e = dom.createElement("Tiles");
+	        rootEle.appendChild(e);
+	        
+	        for (int j = 0; j < height; j++) 
+			{
+				for (int i = 0; i < width; i++) 
+				{
+					next = dom.createElement("Tile");
+			        next.setAttribute("value", getTile(i, j).GetType().toString());
+			        next.setAttribute("immutable", Boolean.toString(getTile(i, j).GetImmutable()));
+			        next.setAttribute("PosX", Integer.toString(i));
+			        next.setAttribute("PosY", Integer.toString(j));
+			        e.appendChild(next);
+				}
+			}
+	        
+	        e = dom.createElement("Customs");
+	        rootEle.appendChild(e);
+	        
+	        for(Tile custom : customTiles)
+	        {
+	        	next = dom.createElement("Custom");
+		        next.setAttribute("value", custom.GetType().toString());
+		        next.setAttribute("immutable", Boolean.toString(custom.GetImmutable()));
+		        next.setAttribute("centerX", Integer.toString(custom.GetCenterPosition().getX()));
+		        next.setAttribute("centerY", Integer.toString(custom.GetCenterPosition().getY()));
+		        e.appendChild(next);
+	        }
+
+	        dom.appendChild(rootEle);
+
+	        try {
+	            Transformer tr = TransformerFactory.newInstance().newTransformer();
+	            tr.setOutputProperty(OutputKeys.INDENT, "yes");
+	            tr.setOutputProperty(OutputKeys.METHOD, "xml");
+	            tr.setOutputProperty(OutputKeys.ENCODING, "UTF-8");
+	            tr.setOutputProperty(OutputKeys.DOCTYPE_SYSTEM, "room.dtd");
+	            tr.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "4");
+
+	            // send DOM to file
+	            tr.transform(new DOMSource(dom), 
+	                                 new StreamResult(new FileOutputStream(xml)));
+
+	        } catch (TransformerException te) {
+	            System.out.println(te.getMessage());
+	        } catch (IOException ioe) {
+	            System.out.println(ioe.getMessage());
+	        }
+	    } catch (ParserConfigurationException pce) {
+	        System.out.println("UsersXML: Error trying to instantiate DocumentBuilder " + pce);
+	    }
+	}
+
+	
+	public void getRoomXML(String prefix)
+	{
+		Document dom;
+	    Element e = null;
+	    Element next = null;
+	    
+	    File file = new File(DataSaverLoader.projectPath + "\\summer-school\\" + InteractiveGUIController.runID + "\\" + prefix + this.toString());
+		if (!file.exists()) {
+			file.mkdirs();
+		}
+	    
+	    String xml = System.getProperty("user.dir") + "\\my-data\\summer-school\\" + InteractiveGUIController.runID + "\\" + prefix + this.toString() + "\\room-" + this.toString() + "_" + saveCounter++ + ".xml";
+
+	    // instance of a DocumentBuilderFactory
+	    DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+	    try {
+	        // use factory to get an instance of document builder
+	        DocumentBuilder db = dbf.newDocumentBuilder();
+	        // create instance of DOM
+	        dom = db.newDocument();
+
+	        // create the root element
+	        Element rootEle = dom.createElement("Room");
+	        rootEle.setAttribute("ID", this.toString());
+	        rootEle.setAttribute("width", Integer.toString(this.getColCount()));
+	        rootEle.setAttribute("height", Integer.toString(this.getRowCount()));
+	        rootEle.setAttribute("time", new Timestamp(System.currentTimeMillis()).toString());
+//	        rootEle.setAttribute("type", "SUGGESTIONS OR MAIN");
+	        
+	        // create data elements and place them under root
+	        e = dom.createElement("Dimensions");
+	        rootEle.appendChild(e);
+	        
+	        //DIMENSIONS --> THIS IS IMPORTANT TO CHANGE!! TODO:!!
+	        next = dom.createElement("Dimension");
+	        next.setAttribute("name", DimensionTypes.SIMILARITY.toString());
+	        next.setAttribute("value", Double.toString(getDimensionValue(DimensionTypes.SIMILARITY)));
+	        e.appendChild(next);
+	        
+	        next = dom.createElement("Dimension");
+	        next.setAttribute("name", DimensionTypes.SYMMETRY.toString());
+	        next.setAttribute("value", Double.toString(getDimensionValue(DimensionTypes.SYMMETRY)));
+	        e.appendChild(next);
+	        
+	        //TILES
+	        e = dom.createElement("Tiles");
+	        rootEle.appendChild(e);
+	        
+	        for (int j = 0; j < height; j++) 
+			{
+				for (int i = 0; i < width; i++) 
+				{
+					next = dom.createElement("Tile");
+			        next.setAttribute("value", getTile(i, j).GetType().toString());
+			        next.setAttribute("immutable", Boolean.toString(getTile(i, j).GetImmutable()));
+			        next.setAttribute("PosX", Integer.toString(i));
+			        next.setAttribute("PosY", Integer.toString(j));
+			        e.appendChild(next);
+				}
+			}
+	        
+	        e = dom.createElement("Customs");
+	        rootEle.appendChild(e);
+	        
+	        for(Tile custom : customTiles)
+	        {
+	        	next = dom.createElement("Custom");
+		        next.setAttribute("value", custom.GetType().toString());
+		        next.setAttribute("immutable", Boolean.toString(custom.GetImmutable()));
+		        next.setAttribute("centerX", Integer.toString(custom.GetCenterPosition().getX()));
+		        next.setAttribute("centerY", Integer.toString(custom.GetCenterPosition().getY()));
+		        e.appendChild(next);
+	        }
+
+	        dom.appendChild(rootEle);
+
+	        try {
+	            Transformer tr = TransformerFactory.newInstance().newTransformer();
+	            tr.setOutputProperty(OutputKeys.INDENT, "yes");
+	            tr.setOutputProperty(OutputKeys.METHOD, "xml");
+	            tr.setOutputProperty(OutputKeys.ENCODING, "UTF-8");
+	            tr.setOutputProperty(OutputKeys.DOCTYPE_SYSTEM, "room.dtd");
+	            tr.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "4");
+
+	            // send DOM to file
+	            tr.transform(new DOMSource(dom), 
+	                                 new StreamResult(new FileOutputStream(xml)));
+
+	        } catch (TransformerException te) {
+	            System.out.println(te.getMessage());
+	        } catch (IOException ioe) {
+	            System.out.println(ioe.getMessage());
+	        }
+	    } catch (ParserConfigurationException pce) {
+	        System.out.println("UsersXML: Error trying to instantiate DocumentBuilder " + pce);
+	    }
 	}
 
 	

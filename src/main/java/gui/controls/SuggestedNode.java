@@ -1,11 +1,16 @@
 package gui.controls;
 
+import collectors.ActionLogger;
+import collectors.ActionLogger.ActionType;
+import collectors.ActionLogger.TargetPane;
+import collectors.ActionLogger.View;
 import game.MapContainer;
 import game.Room;
 import javafx.event.EventHandler;
 import javafx.scene.Node;
 import javafx.scene.input.MouseEvent;
 import util.eventrouting.EventRouter;
+import util.eventrouting.events.MAPEGridUpdate;
 import util.eventrouting.events.RequestRoomView;
 
 public class SuggestedNode
@@ -15,6 +20,7 @@ public class SuggestedNode
 	private Room originalRoom;
 	private Node source;
 	private boolean ready = false;
+	private String configFrom = "";
 	
 	public SuggestedNode(LabeledCanvas node)
 	{
@@ -56,6 +62,16 @@ public class SuggestedNode
 	            {	            	
 	            	if(ready)
 	    			{
+	            		//We store the information about the selected suggestions
+	    				ActionLogger.getInstance().storeAction(ActionType.CLICK,
+																View.SUGGESTION, 
+																TargetPane.SUGGESTION_PANE, 
+																false,
+																configFrom,
+																suggestedRoomContainer.getMap().toString(),
+																originalRoom.toString()
+																);
+	            		
 	    				originalRoom.applySuggestion(suggestedRoomContainer.getMap());
 	    				suggestedRoomContainer.setMap(originalRoom);
 	    				EventRouter.getInstance().postEvent(new RequestRoomView(suggestedRoomContainer, 0, 0, null));
@@ -132,6 +148,9 @@ public class SuggestedNode
 	}
 	
 	public void setReadiness(boolean value) {ready = value;}
+
+	public void setFileName(String value) {configFrom = value;}
+	
 
     /**
      * Highlights the control.

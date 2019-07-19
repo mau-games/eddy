@@ -558,7 +558,7 @@ public class EditViewController extends BorderPane implements Listener {
 			{
 				if(room.getTile(j, i).GetImmutable())
 				{
-					lockCanvas.getGraphicsContext2D().drawImage(renderer.GetLock(mapView.scale * 0.75f, mapView.scale * 0.75f), j * mapView.scale, i * mapView.scale);
+					lockCanvas.getGraphicsContext2D().drawImage(renderer.GetLock(mapView.scale * 3.0f, mapView.scale * 3.0f), j * mapView.scale, i * mapView.scale);
 				}
 			}
 		}

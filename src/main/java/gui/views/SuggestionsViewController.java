@@ -63,7 +63,7 @@ public class SuggestionsViewController extends AnchorPane implements Listener {
 			throw new RuntimeException(exception);
 		}
 		router.registerListener(this, new MapUpdate(null));
-		router.registerListener(this, new AlgorithmDone(null, null));
+		router.registerListener(this, new AlgorithmDone(null, null, null));
 		
 		this.setPrefSize(1920, 1080);
 		
@@ -71,10 +71,6 @@ public class SuggestionsViewController extends AnchorPane implements Listener {
 		for(LabeledCanvas canvas : mapDisplays) //limitations....
 		{
 			suggestedRooms.add(new SuggestedNode(canvas));
-			System.out.println(this.getWidth());
-			System.out.println(this.getPrefWidth());
-			System.out.println(this.getMinWidth());
-			System.out.println(this.getMaxWidth());
 		}
 	}
 
@@ -120,6 +116,7 @@ public class SuggestionsViewController extends AnchorPane implements Listener {
 				
 				suggestion.setSuggestedRoomContainer(container);
 				suggestion.setReadiness(true);
+				suggestion.setFileName(((AlgorithmDone) e).configName);
 				nextMap++;
 			}
 		}
