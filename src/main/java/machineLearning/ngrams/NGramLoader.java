@@ -14,21 +14,21 @@ import machineLearning.ngrams.Gram.GramTypes;
 
 public class NGramLoader
 {
-	public HashMap<UUID, Gram> grams;
+	public HashMap<UUID, ArrayList<Gram>> grams;
 	public GramTypes gramType;
 	
 	public NGramLoader(GramTypes type)
 	{
-		grams = new HashMap<UUID, Gram>();
+		grams = new HashMap<UUID, ArrayList<Gram>>();
 		this.gramType = type;
 	}
 	
 	public void addGrams(Object content)
 	{
 		//Divide the content based on each gram need!
-		HashMap<UUID, Gram> dividedContent = Gram.gramSpecificAnalysis(gramType, content, grams);
+		HashMap<UUID, ArrayList<Gram>> dividedContent = Gram.gramSpecificAnalysis(gramType, content, grams);
 		
-		for (Entry<UUID, Gram> entry : dividedContent.entrySet()) 
+		for (Entry<UUID, ArrayList<Gram>> entry : dividedContent.entrySet()) 
 		{
 			grams.put(entry.getKey(), entry.getValue());
 		}
@@ -41,7 +41,7 @@ public class NGramLoader
 	{
 		//First we just check if we have the current gram in our grams
 		UUID translatedGram = Gram.getUniqueID(gramType, currentGram);
-		Queue<UUID> dividedCurrentFormed = Gram.transformCurrentContent(gramType, currentFormed);
+		LinkedList<UUID> dividedCurrentFormed = Gram.transformCurrentContent(gramType, currentFormed);
 		String returnedGram = "";
 		
 		if(grams.containsKey(translatedGram))
@@ -61,12 +61,34 @@ public class NGramLoader
 				//4) Get
 			}
 			
-			for(int i = 0; i < N -1; i++) //From front to back
+			for(int i = 1; i < N -1; i++) //From front to back
 			{
+				ArrayList<UUID> eliminated = new ArrayList<UUID>();
+				
+				UUID checked = dividedCurrentFormed.get(i);
+				
+				for(UUID candidate : candidates)
+				{
+					UUID prev = null;
+					for(int j = i+1; j>0;j++)
+					{
+						prev = grams.get(candidate).prevGrams.get(checked);
+						
+						if(j == 1) //Now we are in unexplored area!
+						{
+							
+						}
+					}
+				}
+
+				
 				//Now we check, we need to do the following:
-				//First and most importannt do we have enough? else get closer
+				//First and most importannt do we have enough? else stop
 				//1) get the current gram we need (unique ID)
+//				Set<UUID>
+				Gram checkedGram = grams.get(dividedCurrentFormed.get(i));
 				//2) get the nextGrams.
+				//prevGrams
 				//3) Filter by the current Gram
 				//4) Get
 			}
@@ -117,26 +139,41 @@ public class NGramLoader
 		//Add the content to be divided
 		nGram.addGrams("today it was a lovely day because it was not the same as a lovely hell");
 //		nGram.addGrams("today it was a lovely day because it was not the same as a lovely hell");
-		
-		for (Gram value : nGram.grams.values()) 
+	
+		//there is some issue with the keys and lists! but it is getting betteer :D 
+		for (ArrayList<Gram> v : nGram.grams.values()) 
 		{
-			//Unigram
-		    System.out.println(value.gramValue + ", count: " + value.counter + ", pre: ");
-		    
-		    //Bigram
-		    for (Entry<UUID, Integer> prevEntry :  value.prevGrams.entrySet()) 
+			for (Gram value : v) 
 			{
-		    	Gram prev = nGram.grams.get(prevEntry.getKey());
-		    	System.out.println("   " + prev.gramValue + ", count: " + prevEntry.getValue() + ", pre:");
-		    	
-		    	//Trigram
-		    	for (Entry<UUID, Integer> prevEntry2 :  prev.prevGrams.entrySet()) 
+				//Unigram
+			    System.out.println(value.gramValue + ", count: " + value.counter + ", pre: ");
+			    
+			    //Bigram
+			    for (Entry<UUID, Integer> prevEntry :  value.prevGrams.entrySet()) 
 				{
-			    	Gram prev2 = nGram.grams.get(prevEntry2.getKey());
-			    	System.out.println("      " + prev2.gramValue + ", count: " + prevEntry2.getValue());
+			    	ArrayList<Gram> prevs = nGram.grams.get(prevEntry.getKey());
+			    	for (Gram prev : prevs) 
+					{
+			    		System.out.println("   " + prev.gramValue + ", count: " + prevEntry.getValue() + ", pre:");
+				    	
+				    	//Trigram
+				    	for (Entry<UUID, Integer> prevEntry2 :  prev.prevGrams.entrySet()) 
+						{
+				    		ArrayList<Gram> prevs2 = nGram.grams.get(prevEntry2.getKey());
+				    		
+					    	for (Gram prev2 : prevs2) 
+							{
+						    	
+						    	System.out.println("      " + prev2.gramValue + ", count: " + prevEntry2.getValue());
+							}
+
+						}
+					}
+			    	
+			    	
 				}
-		    	
 			}
+			
 
 		    
 		}

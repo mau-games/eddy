@@ -19,62 +19,76 @@ public class ClassicTextGram extends Gram
 //		
 //	}
 	
-	public ClassicTextGram(String value) {
-		super(value);
+	public ClassicTextGram(String value, UUID uniqueID) {
+		super(value, uniqueID);
+		// TODO Auto-generated constructor stub
+	}
+	
+	public ClassicTextGram(ClassicTextGram copy) {
+		super(copy);
 		// TODO Auto-generated constructor stub
 	}
 
-	public static <T extends Gram> HashMap<UUID, Gram> AnalyzeContent(Object object, HashMap<UUID, T> currentKeys)
+	
+	public static HashMap<UUID, ArrayList<Gram>> AnalyzeContent(Object object, HashMap<UUID, ArrayList<Gram>> currentKeys)
 	{
-		HashMap<UUID, Gram> cont = new HashMap<UUID, Gram>();
+		HashMap<UUID, ArrayList<Gram>> cont = new HashMap<UUID, ArrayList<Gram>>();
 		
 		//Divide the text by spaces
 		String text = (String)object;
 		
 		//Divide the text by spaces and send it back!:
 		String[] splitted = text.split(" ");
+		UUID currentID = getUniqueID(splitted[0]);
 		
+		ClassicTextGram prev = null;
+		ClassicTextGram current = null;
+		ClassicTextGram next = new ClassicTextGram(splitted[0], currentID);
 		
 		for(int i = 0; i < splitted.length; ++i)
 		{
-			UUID id = getUniqueID(splitted[i]);
-			Gram gram = (Gram) currentKeys.get(id);
-			
-			if(gram == null)
-			{
-				gram = cont.get(id);
-				
-				if(gram == null)
-				{
-					gram = new ClassicTextGram(splitted[i]);
-					cont.put(id, gram);
-				}
-			}
-			
-			gram.counter++;
+			prev = new ClassicTextGram(current);
+			current =  new ClassicTextGram(next);
+			currentID = current.uniqueID;
+			next = i+1 < splitted.length ? new ClassicTextGram(splitted[i+1], getUniqueID(splitted[i+1])) : null;
 			
 			//Now add the prev and future uuid
 			if(i != splitted.length -1 )
-				gram.addFutureGram(getUniqueID(splitted[i + 1]));
+				current.addFutureGram(getUniqueID(splitted[i + 1]));
 			else
-				gram.addFutureGram(null);
+				current.addFutureGram(null);
 			
 			//Now add the prev and future uuid
 			if(i != 0 )
-				gram.addPrevGram(getUniqueID(splitted[i - 1]));
+				current.addPrevGram(getUniqueID(splitted[i - 1]));
 			else
-				gram.addPrevGram(null);
-				
+				current.addPrevGram(null);
+			
+			//we add the info into grams!
+			if(!cont.containsKey(currentID))
+			{
+				cont.put(currentID, new ArrayList<Gram>());
+				cont.get(currentID).add(current);
+			}
+			else
+			{
+				cont.get(currentID).add(current);
+			}
+			
+			
+			current.counter++;
+			
+
 		}
 		
 		return cont;
 	}
 	
-	public static Queue<UUID> transformObjects(Object currentContent)
+	public static LinkedList<UUID> transformObjects(Object currentContent)
 	{
 		//Divide the text by spaces
 		String text = (String)currentContent;
-		Queue<UUID> transformedObjects = new LinkedList<UUID>();
+		LinkedList<UUID> transformedObjects = new LinkedList<UUID>();
 		
 		//Divide the text by spaces and send it back!:
 		String[] splitted = text.split(" ");

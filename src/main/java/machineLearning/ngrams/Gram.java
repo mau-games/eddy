@@ -2,6 +2,7 @@ package machineLearning.ngrams;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
 import java.util.Set;
@@ -25,12 +26,25 @@ public class Gram
 	public int counter;
 	public String gramValue;
 	
-	public Gram(String value)
+	public Gram(String value, UUID uniqueID)
 	{
 		prevGrams = new HashMap<UUID, Integer>();
 		futureGrams = new HashMap<UUID, Integer>();
 		gramValue = value;
 		counter = 0;
+		this.uniqueID = uniqueID;
+	}
+	
+	public Gram(Gram copy)
+	{
+		if(copy != null)
+		{
+			prevGrams = new HashMap<UUID, Integer>(copy.prevGrams);
+			futureGrams = new HashMap<UUID, Integer>(copy.futureGrams);
+			gramValue = copy.gramValue;
+			counter = copy.counter;
+			this.uniqueID = copy.uniqueID;
+		}
 	}
 
 	public void addPrevGram(UUID prevKey)
@@ -64,7 +78,7 @@ public class Gram
 		switch(type)
 		{
 		case CLASSIC_TEXT:
-			return new ClassicTextGram(gramValue); //this needs more!
+			return new ClassicTextGram(gramValue, null); //this needs more!
 		case COLUMN_BY_COLUMN:
 			break;
 		case MESO_BY_MESO:
@@ -82,7 +96,8 @@ public class Gram
 		return null;
 	}
 	
-	public static <T extends Gram> HashMap<UUID, Gram> gramSpecificAnalysis(GramTypes type, Object content, HashMap<UUID, T> currentKeys)
+	public static HashMap<UUID, ArrayList<Gram>> gramSpecificAnalysis(GramTypes type, Object content, 
+			HashMap<UUID, ArrayList<Gram>> currentKeys)
 	{
 		switch(type)
 		{
@@ -130,7 +145,7 @@ public class Gram
 		return null;
 	}
 	
-	public static Queue<UUID> transformCurrentContent(GramTypes type, Object current)
+	public static LinkedList<UUID> transformCurrentContent(GramTypes type, Object current)
 	{
 		switch(type)
 		{
