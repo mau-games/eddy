@@ -32,47 +32,65 @@ public class ClassicTextGram extends Gram
 	
 	public static HashMap<UUID, ArrayList<Gram>> AnalyzeContent(Object object, HashMap<UUID, ArrayList<Gram>> currentKeys)
 	{
-		HashMap<UUID, ArrayList<Gram>> cont = new HashMap<UUID, ArrayList<Gram>>();
+		HashMap<UUID, ArrayList<Gram>> analyzedContent = new HashMap<UUID, ArrayList<Gram>>();
 		
-		//Divide the text by spaces
+		//Load the text and put everything in lowercase!
 		String text = (String)object;
+		text = text.toLowerCase();
 		
-		//Divide the text by spaces and send it back!:
-		String[] splitted = text.split(" ");
+		//Divide the text by spaces:
+//		String[] splitted = text.split("(?<=[,.])|(?=[,.])|\\s+");
+		String[] splitted2 = text.split("(?<=[,.]) |(?<=[,.])|(?=[,.])|\\s+");
+		List<String> myList = new ArrayList<String>(Arrays.asList(splitted2));
+		myList.removeIf(str -> str.equals(""));
+		String splitted[] =  myList.toArray(new String[0]);
+		
+//		myStrArray = myList.toArray(new String[0]);
+		
+		//Get unique ID of the current gram
 		UUID currentID = getUniqueID(splitted[0]);
 		
+		//Create the 3 needed steps
 		ClassicTextGram prev = null;
 		ClassicTextGram current = null;
 		ClassicTextGram next = new ClassicTextGram(splitted[0], currentID);
 		
+		//NEXT becomes the CURRENT gram,
+		//CURRENT becomes the PREV gram,
+		//And PREV is discarded
+		
 		for(int i = 0; i < splitted.length; ++i)
 		{
-			prev = new ClassicTextGram(current);
-			current =  new ClassicTextGram(next);
+			prev = current;
+			current = next;
+//			prev = (ClassicTextGram) next.prevGrams.getKey();
+//			
+//			prev = new ClassicTextGram(current);
+//			current =  new ClassicTextGram(next);
 			currentID = current.uniqueID;
 			next = i+1 < splitted.length ? new ClassicTextGram(splitted[i+1], getUniqueID(splitted[i+1])) : null;
 			
 			//Now add the prev and future uuid
 			if(i != splitted.length -1 )
-				current.addFutureGram(getUniqueID(splitted[i + 1]));
+				current.addFutureGram(next);
 			else
 				current.addFutureGram(null);
 			
 			//Now add the prev and future uuid
 			if(i != 0 )
-				current.addPrevGram(getUniqueID(splitted[i - 1]));
+				current.addPrevGram(prev);
 			else
 				current.addPrevGram(null);
 			
 			//we add the info into grams!
-			if(!cont.containsKey(currentID))
+			if(!analyzedContent.containsKey(currentID))
 			{
-				cont.put(currentID, new ArrayList<Gram>());
-				cont.get(currentID).add(current);
+				analyzedContent.put(currentID, new ArrayList<Gram>());
+				analyzedContent.get(currentID).add(current);
 			}
 			else
 			{
-				cont.get(currentID).add(current);
+				analyzedContent.get(currentID).add(current);
 			}
 			
 			
@@ -81,18 +99,24 @@ public class ClassicTextGram extends Gram
 
 		}
 		
-		return cont;
+		return analyzedContent;
 	}
 	
 	public static LinkedList<UUID> transformObjects(Object currentContent)
 	{
-		//Divide the text by spaces
+		////Load the text and put everything in lowercase!
 		String text = (String)currentContent;
+		text = text.toLowerCase();
+		
 		LinkedList<UUID> transformedObjects = new LinkedList<UUID>();
 		
-		//Divide the text by spaces and send it back!:
-		String[] splitted = text.split(" ");
+		//Divide the text by spaces
+		String[] splitted2 = text.split("(?<=[,.]) |(?<=[,.])|(?=[,.])|\\s+");
+		List<String> myList = new ArrayList<String>(Arrays.asList(splitted2));
+		myList.removeIf(str -> str.equals(""));
+		String splitted[] =  myList.toArray(new String[0]);
 		
+		//transform to ID
 		for(String split : splitted)
 		{
 			transformedObjects.add(getUniqueID(split));

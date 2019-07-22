@@ -8,6 +8,8 @@ import java.util.Queue;
 import java.util.Set;
 import java.util.UUID;
 
+import javafx.util.Pair;
+
 public class Gram 
 {
 	public enum GramTypes
@@ -21,15 +23,15 @@ public class Gram
 	}
 	
 	public UUID uniqueID;
-	public HashMap<UUID, Integer> prevGrams; //Count how many times each!
-	public HashMap<UUID, Integer> futureGrams; //Count how many times each!
+	public Pair<Gram, Integer> prevGrams; //Count how many times each!
+	public Pair<Gram, Integer> futureGrams; //Count how many times each!
 	public int counter;
 	public String gramValue;
 	
 	public Gram(String value, UUID uniqueID)
 	{
-		prevGrams = new HashMap<UUID, Integer>();
-		futureGrams = new HashMap<UUID, Integer>();
+		prevGrams = new Pair<Gram, Integer>(null, 0);
+		futureGrams = new Pair<Gram, Integer>(null, 0);
 		gramValue = value;
 		counter = 0;
 		this.uniqueID = uniqueID;
@@ -39,35 +41,37 @@ public class Gram
 	{
 		if(copy != null)
 		{
-			prevGrams = new HashMap<UUID, Integer>(copy.prevGrams);
-			futureGrams = new HashMap<UUID, Integer>(copy.futureGrams);
+			prevGrams = new Pair<Gram, Integer>(copy.prevGrams.getKey(), copy.prevGrams.getValue());
+			futureGrams = new Pair<Gram, Integer>(copy.futureGrams.getKey(), copy.futureGrams.getValue());
 			gramValue = copy.gramValue;
 			counter = copy.counter;
 			this.uniqueID = copy.uniqueID;
 		}
 	}
 
-	public void addPrevGram(UUID prevKey)
+	public void addPrevGram(Gram prevKey)
 	{
 		if(prevKey != null)
 		{
-			if(prevGrams.containsKey(prevKey))
-				prevGrams.put(prevKey, prevGrams.get(prevKey) + 1);
+			if(prevGrams.getKey() != null && prevGrams.getKey().equals(prevKey))
+				prevGrams = new Pair<Gram, Integer>(prevKey, prevGrams.getValue() + 1);
+//				prevGrams.put(prevKey, prevGrams.get(prevKey) + 1);
 			else
-				prevGrams.put(prevKey, 1);
+				prevGrams = new Pair<Gram, Integer>(prevKey, 1);
 			
 //			counter++;
 		}	
 	}
 
-	public void addFutureGram(UUID futKey)
+	public void addFutureGram(Gram futKey)
 	{
 		if(futKey != null)
 		{
-			if(futureGrams.containsKey(futKey))
-				futureGrams.put(futKey, futureGrams.get(futKey) + 1);
+			if(futureGrams.getKey() != null && futureGrams.getKey().equals(futKey))
+				futureGrams = new Pair<Gram, Integer>(futKey, futureGrams.getValue() + 1);
+//				prevGrams.put(prevKey, prevGrams.get(prevKey) + 1);
 			else
-				futureGrams.put(futKey, 1);
+				futureGrams = new Pair<Gram, Integer>(futKey, 1);
 			
 //			counter++;
 		}	
