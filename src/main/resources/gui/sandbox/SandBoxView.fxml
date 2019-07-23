@@ -158,7 +158,7 @@
 					<items>
 						<FXCollections fx:factory="observableArrayList">
 						  <String fx:value="Evolution" />
-						  <String fx:value="RndExample" />
+						  <String fx:value="Random" />
 						  <String fx:value="N-Gram" />
 						  <String fx:value="Example" />
 						  <String fx:value="Preference Learning" />
@@ -179,109 +179,7 @@
 
 		<HBox>
 			<VBox spacing="15" fx:id="rightSidePane">
-				<EvolutionMAPEPane/>
-
-				<StackPane alignment="CENTER" fx:id="generatedMapsLabel"
-					id="generatedMapsLabel">
-					<Label text="Generated Suggestions" />
-				</StackPane>
-				<AnchorPane>
-					<children>
-						<VBox spacing="15">
-							<MAPEVisualizationPane fx:id="MAPElitesPane"/>
-							<HBox spacing="20">
-								<DimensionsTable fx:id="MainTable">
-									<columnResizePolicy><TableView fx:constant="CONSTRAINED_RESIZE_POLICY"/></columnResizePolicy>
-								 	<columns>											 	
-										<TableColumn text="Current Dimension">
-											<cellValueFactory>
-												<PropertyValueFactory property="dimension" />
-											</cellValueFactory>
-										</TableColumn>
-										<TableColumn text="Value">
-											<cellValueFactory>
-												<PropertyValueFactory property="granularity" />
-											</cellValueFactory>
-										</TableColumn>
-							     	</columns> 
-							     		<items>
-										    <FXCollections fx:factory="observableArrayList">
-										    </FXCollections>
-										</items>   
-							    </DimensionsTable>
-							    <DimensionsTable fx:id="secondaryTable">
-									<columnResizePolicy><TableView fx:constant="CONSTRAINED_RESIZE_POLICY"/></columnResizePolicy>
-								 	<columns>											 	
-										<TableColumn text="Available Dimensions">
-											<cellValueFactory>
-												<PropertyValueFactory property="dimension" />
-											</cellValueFactory>
-										</TableColumn>
-										<TableColumn text="Value">
-											<cellValueFactory>
-												<PropertyValueFactory property="granularity" />
-											</cellValueFactory>
-										</TableColumn>
-							     	</columns> 
-							    </DimensionsTable>
-								<VBox>
-									<HBox>
-										<Label fx:id="enemyNumbr"></Label>
-										<Label fx:id="enemyNumbr2"></Label>
-			
-									</HBox>
-									<HBox>
-										<Label fx:id="treasureNmbr"></Label>
-										<Label fx:id="treasureNmbr2"></Label>
-			
-									</HBox>
-									<HBox>
-										<Label fx:id="enemyPercent"></Label>
-										<Label fx:id="enemyPercent2"></Label>
-			
-									</HBox>
-									<HBox>
-										<Label fx:id="treasurePercent"></Label>
-										<Label fx:id="treasurePercent2"></Label>
-			
-									</HBox>
-									<HBox>
-										<Label fx:id="entranceSafety"></Label>
-										<Label fx:id="entranceSafety2"></Label>
-			
-									</HBox>
-									<HBox>
-										<Label fx:id="treasureSafety"></Label>
-										<Label fx:id="treasureSafety2"></Label>
-			
-									</HBox>
-								</VBox>
-							</HBox>
-						</VBox>
-					</children>
-				</AnchorPane>
-				
-				<Popup text="Drag dimensions from available to current (Max. 2). To see your locked tiles, you must press Restart!" width="150" height="100" image="FALSE"/>
-
-				<HBox spacing="10">
-
-					<Button fx:id="worldGridBtn" contentDisplay="TOP"
-						mnemonicParsing="false" wrapText="true" textAlignment="CENTER"
-						text="Go To World Grid" onAction="#backWorldView">
-
-					</Button>
-					<Button fx:id="genSuggestionsBtn" contentDisplay="TOP"
-						mnemonicParsing="false" wrapText="true" textAlignment="CENTER"
-						text="Restart" onAction="#handleEvolutionPressed" />
-					<Button fx:id="appSuggestionsBtn" contentDisplay="TOP"
-						mnemonicParsing="false" wrapText="true" textAlignment="CENTER"
-						text="Apply Suggestion" onAction="#selectSuggestion" />
-					<Button fx:id="saveGenBtn" contentDisplay="TOP"
-						mnemonicParsing="false" wrapText="true" textAlignment="CENTER"
-						text="Save Current" onAction="#saveCurrentGeneration" />
-
-				</HBox>
-				<Pane fx:id="minimap" />
+				<EvolutionMAPEPane fx:id="evolutionPane"/>
 			</VBox>
 			<HBox.margin>
 				<Insets>

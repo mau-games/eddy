@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import java.lang.*?>
+<?import javafx.scene.layout.*?>
+
+<fx:root fx:id="mainBorderPane"
+	stylesheets="@../styling.css" type="javafx.scene.layout.BorderPane" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1">
+   <center>
+      <VBox fx:id="centerPane" alignment="CENTER" prefHeight="498.0" prefWidth="529.0" BorderPane.alignment="CENTER">
+         <children>
+            <StackPane fx:id="generatedRoomPane" alignment="CENTER" prefHeight="150.0" prefWidth="200.0" />
+         </children>
+      </VBox>
+   </center>
+   
+   <bottom>
+      <VBox alignment="CENTER" prefHeight="72.0" prefWidth="600.0" spacing="20.0" BorderPane.alignment="CENTER">
+         <children>
+            <HBox alignment="CENTER" prefHeight="100.0" prefWidth="200.0" spacing="10.0">
+               <children>
+                  <Button fx:id="stepButton" alignment="CENTER" mnemonicParsing="false" onAction="#onStepGeneration" text="STEP" textAlignment="CENTER" />
+				  <Button fx:id="runButton" alignment="CENTER" mnemonicParsing="false" onAction="#onRunGeneration" text="RUN" textAlignment="CENTER" />
+               </children>
+            </HBox>
+			<HBox alignment="CENTER" prefHeight="100.0" prefWidth="200.0" spacing="10.0">
+               <children>
+					<TextField fx:id="widthField" onKeyTyped="#onWidthChanged" style="-fx-text-fill: white;" text="width" />
+					<TextField fx:id="heightField" onKeyTyped="#onHeightChanged" style="-fx-text-fill: white;" text="height" />
+               </children>
+            </HBox>
+			<HBox alignment="CENTER" prefHeight="100.0" prefWidth="200.0" spacing="10.0">
+               <children>
+					<TextField fx:id="nStepsField" onKeyTyped="#onNChanged" style="-fx-text-fill: white;" text="N" />
+					<Button fx:id="saveButton" alignment="CENTER" mnemonicParsing="false" onAction="#onSaveRoom" text="Save" textAlignment="CENTER" />
+               </children>
+            </HBox>
+         </children>
+         <padding>
+            <Insets bottom="10.0" />
+         </padding>
+      </VBox>
+   </bottom>
+   
+</fx:root>

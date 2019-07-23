@@ -604,7 +604,7 @@ public class Room {
 			}
 		}	
 		
-		this.owner = suggestions.owner; //NOt clear
+		this.owner = suggestions.owner; //TODO: NOt clear --> I DONT THINK SO! -- There have to be a problem with the count here, right?
 		copyDoors(suggestions.getDoors());
 		
 		for(Tile custom : this.customTiles)
@@ -2856,6 +2856,14 @@ public class Room {
 //
 //		return map.toString();
 //	}
+	
+	public static Room createRoomFromStringColumn(String ... roomColumns)
+	{
+		int w = roomColumns.length;
+		int h = roomColumns[0].length(); //This is taking for granted that you are sending columns with the same amount!
+		
+		return null;
+	}
 	
 	@Override
 	public String toString() {
