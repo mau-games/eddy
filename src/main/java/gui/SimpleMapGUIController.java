@@ -1,6 +1,8 @@
 package gui;
 
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.ResourceBundle;
@@ -13,6 +15,7 @@ import finder.patterns.micro.Connector;
 import finder.patterns.micro.Corridor;
 import finder.patterns.micro.Chamber;
 import game.ApplicationConfig;
+import game.Dungeon;
 import game.Game;
 import game.Room;
 import game.TileTypes;
@@ -63,6 +66,8 @@ public class SimpleMapGUIController  implements Initializable, Listener
 	private int roomHeight = 11;
 	private int roomWidth = 12;
 	
+	private Point[] doorPositions = {new Point(4,0)};
+	
 	private int[] manual_map = {0,0,1,0,0,0,0,0,1,0,0,2,
 								0,0,0,0,0,1,0,0,0,0,0,2,
 								0,0,0,0,1,1,1,0,1,1,1,2,
@@ -82,6 +87,8 @@ public class SimpleMapGUIController  implements Initializable, Listener
 	@FXML private Slider zoneSlider;
 	
 	private GridPane mapPane;
+	private Dungeon testDungeon;
+	
 	
 	private Room currentMap; //example map to perform evo on
 	private GeneratorConfig basicConfig;
@@ -196,7 +203,24 @@ public class SimpleMapGUIController  implements Initializable, Listener
 //		}
 		
 //		System.out.println();
-		currentMap = new Room(basicConfig, ex, roomHeight, roomWidth, /*Doors positions*/ null, null, null);
+		
+		int width = Game.defaultWidth;
+		int height = Game.defaultHeight;
+
+		GeneratorConfig gc = null;
+		try {
+			gc = new GeneratorConfig();
+
+		} catch (MissingConfigurationException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		testDungeon= new Dungeon(gc, 2, width, height);	
+		testDungeon.addRoom(roomHeight, roomWidth);
+		currentMap = testDungeon.getRoomByIndex(2);
+		
+		currentMap = new Room(basicConfig, ex, roomHeight, roomWidth, Arrays.asList(doorPositions), null, testDungeon);
 		RenderMap(currentMap);
 	}
 	

@@ -4,15 +4,12 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
-import java.nio.file.Watchable;
 import java.sql.Timestamp;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Dictionary;
 import java.util.HashMap;
 import java.util.Hashtable;
-import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -20,12 +17,7 @@ import java.util.Queue;
 import java.util.Stack;
 import java.util.UUID;
 
-import javax.swing.text.Position;
-
-import java.util.Map.Entry;
-
 import finder.PatternFinder;
-import finder.Populator;
 import finder.geometry.Bitmap;
 import finder.geometry.Polygon;
 import finder.graph.Edge;
@@ -33,12 +25,10 @@ import finder.graph.Graph;
 import util.algorithms.Node;
 import finder.patterns.Pattern;
 import finder.patterns.SpacialPattern;
-import finder.patterns.meso.DeadEnd;
 import finder.patterns.micro.Connector;
 import finder.patterns.micro.Corridor;
 import finder.patterns.micro.Door;
 import finder.patterns.micro.Enemy;
-import finder.patterns.micro.Entrance;
 import finder.patterns.micro.Chamber;
 import finder.patterns.micro.Treasure;
 import game.roomInfo.RoomSection;
@@ -48,21 +38,16 @@ import game.tiles.HeroTile;
 import util.Point;
 import util.config.MissingConfigurationException;
 import util.eventrouting.EventRouter;
-import util.eventrouting.events.AlgorithmDone;
 import util.eventrouting.events.MapLoaded;
-import util.eventrouting.events.MapUpdate;
 import generator.algorithm.MAPElites.Dimensions.GADimension;
-import generator.algorithm.MAPElites.Dimensions.MAPEDimensionFXML;
 import generator.algorithm.MAPElites.Dimensions.GADimension.DimensionTypes;
 import generator.config.GeneratorConfig;
 import gui.InteractiveGUIController;
-import gui.controls.Brush.NeighborhoodStyle;
 
 import javax.xml.parsers.*;
 import javax.xml.transform.*;
 import javax.xml.transform.dom.*;
 import javax.xml.transform.stream.*;
-import org.xml.sax.*;
 
 import collectors.ActionLogger;
 import collectors.DataSaverLoader;
@@ -158,7 +143,7 @@ public class Room {
 	
 	/**
 	 * Creates an instance of map.
-	 * 
+	 * TODO: This needs to be upodated!!
 	 * @param rows The number of rows in a map.
 	 * @param cols The number of columns in a map.
 	 */
@@ -490,7 +475,9 @@ public class Room {
 	private void copyCustomTiles(List<Tile> customs)
 	{
 		customTiles.clear();
-		customTiles.addAll(customs);
+		
+		if(customs != null)
+			customTiles.addAll(customs);
 	}
 	
 	public void setHeroPosition(Point heroPosition)

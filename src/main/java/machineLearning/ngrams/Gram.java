@@ -3,9 +3,6 @@ package machineLearning.ngrams;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
-import java.util.List;
-import java.util.Queue;
-import java.util.Set;
 import java.util.UUID;
 
 import javafx.util.Pair;
@@ -84,7 +81,7 @@ public class Gram
 		case CLASSIC_TEXT:
 			return new ClassicTextGram(gramValue, null); //this needs more!
 		case COLUMN_BY_COLUMN:
-			break;
+			return new RoomColumnGram(gramValue, null); //This needs more!
 		case MESO_BY_MESO:
 			break;
 		case ROOM_BY_ROOM:
@@ -100,15 +97,15 @@ public class Gram
 		return null;
 	}
 	
-	public static HashMap<UUID, ArrayList<Gram>> gramSpecificAnalysis(GramTypes type, Object content, 
-			HashMap<UUID, ArrayList<Gram>> currentKeys)
+	public static HashMap<UUID, ArrayList<Gram>> gramSpecificAnalysis(GramTypes type,
+			HashMap<UUID, ArrayList<Gram>> currentKeys,  Object... content)
 	{
 		switch(type)
 		{
 		case CLASSIC_TEXT:
-			return ClassicTextGram.AnalyzeContent(content, currentKeys);
+			return ClassicTextGram.AnalyzeContent(currentKeys, content);
 		case COLUMN_BY_COLUMN:
-			break;
+			return RoomColumnGram.AnalyzeContent(currentKeys, content);
 		case MESO_BY_MESO:
 			break;
 		case ROOM_BY_ROOM:
@@ -132,7 +129,7 @@ public class Gram
 		case CLASSIC_TEXT:
 			return ClassicTextGram.getUniqueID(content);
 		case COLUMN_BY_COLUMN:
-			break;
+			return RoomColumnGram.getUniqueID(content);
 		case MESO_BY_MESO:
 			break;
 		case ROOM_BY_ROOM:
@@ -156,7 +153,7 @@ public class Gram
 		case CLASSIC_TEXT:
 			return ClassicTextGram.transformObjects(current);
 		case COLUMN_BY_COLUMN:
-			break;
+			return RoomColumnGram.transformObjects(current);
 		case MESO_BY_MESO:
 			break;
 		case ROOM_BY_ROOM:
@@ -173,13 +170,4 @@ public class Gram
 		return null;
 	}
 	
-//	public void TransformContent(Gram type)
-//	{
-//		NGramLoader<ClassicTextGram> nGramAlgorithm = new NGramLoader<ClassicTextGram>();
-//	}
-	
-	public static <T extends Gram> void TransformContent(T type)
-    {
-		
-    }
 }

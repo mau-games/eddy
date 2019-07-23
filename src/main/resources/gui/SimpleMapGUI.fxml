@@ -23,10 +23,13 @@
 			<ComboBox fx:id="DisplayCombo" onAction="#OnChange" layoutX="15.0" layoutY="33.0" prefWidth="90.0" promptText="Display">
 		      <items>
 		        <FXCollections fx:factory="observableArrayList">
-		          <String fx:value="Example" />
+		          <String fx:value="Evolution" />
 		          <String fx:value="RndExample" />
-		          <String fx:value="Grammar" />
-		          <String fx:value="evo" />
+		          <String fx:value="N-Gram" />
+		          <String fx:value="Example" />
+				  <String fx:value="Preference Learning" />
+				  <String fx:value="GAN" />
+				  <String fx:value="Autoencoder" />
 		        </FXCollections>
 		      </items>
 			</ComboBox>

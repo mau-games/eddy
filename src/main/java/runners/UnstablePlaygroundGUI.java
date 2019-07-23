@@ -8,7 +8,6 @@ import collectors.GenerationCollector;
 import collectors.MapCollector;
 import collectors.RenderedMapCollector;
 import game.Game;
-import gui.InteractiveGUIController;
 import gui.utils.MapRenderer;
 import javafx.application.Application;
 import javafx.application.Platform;
@@ -18,7 +17,6 @@ import javafx.scene.Scene;
 import javafx.scene.image.Image;
 import javafx.stage.Stage;
 import util.config.ConfigurationUtility;
-import util.config.MissingConfigurationException;
 import util.eventrouting.EventRouter;
 import util.eventrouting.events.Start;
 
@@ -27,7 +25,7 @@ import util.eventrouting.events.Start;
  * 
  * @author Alberto Alvarez, Malmö University
  */
-public class SimpleMapGenerationGUI extends Application {
+public class UnstablePlaygroundGUI extends Application {
 
 	final static Logger logger = LoggerFactory.getLogger(InteractiveGUI.class);
 	private static ConfigurationUtility config;
@@ -67,14 +65,24 @@ public class SimpleMapGenerationGUI extends Application {
 		});
 		
 		try {
-			root = FXMLLoader.load(getClass().getResource("/gui/SimpleMapGUI.fxml"));
+			root = FXMLLoader.load(getClass().getResource("/gui/sandbox/UnstablePlaygroundView.fxml"));
 
-			Scene scene = new Scene(root, 1024, 500);
-			//stage.getIcons().add(new Image(getClass().getResourceAsStream("/graphics/icon.png"))); 
-			stage.setTitle("SINGLE MAP GENERATOR");
+//			Scene scene = new Scene(root, 1024, 500);
+			Scene scene = new Scene(root, 1900, 1060);
+			stage.getIcons().add(new Image(getClass().getResourceAsStream("/graphics/icon.png"))); 
+			stage.setTitle("EDDy Playground!! Come and Enjoy");
 			stage.setScene(scene);
 			stage.show();
+			scene.getStylesheets().add(this.getClass().getResource("/gui/bootstrap3.css").toExternalForm());
+			stage.setMaximized(true);
+//			EventRouter router = EventRouter.getInstance();
 
+//			
+//			// Set up a new game
+//			game = new Game();
+//			router.postEvent(new Start(6));
+
+			MapRenderer.getInstance();
 
 
 		} catch (Exception e) {

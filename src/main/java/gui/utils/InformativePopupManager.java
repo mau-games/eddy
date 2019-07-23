@@ -62,6 +62,9 @@ public class InformativePopupManager
 	
 	public void requestPopup(Pane requestingPane, PresentableInformation type, String info)
 	{
+		if(mainPane == null || requestingPane == null)
+			return;
+		
 		if(popupActive.containsKey(type) || (popupCounter.containsKey(type) && popupCounter.get(type) > 2))
 		{
 			System.out.println("Cannot spawn Informative Popup!");

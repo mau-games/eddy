@@ -7,61 +7,79 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.UUID;
 
-public class ClassicTextGram extends Gram 
+import game.Room;
+
+public class RoomColumnGram extends Gram 
 {
-	public ClassicTextGram(String value, UUID uniqueID) {
+	
+	public RoomColumnGram(String value, UUID uniqueID) {
 		super(value, uniqueID);
 	}
 	
-	public ClassicTextGram(ClassicTextGram copy) {
+	public RoomColumnGram(RoomColumnGram copy) {
 		super(copy);
 	}
-
 	
+	/***
+	 * We receive an array of Rooms so we must divide them and parse each of the columns
+	 * @param currentKeys
+	 * @param object
+	 * @return
+	 */
 	public static HashMap<UUID, ArrayList<Gram>> AnalyzeContent(HashMap<UUID, ArrayList<Gram>> currentKeys, Object... object)
 	{
 		HashMap<UUID, ArrayList<Gram>> analyzedContent = new HashMap<UUID, ArrayList<Gram>>();
+		ArrayList<Room> roomsToDeconstruct = new ArrayList<Room>();
 		
-		//Load the text and put everything in lowercase!
-		String text = "";
+		//Load the rooms and put them in individual containers
 		for(Object o : object)
 		{
-			text += o;
+			roomsToDeconstruct.add((Room)o);
 		}
-
-		text = text.toLowerCase();
 		
-		//Divide the text by spaces:
-		String[] splitted2 = text.split("(?<=[,.]) |(?<=[,.])|(?=[,.])|\\s+");
-		List<String> myList = new ArrayList<String>(Arrays.asList(splitted2));
-		myList.removeIf(str -> str.equals(""));
-		String splitted[] =  myList.toArray(new String[0]);
+		//We create the array already with the correct amount of reserve cells
+		//!!!!! IMPORTANT: This is taking for granted that all the incoming rooms will be of the same size! 
+		//Might be possible to change it
+		String[] columnsHolder = new String[roomsToDeconstruct.size() * roomsToDeconstruct.get(0).getColCount()];
+		int currentColumnStepper = 0;
+		int columnStep = roomsToDeconstruct.get(0).getColCount();
+		int currentColumnStep = columnStep * currentColumnStepper;
+		
+		//Extract the columns
+		for(Room room : roomsToDeconstruct)
+		{
+			for (int j = 0; j < room.getRowCount(); j++)
+			{
+				for (int i = 0; i < room.getColCount(); i++) 
+				{
+					columnsHolder[currentColumnStep + i] = Integer.toString(room.matrix[j][i]);
+				}
+			}	
+			currentColumnStepper++;
+			currentColumnStep = columnStep * currentColumnStepper;
+		}
 		
 		//Get unique ID of the current gram
-		UUID currentID = getUniqueID(splitted[0]);
+		UUID currentID = getUniqueID(columnsHolder[0]);
 		
 		//Create the 3 needed steps
-		ClassicTextGram prev = null;
-		ClassicTextGram current = null;
-		ClassicTextGram next = new ClassicTextGram(splitted[0], currentID);
+		RoomColumnGram prev = null;
+		RoomColumnGram current = null;
+		RoomColumnGram next = new RoomColumnGram(columnsHolder[0], currentID);
 		
 		//NEXT becomes the CURRENT gram,
 		//CURRENT becomes the PREV gram,
 		//And PREV is discarded
 		
-		for(int i = 0; i < splitted.length; ++i)
+		for(int i = 0; i < columnsHolder.length; ++i)
 		{
 			prev = current;
 			current = next;
-//			prev = (ClassicTextGram) next.prevGrams.getKey();
-//			
-//			prev = new ClassicTextGram(current);
-//			current =  new ClassicTextGram(next);
 			currentID = current.uniqueID;
-			next = i+1 < splitted.length ? new ClassicTextGram(splitted[i+1], getUniqueID(splitted[i+1])) : null;
+			next = i+1 < columnsHolder.length ? new RoomColumnGram(columnsHolder[i+1], getUniqueID(columnsHolder[i+1])) : null;
 			
 			//Now add the prev and future uuid
-			if(i != splitted.length -1 )
+			if(i != columnsHolder.length -1 )
 				current.addFutureGram(next);
 			else
 				current.addFutureGram(null);
@@ -83,9 +101,7 @@ public class ClassicTextGram extends Gram
 				analyzedContent.get(currentID).add(current);
 			}
 			
-			
 			current.counter++;
-			
 
 		}
 		
@@ -115,17 +131,26 @@ public class ClassicTextGram extends Gram
 		return transformedObjects;
 	}
 	
+	/***
+	 * Get the unique ID from the specified text (column) 
+	 * @param text In this case, the text is a column of a room
+	 * @return
+	 */
 	public static UUID getUniqueID(String text)
 	{
 		text = text.toLowerCase();
 		return UUID.nameUUIDFromBytes(text.getBytes());
 	}
 	
+	/**
+	 * Get the unique ID from the specified content 
+	 * @param contentToGet In this case, the content is a column of a room
+	 * @return Unique ID
+	 */
 	public static UUID getUniqueID(Object contentToGet)
 	{
 		String translatedContent = (String)contentToGet;
 		translatedContent = translatedContent.toLowerCase();
 		return UUID.nameUUIDFromBytes(translatedContent.getBytes());
 	}
-	
 }
