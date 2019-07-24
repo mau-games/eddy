@@ -406,7 +406,7 @@ public class MapRenderer implements Listener {
 //        } catch (Exception s) {
 //        }
 //		
-
+//
 		return image;
 	}
 	

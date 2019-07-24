@@ -134,6 +134,37 @@ public class SuggestionRoom
 
 	}
 	
+	//TODO: Change magic numbers
+	//Force me! 
+	public void resizeCanvasForRoom(float cols, float rows) //ReINIT
+	{
+		selected = false;
+//		this.originalRoom = original;
+		roomViewNode.setPrefSize(140,140);
+		
+		float proportion = (float)(Math.min(cols, rows))/(float)(Math.max(cols, rows));
+		
+		if(cols > 10)
+		{
+			roomViewNode.setPrefWidth(14.0 * cols);
+		}
+		
+		if(rows > 10)
+		{
+			roomViewNode.setPrefHeight(14.0 * rows);
+		}
+		
+		if(rows > cols)
+		{
+			roomViewNode.setPrefWidth(roomViewNode.getPrefHeight() * proportion);
+		}
+		else if(cols > rows)
+		{
+			roomViewNode.setPrefHeight(roomViewNode.getPrefWidth() * proportion);
+		}
+
+	}
+	
 	public LabeledCanvas getRoomCanvas()
 	{
 		return roomViewNode;

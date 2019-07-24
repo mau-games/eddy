@@ -48,8 +48,8 @@
 	stylesheets="@../styling.css" fx:id="sideAnchor"
 	xmlns:fx="http://javafx.com/fxml/1">
 	<children>
-		<VBox spacing="15">
-			<Label text="Generated Suggestions" />
+		<VBox spacing="15" alignment="CENTER">
+			<Label fx:id="label1" text="Generated Suggestions" textAlignment="CENTER"/>
 			<MAPEVisualizationPane fx:id="MAPElitesPane"/>
 			<HBox spacing="20">
 				<DimensionsTable fx:id="MainTable">
