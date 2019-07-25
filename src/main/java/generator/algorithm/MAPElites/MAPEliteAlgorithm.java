@@ -535,7 +535,7 @@ public class MAPEliteAlgorithm extends Algorithm implements Listener {
     	if(currentGen >= iterationsToPublish)
     	{
 
-    		publishGeneration();
+//    		publishGeneration();
     	}
     	else {
     		currentGen++;
@@ -545,9 +545,16 @@ public class MAPEliteAlgorithm extends Algorithm implements Listener {
     	{
     		System.out.println(uniqueGeneratedRooms.size());
     		saveUniqueRoomsToFile();
+    		publishGeneration();
+    	}
+    	
+    	if(realCurrentGen % 1000 == 0)
+    	{
+    		System.out.println(uniqueGeneratedRooms.size());
+        	System.out.println("Current Generation: " + realCurrentGen);
     	}
 
-    	System.out.println("Current Generation: " + realCurrentGen);
+
     	
     	realCurrentGen++;
     }
