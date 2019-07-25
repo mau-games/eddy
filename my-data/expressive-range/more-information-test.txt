@@ -1,0 +1,388 @@
+SYM-SIMI
+750
+Current Generation: 0
+3426
+Current Generation: 1000
+3746
+Current Generation: 2000
+3830
+Current Generation: 3000
+3934
+Current Generation: 4000
+3974
+3974
+Current Generation: 5000
+3998
+Current Generation: 6000
+-----------------
+750
+Current Generation: 0
+3750
+Current Generation: 1000
+4134
+Current Generation: 2000
+4465
+Current Generation: 3000
+4567
+Current Generation: 4000
+4652
+4652
+Current Generation: 5000
+4718
+Current Generation: 6000
+4844
+Current Generation: 7000
+4887
+Current Generation: 8000
+4898
+Current Generation: 9000
+4912
+Current Generation: 10000
+4913
+Current Generation: 11000
+4914
+Current Generation: 12000
+
+SYM-LENIENCY
+750
+Current Generation: 0
+3523
+Current Generation: 1000
+3874
+Current Generation: 2000
+3878
+Current Generation: 3000
+3878
+Current Generation: 4000
+
+SYM-INNER SIMILAIRTY
+750
+Current Generation: 0
+3079
+Current Generation: 1000
+3079
+Current Generation: 2000
+3079
+Current Generation: 3000
+3079
+Current Generation: 4000
+3079
+3079
+Current Generation: 5000
+
+SYM-SPATIAL
+750
+Current Generation: 0
+4898
+Current Generation: 1000
+4952
+Current Generation: 2000
+4966
+Current Generation: 3000
+4970
+Current Generation: 4000
+4971
+4971
+Current Generation: 5000
+
+SYM-LINEARITY
+750
+Current Generation: 0
+MOUSE ENTERED CANVAS
+MOUSE ENTERED CANVAS
+MOUSE ENTERED CANVAS
+MOUSE ENTERED CANVAS
+4370
+Current Generation: 1000
+4418
+Current Generation: 2000
+4433
+Current Generation: 3000
+4443
+Current Generation: 4000
+4468
+4468
+Current Generation: 5000
+
+SYM-MESO
+750
+Current Generation: 0
+3105
+Current Generation: 1000
+3109
+Current Generation: 2000
+3109
+Current Generation: 3000
+3109
+Current Generation: 4000
+3112
+3112
+Current Generation: 5000
+3112
+Current Generation: 6000
+
+MESO-SPATIAL
+750
+Current Generation: 0
+3183
+Current Generation: 1000
+3277
+Current Generation: 2000
+3358
+Current Generation: 3000
+3370
+Current Generation: 4000
+3374
+3374
+Current Generation: 5000
+3374
+Current Generation: 6000
+
+MESO-LINEARITY
+750
+Current Generation: 0
+2658
+Current Generation: 1000
+3172
+Current Generation: 2000
+3347
+Current Generation: 3000
+C3401
+Current Generation: 4000
+3418
+3418
+Current Generation: 5000
+
+MESO-INNER
+750
+Current Generation: 0
+2561
+Current Generation: 1000
+2625
+Current Generation: 2000
+2627
+Current Generation: 3000
+2627
+Current Generation: 4000
+2711
+2711
+Current Generation: 5000
+
+MESO-LENIENCY
+750
+Current Generation: 0
+3613
+Current Generation: 1000
+3892
+Current Generation: 2000
+3991
+Current Generation: 3000
+4027
+Current Generation: 4000
+4029
+4029
+Current Generation: 5000
+4031
+Current Generation: 6000
+
+MESO-SIMILAIRTY
+750
+Current Generation: 0
+2337
+Current Generation: 1000
+2524
+Current Generation: 2000
+2612
+Current Generation: 3000
+2629
+Current Generation: 4000
+2690
+2690
+Current Generation: 5000
+
+SPATIAL-SIMILAIRTY
+750
+Current Generation: 0
+4014
+Current Generation: 1000
+4435
+Current Generation: 2000
+4680
+Current Generation: 3000
+4857
+Current Generation: 4000
+4910
+4910
+Current Generation: 5000
+
+SPATIAL-INNER
+750
+Current Generation: 0
+4076
+Current Generation: 1000
+4099
+Current Generation: 2000
+4101
+Current Generation: 3000
+4107
+Current Generation: 4000
+4107
+4107
+Current Generation: 5000
+4107
+Current Generation: 6000
+4140
+Current Generation: 7000
+4189
+Current Generation: 8000
+
+SPATIAL-LENIENCY
+750
+Current Generation: 0
+4834
+Current Generation: 1000
+5001
+Current Generation: 2000
+5010
+Current Generation: 3000
+5016
+Current Generation: 4000
+5024
+5024
+Current Generation: 5000
+5032
+Current Generation: 6000
+
+SPATIAL-LINEARITY
+750
+Current Generation: 0
+4480
+Current Generation: 1000
+MOUSE ENTERED CANVAS
+MOUSE ENTERED CANVAS
+MOUSE ENTERED CANVAS
+MOUSE ENTERED CANVAS
+4650
+Current Generation: 2000
+4713
+Current Generation: 3000
+4728
+Current Generation: 4000
+4730
+4730
+Current Generation: 5000
+4868
+Current Generation: 6000
+4882
+Current Generation: 7000
+4884
+Current Generation: 8000
+
+LENIENCY-LINEARITY
+750
+Current Generation: 0
+MOUSE ENTERED CANVAS
+MOUSE ENTERED CANVAS
+MOUSE ENTERED CANVAS
+MOUSE ENTERED CANVAS
+3555
+Current Generation: 1000
+3620
+Current Generation: 2000
+3636
+Current Generation: 3000
+3643
+Current Generation: 4000
+3655
+3655
+Current Generation: 5000
+3723
+Current Generation: 6000
+
+LENIENCY-SIMILAIRTY
+750
+Current Generation: 0
+3374
+Current Generation: 1000
+3708
+Current Generation: 2000
+4102
+Current Generation: 3000
+4537
+Current Generation: 4000
+4774
+4774
+Current Generation: 5000
+4988
+Current Generation: 6000
+
+LENIENCY-INNER
+750
+Current Generation: 0
+3046
+Current Generation: 1000
+3063
+Current Generation: 2000
+3158
+Current Generation: 3000
+3166
+Current Generation: 4000
+3233
+3233
+Current Generation: 5000
+
+LINEARITY-SIMILAIRTY
+750
+Current Generation: 0
+3308
+Current Generation: 1000
+3726
+Current Generation: 2000
+3937
+Current Generation: 3000
+4049
+Current Generation: 4000
+4141
+4141
+Current Generation: 5000
+4356
+Current Generation: 6000
+4422
+Current Generation: 7000
+4482
+Current Generation: 8000
+
+LINEARITY-INNER
+750
+Current Generation: 0
+3042
+Current Generation: 1000
+3184
+Current Generation: 2000
+3184
+Current Generation: 3000
+3185
+Current Generation: 4000
+3192
+3192
+Current Generation: 5000
+
+SIMILARITY-INNER
+750
+Current Generation: 0
+2404
+Current Generation: 1000
+2920
+Current Generation: 2000
+3199
+Current Generation: 3000
+3255
+Current Generation: 4000
+3360
+3360
+Current Generation: 5000
+3475
+Current Generation: 6000
+
+
+
