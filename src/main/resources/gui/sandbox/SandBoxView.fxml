@@ -172,7 +172,16 @@
 
 	</left>
 	<center>
-		<StackPane alignment="CENTER" fx:id="mapPane" />
+		<VBox alignment="CENTER" spacing="25.0">
+			<children>
+				<StackPane alignment="CENTER" fx:id="mapPane" />
+				<ScrollPane prefWidth="100" maxWidth="800.0" hbarPolicy="ALWAYS" fx:id="dungeonPreviewScrollPane">
+					<content>
+						<HBox spacing="20" alignment="CENTER" fx:id="dungeonRoomsPane"/>
+					</content>
+				</ScrollPane>
+			</children>
+		</VBox>
 	</center>
 
 	<right>

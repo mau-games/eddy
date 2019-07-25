@@ -26,9 +26,12 @@ import gui.controls.EvolutionMAPEPane;
 import gui.controls.InteractiveMap;
 import gui.controls.Modifier;
 import gui.controls.NGramPane;
+import gui.controls.RoomPreview;
+import gui.controls.SuggestionRoom;
 import gui.utils.InformativePopupManager;
 import gui.utils.InformativePopupManager.PresentableInformation;
 import gui.utils.MapRenderer;
+import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
@@ -48,6 +51,7 @@ import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
@@ -65,6 +69,7 @@ import util.eventrouting.events.Stop;
 import util.eventrouting.events.SuggestedMapSelected;
 import util.eventrouting.events.SuggestedMapsDone;
 import util.eventrouting.events.SuggestionApplied;
+import util.eventrouting.events.intraview.DungeonPreviewSelected;
 import util.eventrouting.events.intraview.RoomEditionStarted;
 
 /**
@@ -80,7 +85,7 @@ public class SandBoxViewController extends BorderPane implements Listener
 	@FXML private ComboBox<String> generationTypeFX;
 	
 	@FXML public StackPane mapPane;
-	@FXML public Pane minimap;
+	@FXML public HBox dungeonRoomsPane;
 
 	//left side as well
 	@FXML private GridPane legend;
@@ -165,6 +170,7 @@ public class SandBoxViewController extends BorderPane implements Listener
 		router.registerListener(this, new SuggestedMapsDone());
 		router.registerListener(this, new SuggestedMapSelected(null));
 		router.registerListener(this, new SuggestionApplied(null));
+		router.registerListener(this, new DungeonPreviewSelected(null));
 
 		myBrush = new Drawer();
 		myBrush.AddmodifierComponent("Lock", new Modifier(lockBrush));
@@ -182,9 +188,7 @@ public class SandBoxViewController extends BorderPane implements Listener
 		nGramPane = new NGramPane();
 		
 		init();
-//		setupMAPElitesGUI();
 		
-
 	}
 	
 	@FXML
@@ -215,25 +219,6 @@ public class SandBoxViewController extends BorderPane implements Listener
 
 	}
 	
-	private void ProduceVerticalLabel()
-	{
-//		Label bl2 = new Label("SIMILARITY");
-//		bl2.setTextFill(Color.WHITE);
-//		bl2.setFont(Font.font("Monospaced", 30));
-//		bl2.setWrapText(true);
-//		bl2.setMinWidth(5);
-//		bl2.setPrefWidth(5);
-//		bl2.setMaxWidth(5);
-//		bl2.setAlignment(Pos.CENTER);
-//		StackPane p = new StackPane();
-//		p.setPrefWidth(50);
-//		p.getChildren().add(bl2);
-//		StackPane.setAlignment(bl2, Pos.CENTER);
-//		bl2.setStyle("-fx-font-weight: bold");
-//		sugs.setLeft(p);
-//		BorderPane.setAlignment(p, Pos.CENTER);
-	}
-	
 	//TODO: THAT 42 has to disappear!! 
 	public void initializeView(Room roomToBe)
 	{
@@ -245,7 +230,20 @@ public class SandBoxViewController extends BorderPane implements Listener
 		initMapView();
 		resetView();
 		roomToBe.forceReevaluation();
-		updateRoom(roomToBe);	
+		updateRoom(roomToBe);
+		
+		//Add the info of the dungeon 
+		dungeonRoomsPane.getChildren().clear();
+		List<Room> dungeonRooms = roomToBe.owner.getAllRooms();
+		for(int i = 0; i < dungeonRooms.size(); i++) 
+		{
+			RoomPreview roomPreview = new RoomPreview(dungeonRooms.get(i));
+			dungeonRoomsPane.getChildren().add(roomPreview.getRoomCanvas());
+			
+			Platform.runLater(() -> {
+				roomPreview.getRoomCanvas().draw(renderer.renderMiniSuggestedRoom(roomPreview.getPreviewRoom(), -1));
+			});
+		}
 	}
 
 	/**
@@ -357,11 +355,14 @@ public class SandBoxViewController extends BorderPane implements Listener
 		{
 		case "Evolution":
 				evolutionPane.setVisible(true);
+				evolutionPane.setActive(true);
 				rightSidePane.getChildren().clear();
 				rightSidePane.getChildren().add(evolutionPane);
 				break;
 		case "N-Gram":
 				nGramPane.setVisible(true);
+//				evolutionPane.setActive(false);
+				nGramPane.setActive(true);
 				rightSidePane.getChildren().clear();
 				rightSidePane.getChildren().add(nGramPane);
 				break;
@@ -393,6 +394,10 @@ public class SandBoxViewController extends BorderPane implements Listener
 		else if(e instanceof SuggestionApplied)
 		{
 			replaceRoom((Room)e.getPayload());
+		}
+		else if(e instanceof DungeonPreviewSelected)
+		{
+			initializeView((Room)e.getPayload());
 		}
 
 	}

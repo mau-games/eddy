@@ -21,7 +21,7 @@
 		-fx-background-color: #2c2f33;
 }
 
-#suggestionsPane, #suggestionsPane . viewport, #MAPElitesPane, #MAPElitesPane . viewport{
+#dungeonPreviewScrollPane, #dungeonPreviewScrollPane . viewport, #suggestionsPane, #suggestionsPane . viewport, #MAPElitesPane, #MAPElitesPane . viewport{
 	-fx-background-color: transparent;
 }
 

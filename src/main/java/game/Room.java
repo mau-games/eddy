@@ -164,6 +164,20 @@ public class Room {
 		root = new ZoneNode(null, this, getColCount(), getRowCount());
 	}
 	
+	public Room(GeneratorConfig config, int rows, int cols)
+	{
+		init(rows, cols);
+		this.config = config;
+	}
+	
+	public void setupRoom()
+	{
+		finder = new PatternFinder(this);
+		pathfinder = new RoomPathFinder(this);
+		
+		root = new ZoneNode(null, this, getColCount(), getRowCount());
+		node = new finder.graph.Node<Room>(this);
+	}
 	
 	/**
 	 * Creates an instance of map.
@@ -2857,12 +2871,41 @@ public class Room {
 //		return map.toString();
 //	}
 	
+	//This is the one 
+	//I think I could have this static method
+	//But I am also seduce by the idea that I can change the size of the room at runtime which is not possible at the moment.
 	public static Room createRoomFromStringColumn(String ... roomColumns)
 	{
-		int w = roomColumns.length;
-		int h = roomColumns[0].length(); //This is taking for granted that you are sending columns with the same amount!
+		int cols = roomColumns.length;
+		int rows = roomColumns[0].length(); //This is taking for granted that you are sending columns with the same amount!
 		
-		return null;
+		GeneratorConfig gc = null;
+		try {
+			gc = new GeneratorConfig();
+		} catch (MissingConfigurationException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		Room room = new Room(gc, rows, cols);
+		int x=0;
+		int y=0;
+		
+		//Each index in the array is a column
+		for(String column : roomColumns)
+		{
+			for(String c : column.split(""))
+			{
+				room.setTile(x, y++, new Tile(x,y,Integer.parseInt(c)));	
+			}
+			
+			x++;
+			y=0;
+		}
+		
+		room.setupRoom();
+		
+		return room;
 	}
 	
 	@Override

@@ -16,6 +16,8 @@ import javafx.scene.control.TextField;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
+import machineLearning.ngrams.Gram.GramTypes;
+import machineLearning.ngrams.NGramLoader;
 import util.eventrouting.EventRouter;
 import util.eventrouting.Listener;
 import util.eventrouting.PCGEvent;
@@ -40,7 +42,7 @@ public class NGramPane extends BorderPane implements Listener {
 	@FXML Button saveButton;
 	@FXML TextField widthField;
 	@FXML TextField heightField;
-	@FXML TextField nStepField;
+	@FXML TextField nStepsField;
 	@FXML private Button worldGridBtn; //ok
 	
 	private MapRenderer renderer = MapRenderer.getInstance();
@@ -49,8 +51,11 @@ public class NGramPane extends BorderPane implements Listener {
 	
 	private boolean isActive = false;
 	
+	private NGramLoader gramCreator = null;
 	private SuggestionRoom nGramRoom;
-	private SimpleObjectProperty<Room> currentEditedRoom = new SimpleObjectProperty<>();;
+	private SimpleObjectProperty<Room> currentEditedRoom = new SimpleObjectProperty<>();
+	private String[] textGramRoom = null;
+	private String currentFormedRoom = "";
 	
 	
 	//To be called from the fxml
@@ -77,6 +82,8 @@ public class NGramPane extends BorderPane implements Listener {
 		router.registerListener(this, new RoomEditionStarted(null));
 		
 		nGramRoom = new SuggestionRoom();
+		gramCreator = new NGramLoader(GramTypes.COLUMN_BY_COLUMN);
+		
 //		nGramRoom.resizeCanvasForRoom(13.0f, 7.0f);
 //		nGramRoom.getRoomCanvas().draw(null);
 //		nGramRoom.getRoomCanvas().setText("Waiting for map...");
@@ -86,27 +93,41 @@ public class NGramPane extends BorderPane implements Listener {
 		
 //		setupMAPElitesGUI();
 //		saveGenBtn.setDisable(true);
-		isActive = true;
+		isActive = false;
 //		setupView();
+	}
+	
+	private void disablePane()
+	{
+//		handleEvolutionPressed();
+	}
+	
+	private void enablePane()
+	{
+		String[] toCreate = {"0101","0000","3333","0123","0441"};
+//		currentEditedRoom.set(Room.createRoomFromStringColumn(toCreate));
+		setupView();
 	}
 	
 	private void setupView()
 	{
 		InitializeView();
-//		router.postEvent(new StartGA_MAPE(originalRoom, currentDimensions));
-//		Arrays.stream(genotype.getChromosome()).boxed().map(x -> TileTypes.toTileType(x)).toArray(TileTypes[]::new);
-//		currentRoom = originalRoom;
-//		getMapView().updateMap(null); 
-//		SetStats();
 	}
 	
 	public void InitializeView()
 	{
 		centerPane.getChildren().clear();
 
-		nGramRoom.resizeCanvasForRoom(currentEditedRoom.get());
-		double mapHeight = (int)(30.0 * (float)((float)currentEditedRoom.get().getRowCount())); //Recalculate map size
-		double mapWidth = (int)(30.0 * (float)((float)currentEditedRoom.get().getColCount()));//Recalculate map size
+//		nGramRoom.resizeCanvasForRoom(currentEditedRoom.get());
+		double mapHeight = 30.0;
+		double mapWidth = 30.0;
+		
+		if(nGramRoom.getOriginalRoom() != null)
+		{
+			mapHeight = (int)(30.0 * (float)((float)nGramRoom.getOriginalRoom().getRowCount())); //Recalculate map size
+			mapWidth = (int)(30.0 * (float)((float)nGramRoom.getOriginalRoom().getColCount()));//Recalculate map size
+		}
+		
 		
 		StackPane.setMargin(centerPane, new Insets(8,8,8,8));
 		
@@ -126,7 +147,10 @@ public class NGramPane extends BorderPane implements Listener {
 		
 		Platform.runLater(() -> {
 			
-			nGramRoom.getRoomCanvas().draw(renderer.renderMiniSuggestedRoom(nGramRoom.getOriginalRoom(), 0));
+			if(nGramRoom.getOriginalRoom() != null)
+				nGramRoom.getRoomCanvas().draw(renderer.renderMiniSuggestedRoom(nGramRoom.getOriginalRoom(), 0));
+			else
+				nGramRoom.getRoomCanvas().draw(null);
 		});
 	}
 	
@@ -143,13 +167,44 @@ public class NGramPane extends BorderPane implements Listener {
 	@FXML
 	private void onStepGeneration()
 	{
+		nGramRoom.setOriginalRoom(null);
+
+		String prevWord = "";
+
+		prevWord = gramCreator.getNGram(currentFormedRoom, Integer.parseInt(nStepsField.getText()));
+		currentFormedRoom += prevWord + " ";
 		
+		System.out.format("Generated Room using %s-gram: ", nStepsField.getText());
+		System.out.println();
+		System.out.println(currentFormedRoom);
+		
+		//Form a string array, create the room and add paint it!
+		textGramRoom = currentFormedRoom.split(" ");
+		nGramRoom.setOriginalRoom(Room.createRoomFromStringColumn(textGramRoom));
+		InitializeView();
 	}
 	
 	@FXML
 	private void onRunGeneration()
-	{
+	{	
+		nGramRoom.setOriginalRoom(null);
 		
+		currentFormedRoom = "";
+		String prevWord = "";
+		for(int words = 0; words < 13; words++)
+		{
+			prevWord = gramCreator.getNGram(currentFormedRoom, Integer.parseInt(nStepsField.getText()));
+			currentFormedRoom += prevWord + " ";
+		}
+		
+		System.out.format("Generated Room using %s-gram: ", nStepsField.getText());
+		System.out.println();
+		System.out.println(currentFormedRoom);
+		
+		//Form a string array, create the room and add paint it!
+		textGramRoom = currentFormedRoom.split(" ");
+		nGramRoom.setOriginalRoom(Room.createRoomFromStringColumn(textGramRoom));
+		InitializeView();
 	}
 	
 	@FXML
@@ -173,7 +228,7 @@ public class NGramPane extends BorderPane implements Listener {
 	@FXML
 	private void onSaveRoom()
 	{
-		
+		gramCreator.addGrams(currentEditedRoom.get().owner.getAllRooms());
 	}
 	
 	/***
@@ -202,6 +257,22 @@ public class NGramPane extends BorderPane implements Listener {
 
 	public void setWorldGridBtn(Button worldGridBtn) {
 		this.worldGridBtn = worldGridBtn;
+	}
+
+		/**
+	 * Marks this control as being in an active or inactive state.
+	 * 
+	 * @param state The new state.
+	 */
+	public void setActive(boolean state)
+	{
+		isActive = state;
+		
+		if(!isActive)
+			disablePane();
+		else
+			enablePane();
+		
 	}
 
 }

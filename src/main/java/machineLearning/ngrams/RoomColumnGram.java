@@ -31,10 +31,12 @@ public class RoomColumnGram extends Gram
 		HashMap<UUID, ArrayList<Gram>> analyzedContent = new HashMap<UUID, ArrayList<Gram>>();
 		ArrayList<Room> roomsToDeconstruct = new ArrayList<Room>();
 		
+		ArrayList<Room> roomsToLoad = (ArrayList<Room>)object[0];
+		
 		//Load the rooms and put them in individual containers
-		for(Object o : object)
+		for(Room o : roomsToLoad)
 		{
-			roomsToDeconstruct.add((Room)o);
+			roomsToDeconstruct.add(o);
 		}
 		
 		//We create the array already with the correct amount of reserve cells
@@ -45,6 +47,11 @@ public class RoomColumnGram extends Gram
 		int columnStep = roomsToDeconstruct.get(0).getColCount();
 		int currentColumnStep = columnStep * currentColumnStepper;
 		
+		for(int i = 0; i < columnsHolder.length; i++)
+		{
+			columnsHolder[i] = "";
+		}
+		
 		//Extract the columns
 		for(Room room : roomsToDeconstruct)
 		{
@@ -52,7 +59,7 @@ public class RoomColumnGram extends Gram
 			{
 				for (int i = 0; i < room.getColCount(); i++) 
 				{
-					columnsHolder[currentColumnStep + i] = Integer.toString(room.matrix[j][i]);
+					columnsHolder[currentColumnStep + i] += Integer.toString(room.matrix[j][i]);
 				}
 			}	
 			currentColumnStepper++;
@@ -67,16 +74,43 @@ public class RoomColumnGram extends Gram
 		RoomColumnGram current = null;
 		RoomColumnGram next = new RoomColumnGram(columnsHolder[0], currentID);
 		
+		//Reset counters!
+		currentColumnStepper = 1;
+		columnStep = roomsToDeconstruct.get(0).getColCount();
+		currentColumnStep = columnStep * currentColumnStepper;
+		
 		//NEXT becomes the CURRENT gram,
 		//CURRENT becomes the PREV gram,
 		//And PREV is discarded
 		
 		for(int i = 0; i < columnsHolder.length; ++i)
 		{
-			prev = current;
-			current = next;
-			currentID = current.uniqueID;
-			next = i+1 < columnsHolder.length ? new RoomColumnGram(columnsHolder[i+1], getUniqueID(columnsHolder[i+1])) : null;
+			if(i == currentColumnStep)
+			{
+				//increase
+				currentColumnStepper++;
+				currentColumnStep = columnStep * currentColumnStepper;
+				
+				prev = null;
+				currentID = getUniqueID(columnsHolder[i]);
+				current =  new RoomColumnGram(columnsHolder[i], currentID);
+				next = i+1 < columnsHolder.length ? new RoomColumnGram(columnsHolder[i+1], getUniqueID(columnsHolder[i+1])) : null;
+			}
+			else if(i == currentColumnStep-1)
+			{
+				prev = current;
+				current = next;
+				currentID = current.uniqueID;
+				next = null;
+			}
+			else
+			{
+				prev = current;
+				current = next;
+				currentID = current.uniqueID;
+				next = i+1 < columnsHolder.length ? new RoomColumnGram(columnsHolder[i+1], getUniqueID(columnsHolder[i+1])) : null;
+			}
+			
 			
 			//Now add the prev and future uuid
 			if(i != columnsHolder.length -1 )

@@ -44,7 +44,7 @@ public class NGramLoader
 
 	}
 	
-	public String getNGram(Object currentGram, Object currentFormed, int N)
+	public String getNGram(Object currentFormed, int N)
 	{
 		if(N < 1)
 		{
@@ -52,11 +52,16 @@ public class NGramLoader
 			return null;
 		}
 		
-		//Get the UUID of the last gram created!
-		UUID translatedGram = Gram.getUniqueID(gramType, currentGram);
-		
 		//Transform the gram that has been produced so far [into divided sections]
 		LinkedList<UUID> dividedCurrentFormed = Gram.transformCurrentContent(gramType, currentFormed);
+		
+		//Get the UUID of the last gram created, that means the last one in the !
+		UUID translatedGram = null;
+		if(dividedCurrentFormed.isEmpty())
+			translatedGram = Gram.getUniqueID(gramType, "");
+		else
+			translatedGram = dividedCurrentFormed.getLast();
+		
 		String returnedGram = "";
 		
 		//Sanity Check: if requested N is too big for the amount of current formed objects we resize N (and inform)
@@ -230,25 +235,25 @@ public class NGramLoader
 	
 	public static void main(String[] args)
 	{
-		NGramLoader nGram = new NGramLoader(GramTypes.COLUMN_BY_COLUMN);
+		NGramLoader nGram = new NGramLoader(GramTypes.CLASSIC_TEXT);
 		
-		int width = Game.defaultWidth;
-		int height = Game.defaultHeight;
-
-		GeneratorConfig gc = null;
-		try {
-			gc = new GeneratorConfig();
-
-		} catch (MissingConfigurationException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		
-		Dungeon dungeonMap = new Dungeon(gc, 2, width, height);	
-		nGram.addGrams(dungeonMap.getAllRooms());
-		
-		
-		
+//		int width = Game.defaultWidth;
+//		int height = Game.defaultHeight;
+//
+//		GeneratorConfig gc = null;
+//		try {
+//			gc = new GeneratorConfig();
+//
+//		} catch (MissingConfigurationException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
+//		
+//		Dungeon dungeonMap = new Dungeon(gc, 2, width, height);	
+//		nGram.addGrams(dungeonMap.getAllRooms());
+//		
+//		
+//		
 //		NGramLoader nGram = new NGramLoader(GramTypes.CLASSIC_TEXT);
 		
 		//Add the content to be divided
@@ -336,7 +341,7 @@ public class NGramLoader
 			String prevWord = "Map-elites";
 			for(int words = 0; words < 300; words++)
 			{
-				prevWord = nGram.getNGram(prevWord, newText, N);
+				prevWord = nGram.getNGram(newText, N);
 				newText += prevWord + " ";
 			}
 			

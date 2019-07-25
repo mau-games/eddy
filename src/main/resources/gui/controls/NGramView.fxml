@@ -32,9 +32,9 @@
             </HBox>
 			<HBox alignment="CENTER" prefHeight="100.0" prefWidth="200.0" spacing="10.0">
                <children>
-					<TextField fx:id="widthField" onKeyTyped="#onWidthChanged" style="-fx-text-fill: white;" text="width" />
-					<TextField fx:id="heightField" onKeyTyped="#onHeightChanged" style="-fx-text-fill: white;" text="height" />
-					<TextField fx:id="nStepsField" onKeyTyped="#onNChanged" style="-fx-text-fill: white;" text="N" />
+					<TextField fx:id="widthField" onKeyTyped="#onWidthChanged" style="-fx-text-fill: white;" text="7" />
+					<TextField fx:id="heightField" onKeyTyped="#onHeightChanged" style="-fx-text-fill: white;" text="13" />
+					<TextField fx:id="nStepsField" onKeyTyped="#onNChanged" style="-fx-text-fill: white;" text="2" />
                </children>
             </HBox>
 			<HBox alignment="CENTER" prefHeight="100.0" prefWidth="200.0" spacing="10.0">
