@@ -2,11 +2,14 @@ package gui;
 
 import java.io.File;
 import java.net.URL;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.ResourceBundle;
 import java.util.UUID;
 
 import collectors.ActionLogger;
 import collectors.DataSaverLoader;
+import collectors.XMLHandler;
 import game.Dungeon;
 import game.Game;
 import game.Room;
@@ -119,7 +122,10 @@ public class UnstablePlaygroundGUIController implements Initializable, Listener 
 			}
 
 		});
-
+		
+		XMLHandler.getInstance().loadRooms(XMLHandler.projectPath + "testReader\\", false);
+		XMLHandler.getInstance().sortRoomsToLoad();
+		
 		DataSaverLoader.runID = UUID.randomUUID();
 
 		File file = new File(DataSaverLoader.projectPath + "\\summer-school\\" + DataSaverLoader.runID + "\\algorithm\\");

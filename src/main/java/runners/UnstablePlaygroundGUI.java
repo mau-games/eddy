@@ -27,7 +27,7 @@ import util.eventrouting.events.Start;
  */
 public class UnstablePlaygroundGUI extends Application {
 
-	final static Logger logger = LoggerFactory.getLogger(InteractiveGUI.class);
+	final static Logger logger = LoggerFactory.getLogger(UnstablePlaygroundGUI.class);
 	private static ConfigurationUtility config;
 
 	private Game game;
