@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 
 import collectors.ActionLogger;
+import collectors.XMLHandler;
 import collectors.ActionLogger.ActionType;
 import collectors.ActionLogger.TargetPane;
 import collectors.ActionLogger.View;
@@ -697,7 +698,7 @@ public class SandBoxViewController extends BorderPane implements Listener
 				
 				mapView.updateTile(tile, myBrush);
 				mapView.getMap().forceReevaluation();
-				mapView.getMap().getRoomXML("room\\");
+				XMLHandler.getInstance().saveIndividualRoomXML(mapView.getMap(), "room\\");
 				mapIsFeasible(mapView.getMap().isIntraFeasible());
 				redrawPatterns(mapView.getMap());
 				redrawLocks(mapView.getMap());

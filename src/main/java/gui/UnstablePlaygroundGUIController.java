@@ -86,9 +86,6 @@ public class UnstablePlaygroundGUIController implements Initializable, Listener 
 	
 	//NEW
 	private Dungeon dungeonMap = new Dungeon();
-	
-	public static UUID runID;
-	
 
 	@Override
 	public void initialize(URL location, ResourceBundle resources) {
@@ -123,17 +120,17 @@ public class UnstablePlaygroundGUIController implements Initializable, Listener 
 
 		});
 
-		runID = UUID.randomUUID();
+		DataSaverLoader.runID = UUID.randomUUID();
 
-		File file = new File(DataSaverLoader.projectPath + "\\summer-school\\" + runID + "\\algorithm\\");
+		File file = new File(DataSaverLoader.projectPath + "\\summer-school\\" + DataSaverLoader.runID + "\\algorithm\\");
 		if (!file.exists()) {
 			file.mkdirs();
 		}
-		file = new File(DataSaverLoader.projectPath + "\\summer-school\\" + runID + "\\dungeon\\");
+		file = new File(DataSaverLoader.projectPath + "\\summer-school\\" + DataSaverLoader.runID + "\\dungeon\\");
 		if (!file.exists()) {
 			file.mkdirs();
 		}
-		file = new File(DataSaverLoader.projectPath + "\\summer-school\\" + runID + "\\room\\");
+		file = new File(DataSaverLoader.projectPath + "\\summer-school\\" + DataSaverLoader.runID + "\\room\\");
 		if (!file.exists()) {
 			file.mkdirs();
 		}
@@ -247,16 +244,17 @@ public class UnstablePlaygroundGUIController implements Initializable, Listener 
 		launchView = new LaunchViewController();
 		dungeonMap = null;
 		
-		runID = UUID.randomUUID();
-		File file = new File(DataSaverLoader.projectPath + "\\summer-school\\" + runID + "\\algorithm\\");
+		DataSaverLoader.runID = UUID.randomUUID();
+
+		File file = new File(DataSaverLoader.projectPath + "\\summer-school\\" + DataSaverLoader.runID + "\\algorithm\\");
 		if (!file.exists()) {
 			file.mkdirs();
 		}
-		file = new File(DataSaverLoader.projectPath + "\\summer-school\\" + runID + "\\dungeon\\");
+		file = new File(DataSaverLoader.projectPath + "\\summer-school\\" + DataSaverLoader.runID + "\\dungeon\\");
 		if (!file.exists()) {
 			file.mkdirs();
 		}
-		file = new File(DataSaverLoader.projectPath + "\\summer-school\\" + runID + "\\room\\");
+		file = new File(DataSaverLoader.projectPath + "\\summer-school\\" + DataSaverLoader.runID + "\\room\\");
 		if (!file.exists()) {
 			file.mkdirs();
 		}

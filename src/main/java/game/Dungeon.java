@@ -25,9 +25,11 @@ import com.google.common.graph.MutableNetwork;
 import com.google.common.graph.NetworkBuilder;
 
 import collectors.ActionLogger;
+import collectors.XMLHandler;
 import collectors.ActionLogger.ActionType;
 import collectors.ActionLogger.TargetPane;
 import collectors.ActionLogger.View;
+import collectors.DataSaverLoader;
 import finder.patterns.micro.Boss;
 import game.tiles.BossEnemyTile;
 import generator.algorithm.MAPElites.Dimensions.GADimension.DimensionTypes;
@@ -192,7 +194,7 @@ public class Dungeon implements Listener
 												width,
 												height);
 		
-		saveDungeonXML();
+		XMLHandler.getInstance().saveDungeonXML(this);
 
 	}
 	
@@ -268,7 +270,8 @@ public class Dungeon implements Listener
 												TargetPane.WORLD_MAP_PANE, 
 												false,
 												roomToRemove);
-		saveDungeonXML();
+		
+		XMLHandler.getInstance().saveDungeonXML(this);
 
 	}
 	
@@ -297,7 +300,7 @@ public class Dungeon implements Listener
 												edgeToRemove.to,
 												edgeToRemove.toPosition);
 		
-		saveDungeonXML();
+		XMLHandler.getInstance().saveDungeonXML(this);
 	}
 	
 	//Rooms could be an ID
@@ -329,7 +332,7 @@ public class Dungeon implements Listener
 												to,
 												toPosition);
 		
-		saveDungeonXML();
+		XMLHandler.getInstance().saveDungeonXML(this);
 	}
 	
 	public void setInitialRoom(Room initRoom, Point initialPos)
@@ -549,7 +552,7 @@ public class Dungeon implements Listener
 		Document dom;
 	    Element e = null;
 	    Element next = null;
-	    String xml = System.getProperty("user.dir") + "\\my-data\\summer-school\\" + InteractiveGUIController.runID + "\\dungeon\\dungeon-" + this.id.toString() + "_" + saveCounter++ + ".xml";
+	    String xml = System.getProperty("user.dir") + "\\my-data\\summer-school\\" + DataSaverLoader.runID + "\\dungeon\\dungeon-" + this.id.toString() + "_" + saveCounter++ + ".xml";
 
 	    // instance of a DocumentBuilderFactory
 	    DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
@@ -571,7 +574,7 @@ public class Dungeon implements Listener
 	        
 	       for(Room node : network.nodes())
 	       {
-	    	   node.getRoomFromDungeonXML("dungeon\\");
+	    	   XMLHandler.getInstance().saveDungeonRoomXML(node, "dungeon\\");
 	    	   next = dom.createElement("Room");
 	    	   next.setAttribute("ID",  node.toString());
 	    	   e.appendChild(next);

@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.UUID;
 
 import org.apache.commons.io.FileUtils;
 
@@ -13,6 +14,7 @@ public class DataSaverLoader {
 	
 	public static final String DIRECTORY= System.getProperty("user.dir") + "\\my-data\\";
 	public static String projectPath = System.getProperty("user.dir") + "\\my-data";
+	public static UUID runID = null;
 	
 	public static boolean saveFile(String directoryName, String fileName,String data,boolean append)
 	{

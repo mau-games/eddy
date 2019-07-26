@@ -10,6 +10,7 @@ import java.util.Set;
 import java.util.UUID;
 
 import collectors.ActionLogger;
+import collectors.XMLHandler;
 import collectors.ActionLogger.ActionType;
 import collectors.ActionLogger.TargetPane;
 import collectors.ActionLogger.View;
@@ -744,7 +745,7 @@ public class RoomViewController extends BorderPane implements Listener
 													selectedSuggestion.getSuggestedRoom().getDimensionValue(currentDimensions[1].getDimension()),
 													selectedSuggestion.getSuggestedRoom());
 			
-			selectedSuggestion.getSuggestedRoom().getRoomXML("clicked-suggestion\\");
+			XMLHandler.getInstance().saveIndividualRoomXML(selectedSuggestion.getSuggestedRoom(), "clicked-suggestion\\");
 			
 //			clearStats();
 			displayStats();
@@ -1112,8 +1113,7 @@ public class RoomViewController extends BorderPane implements Listener
 													selectedSuggestion.getSuggestedRoom());
 			
 			
-//			selectedSuggestion.getSuggestedRoom()(prefix);
-			selectedSuggestion.getSuggestedRoom().getRoomXML("picked-room\\");
+			XMLHandler.getInstance().saveIndividualRoomXML(selectedSuggestion.getSuggestedRoom(), "picked-room\\");
 			
 			router.postEvent(new SaveCurrentGeneration());
 			
@@ -1455,7 +1455,7 @@ public class RoomViewController extends BorderPane implements Listener
 				
 				mapView.updateTile(tile, myBrush);
 				mapView.getMap().forceReevaluation();
-				mapView.getMap().getRoomXML("room\\");
+				XMLHandler.getInstance().saveIndividualRoomXML(mapView.getMap(), "room\\");
 				mapIsFeasible(mapView.getMap().isIntraFeasible());
 				redrawPatterns(mapView.getMap());
 				redrawLocks(mapView.getMap());

@@ -116,14 +116,7 @@ public class InteractiveGUIController implements Initializable, Listener {
 //	final static Logger logger = LoggerFactory.getLogger(InteractiveGUIController.class);
 	private static EventRouter router = EventRouter.getInstance();
 	private ApplicationConfig config;
-
-	private MapContainer currentQuadMap = new MapContainer();
-	private MapContainer quadMap1 = new MapContainer();
-	private MapContainer quadMap2 = new MapContainer();
-	private MapContainer quadMap3 = new MapContainer();
-	private MapContainer quadMap4 = new MapContainer();
-	private MapContainer tempLargeContainer = new MapContainer();
-
+	
 	// VARIABLE FOR PICKING THE SIZE OF THE WORLD MAP (3 = 3x3 map)
 	private int size = 3;
 	private MapContainer[][] worldMapMatrix = new MapContainer[size][size];
@@ -134,9 +127,6 @@ public class InteractiveGUIController implements Initializable, Listener {
 	
 	//NEW
 	private Dungeon dungeonMap = new Dungeon();
-	
-	public static UUID runID;
-	
 
 	@Override
 	public void initialize(URL location, ResourceBundle resources) {
@@ -176,17 +166,17 @@ public class InteractiveGUIController implements Initializable, Listener {
 
 		});
 
-		runID = UUID.randomUUID();
+		DataSaverLoader.runID = UUID.randomUUID();
 
-		File file = new File(DataSaverLoader.projectPath + "\\summer-school\\" + runID + "\\algorithm\\");
+		File file = new File(DataSaverLoader.projectPath + "\\summer-school\\" + DataSaverLoader.runID + "\\algorithm\\");
 		if (!file.exists()) {
 			file.mkdirs();
 		}
-		file = new File(DataSaverLoader.projectPath + "\\summer-school\\" + runID + "\\dungeon\\");
+		file = new File(DataSaverLoader.projectPath + "\\summer-school\\" + DataSaverLoader.runID + "\\dungeon\\");
 		if (!file.exists()) {
 			file.mkdirs();
 		}
-		file = new File(DataSaverLoader.projectPath + "\\summer-school\\" + runID + "\\room\\");
+		file = new File(DataSaverLoader.projectPath + "\\summer-school\\" + DataSaverLoader.runID + "\\room\\");
 		if (!file.exists()) {
 			file.mkdirs();
 		}
@@ -307,16 +297,16 @@ public class InteractiveGUIController implements Initializable, Listener {
 		launchView = new LaunchViewController();
 		dungeonMap = null;
 		
-		runID = UUID.randomUUID();
-		File file = new File(DataSaverLoader.projectPath + "\\summer-school\\" + runID + "\\algorithm\\");
+		DataSaverLoader.runID = UUID.randomUUID();
+		File file = new File(DataSaverLoader.projectPath + "\\summer-school\\" + DataSaverLoader.runID + "\\algorithm\\");
 		if (!file.exists()) {
 			file.mkdirs();
 		}
-		file = new File(DataSaverLoader.projectPath + "\\summer-school\\" + runID + "\\dungeon\\");
+		file = new File(DataSaverLoader.projectPath + "\\summer-school\\" + DataSaverLoader.runID + "\\dungeon\\");
 		if (!file.exists()) {
 			file.mkdirs();
 		}
-		file = new File(DataSaverLoader.projectPath + "\\summer-school\\" + runID + "\\room\\");
+		file = new File(DataSaverLoader.projectPath + "\\summer-school\\" + DataSaverLoader.runID + "\\room\\");
 		if (!file.exists()) {
 			file.mkdirs();
 		}
@@ -527,7 +517,6 @@ public class InteractiveGUIController implements Initializable, Listener {
 		AnchorPane.setLeftAnchor(roomView, 0.0);
 		mainPane.getChildren().add(roomView);
 //		roomView.updateRoom(map.getMap());	
-		setCurrentQuadMap(map);
 
 		
 		
@@ -538,7 +527,7 @@ public class InteractiveGUIController implements Initializable, Listener {
 		//It would need to have different dimensions for the room view and for the world view
 		
 //		
-//		roomView.minimap.getChildren().clear();
+//		roomView.minimap.getChildren().clear(); 
 //		roomView.minimap.getChildren().add(dungeonMap.dPane);
 //		dungeonMap.dPane.setPrefSize(roomView.minimap.getPrefWidth(), roomView.minimap.getPrefHeight());
 		
@@ -698,15 +687,4 @@ public class InteractiveGUIController implements Initializable, Listener {
 
 		return worldMapMatrix2;
 	}
-
-	private MapContainer getCurrentQuadMap() {
-		return currentQuadMap;
-	}
-
-	private void setCurrentQuadMap(MapContainer currentQuadMap) {
-		this.currentQuadMap = currentQuadMap;
-	}
-
-
-
 }

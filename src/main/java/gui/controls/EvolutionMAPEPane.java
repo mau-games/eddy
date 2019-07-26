@@ -8,6 +8,7 @@ import java.util.HashMap;
 import java.util.List;
 
 import collectors.ActionLogger;
+import collectors.XMLHandler;
 import collectors.ActionLogger.ActionType;
 import collectors.ActionLogger.TargetPane;
 import collectors.ActionLogger.View;
@@ -303,7 +304,8 @@ public class EvolutionMAPEPane extends AnchorPane implements Listener
 													selectedSuggestion.getSuggestedRoom().getDimensionValue(currentDimensions[1].getDimension()),
 													selectedSuggestion.getSuggestedRoom());
 			
-			selectedSuggestion.getSuggestedRoom().getRoomXML("clicked-suggestion\\");
+			XMLHandler.getInstance().saveIndividualRoomXML(selectedSuggestion.getSuggestedRoom(), "clicked-suggestion\\");
+
 			
 			displayStats();
 //			getAppSuggestionsBtn().setDisable(false);
@@ -397,8 +399,9 @@ public class EvolutionMAPEPane extends AnchorPane implements Listener
 					selectedSuggestion.getSuggestedRoom().getDimensionValue(currentDimensions[1].getDimension()),
 					selectedSuggestion.getSuggestedRoom());
 
-
-			selectedSuggestion.getSuggestedRoom().getRoomXML("picked-room\\");			
+	
+			XMLHandler.getInstance().saveIndividualRoomXML(selectedSuggestion.getSuggestedRoom(), "picked-room\\");
+			
 			router.postEvent(new SaveCurrentGeneration());
 			router.postEvent(new SuggestionApplied(selectedSuggestion.getSuggestedRoom()));
 			selectedSuggestion = null;

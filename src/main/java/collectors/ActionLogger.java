@@ -89,7 +89,7 @@ public class ActionLogger {
 	
 	public void init()
 	{
-		DataSaverLoader.SaveData(getHeader(), "\\summer-school\\" + InteractiveGUIController.runID , "actionLogs");
+		DataSaverLoader.SaveData(getHeader(), "\\summer-school\\" + DataSaverLoader.runID , "actionLogs");
 	}
 	
 	private String getHeader()
@@ -106,7 +106,7 @@ public class ActionLogger {
 			inf.append(log.toString() + System.lineSeparator());;
 		}
 		
-		DataSaverLoader.SaveData(inf.toString(), "\\summer-school\\" + InteractiveGUIController.runID , "actionLogs");
+		DataSaverLoader.SaveData(inf.toString(), "\\summer-school\\" + DataSaverLoader.runID , "actionLogs");
 		logs.clear();
 	}
 	

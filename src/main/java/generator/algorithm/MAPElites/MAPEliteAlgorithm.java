@@ -29,6 +29,7 @@ import org.w3c.dom.Element;
 
 import collectors.DataSaverLoader;
 import collectors.MAPECollector;
+import collectors.XMLHandler;
 import finder.PatternFinder;
 import game.MapContainer;
 import game.Room;
@@ -337,7 +338,7 @@ public class MAPEliteAlgorithm extends Algorithm implements Listener {
 		}
 		else if(e instanceof SaveCurrentGeneration)
 		{
-			storeMAPELITESXml();
+			XMLHandler.getInstance().saveMAPEXML(this);
 		}
 	}
 	
@@ -1050,18 +1051,18 @@ public class MAPEliteAlgorithm extends Algorithm implements Listener {
 	}
 	
 	//ok
-	protected void storeMAPELITESXml()
+	public void storeMAPELITESXml()
 	{
 		Document dom;
 	    Element e = null;
 	    Element next = null;
 	    
-	    File file = new File(DataSaverLoader.projectPath + "\\summer-school\\" + InteractiveGUIController.runID + "\\algorithm\\" + id);
+	    File file = new File(DataSaverLoader.projectPath + "\\summer-school\\" + DataSaverLoader.runID + "\\algorithm\\" + id);
 		if (!file.exists()) {
 			file.mkdirs();
 		}
 	    
-	    String xml = System.getProperty("user.dir") + "\\my-data\\summer-school\\"+ InteractiveGUIController.runID + "\\algorithm\\" + id + "\\algorithm-" + id + "_" + saveCounter + ".xml";
+	    String xml = System.getProperty("user.dir") + "\\my-data\\summer-school\\"+ DataSaverLoader.runID + "\\algorithm\\" + id + "\\algorithm-" + id + "_" + saveCounter + ".xml";
 
 	    // instance of a DocumentBuilderFactory
 	    DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
@@ -1102,7 +1103,9 @@ public class MAPEliteAlgorithm extends Algorithm implements Listener {
 		        }
 		        else
 		        {
-		        	cell.GetFeasiblePopulation().get(0).getPhenotype().getMap(-1, -1, null, null, null).saveRoomXMLMapElites("algorithm\\" + id + "\\algorithm-" + saveCounter + "_");
+		        	XMLHandler.getInstance().saveMAPERoomXML(cell.GetFeasiblePopulation().get(0).getPhenotype().getMap(-1, -1, null, null, null), 
+		        											"algorithm\\" + id + "\\algorithm-" + saveCounter + "_");
+		    
 		        	next.setAttribute("ROOM_ID", cell.GetFeasiblePopulation().get(0).getPhenotype().getMap(-1, -1, null, null, null).toString());
 			        next.setAttribute("fitness", Double.toString(cell.GetFeasiblePopulation().get(0).getFitness()));
 			       
