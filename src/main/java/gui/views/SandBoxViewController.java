@@ -28,6 +28,7 @@ import gui.controls.InteractiveMap;
 import gui.controls.Modifier;
 import gui.controls.NGramPane;
 import gui.controls.RoomPreview;
+import gui.controls.RoomSequenceVisualizer;
 import gui.controls.SuggestionRoom;
 import gui.utils.InformativePopupManager;
 import gui.utils.InformativePopupManager.PresentableInformation;
@@ -143,6 +144,7 @@ public class SandBoxViewController extends BorderPane implements Listener
 	//THE PANES THAT CAN BE INSTANTIATED:
 	@FXML private EvolutionMAPEPane evolutionPane;
 	private NGramPane nGramPane;
+	private RoomSequenceVisualizer sequenceVisualizer;
 	
 	/**
 	 * Creates an instance of this class.
@@ -187,7 +189,7 @@ public class SandBoxViewController extends BorderPane implements Listener
 			});
 		
 		nGramPane = new NGramPane();
-		
+		sequenceVisualizer = new RoomSequenceVisualizer();
 		init();
 		
 	}
@@ -362,12 +364,20 @@ public class SandBoxViewController extends BorderPane implements Listener
 				break;
 		case "N-Gram":
 				nGramPane.setVisible(true);
+				evolutionPane.setVisible(false);
 //				evolutionPane.setActive(false);
 				nGramPane.setActive(true);
 				rightSidePane.getChildren().clear();
 				rightSidePane.getChildren().add(nGramPane);
 				break;
 		case "Random":
+				nGramPane.setVisible(false);
+				evolutionPane.setVisible(false);
+	//			evolutionPane.setActive(false);
+				sequenceVisualizer.setVisible(true);
+				sequenceVisualizer.setActive(true);
+				rightSidePane.getChildren().clear();
+				rightSidePane.getChildren().add(sequenceVisualizer);
 				break;
 		case "Example":
 				break;

@@ -123,8 +123,8 @@ public class UnstablePlaygroundGUIController implements Initializable, Listener 
 
 		});
 		
-		XMLHandler.getInstance().loadRooms(XMLHandler.projectPath + "testReader\\", false);
-		XMLHandler.getInstance().sortRoomsToLoad();
+//		XMLHandler.getInstance().loadRooms(XMLHandler.projectPath + "testReader\\", false);
+//		XMLHandler.getInstance().sortRoomsToLoad();
 		
 		DataSaverLoader.runID = UUID.randomUUID();
 

@@ -56,6 +56,9 @@ public class XMLHandler
 	//This is for testing! Pls remove!
 	public LinkedList<FileKeyDUO> rooms = new LinkedList<FileKeyDUO>();
 	
+	//TESTING!
+	public LinkedList<Room> roomsInFile = new LinkedList<Room>();
+	
 	private XMLHandler()
 	{
 		
@@ -206,6 +209,14 @@ public class XMLHandler
 		return true;
 	}
 	
+	public void createRooms()
+	{
+		for(FileKeyDUO fkDUO : rooms)
+		{
+			loadRoom(fkDUO.f);
+		}
+	}
+	
 	//We load the room from the xml!
 	public boolean loadRoom(File roomFile)
 	{
@@ -268,7 +279,7 @@ public class XMLHandler
             }
             
             xmlRoom.setupRoom();
-            
+            roomsInFile.add(xmlRoom);
             String testst = doc.getAttribute("ID");
 
             return true;
