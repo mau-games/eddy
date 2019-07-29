@@ -6,6 +6,7 @@ import java.text.Collator;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.LinkedList;
 
 import javax.xml.parsers.DocumentBuilder;
@@ -28,22 +29,46 @@ import generator.algorithm.MAPElites.MAPEliteAlgorithm;
 import generator.config.GeneratorConfig;
 import util.config.MissingConfigurationException;
 
+class XMLRoom
+{
+	String ID = "";
+	LinkedList<FileKeyDUO> sequence;
+	
+	public XMLRoom(String ID)
+	{
+		this.ID = ID;
+		sequence = new LinkedList<FileKeyDUO>();
+	}
+	
+	public LinkedList<FileKeyDUO> getSequence() {return sequence;}
+	
+	public void addToSequence(FileKeyDUO sequenceElement)
+	{
+		sequence.add(sequenceElement);
+	}
+	
+	public void sortSequence()
+	{
+		Collections.sort(sequence);
+	}
+}
+
 class FileKeyDUO implements Comparable<FileKeyDUO>
 {
-	int k;
-	File f;
+	int rank;
+	File xmlFile;
 	
 	public FileKeyDUO(int k, File f)
 	{
-		this.k = k;
-		this.f = f;
+		this.rank = k;
+		this.xmlFile = f;
 	}
 
 	@Override
 	public int compareTo(FileKeyDUO other) {
 		// TODO Auto-generated method stub
 		
-		return other.k == this.k ? 0 : other.k > this.k ? -1 : 1;
+		return other.rank == this.rank ? 0 : other.rank > this.rank ? -1 : 1;
 	}
 }
 
@@ -54,10 +79,11 @@ public class XMLHandler
 	public static String projectPath = System.getProperty("user.dir") + "\\my-data\\";
 	
 	//This is for testing! Pls remove!
-	public LinkedList<FileKeyDUO> rooms = new LinkedList<FileKeyDUO>();
+	public HashMap<String, XMLRoom> xmlRooms = new HashMap<String, XMLRoom>();
 	
 	//TESTING!
 	public LinkedList<Room> roomsInFile = new LinkedList<Room>();
+	
 	
 	private XMLHandler()
 	{
@@ -159,21 +185,17 @@ public class XMLHandler
 		return saveInformation;
 	}
 	
+	public void clearLoaded()
+	{
+		xmlRooms.clear();
+		roomsInFile.clear();
+	}
+	
 	public void sortRoomsToLoad()
 	{
-		for(FileKeyDUO duo : rooms)
+		for(XMLRoom xmlRoom : xmlRooms.values())
 		{
-			System.out.println(duo.f.getName());
-		}
-		
-		Collections.sort(rooms);
-		
-		System.out.println();
-		
-		
-		for(FileKeyDUO duo : rooms)
-		{
-			System.out.println(duo.f.getName());
+			xmlRoom.sortSequence();
 		}
 	}
 	
@@ -183,6 +205,7 @@ public class XMLHandler
 		
 		 for (final File fileEntry : file.listFiles())
 		 {
+			 //If the file is a folder, we check if we are entering the correct folder and we recursively keep going into the folders.
 			if (fileEntry.isDirectory()) 
 			{
 				if(!roomPath && fileEntry.getName().equals("room"))
@@ -191,18 +214,24 @@ public class XMLHandler
 				}
 				
 				loadRooms(fileEntry.getAbsolutePath(), roomPath);
-//				System.out.println();
 			} 
 			else 
 			{
-				System.out.println(fileEntry.getName());
+				//If we already found a file, we see if it is a new room file. If it is, we create a new instance. else we add to the existing file
 				if(roomPath)
 				{
-					String[] a = fileEntry.getName().split("-|\\.|_");
-					System.out.println(a[a.length -2]);
-					rooms.add(new FileKeyDUO(Integer.parseInt(a[a.length - 2]), fileEntry));
+					String[] a = fileEntry.getName().split("\\.|_");
+					
+					if(xmlRooms.containsKey(a[0]))
+					{
+						xmlRooms.get(a[0]).addToSequence(new FileKeyDUO(Integer.parseInt(a[a.length - 2]), fileEntry));
+					}
+					else
+					{
+						xmlRooms.put(a[0], new XMLRoom(a[0]));
+						xmlRooms.get(a[0]).addToSequence(new FileKeyDUO(Integer.parseInt(a[a.length - 2]), fileEntry));
+					}
 				}
-//					loadRoom(fileEntry);
 			}
 		 }
 		
@@ -211,14 +240,25 @@ public class XMLHandler
 	
 	public void createRooms()
 	{
-		for(FileKeyDUO fkDUO : rooms)
+		for(XMLRoom xmlRoom : xmlRooms.values())
 		{
-			loadRoom(fkDUO.f);
+			LinkedList<FileKeyDUO> sequence = xmlRoom.getSequence();
+			LinkedList<Room> currentRooms = new LinkedList<Room>();
+			
+			//Create al lthe rooms
+			for(FileKeyDUO fkDUO : sequence)
+			{
+				currentRooms.add(loadRoom(fkDUO.xmlFile));
+			}
+			
+			//Get the last room, assigned it as the main and add the rest as part of the sequence!
+			roomsInFile.add(currentRooms.get(currentRooms.size() - 1));
+			roomsInFile.get(roomsInFile.size() - 1).addEditions(currentRooms);
 		}
 	}
 	
 	//We load the room from the xml!
-	public boolean loadRoom(File roomFile)
+	public Room loadRoom(File roomFile)
 	{
 		ArrayList<String> rolev = new ArrayList<String>();
         Document dom;
@@ -279,10 +319,9 @@ public class XMLHandler
             }
             
             xmlRoom.setupRoom();
-            roomsInFile.add(xmlRoom);
-            String testst = doc.getAttribute("ID");
+//            roomsInFile.add(xmlRoom);
 
-            return true;
+            return xmlRoom;
 
         } catch (ParserConfigurationException pce) {
             System.out.println(pce.getMessage());
@@ -292,7 +331,7 @@ public class XMLHandler
             System.err.println(ioe.getMessage());
         }
 
-        return false;
+        return null;
 	}
 	
 	public boolean shouldSave() {return saveInformation;}

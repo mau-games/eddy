@@ -130,6 +130,9 @@ public class Room {
 	
 	//NEW THINGS
 	public ZoneNode root;
+	
+	//Important new list --> Sequence of changes done to this room
+	private LinkedList<Room> editionSequence = new LinkedList<Room>();
 
 	//SIDE!!!
 	public void createLists()
@@ -2870,6 +2873,21 @@ public class Room {
 //
 //		return map.toString();
 //	}
+	
+	public LinkedList<Room> getEditionSequence()
+	{
+		return editionSequence;
+	}
+	
+	public void addEdition()
+	{
+		editionSequence.add(new Room(this)); //Will this work? --> Only god knows
+	}
+	
+	public void addEditions(List<Room> editions)
+	{
+		editionSequence.addAll(editions);//Will this work? --> Only god knows
+	}
 	
 	//This is the one 
 	//I think I could have this static method

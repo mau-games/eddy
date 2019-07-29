@@ -1,41 +1,35 @@
 package gui.controls;
 
-import collectors.ActionLogger;
-import collectors.ActionLogger.ActionType;
-import collectors.ActionLogger.TargetPane;
-import collectors.ActionLogger.View;
 import game.Room;
-import game.WorldViewCanvas.MouseEventH;
-import gui.utils.DungeonDrawer;
-import gui.utils.RoomConnectorBrush;
 import javafx.event.EventHandler;
 import javafx.scene.Node;
 import javafx.scene.input.MouseEvent;
-import util.Point;
 import util.eventrouting.EventRouter;
-import util.eventrouting.events.ApplySuggestion;
-import util.eventrouting.events.FocusRoom;
-import util.eventrouting.events.SuggestedMapSelected;
-import util.eventrouting.events.intraview.DungeonPreviewSelected;
+import util.eventrouting.IntraViewEvent;
 
 /***
  * This class will hold the canvas and all relevant info about the maps that are suggested
  * to encapsulate the use of it and enhance it! :D 
+ * 
+ * A bit dangerous class now with the generic :O 
+ * 
  * @author Alberto Alvarez, Malmö University
  *
  */
-public class RoomPreview 
+public class RoomPreview<T extends IntraViewEvent> 
 {
 	private LabeledCanvas roomViewNode;
 	private Room previewOwner;
 	private Node source;
 	private boolean selected = false;
+	Class<T> reference;
 	
 	//Super workaround which I have to do unless someone knows how can i do this thing
 	private RoomPreview self;
 	
-	public RoomPreview(Room previewOwner)
+	public RoomPreview(Room previewOwner, Class<T> event)
 	{
+		this.reference = event;
 		roomViewNode = new LabeledCanvas();
 		roomViewNode.setPrefSize(140, 140);
 		roomViewNode.addEventFilter(MouseEvent.MOUSE_ENTERED, new MouseEventH());
@@ -79,7 +73,21 @@ public class RoomPreview
 	            @Override
 	            public void handle(MouseEvent event) 
 	            {	            	
-	            	EventRouter.getInstance().postEvent(new DungeonPreviewSelected(self.previewOwner));
+//	            	EventRouter.getInstance().postEvent(new DungeonPreviewSelected(self.previewOwner));
+	            	T eventToPost = null;
+	            	
+	            	try {
+	            		eventToPost = reference.newInstance();
+					} catch (InstantiationException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					} catch (IllegalAccessException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+
+	            	eventToPost.setPayload(self.previewOwner);
+	            	EventRouter.getInstance().postEvent(eventToPost);
 	            	selected = true;
 	            	highlight(true);
 	            	

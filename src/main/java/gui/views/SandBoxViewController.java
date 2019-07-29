@@ -141,6 +141,10 @@ public class SandBoxViewController extends BorderPane implements Listener
 	int mapWidth;
 	int mapHeight;
 	
+	//Mouse filters!
+	EditViewMouseHover editViewHover = new EditViewMouseHover();
+	EditViewEventHandler editViewAction = new EditViewEventHandler();
+	
 	//THE PANES THAT CAN BE INSTANTIATED:
 	@FXML private EvolutionMAPEPane evolutionPane;
 	private NGramPane nGramPane;
@@ -234,13 +238,14 @@ public class SandBoxViewController extends BorderPane implements Listener
 		resetView();
 		roomToBe.forceReevaluation();
 		updateRoom(roomToBe);
-		
+		roomMouseEvents();
 		//Add the info of the dungeon 
 		dungeonRoomsPane.getChildren().clear();
 		List<Room> dungeonRooms = roomToBe.owner.getAllRooms();
 		for(int i = 0; i < dungeonRooms.size(); i++) 
 		{
-			RoomPreview roomPreview = new RoomPreview(dungeonRooms.get(i));
+			RoomPreview<DungeonPreviewSelected> roomPreview = new RoomPreview<DungeonPreviewSelected>(dungeonRooms.get(i),DungeonPreviewSelected.class);
+//			RoomPreview roomPreview = new RoomPreview(dungeonRooms.get(i));
 			dungeonRoomsPane.getChildren().add(roomPreview.getRoomCanvas());
 			
 			Platform.runLater(() -> {
@@ -659,8 +664,11 @@ public class SandBoxViewController extends BorderPane implements Listener
 	
 	public void roomMouseEvents() 
 	{
-		getMapView().addEventFilter(MouseEvent.MOUSE_CLICKED, new EditViewEventHandler());
-		getMapView().addEventFilter(MouseEvent.MOUSE_MOVED, new EditViewMouseHover());
+		getMapView().removeEventFilter(MouseEvent.MOUSE_CLICKED, editViewAction);
+		getMapView().removeEventFilter(MouseEvent.MOUSE_MOVED, editViewHover);
+		
+		getMapView().addEventFilter(MouseEvent.MOUSE_CLICKED, editViewAction);
+		getMapView().addEventFilter(MouseEvent.MOUSE_MOVED, editViewHover);
 	}
 	
 	public boolean checkInfeasibleLockedRoom(ImageView tile)
@@ -712,6 +720,7 @@ public class SandBoxViewController extends BorderPane implements Listener
 				mapIsFeasible(mapView.getMap().isIntraFeasible());
 				redrawPatterns(mapView.getMap());
 				redrawLocks(mapView.getMap());
+				mapView.getMap().addEdition();
 //				redrawHeatMap(mapView.getMap());
 			}
 		}

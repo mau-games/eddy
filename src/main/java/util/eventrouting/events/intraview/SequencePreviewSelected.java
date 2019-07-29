@@ -3,13 +3,13 @@ package util.eventrouting.events.intraview;
 import game.Room;
 import util.eventrouting.IntraViewEvent;
 
-public class DungeonPreviewSelected extends IntraViewEvent 
+public class SequencePreviewSelected extends IntraViewEvent 
 {
-	public DungeonPreviewSelected()
+	public SequencePreviewSelected()
 	{
 	}
 	
-	public DungeonPreviewSelected(Room dungeonRoom)
+	public SequencePreviewSelected(Room dungeonRoom)
 	{
 		setPayload(dungeonRoom);
 	}

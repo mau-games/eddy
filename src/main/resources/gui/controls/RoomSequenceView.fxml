@@ -9,13 +9,21 @@
 <fx:root fx:id="mainBorderPane"
 	stylesheets="@../styling.css" type="javafx.scene.layout.BorderPane" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1">
   	<top>
-  		<Label fx:id="label1" text="N-gram generation" BorderPane.alignment="CENTER" textAlignment="CENTER"/>
+  		<Label fx:id="label1" text="Sequence of Rooms Visualizer" BorderPane.alignment="CENTER" textAlignment="CENTER"/>
   	</top>
    <center>
-		<VBox>
-			<ScrollPane prefWidth="100" maxWidth="800.0" hbarPolicy="ALWAYS" fx:id="dungeonPreviewScrollPane">
+		<VBox spacing="20">
+			<ScrollPane prefWidth="100" maxHeight="600.0" maxWidth="800.0" hbarPolicy="ALWAYS" fx:id="dungeonPreviewScrollPane">
 					<content>
-						<HBox spacing="20" alignment="CENTER" fx:id="sequenceRoomPane"/>
+						<VBox spacing="20" alignment="CENTER" fx:id="sequenceRoomPane"/>
+					</content>
+			</ScrollPane>
+			
+			<Label fx:id="label1" text="Loaded Rooms" BorderPane.alignment="CENTER" textAlignment="CENTER"/>
+			
+			<ScrollPane prefWidth="100" maxHeight="200.0" maxWidth="800.0" hbarPolicy="ALWAYS" fx:id="dungeonPreviewScrollPane">
+					<content>
+						<HBox spacing="20" alignment="CENTER" fx:id="loadedRoomsPane"/>
 					</content>
 			</ScrollPane>
 	    	<padding>
@@ -29,8 +37,10 @@
          <children>
             <HBox alignment="CENTER" prefHeight="100.0" prefWidth="200.0" spacing="10.0">
                <children>
-                  <Button fx:id="stepButton" alignment="CENTER" mnemonicParsing="false" onAction="#onStepGeneration" text="STEP" textAlignment="CENTER" />
-				  <Button fx:id="runButton" alignment="CENTER" mnemonicParsing="false" onAction="#onRunGeneration" text="RUN" textAlignment="CENTER" />
+                  <Button fx:id="useCurrentButton" alignment="CENTER" mnemonicParsing="false" 
+                  onAction="#onUseCurrent" text="Use Current" textAlignment="CENTER" />
+				  <Button fx:id="loadRoomsButton" alignment="CENTER" mnemonicParsing="false" 
+				  onAction="#onLoadRooms" text="Load Rooms" textAlignment="CENTER" />
 				  	<Button fx:id="saveButton" alignment="CENTER" mnemonicParsing="false" onAction="#onSaveRoom" text="Save" textAlignment="CENTER" />
                </children>
             </HBox>

@@ -34,15 +34,17 @@ import util.eventrouting.events.StartGA_MAPE;
 import util.eventrouting.events.Stop;
 import util.eventrouting.events.SuggestedMapSelected;
 import util.eventrouting.events.SuggestedMapsDone;
+import util.eventrouting.events.intraview.DungeonPreviewSelected;
 import util.eventrouting.events.intraview.RoomEditionStarted;
+import util.eventrouting.events.intraview.SequencePreviewSelected;
 
 public class RoomSequenceVisualizer extends BorderPane implements Listener {
 
 	//FROM THE FXML
 //	@FXML VBox centerPane;
 	@FXML StackPane centerPane;
-	@FXML Button stepButton;
-	@FXML Button runButton;
+	@FXML Button useCurrentButton;
+	@FXML Button loadRoomsButton;
 	@FXML Button saveButton;
 	@FXML TextField widthField;
 	@FXML TextField heightField;
@@ -54,14 +56,10 @@ public class RoomSequenceVisualizer extends BorderPane implements Listener {
 	private InteractiveMap mapView;
 	
 	private boolean isActive = false;
-	
-	private NGramLoader gramCreator = null;
-	private SuggestionRoom nGramRoom;
 	private SimpleObjectProperty<Room> currentEditedRoom = new SimpleObjectProperty<>();
-	private String[] textGramRoom = null;
-	private String currentFormedRoom = "";
 	
-	@FXML public HBox sequenceRoomPane;
+	@FXML public VBox sequenceRoomPane;
+	@FXML public HBox loadedRoomsPane;
 	
 	
 	//To be called from the fxml
@@ -86,9 +84,8 @@ public class RoomSequenceVisualizer extends BorderPane implements Listener {
 		router.registerListener(this, new SuggestedMapsDone());
 		router.registerListener(this, new SuggestedMapSelected(null));
 		router.registerListener(this, new RoomEditionStarted(null));
+		router.registerListener(this, new SequencePreviewSelected(null));
 		
-		nGramRoom = new SuggestionRoom();
-		gramCreator = new NGramLoader(GramTypes.COLUMN_BY_COLUMN);
 		
 //		nGramRoom.resizeCanvasForRoom(13.0f, 7.0f);
 //		nGramRoom.getRoomCanvas().draw(null);
@@ -117,28 +114,64 @@ public class RoomSequenceVisualizer extends BorderPane implements Listener {
 	
 	private void setupView()
 	{
-		InitializeView();
+//		InitializeView();
 	}
+
 	
-	public void InitializeView()
+	private void visualizeRoomSequence(LinkedList<Room> roomSequence)
 	{
-		LoadRooms();
-	}
-	
-	public void LoadRooms()
-	{
-		XMLHandler.getInstance().loadRooms(XMLHandler.projectPath + "testReader\\", false);
-		XMLHandler.getInstance().sortRoomsToLoad();
-		XMLHandler.getInstance().createRooms();
-		
-		LinkedList<Room> roomsInFile = XMLHandler.getInstance().roomsInFile;
+		int counter = 0;
+		int maxColumns = 4;
+		HBox row = new HBox();
+		row.setSpacing(20.0);
 		
 		sequenceRoomPane.getChildren().clear();
-//		List<Room> dungeonRooms = roomToBe.owner.getAllRooms();
+		sequenceRoomPane.getChildren().add(row);
+		
+		for(int i = 0; i < roomSequence.size(); i++) 
+		{
+			if(counter >= maxColumns)
+			{
+				counter=0;
+				row = new HBox();
+				row.setSpacing(20.0);
+				sequenceRoomPane.getChildren().add(row);
+			}
+			
+			RoomPreview<SequencePreviewSelected> roomPreview = new RoomPreview<SequencePreviewSelected>(roomSequence.get(i), SequencePreviewSelected.class);
+			row.getChildren().add(roomPreview.getRoomCanvas());
+			
+			double mapHeight = 15.0;
+			double mapWidth = 15.0;
+			
+			mapHeight = (int)(20.0 * (float)((float)roomSequence.get(i).getRowCount())); //Recalculate map size
+			mapWidth = (int)(20.0 * (float)((float)roomSequence.get(i).getColCount()));//Recalculate map size
+			
+//			StackPane.setMargin(centerPane, new Insets(8,8,8,8));
+			
+			roomPreview.getRoomCanvas().setMinSize(mapWidth, mapHeight);
+			roomPreview.getRoomCanvas().setMaxSize(mapWidth, mapHeight);
+			roomPreview.getRoomCanvas().setPrefSize(mapWidth, mapHeight);
+			
+			roomPreview.getRoomCanvas().draw(null);
+			roomPreview.getRoomCanvas().setText("Waiting for map...");
+			counter++;
+			
+			Platform.runLater(() -> {
+				roomPreview.getRoomCanvas().draw(renderer.renderMiniSuggestedRoom(roomPreview.getPreviewRoom(), -1));
+			});
+		}	
+	}
+	
+	private void addLoadedRooms(LinkedList<Room> roomsInFile)
+	{
+		loadedRoomsPane.getChildren().clear();
+		
 		for(int i = 0; i < roomsInFile.size(); i++) 
 		{
-			RoomPreview roomPreview = new RoomPreview(roomsInFile.get(i));
-			sequenceRoomPane.getChildren().add(roomPreview.getRoomCanvas());
+			
+			RoomPreview<SequencePreviewSelected> roomPreview = new RoomPreview<SequencePreviewSelected>(roomsInFile.get(i),SequencePreviewSelected.class);
+			loadedRoomsPane.getChildren().add(roomPreview.getRoomCanvas());
 			
 			double mapHeight = 15.0;
 			double mapWidth = 15.0;
@@ -155,13 +188,10 @@ public class RoomSequenceVisualizer extends BorderPane implements Listener {
 			roomPreview.getRoomCanvas().draw(null);
 			roomPreview.getRoomCanvas().setText("Waiting for map...");
 			
-			
 			Platform.runLater(() -> {
 				roomPreview.getRoomCanvas().draw(renderer.renderMiniSuggestedRoom(roomPreview.getPreviewRoom(), -1));
 			});
 		}
-		
-		
 	}
 	
 	@Override
@@ -171,50 +201,10 @@ public class RoomSequenceVisualizer extends BorderPane implements Listener {
 			currentEditedRoom.set((Room) e.getPayload());
 //			setupView();
 		}
-		
-	}
-	
-	@FXML
-	private void onStepGeneration()
-	{
-		nGramRoom.setOriginalRoom(null);
-
-		String prevWord = "";
-
-		prevWord = gramCreator.getNGram(currentFormedRoom, Integer.parseInt(nStepsField.getText()));
-		currentFormedRoom += prevWord + " ";
-		
-		System.out.format("Generated Room using %s-gram: ", nStepsField.getText());
-		System.out.println();
-		System.out.println(currentFormedRoom);
-		
-		//Form a string array, create the room and add paint it!
-		textGramRoom = currentFormedRoom.split(" ");
-		nGramRoom.setOriginalRoom(Room.createRoomFromStringColumn(textGramRoom));
-		InitializeView();
-	}
-	
-	@FXML
-	private void onRunGeneration()
-	{	
-		nGramRoom.setOriginalRoom(null);
-		
-		currentFormedRoom = "";
-		String prevWord = "";
-		for(int words = 0; words < 13; words++)
+		else if(e instanceof SequencePreviewSelected)
 		{
-			prevWord = gramCreator.getNGram(currentFormedRoom, Integer.parseInt(nStepsField.getText()));
-			currentFormedRoom += prevWord + " ";
+			visualizeRoomSequence(((Room)e.getPayload()).getEditionSequence());
 		}
-		
-		System.out.format("Generated Room using %s-gram: ", nStepsField.getText());
-		System.out.println();
-		System.out.println(currentFormedRoom);
-		
-		//Form a string array, create the room and add paint it!
-		textGramRoom = currentFormedRoom.split(" ");
-		nGramRoom.setOriginalRoom(Room.createRoomFromStringColumn(textGramRoom));
-		InitializeView();
 	}
 	
 	@FXML
@@ -235,16 +225,32 @@ public class RoomSequenceVisualizer extends BorderPane implements Listener {
 		
 	}
 	
-	@FXML
-	public void onShowCurrent()
+	public void onLoadRooms()
 	{
+		XMLHandler.getInstance().clearLoaded();
+		XMLHandler.getInstance().loadRooms(XMLHandler.projectPath + "testReader\\", false);
+		XMLHandler.getInstance().sortRoomsToLoad();
+		XMLHandler.getInstance().createRooms();
 		
+		LinkedList<Room> xmlRooms = XMLHandler.getInstance().roomsInFile;
+		
+		addLoadedRooms(xmlRooms);
+		visualizeRoomSequence(xmlRooms.getFirst().getEditionSequence());
+	}
+	
+	@FXML
+	public void onUseCurrent()
+	{
+		LinkedList<Room> xmlRooms = new LinkedList<>();
+		xmlRooms.add(currentEditedRoom.get());
+		addLoadedRooms(xmlRooms);
+		visualizeRoomSequence(xmlRooms.getFirst().getEditionSequence());
 	}
 	
 	@FXML
 	private void onSaveRoom()
 	{
-		gramCreator.addGrams(currentEditedRoom.get().owner.getAllRooms());
+
 	}
 	
 	/***
@@ -290,5 +296,7 @@ public class RoomSequenceVisualizer extends BorderPane implements Listener {
 			enablePane();
 		
 	}
+	
+	
 
 }

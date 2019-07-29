@@ -105,26 +105,6 @@ public class InteractiveMap extends GridPane implements Listener {
 		}
 		
 		brush.Draw(Point.castToGeometry(p), room, this);
-
-//		
-//		//The brush has all the points that will be modified
-//		//TODO: I THINK THAT the brush should do this part!
-//		for(finder.geometry.Point position : brush.GetDrawableTiles().getPoints())
-//		{
-//			currentTile = room.getTile(position.getX(), position.getY());
-//			
-//			// Let's discard any attempts at erasing the doors
-//			if(currentTile.GetType() == TileTypes.DOOR)
-//				continue;
-//			
-//			currentTile.SetImmutable(brush.GetModifierValue("Lock"));
-//			if(brush.GetMainComponent() != null)
-//			{
-//				room.setTile(position.getX(), position.getY(), brush.GetMainComponent());
-//				drawTile(position.getX(), position.getY(), brush.GetMainComponent());
-//			}
-//		}
-		
 		brush.DoneDrawing();
 	}
 	

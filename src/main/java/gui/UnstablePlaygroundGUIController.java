@@ -385,7 +385,6 @@ public class UnstablePlaygroundGUIController implements Initializable, Listener 
 		mainPane.getChildren().add(sandboxView);
 		
 		sandboxView.initializeView(map.getMap());
-		sandboxView.roomMouseEvents();
 		
 		//TODO: Crazyness to create mini map based on the dungeon...
 		//It would need to have different dimensions for the room view and for the world view
