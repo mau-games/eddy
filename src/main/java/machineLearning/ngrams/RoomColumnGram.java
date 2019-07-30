@@ -40,7 +40,7 @@ public class RoomColumnGram extends Gram
 		}
 		
 		//We create the array already with the correct amount of reserve cells
-		//!!!!! IMPORTANT: This is taking for granted that all the incoming rooms will be of the same size! 
+		//!!!!! TODO: IMPORTANT: This is taking for granted that all the incoming rooms will be of the same size! 
 		//Might be possible to change it
 		String[] columnsHolder = new String[roomsToDeconstruct.size() * roomsToDeconstruct.get(0).getColCount()];
 		int currentColumnStepper = 0;
@@ -85,6 +85,8 @@ public class RoomColumnGram extends Gram
 		
 		for(int i = 0; i < columnsHolder.length; ++i)
 		{
+			
+			//This is needed because many rooms can come and they belong to different sets
 			if(i == currentColumnStep)
 			{
 				//increase

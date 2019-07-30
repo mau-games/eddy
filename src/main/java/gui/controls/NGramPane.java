@@ -12,6 +12,7 @@ import javafx.fxml.FXMLLoader;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
+import javafx.scene.control.ComboBox;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.StackPane;
@@ -57,6 +58,9 @@ public class NGramPane extends BorderPane implements Listener {
 	private String[] textGramRoom = null;
 	private String currentFormedRoom = "";
 	
+	@FXML private ComboBox<GramTypes> gramTypeFX;
+	private GramTypes gramType = GramTypes.COLUMN_BY_COLUMN;
+	
 	
 	//To be called from the fxml
 	public NGramPane()
@@ -81,8 +85,10 @@ public class NGramPane extends BorderPane implements Listener {
 		router.registerListener(this, new SuggestedMapSelected(null));
 		router.registerListener(this, new RoomEditionStarted(null));
 		
+		gramTypeFX.getItems().setAll(GramTypes.values());
+		
 		nGramRoom = new SuggestionRoom();
-		gramCreator = new NGramLoader(GramTypes.COLUMN_BY_COLUMN);
+		gramCreator = new NGramLoader(gramType);
 		
 //		nGramRoom.resizeCanvasForRoom(13.0f, 7.0f);
 //		nGramRoom.getRoomCanvas().draw(null);
@@ -224,6 +230,33 @@ public class NGramPane extends BorderPane implements Listener {
 	{
 		
 	}
+	
+	@FXML
+	private void onChangeGramType()
+	{
+		gramType = gramTypeFX.getValue();
+		gramCreator = new NGramLoader(gramType);
+		
+		switch(gramTypeFX.getValue())
+		{
+		case CLASSIC_TEXT:
+			break;
+		case COLUMN_BY_COLUMN:
+			break;
+		case MESO_BY_MESO:
+			break;
+		case ROOM_BY_ROOM:
+			break;
+		case ROW_BY_ROW:
+			break;
+		case TILE_BY_TILE:
+			break;
+		default:
+			break;
+		
+		}
+	}
+	
 	
 	@FXML
 	private void onSaveRoom()

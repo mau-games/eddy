@@ -2860,19 +2860,19 @@ public class Room {
 		return room;
 	}
 //
-//	@Override
-//	public String toString() {
-//		StringBuilder map = new StringBuilder();
-//
-//		for (int j = 0; j < height; j++){
-//			for (int i = 0; i < width; i++)  {
-//				map.append(Integer.toHexString(matrix[j][i]));
-//			}
-//			map.append("\n");
-//		}
-//
-//		return map.toString();
-//	}
+	public String matrixToString() 
+	{
+		StringBuilder map = new StringBuilder();
+
+		for (int j = 0; j < height; j++){
+			for (int i = 0; i < width; i++)  {
+				map.append(Integer.toHexString(matrix[j][i]));
+			}
+			map.append("\n");
+		}
+
+		return map.toString();
+	}
 	
 	public LinkedList<Room> getEditionSequence()
 	{
@@ -2925,6 +2925,43 @@ public class Room {
 		
 		return room;
 	}
+	
+	//This is the one 
+		//I think I could have this static method
+		//But I am also seduce by the idea that I can change the size of the room at runtime which is not possible at the moment.
+		public static Room createRoomFromString(String ... roomColumns)
+		{
+			int cols = roomColumns.length;
+			int rows = roomColumns[0].length(); //This is taking for granted that you are sending columns with the same amount!
+			
+			GeneratorConfig gc = null;
+			try {
+				gc = new GeneratorConfig();
+			} catch (MissingConfigurationException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			
+			Room room = new Room(gc, rows, cols);
+			int x=0;
+			int y=0;
+			
+			//Each index in the array is a column
+			for(String column : roomColumns)
+			{
+				for(String c : column.split(""))
+				{
+					room.setTile(x, y++, new Tile(x,y,Integer.parseInt(c)));	
+				}
+				
+				x++;
+				y=0;
+			}
+			
+			room.setupRoom();
+			
+			return room;
+		}
 	
 	@Override
 	public String toString() {

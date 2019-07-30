@@ -11,12 +11,23 @@ public class Gram
 {
 	public enum GramTypes
 	{
-		CLASSIC_TEXT,
-		TILE_BY_TILE,
-		COLUMN_BY_COLUMN,
-		ROW_BY_ROW,
-		MESO_BY_MESO,
-		ROOM_BY_ROOM
+		CLASSIC_TEXT("Using text"),
+		TILE_BY_TILE("Tile by Tile Sequence"),
+		COLUMN_BY_COLUMN("Column by Column"),
+		ROW_BY_ROW("Row by Row"),
+		MESO_BY_MESO("Sequence of Meso Patterns"),
+		ROOM_BY_ROOM("Individual use of rooms");
+		
+		private String label;
+		
+		GramTypes(String label)
+		{
+			this.label = label;
+		}
+		
+		public String toString() {
+            return label;
+        }
 	}
 	
 	public UUID uniqueID;
@@ -89,7 +100,7 @@ public class Gram
 		case ROW_BY_ROW:
 			break;
 		case TILE_BY_TILE:
-			break;
+			return new RoomTileGram(gramValue, null); //This needs more!
 		default:
 			break;
 		}
@@ -113,7 +124,7 @@ public class Gram
 		case ROW_BY_ROW:
 			break;
 		case TILE_BY_TILE:
-			break;
+			return RoomTileGram.AnalyzeContent(currentKeys, content);
 		default:
 			break;
 		
@@ -137,7 +148,7 @@ public class Gram
 		case ROW_BY_ROW:
 			break;
 		case TILE_BY_TILE:
-			break;
+			return RoomTileGram.getUniqueID(content);
 		default:
 			break;
 		
@@ -161,7 +172,7 @@ public class Gram
 		case ROW_BY_ROW:
 			break;
 		case TILE_BY_TILE:
-			break;
+			return RoomTileGram.transformObjects(current);
 		default:
 			break;
 		
