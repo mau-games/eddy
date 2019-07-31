@@ -1699,31 +1699,6 @@ public class Room {
 	public int[][] toMatrix() {
 		return matrix;
 	}
-
-	/**
-	 * Hacky load map implementation - TODO: should probably not be here
-	 * 
-	 * @param file
-	 * @throws IOException
-	 */
-	public static void LoadMap(File file) throws IOException{
-		FileReader reader = new FileReader(file);
-		String mapString = "";
-		int lineCounter = 0;
-		int charCounter = 0;
-		while(reader.ready()){
-			char c = (char) reader.read();
-			mapString += c;
-		}
-		Room room = fromString(mapString);
-		PatternFinder finder = room.getPatternFinder();
-		MapContainer result = new MapContainer();
-		result.setMap(room);
-		result.setMicroPatterns(finder.findMicroPatterns());
-		result.setMesoPatterns(finder.findMesoPatterns());
-		result.setMacroPatterns(finder.findMacroPatterns());
-		EventRouter.getInstance().postEvent(new MapLoaded(result));
-	}
 	
 	/**
 	 * Intra Room Feasibility refers to the feasibility within the room and is calculated as follows:
@@ -2704,176 +2679,6 @@ public class Room {
 		return new FloorTile(custom);
 	}
 	
-	
-	
-	/////////////////////////////// LOADING MAPS AND STRING DEBUG //////////////////////////////////////////////
-
-	//TODO: This will need to be REMADE how to load/save
-	/**
-	 * Builds a map from a string representing a rectangular room. Each row in
-	 * the string, separated by a newline (\n), represents a row in the
-	 * resulting map's matrix.
-	 * 
-	 * @param string A string
-	 */
-	public static Room fromString(String string) {
-		String[] rows = string.split("[\\r\\n]+");
-		// Had we just stuck to the specs, this wouldn't have been necessary...
-		if (rows.length < 2) {
-			rows = string.split("[\\n]+");
-		}
-		int rowCount = rows.length;
-		int colCount = rows[0].length();
-		TileTypes type = null;
-
-
-
-		Room room = new Room(rowCount, colCount);
-		try {
-			room.setConfig(new GeneratorConfig());
-		} catch (MissingConfigurationException e) {
-			e.printStackTrace();
-		}
-//
-//		Game.doors.clear();
-//		
-////		for (int j = 0; j < colCount; j++){
-////			 for (int i = 0; i < rowCount; i++) {
-//
-//		Point p1 = null;
-//		Point p2 = null;
-//		Point p3 = null;
-//		Point p4 = null;
-//		
-//		//TODO: CHANGE THIS, Is too hardcoded, why use this values when we have the columns and rows?
-//		// South
-//		Point south = new Point(11/2, 11-1);
-//		// East
-//		Point east = new Point(11-1, 11/2);
-//		// North
-//		Point north = new Point(11/2, 0);
-//		// West
-//		Point west = new Point(0, 11/2);
-//
-//		for (int i = 0; i < rowCount; i++) {
-//			for (int j = 0; j < colCount; j++) {
-//				type = TileTypes.toTileType(Integer.parseInt("" + rows[i].charAt(j), 16));
-//				room.setTile(i, j, type);
-//				switch (type) {
-//				case WALL:
-//					room.wallCount++;
-//					break;
-//				case ENEMY:
-//					room.enemies.add(new Point(i, j));
-//					break;
-//				case TREASURE:
-//					room.treasures.add(new Point(i, j));
-//					break;
-//				case DOOR:
-//					room.addDoor(new Point(i, j));
-//					Point temp = new Point(i, j);
-//
-//					if(temp.equals(north)) {
-//						p1 = temp;
-//					}
-//					if(temp.equals(east)) {
-//						p2 = temp;
-//					}
-//					if(temp.equals(south)) {
-//						p3 = temp;
-//					}
-//					if(temp.equals(west)) {
-//						p4 = temp;
-//					}
-//
-//					Game.doors.add(new Point(i,j));
-//					break;
-//				case DOORENTER:
-//					room.setEntrance(new Point(i, j));
-//					Point temp2 = new Point(i, j);
-//
-//					if(temp2.equals(north)) {
-//						p1 = temp2;
-//					}
-//					if(temp2.equals(east)) {
-//						p2 = temp2;
-//					}
-//					if(temp2.equals(south)) {
-//						p3 = temp2;
-//					}
-//					if(temp2.equals(west)) {
-//						p4 = temp2;
-//					}
-//					room.addDoor(new Point(i, j));
-//					Game.doors.add(0, new Point(i,j));
-//					break;
-//				default:
-//				}
-//
-//			}
-//
-//		}
-//		if (Game.doors.isEmpty()) {
-//			room = new Room(11, 11, 0); //TODO: ??
-//		}
-//		else {
-//			GeneratorConfig gc;
-//			try {
-//				gc = new GeneratorConfig();
-//				Room newMap = new Room (gc, 11, 11, p1, p2, p3, p4);
-//
-//				for (int i = 0; i < rowCount; i++) {
-//					for (int j = 0; j < colCount; j++) {
-//						type = TileTypes.toTileType(Integer.parseInt("" + rows[i].charAt(j), 16));
-//						room.setTile(i, j, type);
-//						switch (type) {
-//						case WALL:
-//							newMap.wallCount++;
-//							Point temp = new Point(i, j);
-//							newMap.matrix[temp.getX()][temp.getY()] = 1;
-//							break;
-//						case ENEMY:
-//							newMap.enemies.add(new Point(i, j));
-//							Point temp2 = new Point(i, j);
-//							newMap.matrix[temp2.getX()][temp2.getY()] = 3;
-//							break;
-//						case TREASURE:
-//							newMap.treasures.add(new Point(i, j));
-//							Point temp3 = new Point(i, j);
-//							newMap.matrix[temp3.getX()][temp3.getY()] = 2;
-//							break;
-//						default:
-//						}
-//
-//					}
-//
-//				}
-//
-//
-//				room = newMap;
-//			} catch (MissingConfigurationException e) {
-//				// TODO Auto-generated catch block
-//				e.printStackTrace();
-//			}
-//		}
-
-		return room;
-	}
-//
-	public String matrixToString() 
-	{
-		StringBuilder map = new StringBuilder();
-
-		for (int j = 0; j < height; j++){
-			for (int i = 0; i < width; i++)  {
-				map.append(Integer.toHexString(matrix[j][i]));
-			}
-			map.append("\n");
-		}
-
-		return map.toString();
-	}
-	
 	public LinkedList<Room> getEditionSequence()
 	{
 		return editionSequence;
@@ -2888,11 +2693,38 @@ public class Room {
 	{
 		editionSequence.addAll(editions);//Will this work? --> Only god knows
 	}
+
+	/////////////////////////////// LOADING MAPS AND STRING DEBUG //////////////////////////////////////////////
 	
+	public String matrixToString(boolean ignoreSpecials) 
+	{
+		StringBuilder map = new StringBuilder();
+
+		for (int j = 0; j < height; j++)
+		{
+			for (int i = 0; i < width; i++)  
+			{
+				if(ignoreSpecials && matrix[j][i] > 3)
+				{
+					map.append(Integer.toHexString(0));
+				}
+				else
+				{
+					map.append(Integer.toHexString(matrix[j][i]));
+				}
+
+			}
+			map.append("\n");
+		}
+
+		return map.toString();
+	}
+
+
 	//This is the one 
 	//I think I could have this static method
 	//But I am also seduce by the idea that I can change the size of the room at runtime which is not possible at the moment.
-	public static Room createRoomFromStringColumn(String ... roomColumns)
+	public static Room createRoomFromColumnString(String ... roomColumns)
 	{
 		int cols = roomColumns.length;
 		int rows = roomColumns[0].length(); //This is taking for granted that you are sending columns with the same amount!
@@ -2927,41 +2759,43 @@ public class Room {
 	}
 	
 	//This is the one 
-		//I think I could have this static method
-		//But I am also seduce by the idea that I can change the size of the room at runtime which is not possible at the moment.
-		public static Room createRoomFromString(String ... roomColumns)
-		{
-			int cols = roomColumns.length;
-			int rows = roomColumns[0].length(); //This is taking for granted that you are sending columns with the same amount!
-			
-			GeneratorConfig gc = null;
-			try {
-				gc = new GeneratorConfig();
-			} catch (MissingConfigurationException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-			
-			Room room = new Room(gc, rows, cols);
-			int x=0;
-			int y=0;
-			
-			//Each index in the array is a column
-			for(String column : roomColumns)
-			{
-				for(String c : column.split(""))
-				{
-					room.setTile(x, y++, new Tile(x,y,Integer.parseInt(c)));	
-				}
-				
-				x++;
-				y=0;
-			}
-			
-			room.setupRoom();
-			
-			return room;
+	//I think I could have this static method
+	//But I am also seduce by the idea that I can change the size of the room at runtime which is not possible at the moment.
+	public static Room createRoomFromString(String roomString)
+	{
+		String[] roomDividedRows = roomString.split("[\\n]+");
+		
+		int rows = roomDividedRows.length;
+		int cols = roomDividedRows[0].length();
+		
+		GeneratorConfig gc = null;
+		try {
+			gc = new GeneratorConfig();
+		} catch (MissingConfigurationException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
+		
+		Room room = new Room(gc, rows, cols);
+		int x=0;
+		int y=0;
+		
+		//Each index in the array is a column
+		for(String roomRows : roomDividedRows)
+		{
+			for(String c : roomRows.split(""))
+			{
+				room.setTile(x++, y, new Tile(x,y,Integer.parseInt(c)));	
+			}
+			
+			x = 0;
+			y++;
+		}
+		
+		room.setupRoom();
+		
+		return room;
+	}
 	
 	@Override
 	public String toString() {

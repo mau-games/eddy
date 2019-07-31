@@ -17,7 +17,7 @@ public class EnemyTest {
 
 	@Test
 	public void testEmptyMap() {
-		Room room = Room.fromString("");
+		Room room = Room.createRoomFromString("");
 		Rectangle boundary = new Rectangle(new Point(0, 0), new Point(0, 0));
 		List<Pattern> enemies = Enemy.matches(room, boundary);
 
@@ -26,7 +26,7 @@ public class EnemyTest {
 
 	@Test
 	public void test1x1() throws IOException {
-		Room room = Room.fromString(IOUtils.toString(
+		Room room = Room.createRoomFromString(IOUtils.toString(
 				this.getClass().getResourceAsStream("/maps/rooms/1x1.map"),
 				"UTF-8"));
 		Rectangle boundary = new Rectangle(new Point(0, 0), new Point(0, 0));
@@ -37,7 +37,7 @@ public class EnemyTest {
 
 	@Test
 	public void test2x2() throws IOException {
-		Room room = Room.fromString(IOUtils.toString(
+		Room room = Room.createRoomFromString(IOUtils.toString(
 				this.getClass().getResourceAsStream("/maps/rooms/2x2.map"),
 				"UTF-8"));
 		Rectangle boundary = new Rectangle(new Point(0, 0), new Point(1, 1));
@@ -48,7 +48,7 @@ public class EnemyTest {
 
 	@Test
 	public void test3x3() throws IOException {
-		Room room = Room.fromString(IOUtils.toString(
+		Room room = Room.createRoomFromString(IOUtils.toString(
 				this.getClass().getResourceAsStream("/maps/rooms/3x3.map"),
 				"UTF-8"));
 		Rectangle boundary = new Rectangle(new Point(0, 0), new Point(2, 2));
@@ -59,7 +59,7 @@ public class EnemyTest {
 
 	@Test
 	public void test3x3NoRoom() throws IOException {
-		Room room = Room.fromString(IOUtils.toString(
+		Room room = Room.createRoomFromString(IOUtils.toString(
 				this.getClass().getResourceAsStream("/maps/rooms/3x3noroom.map"),
 				"UTF-8"));
 		Rectangle boundary = new Rectangle(new Point(0, 0), new Point(2, 2));
@@ -70,7 +70,7 @@ public class EnemyTest {
 
 	@Test
 	public void test4x4() throws IOException {
-		Room room = Room.fromString(IOUtils.toString(
+		Room room = Room.createRoomFromString(IOUtils.toString(
 				this.getClass().getResourceAsStream("/maps/rooms/4x4.map"),
 				"UTF-8"));
 		Rectangle boundary = new Rectangle(new Point(0, 0), new Point(3, 3));
@@ -81,7 +81,7 @@ public class EnemyTest {
 
 	@Test
 	public void test4x4NoRoom() throws IOException {
-		Room room = Room.fromString(IOUtils.toString(
+		Room room = Room.createRoomFromString(IOUtils.toString(
 				this.getClass().getResourceAsStream("/maps/rooms/4x4noroom.map"),
 				"UTF-8"));
 		Rectangle boundary = new Rectangle(new Point(0, 0), new Point(3, 3));
@@ -92,7 +92,7 @@ public class EnemyTest {
 
 	@Test
 	public void test10x10Corners() throws IOException {
-		Room room = Room.fromString(IOUtils.toString(
+		Room room = Room.createRoomFromString(IOUtils.toString(
 				this.getClass().getResourceAsStream("/maps/rooms/10x10corners.map"),
 				"UTF-8"));
 		Rectangle boundary = new Rectangle(new Point(0, 0), new Point(9, 9));
@@ -103,7 +103,7 @@ public class EnemyTest {
 
 	@Test
 	public void test10x10Features() throws IOException {
-		Room room = Room.fromString(IOUtils.toString(
+		Room room = Room.createRoomFromString(IOUtils.toString(
 				this.getClass().getResourceAsStream("/maps/rooms/10x10features.map"),
 				"UTF-8"));
 		Rectangle boundary = new Rectangle(new Point(0, 0), new Point(9, 9));
@@ -114,7 +114,7 @@ public class EnemyTest {
 
 	@Test
 	public void test10x10FeaturesUsingNullBoundary() throws IOException {
-		Room room = Room.fromString(IOUtils.toString(
+		Room room = Room.createRoomFromString(IOUtils.toString(
 				this.getClass().getResourceAsStream("/maps/rooms/10x10features.map"),
 				"UTF-8"));
 		List<Pattern> enemies = Enemy.matches(room, null);
@@ -124,7 +124,7 @@ public class EnemyTest {
 
 	@Test
 	public void test10x10FeaturesUsingBoundariesFindingAnEnemy() throws IOException {
-		Room room = Room.fromString(IOUtils.toString(
+		Room room = Room.createRoomFromString(IOUtils.toString(
 				this.getClass().getResourceAsStream("/maps/rooms/10x10features.map"),
 				"UTF-8"));
 		Rectangle boundary = new Rectangle(new Point(1, 1), new Point(8, 8));
@@ -135,7 +135,7 @@ public class EnemyTest {
 
 	@Test
 	public void test10x10FeaturesUsingBoundariesNotFindingAnEnemy() throws IOException {
-		Room room = Room.fromString(IOUtils.toString(
+		Room room = Room.createRoomFromString(IOUtils.toString(
 				this.getClass().getResourceAsStream("/maps/rooms/10x10features.map"),
 				"UTF-8"));
 		Rectangle boundary = new Rectangle(new Point(2, 2), new Point(4, 5));
@@ -146,7 +146,7 @@ public class EnemyTest {
 
 	@Test
 	public void test10x10FeaturesUsingBoundariesTooBig() throws IOException {
-		Room room = Room.fromString(IOUtils.toString(
+		Room room = Room.createRoomFromString(IOUtils.toString(
 				this.getClass().getResourceAsStream("/maps/rooms/10x10features.map"),
 				"UTF-8"));
 		Rectangle boundary = new Rectangle(new Point(0, 0), new Point(10, 10));
@@ -157,7 +157,7 @@ public class EnemyTest {
 
 	@Test
 	public void test16x16Generated() throws IOException {
-		Room room = Room.fromString(IOUtils.toString(
+		Room room = Room.createRoomFromString(IOUtils.toString(
 				this.getClass().getResourceAsStream("/maps/rooms/16x16generated.map"),
 				"UTF-8"));
 		Rectangle boundary = new Rectangle(new Point(0, 0), new Point(15, 15));
@@ -168,7 +168,7 @@ public class EnemyTest {
 
 	@Test
 	public void testBigGenerated() throws IOException {
-		Room room = Room.fromString(IOUtils.toString(
+		Room room = Room.createRoomFromString(IOUtils.toString(
 				this.getClass().getResourceAsStream("/maps/rooms/big-generated.map"),
 				"UTF-8"));
 		Rectangle boundary = new Rectangle(new Point(0, 0), new Point(15, 15));

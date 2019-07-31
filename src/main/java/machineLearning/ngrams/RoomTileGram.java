@@ -30,7 +30,7 @@ public class RoomTileGram extends Gram {
 	public static HashMap<UUID, ArrayList<Gram>> AnalyzeContent(HashMap<UUID, ArrayList<Gram>> currentKeys, Object... object)
 	{
 		HashMap<UUID, ArrayList<Gram>> analyzedContent = new HashMap<UUID, ArrayList<Gram>>();
-		ArrayList<Room> roomsToDeconstruct = (ArrayList<Room>)object[0];
+		LinkedList<Room> roomsToDeconstruct = (LinkedList<Room>)object[0];
 		
 		//Get unique ID of the current gram
 		UUID currentID = null;
@@ -44,12 +44,12 @@ public class RoomTileGram extends Gram {
 		{
 			int editionSequenceSize = mainSequenceRoom.getEditionSequence().size();
 			
-			currentID = getUniqueID( mainSequenceRoom.getEditionSequence().get(0).matrixToString());
+			currentID = getUniqueID( mainSequenceRoom.getEditionSequence().get(0).matrixToString(true));
 			
 			//Create the 3 needed steps
 			prev = null;
 			current = null;
-			next = new RoomTileGram(mainSequenceRoom.getEditionSequence().get(0).matrixToString(), currentID);
+			next = new RoomTileGram(mainSequenceRoom.getEditionSequence().get(0).matrixToString(true), currentID);
 			
 			for(int i = 0; i < editionSequenceSize; i++)
 			{
@@ -65,8 +65,8 @@ public class RoomTileGram extends Gram {
 					prev = current;
 					current = next;
 					currentID = current.uniqueID;
-					next = i+1 < editionSequenceSize ? new RoomTileGram(mainSequenceRoom.getEditionSequence().get(i+1).matrixToString(), 
-							getUniqueID(mainSequenceRoom.getEditionSequence().get(i+1).matrixToString())) : null;
+					next = i+1 < editionSequenceSize ? new RoomTileGram(mainSequenceRoom.getEditionSequence().get(i+1).matrixToString(true), 
+							getUniqueID(mainSequenceRoom.getEditionSequence().get(i+1).matrixToString(true))) : null;
 				}
 				
 				
@@ -102,15 +102,35 @@ public class RoomTileGram extends Gram {
 		return analyzedContent;
 	}
 	
+	//Using rooms rather than string
+//	public static LinkedList<UUID> transformObjects(Object currentContent)
+//	{
+//		LinkedList<Room> roomsToDeconstruct = (LinkedList<Room>)currentContent;
+//		LinkedList<UUID> transformedObjects = new LinkedList<UUID>();
+//		
+//		for(Room room : roomsToDeconstruct)
+//		{
+//			transformedObjects.add(getUniqueID(room.matrixToString()));
+//		}
+//		
+//		return transformedObjects;
+//	}
+	
 	public static LinkedList<UUID> transformObjects(Object currentContent)
 	{
 		////Load the text and put everything in lowercase!
-		LinkedList<Room> roomsToDeconstruct = (LinkedList<Room>)currentContent;
+		String text = (String)currentContent;
+		text = text.toLowerCase();
+		
 		LinkedList<UUID> transformedObjects = new LinkedList<UUID>();
 		
-		for(Room room : roomsToDeconstruct)
+		//Divide the text by spaces
+		String[] splitted = text.split(" ");
+		
+		//transform to ID
+		for(String split : splitted)
 		{
-			transformedObjects.add(getUniqueID(room.matrixToString()));
+			transformedObjects.add(getUniqueID(split));
 		}
 		
 		return transformedObjects;
@@ -135,7 +155,7 @@ public class RoomTileGram extends Gram {
 	public static UUID getUniqueID(Object contentToGet)
 	{
 		Room current = (Room)contentToGet;
-		String translatedContent = current.matrixToString();
+		String translatedContent = current.matrixToString(true);
 		translatedContent = translatedContent.toLowerCase();
 		return UUID.nameUUIDFromBytes(translatedContent.getBytes());
 	}

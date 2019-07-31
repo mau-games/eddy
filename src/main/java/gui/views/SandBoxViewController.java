@@ -239,19 +239,23 @@ public class SandBoxViewController extends BorderPane implements Listener
 		roomToBe.forceReevaluation();
 		updateRoom(roomToBe);
 		roomMouseEvents();
-		//Add the info of the dungeon 
+		
+		
+		//Add the rooms that are in the dungeon
 		dungeonRoomsPane.getChildren().clear();
 		List<Room> dungeonRooms = roomToBe.owner.getAllRooms();
+		
 		for(int i = 0; i < dungeonRooms.size(); i++) 
 		{
-			RoomPreview<DungeonPreviewSelected> roomPreview = new RoomPreview<DungeonPreviewSelected>(dungeonRooms.get(i),DungeonPreviewSelected.class);
-//			RoomPreview roomPreview = new RoomPreview(dungeonRooms.get(i));
+			RoomPreview<DungeonPreviewSelected> roomPreview = new RoomPreview<DungeonPreviewSelected>(dungeonRooms.get(i),
+																										DungeonPreviewSelected.class);
 			dungeonRoomsPane.getChildren().add(roomPreview.getRoomCanvas());
 			
 			Platform.runLater(() -> {
 				roomPreview.getRoomCanvas().draw(renderer.renderMiniSuggestedRoom(roomPreview.getPreviewRoom(), -1));
 			});
 		}
+
 	}
 
 	/**

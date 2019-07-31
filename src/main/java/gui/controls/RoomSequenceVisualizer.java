@@ -225,6 +225,7 @@ public class RoomSequenceVisualizer extends BorderPane implements Listener {
 		
 	}
 	
+	@FXML
 	public void onLoadRooms()
 	{
 		XMLHandler.getInstance().clearLoaded();

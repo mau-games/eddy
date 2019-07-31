@@ -323,6 +323,7 @@ public class InteractiveGUIController implements Initializable, Listener {
 		System.exit(0);
 	}
 
+	//TODO: FIX!
 	public void openMap() {
 		FileChooser fileChooser = new FileChooser();
 		fileChooser.setTitle("Open Map");
@@ -340,7 +341,7 @@ public class InteractiveGUIController implements Initializable, Listener {
 
 					mapString += c;
 				}
-				worldMapMatrix = updateLargeMap(mapString);
+//				worldMapMatrix = updateLargeMap(mapString);
 
 				router.postEvent(new RequestWorldView());
 			} catch (IOException e) {
@@ -599,92 +600,4 @@ public class InteractiveGUIController implements Initializable, Listener {
 	}
 
 
-	private MapContainer[][] updateLargeMap(String loadedMap) {
-
-
-		String largeString = loadedMap;
-		//fill matrix from string
-		int charNbr = 0;
-		while (largeString.charAt(charNbr) != '\n') {
-			charNbr++;
-		}
-		int actualCharNbr = charNbr / 11;
-		MapContainer[][] worldMapMatrix2 = new MapContainer[actualCharNbr][actualCharNbr];
-		String[] stringArray = new String[actualCharNbr];
-
-		for (int s = 0; s < stringArray.length; s++) {
-			stringArray[s] = "";
-		}
-
-		int p = 0;
-		int charAmount = 0;
-		int newLineCount = 0;
-		int q = 0;
-
-		while (q < actualCharNbr) {
-
-			for (int i = 0; i < largeString.length(); i++) {
-
-				if (largeString.charAt(i) == '\n') {
-					newLineCount++;
-					for (int s = 0; s < stringArray.length; s++) {
-						stringArray[s] += largeString.charAt(i);
-					}
-
-					if ((newLineCount%11) == 0) {
-
-						for (int s = 0; s < stringArray.length; s++) {
-							MapContainer helpContainer = new MapContainer();
-							helpContainer.setMap(Room.fromString(stringArray[s]));
-							
-							
-							int counter = 0;
-							for (int j = 0; j < stringArray[s].length(); j++) {
-								if (stringArray[s].charAt(j) == '4' || stringArray[s].charAt(j) == '5') {
-									counter++;
-								}
-								
-							}
-							//TODO: KALINKA, we are going to have so much fun fixing this method!!
-//							helpContainer.getMap().setNumberOfDoors(counter);
-
-							worldMapMatrix2[q][s] = helpContainer;
-							stringArray[s] = "";
-
-						}
-						q++;
-
-					}
-
-					p = 0;
-					charAmount = 0;
-				}
-
-				if ((charAmount%11) == 0 && charAmount != 0) {
-					p++;
-				}
-				if (largeString.charAt(i) != '\n') {
-					charAmount++;
-
-					stringArray[p] += largeString.charAt(i);
-				}
-
-			}
-		}
-		
-		//TODO: Setting the room null if no doors
-//		
-//		for (MapContainer[] mc : worldMapMatrix2) {
-//			for (MapContainer mc2 : mc) {
-//				if (mc2.getMap().getNumberOfDoors() == 0) {
-//					mc2.getMap().setNull();
-//				}
-//			}
-//		}
-//		
-		
-		size = worldMapMatrix2.length;
-
-		return worldMapMatrix2;
-	}
 }

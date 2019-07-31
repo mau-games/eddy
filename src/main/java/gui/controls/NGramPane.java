@@ -1,7 +1,9 @@
 package gui.controls;
 
 import java.io.IOException;
+import java.util.LinkedList;
 
+import collectors.XMLHandler;
 import game.Room;
 import gui.utils.MapRenderer;
 import javafx.application.Platform;
@@ -61,6 +63,8 @@ public class NGramPane extends BorderPane implements Listener {
 	@FXML private ComboBox<GramTypes> gramTypeFX;
 	private GramTypes gramType = GramTypes.COLUMN_BY_COLUMN;
 	
+	LinkedList<Room> loadedRooms;
+	
 	
 	//To be called from the fxml
 	public NGramPane()
@@ -89,18 +93,9 @@ public class NGramPane extends BorderPane implements Listener {
 		
 		nGramRoom = new SuggestionRoom();
 		gramCreator = new NGramLoader(gramType);
-		
-//		nGramRoom.resizeCanvasForRoom(13.0f, 7.0f);
-//		nGramRoom.getRoomCanvas().draw(null);
-//		nGramRoom.getRoomCanvas().setText("Waiting for map...");
-//		
-//		centerPane.getChildren().clear();
-//		centerPane.getChildren().add(nGramRoom.getRoomCanvas());
-		
-//		setupMAPElitesGUI();
-//		saveGenBtn.setDisable(true);
+		loadedRooms = new LinkedList<Room>();
+
 		isActive = false;
-//		setupView();
 	}
 	
 	private void disablePane()
@@ -186,7 +181,7 @@ public class NGramPane extends BorderPane implements Listener {
 		
 		//Form a string array, create the room and add paint it!
 		textGramRoom = currentFormedRoom.split(" ");
-		nGramRoom.setOriginalRoom(Room.createRoomFromStringColumn(textGramRoom));
+		nGramRoom.setOriginalRoom(Room.createRoomFromColumnString(textGramRoom));
 		InitializeView();
 	}
 	
@@ -194,22 +189,67 @@ public class NGramPane extends BorderPane implements Listener {
 	private void onRunGeneration()
 	{	
 		nGramRoom.setOriginalRoom(null);
-		
 		currentFormedRoom = "";
 		String prevWord = "";
-		for(int words = 0; words < 13; words++)
+		
+		switch(gramTypeFX.getValue())
 		{
+		case COLUMN_BY_COLUMN:
+			
+			for(int words = 0; words < Integer.parseInt(widthField.getText()); words++)
+			{
+				prevWord = gramCreator.getNGram(currentFormedRoom, Integer.parseInt(nStepsField.getText()));
+				currentFormedRoom += prevWord + " ";
+			}
+			
+			//Form a string array, create the room and add paint it!
+			textGramRoom = currentFormedRoom.split(" ");
+			nGramRoom.setOriginalRoom(Room.createRoomFromColumnString(textGramRoom));
+			
+			break;
+		case MESO_BY_MESO:
+			break;
+		case ROOM_BY_ROOM:
+			break;
+		case ROW_BY_ROW:
+
+			for(int words = 0; words < Integer.parseInt(heightField.getText()); words++)
+			{
+				prevWord = gramCreator.getNGram(currentFormedRoom, Integer.parseInt(nStepsField.getText()));
+				currentFormedRoom += prevWord + " ";
+			}
+			
+			//Form a string array, create the room and add paint it!
+			textGramRoom = currentFormedRoom.split(" ");
+			break;
+		case TILE_BY_TILE:
+			
+			//Fill all the previous steps with the edition sequence of the current room!
+			int size = currentEditedRoom.get().getEditionSequence().size();
+			for(int i = 0; i < size; i++)
+			{
+				if(i != 0)
+					currentFormedRoom += " ";
+				
+				currentFormedRoom += currentEditedRoom.get().getEditionSequence().get(i).matrixToString(true);
+			}
+			
+			//At the moment we are going to try just a step ahead
 			prevWord = gramCreator.getNGram(currentFormedRoom, Integer.parseInt(nStepsField.getText()));
 			currentFormedRoom += prevWord + " ";
+			
+			//Form a string array, create the room and add paint it!
+			textGramRoom = new String[]{prevWord};
+			nGramRoom.setOriginalRoom(Room.createRoomFromString(prevWord));
+			
+			break;
+		default:
+			break;
+		
 		}
-		
-		System.out.format("Generated Room using %s-gram: ", nStepsField.getText());
-		System.out.println();
-		System.out.println(currentFormedRoom);
-		
-		//Form a string array, create the room and add paint it!
-		textGramRoom = currentFormedRoom.split(" ");
-		nGramRoom.setOriginalRoom(Room.createRoomFromStringColumn(textGramRoom));
+//		System.out.format("Generated Room using %s-gram: ", nStepsField.getText());
+//		System.out.println();
+//		System.out.println(currentFormedRoom);
 		InitializeView();
 	}
 	
@@ -257,11 +297,41 @@ public class NGramPane extends BorderPane implements Listener {
 		}
 	}
 	
+	@FXML
+	public void onLoadRooms()
+	{
+		XMLHandler.getInstance().clearLoaded();
+		XMLHandler.getInstance().loadRooms(XMLHandler.projectPath + "testReader\\", false);
+		XMLHandler.getInstance().sortRoomsToLoad();
+		XMLHandler.getInstance().createRooms();
+		
+		loadedRooms.clear();
+		loadedRooms = XMLHandler.getInstance().roomsInFile;
+		
+		gramCreator.addGrams(loadedRooms);
+	}
+	
+	@FXML
+	public void onUseCurrent()
+	{
+		gramCreator.addGrams(currentEditedRoom.get().owner.getAllRooms());
+//		LinkedList<Room> xmlRooms = new LinkedList<>();
+//		xmlRooms.add(currentEditedRoom.get());
+//		addLoadedRooms(xmlRooms);
+//		visualizeRoomSequence(xmlRooms.getFirst().getEditionSequence());
+	}
+	
+//	@FXML
+//	private void onSaveRoom()
+//	{
+//
+//	}
+//	
 	
 	@FXML
 	private void onSaveRoom()
 	{
-		gramCreator.addGrams(currentEditedRoom.get().owner.getAllRooms());
+//		gramCreator.addGrams(currentEditedRoom.get().owner.getAllRooms());
 	}
 	
 	/***

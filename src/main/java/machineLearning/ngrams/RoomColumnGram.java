@@ -29,9 +29,9 @@ public class RoomColumnGram extends Gram
 	public static HashMap<UUID, ArrayList<Gram>> AnalyzeContent(HashMap<UUID, ArrayList<Gram>> currentKeys, Object... object)
 	{
 		HashMap<UUID, ArrayList<Gram>> analyzedContent = new HashMap<UUID, ArrayList<Gram>>();
-		ArrayList<Room> roomsToDeconstruct = new ArrayList<Room>();
+		LinkedList<Room> roomsToDeconstruct = new LinkedList<Room>();
 		
-		ArrayList<Room> roomsToLoad = (ArrayList<Room>)object[0];
+		LinkedList<Room> roomsToLoad = (LinkedList<Room>)object[0];
 		
 		//Load the rooms and put them in individual containers
 		for(Room o : roomsToLoad)

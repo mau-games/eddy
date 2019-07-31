@@ -35,6 +35,15 @@
 				</ComboBox>
                </children>
             </HBox>
+             <HBox alignment="CENTER" prefHeight="100.0" prefWidth="200.0" spacing="10.0">
+               <children>
+                  <Button fx:id="useCurrentButton" alignment="CENTER" mnemonicParsing="false" 
+                  onAction="#onUseCurrent" text="Use Current" textAlignment="CENTER" />
+				  <Button fx:id="loadRoomsButton" alignment="CENTER" mnemonicParsing="false" 
+				  onAction="#onLoadRooms" text="Load Rooms" textAlignment="CENTER" />
+				  	<Button fx:id="saveButton" alignment="CENTER" mnemonicParsing="false" onAction="#onSaveRoom" text="Save" textAlignment="CENTER" />
+               </children>
+            </HBox>
 			<HBox alignment="CENTER" prefHeight="100.0" prefWidth="200.0" spacing="10.0">
                <children>
 					<TextField fx:id="widthField" onKeyTyped="#onWidthChanged" style="-fx-text-fill: white;" text="7" />
