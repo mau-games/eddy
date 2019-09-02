@@ -479,7 +479,7 @@ public class MAPEliteAlgorithm extends Algorithm implements Listener {
     
     private void runNoInterbreedingApplElites()
     {
-    	storeUniqueRooms();
+//    	storeUniqueRooms();
     	
     	//If we have receive the event that the dimensions changed, please modify the dimensions and recalculate the cells!
     	if(dimensionsChanged)
@@ -535,25 +535,25 @@ public class MAPEliteAlgorithm extends Algorithm implements Listener {
     	if(currentGen >= iterationsToPublish)
     	{
 
-//    		publishGeneration();
+    		publishGeneration();
     	}
     	else {
     		currentGen++;
     	}
     	
-    	if(realCurrentGen == 5000)
-    	{
-    		System.out.println(uniqueGeneratedRooms.size());
-    		saveUniqueRoomsToFile();
-    		publishGeneration();
-    	}
-    	
-    	if(realCurrentGen % 1000 == 0)
-    	{
-    		System.out.println(uniqueGeneratedRooms.size());
-        	System.out.println("Current Generation: " + realCurrentGen);
-    	}
-
+//    	if(realCurrentGen == 5000)
+//    	{
+//    		System.out.println(uniqueGeneratedRooms.size());
+//    		saveUniqueRoomsToFile();
+//    		publishGeneration();
+//    	}
+//    	
+//    	if(realCurrentGen % 1000 == 0)
+//    	{
+//    		System.out.println(uniqueGeneratedRooms.size());
+//        	System.out.println("Current Generation: " + realCurrentGen);
+//    	}
+//
 
     	
     	realCurrentGen++;
