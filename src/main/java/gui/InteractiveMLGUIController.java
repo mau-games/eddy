@@ -9,9 +9,14 @@ import java.nio.file.Files;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ResourceBundle;
+import java.util.UUID;
+
 import javax.imageio.ImageIO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import collectors.ActionLogger;
+import collectors.DataSaverLoader;
 import finder.PatternFinder;
 import game.ApplicationConfig;
 import game.Dungeon;
@@ -21,6 +26,7 @@ import game.RoomEdge;
 import game.MapContainer;
 import game.TileTypes;
 import generator.config.GeneratorConfig;
+import gui.utils.InformativePopupManager;
 import gui.utils.MapRenderer;
 import gui.views.LaunchViewController;
 import gui.views.RoomViewController;
@@ -34,6 +40,7 @@ import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.scene.ImageCursor;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.MenuButton;
@@ -53,6 +60,7 @@ import util.eventrouting.Listener;
 import util.eventrouting.PCGEvent;
 import util.eventrouting.events.AlgorithmDone;
 import util.eventrouting.events.ApplySuggestion;
+import util.eventrouting.events.ChangeCursor;
 import util.eventrouting.events.InitialRoom;
 import util.eventrouting.events.MapLoaded;
 import util.eventrouting.events.RequestAppliedMap;
@@ -128,7 +136,7 @@ public class InteractiveMLGUIController implements Initializable, Listener {
 	//NEW
 	private Dungeon dungeonMap = new Dungeon();
 	
-
+	public static UUID runID;
 	@Override
 	public void initialize(URL location, ResourceBundle resources) {
 		try {
@@ -137,6 +145,7 @@ public class InteractiveMLGUIController implements Initializable, Listener {
 			logger.error("Couldn't read config file.");
 		}
 
+		router.registerListener(this, new ChangeCursor(null));
 		router.registerListener(this, new InitialRoom(null, null));
 		router.registerListener(this, new RequestPathFinding(null, -1, null, null, null, null));
 		router.registerListener(this, new RequestConnection(null, -1, null, null, null, null));
@@ -167,7 +176,25 @@ public class InteractiveMLGUIController implements Initializable, Listener {
 			}
 
 		});
+		runID = UUID.randomUUID();
 
+		File file = new File(DataSaverLoader.projectPath + "\\summer-school\\" + runID + "\\algorithm\\");
+		if (!file.exists()) {
+			file.mkdirs();
+		}
+		file = new File(DataSaverLoader.projectPath + "\\summer-school\\" + runID + "\\dungeon\\");
+		if (!file.exists()) {
+			file.mkdirs();
+		}
+		file = new File(DataSaverLoader.projectPath + "\\summer-school\\" + runID + "\\room\\");
+		if (!file.exists()) {
+			file.mkdirs();
+		}
+		
+		
+		ActionLogger.getInstance().init();
+		InformativePopupManager.getInstance().setMainPane(mainPane);
+//		mainPane.getChildren().add(new Popup(200,200));
 		initLaunchView();
 //		initTinderView();
 		
@@ -177,12 +204,17 @@ public class InteractiveMLGUIController implements Initializable, Listener {
 	@Override
 	public synchronized void ping(PCGEvent e) 
 	{
-		if(e instanceof InitialRoom)
+		if(e instanceof ChangeCursor)
+		{
+			mainPane.getScene().setCursor(new ImageCursor(((ChangeCursor)e).getCursorImage()));
+		}
+		else if(e instanceof InitialRoom)
 		{
 			InitialRoom initRoom = (InitialRoom)e;
 			
 			dungeonMap.setInitialRoom(initRoom.getPickedRoom(), initRoom.getRoomPos());
 			worldView.restoreBrush();
+			worldView.initWorldMap(dungeonMap);
 		}
 		else if(e instanceof RequestPathFinding)
 		{
@@ -223,7 +255,7 @@ public class InteractiveMLGUIController implements Initializable, Listener {
 			}
 
 		} else if (e instanceof RequestWorldView) {
-			router.postEvent(new Stop());
+//			router.postEvent(new Stop());
 			backToWorldView();
 
 		} else if (e instanceof RequestEmptyRoom) {
@@ -266,6 +298,33 @@ public class InteractiveMLGUIController implements Initializable, Listener {
 
 	public void startNewFlow() {
 		roomView.userPreferenceModel.SaveMapTuples("da-network");
+		//TODO: There is mucho more than this, a lot of things need to be redone!
+
+		ActionLogger.getInstance().saveNFlush();
+		InformativePopupManager.getInstance().restartPopups();
+		
+		suggestionsView = new SuggestionsViewController();
+		roomView = new RoomViewMLController();
+		worldView = new WorldViewController();
+		launchView = new LaunchViewController();
+		dungeonMap = null;
+		
+		runID = UUID.randomUUID();
+		File file = new File(DataSaverLoader.projectPath + "\\summer-school\\" + runID + "\\algorithm\\");
+		if (!file.exists()) {
+			file.mkdirs();
+		}
+		file = new File(DataSaverLoader.projectPath + "\\summer-school\\" + runID + "\\dungeon\\");
+		if (!file.exists()) {
+			file.mkdirs();
+		}
+		file = new File(DataSaverLoader.projectPath + "\\summer-school\\" + runID + "\\room\\");
+		if (!file.exists()) {
+			file.mkdirs();
+		}
+		
+		ActionLogger.getInstance().init();
+		
 		initLaunchView();
 	}
 
