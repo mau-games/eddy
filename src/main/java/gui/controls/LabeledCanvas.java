@@ -82,9 +82,9 @@ public class LabeledCanvas extends BorderPane {
 
 		gc = canvas.getGraphicsContext2D();
 		
-		actualRotatingThingie = new ImageView();
+//		actualRotatingThingie = new ImageView();
 		rotatingThingie = new Image("/graphics/waiting.png");
-		actualRotatingThingie.setImage(rotatingThingie);
+//		actualRotatingThingie.setImage(rotatingThingie);
 		transition = new RotateTransition(Duration.millis(5000), canvas);
 		transition.setInterpolator(Interpolator.LINEAR);
 		transition.setFromAngle(0);

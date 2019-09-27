@@ -5,6 +5,8 @@ import java.util.List;
 import finder.geometry.Bitmap;
 import finder.geometry.Point;
 import game.Room;
+import game.Tile;
+import game.TileTypes;
 
 public class BasicBrush extends Brush
 {
@@ -37,11 +39,13 @@ public class BasicBrush extends Brush
 			return;
 		
 		List<Point> neighborhood = GetNeumannNeighborhood(p);
+//		List<Point> neighborhood = GetMooreNeighborhood(p);
 		
 		for(Point neighbor : neighborhood)
 		{
 			FillDrawable(neighbor, width, height, layer - 1);
 		}
 	}
-	
+
+
 }

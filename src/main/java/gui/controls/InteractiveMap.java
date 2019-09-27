@@ -2,22 +2,33 @@ package gui.controls;
 
 import java.util.HashMap;
 
+import collectors.ActionLogger;
+import collectors.ActionLogger.ActionType;
+import collectors.ActionLogger.TargetPane;
+import collectors.ActionLogger.View;
 import game.Game;
 import game.Room;
 import game.Tile;
 import game.TileTypes;
 import gui.utils.MapRenderer;
 import javafx.application.Platform;
+import javafx.geometry.HPos;
 import javafx.geometry.Pos;
+import javafx.geometry.VPos;
 import javafx.scene.Group;
 import javafx.scene.effect.BlendMode;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.image.PixelFormat;
+import javafx.scene.image.PixelWriter;
+import javafx.scene.image.WritableImage;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.Priority;
 import util.Point;
 import util.eventrouting.EventRouter;
 import util.eventrouting.Listener;
 import util.eventrouting.PCGEvent;
+import util.eventrouting.events.RequestWorldView;
 import util.eventrouting.events.SaveDisplayedCells;
 
 /**
@@ -33,7 +44,7 @@ public class InteractiveMap extends GridPane implements Listener {
 	private int rows = 0;
 	public double scale = 0;
 	
-	private final MapRenderer renderer = MapRenderer.getInstance();
+	private  MapRenderer renderer = MapRenderer.getInstance();
 	private final HashMap<ImageView, Point> coords = new HashMap<ImageView, Point>();
 	private final static HashMap<TileTypes, Image> images = new HashMap<TileTypes, Image>();
 	
@@ -58,6 +69,15 @@ public class InteractiveMap extends GridPane implements Listener {
 		EventRouter.getInstance().registerListener(this, new SaveDisplayedCells());
 	}
 	
+	public void destructor()
+	{
+		EventRouter.getInstance().unregisterListener(this, new SaveDisplayedCells());
+		room = null;
+		coords.clear();
+		images.clear();
+		renderer = null;
+	}
+	
 	/**
 	 * Updates a tile on the map.
 	 * This, dear reader, is not a beautiful way of doing things, but it works.
@@ -70,41 +90,64 @@ public class InteractiveMap extends GridPane implements Listener {
 		if (room == null) {
 			return;
 		}
+		
+//		this.setGridLinesVisible(true);
 
 		//Safety checkup
 		Point p = coords.get(tile);
 		Tile currentTile = room.getTile(p);
 		
-//		// Let's discard any attempts at erasing the doors
-//		if (map.getDoors().contains(new Point(x, y))) {
-//			return;
-//		}
-				
-		
-		// Let's discard any attempts at erasing the doors
+		// Let's discard any attempts at erasing the doors or the hero
 		if (p == null
-				|| currentTile.GetType() == TileTypes.DOOR) {
+				|| currentTile.GetType() == TileTypes.DOOR
+				|| currentTile.GetType() == TileTypes.HERO) {
 			return;
 		}
 		
-		//The brush has all the points that will be modified
-		for(finder.geometry.Point position : brush.GetDrawableTiles().getPoints())
-		{
-			currentTile = room.getTile(position.getX(), position.getY());
-			
-			// Let's discard any attempts at erasing the doors
-			if(currentTile.GetType() == TileTypes.DOOR)
-				continue;
-			
-			currentTile.SetImmutable(brush.GetModifierValue("Lock"));
-			if(brush.GetMainComponent() != null)
-			{
-				room.setTile(position.getX(), position.getY(), brush.GetMainComponent());
-				drawTile(position.getX(), position.getY(), brush.GetMainComponent());
-			}
-		}
+		brush.Draw(Point.castToGeometry(p), room, this);
+
+//		
+//		//The brush has all the points that will be modified
+//		//TODO: I THINK THAT the brush should do this part!
+//		for(finder.geometry.Point position : brush.GetDrawableTiles().getPoints())
+//		{
+//			currentTile = room.getTile(position.getX(), position.getY());
+//			
+//			// Let's discard any attempts at erasing the doors
+//			if(currentTile.GetType() == TileTypes.DOOR)
+//				continue;
+//			
+//			currentTile.SetImmutable(brush.GetModifierValue("Lock"));
+//			if(brush.GetMainComponent() != null)
+//			{
+//				room.setTile(position.getX(), position.getY(), brush.GetMainComponent());
+//				drawTile(position.getX(), position.getY(), brush.GetMainComponent());
+//			}
+//		}
 		
 		brush.DoneDrawing();
+	}
+	
+	public void updateTileInARoom(Room aRoom, ImageView tile, Drawer brush)
+	{
+		if (aRoom == null) {
+			return;
+		}
+		
+//		this.setGridLinesVisible(true);
+
+		//Safety checkup
+		Point p = coords.get(tile);
+		Tile currentTile = aRoom.getTile(p);
+		
+		// Let's discard any attempts at erasing the doors or the hero
+		if (p == null
+				|| currentTile.GetType() == TileTypes.DOOR
+				|| currentTile.GetType() == TileTypes.HERO) {
+			return;
+		}
+		
+		brush.simulateDrawing(Point.castToGeometry(p), aRoom, this);
 	}
 
 	public Point CheckTile(ImageView tile)
@@ -146,7 +189,7 @@ public class InteractiveMap extends GridPane implements Listener {
 	/**
 	 * Initialises the controller.
 	 */
-	private void initialise() {
+	private void initialise() { //FIXME: HERE IS THE CHANGE
 		autosize();
 		double width = getWidth() / cols;
 		double height = getHeight() / rows;
@@ -155,8 +198,8 @@ public class InteractiveMap extends GridPane implements Listener {
 		getChildren().clear();
 		coords.clear();
 
-		 for (int j = 0; j < rows; j++)
-		 {
+		for (int j = 0; j < rows; j++)
+		{
 			 for (int i = 0; i < cols; i++) 
 			 {
 				ImageView iv = new ImageView(getImage(room.getTile(i, j).GetType(), scale));
@@ -165,10 +208,21 @@ public class InteractiveMap extends GridPane implements Listener {
 				add(iv, i, j);
 				coords.put(iv, new Point(i, j));
 			}
-	 	}
+		}
+		
+		for(Tile customTile : room.customTiles)
+		{
+			customTile.PaintTile(null, null, null, this);
+		}
+		
 	}
 	
-	private Image getImage(TileTypes type, double size) 
+	public Image getCustomSizeImage(TileTypes type, double width, double height)
+	{
+		return renderer.renderTile(type, width, height);
+	}
+	
+	public Image getImage(TileTypes type, double size) 
 	{
 		Image tile = images.get(type);
 		
@@ -182,7 +236,7 @@ public class InteractiveMap extends GridPane implements Listener {
 		return tile;
 	}
 	
-	private Image getImage(TileTypes type, double width, double height) 
+	public Image getImage(TileTypes type, double width, double height) 
 	{
 		Image tile = images.get(type);
 		
@@ -203,7 +257,7 @@ public class InteractiveMap extends GridPane implements Listener {
 	 * @param y The Y coordinate of the cell.
 	 * @return The image view in the cell.
 	 */
-	private ImageView getCell(int x, int y) {
+	public ImageView getCell(int x, int y) {
 		return (ImageView) getChildren().get(y * cols + x);
 	}
 	
@@ -216,7 +270,87 @@ public class InteractiveMap extends GridPane implements Listener {
 	 */
 	private void drawTile(int x, int y, TileTypes tile) 
 	{
-		getCell(x, y).setImage(getImage(tile, scale));
+//		GridPane.setConstraints(null, x, y-1);
+//		GridPane.setConstraints(null, x, y);
+//		GridPane.setConstraints(null, x, y+1);
+//		
+//		GridPane.setConstraints(null, x+1, y-1);
+//		GridPane.setConstraints(null, x+1, y);
+//		GridPane.setConstraints(null, x+1, y+1);
+//		
+//		GridPane.setConstraints(null, x-1, y);
+//		GridPane.setConstraints(null, x-1, y+1);
+		
+//		GridPane.setColumnSpan(getCell(x, y-1)  , null);
+//		GridPane.setColumnSpan(getCell(x, y)   , null);
+//		GridPane.setColumnSpan(getCell(x, y+1)  , null);
+//		                                         
+//		GridPane.setColumnSpan(getCell(x+1, y-1), null);
+//		GridPane.setColumnSpan(getCell(x+1, y)  , null);
+//		GridPane.setColumnSpan(getCell(x+1, y+1), null);
+//		                                         
+//		GridPane.setColumnSpan(getCell(x-1, y)  , null);
+//		GridPane.setColumnSpan(getCell(x-1, y+1), null);
+//		
+//		GridPane.setRowSpan(getCell(x, y-1)  , null);
+//		GridPane.setRowSpan(getCell(x, y)   , null);
+//		GridPane.setRowSpan(getCell(x, y+1)  , null);
+//		                                         
+//		GridPane.setRowSpan(getCell(x+1, y-1), null);
+//		GridPane.setRowSpan(getCell(x+1, y)  , null);
+//		GridPane.setRowSpan(getCell(x+1, y+1), null);
+//		                                         
+//		GridPane.setRowSpan(getCell(x-1, y)  , null);
+//		GridPane.setRowSpan(getCell(x-1, y+1), null);
+		
+//		getCell(x , y - 1).setImage(null);
+//		getCell(x , y).setImage(null);
+//		getCell(x, y + 1).setImage(null);
+//		
+//		getCell(x + 1, y - 1).setImage(null);
+//		getCell(x + 1, y).setImage(null);
+//		getCell(x + 1, y + 1).setImage(null);
+//		
+//		getCell(x - 1, y).setImage(null);
+//		getCell(x - 1, y + 1).setImage(null);
+//		
+		
+
+		
+//		this.getChildren().remove(y * cols +x);
+//		this.getChildren().remove((y - 1) * cols +x);
+//		this.getChildren().remove((y + 1) * cols +x);
+//		
+//		this.getChildren().remove(y * cols + (x + 1));
+//		this.getChildren().remove((y - 1) * cols + (x +1));
+//		this.getChildren().remove((y + 1) * cols + (x + 1));
+//		
+//		this.getChildren().remove((y) * cols + (x -1));
+//		this.getChildren().remove((y + 1) * cols + (x -1));
+
+//		getCell(x - 1, y - 1).setImage(getImage(tile, 126));
+//		getCell(x - 1, y - 1).getImage().getPixelReader().getPixels(x, y, w, h, pixelformat, buffer, scanlineStride);
+		
+		Image m = getImage(tile, 126);
+		
+		for(int i = 0, spaceY = -1; i < 3; i++, spaceY++)
+		{
+			for(int j = 0, spaceX = -1; j< 3;j++, spaceX++)
+			{
+//				byte[] buffer = new byte[42*42*4];
+//				m.getPixelReader().getPixels(42*j, 42*i, 42*(1+j), 42*(i+1), PixelFormat.getByteBgraInstance(), buffer, 0, 42*4);
+				
+				WritableImage a = new WritableImage(m.getPixelReader(), 42*j, 42*i, 42, 42);
+				getCell(x + spaceX, y + spaceY).setImage(a);
+				
+				
+			}
+		}
+		
+//		GridPane.setColumnSpan(getCell(x - 1, y - 1), 3);
+//		GridPane.setConstraints(getCell(x, y), x, y, 3, 3, HPos.LEFT , VPos.CENTER, Priority.ALWAYS, Priority.ALWAYS);
+//		GridPane.const
+//		GridPane.setRowSpan(getCell(x - 1, y - 1), 3);
 	}
 
 	@Override

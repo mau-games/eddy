@@ -1,14 +1,41 @@
 package game;
 
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Set;
 import java.util.Stack;
+import java.util.UUID;
+
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.OutputKeys;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerException;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
+
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 
 import com.google.common.graph.MutableNetwork;
 import com.google.common.graph.NetworkBuilder;
 
+import collectors.ActionLogger;
+import collectors.ActionLogger.ActionType;
+import collectors.ActionLogger.TargetPane;
+import collectors.ActionLogger.View;
+import finder.patterns.micro.Boss;
+import game.tiles.BossEnemyTile;
+import generator.algorithm.MAPElites.Dimensions.GADimension.DimensionTypes;
 import generator.config.GeneratorConfig;
+import gui.InteractiveGUIController;
+import gui.utils.InformativePopupManager;
+import gui.utils.InformativePopupManager.PresentableInformation;
+import runners.InteractiveGUI;
 import util.Point;
 import util.eventrouting.EventRouter;
 import util.eventrouting.Listener;
@@ -35,7 +62,8 @@ public class Dungeon implements Listener
 	
 	//Maybe we can add a "unique" identifier
 	public static int ID_COUNTER = 0; //Probably not the best
-	public int id = 0;
+	public UUID id;
+	private int saveCounter = 1;
 	
 	public MutableNetwork<Room, RoomEdge> network; //TODO: Public for now
 	
@@ -54,6 +82,9 @@ public class Dungeon implements Listener
 	private int defaultMaxScaleFactor = 45;
 	public GeneratorConfig defaultConfig;
 	
+	//The start from information that is collected from the dungeon as a spatial platform for interconnected rooms.
+	private ArrayList<BossEnemyTile> bosses;
+	
 	//scale factor of the (canvas) view
 	private int scaleFactor;
 
@@ -65,8 +96,11 @@ public class Dungeon implements Listener
 	
 	public Dungeon(GeneratorConfig defaultConfig, int size, int defaultWidth, int defaultHeight)
 	{
-		this.id = ID_COUNTER;
+		this.id = UUID.randomUUID();
 		ID_COUNTER += 1;
+		
+		//Initialize neccesary information
+		bosses = new ArrayList<BossEnemyTile>();
 		
 		dPane = new DungeonPane(this);
 		pathfinding = new DungeonPathFinder(this);
@@ -148,14 +182,37 @@ public class Dungeon implements Listener
 		}
 		
 		checkInterFeasible(true);
+		InformativePopupManager.getInstance().requestPopup(dPane, PresentableInformation.ROOMS_CONNECTED, "");
+		
+		ActionLogger.getInstance().storeAction(ActionType.CREATE_ROOM, 
+												View.WORLD, 
+												TargetPane.WORLD_MAP_PANE, 
+												false,
+												auxR,
+												width,
+												height);
+		
+		saveDungeonXML();
+
 	}
 	
 	/**
 	 * Remove the selected room from the dungeon
+	 * +++ Remove the general information the dungeon have about the room!
 	 * @param roomToRemove
 	 */
 	public void removeRoom(Room roomToRemove)
 	{
+		//Actually, first remove any general info we had about the room!!!
+		for(Tile custom : roomToRemove.customTiles)
+		{
+			if(custom instanceof BossEnemyTile)
+			{
+				bosses.remove(custom);
+			}
+		}
+		
+		
 		//FIRST REMOVE ALL DOORS CONNECTING TO THE ROOM
 		Set<RoomEdge> edgesToRemove = network.incidentEdges(roomToRemove);
 		
@@ -172,6 +229,15 @@ public class Dungeon implements Listener
 			}
 			
 			dPane.removeVisualConnector(edge);
+			
+			ActionLogger.getInstance().storeAction(ActionType.REMOVE_CONNECTION, 
+													View.WORLD, 
+													TargetPane.WORLD_MAP_PANE, 
+													true,
+													edge.from,
+													edge.fromPosition,
+													edge.to,
+													edge.toPosition);
 		}
 		
 		//remove this room and its visual representation
@@ -196,6 +262,14 @@ public class Dungeon implements Listener
 		checkInterFeasible(true);
 		//probably this should be connected to the size value of the rooms LIST
 		this.size--;
+		
+		ActionLogger.getInstance().storeAction(ActionType.REMOVE_ROOM, 
+												View.WORLD, 
+												TargetPane.WORLD_MAP_PANE, 
+												false,
+												roomToRemove);
+		saveDungeonXML();
+
 	}
 	
 	/**
@@ -213,6 +287,17 @@ public class Dungeon implements Listener
 		
 		//TODO: THIS IS WORK IN PROGRESS
 		checkInterFeasible(true);
+		
+		ActionLogger.getInstance().storeAction(ActionType.REMOVE_CONNECTION, 
+												View.WORLD, 
+												TargetPane.WORLD_MAP_PANE, 
+												false,
+												edgeToRemove.from,
+												edgeToRemove.fromPosition,
+												edgeToRemove.to,
+												edgeToRemove.toPosition);
+		
+		saveDungeonXML();
 	}
 	
 	//Rooms could be an ID
@@ -229,18 +314,47 @@ public class Dungeon implements Listener
 		//TODO: THIS IS WORK IN PROGRESS
 		checkInterFeasible(true);
 		
-		for(RoomEdge e : network.edges())
-		{
-			System.out.println(e.print());
-		}
+//		for(RoomEdge e : network.edges())
+//		{
+//			System.out.println(e.print());
+//		}
+		
+
+		ActionLogger.getInstance().storeAction(ActionType.CREATE_CONNECTION, 
+												View.WORLD, 
+												TargetPane.WORLD_MAP_PANE, 
+												false,
+												from,
+												fromPosition,
+												to,
+												toPosition);
+		
+		saveDungeonXML();
 	}
 	
 	public void setInitialRoom(Room initRoom, Point initialPos)
 	{	
+		if(this.initialRoom != null)
+		{
+			this.initialRoom.removeHero(this.initialPos);
+			this.initialRoom.localConfig.getWorldCanvas().setRendered(false);
+		}
+		
 		this.initialRoom = initRoom;
 		this.initialPos = initialPos;
 		
+		ActionLogger.getInstance().storeAction(ActionType.CHANGE_VALUE,
+												View.WORLD, 
+												TargetPane.WORLD_MAP_PANE, 
+												false,
+												initRoom,
+												initialPos
+												);
+		
 		checkInterFeasible(true);
+		
+		initRoom.setHeroPosition(initialPos);
+		this.initialRoom.localConfig.getWorldCanvas().setRendered(false);
 	}
 	
 	public Room getInitialRoom()
@@ -310,6 +424,27 @@ public class Dungeon implements Listener
 //			pathfinding.printPath();
 			pathfinding.innerCalculation();
 		}
+	}
+	
+	public void addBoss(BossEnemyTile bossTile)
+	{
+		bosses.add(bossTile);
+	}
+	
+	public void removeBoss(BossEnemyTile bossTile)
+	{
+		bosses.remove(bossTile);
+	}
+	
+	public void replaceBoss(BossEnemyTile bossTile, BossEnemyTile prevbossTile)
+	{
+		bosses.remove(prevbossTile);
+		bosses.add(bossTile);
+	}
+	
+	public ArrayList<BossEnemyTile> getBosses()
+	{
+		return bosses;
 	}
 	
 	///////////////////////// TODO: TESTING TRAVERSAL AND RETRIEVAL OF ALL THE PATHS FROM A ROOM TO ANOTHER ROOM ///////////////////////////	
@@ -407,6 +542,95 @@ public class Dungeon implements Listener
 		ConnectionPath.clear();
 		
 //		System.out.println("PATH: ROOM: " + rooms.indexOf(rooms.pop()));
+	}
+	
+	public void saveDungeonXML()
+	{
+		Document dom;
+	    Element e = null;
+	    Element next = null;
+	    String xml = System.getProperty("user.dir") + "\\my-data\\summer-school\\" + InteractiveGUIController.runID + "\\dungeon\\dungeon-" + this.id.toString() + "_" + saveCounter++ + ".xml";
+
+	    // instance of a DocumentBuilderFactory
+	    DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+	    try {
+	        // use factory to get an instance of document builder
+	        DocumentBuilder db = dbf.newDocumentBuilder();
+	        // create instance of DOM
+	        dom = db.newDocument();
+
+	        // create the root element
+	        Element rootEle = dom.createElement("Dungeon");
+	        rootEle.setAttribute("ID",  this.id.toString());
+//	        rootEle.setAttribute("TIME", this.toString());
+//	        rootEle.setAttribute("type", "SUGGESTIONS OR MAIN");
+	        
+	        // create data elements and place them under root
+	        e = dom.createElement("Rooms");
+	        rootEle.appendChild(e);
+	        
+	       for(Room node : network.nodes())
+	       {
+	    	   node.getRoomFromDungeonXML("dungeon\\");
+	    	   next = dom.createElement("Room");
+	    	   next.setAttribute("ID",  node.toString());
+	    	   e.appendChild(next);
+	       }
+
+	        //Connections
+	        e = dom.createElement("Connections");
+	        rootEle.appendChild(e);
+	        
+	        for(RoomEdge edge : network.edges())
+	        {
+	    	   next = dom.createElement("Connection");
+	    	   next.setAttribute("ID",  edge.toString());
+	    	   next.setAttribute("From",  edge.from.toString());
+	    	   next.setAttribute("FromPosX",  Integer.toString(edge.fromPosition.getX()));
+	    	   next.setAttribute("FromPosY",  Integer.toString(edge.fromPosition.getY()));
+	    	   next.setAttribute("to",  edge.to.toString());
+	    	   next.setAttribute("toPosX",  Integer.toString(edge.toPosition.getX()));
+	    	   next.setAttribute("toPosY",  Integer.toString(edge.toPosition.getY()));
+	    	   e.appendChild(next);
+	        }
+	        
+	        //TILES
+	        e = dom.createElement("Init");
+	        if(initialRoom != null)
+	        {
+	        	e.setAttribute("ROOM_ID",  initialRoom.toString());
+	 	        e.setAttribute("PosX",  Integer.toString(initialPos.getX()));
+	 	        e.setAttribute("PosY",  Integer.toString(initialPos.getY()));
+	        }
+	        else
+	        {
+	        	e.setAttribute("ROOM_ID",  "NULL");
+	        }
+	       
+ 	        rootEle.appendChild(e);
+
+	        dom.appendChild(rootEle);
+
+	        try {
+	            Transformer tr = TransformerFactory.newInstance().newTransformer();
+	            tr.setOutputProperty(OutputKeys.INDENT, "yes");
+	            tr.setOutputProperty(OutputKeys.METHOD, "xml");
+	            tr.setOutputProperty(OutputKeys.ENCODING, "UTF-8");
+	            tr.setOutputProperty(OutputKeys.DOCTYPE_SYSTEM, "room.dtd");
+	            tr.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "4");
+
+	            // send DOM to file
+	            tr.transform(new DOMSource(dom), 
+	                                 new StreamResult(new FileOutputStream(xml)));
+
+	        } catch (TransformerException te) {
+	            System.out.println(te.getMessage());
+	        } catch (IOException ioe) {
+	            System.out.println(ioe.getMessage());
+	        }
+	    } catch (ParserConfigurationException pce) {
+	        System.out.println("UsersXML: Error trying to instantiate DocumentBuilder " + pce);
+	    }
 	}
 	
 ///////////////////////// TESTING TRAVERSAL AND RETRIEVAL OF ALL THE PATHS FROM A ROOM TO ANOTHER ROOM ///////////////////////////	

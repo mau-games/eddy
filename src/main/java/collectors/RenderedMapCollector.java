@@ -9,9 +9,6 @@ import java.util.UUID;
 
 import javax.imageio.ImageIO;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import game.ApplicationConfig;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.scene.image.Image;
@@ -33,7 +30,7 @@ import util.eventrouting.events.RenderingDone;
  */
 public class RenderedMapCollector implements Listener {
 	
-	private final Logger logger = LoggerFactory.getLogger(RenderedMapCollector.class);
+//	private final Logger logger = LoggerFactory.getLogger(RenderedMapCollector.class);
 	private ApplicationConfig config;
 	private String path;
 	private boolean active;
@@ -45,7 +42,7 @@ public class RenderedMapCollector implements Listener {
 		try {
 			config = ApplicationConfig.getInstance();
 		} catch (MissingConfigurationException e) {
-			logger.error("Couldn't read configuration file:\n" + e.getMessage());
+//			logger.error("Couldn't read configuration file:\n" + e.getMessage());
 		}
 		EventRouter.getInstance().registerListener(this, new MapRendered(null));
 		EventRouter.getInstance().registerListener(this, new AlgorithmStarted());
@@ -85,14 +82,14 @@ public class RenderedMapCollector implements Listener {
 				LocalDateTime.now().format(format) + ".png";
 		name = "run_" + runID + "_" + name;
 		File file = new File(path + name);
-		logger.debug("Writing map to " + path + name);
+//		logger.debug("Writing map to " + path + name);
 		BufferedImage image = SwingFXUtils.fromFXImage(map, null);
 
 		try {
 			ImageIO.write(image, "png", file);
 		} catch (IOException e1) {
-			logger.error("Couldn't write map to " + path + name +
-					":\n" + e1.getMessage());
+//			logger.error("Couldn't write map to " + path + name +
+//					":\n" + e1.getMessage());
 		}
 		
 		EventRouter.getInstance().postEvent(new RenderingDone());

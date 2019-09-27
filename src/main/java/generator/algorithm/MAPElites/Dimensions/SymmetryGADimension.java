@@ -17,7 +17,7 @@ public class SymmetryGADimension extends GADimension {
 	@Override
 	public double CalculateValue(ZoneIndividual individual, Room target) 
 	{
-		Room individualRoom = individual.getPhenotype().getMap(-1, -1, null);
+		Room individualRoom = individual.getPhenotype().getMap(-1, -1, null, null, null);
     	int rowCounter = individualRoom.getRowCount();
     	int colCounter = individualRoom.getColCount();
     	int totalWalls = individualRoom.getWallCount();
@@ -92,6 +92,9 @@ public class SymmetryGADimension extends GADimension {
     	double symmetricFitness = (double)highestSymmetric / (double)totalWalls;
     	
 		//logger.info("rowCounter " + rowCounter + " colCounter " + colCounter + " middlePoint " + middlePoint + " highestSymmetric " + highestSymmetric + " totalWalls " + totalWalls + " symmetricFitness " + symmetricFitness);
+    	
+    	if(symmetricFitness > 1)
+    		System.out.println("Problem with Symmetry, the value is higher than 1!!");
     	
 		return symmetricFitness;
 
@@ -177,6 +180,8 @@ public class SymmetryGADimension extends GADimension {
     		symmetricFitness = (double)highestSymmetric / (double)1;
     	
 		//logger.info("rowCounter " + rowCounter + " colCounter " + colCounter + " middlePoint " + middlePoint + " highestSymmetric " + highestSymmetric + " totalWalls " + totalWalls + " symmetricFitness " + symmetricFitness);
+    	if(symmetricFitness > 1)
+    		System.out.println("Problem with Symmetry, the value is higher than 1!!");
     	
 		return symmetricFitness;
 
@@ -261,6 +266,9 @@ public class SymmetryGADimension extends GADimension {
     		symmetricFitness = (double)highestSymmetric / (double)1;
     	
 		//logger.info("rowCounter " + rowCounter + " colCounter " + colCounter + " middlePoint " + middlePoint + " highestSymmetric " + highestSymmetric + " totalWalls " + totalWalls + " symmetricFitness " + symmetricFitness);
+    	
+    	if(symmetricFitness > 1)
+    		System.out.println("Problem with Symmetry, the value is higher than 1!!");
     	
 		return symmetricFitness;
 	}

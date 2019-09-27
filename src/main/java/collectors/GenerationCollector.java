@@ -8,8 +8,6 @@ import java.util.HashMap;
 import java.util.UUID;
 
 import org.apache.commons.io.FileUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import game.ApplicationConfig;
 import util.Util;
@@ -30,7 +28,7 @@ import util.eventrouting.events.GenerationDone;
  */
 public class GenerationCollector implements Listener {
 
-	private final Logger logger = LoggerFactory.getLogger(GenerationCollector.class);
+//	private final Logger logger = LoggerFactory.getLogger(GenerationCollector.class);
 	private ApplicationConfig config;
 	private String path;
 	private boolean active;
@@ -44,10 +42,10 @@ public class GenerationCollector implements Listener {
 		try {
 			config = ApplicationConfig.getInstance();
 		} catch (MissingConfigurationException e) {
-			logger.error("Couldn't read configuration file:\n" + e.getMessage());
+//			logger.error("Couldn't read configuration file:\n" + e.getMessage());
 		}
 		EventRouter.getInstance().registerListener(this, new GenerationDone(null));
-		EventRouter.getInstance().registerListener(this, new AlgorithmDone(null, null));
+		EventRouter.getInstance().registerListener(this, new AlgorithmDone(null, null, null));
 		EventRouter.getInstance().registerListener(this, new AlgorithmStarted());
 		path = Util.normalisePath(config.getGenerationCollectorPath());
 		active = config.getGenerationCollectorActive();
@@ -85,13 +83,13 @@ public class GenerationCollector implements Listener {
 				LocalDateTime.now().format(format) + ".txt";
 		name = "run_" + runID + "_" + name;
 		File file = new File(path + name);
-		logger.debug("Writing map to " + path + name);
+//		logger.debug("Writing map to " + path + name);
 
 		try {
 			FileUtils.writeStringToFile(file, data.toString());
 		} catch (IOException e1) {
-			logger.error("Couldn't write data to " + path + name +
-					":\n" + e1.getMessage());
+//			logger.error("Couldn't write data to " + path + name +
+//					":\n" + e1.getMessage());
 		}
 		data.get(runID).delete(0, data.get(runID).length());
 	}

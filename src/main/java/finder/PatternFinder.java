@@ -24,6 +24,7 @@ import finder.patterns.micro.Door;
 import finder.patterns.micro.Enemy;
 import finder.patterns.micro.Entrance;
 import finder.patterns.micro.Nothing;
+import finder.patterns.micro.Boss;
 import finder.patterns.micro.Chamber;
 import finder.patterns.micro.Treasure;
 import finder.geometry.Bitmap;
@@ -82,6 +83,7 @@ public class PatternFinder {
 		micropatterns.addAll(Chamber.matches(room, null));
 		micropatterns.addAll(Treasure.matches(room, null));
 		micropatterns.addAll(Enemy.matches(room, null));
+		micropatterns.addAll(Boss.matches(room, null)); //NEWLY ADDED
 		micropatterns.addAll(Door.matches(room, null));
 		micropatterns.addAll(Nothing.matches(room, null)); // This MUST come last
 		
@@ -119,12 +121,12 @@ public class PatternFinder {
 		buildPatternGraph();
 		
 		//TODO: We need to fix this for the new way we are handling this
-		mesopatterns.addAll(ChokePoint.matches(room, patternGraph));
-		mesopatterns.addAll(DeadEnd.matches(room, patternGraph));
-		mesopatterns.addAll(GuardRoom.matches(room, patternGraph));
-		mesopatterns.addAll(TreasureRoom.matches(room, patternGraph));
-		mesopatterns.addAll(Ambush.matches(room, patternGraph));
-		mesopatterns.addAll(GuardedTreasure.matches(room, patternGraph)); //Do this last!
+		mesopatterns.addAll(ChokePoint.matches(room, patternGraph, mesopatterns));
+		mesopatterns.addAll(DeadEnd.matches(room, patternGraph, mesopatterns));
+		mesopatterns.addAll(Ambush.matches(room, patternGraph, mesopatterns));
+		mesopatterns.addAll(GuardRoom.matches(room, patternGraph, mesopatterns));
+		mesopatterns.addAll(TreasureRoom.matches(room, patternGraph, mesopatterns));
+		mesopatterns.addAll(GuardedTreasure.matches(room, patternGraph, mesopatterns)); //Do this last!
 		return mesopatterns;
 	}
 	

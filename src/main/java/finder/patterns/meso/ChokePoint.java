@@ -47,7 +47,7 @@ public class ChokePoint extends CompositePattern {
 	 * @param boundary A boundary in which the pattern is searched for.
 	 * @return A list of found instances.
 	 */
-	public static List<CompositePattern> matches(Room room, Graph<Pattern> patternGraph) {
+	public static List<CompositePattern> matches(Room room, Graph<Pattern> patternGraph, List<CompositePattern> currentMeso) {
 		
 		//TODO: Is a potential choke point, a variation of a corridor?? that have in-between one or two chambers???
 		

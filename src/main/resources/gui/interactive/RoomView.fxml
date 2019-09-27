@@ -21,6 +21,7 @@
 <?import javafx.scene.layout.Pane?>
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.FlowPane?>
 <?import javafx.scene.control.TabPane?>
 <?import javafx.scene.control.Tab?>
 <?import javafx.scene.control.TableColumn?>
@@ -40,6 +41,7 @@
 <?import generator.algorithm.MAPElites.Dimensions.*?>
 <?import javafx.scene.control.cell.TextFieldTableCell?>
 <?import gui.controls.DimensionsTable?>
+<?import gui.controls.Popup?>
 
 
 <fx:root type="javafx.scene.layout.BorderPane"
@@ -106,6 +108,18 @@
 						</ImageView>
 					</graphic>
 				</ToggleButton>
+				<ToggleButton contentDisplay="TOP" prefWidth="75.0"
+					mnemonicParsing="false" text="BOSS" toggleGroup="$brushes"
+					onAction="#selectBrush" fx:id="bossEnemyBtn">
+					<graphic>
+						<ImageView fitWidth="40.0" pickOnBounds="true"
+							preserveRatio="true">
+							<image>
+								<Image url="@../../graphics/tiles/enemy.png" />
+							</image>
+						</ImageView>
+					</graphic>
+				</ToggleButton>
 				<ToggleButton fx:id="lockBrush" prefWidth="1" maxWidth="30" maxHeight="20" contentDisplay="TOP" mnemonicParsing="false" text=""  onAction="#selectLockModifier">
 	               <graphic>
 	                  <ImageView fitWidth="20.0" pickOnBounds="true" preserveRatio="true">
@@ -146,15 +160,13 @@
 		</ToolBar>
 	</left>
 	<center>
-
 		<StackPane alignment="CENTER" fx:id="mapPane" />
-
 	</center>
 
 	<right>
 
 		<HBox>
-			<VBox spacing="15">
+			<VBox spacing="15" fx:id="rightSidePane">
 
 
 				<StackPane alignment="CENTER" fx:id="generatedMapsLabel"
@@ -169,7 +181,7 @@
 								<DimensionsTable fx:id="MainTable">
 									<columnResizePolicy><TableView fx:constant="CONSTRAINED_RESIZE_POLICY"/></columnResizePolicy>
 								 	<columns>											 	
-										<TableColumn text="Dimension">
+										<TableColumn text="Current Dimension">
 											<cellValueFactory>
 												<PropertyValueFactory property="dimension" />
 											</cellValueFactory>
@@ -188,7 +200,7 @@
 							    <DimensionsTable fx:id="secondaryTable">
 									<columnResizePolicy><TableView fx:constant="CONSTRAINED_RESIZE_POLICY"/></columnResizePolicy>
 								 	<columns>											 	
-										<TableColumn text="Dimension">
+										<TableColumn text="Available Dimensions">
 											<cellValueFactory>
 												<PropertyValueFactory property="dimension" />
 											</cellValueFactory>
@@ -236,6 +248,8 @@
 						</VBox>
 					</children>
 				</AnchorPane>
+				
+				<Popup text="Drag dimensions from available to current (Max. 2). To see your locked tiles, you must press Restart!" width="150" height="100" image="FALSE"/>
 
 				<HBox spacing="10">
 

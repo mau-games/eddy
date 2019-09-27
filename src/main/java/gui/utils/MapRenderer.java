@@ -13,9 +13,6 @@ import java.util.stream.Collectors;
 
 import javax.imageio.ImageIO;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import collectors.MAPECollector;
 import finder.geometry.Bitmap;
 import finder.geometry.Geometry;
@@ -43,6 +40,7 @@ import game.ApplicationConfig;
 import game.Game;
 import game.MapContainer;
 import game.Room;
+import game.Tile;
 import game.TileTypes;
 import game.ZoneNode;
 import gui.ParameterGUIController;
@@ -76,13 +74,13 @@ public class MapRenderer implements Listener {
 	
 	private static MapRenderer instance = null;
 	
-	final static Logger logger = LoggerFactory.getLogger(MapRenderer.class);
+//	final static Logger logger = LoggerFactory.getLogger(MapRenderer.class);
 	private static EventRouter router = EventRouter.getInstance();
 	private ApplicationConfig config;
 
 	private ArrayList<Image> tiles = new ArrayList<Image>();
 	private double patternOpacity = 0;
-	private int nbrOfTiles = 6;
+	private int nbrOfTiles = 7;
 	
 	private int finalMapWidth;
 	private int finalMapHeight;
@@ -93,10 +91,10 @@ public class MapRenderer implements Listener {
 		try {
 			config = ApplicationConfig.getInstance();
 		} catch (MissingConfigurationException e) {
-			logger.error("Couldn't read config: " + e.getMessage());
+//			logger.error("Couldn't read config: " + e.getMessage());
 		}
 		
-		router.registerListener(this, new AlgorithmDone(null, null));
+		router.registerListener(this, new AlgorithmDone(null, null, null));
 
 		finalMapHeight = config.getMapRenderHeight();
 		finalMapWidth = config.getMapRenderWidth();
@@ -247,7 +245,7 @@ public class MapRenderer implements Listener {
 		}
 
 		Canvas canvas = new Canvas(finalMapWidth, finalMapHeight);
-		renderMap(canvas.getGraphicsContext2D(), room.toMatrix());
+		renderMap(canvas.getGraphicsContext2D(), room);
 		
 		Image image = canvas.snapshot(new SnapshotParameters(), null);
 //	
@@ -291,10 +289,41 @@ public class MapRenderer implements Listener {
 	 */
 	public synchronized Image saveCurrentEditedRoom(Pane currentEditedPane) 
 	{
+		System.out.println(currentEditedPane); //TODO: PROBLEMS HERE!
+		System.out.println(currentEditedPane.getWidth());
+		System.out.println(currentEditedPane.getHeight());
 		
 		final WritableImage writableImage = new WritableImage((int)currentEditedPane.getWidth(), (int)currentEditedPane.getHeight());
 		Image image = currentEditedPane.snapshot(new SnapshotParameters(), writableImage);
 
+		File file = new File(MAPECollector.getInstance().getDirectory().getAbsolutePath()  + "\\currentRoom.png");
+		try {
+            ImageIO.write(SwingFXUtils.fromFXImage(writableImage, null), "png", file);
+        } catch (Exception s) {
+        }
+		
+
+		return image;
+	}
+	
+	public synchronized Image saveCurrentEditedRoom(Room editedRoom) 
+	{
+		if(editedRoom.localConfig != null)
+		{
+			finalMapHeight = editedRoom.localConfig.getRenderSizeHeight();
+			finalMapWidth = editedRoom.localConfig.getRenderSizeWidth();
+		}
+		else
+		{
+			finalMapHeight = (int)((float)config.getMapRenderHeight() * (float)((float)editedRoom.getRowCount() / 10.0f));
+			finalMapWidth = (int)((float)config.getMapRenderWidth() * (float)((float)editedRoom.getColCount() / 10.0f));
+		}
+
+		Canvas canvas = new Canvas(finalMapWidth, finalMapHeight);
+
+		final WritableImage writableImage = new WritableImage((int) canvas.getWidth(), (int) canvas.getHeight());
+		Image image = canvas.snapshot(new SnapshotParameters(), writableImage);
+		
 		File file = new File(MAPECollector.getInstance().getDirectory().getAbsolutePath()  + "\\currentRoom.png");
 		try {
             ImageIO.write(SwingFXUtils.fromFXImage(writableImage, null), "png", file);
@@ -364,7 +393,7 @@ public class MapRenderer implements Listener {
 
 //		System.out.println("FINAL MAP WIDTH: " + finalMapWidth + ", FINAL MAP HEIGHT: " + finalMapHeight);
 		Canvas canvas = new Canvas(finalMapWidth, finalMapHeight);
-		renderMap(canvas.getGraphicsContext2D(), room.toMatrix());
+		renderMap(canvas.getGraphicsContext2D(), room);
 		
 		Image image = canvas.snapshot(new SnapshotParameters(), null);
 //	
@@ -380,6 +409,41 @@ public class MapRenderer implements Listener {
 
 		return image;
 	}
+	
+	/**
+	 * Draws a matrix onto an extisting graphics context.
+	 * 
+	 * @param ctx The graphics context to draw on.
+	 * @param matrix A rectangular matrix of integers. Each integer corresponds
+	 * 		to some predefined value.
+	 */
+	public synchronized void renderMap(GraphicsContext ctx, Room room) {
+		ctx.clearRect(0, 0, ctx.getCanvas().getWidth(), ctx.getCanvas().getHeight());
+		int width = room.getColCount();
+		int height = room.getRowCount();
+		double pWidth = ctx.getCanvas().getWidth() / (double)Math.max(width, height);
+		
+		double tileSize = width >= height ? ctx.getCanvas().getWidth() / width : ctx.getCanvas().getHeight() / height;
+		
+		Image image = null;
+		int[][] roomMatrix = room.toMatrix();
+
+		for (int j = 0; j < height; j++) {
+			 for (int i = 0; i < width; i++){
+				 image = getTileImage(roomMatrix[j][i]);
+					ctx.drawImage(image, i * tileSize, j * tileSize, tileSize, tileSize);
+			}
+		}
+		
+		for(Tile custom : room.customTiles)
+		{
+			//Iterate the custom tiles
+			//2. I don't know if the custom tiles should know how to be rendered but they know the size and 
+			image = getTileImage(custom.GetType().ordinal(), tileSize * custom.width, tileSize * custom.height);
+			custom.PaintCanvasTile(image, ctx, tileSize);
+		}
+	}
+	
 	
 
 	/**
@@ -401,11 +465,47 @@ public class MapRenderer implements Listener {
 
 		for (int j = 0; j < height; j++) {
 			 for (int i = 0; i < width; i++){
-				image = getTileImage(matrix[j][i]);
-				ctx.drawImage(image, i * tileSize, j * tileSize, tileSize, tileSize);
+				 if(matrix[j][i] != 5)
+				 {
+					image = getTileImage(matrix[j][i]);
+					ctx.drawImage(image, i * tileSize, j * tileSize, tileSize, tileSize);
+				 }
+			}
+		}
+		
+		
+		//This needs to be fix obviously 
+		//Probably the division of the image should be cached!
+		//TODO: IMPORTANTT!!!!!!
+		for (int j = 0; j < height; j++) {
+			 for (int i = 0; i < width; i++){
+				
+				 if(matrix[j][i] == 5)
+				 {
+					 image = new Image("/" + config.getInternalConfig().getString("map.tiles.enemy"), tileSize *3, tileSize*3, false,false);
+					 
+					 for(int K = 0, spaceY = -1; K < 3; K++, spaceY++)
+					 {
+						for(int D = 0, spaceX = -1; D< 3;D++, spaceX++)
+						{
+//								byte[] buffer = new byte[42*42*4];
+//								m.getPixelReader().getPixels(42*j, 42*i, 42*(1+j), 42*(i+1), PixelFormat.getByteBgraInstance(), buffer, 0, 42*4);
+							
+							WritableImage a = new WritableImage(image.getPixelReader(), (int)tileSize*D, (int)tileSize*K, (int)tileSize, (int)tileSize);
+//								getCell(x + spaceX, y + spaceY).setImage(a);
+							ctx.drawImage(a, (i + spaceX) * tileSize, (j+ spaceY) * tileSize, tileSize, tileSize);
+							
+						}
+					 }
+				 }
+				 
+//				image = getTileImage(matrix[j][i]);
+//				ctx.drawImage(image, i * tileSize, j * tileSize, tileSize, tileSize);
 			}
 		}
 	}
+	
+	
 	
 	/**
 	 * Draws patterns on a map.
@@ -710,7 +810,7 @@ public class MapRenderer implements Listener {
 		finalMapHeight = config.getMapRenderHeight();
 		finalMapWidth = config.getMapRenderWidth();
 		Canvas canvas = new Canvas(finalMapWidth, finalMapHeight);
-		renderMap(canvas.getGraphicsContext2D(), room.toMatrix());
+		renderMap(canvas.getGraphicsContext2D(), room);
 		Image image = canvas.snapshot(new SnapshotParameters(), null);
 		MapRendered mr = new MapRendered(image);
 		mr.setID(runID);
@@ -772,11 +872,17 @@ public class MapRenderer implements Listener {
 		case ENEMY:
 			image = new Image("/" + config.getInternalConfig().getString("map.tiles.enemy"), width, height, false, true);
 			break;
+		case ENEMY_BOSS:
+			image = new Image("/" + config.getInternalConfig().getString("map.tiles.enemy"), width, height, false, true);
+			break;
 		case WALL:
 			image = new Image("/" + config.getInternalConfig().getString("map.tiles.wall"), width, height, false, true);
 			break;
 		case FLOOR:
 			image = new Image("/" + config.getInternalConfig().getString("map.tiles.floor"), width, height, false, true);
+			break;
+		case HERO:
+			image = new Image("/" + config.getInternalConfig().getString("map.tiles.hero"), width, height, false, true);
 			break;
 //		case DOORENTER:
 //			image = new Image("/" + config.getInternalConfig().getString("map.tiles.doorenter"), width, height, false, true);
@@ -808,11 +914,17 @@ public class MapRenderer implements Listener {
 			case ENEMY:
 				image = new Image("/" + config.getInternalConfig().getString("map.tiles.enemy"));
 				break;
+			case ENEMY_BOSS:
+				image = new Image("/" + config.getInternalConfig().getString("map.tiles.enemy"));
+				break;
 			case WALL:
 				image = new Image("/" + config.getInternalConfig().getString("map.tiles.wall"));
 				break;
 			case FLOOR:
 				image = new Image("/" + config.getInternalConfig().getString("map.tiles.floor"));
+				break;
+			case HERO:
+				image = new Image("/" + config.getInternalConfig().getString("map.tiles.hero"));
 				break;
 //			case DOORENTER:
 //				image = new Image("/" + config.getInternalConfig().getString("map.tiles.doorenter"));

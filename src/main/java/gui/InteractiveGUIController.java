@@ -9,9 +9,15 @@ import java.nio.file.Files;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ResourceBundle;
+import java.util.UUID;
+
 import javax.imageio.ImageIO;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
+import collectors.ActionLogger;
+import collectors.DataSaverLoader;
+import collectors.ActionLogger.ActionType;
+import collectors.ActionLogger.TargetPane;
+import collectors.ActionLogger.View;
 import finder.PatternFinder;
 import game.ApplicationConfig;
 import game.Dungeon;
@@ -21,6 +27,7 @@ import game.RoomEdge;
 import game.MapContainer;
 import game.TileTypes;
 import generator.config.GeneratorConfig;
+import gui.utils.InformativePopupManager;
 import gui.utils.MapRenderer;
 import gui.views.LaunchViewController;
 import gui.views.RoomViewController;
@@ -32,12 +39,14 @@ import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.scene.ImageCursor;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.MenuButton;
 //import javafx.scene.control.Alert;
 //import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.MenuItem;
+import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
@@ -51,6 +60,7 @@ import util.eventrouting.Listener;
 import util.eventrouting.PCGEvent;
 import util.eventrouting.events.AlgorithmDone;
 import util.eventrouting.events.ApplySuggestion;
+import util.eventrouting.events.ChangeCursor;
 import util.eventrouting.events.InitialRoom;
 import util.eventrouting.events.MapLoaded;
 import util.eventrouting.events.RequestAppliedMap;
@@ -84,13 +94,13 @@ public class InteractiveGUIController implements Initializable, Listener {
 
 	@FXML private AnchorPane mainPane;
 	@FXML private MenuItem newItem;
-	@FXML private MenuItem openItem;
-	@FXML private MenuItem saveItem;
-	@FXML private MenuItem saveAsItem;
-	@FXML private MenuItem exportItem;
-	@FXML private MenuItem prefsItem;
-	@FXML private MenuItem exitItem;
-	@FXML private MenuItem aboutItem;
+//	@FXML private MenuItem openItem;
+//	@FXML private MenuItem saveItem;
+//	@FXML private MenuItem saveAsItem;
+//	@FXML private MenuItem exportItem;
+//	@FXML private MenuItem prefsItem;
+//	@FXML private MenuItem exitItem;
+//	@FXML private MenuItem aboutItem;
 	public boolean firstIsClicked = false;
 	public boolean secondIsClicked = false;
 	public boolean thirdIsClicked = false;
@@ -103,7 +113,7 @@ public class InteractiveGUIController implements Initializable, Listener {
 	LaunchViewController launchView = null;
 	EventHandler<MouseEvent> mouseEventHandler = null;
 
-	final static Logger logger = LoggerFactory.getLogger(InteractiveGUIController.class);
+//	final static Logger logger = LoggerFactory.getLogger(InteractiveGUIController.class);
 	private static EventRouter router = EventRouter.getInstance();
 	private ApplicationConfig config;
 
@@ -125,21 +135,24 @@ public class InteractiveGUIController implements Initializable, Listener {
 	//NEW
 	private Dungeon dungeonMap = new Dungeon();
 	
+	public static UUID runID;
+	
 
 	@Override
 	public void initialize(URL location, ResourceBundle resources) {
 		try {
 			config = ApplicationConfig.getInstance();
 		} catch (MissingConfigurationException e) {
-			logger.error("Couldn't read config file.");
+//			logger.error("Couldn't read config file.");
 		}
 
+		router.registerListener(this, new ChangeCursor(null));
 		router.registerListener(this, new InitialRoom(null, null));
 		router.registerListener(this, new RequestPathFinding(null, -1, null, null, null, null));
 		router.registerListener(this, new RequestConnection(null, -1, null, null, null, null));
 		router.registerListener(this, new RequestNewRoom(null, -1, -1, -1));
 		router.registerListener(this, new StatusMessage(null));
-		router.registerListener(this, new AlgorithmDone(null, null));
+		router.registerListener(this, new AlgorithmDone(null, null, null));
 		router.registerListener(this, new RequestRedraw());
 		router.registerListener(this, new RequestRoomView(null, 0, 0, null));
 		router.registerListener(this, new MapLoaded(null));
@@ -159,13 +172,30 @@ public class InteractiveGUIController implements Initializable, Listener {
 		mainPane.sceneProperty().addListener((observableScene, oldScene, newScene) -> {
 			if (newScene != null) {
 				stage = (Stage) newScene.getWindow();
-
 			}
 
 		});
 
-		initLaunchView();
+		runID = UUID.randomUUID();
 
+		File file = new File(DataSaverLoader.projectPath + "\\summer-school\\" + runID + "\\algorithm\\");
+		if (!file.exists()) {
+			file.mkdirs();
+		}
+		file = new File(DataSaverLoader.projectPath + "\\summer-school\\" + runID + "\\dungeon\\");
+		if (!file.exists()) {
+			file.mkdirs();
+		}
+		file = new File(DataSaverLoader.projectPath + "\\summer-school\\" + runID + "\\room\\");
+		if (!file.exists()) {
+			file.mkdirs();
+		}
+		
+		
+		ActionLogger.getInstance().init();
+		InformativePopupManager.getInstance().setMainPane(mainPane);
+//		mainPane.getChildren().add(new Popup(200,200));
+		initLaunchView();
 
 	}
 
@@ -173,12 +203,17 @@ public class InteractiveGUIController implements Initializable, Listener {
 	@Override
 	public synchronized void ping(PCGEvent e) 
 	{
-		if(e instanceof InitialRoom)
+		if(e instanceof ChangeCursor)
+		{
+			mainPane.getScene().setCursor(new ImageCursor(((ChangeCursor)e).getCursorImage()));
+		}
+		else if(e instanceof InitialRoom)
 		{
 			InitialRoom initRoom = (InitialRoom)e;
 			
 			dungeonMap.setInitialRoom(initRoom.getPickedRoom(), initRoom.getRoomPos());
 			worldView.restoreBrush();
+			worldView.initWorldMap(dungeonMap);
 		}
 		else if(e instanceof RequestPathFinding)
 		{
@@ -219,7 +254,7 @@ public class InteractiveGUIController implements Initializable, Listener {
 			}
 
 		} else if (e instanceof RequestWorldView) {
-			router.postEvent(new Stop());
+//			router.postEvent(new Stop());
 			backToWorldView();
 
 		} else if (e instanceof RequestEmptyRoom) {
@@ -261,6 +296,33 @@ public class InteractiveGUIController implements Initializable, Listener {
 	 */
 
 	public void startNewFlow() {
+		//TODO: There is mucho more than this, a lot of things need to be redone!
+		
+		ActionLogger.getInstance().saveNFlush();
+		InformativePopupManager.getInstance().restartPopups();
+		
+		suggestionsView = new SuggestionsViewController();
+		roomView = new RoomViewController();
+		worldView = new WorldViewController();
+		launchView = new LaunchViewController();
+		dungeonMap = null;
+		
+		runID = UUID.randomUUID();
+		File file = new File(DataSaverLoader.projectPath + "\\summer-school\\" + runID + "\\algorithm\\");
+		if (!file.exists()) {
+			file.mkdirs();
+		}
+		file = new File(DataSaverLoader.projectPath + "\\summer-school\\" + runID + "\\dungeon\\");
+		if (!file.exists()) {
+			file.mkdirs();
+		}
+		file = new File(DataSaverLoader.projectPath + "\\summer-school\\" + runID + "\\room\\");
+		if (!file.exists()) {
+			file.mkdirs();
+		}
+		
+		ActionLogger.getInstance().init();
+		
 		initLaunchView();
 	}
 
@@ -312,12 +374,12 @@ public class InteractiveGUIController implements Initializable, Listener {
 				new ExtensionFilter("All Files", "*.*"));
 		File selectedFile = fileChooser.showSaveDialog(stage);
 		if (selectedFile != null) {
-			logger.debug("Writing map to " + selectedFile.getPath());
+//			logger.debug("Writing map to " + selectedFile.getPath());
 			try {
 				Files.write(selectedFile.toPath(), matrixToString().getBytes());
 			} catch (IOException e) {
-				logger.error("Couldn't write map to " + selectedFile +
-						":\n" + e.getMessage());
+//				logger.error("Couldn't write map to " + selectedFile +
+//						":\n" + e.getMessage());
 			}
 		}
 	}
@@ -336,14 +398,14 @@ public class InteractiveGUIController implements Initializable, Listener {
 				new ExtensionFilter("All Files", "*.*"));
 		File selectedFile = fileChooser.showSaveDialog(stage);
 		if (selectedFile != null && roomView.getCurrentMap() != null) {
-			logger.debug("Exporting map to " + selectedFile.getPath());
+//			logger.debug("Exporting map to " + selectedFile.getPath());
 			BufferedImage image = SwingFXUtils.fromFXImage(roomView.getRenderedMap(), null);
 
 			try {
 				ImageIO.write(image, "png", selectedFile);
 			} catch (IOException e1) {
-				logger.error("Couldn't export map to " + selectedFile +
-						":\n" + e1.getMessage());
+//				logger.error("Couldn't export map to " + selectedFile +
+//						":\n" + e1.getMessage());
 			}
 		}
 	}
@@ -377,9 +439,9 @@ public class InteractiveGUIController implements Initializable, Listener {
 		AnchorPane.setLeftAnchor(suggestionsView, 0.0);
 		mainPane.getChildren().add(suggestionsView);
 
-		saveItem.setDisable(true);
-		saveAsItem.setDisable(true);
-		exportItem.setDisable(true);
+//		saveItem.setDisable(true);
+//		saveAsItem.setDisable(true);
+//		exportItem.setDisable(true);
 
 
 		suggestionsView.setActive(true);
@@ -405,9 +467,9 @@ public class InteractiveGUIController implements Initializable, Listener {
 
 		worldView.initWorldMap(initDungeon());
 
-		saveItem.setDisable(false);
-		saveAsItem.setDisable(false);
-		exportItem.setDisable(false);
+//		saveItem.setDisable(false);
+//		saveAsItem.setDisable(false);
+//		exportItem.setDisable(false);
 
 		suggestionsView.setActive(false);
 		roomView.setActive(false);
@@ -443,9 +505,9 @@ public class InteractiveGUIController implements Initializable, Listener {
 
 		worldView.initWorldMap(dungeonMap);
 
-		saveItem.setDisable(false);
-		saveAsItem.setDisable(false);
-		exportItem.setDisable(false);
+//		saveItem.setDisable(false);
+//		saveAsItem.setDisable(false);
+//		exportItem.setDisable(false);
 
 		suggestionsView.setActive(false);
 		roomView.setActive(false);
@@ -464,7 +526,7 @@ public class InteractiveGUIController implements Initializable, Listener {
 		AnchorPane.setBottomAnchor(roomView, 0.0);
 		AnchorPane.setLeftAnchor(roomView, 0.0);
 		mainPane.getChildren().add(roomView);
-		roomView.updateMap(map.getMap());	
+//		roomView.updateRoom(map.getMap());	
 		setCurrentQuadMap(map);
 
 		
@@ -481,9 +543,9 @@ public class InteractiveGUIController implements Initializable, Listener {
 //		dungeonMap.dPane.setPrefSize(roomView.minimap.getPrefWidth(), roomView.minimap.getPrefHeight());
 		
 
-		saveItem.setDisable(false);
-		saveAsItem.setDisable(false);
-		exportItem.setDisable(false);
+//		saveItem.setDisable(false);
+//		saveAsItem.setDisable(false);
+//		exportItem.setDisable(false);
 
 		worldView.setActive(false);
 		roomView.setActive(true);		

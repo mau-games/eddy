@@ -47,7 +47,7 @@ public class SetImportantRoom extends InterRoomBrush
 	@Override
 	public void onReleaseRoom(Room releasedRoom, Point releasedPosition)
 	{
-		
+		System.out.println("THIS HAPPENs");
 	}
 	
 	

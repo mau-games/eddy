@@ -15,6 +15,7 @@ import finder.patterns.InventorialPattern;
 import finder.patterns.Pattern;
 import finder.patterns.micro.Enemy;
 import finder.patterns.micro.Entrance;
+import finder.patterns.micro.Boss;
 import finder.patterns.micro.Chamber;
 import finder.patterns.micro.Door;
 import finder.patterns.micro.Treasure;
@@ -34,7 +35,7 @@ public class GuardRoom extends CompositePattern {
 		quality = Math.max(0, 1.0 - (double)Math.abs(enemyCount - config.getGuardRoomTargetEnemyAmount())/config.getGuardRoomTargetEnemyAmount());
 	}	
 	
-	public static List<CompositePattern> matches(Room room, Graph<Pattern> patternGraph) {
+	public static List<CompositePattern> matches(Room room, Graph<Pattern> patternGraph, List<CompositePattern> currentMeso) {
 		List<CompositePattern> guardRooms = new ArrayList<CompositePattern>();
 		
 		patternGraph.resetGraph();
@@ -45,7 +46,9 @@ public class GuardRoom extends CompositePattern {
 			{
 				List<InventorialPattern> containedEnemies = ((Chamber)current.getValue()).getContainedPatterns().stream().filter(p->{return p instanceof Enemy;}).collect(Collectors.toList());
 				List<InventorialPattern> containedTreasure = ((Chamber)current.getValue()).getContainedPatterns().stream().filter(p->{return p instanceof Treasure;}).collect(Collectors.toList());
+				List<InventorialPattern> containedBoss = ((Chamber)current.getValue()).getContainedPatterns().stream().filter(p->{return p instanceof Boss;}).collect(Collectors.toList());
 				Pattern containDoor = (Pattern)((Chamber)current.getValue()).getContainedPatterns().stream().filter(p->{return p instanceof Door;}).findAny().orElse(null); 
+				
 				if(containDoor == null && containedEnemies.size() >= 2 && containedTreasure.size() == 0)
 				{
 					GuardRoom g = new GuardRoom(room.getConfig(), containedEnemies.size());
@@ -54,6 +57,15 @@ public class GuardRoom extends CompositePattern {
 					guardRooms.add(g);
 					//System.out.println("Got a guard room!");
 				}
+				else if(containDoor == null && !containedBoss.isEmpty()) //Perhaps it requires that this is its own meso (Boss chamber)
+				{
+					GuardRoom g = new GuardRoom(room.getConfig(), 5);
+					g.patterns.add(current.getValue());
+					g.patterns.addAll(containedBoss);
+					guardRooms.add(g);
+				}
+				
+				
 			}
 		}
 		

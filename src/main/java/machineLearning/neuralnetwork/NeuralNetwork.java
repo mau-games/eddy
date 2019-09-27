@@ -5,8 +5,6 @@ import java.util.ArrayList;
 import java.util.Random;
 import java.util.UUID;
 
-import org.hamcrest.core.IsInstanceOf;
-
 import collectors.DataSaverLoader;
 import machineLearning.neuralnetwork.LossCalculator.lossFunctions;
 import machineLearning.neuralnetwork.Neuron.NeuronTypes;

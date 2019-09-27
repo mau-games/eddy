@@ -110,7 +110,7 @@ public class SimpleMapGUIController  implements Initializable, Listener
 		}
 		
 		router.registerListener(this, new StatusMessage(null));
-		router.registerListener(this, new AlgorithmDone(null, null));
+		router.registerListener(this, new AlgorithmDone(null, null, null));
 		router.registerListener(this, new RequestRedraw());
 		router.registerListener(this, new MapLoaded(null));
 
@@ -196,7 +196,7 @@ public class SimpleMapGUIController  implements Initializable, Listener
 //		}
 		
 //		System.out.println();
-		currentMap = new Room(basicConfig, ex, roomHeight, roomWidth, /*Doors positions*/ null);
+		currentMap = new Room(basicConfig, ex, roomHeight, roomWidth, /*Doors positions*/ null, null, null);
 		RenderMap(currentMap);
 	}
 	

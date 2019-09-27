@@ -1,10 +1,33 @@
 package generator.algorithm.MAPElites;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.ArrayList;
+import java.util.Dictionary;
+import java.util.HashMap;
+import java.util.Hashtable;
 import java.util.List;
+import java.util.Map.Entry;
 import java.util.Random;
 import java.util.UUID;
 
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.OutputKeys;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerException;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
+
+import org.apache.commons.io.FileUtils;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+
+import collectors.DataSaverLoader;
 import collectors.MAPECollector;
 import finder.PatternFinder;
 import game.MapContainer;
@@ -12,6 +35,8 @@ import game.Room;
 import generator.algorithm.Algorithm;
 import generator.algorithm.ZoneGenotype;
 import generator.algorithm.ZoneIndividual;
+import generator.algorithm.ZonePhenotype;
+import generator.algorithm.MAPElites.Dimensions.CharacteristicSimilarityGADimension;
 import generator.algorithm.MAPElites.Dimensions.GADimension;
 import generator.algorithm.MAPElites.Dimensions.MAPEDimensionFXML;
 import generator.algorithm.MAPElites.Dimensions.NPatternGADimension;
@@ -20,6 +45,7 @@ import generator.algorithm.MAPElites.Dimensions.SymmetryGADimension;
 import generator.algorithm.MAPElites.Dimensions.GADimension.DimensionTypes;
 import generator.algorithm.Algorithm.AlgorithmTypes;
 import generator.config.GeneratorConfig;
+import gui.InteractiveGUIController;
 import util.Util;
 import util.eventrouting.EventRouter;
 import util.eventrouting.Listener;
@@ -29,8 +55,8 @@ import util.eventrouting.events.AlgorithmStarted;
 import util.eventrouting.events.MAPEGenerationDone;
 import util.eventrouting.events.MAPEGridUpdate;
 import util.eventrouting.events.MAPElitesDone;
-import util.eventrouting.events.MapElitesDoneAllRooms;
 import util.eventrouting.events.MapUpdate;
+import util.eventrouting.events.SaveCurrentGeneration;
 import util.eventrouting.events.SaveDisplayedCells;
 import util.eventrouting.events.UpdatePreferenceModel;
 
@@ -50,6 +76,15 @@ public class MAPEliteAlgorithm extends Algorithm implements Listener {
 	private int currentGen = 0;
 	MAPEDimensionFXML[] dimensions;
 	private boolean dimensionsChanged = false;
+	
+	private int saveCounter = 0;
+	
+	//For the Expressive range test
+//	ArrayList<Room> uniqueGeneratedRooms = new ArrayList<Room>();
+	HashMap<Room, Double> uniqueGeneratedRooms = new HashMap<Room, Double>();
+	
+	//UGLY WAY OF DOING THIS!
+	ArrayList<ZoneIndividual> currentRendered = new ArrayList<ZoneIndividual>(); //I think this didn't work
 
 	public MAPEliteAlgorithm(GeneratorConfig config) {
 		super(config);
@@ -110,6 +145,7 @@ public class MAPEliteAlgorithm extends Algorithm implements Listener {
 		broadcastStatusUpdate("Initialising...");
 		EventRouter.getInstance().registerListener(this, new MAPEGridUpdate(null));
 		EventRouter.getInstance().registerListener(this, new UpdatePreferenceModel(null));
+		EventRouter.getInstance().registerListener(this, new SaveCurrentGeneration());
 		
 		this.dimensions = dimensions;
 		initCells(dimensions);
@@ -120,7 +156,11 @@ public class MAPEliteAlgorithm extends Algorithm implements Listener {
 		
 		populationSize = 1000;
 		feasibleAmount = 750;
-
+		
+		//TODO: THIS IS CREISI!mutate
+//		System.out.println(mutationProbability);
+//		mutationProbability = 0.3f;
+		
 		while((i + j) < populationSize){
 			ZoneIndividual ind = new ZoneIndividual(room, mutationProbability);
 			ind.mutateAll(0.7, roomWidth, roomHeight);
@@ -154,7 +194,6 @@ public class MAPEliteAlgorithm extends Algorithm implements Listener {
 				}
 			}
 		}
-		
 		
 		broadcastStatusUpdate("Population generated.");
 	}
@@ -249,6 +288,15 @@ public class MAPEliteAlgorithm extends Algorithm implements Listener {
 		this.cells = new ArrayList<GACell>();
 		CreateCellsOpposite(MAPElitesDimensions.size() - 1, dimensionsGranularity, new int[dimensions.length]);
 		cellAmounts = this.cells.size();
+		
+		//New addition
+		currentRendered.clear();
+		
+		for(int i = 0; i < cellAmounts; i++)
+		{
+			currentRendered.add(null);
+		}
+		
 	}
 	
 	public void RecreateCells()
@@ -287,6 +335,10 @@ public class MAPEliteAlgorithm extends Algorithm implements Listener {
 //			RecreateCells();
 			dimensionsChanged = true;
 		}
+		else if(e instanceof SaveCurrentGeneration)
+		{
+			storeMAPELITESXml();
+		}
 	}
 	
 	
@@ -309,6 +361,15 @@ public class MAPEliteAlgorithm extends Algorithm implements Listener {
 		for(GACell cell : cells)
 		{
 			cell.ResetPopulation(this.config);
+		}
+		
+		for(ZoneIndividual rend : currentRendered)
+		{
+			if(rend != null)
+			{
+				rend.ResetPhenotype(this.config);
+				evaluateFeasibleZoneIndividual(rend);
+			}
 		}
 	}
 	
@@ -418,12 +479,15 @@ public class MAPEliteAlgorithm extends Algorithm implements Listener {
     
     private void runNoInterbreedingApplElites()
     {
-    	//If we have receive the even that the dimensions changed, please modify the dimensions and recalculate the cells!
+//    	storeUniqueRooms();
+    	
+    	//If we have receive the event that the dimensions changed, please modify the dimensions and recalculate the cells!
     	if(dimensionsChanged)
     	{
     		RecreateCells();
     		dimensionsChanged = false;
     	}
+    	
 		ArrayList<ZoneIndividual> feasibleParents = new ArrayList<ZoneIndividual>();
 		ArrayList<ZoneIndividual> infeasibleParents = new ArrayList<ZoneIndividual>();
 		
@@ -476,6 +540,21 @@ public class MAPEliteAlgorithm extends Algorithm implements Listener {
     	else {
     		currentGen++;
     	}
+    	
+//    	if(realCurrentGen == 5000)
+//    	{
+//    		System.out.println(uniqueGeneratedRooms.size());
+//    		saveUniqueRoomsToFile();
+//    		publishGeneration();
+//    	}
+//    	
+//    	if(realCurrentGen % 1000 == 0)
+//    	{
+//    		System.out.println(uniqueGeneratedRooms.size());
+//        	System.out.println("Current Generation: " + realCurrentGen);
+//    	}
+//
+
     	
     	realCurrentGen++;
     }
@@ -606,8 +685,7 @@ public class MAPEliteAlgorithm extends Algorithm implements Listener {
     private void publishGeneration()
     {
 		broadcastResultedRooms();
-		broadcastNetworkRooms();
-		MAPECollector.getInstance().SaveGeneration(realCurrentGen, MAPElitesDimensions, cells, false); //store the cells in memory
+//		MAPECollector.getInstance().SaveGeneration(realCurrentGen, MAPElitesDimensions, cells, false); //store the cells in memory
 		
 		//This should be in a call when the ping happens! --> FIXME!!
 		UpdateConfigFile();
@@ -701,14 +779,14 @@ public class MAPEliteAlgorithm extends Algorithm implements Listener {
 //        broadcastResultedRooms();
         
         //We save the last generation
-        MAPECollector.getInstance().SaveGeneration(realCurrentGen, MAPElitesDimensions, cells, "STOP", false);
-        EventRouter.getInstance().postEvent(new SaveDisplayedCells());
+//        MAPECollector.getInstance().SaveGeneration(realCurrentGen, MAPElitesDimensions, cells, "STOP", false);
+//        EventRouter.getInstance().postEvent(new SaveDisplayedCells());
         
         for(GACell cell : cells)
 		{
         	if(!cell.GetFeasiblePopulation().isEmpty())
         	{
-        		room = cell.GetFeasiblePopulation().get(0).getPhenotype().getMap(-1, -1, null);
+        		room = cell.GetFeasiblePopulation().get(0).getPhenotype().getMap(-1, -1, null, null, null);
         		break;
         	}
 		}
@@ -720,19 +798,33 @@ public class MAPEliteAlgorithm extends Algorithm implements Listener {
 		result.setMicroPatterns(finder.findMicroPatterns());
 		result.setMesoPatterns(finder.findMesoPatterns());
 		result.setMacroPatterns(finder.findMacroPatterns());
-        AlgorithmDone ev = new AlgorithmDone(result, this);
+        AlgorithmDone ev = new AlgorithmDone(result, this, config.fileName);
         ev.setID(id);
         EventRouter.getInstance().postEvent(ev);
+        destructor();
+	}
+	
+	//TODO: this still needs to be checked!
+	public void destructor()
+	{
+		EventRouter.getInstance().unregisterListener(this, new MAPEGridUpdate(null));
+		EventRouter.getInstance().unregisterListener(this, new UpdatePreferenceModel(null));
+		EventRouter.getInstance().unregisterListener(this, new SaveCurrentGeneration());
+		
+		cells.clear();
+		MAPElitesDimensions.clear();
 	}
 	
 	//TODO: There are problems on how the cells are rendered!
 	public void broadcastResultedRooms()
 	{
+		//TODO: CHECK FOR THE OTHER THAT ARE ALREADY RENDERED
 		MAPElitesDone ev = new MAPElitesDone();
         ev.setID(id);
         int cellIndex = 0;
         for(GACell cell : cells)
 		{
+
 //        	System.out.println("CELL = " + cellIndex++);
 //        	System.out.println("SYMMETRY: " + cell.GetDimensionValue(DimensionTypes.SIMILARITY) + ", PAT: " + cell.GetDimensionValue(DimensionTypes.SYMMETRY));
 //        	cell.BroadcastCellInfo();
@@ -743,7 +835,24 @@ public class MAPEliteAlgorithm extends Algorithm implements Listener {
         	}
         	else //This is more tricky!!
         	{
-        		ev.addRoom(cell.GetFeasiblePopulation().get(0).getPhenotype().getMap(-1, -1, null));
+        		if(currentRendered.get(cellIndex) != null)
+        		{
+        			double increasedAmount = currentRendered.get(cellIndex).getFitness() * 0.01; //1% different
+        			
+        			if(cell.GetFeasiblePopulation().get(0).getFitness() >= currentRendered.get(cellIndex).getFitness() + increasedAmount)
+        			{
+        				currentRendered.set(cellIndex, cell.GetFeasiblePopulation().get(0));
+        			}
+        		}
+        		else
+        		{
+        			currentRendered.set(cellIndex, cell.GetFeasiblePopulation().get(0));
+        		}
+        		
+//        		ev.addRoom(currentRendered.get(cellIndex).getPhenotype().getMap(-1, -1, null, null, null));
+        		ev.addRoom(cell.GetFeasiblePopulation().get(0).getPhenotype().getMap(-1, -1, null, null, null)); 
+        		//Uncomment top to get previous result!
+        		
 //        		cell.GetFeasiblePopulation().get(0).BroadcastIndividualDimensions();
         		evaluateFeasibleZoneIndividual(cell.GetFeasiblePopulation().get(0));
 //        		System.out.println("FIT ROOM Fitness: " + cell.GetFeasiblePopulation().get(0).getFitness() + 
@@ -752,32 +861,10 @@ public class MAPEliteAlgorithm extends Algorithm implements Listener {
         	}	
         	
 //        	System.out.println("------------------");
+        	
+        	cellIndex++;
 		}
         
-		EventRouter.getInstance().postEvent(ev);
-	}
-	
-	private void broadcastNetworkRooms()
-	{
-		MapElitesDoneAllRooms ev = new MapElitesDoneAllRooms();
-        ev.setID(id);
-        int cellIndex = 0;
-		for(GACell cell : cells)
-		{
-//        	System.out.println("CELL = " + cellIndex++);
-//        	System.out.println("SYMMETRY: " + cell.GetDimensionValue(DimensionTypes.SIMILARITY) + ", PAT: " + cell.GetDimensionValue(DimensionTypes.SYMMETRY));
-//        	cell.BroadcastCellInfo();
-        	if(!cell.GetFeasiblePopulation().isEmpty())
-        	{
-//        		ev.addRoom(null);
-//        		System.out.println("NO FIT ROOM!");
-        		for(ZoneIndividual zi : cell.GetFeasiblePopulation())
-        		{
-        			ev.addRoom(zi.getPhenotype().getMap(-1, -1, null));
-        		}
-        	}
-		}
-		
 		EventRouter.getInstance().postEvent(ev);
 	}
 	
@@ -877,22 +964,184 @@ public class MAPEliteAlgorithm extends Algorithm implements Listener {
 		return mutatedChildren;
 	}
 	
-	//Select the parents from the popuation
-	protected void SelectParents()
+	protected void saveUniqueRoomsToFile()
 	{
-		//This method
-	}
-	
-	protected void BreedFeasibleIndividuals()
-	{
+		String DIRECTORY= System.getProperty("user.dir") + "\\my-data\\expressive-range\\";
+		StringBuilder data = new StringBuilder();
 		
-	}
-	
-	protected void BreedInfeasibleIndividuals()
-	{
+		data.append("Leniency;Linearity;Similarity;NMesoPatterns;NSpatialPatterns;Symmetry;Inner Similarity;Fitness;Score" + System.lineSeparator());
 		
+		//Create the data:
+		for (Entry<Room, Double> entry : uniqueGeneratedRooms.entrySet()) 
+		{
+		    Room currentRoom = entry.getKey();
+		    data.append(currentRoom.getDimensionValue(DimensionTypes.LENIENCY) + ";");
+		    data.append(currentRoom.getDimensionValue(DimensionTypes.LINEARITY) + ";");
+		    data.append(currentRoom.getDimensionValue(DimensionTypes.SIMILARITY) + ";");
+		    data.append(currentRoom.getDimensionValue(DimensionTypes.NUMBER_MESO_PATTERN) + ";");
+		    data.append(currentRoom.getDimensionValue(DimensionTypes.NUMBER_PATTERNS) + ";");
+		    data.append(currentRoom.getDimensionValue(DimensionTypes.SYMMETRY) + ";");
+		    data.append(currentRoom.getDimensionValue(DimensionTypes.INNER_SIMILARITY) + ";");
+		    data.append(entry.getValue() + ";");
+		    data.append("1.0" + System.lineSeparator());
+		}
+		
+
+		File file = new File(DIRECTORY + "expressive_range-" + dimensions[0].getDimension() + "_" + dimensions[1].getDimension() + ".csv");
+		try {
+			FileUtils.write(file, data, true);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+//		IO.saveFile(FileName, data.getSaveString(), true);
 	}
 
+	
+	protected void storeUniqueRooms() //Only feasible
+	{
+		for(GACell cell : cells)
+		{
+			for(ZoneIndividual ind : cell.GetFeasiblePopulation())
+			{
+				boolean unique = true;
+				Room individualRoom = ind.getPhenotype().getMap(roomWidth, roomHeight, roomDoorPositions, roomCustomTiles, roomOwner);
+				for (Room key : uniqueGeneratedRooms.keySet()) 
+				{
+				    if(SimilarityGADimension.sameRooms(key, individualRoom))
+				    {
+				    	unique = false;
+				    	break;
+				    }
+				}
+				
+				if(unique)
+				{
+					Room copy = new Room(individualRoom);
+					copy.calculateAllDimensionalValues();
+					copy.setSpeficidDimensionValue(DimensionTypes.SIMILARITY, 
+							SimilarityGADimension.calculateValueIndependently(copy, originalRoom));
+					copy.setSpeficidDimensionValue(DimensionTypes.INNER_SIMILARITY, 
+							CharacteristicSimilarityGADimension.calculateValueIndependently(copy, originalRoom));
+					uniqueGeneratedRooms.put(copy, ind.getFitness());
+				}
+				
+			}
+		}
+	}
+	
+	protected void storeRoom(ZoneIndividual ind ) //Only feasible
+	{
+		boolean unique = true;
+		Room individualRoom = ind.getPhenotype().getMap(roomWidth, roomHeight, roomDoorPositions, roomCustomTiles, roomOwner);
+		for (Room key : uniqueGeneratedRooms.keySet()) 
+		{
+		    if(SimilarityGADimension.sameRooms(key, individualRoom))
+		    {
+		    	unique = false;
+		    	break;
+		    }
+		}
+		
+		if(unique)
+		{
+			Room copy = new Room(individualRoom);
+			copy.calculateAllDimensionalValues();
+			copy.setSpeficidDimensionValue(DimensionTypes.SIMILARITY, 
+					SimilarityGADimension.calculateValueIndependently(copy, originalRoom));
+			copy.setSpeficidDimensionValue(DimensionTypes.INNER_SIMILARITY, 
+					CharacteristicSimilarityGADimension.calculateValueIndependently(copy, originalRoom));
+			uniqueGeneratedRooms.put(copy, ind.getFitness());
+		}
+
+	}
+	
+	//ok
+	protected void storeMAPELITESXml()
+	{
+		Document dom;
+	    Element e = null;
+	    Element next = null;
+	    
+	    File file = new File(DataSaverLoader.projectPath + "\\summer-school\\" + InteractiveGUIController.runID + "\\algorithm\\" + id);
+		if (!file.exists()) {
+			file.mkdirs();
+		}
+	    
+	    String xml = System.getProperty("user.dir") + "\\my-data\\summer-school\\"+ InteractiveGUIController.runID + "\\algorithm\\" + id + "\\algorithm-" + id + "_" + saveCounter + ".xml";
+
+	    // instance of a DocumentBuilderFactory
+	    DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+	    try {
+	        // use factory to get an instance of document builder
+	        DocumentBuilder db = dbf.newDocumentBuilder();
+	        // create instance of DOM
+	        dom = db.newDocument();
+
+	        // create the root element
+	        Element rootEle = dom.createElement("Run");
+	        rootEle.setAttribute("ID", id.toString());
+//	        rootEle.setAttribute("TIME", TIMESTAMP);
+	        
+	        // create data elements and place them under root
+	        e = dom.createElement("Dimensions");
+	        rootEle.appendChild(e);
+	        
+	        //DIMENSIONS
+	        for(GADimension dimension : MAPElitesDimensions)
+	        {
+	        	 next = dom.createElement("Dimension");
+	 	        next.setAttribute("name", dimension.GetType().toString());
+	 	        next.setAttribute("granularity", Double.toString(dimension.GetGranularity()));
+	 	        e.appendChild(next);
+	        }
+	       
+	        //ROOMS
+	        e = dom.createElement("Cells");
+	        rootEle.appendChild(e);
+	        
+	        for(GACell cell : cells)
+			{
+		        next = dom.createElement("Cell");
+		        if(cell.GetFeasiblePopulation().isEmpty())
+		        {
+		        	next.setAttribute("ROOM_ID", "NULL");
+		        }
+		        else
+		        {
+		        	cell.GetFeasiblePopulation().get(0).getPhenotype().getMap(-1, -1, null, null, null).saveRoomXMLMapElites("algorithm\\" + id + "\\algorithm-" + saveCounter + "_");
+		        	next.setAttribute("ROOM_ID", cell.GetFeasiblePopulation().get(0).getPhenotype().getMap(-1, -1, null, null, null).toString());
+			        next.setAttribute("fitness", Double.toString(cell.GetFeasiblePopulation().get(0).getFitness()));
+			       
+		        }
+		        e.appendChild(next);
+			}
+
+	        dom.appendChild(rootEle);
+
+	        try {
+	            Transformer tr = TransformerFactory.newInstance().newTransformer();
+	            tr.setOutputProperty(OutputKeys.INDENT, "yes");
+	            tr.setOutputProperty(OutputKeys.METHOD, "xml");
+	            tr.setOutputProperty(OutputKeys.ENCODING, "UTF-8");
+	            tr.setOutputProperty(OutputKeys.DOCTYPE_SYSTEM, "algorithm.dtd");
+	            tr.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "4");
+
+	            // send DOM to file
+	            tr.transform(new DOMSource(dom), 
+	                                 new StreamResult(new FileOutputStream(xml)));
+
+	        } catch (TransformerException te) {
+	            System.out.println(te.getMessage());
+	        } catch (IOException ioe) {
+	            System.out.println(ioe.getMessage());
+	        }
+	    } catch (ParserConfigurationException pce) {
+	        System.out.println("UsersXML: Error trying to instantiate DocumentBuilder " + pce);
+	    }
+	    
+	    saveCounter++;
+	}
 
 	
 }

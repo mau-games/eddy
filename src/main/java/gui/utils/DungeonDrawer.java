@@ -1,5 +1,7 @@
 package gui.utils;
 
+import util.eventrouting.EventRouter;
+import util.eventrouting.events.ChangeCursor;
 import util.eventrouting.events.EndRoom;
 import util.eventrouting.events.InitialRoom;
 
@@ -80,6 +82,7 @@ public class DungeonDrawer
 	
 	private void changeBrush()
 	{
+		EventRouter.getInstance().postEvent(new ChangeCursor(""));
 		switch(dungeonBrush)
 		{
 			case MOVEMENT:
@@ -93,6 +96,7 @@ public class DungeonDrawer
 				break;
 			case INITIAL_ROOM:
 				brush = new SetImportantRoom(new InitialRoom(null, null));
+				EventRouter.getInstance().postEvent(new ChangeCursor("/graphics/dungeonbrushes/heroBrush.png"));
 				break;
 			case END_ROOM:
 				brush = new SetImportantRoom(new EndRoom(null, null));

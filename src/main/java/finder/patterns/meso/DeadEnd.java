@@ -66,7 +66,7 @@ public class DeadEnd extends CompositePattern {
 	 * @param boundary A boundary in which the pattern is searched for.
 	 * @return A list of found instances.
 	 */
-	public static List<CompositePattern> matches(Room room, Graph<Pattern> patternGraph) {
+	public static List<CompositePattern> matches(Room room, Graph<Pattern> patternGraph, List<CompositePattern> currentMeso) {
 		
 		//TODO: This is important to check! this must be solved
 		

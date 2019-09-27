@@ -9,8 +9,6 @@ import java.util.Queue;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import finder.PatternFinder;
 import finder.Populator;
@@ -26,10 +24,13 @@ import finder.patterns.micro.Connector;
 import finder.patterns.micro.Corridor;
 import finder.patterns.micro.Enemy;
 import finder.patterns.micro.Entrance;
+import finder.patterns.micro.Boss;
 import finder.patterns.micro.Chamber;
 import finder.patterns.micro.Treasure;
+import game.Dungeon;
 import game.Game;
 import game.Room;
+import game.Tile;
 import game.MapContainer;
 import game.TileTypes;
 import generator.config.GeneratorConfig;
@@ -57,7 +58,7 @@ import util.eventrouting.events.StatusMessage;
  */
 public class Algorithm extends Thread {
 	protected UUID id;
-	protected final Logger logger = LoggerFactory.getLogger(Algorithm.class);
+//	protected final Logger logger = LoggerFactory.getLogger(Algorithm.class);
 	protected GeneratorConfig config;
 	
 	protected int populationSize; 
@@ -81,9 +82,12 @@ public class Algorithm extends Thread {
 
 	protected AlgorithmTypes algorithmTypes;
 	
+	//needed info
 	protected int roomWidth;
 	protected int roomHeight;
 	protected List<Point> roomDoorPositions;
+	protected List<Tile> roomCustomTiles;
+	protected Dungeon roomOwner; //-->> This probably will need to be some  type of static variable with an instance.
 	
 	//This is for testing the preference MODEL TODO: for fitness
 	protected PreferenceModel userPreferences; //TODO: PROBABLY THIS WILL BE REPLACED for a class to calculate fitness in different manners!
@@ -114,6 +118,8 @@ public class Algorithm extends Thread {
 		this.roomWidth = originalRoom.getColCount();
 		this.roomHeight = originalRoom.getRowCount();
 		this.roomDoorPositions = originalRoom.getDoors();
+		this.roomCustomTiles = originalRoom.customTiles;
+		this.roomOwner = originalRoom.owner;
 		
 		this.config = config;
 		id = UUID.randomUUID();
@@ -136,7 +142,9 @@ public class Algorithm extends Thread {
 		this.roomWidth = originalRoom.getColCount();
 		this.roomHeight = originalRoom.getRowCount();
 		this.roomDoorPositions = originalRoom.getDoors();
-			
+		this.roomCustomTiles = originalRoom.customTiles;
+		this.roomOwner = originalRoom.owner;
+		
 		this.config = config;
 		
 		//TODO: What is this?
@@ -170,6 +178,8 @@ public class Algorithm extends Thread {
 		this.roomWidth = originalRoom.getColCount();
 		this.roomHeight = originalRoom.getRowCount();
 		this.roomDoorPositions = originalRoom.getDoors();
+		this.roomCustomTiles = originalRoom.customTiles;
+		this.roomOwner = originalRoom.owner;
 		
 		this.config = room.getCalculatedConfig();
 		this.algorithmTypes = algorithmTypes;
@@ -312,7 +322,7 @@ public class Algorithm extends Thread {
 //            broadcastStatusUpdate("BEST fitness: " + best.getFitness());
 //            System.out.println("DOORS: " + best.getPhenotype().getMap().getDoorCount());
             
-            room = best.getPhenotype().getMap(roomWidth, roomHeight, roomDoorPositions);
+            room = best.getPhenotype().getMap(roomWidth, roomHeight, roomDoorPositions, roomCustomTiles, roomOwner);
            
             //broadcastMapUpdate(map);
             
@@ -363,7 +373,7 @@ public class Algorithm extends Thread {
 		result.setMicroPatterns(finder.findMicroPatterns());
 		result.setMesoPatterns(finder.findMesoPatterns());
 		result.setMacroPatterns(finder.findMacroPatterns());
-        AlgorithmDone ev = new AlgorithmDone(result, this);
+        AlgorithmDone ev = new AlgorithmDone(result, this, config.fileName);
         ev.setID(id);
         EventRouter.getInstance().postEvent(ev);
 	}
@@ -415,7 +425,7 @@ public class Algorithm extends Thread {
 	 * @return Return true if ZoneIndividual is valid, otherwise return false
     */
 	protected boolean checkZoneIndividual(ZoneIndividual ind){
-		Room room = ind.getPhenotype().getMap(roomWidth, roomHeight, roomDoorPositions);
+		Room room = ind.getPhenotype().getMap(roomWidth, roomHeight, roomDoorPositions, roomCustomTiles, roomOwner);
 //		return room.isFeasible();
 		return room.isIntraFeasible();
 	}
@@ -432,9 +442,10 @@ public class Algorithm extends Thread {
 	 */
     public void evaluateFeasibleZoneIndividual(ZoneIndividual ind)
     {
-        Room room = ind.getPhenotype().getMap(roomWidth, roomHeight, roomDoorPositions);
+        Room room = ind.getPhenotype().getMap(roomWidth, roomHeight, roomDoorPositions, roomCustomTiles, roomOwner);
         PatternFinder finder = room.getPatternFinder();
         List<Enemy> enemies = new ArrayList<Enemy>();
+        List<Boss> bosses = new ArrayList<Boss>();
         List<Treasure> treasures = new ArrayList<Treasure>();
         List<Corridor> corridors = new ArrayList<Corridor>();
         List<Connector> connectors = new ArrayList<Connector>();
@@ -789,7 +800,7 @@ public class Algorithm extends Thread {
 	public void evaluateInfeasibleZoneIndividual(ZoneIndividual ind)
 	{
 		double fitness = 0.0;
-	    Room room = ind.getPhenotype().getMap(roomWidth, roomHeight, roomDoorPositions);
+	    Room room = ind.getPhenotype().getMap(roomWidth, roomHeight, roomDoorPositions, roomCustomTiles, roomOwner);
 	
 	    double enemies = (room.getFailedPathsToEnemies() / (double)room.getEnemyCount());
 	    if (Double.isNaN(enemies)) 

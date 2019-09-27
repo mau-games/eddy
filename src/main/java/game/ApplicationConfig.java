@@ -1,13 +1,11 @@
 package game;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import util.config.ConfigurationUtility;
 import util.config.MissingConfigurationException;
 
 public class ApplicationConfig {
-	final static Logger logger = LoggerFactory.getLogger(ConfigurationUtility.class);
+//	final static Logger logger = LoggerFactory.getLogger(ConfigurationUtility.class);
 	private static String defaultConfig = "config/application_config.json";
 	private static ApplicationConfig instance = null;
 	private ConfigurationUtility config;

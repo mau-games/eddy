@@ -10,9 +10,6 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.file.Paths;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
@@ -28,7 +25,7 @@ import com.google.gson.JsonParser;
  */
 public class ConfigurationUtility { 
 	
-	final static Logger logger = LoggerFactory.getLogger(ConfigurationUtility.class);
+//	final static Logger logger = LoggerFactory.getLogger(ConfigurationUtility.class);
 	private JsonObject config;
 	
 	/**
@@ -73,7 +70,7 @@ public class ConfigurationUtility {
 			} catch (MalformedURLException e) {
 				throw new MissingConfigurationException();
 			} catch (IOException e) {
-				logger.error("Couldn't read the configuration file: " + e.getMessage());
+//				logger.error("Couldn't read the configuration file: " + e.getMessage());
 			}
 			readFile(file);
 		}
