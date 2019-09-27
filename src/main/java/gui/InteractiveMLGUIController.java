@@ -493,7 +493,7 @@ public class InteractiveMLGUIController implements Initializable, Listener {
 		AnchorPane.setBottomAnchor(roomView, 0.0);
 		AnchorPane.setLeftAnchor(roomView, 0.0);
 		mainPane.getChildren().add(roomView);
-		roomView.updateMap(map.getMap());	
+//		roomView.updateMap(map.getMap());	
 		setCurrentQuadMap(map);
 
 		

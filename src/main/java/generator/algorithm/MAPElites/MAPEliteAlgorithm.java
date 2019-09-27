@@ -55,6 +55,7 @@ import util.eventrouting.events.AlgorithmStarted;
 import util.eventrouting.events.MAPEGenerationDone;
 import util.eventrouting.events.MAPEGridUpdate;
 import util.eventrouting.events.MAPElitesDone;
+import util.eventrouting.events.MapElitesDoneAllRooms;
 import util.eventrouting.events.MapUpdate;
 import util.eventrouting.events.SaveCurrentGeneration;
 import util.eventrouting.events.SaveDisplayedCells;
@@ -536,6 +537,7 @@ public class MAPEliteAlgorithm extends Algorithm implements Listener {
     	{
 
     		publishGeneration();
+    		broadcastNetworkRooms();
     	}
     	else {
     		currentGen++;
@@ -865,6 +867,30 @@ public class MAPEliteAlgorithm extends Algorithm implements Listener {
         	cellIndex++;
 		}
         
+		EventRouter.getInstance().postEvent(ev);
+	}
+	
+	private void broadcastNetworkRooms()
+	{
+		MapElitesDoneAllRooms ev = new MapElitesDoneAllRooms();
+        ev.setID(id);
+        int cellIndex = 0;
+		for(GACell cell : cells)
+		{
+//        	System.out.println("CELL = " + cellIndex++);
+//        	System.out.println("SYMMETRY: " + cell.GetDimensionValue(DimensionTypes.SIMILARITY) + ", PAT: " + cell.GetDimensionValue(DimensionTypes.SYMMETRY));
+//        	cell.BroadcastCellInfo();
+        	if(!cell.GetFeasiblePopulation().isEmpty())
+        	{
+//        		ev.addRoom(null);
+//        		System.out.println("NO FIT ROOM!");
+        		for(ZoneIndividual zi : cell.GetFeasiblePopulation())
+        		{
+        			ev.addRoom(zi.getPhenotype().getMap(-1, -1, null, null, null));
+        		}
+        	}
+		}
+		
 		EventRouter.getInstance().postEvent(ev);
 	}
 	

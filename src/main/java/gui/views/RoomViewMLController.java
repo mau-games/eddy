@@ -22,6 +22,7 @@ import finder.patterns.micro.Corridor;
 import finder.patterns.micro.Chamber;
 import game.ApplicationConfig;
 import game.Room;
+import game.Tile;
 import game.MapContainer;
 import game.TileTypes;
 import generator.algorithm.Algorithm.AlgorithmTypes;
@@ -311,7 +312,7 @@ public class RoomViewMLController extends BorderPane implements Listener
 		for(DimensionTypes dimension : DimensionTypes.values())
         {
         	if(dimension != DimensionTypes.SIMILARITY && dimension != DimensionTypes.SYMMETRY
-        			&& dimension != DimensionTypes.LEARNING && dimension != DimensionTypes.DIFFICULTY
+        			&& dimension != DimensionTypes.DIFFICULTY
         			&& dimension != DimensionTypes.GEOM_COMPLEXITY && dimension != DimensionTypes.REWARD)
         	{
         		secondaryTable.getItems().add(new MAPEDimensionFXML(dimension, 5));
@@ -840,7 +841,7 @@ public class RoomViewMLController extends BorderPane implements Listener
 		
 		if (brushes.getSelectedToggle() == null) {
 			mapView.setCursor(Cursor.DEFAULT);
-			myBrush.SetMainComponent(null);
+			myBrush.SetMainComponent(new Tile());
 			
 		} else {
 			mapView.setCursor(Cursor.HAND);
@@ -1053,7 +1054,7 @@ public class RoomViewMLController extends BorderPane implements Listener
 		
 		for(SuggestionRoom sr : roomDisplays)
 		{
-			sr.getRoomCanvas().resizeRotatingThingie();
+//			sr.getRoomCanvas().resizeRotatingThingie();
 			sr.getRoomCanvas().draw(null);
 			sr.getRoomCanvas().setText("Waiting for map...");
 		}
