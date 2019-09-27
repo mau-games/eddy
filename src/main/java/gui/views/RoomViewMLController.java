@@ -400,6 +400,7 @@ public class RoomViewMLController extends BorderPane implements Listener
 		initMapView();
 		initLegend();
 		resetView();
+		roomToBe.forceReevaluation();
 		updateMap(roomToBe);	
 		generateNewMaps();
 //		
@@ -1116,8 +1117,11 @@ public class RoomViewMLController extends BorderPane implements Listener
 		}
 	}
 	
+	//TODO: READ THIS METHOD
 	private void storeSuggestions(int maxNegative)
 	{
+		System.out.println("TRAINING AFTER CHOOSING!");
+		System.out.println("READ METHOD: storeSuggestion  from Roomviewmlcontroller");
 		int currentNeg = maxNegative;
 		
 		int selSug = -1;
@@ -1289,6 +1293,8 @@ public class RoomViewMLController extends BorderPane implements Listener
 			System.out.println(entry.getKey());
 		}
 		
+		//TODO: THIS IS WHERE IS PICKING FROM THE AVAILABLE!!!
+		System.out.println("CHECK THIS! Calculate from all method at roomviewmlcontroller");
 		System.out.println("DONE picking");
 		
 		/////////////////////// THEN RENDER!!! /////////////////
