@@ -133,6 +133,7 @@ import util.eventrouting.events.Stop;
 import util.eventrouting.events.SuggestedMapSelected;
 import util.eventrouting.events.SuggestedMapsDone;
 import util.eventrouting.events.SuggestedMapsLoading;
+import util.eventrouting.events.TrainNetwork;
 import util.eventrouting.events.UpdateMiniMap;
 import util.eventrouting.events.UpdatePreferenceModel;
 import game.DungeonPane;
@@ -244,7 +245,7 @@ public class RoomViewMLController extends BorderPane implements Listener
 	
 	SortedMap<Double, ArrayList<Integer>> preferenceIndices = new TreeMap<Double, ArrayList<Integer>>(Collections.reverseOrder());
 	
-	static int CURRENTSTEP = 0;
+	public static int CURRENTSTEP = 0;
 	
 	//PROVISIONAL FIX!
 	public enum EvoState
@@ -1137,7 +1138,7 @@ public class RoomViewMLController extends BorderPane implements Listener
 			mapView.getMap().applySuggestion(selectedSuggestion.getSuggestedRoom());
 			updateMap(mapView.getMap());
 //			router.postEvent(new Stop());
-			storeSuggestions(10);
+			storeSuggestions(5);
 			CURRENTSTEP++;
 		}
 	}
@@ -1165,7 +1166,8 @@ public class RoomViewMLController extends BorderPane implements Listener
 		}
 		
 		ArrayList<SuggestionRoom> copyRooms = new ArrayList<SuggestionRoom>(roomDisplays);
-		updateModelWithNeighborhood(selSug, copyRooms);
+		int positiveNeighbors = updateModelWithNeighborhood(selSug, copyRooms);
+		
 		
 		for(SuggestionRoom sr : copyRooms)
 		{
@@ -1204,18 +1206,19 @@ public class RoomViewMLController extends BorderPane implements Listener
 		
 		//We have new data! now we train!
 		System.out.println("TRAIN!");
-		userPreferenceModel.trainNetwork(CURRENTSTEP);
+//		userPreferenceModel.trainNetwork(CURRENTSTEP);
+		router.postEvent(new TrainNetwork());
 
 	}
 	
-	private void updateModelWithNeighborhood(int index, ArrayList<SuggestionRoom> copyRoom)
+	private int updateModelWithNeighborhood(int index, ArrayList<SuggestionRoom> copyRoom)
 	{
 		ArrayList<Integer> indices = new ArrayList<Integer>();
 		ArrayList<SuggestionRoom> toAdd = new ArrayList<SuggestionRoom>();
 		
 		if(index == -1) //no selected suggestion!
 		{
-			return;
+			return -1;
 		}
 		
 		
@@ -1266,6 +1269,7 @@ public class RoomViewMLController extends BorderPane implements Listener
 				userPreferenceModel.UpdateModel(true, sr.getSuggestedRoom(), CURRENTSTEP);
 		}
 		
+		return toAdd.size();
 	}
 	
 	private void calculateFromAll(List<Room> population)

@@ -46,6 +46,8 @@ import generator.algorithm.MAPElites.Dimensions.GADimension.DimensionTypes;
 import generator.algorithm.Algorithm.AlgorithmTypes;
 import generator.config.GeneratorConfig;
 import gui.InteractiveGUIController;
+import gui.views.RoomViewMLController;
+import machineLearning.NNPreferenceModel;
 import util.Util;
 import util.eventrouting.EventRouter;
 import util.eventrouting.Listener;
@@ -59,6 +61,7 @@ import util.eventrouting.events.MapElitesDoneAllRooms;
 import util.eventrouting.events.MapUpdate;
 import util.eventrouting.events.SaveCurrentGeneration;
 import util.eventrouting.events.SaveDisplayedCells;
+import util.eventrouting.events.TrainNetwork;
 import util.eventrouting.events.UpdatePreferenceModel;
 
 public class MAPEliteAlgorithm extends Algorithm implements Listener {
@@ -147,6 +150,7 @@ public class MAPEliteAlgorithm extends Algorithm implements Listener {
 		EventRouter.getInstance().registerListener(this, new MAPEGridUpdate(null));
 		EventRouter.getInstance().registerListener(this, new UpdatePreferenceModel(null));
 		EventRouter.getInstance().registerListener(this, new SaveCurrentGeneration());
+		EventRouter.getInstance().registerListener(this, new TrainNetwork());
 		
 		this.dimensions = dimensions;
 		initCells(dimensions);
@@ -339,6 +343,12 @@ public class MAPEliteAlgorithm extends Algorithm implements Listener {
 		else if(e instanceof SaveCurrentGeneration)
 		{
 			storeMAPELITESXml();
+		}
+		else if(e instanceof TrainNetwork)
+		{
+			((NNPreferenceModel)userPreferences).trainNetwork();
+//			userPreferenceModel.trainNetwork(CURRENTSTEP);
+			System.out.println("TRAIN!");
 		}
 	}
 	
