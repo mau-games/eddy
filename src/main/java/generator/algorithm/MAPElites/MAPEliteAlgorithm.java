@@ -524,6 +524,9 @@ public class MAPEliteAlgorithm extends Algorithm implements Listener {
 		CheckAndAssignToCell(feasibleChildren, false);
 		CheckAndAssignToCell(infeasibleChildren, true);
 		
+		//Evaluate by preference Model
+		evaluateAllFeasiblesAllCells();
+		
     	//Now we sort both populations in a given cell and cut through capacity!!!
     	for(GACell cell : cells)
 		{
@@ -877,21 +880,78 @@ public class MAPEliteAlgorithm extends Algorithm implements Listener {
         int cellIndex = 0;
 		for(GACell cell : cells)
 		{
+			//We do not want the same rooms to be passed around
+			for(ZoneIndividual ind : cell.GetFeasiblePopulation())
+			{
+				boolean unique = true;
+				Room individualRoom = ind.getPhenotype().getMap(roomWidth, roomHeight, roomDoorPositions, roomCustomTiles, roomOwner);
+				for (Room storedRoom : ev.GetRooms())
+				{
+				    if(SimilarityGADimension.sameRooms(storedRoom, individualRoom))
+				    {
+				    	unique = false;
+				    	break;
+				    }
+				}
+				
+				if(unique)
+				{
+					ev.addRoom(individualRoom);
+//					Room copy = new Room(individualRoom);
+//					copy.calculateAllDimensionalValues();
+//					copy.setSpeficidDimensionValue(DimensionTypes.SIMILARITY, 
+//							SimilarityGADimension.calculateValueIndependently(copy, originalRoom));
+//					copy.setSpeficidDimensionValue(DimensionTypes.INNER_SIMILARITY, 
+//							CharacteristicSimilarityGADimension.calculateValueIndependently(copy, originalRoom));
+//					uniqueGeneratedRooms.put(copy, ind.getFitness());
+				}
+				
+			}
+			
+			
 //        	System.out.println("CELL = " + cellIndex++);
 //        	System.out.println("SYMMETRY: " + cell.GetDimensionValue(DimensionTypes.SIMILARITY) + ", PAT: " + cell.GetDimensionValue(DimensionTypes.SYMMETRY));
 //        	cell.BroadcastCellInfo();
-        	if(!cell.GetFeasiblePopulation().isEmpty())
-        	{
-//        		ev.addRoom(null);
-//        		System.out.println("NO FIT ROOM!");
-        		for(ZoneIndividual zi : cell.GetFeasiblePopulation())
-        		{
-        			ev.addRoom(zi.getPhenotype().getMap(-1, -1, null, null, null));
-        		}
-        	}
+//        	if(!cell.GetFeasiblePopulation().isEmpty())
+//        	{
+////        		ev.addRoom(null);
+////        		System.out.println("NO FIT ROOM!");
+//        		for(ZoneIndividual zi : cell.GetFeasiblePopulation())
+//        		{
+//        			ev.addRoom(zi.getPhenotype().getMap(-1, -1, null, null, null));
+//        		}
+//        	}
 		}
 		
 		EventRouter.getInstance().postEvent(ev);
+	}
+	
+	protected void evaluateAllFeasiblesAllCells()
+	{
+		confidentIndividuals = 0.0f;
+		allIndividuals = 0.0f;
+		
+		for(GACell cell : cells)
+		{
+			for(ZoneIndividual ind : cell.GetFeasiblePopulation())
+			{
+				PreferenceByModel(ind);
+			}
+		}
+		
+//		System.out.println("ALL INDIVIDUALS: " + allIndividuals);
+//		System.out.println("CONFIDENT!: " + confidentIndividuals);
+		System.out.println("Confident: " + (confidentIndividuals/allIndividuals));
+		
+		
+		for(GACell cell : cells)
+		{
+			for(ZoneIndividual ind : cell.GetFeasiblePopulation())
+			{
+				evaluateFeasibleZoneIndividual(ind);
+			}
+		}
+
 	}
 	
 	protected void CheckAndAssignToCell(List<ZoneIndividual> individuals, boolean infeasible)
@@ -908,7 +968,7 @@ public class MAPEliteAlgorithm extends Algorithm implements Listener {
 	            		infeasiblesMoved++;
 	            	               
 	                individual.SetDimensionValues(MAPElitesDimensions, this.originalRoom);
-	                evaluateFeasibleZoneIndividual(individual);
+//	                evaluateFeasibleZoneIndividual(individual);
 	                
 					for(GACell cell : cells)
 					{

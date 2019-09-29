@@ -54,13 +54,20 @@ public class NNPreferenceModel extends PreferenceModel
 	}
 	
 	@Override
-	public void UpdateModel(boolean like, Room usedRoom)
+	public void UpdateModel(boolean like, Room usedRoom, int step)
 	{
+		if(!separatedDataset.containsKey(step))
+		{
+			separatedDataset.put(step, new ArrayList<MapPreferenceModelTuple>());
+		}
+		
+		
 		//I WOULD LIKE TO TEST EACH OF THE NETWORKS HERE
 		
 		prevStates.push(new PreferenceModel(preferences, new Room(usedRoom), like));
 //		tuples.add(new PreferenceModelDataTuple(prevStates.peek(), like));
 		mapTuples.add(new MapPreferenceModelTuple(usedRoom, like));
+		separatedDataset.get(step).add(new MapPreferenceModelTuple(usedRoom, like));
 		
 		mapValues.FeedForward(mapTuples.get(mapTuples.size() - 1), DatasetUses.TEST);
 		System.out.println(mapValues.Classify(mapTuples.get(mapTuples.size() - 1)));
@@ -105,5 +112,10 @@ public class NNPreferenceModel extends PreferenceModel
 	public void trainNetwork()
 	{
 		mapValues.incomingData(new ArrayList<MapPreferenceModelTuple>(mapTuples));
+	}
+	
+	public void trainNetwork(int specificSet)
+	{
+		mapValues.incomingData(new ArrayList<MapPreferenceModelTuple>(separatedDataset.get(specificSet)));
 	}
 }

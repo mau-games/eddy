@@ -30,6 +30,7 @@ public class ZoneIndividual {
 	protected HashMap<DimensionTypes, Double> dimensionValues;
 	
 	//TODO: Reconsider these...
+	private double preferenceModelFitness;
 	private double treasureAndEnemyFitness;
     private double roomFitness;
 	private double corridorFitness;
@@ -52,6 +53,10 @@ public class ZoneIndividual {
 	}
 	public void setCorridorFitness(double corridorFitness){
 		this.corridorFitness = corridorFitness;
+	}
+	
+	public void setPreferenceModelFitness(double preferenceModelFit){
+		this.preferenceModelFitness = preferenceModelFit;
 	}
 	
 	/**
@@ -78,6 +83,10 @@ public class ZoneIndividual {
 	}
 	public double getCorridorFitness(){
 		return corridorFitness;
+	}
+	
+	public double getPreferenceModelFitness(){
+		return preferenceModelFitness;
 	}
 	
 	public boolean isChildOfInfeasibles(){

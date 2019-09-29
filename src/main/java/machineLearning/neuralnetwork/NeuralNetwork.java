@@ -262,13 +262,13 @@ public class NeuralNetwork <T extends DataTuple>
 		testSet = new ArrayList<T>();
 		trainingSet = new ArrayList<T>();
 //		
-//		fillSetRND(trainingSet, trainingTuples, dataset);
-//		fillSetRND(validationSet, validationTuples, dataset);
-//		fillSetRND(testSet, testingTuples, dataset);
+		fillSetRND(trainingSet, trainingTuples, dataset);
+		fillSetRND(validationSet, validationTuples, dataset);
+		fillSetRND(testSet, testingTuples, dataset);
 		
-		fillSet(trainingSet, trainingTuples, dataset);
-		fillSet(validationSet, validationTuples, dataset);
-		fillSet(testSet, testingTuples, dataset);
+//		fillSet(trainingSet, trainingTuples, dataset);
+//		fillSet(validationSet, validationTuples, dataset);
+//		fillSet(testSet, testingTuples, dataset);
 		
 		BasicBackpropagation_BATCH(); //There will be this and the preference backpropagation :) 
 	}

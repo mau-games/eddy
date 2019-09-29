@@ -91,6 +91,12 @@ public class Algorithm extends Thread {
 	
 	//This is for testing the preference MODEL TODO: for fitness
 	protected PreferenceModel userPreferences; //TODO: PROBABLY THIS WILL BE REPLACED for a class to calculate fitness in different manners!
+	
+	protected float preferenceModelWeight = 0.0f;
+	protected float confidentIndividuals = 0.0f;
+	protected float allIndividuals = 0.0f;
+	protected float upperBound = 0.9f;
+	protected float lowerBound = 0.1f;
 
 	public enum AlgorithmTypes //TODO: This needs to change
 	{
@@ -430,6 +436,37 @@ public class Algorithm extends Thread {
 		return room.isIntraFeasible();
 	}
 	
+	public void EvaluateAllbyModel()
+	{
+		confidentIndividuals = 0.0f;
+		allIndividuals = 0.0f;
+	}
+	
+	//Evaluate using the Preference model!!
+	public void PreferenceByModel(ZoneIndividual ind)
+	{
+		Room room = ind.getPhenotype().getMap(roomWidth, roomHeight, roomDoorPositions, roomCustomTiles, roomOwner);
+        PatternFinder finder = room.getPatternFinder();
+        double value = 0.0;
+        allIndividuals += 1.0;
+        
+    	if(userPreferences != null)
+    	{
+    		value = userPreferences.testWithPreference(room);
+    		ind.setPreferenceModelFitness(value);
+    		
+    		if(value <= lowerBound )
+    		{
+    			System.out.println("LOWER!");
+    		}
+    		
+    		if(value >= upperBound || value <= lowerBound)
+    			confidentIndividuals += 1.0;
+    		
+    		System.out.println(value);
+    	}
+	}
+	
 	/**
 	 * Evaluates the fitness of a valid ZoneIndividual using the following factors:
 	 *  1. Entrance safety (how close are enemies to the entrance)
@@ -626,7 +663,8 @@ public class Algorithm extends Thread {
     	
     	if(userPreferences != null)
     	{
-    		fitness = (fitnessWeight * fitness) + (preferenceWeight * userPreferences.testWithPreference(room));
+    		//CHANGE HERE!
+//    		fitness = (fitnessWeight * fitness) + (preferenceWeight * userPreferences.testWithPreference(room));
 //    		fitness = userPreferences.testWithPreference(room);
     	}
     	

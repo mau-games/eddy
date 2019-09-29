@@ -244,7 +244,7 @@ public class RoomViewMLController extends BorderPane implements Listener
 	
 	SortedMap<Double, ArrayList<Integer>> preferenceIndices = new TreeMap<Double, ArrayList<Integer>>(Collections.reverseOrder());
 	
-	
+	static int CURRENTSTEP = 0;
 	
 	//PROVISIONAL FIX!
 	public enum EvoState
@@ -1137,7 +1137,8 @@ public class RoomViewMLController extends BorderPane implements Listener
 			mapView.getMap().applySuggestion(selectedSuggestion.getSuggestedRoom());
 			updateMap(mapView.getMap());
 //			router.postEvent(new Stop());
-			storeSuggestions(1);
+			storeSuggestions(10);
+			CURRENTSTEP++;
 		}
 	}
 	
@@ -1172,7 +1173,7 @@ public class RoomViewMLController extends BorderPane implements Listener
 			{
 				if(currentNeg > 0)
 				{
-					userPreferenceModel.UpdateModel(false, sr.getSuggestedRoom());
+					userPreferenceModel.UpdateModel(false, sr.getSuggestedRoom(), CURRENTSTEP);
 					currentNeg--;
 				}
 //					networkTuples.add(new MapPreferenceModelTuple(sr.getSuggestedRoom(), false));
@@ -1203,7 +1204,7 @@ public class RoomViewMLController extends BorderPane implements Listener
 		
 		//We have new data! now we train!
 		System.out.println("TRAIN!");
-		userPreferenceModel.trainNetwork();
+		userPreferenceModel.trainNetwork(CURRENTSTEP);
 
 	}
 	
@@ -1262,10 +1263,9 @@ public class RoomViewMLController extends BorderPane implements Listener
 		for(SuggestionRoom sr : toAdd)
 		{
 			if(sr.getSuggestedRoom() != null)
-				userPreferenceModel.UpdateModel(true, sr.getSuggestedRoom());
+				userPreferenceModel.UpdateModel(true, sr.getSuggestedRoom(), CURRENTSTEP);
 		}
 		
-
 	}
 	
 	private void calculateFromAll(List<Room> population)

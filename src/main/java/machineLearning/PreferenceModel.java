@@ -53,6 +53,8 @@ public class PreferenceModel
 	protected ArrayList<PreferenceModelDataTuple> tuples = new ArrayList<PreferenceModelDataTuple>();
 	protected ArrayList<MapPreferenceModelTuple> mapTuples = new ArrayList<MapPreferenceModelTuple>();
 	
+	protected HashMap<Integer, ArrayList<MapPreferenceModelTuple>> separatedDataset = new HashMap<Integer, ArrayList<MapPreferenceModelTuple>>();
+	
 	private boolean broadcasted = false;
 	
 	public PreferenceModel(HashMap<PreferenceAttributes, Double> otherPreferences, Room room, boolean like)
@@ -83,7 +85,7 @@ public class PreferenceModel
 //		challenge = 0.5;
 	}
 	
-	public void UpdateModel(boolean like, Room usedRoom)
+	public void UpdateModel(boolean like, Room usedRoom, int step)
 	{
 		//This should be for each vaLUE
 //		double newSym = (usedRoom.getDimensionValue(DimensionTypes.SYMMETRY) - symmetry) * learningRate;
