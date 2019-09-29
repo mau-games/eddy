@@ -49,7 +49,7 @@
 		<Insets top="0" right="15" bottom="0" left="0" />
 	</padding>
 
-	<left>
+		<left>
 		<fx:define>
 			<ToggleGroup fx:id="brushes" />
 		</fx:define>
@@ -97,6 +97,18 @@
 				<ToggleButton contentDisplay="TOP" prefWidth="75.0"
 					mnemonicParsing="false" text="Enemy" toggleGroup="$brushes"
 					onAction="#selectBrush" fx:id="enemyBtn">
+					<graphic>
+						<ImageView fitWidth="40.0" pickOnBounds="true"
+							preserveRatio="true">
+							<image>
+								<Image url="@../../graphics/tiles/enemy.png" />
+							</image>
+						</ImageView>
+					</graphic>
+				</ToggleButton>
+				<ToggleButton contentDisplay="TOP" prefWidth="75.0"
+					mnemonicParsing="false" text="BOSS" toggleGroup="$brushes"
+					onAction="#selectBrush" fx:id="bossEnemyBtn">
 					<graphic>
 						<ImageView fitWidth="40.0" pickOnBounds="true"
 							preserveRatio="true">

@@ -16,6 +16,10 @@ import java.util.UUID;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import collectors.ActionLogger;
+import collectors.ActionLogger.ActionType;
+import collectors.ActionLogger.TargetPane;
+import collectors.ActionLogger.View;
 import finder.patterns.Pattern;
 import finder.patterns.micro.Connector;
 import finder.patterns.micro.Corridor;
@@ -31,6 +35,11 @@ import generator.algorithm.MAPElites.GACell;
 import generator.algorithm.MAPElites.Dimensions.MAPEDimensionFXML;
 import game.Game.MapMutationType;
 import game.Game.PossibleGAs;
+import game.tiles.BossEnemyTile;
+import game.tiles.EnemyTile;
+import game.tiles.FloorTile;
+import game.tiles.TreasureTile;
+import game.tiles.WallTile;
 import gui.controls.DimensionsTable;
 import gui.controls.Drawer;
 import gui.controls.InteractiveMap;
@@ -38,7 +47,9 @@ import gui.controls.LabeledCanvas;
 import gui.controls.MAPEVisualizationPane;
 import gui.controls.Modifier;
 import gui.controls.SuggestionRoom;
+import gui.utils.InformativePopupManager;
 import gui.utils.MapRenderer;
+import gui.utils.InformativePopupManager.PresentableInformation;
 import gui.views.RoomViewController.EditViewEventHandler;
 import gui.views.RoomViewController.EditViewMouseHover;
 import javafx.application.Platform;
@@ -840,6 +851,7 @@ public class RoomViewMLController extends BorderPane implements Listener
 		
 //		OnChangeTab();
 		
+		
 		if (brushes.getSelectedToggle() == null) {
 			mapView.setCursor(Cursor.DEFAULT);
 			myBrush.SetMainComponent(new Tile());
@@ -848,19 +860,31 @@ public class RoomViewMLController extends BorderPane implements Listener
 			mapView.setCursor(Cursor.HAND);
 			switch (((ToggleButton) brushes.getSelectedToggle()).getText()) {
 			case "Floor":
-				myBrush.SetMainComponent(TileTypes.FLOOR);
+				myBrush.SetMainComponent(new FloorTile());
 				break;
 			case "Wall":
-				myBrush.SetMainComponent(TileTypes.WALL);
+				myBrush.SetMainComponent(new WallTile());
 				break;
 			case "Treasure":
-				myBrush.SetMainComponent(TileTypes.TREASURE);
+				myBrush.SetMainComponent(new TreasureTile());
 				break;
 			case "Enemy":
-				myBrush.SetMainComponent(TileTypes.ENEMY);
+				myBrush.SetMainComponent(new EnemyTile());
+				break;		
+			case "BOSS":
+				myBrush.SetMainComponent(new BossEnemyTile());
 				break;
 			}
+		
+			ActionLogger.getInstance().storeAction(ActionType.CHANGE_VALUE, 
+													View.ROOM, 
+													TargetPane.TILE_PANE,
+													false,
+													myBrush.GetMainComponent()); //tile type
+		
 		}
+		
+		
 		
 	}
 
@@ -1694,7 +1718,21 @@ public class RoomViewMLController extends BorderPane implements Listener
 		getMapView().addEventFilter(MouseEvent.MOUSE_CLICKED, new EditViewEventHandler());
 		getMapView().addEventFilter(MouseEvent.MOUSE_MOVED, new EditViewMouseHover());
 	}
-
+	
+	public boolean checkInfeasibleLockedRoom(ImageView tile)
+	{
+		Room auxRoom = new Room(mapView.getMap());
+		mapView.updateTileInARoom(auxRoom, tile, myBrush);
+		
+		if(!auxRoom.walkableSectionsReachable())
+		{
+			System.out.println("I DETECTED IT!!");
+			InformativePopupManager.getInstance().requestPopup(mapView, PresentableInformation.ROOM_INFEASIBLE_LOCK, "");
+			return true;
+		}
+		
+		return false;
+	}
 	/*
 	 * Event handlers
 	 */
@@ -1713,11 +1751,31 @@ public class RoomViewMLController extends BorderPane implements Listener
 //				else if()
 				myBrush.UpdateModifiers(event);
 //				mapView.updateTile(tile, brush, event.getButton() == MouseButton.SECONDARY, lockBrush.isSelected() || event.isControlDown());
+				
+				if(!myBrush.possibleToDraw() || (myBrush.GetModifierValue("Lock") && checkInfeasibleLockedRoom(tile)))
+					return;
+				
+				if(myBrush.GetModifierValue("Lock"))
+				{
+					InformativePopupManager.getInstance().requestPopup(mapView, PresentableInformation.LOCK_RESTART, "");
+
+				}
+				
 				mapView.updateTile(tile, myBrush);
 				mapView.getMap().forceReevaluation();
+				mapView.getMap().getRoomXML("room\\");
 				mapIsFeasible(mapView.getMap().isIntraFeasible());
 				redrawPatterns(mapView.getMap());
 				redrawLocks(mapView.getMap());
+				
+				//FIXME: Added for presentation
+//				mapView.getMap().calculateAllDimensionalValues();
+//				System.out.println(mapView.getMap().getDimensionValue(DimensionTypes.LENIENCY));         
+//				System.out.println(mapView.getMap().getDimensionValue(DimensionTypes.LINEARITY) + ";");        
+////				System.out.println(room.getDimensionValue(DimensionTypes.SIMILARITY) + ";");       
+//				System.out.println(mapView.getMap().getDimensionValue(DimensionTypes.NUMBER_MESO_PATTERN) + ";");
+//				System.out.println(mapView.getMap().getDimensionValue(DimensionTypes.NUMBER_PATTERNS) + ";");  
+//				System.out.println(mapView.getMap().getDimensionValue(DimensionTypes.SYMMETRY) + ";"); 
 //				redrawHeatMap(mapView.getMap());
 			}
 		}
@@ -1743,7 +1801,8 @@ public class RoomViewMLController extends BorderPane implements Listener
 				util.Point p = mapView.CheckTile(tile);
 				myBrush.Update(event, p, mapView.getMap());
 				
-				renderer.drawBrush(brushCanvas.getGraphicsContext2D(), mapView.getMap().toMatrix(), myBrush, Color.WHITE);
+				renderer.drawBrush(brushCanvas.getGraphicsContext2D(), mapView.getMap().toMatrix(), myBrush, 
+						myBrush.possibleToDraw() ? Color.WHITE : Color.RED);
 			}
 		}
 		
