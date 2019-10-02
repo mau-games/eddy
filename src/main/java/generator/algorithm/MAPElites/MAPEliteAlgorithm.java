@@ -346,7 +346,8 @@ public class MAPEliteAlgorithm extends Algorithm implements Listener {
 		}
 		else if(e instanceof TrainNetwork)
 		{
-			((NNPreferenceModel)userPreferences).trainNetwork();
+			System.out.println("CURRENT STEP: " + RoomViewMLController.CURRENTSTEP);
+			((NNPreferenceModel)userPreferences).trainNetwork(RoomViewMLController.CURRENTSTEP);
 //			userPreferenceModel.trainNetwork(CURRENTSTEP);
 			System.out.println("TRAIN!");
 		}
@@ -825,6 +826,7 @@ public class MAPEliteAlgorithm extends Algorithm implements Listener {
 		EventRouter.getInstance().unregisterListener(this, new MAPEGridUpdate(null));
 		EventRouter.getInstance().unregisterListener(this, new UpdatePreferenceModel(null));
 		EventRouter.getInstance().unregisterListener(this, new SaveCurrentGeneration());
+		EventRouter.getInstance().unregisterListener(this, new TrainNetwork());
 		
 		cells.clear();
 		MAPElitesDimensions.clear();
@@ -951,7 +953,7 @@ public class MAPEliteAlgorithm extends Algorithm implements Listener {
 		
 //		System.out.println("ALL INDIVIDUALS: " + allIndividuals);
 //		System.out.println("CONFIDENT!: " + confidentIndividuals);
-		System.out.println("Confident: " + (confidentIndividuals/allIndividuals));
+//		System.out.println("Confident: " + (confidentIndividuals/allIndividuals));
 		
 		
 		for(GACell cell : cells)

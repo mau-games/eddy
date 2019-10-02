@@ -7,6 +7,7 @@ public class DataTuple
 	
 	public ArrayList<Double> numericalData;
 	public boolean label; //NEED TO FULLY CHANGE THIS!
+	public double preference;
 	
 	public DataTuple()
 	{

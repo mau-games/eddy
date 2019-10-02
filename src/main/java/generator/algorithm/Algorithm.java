@@ -457,13 +457,13 @@ public class Algorithm extends Thread {
     		
     		if(value <= lowerBound )
     		{
-    			System.out.println("LOWER!");
+//    			System.out.println("LOWER!");
     		}
     		
     		if(value >= upperBound || value <= lowerBound)
     			confidentIndividuals += 1.0;
     		
-    		System.out.println(value);
+//    		System.out.println(value);
     	}
 	}
 	
@@ -658,13 +658,14 @@ public class Algorithm extends Thread {
     	double fitness = (0.5 * treasureAndEnemyFitness)
     			+  0.5 * (0.3 * roomFitness + 0.7 * corridorFitness); 
     	
-    	double fitnessWeight = 0.1;
-    	double preferenceWeight = 0.9;
+    	double fitnessWeight = 0.7;
+    	double preferenceWeight = 0.3;
     	
     	if(userPreferences != null)
     	{
     		//CHANGE HERE!
-//    		fitness = (fitnessWeight * fitness) + (preferenceWeight * userPreferences.testWithPreference(room));
+    		fitness = (fitnessWeight * fitness) + (preferenceWeight * ind.getPreferenceModelFitness());
+//    		System.out.println(ind.getPreferenceModelFitness());
 //    		fitness = userPreferences.testWithPreference(room);
     	}
     	

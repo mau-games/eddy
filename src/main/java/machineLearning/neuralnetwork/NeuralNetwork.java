@@ -273,7 +273,8 @@ public class NeuralNetwork <T extends DataTuple>
 //		fillSet(validationSet, validationTuples, dataset);
 //		fillSet(testSet, testingTuples, dataset);
 		
-		BasicBackpropagation_BATCH(); //There will be this and the preference backpropagation :) 
+//		BasicBackpropagation_BATCH(); //There will be this and the preference backpropagation :) 
+		BasicBackpropagation_CONTINUOUS();
 	}
 	
 	/***
@@ -541,6 +542,131 @@ public class NeuralNetwork <T extends DataTuple>
 	public double decreaseLR(int epoch, double current_lr)
 	{
 		return Math.max(0.05,current_lr/(1.0+(double)(epoch)/45.0)); //45 is max epoch
+	}
+	
+	/***
+	 * We update connection weights after each tuple
+	 * @param learning_ratee
+	 */
+	public void BasicBackpropagation_CONTINUOUS()
+	{
+		double accuracyThreshold = 0.85;
+		double learningRate = 0.2;
+		int iterations = (int)Math.rint((trainingSet.size() * batchSize));
+		int currentBatch = 0;
+		int batchGrow = (int)(trainingSet.size()/iterations);
+		stepSize = iterations;
+		int counter = 0;
+		for(int epoch = 0; epoch < max_epochs; epoch++)
+		{
+//			System.out.println("EPOCH " + epoch);
+			double currentHighestDelta = 0.0;
+			double currDelta = 0.0f;
+			double currentAccuracy = 0.0;
+			learningRate = findLearningRate(epoch);
+			System.out.println(learningRate);
+			
+			for(int iter = 0; iter < iterations; iter++ )
+			{
+				currentHighestDelta = 0.0; 
+				currDelta = 0.0f;          
+				currentAccuracy = 0.0;
+				currentBatch = iter * batchGrow;
+				
+				//Step 0: create the dropoutlayers
+				for(int layerCount = 0; layerCount < this.neuralLayers.size(); layerCount++)
+				{
+					this.neuralLayers.get(layerCount).createDropoutLayer();
+				}
+				
+				for(int tuple = currentBatch; tuple < currentBatch + batchGrow; tuple++)
+				{
+
+					//step 1: feedforward
+					FeedForward(tuple, trainingSet, DatasetUses.TRAINING);
+					int preferNeuron = 1;
+					
+					//This work unless you have connections within the same layer --> Then you need to handle it in a different way
+					for(int layerCount = this.neuralLayers.size() - 1; layerCount > 1; layerCount--)
+					{
+						for(int currentNeuron = 0; currentNeuron < this.neuralLayers.get(layerCount).size; currentNeuron++)
+						{
+							Neuron neuron = this.neuralLayers.get(layerCount).getNeuron(currentNeuron, DatasetUses.TEST);
+
+							//Step 2: Calculate accumulated error (only important for hidden neurons)
+							if(layerCount !=  this.neuralLayers.size() - 1)
+								neuron.GetAccumulatedError(this.neuralLayers.get(layerCount + 1).getNeurons());
+							
+							//Step 3: Calculate error! --> IS THIS CORRECT OR A BUG??
+							neuron.CalculateError(getClassificationOutput(neuron.activation, currentNeuron == preferNeuron, trainingSet.get(tuple)));
+
+//							
+							//Step 4: Accumulate the delta weights
+							currDelta = neuron.AccumulateWeights(learningRate, 0.9);
+							if(currDelta > currentHighestDelta)
+								currentHighestDelta = currDelta;
+						}
+					}
+//					//Step 5: Correct all the weights (This is Online)
+//					for(int layerCount = this.neuralLayers.size() - 1; layerCount > 1; layerCount--)
+//					{
+//						for(int currentNeuron = 0; currentNeuron < this.neuralLayers.get(layerCount).size; currentNeuron++)
+//						{
+//							this.neuralLayers.get(layerCount).getNeuron(currentNeuron).ChangeWeights(learningRate);;
+//						}
+//					}
+					
+					for(int layerCount = 0; layerCount < this.neuralLayers.size(); layerCount++)
+					{
+						for(Neuron n : this.neuralLayers.get(layerCount).getNeurons())
+						{
+							n.dropoutMultiplier = 1.0;
+						}
+					}
+					
+				}
+				
+				//Step 5: Correct all the weights (This is offline)
+				for(int layerCount = this.neuralLayers.size() - 1; layerCount > 1; layerCount--)
+				{
+					for(int currentNeuron = 0; currentNeuron < this.neuralLayers.get(layerCount).size; currentNeuron++)
+					{
+						this.neuralLayers.get(layerCount).getNeuron(currentNeuron, DatasetUses.TEST).ChangeWeights(learningRate);;
+					}
+				}
+				
+			}
+
+			
+			///////////////// DO FINAL TEST OF ONLY THE EPOCH //////////////////
+			ModelInformation currentModel = new ModelInformation(learningRate, currentSteps, -1, batchSize, -1, max_epochs);
+			modelInfoEachStep.add(currentModel);
+			
+			TestNetworkContinuous(epoch, -1, validationSet, DatasetUses.VALIDATION, true, false, currentModel, DebugMode.EVERYTHING, lossFunctions.MSE);
+			TestNetworkContinuous(epoch, -1, trainingSet, DatasetUses.TRAINING, true, false, currentModel, DebugMode.EVERYTHING,lossFunctions.MSE);
+			TestNetworkContinuous(epoch, -1, testSet, DatasetUses.TEST, true, false, currentModel, DebugMode.EVERYTHING, lossFunctions.MSE);
+			System.out.println("----------------------------------");
+			
+			//////////// IMPORTANT IF YOU WANT TO STOP TRAINING!! /////////////
+
+			if(currentModel.getAccuracy(DatasetUses.TEST) >= accuracyThreshold)
+			{
+				System.out.println("IS OVER, ACCURATE ENOUGH for Validadation, accuracy threshold: " + accuracyThreshold);
+//				TestNetwork(epoch, -1, testSet, DatasetUses.TEST, true, false, currentModel, DebugMode.EVERYTHING, lossFunctions.MSE);
+				saveModelInformation(uniqueID.toString());
+				return;
+			}
+
+			////////////IMPORTANT IF YOU WANT TO STOP TRAINING!! ///////////////
+			
+			currentSteps++;
+		}
+		
+		ModelInformation currentModel = new ModelInformation(learningRate, 0, -1, batchSize, -1, max_epochs);
+		TestNetworkContinuous(0, -1, testSet, DatasetUses.TEST, true, false, currentModel, DebugMode.EVERYTHING, lossFunctions.MSE);
+//		saveModelInformation("Execution-" + LocalDateTime.now().getNano());
+		saveModelInformation(uniqueID.toString());
+		System.out.println("IS OVER!");
 	}
 	
 	/***
@@ -984,6 +1110,99 @@ public class NeuralNetwork <T extends DataTuple>
 		}
 	}
 	
+	/**
+	 * Provides output based on the activation function we are using!
+	 * Only for single classification VERY SIMPLIFIED
+	 */
+	protected double getClassificationOutput(ActivationFunction outputFunction, boolean preferNeuron, T tuple)
+	{
+		if(outputFunction instanceof SoftMax)
+		{
+			return preferNeuron == true ? tuple.preference : 1.0 - tuple.preference;
+		}
+		else
+		{
+			return preferNeuron == true ? Math.min(tuple.preference, 0.9) : Math.max(1.0 - tuple.preference, 0.1);
+		}
+	}
+	
+	private void TestNetworkContinuous(int epoch, int iteration, ArrayList<T> set, 
+			DatasetUses setName, boolean getLoss, boolean saveValues, 
+			ModelInformation modelInfo, DebugMode debug, lossFunctions lossFunction)
+	{
+		float success = 0.0f;
+		float failure = 0.0f;
+		float setSize = set.size();
+		double loss = 0.0;
+		double entLoss = 0.0;
+		
+		for(int k = 0; k < setSize; k++)
+		{
+		
+		//step 1: feedforward
+		FeedForward(k, set, DatasetUses.TEST);
+		
+		//step 2: check if it was good classifications!
+		if(ClassifyContinuous(k, set, false))
+		{
+			success++;
+		}
+		else
+		{
+			failure++;
+		}
+		
+		if(getLoss)
+		{
+		//entLoss = CrossEntropy((set.get(k).label == true ? 1 : 0));
+		//loss += entLoss;
+		loss += LossCalculator.lossValue(this, set.get(k).label == true ? 1 : 0, lossFunction, set, k);
+		
+		
+		if(loss == Double.POSITIVE_INFINITY || loss == Double.NEGATIVE_INFINITY || Double.isNaN(loss) )
+		{
+			System.out.println("NOW!");
+		}
+		}
+		
+		
+		}
+		
+		loss /= setSize;
+		
+		//////////////////////////////////////////////////////
+		
+		switch(debug)
+		{
+		case NONE:
+		break;
+		case ACCURACY:
+		System.out.println("in " + setName + ", SUCCESS: " + (success * 100.0f)/setSize + "%; FAILURE: " + (failure * 100.0f)/setSize  + "%; TOTAL: " + setSize);
+		break;
+		case LOSS:
+		System.out.println("Loss in " + setName + " at epoch.iteration " + epoch + "." + iteration + ": " + 
+			loss);
+		break;
+		case EVERYTHING:
+		System.out.println("Loss and accuracy in " + setName + " at epoch.iteration " + epoch + "." + iteration + ": " + 
+						loss + ", " + success/setSize);
+		break;
+		default:
+		break;
+		}
+		
+		if(saveValues)
+		{
+		String inf = epoch + ";" + loss + ";" + success/setSize;
+		//DataTupleManager.sa("loss-value" + setName + ".csv", inf, true);
+		}
+		
+		modelInfo.setAccuracy(setName, success/setSize);
+		modelInfo.setLoss(setName, loss);
+		modelInfo.setDatasetSize(setName, set.size());
+	}
+	
+	
 	private void TestNetwork(int epoch, int iteration, ArrayList<T> set, 
 							DatasetUses setName, boolean getLoss, boolean saveValues, 
 							ModelInformation modelInfo, DebugMode debug, lossFunctions lossFunction)
@@ -1014,7 +1233,7 @@ public class NeuralNetwork <T extends DataTuple>
 			{
 //				entLoss = CrossEntropy((set.get(k).label == true ? 1 : 0));
 //				loss += entLoss;
-				loss += LossCalculator.lossValue(this, set.get(k).label == true ? 1 : 0, lossFunction);
+				loss += LossCalculator.lossValue(this, set.get(k).label == true ? 1 : 0, lossFunction, set, k);
 
 				
 				if(loss == Double.POSITIVE_INFINITY || loss == Double.NEGATIVE_INFINITY || Double.isNaN(loss) )
@@ -1220,6 +1439,14 @@ public class NeuralNetwork <T extends DataTuple>
 		}
 		
 		return (set.get(index).label == true ? 1 : 0) == selected_index;
+	}
+	
+	public boolean ClassifyContinuous(int index, ArrayList<T> set, boolean debug)
+	{
+		double prefVal = set.get(index).preference;
+		double neuronValue = neuralLayers.get(neuralLayers.size() - 1).getNeurons().get(1).output;
+		
+		return Math.abs(prefVal - neuronValue) <= 0.1;
 	}
 	
 	public boolean Classify(T tuple)

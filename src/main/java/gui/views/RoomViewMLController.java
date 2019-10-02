@@ -1009,6 +1009,7 @@ public class RoomViewMLController extends BorderPane implements Listener
 	@FXML
 	private void backWorldView(ActionEvent event) throws IOException 
 	{
+		router.postEvent(new Stop());
 		router.postEvent(new RequestWorldView());	
 	}
 
@@ -1138,9 +1139,255 @@ public class RoomViewMLController extends BorderPane implements Listener
 			mapView.getMap().applySuggestion(selectedSuggestion.getSuggestedRoom());
 			updateMap(mapView.getMap());
 //			router.postEvent(new Stop());
-			storeSuggestions(5);
+//			storeSuggestions(5);
+			storeSuggestionsContinouos();
 			CURRENTSTEP++;
 		}
+	}
+	
+	private void storeSuggestionsContinouos()
+	{
+		int index = -1;
+		
+		if(selectedSuggestion != null)
+		{
+			//Get the index of the selected suggestion
+			for(int i = 0; i < roomDisplays.size(); i++)
+			{
+				if(roomDisplays.get(i).equals(selectedSuggestion))
+				{
+					index = i;
+					break;
+				}
+			}
+		}
+		
+		//Move around the matrix
+		ArrayList<Integer> indices = new ArrayList<Integer>();
+		
+		
+
+//		indices.add(index);
+		int xIndex= (index % currentDimensions[0].getGranularity());
+		int yIndex =  (index / currentDimensions[1].getGranularity());
+		int cur = xIndex + yIndex;
+		int dif = Math.abs(cur - 8);
+		double increment = 0.2;
+		
+		//Add the current
+		int curIndex = (xIndex) + currentDimensions[0].getGranularity() * (yIndex);
+//		double pref = Math.abs(i - cur)
+		
+		if(roomDisplays.get(curIndex).getSuggestedRoom() != null)
+		{
+			userPreferenceModel.updateContinuousModel(1.0, roomDisplays.get(curIndex).getSuggestedRoom(), CURRENTSTEP);
+		}
+		
+		for(int xStep = 1; xStep < 5; xStep++)
+		{
+			for(int yStep = 1; yStep < 5; yStep++)
+			{
+				double pValue = 1.0 - ((0.3 * xStep) + (0.3 * yStep));
+				
+				if(xIndex + xStep < currentDimensions[0].getGranularity())
+				{
+					int i = (xIndex + xStep) + currentDimensions[0].getGranularity() * (yIndex);
+//					double pref = Math.abs(i - cur)
+					
+					if(!indices.contains(i) && roomDisplays.get(i).getSuggestedRoom() != null)
+					{
+						indices.add(i);
+						userPreferenceModel.updateContinuousModel(pValue, roomDisplays.get(i).getSuggestedRoom(), CURRENTSTEP);
+					}
+
+				}
+
+				if(xIndex -xStep > -1)
+				{
+					int i = (xIndex - xStep) + currentDimensions[0].getGranularity() * (yIndex);
+//					double pref = Math.abs(i - cur)
+					
+					if(!indices.contains(i) && roomDisplays.get(i).getSuggestedRoom() != null)
+					{
+						indices.add(i);
+						userPreferenceModel.updateContinuousModel(pValue, roomDisplays.get(i).getSuggestedRoom(), CURRENTSTEP);
+					}
+				}
+				
+				if(yIndex-yStep > -1)
+				{
+					int i = (xIndex) + currentDimensions[0].getGranularity() * (yIndex -yStep);
+//					double pref = Math.abs(i - cur)
+					
+					if(!indices.contains(i) && roomDisplays.get(i).getSuggestedRoom() != null)
+					{
+						indices.add(i);
+						userPreferenceModel.updateContinuousModel(pValue, roomDisplays.get(i).getSuggestedRoom(), CURRENTSTEP);
+					}
+					
+					if(xIndex + xStep < currentDimensions[0].getGranularity())
+					{
+						i =(xIndex + xStep) + currentDimensions[0].getGranularity() * (yIndex -yStep);
+//						double pref = Math.abs(i - cur)
+						
+						if(!indices.contains(i) && roomDisplays.get(i).getSuggestedRoom() != null)
+						{
+							indices.add(i);
+							userPreferenceModel.updateContinuousModel(pValue, roomDisplays.get(i).getSuggestedRoom(), CURRENTSTEP);
+						}
+
+					}
+
+					if(xIndex -xStep > -1)
+					{
+						i = (xIndex - xStep) + currentDimensions[0].getGranularity() * (yIndex -yStep);
+//						double pref = Math.abs(i - cur)
+						
+						if(!indices.contains(i) && roomDisplays.get(i).getSuggestedRoom() != null)
+						{
+							indices.add(i);
+							userPreferenceModel.updateContinuousModel(pValue, roomDisplays.get(i).getSuggestedRoom(), CURRENTSTEP);
+						}
+					}
+
+				}
+				
+				if(yIndex+yStep < currentDimensions[1].getGranularity())
+				{			
+					int i = (xIndex) + currentDimensions[0].getGranularity() * (yIndex + yStep);
+//					double pref = Math.abs(i - cur)
+					
+					if(!indices.contains(i) && roomDisplays.get(i).getSuggestedRoom() != null)
+					{
+						indices.add(i);
+						userPreferenceModel.updateContinuousModel(pValue, roomDisplays.get(i).getSuggestedRoom(), CURRENTSTEP);
+					}
+					
+					if(xIndex + xStep < 5)
+					{
+						i = (xIndex + xStep) + currentDimensions[0].getGranularity() * (yIndex + yStep);
+//						double pref = Math.abs(i - cur)
+						
+						if(!indices.contains(i) && roomDisplays.get(i).getSuggestedRoom() != null)
+						{
+							indices.add(i);
+							userPreferenceModel.updateContinuousModel(pValue, roomDisplays.get(i).getSuggestedRoom(), CURRENTSTEP);
+						}
+					}
+					
+					if(xIndex - xStep > -1)
+					{
+						i = (xIndex - xStep) + currentDimensions[0].getGranularity() * (yIndex + yStep);
+//						double pref = Math.abs(i - cur)
+						
+						if(!indices.contains(i) && roomDisplays.get(i).getSuggestedRoom() != null)
+						{
+							indices.add(i);
+							userPreferenceModel.updateContinuousModel(pValue, roomDisplays.get(i).getSuggestedRoom(), CURRENTSTEP);
+						}
+					}
+				}
+			}
+		}
+//		
+//		for(int step=1; step < 5; step++)
+//		{
+//			double pValue = 1.0 - (increment * step);
+//			if(xIndex + step < currentDimensions[0].getGranularity())
+//			{
+//				int i = (xIndex + step) + currentDimensions[0].getGranularity() * (yIndex);
+////				double pref = Math.abs(i - cur)
+//				
+//				if(roomDisplays.get(i).getSuggestedRoom() != null)
+//				{
+//					userPreferenceModel.updateContinuousModel(pValue, roomDisplays.get(i).getSuggestedRoom(), CURRENTSTEP);
+//				}
+//
+//			}
+//
+//			if(xIndex -step > -1)
+//			{
+//				int i = (xIndex - step) + currentDimensions[0].getGranularity() * (yIndex);
+////				double pref = Math.abs(i - cur)
+//				
+//				if(roomDisplays.get(i).getSuggestedRoom() != null)
+//				{
+//					userPreferenceModel.updateContinuousModel(pValue, roomDisplays.get(i).getSuggestedRoom(), CURRENTSTEP);
+//				}
+//			}
+//			
+//			if(yIndex-step > -1)
+//			{
+//				int i = (xIndex) + currentDimensions[0].getGranularity() * (yIndex -step);
+////				double pref = Math.abs(i - cur)
+//				
+//				if(roomDisplays.get(i).getSuggestedRoom() != null)
+//				{
+//					userPreferenceModel.updateContinuousModel(pValue, roomDisplays.get(i).getSuggestedRoom(), CURRENTSTEP);
+//				}
+//				
+//				if(xIndex + step < currentDimensions[0].getGranularity())
+//				{
+//					i =(xIndex + step) + currentDimensions[0].getGranularity() * (yIndex -step);
+////					double pref = Math.abs(i - cur)
+//					
+//					if(roomDisplays.get(i).getSuggestedRoom() != null)
+//					{
+//						userPreferenceModel.updateContinuousModel(pValue, roomDisplays.get(i).getSuggestedRoom(), CURRENTSTEP);
+//					}
+//
+//				}
+//
+//				if(xIndex -step > -1)
+//				{
+//					i = (xIndex - step) + currentDimensions[0].getGranularity() * (yIndex -step);
+////					double pref = Math.abs(i - cur)
+//					
+//					if(roomDisplays.get(i).getSuggestedRoom() != null)
+//					{
+//						userPreferenceModel.updateContinuousModel(pValue, roomDisplays.get(i).getSuggestedRoom(), CURRENTSTEP);
+//					}
+//				}
+//
+//			}
+//			
+//			if(yIndex+step < currentDimensions[1].getGranularity())
+//			{			
+//				int i = (xIndex) + currentDimensions[0].getGranularity() * (yIndex + step);
+////				double pref = Math.abs(i - cur)
+//				
+//				if(roomDisplays.get(i).getSuggestedRoom() != null)
+//				{
+//					userPreferenceModel.updateContinuousModel(pValue, roomDisplays.get(i).getSuggestedRoom(), CURRENTSTEP);
+//				}
+//				
+//				if(xIndex + step < 5)
+//				{
+//					i = (xIndex + step) + currentDimensions[0].getGranularity() * (yIndex + step);
+////					double pref = Math.abs(i - cur)
+//					
+//					if(roomDisplays.get(i).getSuggestedRoom() != null)
+//					{
+//						userPreferenceModel.updateContinuousModel(pValue, roomDisplays.get(i).getSuggestedRoom(), CURRENTSTEP);
+//					}
+//				}
+//				
+//				if(xIndex - step > -1)
+//				{
+//					i = (xIndex - step) + currentDimensions[0].getGranularity() * (yIndex + step);
+////					double pref = Math.abs(i - cur)
+//					
+//					if(roomDisplays.get(i).getSuggestedRoom() != null)
+//					{
+//						userPreferenceModel.updateContinuousModel(pValue, roomDisplays.get(i).getSuggestedRoom(), CURRENTSTEP);
+//					}
+//				}
+//			}
+//		}
+		
+//		userPreferenceModel.printSeparatedDataset(CURRENTSTEP);
+		router.postEvent(new TrainNetwork());
+	
 	}
 	
 	//TODO: READ THIS METHOD
@@ -1223,36 +1470,47 @@ public class RoomViewMLController extends BorderPane implements Listener
 		
 		
 		indices.add(index);
-		int xIndex= (index%5);
-		int yIndex =  (index/5);
+		int xIndex= (index % currentDimensions[0].getGranularity());
+		int yIndex =  (index / currentDimensions[1].getGranularity());
+		
+		System.out.println(xIndex);
+		System.out.println(yIndex);
+		
+		if(xIndex + 1 < currentDimensions[0].getGranularity())
+		{
+			indices.add((xIndex + 1) + currentDimensions[0].getGranularity() * (yIndex));
+		}
+
+		if(xIndex -1 > -1)
+		{
+			indices.add((xIndex - 1) + currentDimensions[0].getGranularity() * (yIndex));
+		}
 		
 		if(yIndex-1 > -1)
 		{
-			indices.add((xIndex) + 5 * (yIndex -1));
+			indices.add((xIndex) + currentDimensions[0].getGranularity() * (yIndex -1));
 			
-			if(xIndex + 1 < 5)
+			if(xIndex + 1 < currentDimensions[0].getGranularity())
 			{
-				indices.add((xIndex + 1) + 5 * (yIndex -1));
-				indices.add((xIndex + 1) + 5 * (yIndex));
+				indices.add((xIndex + 1) + currentDimensions[0].getGranularity() * (yIndex -1));
 			}
 
 			if(xIndex -1 > -1)
 			{
-				indices.add((xIndex - 1) + 5 * (yIndex -1));
-				indices.add((xIndex - 1) + 5 * (yIndex));
+				indices.add((xIndex - 1) + currentDimensions[0].getGranularity() * (yIndex -1));
 			}
 
 		}
 		
-		if(yIndex+1 < 5)
+		if(yIndex+1 < currentDimensions[1].getGranularity())
 		{
-			indices.add((xIndex) + 5 * (yIndex + 1));
+			indices.add((xIndex) + currentDimensions[0].getGranularity() * (yIndex + 1));
 			
 			if(xIndex + 1 < 5)
-				indices.add((xIndex + 1) + 5 * (yIndex +1));
+				indices.add((xIndex + 1) + currentDimensions[0].getGranularity() * (yIndex +1));
 			
 			if(xIndex -1 > -1)
-				indices.add((xIndex - 1) + 5 * (yIndex +1));
+				indices.add((xIndex - 1) + currentDimensions[0].getGranularity() * (yIndex +1));
 		}
 		
 		for(int ind : indices)
@@ -1265,6 +1523,7 @@ public class RoomViewMLController extends BorderPane implements Listener
 		
 		for(SuggestionRoom sr : toAdd)
 		{
+//			sr.highlight(true);
 			if(sr.getSuggestedRoom() != null)
 				userPreferenceModel.UpdateModel(true, sr.getSuggestedRoom(), CURRENTSTEP);
 		}

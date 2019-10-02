@@ -13,22 +13,22 @@ public class LossCalculator {
 		HINGE
 	}
 	
-	public static <T extends DataTuple> double lossValue(NeuralNetwork<T> network, int expectedIndex, lossFunctions lossFunction)
+	public static <T extends DataTuple> double lossValue(NeuralNetwork<T> network, int expectedIndex, lossFunctions lossFunction, ArrayList<T> set, int tuple)
 	{
 		switch(lossFunction)
 		{
 		case CROSSENTROPY:
-			return binaryCrossEntropy(network, expectedIndex);
+			return binaryCrossEntropy(network, expectedIndex, set, tuple);
 		case SIMPLIFIED_CROSSENTROPY:
-			return simplifiedCrossEntropy(network, expectedIndex);
+			return simplifiedCrossEntropy(network, expectedIndex, set, tuple);
 		case MULTI_CROSSENTROPY:
-			return multiCrossEntropy(network, expectedIndex);
+			return multiCrossEntropy(network, expectedIndex, set, tuple);
 		case HINGE:
-			return Hinge(network, expectedIndex);
+			return Hinge(network, expectedIndex, set, tuple);
 		case MSE:
-			return MSE(network, expectedIndex);
+			return MSE(network, expectedIndex, set, tuple);
 		case MAE:
-			return MAE(network, expectedIndex);
+			return MAE(network, expectedIndex, set, tuple);
 		default:
 			break;
 		
@@ -43,7 +43,7 @@ public class LossCalculator {
 	 * @param expectedIndex
 	 * @return
 	 */
-	private static <T extends DataTuple> double multiCrossEntropy(NeuralNetwork<T> network, int expectedIndex)
+	private static <T extends DataTuple> double multiCrossEntropy(NeuralNetwork<T> network, int expectedIndex, ArrayList<T> set, int tuple)
 	{
 		double crossEntropy = 0.0;
 		ArrayList<Neuron> outputNeurons = network.neuralLayers.get(network.neuralLayers.size() - 1).getNeurons();
@@ -68,7 +68,7 @@ public class LossCalculator {
 	 * @param expectedIndex Correct label index
 	 * @return
 	 */
-	private static <T extends DataTuple> double simplifiedCrossEntropy(NeuralNetwork<T> network, int expectedIndex) //These ints have to disappear for classes
+	private static <T extends DataTuple> double simplifiedCrossEntropy(NeuralNetwork<T> network, int expectedIndex, ArrayList<T> set, int tuple) //These ints have to disappear for classes
 	{
 		Neuron outputN =  network.neuralLayers.get(network.neuralLayers.size() - 1).getNeuron(expectedIndex, DatasetUses.TEST);
 		double result = 0.0;
@@ -87,7 +87,7 @@ public class LossCalculator {
 	}
 	
 	
-	private static <T extends DataTuple> double binaryCrossEntropy(NeuralNetwork<T> network, int expectedIndex)
+	private static <T extends DataTuple> double binaryCrossEntropy(NeuralNetwork<T> network, int expectedIndex, ArrayList<T> set, int tuple)
 	{
 		Neuron outputN =  network.neuralLayers.get(network.neuralLayers.size() - 1).getNeuron(expectedIndex, DatasetUses.TEST);
 		
@@ -107,7 +107,7 @@ public class LossCalculator {
 	 * @param expectedIndex
 	 * @return
 	 */
-	private static <T extends DataTuple> double MAE(NeuralNetwork<T> network, int expectedIndex)
+	private static <T extends DataTuple> double MAE(NeuralNetwork<T> network, int expectedIndex, ArrayList<T> set, int tuple)
 	{
 		double absoluteError = 0.0;
 		ArrayList<Neuron> outputNeurons = network.neuralLayers.get(network.neuralLayers.size() - 1).getNeurons();
@@ -126,20 +126,20 @@ public class LossCalculator {
 	 * @param expectedIndex
 	 * @return
 	 */
-	private static <T extends DataTuple> double MSE(NeuralNetwork<T> network, int expectedIndex)
+	private static <T extends DataTuple> double MSE(NeuralNetwork<T> network, int expectedIndex, ArrayList<T> set, int tuple)
 	{
 		double squaredError = 0.0;
 		ArrayList<Neuron> outputNeurons = network.neuralLayers.get(network.neuralLayers.size() - 1).getNeurons();
 		for(int currentNeuron = 0; currentNeuron < outputNeurons.size(); currentNeuron++)
 		{
-			squaredError += Math.pow(network.getClassificationOutput(outputNeurons.get(currentNeuron).activation, expectedIndex == currentNeuron)
+			squaredError += Math.pow(network.getClassificationOutput(outputNeurons.get(currentNeuron).activation, currentNeuron == 1, set.get(tuple) )
 					- outputNeurons.get(currentNeuron).output, 2.0);
 		}
 		
 		return squaredError/(double)outputNeurons.size();
 	}
 	
-	private static <T extends DataTuple> double Hinge(NeuralNetwork<T> network, int expectedIndex)
+	private static <T extends DataTuple> double Hinge(NeuralNetwork<T> network, int expectedIndex, ArrayList<T> set, int tuple)
 	{
 		Neuron outputN =  network.neuralLayers.get(network.neuralLayers.size() - 1).getNeuron(expectedIndex, DatasetUses.TEST);
 		

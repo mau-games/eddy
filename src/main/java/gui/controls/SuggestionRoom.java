@@ -184,7 +184,7 @@ public class SuggestionRoom
      * 
      * @param state True if highlighted, otherwise false.
      */
-    private void highlight(boolean state)
+    public void highlight(boolean state)
     {
     	if(selected)
     	{
