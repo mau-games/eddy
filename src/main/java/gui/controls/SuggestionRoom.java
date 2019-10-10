@@ -10,6 +10,7 @@ import gui.utils.DungeonDrawer;
 import gui.utils.RoomConnectorBrush;
 import javafx.event.EventHandler;
 import javafx.scene.Node;
+import javafx.scene.control.Label;
 import javafx.scene.input.MouseEvent;
 import util.Point;
 import util.eventrouting.EventRouter;
@@ -24,7 +25,7 @@ import util.eventrouting.events.SuggestedMapSelected;
  *
  */
 public class SuggestionRoom 
-{
+{	
 	private LabeledCanvas roomViewNode;
 	private Room suggestedRoom;
 	private Room originalRoom;
@@ -198,5 +199,15 @@ public class SuggestionRoom
         		roomViewNode.setStyle("-fx-border-width: 0px; -fx-background-color:#2c2f33;");
         	}
     	}
+    }
+    
+    /**
+     * Highlights the control.
+     * 
+     * @param state True if highlighted, otherwise false.
+     */
+    public void testColor(String color)
+    {
+//    	roomViewNode.setStyle("-fx-border-width: 2px; -fx-border-color: " + color + ";");
     }
 }

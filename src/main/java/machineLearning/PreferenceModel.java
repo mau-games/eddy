@@ -6,6 +6,7 @@ import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Map;
 import java.util.Map.Entry;
 
 import org.apache.commons.io.FileUtils;
@@ -53,7 +54,7 @@ public class PreferenceModel
 	protected ArrayList<PreferenceModelDataTuple> tuples = new ArrayList<PreferenceModelDataTuple>();
 	protected ArrayList<MapPreferenceModelTuple> mapTuples = new ArrayList<MapPreferenceModelTuple>();
 	
-	protected HashMap<Integer, ArrayList<MapPreferenceModelTuple>> separatedDataset = new HashMap<Integer, ArrayList<MapPreferenceModelTuple>>();
+	protected HashMap<Integer, ArrayList<MapPreferenceModelTuple>> separateMapDataset = new HashMap<Integer, ArrayList<MapPreferenceModelTuple>>();
 	
 	private boolean broadcasted = false;
 	
@@ -270,6 +271,20 @@ public class PreferenceModel
 			DataTupleManager.SaveData(mapTuples.get(i), "\\PreferenceModels", userName + "_map");
 		}
 	}
+	
+	public void SaveMapDataset(String userName)
+	{
+		for (Map.Entry<Integer, ArrayList<MapPreferenceModelTuple>> dataset : separateMapDataset.entrySet())
+		{
+			DataTupleManager.SaveHeader(dataset.getValue().get(0), "\\PreferenceModels", userName + "_map_" + dataset.getKey());
+			
+			for(int i = 0; i < dataset.getValue().size() ;i++)
+			{
+				DataTupleManager.SaveData(dataset.getValue().get(i), "\\PreferenceModels", userName + "_map_" + dataset.getKey());
+			}
+		}
+	}
+	
 	
 	public void SaveDataset(String userName)
 	{

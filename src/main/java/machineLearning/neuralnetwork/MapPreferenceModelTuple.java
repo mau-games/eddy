@@ -42,9 +42,10 @@ public class MapPreferenceModelTuple extends DataTuple
 		String[] dataSplit = data.split(";");
 		
 		this.label = Boolean.parseBoolean(dataSplit[0]); //class
+		this.preference = round(Double.parseDouble(dataSplit[1]), 2); //class
 		this.numericalData = new ArrayList<Double>();
 		
-		for(int i = 1; i < dataSplit.length; i++)
+		for(int i = 2; i < dataSplit.length; i++)
 		{
 			this.numericalData.add(round(Double.parseDouble(dataSplit[i]), 2));
 		}
@@ -57,6 +58,7 @@ public class MapPreferenceModelTuple extends DataTuple
 		StringBuilder prefTuple = new StringBuilder();
 		
 		prefTuple.append(this.label + ";");
+		prefTuple.append(this.preference + ";");
 		
 		for(int i = 0; i < numericalData.size() - 1; i++)
 		{
@@ -74,6 +76,7 @@ public class MapPreferenceModelTuple extends DataTuple
 		StringBuilder prefTuple = new StringBuilder();
 		
 		prefTuple.append("class;");
+		prefTuple.append("preference;");
 		
 		for(int i = 0; i < numericalData.size() - 1; i++)
 		{

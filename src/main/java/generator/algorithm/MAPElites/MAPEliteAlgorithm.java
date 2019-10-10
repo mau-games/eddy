@@ -348,6 +348,7 @@ public class MAPEliteAlgorithm extends Algorithm implements Listener {
 		{
 			System.out.println("CURRENT STEP: " + RoomViewMLController.CURRENTSTEP);
 			((NNPreferenceModel)userPreferences).trainNetwork(RoomViewMLController.CURRENTSTEP);
+//			((NNPreferenceModel)userPreferences).trainNetwork();
 //			userPreferenceModel.trainNetwork(CURRENTSTEP);
 			System.out.println("TRAIN!");
 		}
@@ -947,7 +948,7 @@ public class MAPEliteAlgorithm extends Algorithm implements Listener {
 		{
 			for(ZoneIndividual ind : cell.GetFeasiblePopulation())
 			{
-				PreferenceByModel(ind);
+//				PreferenceByModel(ind);
 			}
 		}
 		

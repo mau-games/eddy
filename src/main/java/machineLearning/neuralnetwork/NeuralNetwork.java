@@ -59,7 +59,10 @@ public class NeuralNetwork <T extends DataTuple>
 //	public double upperBoundLR = 0.12;
 	
 	public double lowerBoundLR = 0.01;
-	public double upperBoundLR = 0.015;
+	public double upperBoundLR = 0.01;
+	
+//	public double lowerBoundLR = 0.0064;
+//	public double upperBoundLR = 0.006575;
 	
 //	public double lowerBoundLR = 0.113;
 //	public double upperBoundLR = 0.116;
@@ -264,6 +267,11 @@ public class NeuralNetwork <T extends DataTuple>
 		validationSet = new ArrayList<T>();
 		testSet = new ArrayList<T>();
 		trainingSet = new ArrayList<T>();
+		
+		for(T d : data)
+		{
+			System.out.println(d.preference);
+		}
 //		
 		fillSetRND(trainingSet, trainingTuples, dataset);
 		fillSetRND(validationSet, validationTuples, dataset);
@@ -272,6 +280,27 @@ public class NeuralNetwork <T extends DataTuple>
 //		fillSet(trainingSet, trainingTuples, dataset);
 //		fillSet(validationSet, validationTuples, dataset);
 //		fillSet(testSet, testingTuples, dataset);
+		
+//		BasicBackpropagation_BATCH(); //There will be this and the preference backpropagation :) 
+		BasicBackpropagation_CONTINUOUS();
+	}
+	
+	
+	public void incomingData(ArrayList<T> trainingData, ArrayList<T> validationData, ArrayList<T> testData)
+	{
+		//////////////////////LOAD AND DIVIDE DATASET /////////////
+		
+		int trainingTuples = (int) (trainingData.size());
+		int testingTuples = (int) (testData.size());
+		int validationTuples = (int) (validationData.size());
+		
+		validationSet = new ArrayList<T>();
+		testSet = new ArrayList<T>();
+		trainingSet = new ArrayList<T>();	
+		
+		fillSet(trainingSet, trainingTuples, trainingData);
+		fillSet(validationSet, validationTuples, validationData);
+		fillSet(testSet, testingTuples, testData);
 		
 //		BasicBackpropagation_BATCH(); //There will be this and the preference backpropagation :) 
 		BasicBackpropagation_CONTINUOUS();
@@ -616,6 +645,15 @@ public class NeuralNetwork <T extends DataTuple>
 //						}
 //					}
 					
+					//Step 5: Correct all the weights (This is online)
+					for(int layerCount = this.neuralLayers.size() - 1; layerCount > 1; layerCount--)
+					{
+						for(int currentNeuron = 0; currentNeuron < this.neuralLayers.get(layerCount).size; currentNeuron++)
+						{
+							this.neuralLayers.get(layerCount).getNeuron(currentNeuron, DatasetUses.TEST).ChangeWeights(learningRate);;
+						}
+					}
+					
 					for(int layerCount = 0; layerCount < this.neuralLayers.size(); layerCount++)
 					{
 						for(Neuron n : this.neuralLayers.get(layerCount).getNeurons())
@@ -626,14 +664,14 @@ public class NeuralNetwork <T extends DataTuple>
 					
 				}
 				
-				//Step 5: Correct all the weights (This is offline)
-				for(int layerCount = this.neuralLayers.size() - 1; layerCount > 1; layerCount--)
-				{
-					for(int currentNeuron = 0; currentNeuron < this.neuralLayers.get(layerCount).size; currentNeuron++)
-					{
-						this.neuralLayers.get(layerCount).getNeuron(currentNeuron, DatasetUses.TEST).ChangeWeights(learningRate);;
-					}
-				}
+//				//Step 5: Correct all the weights (This is offline)
+//				for(int layerCount = this.neuralLayers.size() - 1; layerCount > 1; layerCount--)
+//				{
+//					for(int currentNeuron = 0; currentNeuron < this.neuralLayers.get(layerCount).size; currentNeuron++)
+//					{
+//						this.neuralLayers.get(layerCount).getNeuron(currentNeuron, DatasetUses.TEST).ChangeWeights(learningRate);;
+//					}
+//				}
 				
 			}
 

@@ -967,7 +967,8 @@ public class RoomViewMLController extends BorderPane implements Listener
 	private void restartEA() 
 	{	
 		selectedSuggestion = null;
-		storeSuggestions(100);
+		//FIXME: CHECK THIS
+//		storeSuggestions(100);
 		generateNewMaps();
 		
 //		switch(currentState)
@@ -1181,21 +1182,58 @@ public class RoomViewMLController extends BorderPane implements Listener
 		if(roomDisplays.get(curIndex).getSuggestedRoom() != null)
 		{
 			userPreferenceModel.updateContinuousModel(1.0, roomDisplays.get(curIndex).getSuggestedRoom(), CURRENTSTEP);
+			indices.add(curIndex);
 		}
 		
-		for(int xStep = 1; xStep < 5; xStep++)
+		String[] colors = {"purple","green", "blue", "yellow", "red", "cyan"};
+		String color = "";
+		
+		for(double xStep = 0; xStep < 5; xStep+= 1.0)
 		{
-			for(int yStep = 1; yStep < 5; yStep++)
+			for(double yStep = 0; yStep < 5; yStep+= 1.0)
 			{
-				double pValue = 1.0 - ((0.3 * xStep) + (0.3 * yStep));
+				double pValue = 1.0 - ((0.2 * xStep) + (0.2 * yStep));
+				pValue = Math.round(pValue * 10.0) / 10.0;
+				
+				if(xStep == 2 && yStep == 1)
+					System.out.println("HERE!");
+				
+				color = colors[(int) Math.min(5, (xStep + yStep))];
+				
+//				if(pValue >= 0.8)
+//				{
+//					color = "green";
+//				}
+//				else if(pValue >= 0.6)
+//				{
+//					color = "blue";
+//				}
+//				else if(pValue >= 0.4)
+//				{
+//					color = "yellow";
+//				}
+//				else if(pValue >= 0.2)
+//				{
+//					color = "red";
+//				}
+//				else if(pValue >= 0.0)
+//				{
+//					color = "cyan";
+//				}
+//				else
+//				{
+//					color ="white";
+//				}
 				
 				if(xIndex + xStep < currentDimensions[0].getGranularity())
 				{
-					int i = (xIndex + xStep) + currentDimensions[0].getGranularity() * (yIndex);
+					int i = (int)((xIndex + xStep) + currentDimensions[0].getGranularity() * (yIndex));
 //					double pref = Math.abs(i - cur)
+
 					
 					if(!indices.contains(i) && roomDisplays.get(i).getSuggestedRoom() != null)
 					{
+						roomDisplays.get(i).testColor(color);
 						indices.add(i);
 						userPreferenceModel.updateContinuousModel(pValue, roomDisplays.get(i).getSuggestedRoom(), CURRENTSTEP);
 					}
@@ -1204,34 +1242,37 @@ public class RoomViewMLController extends BorderPane implements Listener
 
 				if(xIndex -xStep > -1)
 				{
-					int i = (xIndex - xStep) + currentDimensions[0].getGranularity() * (yIndex);
+					int i = (int)(xIndex - xStep) + currentDimensions[0].getGranularity() * (yIndex);
 //					double pref = Math.abs(i - cur)
-					
+
 					if(!indices.contains(i) && roomDisplays.get(i).getSuggestedRoom() != null)
 					{
 						indices.add(i);
+						roomDisplays.get(i).testColor(color);
 						userPreferenceModel.updateContinuousModel(pValue, roomDisplays.get(i).getSuggestedRoom(), CURRENTSTEP);
 					}
 				}
 				
 				if(yIndex-yStep > -1)
 				{
-					int i = (xIndex) + currentDimensions[0].getGranularity() * (yIndex -yStep);
+					int i = (int)((xIndex) + currentDimensions[0].getGranularity() * (yIndex -yStep));
 //					double pref = Math.abs(i - cur)
-					
+
 					if(!indices.contains(i) && roomDisplays.get(i).getSuggestedRoom() != null)
 					{
+						roomDisplays.get(i).testColor(color);
 						indices.add(i);
 						userPreferenceModel.updateContinuousModel(pValue, roomDisplays.get(i).getSuggestedRoom(), CURRENTSTEP);
 					}
 					
 					if(xIndex + xStep < currentDimensions[0].getGranularity())
 					{
-						i =(xIndex + xStep) + currentDimensions[0].getGranularity() * (yIndex -yStep);
+						i =(int)((xIndex + xStep) + currentDimensions[0].getGranularity() * (yIndex -yStep));
 //						double pref = Math.abs(i - cur)
-						
+
 						if(!indices.contains(i) && roomDisplays.get(i).getSuggestedRoom() != null)
 						{
+							roomDisplays.get(i).testColor(color);
 							indices.add(i);
 							userPreferenceModel.updateContinuousModel(pValue, roomDisplays.get(i).getSuggestedRoom(), CURRENTSTEP);
 						}
@@ -1240,11 +1281,12 @@ public class RoomViewMLController extends BorderPane implements Listener
 
 					if(xIndex -xStep > -1)
 					{
-						i = (xIndex - xStep) + currentDimensions[0].getGranularity() * (yIndex -yStep);
+						i = (int)((xIndex - xStep) + currentDimensions[0].getGranularity() * (yIndex -yStep));
 //						double pref = Math.abs(i - cur)
 						
 						if(!indices.contains(i) && roomDisplays.get(i).getSuggestedRoom() != null)
 						{
+							roomDisplays.get(i).testColor(color);
 							indices.add(i);
 							userPreferenceModel.updateContinuousModel(pValue, roomDisplays.get(i).getSuggestedRoom(), CURRENTSTEP);
 						}
@@ -1254,22 +1296,23 @@ public class RoomViewMLController extends BorderPane implements Listener
 				
 				if(yIndex+yStep < currentDimensions[1].getGranularity())
 				{			
-					int i = (xIndex) + currentDimensions[0].getGranularity() * (yIndex + yStep);
+					int i = (int)((xIndex) + currentDimensions[0].getGranularity() * (yIndex + yStep));
 //					double pref = Math.abs(i - cur)
-					
 					if(!indices.contains(i) && roomDisplays.get(i).getSuggestedRoom() != null)
 					{
+						roomDisplays.get(i).testColor(color);
 						indices.add(i);
 						userPreferenceModel.updateContinuousModel(pValue, roomDisplays.get(i).getSuggestedRoom(), CURRENTSTEP);
 					}
 					
 					if(xIndex + xStep < 5)
 					{
-						i = (xIndex + xStep) + currentDimensions[0].getGranularity() * (yIndex + yStep);
+						i = (int)((xIndex + xStep) + currentDimensions[0].getGranularity() * (yIndex + yStep));
 //						double pref = Math.abs(i - cur)
-						
+
 						if(!indices.contains(i) && roomDisplays.get(i).getSuggestedRoom() != null)
 						{
+							roomDisplays.get(i).testColor(color);
 							indices.add(i);
 							userPreferenceModel.updateContinuousModel(pValue, roomDisplays.get(i).getSuggestedRoom(), CURRENTSTEP);
 						}
@@ -1277,11 +1320,12 @@ public class RoomViewMLController extends BorderPane implements Listener
 					
 					if(xIndex - xStep > -1)
 					{
-						i = (xIndex - xStep) + currentDimensions[0].getGranularity() * (yIndex + yStep);
+						i = (int)((xIndex - xStep) + currentDimensions[0].getGranularity() * (yIndex + yStep));
 //						double pref = Math.abs(i - cur)
-						
+
 						if(!indices.contains(i) && roomDisplays.get(i).getSuggestedRoom() != null)
 						{
+							roomDisplays.get(i).testColor(color);
 							indices.add(i);
 							userPreferenceModel.updateContinuousModel(pValue, roomDisplays.get(i).getSuggestedRoom(), CURRENTSTEP);
 						}

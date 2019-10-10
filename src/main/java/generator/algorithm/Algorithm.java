@@ -664,7 +664,7 @@ public class Algorithm extends Thread {
     	if(userPreferences != null)
     	{
     		//CHANGE HERE!
-    		fitness = (fitnessWeight * fitness) + (preferenceWeight * ind.getPreferenceModelFitness());
+//    		fitness = (fitnessWeight * fitness) + (preferenceWeight * ind.getPreferenceModelFitness());
 //    		System.out.println(ind.getPreferenceModelFitness());
 //    		fitness = userPreferences.testWithPreference(room);
     	}
