@@ -948,7 +948,7 @@ public class MAPEliteAlgorithm extends Algorithm implements Listener {
 		{
 			for(ZoneIndividual ind : cell.GetFeasiblePopulation())
 			{
-//				PreferenceByModel(ind);
+				PreferenceByModel(ind);
 			}
 		}
 		

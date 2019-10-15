@@ -481,6 +481,16 @@ public class Algorithm extends Thread {
     {
         Room room = ind.getPhenotype().getMap(roomWidth, roomHeight, roomDoorPositions, roomCustomTiles, roomOwner);
         PatternFinder finder = room.getPatternFinder();
+        
+    	if(userPreferences != null)
+    	{
+    		//CHANGE HERE!
+            ind.setFitness(ind.getPreferenceModelFitness());
+            ind.setEvaluate(true);
+//    		System.out.println(ind.getPreferenceModelFitness());
+//    		fitness = userPreferences.testWithPreference(room);
+    	}
+        
         List<Enemy> enemies = new ArrayList<Enemy>();
         List<Boss> bosses = new ArrayList<Boss>();
         List<Treasure> treasures = new ArrayList<Treasure>();

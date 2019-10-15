@@ -58,8 +58,8 @@ public class NeuralNetwork <T extends DataTuple>
 //	public double lowerBoundLR = 0.1;
 //	public double upperBoundLR = 0.12;
 	
-	public double lowerBoundLR = 0.01;
-	public double upperBoundLR = 0.01;
+	public double lowerBoundLR = 0.005;
+	public double upperBoundLR = 0.005;
 	
 //	public double lowerBoundLR = 0.0064;
 //	public double upperBoundLR = 0.006575;
