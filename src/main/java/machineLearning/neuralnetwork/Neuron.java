@@ -161,10 +161,10 @@ public class Neuron
 		}
 		
 		if(Double.isNaN(error)) 
-			{
-				error = 0.0;
-				System.out.println("NAN");
-			}
+		{
+			error = 0.0;
+			System.out.println("NAN");
+		}
 		
 //		error *= dropoutMultiplier;
 	}

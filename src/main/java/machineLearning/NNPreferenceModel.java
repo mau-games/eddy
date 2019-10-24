@@ -7,6 +7,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import game.Room;
+import gui.utils.MapRenderer;
 import machineLearning.neuralnetwork.DataTupleManager;
 import machineLearning.neuralnetwork.DatasetUses;
 import machineLearning.neuralnetwork.MapPreferenceModelTuple;
@@ -47,14 +48,18 @@ public class NNPreferenceModel extends PreferenceModel
 		prevStates = new Stack<PreferenceModel>();
 		projectPath = System.getProperty("user.dir") + "\\my-data\\PreferenceModels";
 		
+		mapValues = new NeuralNetwork<MapPreferenceModelTuple>(new int[] {100, 50}, "MAP_NETWORK_50_25_RELU", 
+				new ActivationFunction[] {new ActivationFunction(), new LogisticSigmoid(), new LogisticSigmoid(), new SoftMax()},
+				20);
 		
-//		mapValues = new NeuralNetwork<MapPreferenceModelTuple>(new int[] {100, 50, 6}, "MAP_NETWORK_256_100_6_RELU", 
-//				new ActivationFunction[] {new ActivationFunction(), new LeakyReLU(), new LeakyReLU(),new LeakyReLU(), new SoftMax()},
+		
+//		mapValues = new NeuralNetwork<MapPreferenceModelTuple>(new int[] {256, 200, 100}, "MAP_NETWORK_256_200_100_RELU", 
+//				new ActivationFunction[] {new ActivationFunction(), new LeakyReLU(), new LeakyReLU(), new LeakyReLU(), new SoftMax()},
 //				200);
 		
-		mapValues = new NeuralNetwork<MapPreferenceModelTuple>(new int[] {256, 200, 100}, "MAP_NETWORK_256_200_100_RELU", 
-				new ActivationFunction[] {new ActivationFunction(), new LeakyReLU(), new LeakyReLU(), new LeakyReLU(), new SoftMax()},
-				200);
+//		mapValues = new NeuralNetwork<MapPreferenceModelTuple>(new int[] {120, 40}, "MAP_NETWORK_256_200_100_RELU", 
+//				new ActivationFunction[] {new ActivationFunction(), new LeakyReLU(), new LeakyReLU(), new SoftMax()},
+//				200);
 		
 //		mapValues = new NeuralNetwork<MapPreferenceModelTuple>(new int[] {256, 200, 100}, 
 //				DataTupleManager.LoadValueMapDataList("PreferenceModels", "newmap_map"), "MAP_NETWORK_256_100_RELU", 
@@ -177,7 +182,81 @@ public class NNPreferenceModel extends PreferenceModel
 	{
 //		mapValues.incomingData(new ArrayList<MapPreferenceModelTuple>(separatedDataset.get(specificSet)));
 //		SaveMapDataset("TEST_USER");
-		distributeDataset(separateMapDataset.get(specificSet));
+		distributeDataset2(separateMapDataset.get(specificSet));
+	}
+	
+	
+	public void SaveSpecificDataset(String userName, String setName, ArrayList<MapPreferenceModelTuple> set)
+	{
+		DataTupleManager.SaveHeader(set.get(0), "\\PreferenceModels\\" + userName, "_map_" + setName);
+		for (MapPreferenceModelTuple tuple : set)
+		{
+			DataTupleManager.SaveData(tuple, "\\PreferenceModels\\" + userName, "_map_" + setName);
+		}
+	}
+	
+	private void distributeDataset2(ArrayList<MapPreferenceModelTuple> fullset)
+	{
+		ArrayList<MapPreferenceModelTuple> training = new ArrayList<MapPreferenceModelTuple>();
+		ArrayList<MapPreferenceModelTuple> validation = new ArrayList<MapPreferenceModelTuple>();
+		ArrayList<MapPreferenceModelTuple> test = new ArrayList<MapPreferenceModelTuple>();
+		
+		HashMap<Double, ArrayList<MapPreferenceModelTuple>> orderedTuples = new HashMap<Double, ArrayList<MapPreferenceModelTuple>>();
+		
+		for(MapPreferenceModelTuple sub : fullset)
+		{
+			if(!orderedTuples.containsKey(sub.preference))
+				orderedTuples.put(sub.preference,  new ArrayList<MapPreferenceModelTuple>());
+			
+			orderedTuples.get(sub.preference).add(sub);
+		}
+		
+		for (Map.Entry<Double, ArrayList<MapPreferenceModelTuple>> tuples : orderedTuples.entrySet())
+		{
+		    System.out.println(tuples.getKey() + "= " + tuples.getValue().size());
+		    
+		    int div = (int)(tuples.getValue().size() * 0.8f);
+		    int cur=0;
+		    
+		    for(MapPreferenceModelTuple tuple : tuples.getValue())
+			{
+	    		if(cur >= div)
+		    	{
+		    		test.add(tuple);
+		    	}
+		    	else
+		    	{
+		    		training.add(tuple);
+		    	}
+		    	
+		    	cur++;
+		    	
+		    	
+			}
+		    
+		}
+		
+		System.out.println("TRAINING: " + training.size());
+		System.out.println("TESTING: " + test.size());
+		
+//		SaveSpecificDataset("RND_USER", "TRAINING", training);
+//		SaveSpecificDataset("RND_USER", "TEST", test);
+//		
+//		int ind=0;
+//		for(MapPreferenceModelTuple tuple : training)
+//		{
+//			 MapRenderer.getInstance().saveImageDataset(tuple.baseRoom, tuple.preference, ind++, "RND_USER", "TRAINING");
+//		}
+//		
+//		ind=0;
+//		for(MapPreferenceModelTuple tuple : test)
+//		{
+//			 MapRenderer.getInstance().saveImageDataset(tuple.baseRoom, tuple.preference, ind++, "RND_USER", "TEST");
+//		}
+		
+		
+		mapValues.incomingData(training, validation, test);
+		
 	}
 	
 	private void distributeDataset(ArrayList<MapPreferenceModelTuple> fullset)

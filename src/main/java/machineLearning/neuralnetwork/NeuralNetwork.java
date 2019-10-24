@@ -33,7 +33,7 @@ public class NeuralNetwork <T extends DataTuple>
 	public ArrayList<T> validationSet = new ArrayList<T>();
 	
 	public float[] setDivision = {0.6f, 0.2f, 0.2f}; //Training, test, validation3
-	public double batchSize = 0.2;
+	public double batchSize = 0.125;
 	public int max_epochs = 1000;
 	
 	public int input_neurons_quantity = 9;
@@ -58,8 +58,11 @@ public class NeuralNetwork <T extends DataTuple>
 //	public double lowerBoundLR = 0.1;
 //	public double upperBoundLR = 0.12;
 	
-	public double lowerBoundLR = 0.005;
-	public double upperBoundLR = 0.005;
+//	public double lowerBoundLR = 0.005;
+//	public double upperBoundLR = 0.005;
+	
+	public double lowerBoundLR = 0.01;
+	public double upperBoundLR = 0.01;
 	
 //	public double lowerBoundLR = 0.0064;
 //	public double upperBoundLR = 0.006575;
@@ -76,104 +79,125 @@ public class NeuralNetwork <T extends DataTuple>
 	
 	public static void main(String[] args)
 	{
+		NeuralNetwork<MapPreferenceModelTuple> aintnolove = new NeuralNetwork<MapPreferenceModelTuple>(new int[] {256, 200, 100}, "MAP_NETWORK_256_200_100_RELU", 
+				new ActivationFunction[] {new ActivationFunction(), new LeakyReLU(), new LeakyReLU(), new LeakyReLU(), new SoftMax()},
+				15);
+		
+		NeuralNetwork<MapPreferenceModelTuple> small = new NeuralNetwork<MapPreferenceModelTuple>(new int[] {100, 50, 50}, "MAP_NETWORK_50_25_RELU", 
+				new ActivationFunction[] {new ActivationFunction(), new LogisticSigmoid(), new LogisticSigmoid(), new LogisticSigmoid(), new SoftMax()},
+				1000);
+		
+		ArrayList<MapPreferenceModelTuple> training_data = DataTupleManager.LoadValueMapDataList
+														("PreferenceModels\\RND_USER", "_map_TRAINING");
+		ArrayList<MapPreferenceModelTuple> testing_data = DataTupleManager.LoadValueMapDataList
+														("PreferenceModels\\RND_USER", "_map_TEST");
+		ArrayList<MapPreferenceModelTuple> validation_data = new ArrayList<MapPreferenceModelTuple>();
+		
+//		aintnolove.incomingData(training_data, validation_data, testing_data);
+		small.incomingData(training_data, validation_data, testing_data);
+		
+//		NeuralNetwork<MapPreferenceModelTuple> deepTest = new NeuralNetwork<MapPreferenceModelTuple>(new int[] {100,100,100,100}, 
+//				DataTupleManager.LoadValueMapDataList("PreferenceModels", "newmap_map"), "MAP_NETWORK_100_100_100_100_RELU", 
+//				new ActivationFunction[] {new ActivationFunction(), new ReLU(), new ReLU(), new ReLU(),new ReLU(),new ReLU(),new ReLU(), new SoftMax()});
+//		System.out.println("___________________________________");
 		
 //		NeuralNetwork<MapPreferenceModelTuple> deepTest = new NeuralNetwork<MapPreferenceModelTuple>(new int[] {100,100,100,100,100,100}, 
 //				DataTupleManager.LoadValueMapDataList("PreferenceModels", "newmap_map"), "MAP_NETWORK_100_100_RELU", 
 //				new ActivationFunction[] {new ActivationFunction(), new LogisticSigmoid(), new LogisticSigmoid(), new LogisticSigmoid(),new LogisticSigmoid(),new LogisticSigmoid(),new LogisticSigmoid(), new SoftMax()});
 //		System.out.println("___________________________________");
 		
-		NeuralNetwork<MapPreferenceModelTuple> deepTest = new NeuralNetwork<MapPreferenceModelTuple>(new int[] {100,100,100,100}, 
-				DataTupleManager.LoadValueMapDataList("PreferenceModels", "newmap_map"), "MAP_NETWORK_100_100_100_100_RELU", 
-				new ActivationFunction[] {new ActivationFunction(), new ReLU(), new ReLU(), new ReLU(),new ReLU(),new ReLU(),new ReLU(), new SoftMax()});
-		System.out.println("___________________________________");
+//		NeuralNetwork<MapPreferenceModelTuple> deepTest = new NeuralNetwork<MapPreferenceModelTuple>(new int[] {100,100,100,100}, 
+//				DataTupleManager.LoadValueMapDataList("PreferenceModels", "newmap_map"), "MAP_NETWORK_100_100_100_100_RELU", 
+//				new ActivationFunction[] {new ActivationFunction(), new ReLU(), new ReLU(), new ReLU(),new ReLU(),new ReLU(),new ReLU(), new SoftMax()});
+//		System.out.println("___________________________________");
 		
-		NeuralNetwork<MapPreferenceModelTuple> deepTestLEAKY = new NeuralNetwork<MapPreferenceModelTuple>(new int[] {100,100,100,100}, 
-				DataTupleManager.LoadValueMapDataList("PreferenceModels", "newmap_map"), "MAP_NETWORK_100_100_100_100_RELU", 
-				new ActivationFunction[] {new ActivationFunction(), new LeakyReLU(), new LeakyReLU(), new LeakyReLU(),new LeakyReLU(),new LeakyReLU(),new LeakyReLU(), new SoftMax()});
-		System.out.println("___________________________________");
-		
-		NeuralNetwork<MapPreferenceModelTuple> deepTestSWISH = new NeuralNetwork<MapPreferenceModelTuple>(new int[] {100,100,100,100}, 
-				DataTupleManager.LoadValueMapDataList("PreferenceModels", "newmap_map"), "MAP_NETWORK_100_100_100_100_RELU", 
-				new ActivationFunction[] {new ActivationFunction(), new Swish(), new Swish(), new Swish(),new Swish(),new Swish(),new Swish(), new SoftMax()});
-		System.out.println("___________________________________");
-		
-		System.out.println("STARTING NN WITH attribute values");
-		System.out.println();
-		NeuralNetwork<PreferenceModelDataTuple> attributeValues = new NeuralNetwork<PreferenceModelDataTuple>(new int[] {100, 100}, 
-				DataTupleManager.LoadPreferenceModelDataList("PreferenceModels", "newmap"), "VALUE_NETWORK_100_100_RELU", 
-				new ActivationFunction[] {new ActivationFunction(), new ReLU(), new ReLU(), new SoftMax()});
-		
-		System.out.println("___________________________________");
-		
-		System.out.println("STARTING NN WITH attribute values");
-		System.out.println();
-		NeuralNetwork<PreferenceModelDataTuple> attributeValues2 = new NeuralNetwork<PreferenceModelDataTuple>(new int[] {100, 100}, 
-				DataTupleManager.LoadPreferenceModelDataList("PreferenceModels", "newmap"), "VALUE_NETWORK_100_100_SIG", 
-				new ActivationFunction[] {new ActivationFunction(), new LogisticSigmoid(), new LogisticSigmoid(), new SoftMax()});	
-		
-		System.out.println("___________________________________");
-		
-		System.out.println("STARTING NN WITH VALUE MAP");
-		System.out.println();
+//		NeuralNetwork<MapPreferenceModelTuple> deepTestLEAKY = new NeuralNetwork<MapPreferenceModelTuple>(new int[] {100,100,100,100}, 
+//				DataTupleManager.LoadValueMapDataList("PreferenceModels", "newmap_map"), "MAP_NETWORK_100_100_100_100_RELU", 
+//				new ActivationFunction[] {new ActivationFunction(), new LeakyReLU(), new LeakyReLU(), new LeakyReLU(),new LeakyReLU(),new LeakyReLU(),new LeakyReLU(), new SoftMax()});
+//		System.out.println("___________________________________");
+//		
+//		NeuralNetwork<MapPreferenceModelTuple> deepTestSWISH = new NeuralNetwork<MapPreferenceModelTuple>(new int[] {100,100,100,100}, 
+//				DataTupleManager.LoadValueMapDataList("PreferenceModels", "newmap_map"), "MAP_NETWORK_100_100_100_100_RELU", 
+//				new ActivationFunction[] {new ActivationFunction(), new Swish(), new Swish(), new Swish(),new Swish(),new Swish(),new Swish(), new SoftMax()});
+//		System.out.println("___________________________________");
+//		
+//		System.out.println("STARTING NN WITH attribute values");
+//		System.out.println();
+//		NeuralNetwork<PreferenceModelDataTuple> attributeValues = new NeuralNetwork<PreferenceModelDataTuple>(new int[] {100, 100}, 
+//				DataTupleManager.LoadPreferenceModelDataList("PreferenceModels", "newmap"), "VALUE_NETWORK_100_100_RELU", 
+//				new ActivationFunction[] {new ActivationFunction(), new ReLU(), new ReLU(), new SoftMax()});
+//		
+//		System.out.println("___________________________________");
+//		
+//		System.out.println("STARTING NN WITH attribute values");
+//		System.out.println();
+//		NeuralNetwork<PreferenceModelDataTuple> attributeValues2 = new NeuralNetwork<PreferenceModelDataTuple>(new int[] {100, 100}, 
+//				DataTupleManager.LoadPreferenceModelDataList("PreferenceModels", "newmap"), "VALUE_NETWORK_100_100_SIG", 
+//				new ActivationFunction[] {new ActivationFunction(), new LogisticSigmoid(), new LogisticSigmoid(), new SoftMax()});	
+//		
+//		System.out.println("___________________________________");
+//		
+//		System.out.println("STARTING NN WITH VALUE MAP");
+//		System.out.println();
+////		NeuralNetwork<MapPreferenceModelTuple> mapValues = new NeuralNetwork<MapPreferenceModelTuple>(new int[] {256,100}, 
+////				DataTupleManager.LoadValueMapDataList("PreferenceModels", "newmap_map"), "MAP_NETWORK_TES", new ReLU());
+//		NeuralNetwork<MapPreferenceModelTuple> mapValues5 = new NeuralNetwork<MapPreferenceModelTuple>(new int[] {100,100}, 
+//				DataTupleManager.LoadValueMapDataList("PreferenceModels", "newmap_map"), "MAP_NETWORK_100_100_RELU", 
+//				new ActivationFunction[] {new ActivationFunction(), new ReLU(), new ReLU(), new SoftMax()});
+//		System.out.println("___________________________________");
+//		
+//		System.out.println("STARTING NN WITH VALUE MAP");
+//		System.out.println();
+////		NeuralNetwork<MapPreferenceModelTuple> mapValues = new NeuralNetwork<MapPreferenceModelTuple>(new int[] {256,100}, 
+////				DataTupleManager.LoadValueMapDataList("PreferenceModels", "newmap_map"), "MAP_NETWORK_TES", new ReLU());
+//		NeuralNetwork<MapPreferenceModelTuple> mapValues3 = new NeuralNetwork<MapPreferenceModelTuple>(new int[] {100,100}, 
+//				DataTupleManager.LoadValueMapDataList("PreferenceModels", "newmap_map"), "MAP_NETWORK_100_100_SIG", 
+//				new ActivationFunction[] {new ActivationFunction(), new LogisticSigmoid(), new LogisticSigmoid(), new SoftMax()});
+//		System.out.println("___________________________________");
+//		
+//		System.out.println("STARTING NN WITH VALUE MAP");
+//		System.out.println();
+////		NeuralNetwork<MapPreferenceModelTuple> mapValues = new NeuralNetwork<MapPreferenceModelTuple>(new int[] {256,100}, 
+////				DataTupleManager.LoadValueMapDataList("PreferenceModels", "newmap_map"), "MAP_NETWORK_TES", new ReLU());
+//		NeuralNetwork<MapPreferenceModelTuple> mapValues4 = new NeuralNetwork<MapPreferenceModelTuple>(new int[] {256,100}, 
+//				DataTupleManager.LoadValueMapDataList("PreferenceModels", "newmap_map"), "MAP_NETWORK_256_100_RELU", 
+//				new ActivationFunction[] {new ActivationFunction(), new ReLU(), new ReLU(), new SoftMax()});
+//		System.out.println("___________________________________");
+//		
+//		System.out.println("STARTING NN WITH VALUE MAP");
+//		System.out.println();
+////		NeuralNetwork<MapPreferenceModelTuple> mapValues = new NeuralNetwork<MapPreferenceModelTuple>(new int[] {256,100}, 
+////				DataTupleManager.LoadValueMapDataList("PreferenceModels", "newmap_map"), "MAP_NETWORK_TES", new ReLU());
 //		NeuralNetwork<MapPreferenceModelTuple> mapValues = new NeuralNetwork<MapPreferenceModelTuple>(new int[] {256,100}, 
-//				DataTupleManager.LoadValueMapDataList("PreferenceModels", "newmap_map"), "MAP_NETWORK_TES", new ReLU());
-		NeuralNetwork<MapPreferenceModelTuple> mapValues5 = new NeuralNetwork<MapPreferenceModelTuple>(new int[] {100,100}, 
-				DataTupleManager.LoadValueMapDataList("PreferenceModels", "newmap_map"), "MAP_NETWORK_100_100_RELU", 
-				new ActivationFunction[] {new ActivationFunction(), new ReLU(), new ReLU(), new SoftMax()});
-		System.out.println("___________________________________");
-		
-		System.out.println("STARTING NN WITH VALUE MAP");
-		System.out.println();
-//		NeuralNetwork<MapPreferenceModelTuple> mapValues = new NeuralNetwork<MapPreferenceModelTuple>(new int[] {256,100}, 
-//				DataTupleManager.LoadValueMapDataList("PreferenceModels", "newmap_map"), "MAP_NETWORK_TES", new ReLU());
-		NeuralNetwork<MapPreferenceModelTuple> mapValues3 = new NeuralNetwork<MapPreferenceModelTuple>(new int[] {100,100}, 
-				DataTupleManager.LoadValueMapDataList("PreferenceModels", "newmap_map"), "MAP_NETWORK_100_100_SIG", 
-				new ActivationFunction[] {new ActivationFunction(), new LogisticSigmoid(), new LogisticSigmoid(), new SoftMax()});
-		System.out.println("___________________________________");
-		
-		System.out.println("STARTING NN WITH VALUE MAP");
-		System.out.println();
-//		NeuralNetwork<MapPreferenceModelTuple> mapValues = new NeuralNetwork<MapPreferenceModelTuple>(new int[] {256,100}, 
-//				DataTupleManager.LoadValueMapDataList("PreferenceModels", "newmap_map"), "MAP_NETWORK_TES", new ReLU());
-		NeuralNetwork<MapPreferenceModelTuple> mapValues4 = new NeuralNetwork<MapPreferenceModelTuple>(new int[] {256,100}, 
-				DataTupleManager.LoadValueMapDataList("PreferenceModels", "newmap_map"), "MAP_NETWORK_256_100_RELU", 
-				new ActivationFunction[] {new ActivationFunction(), new ReLU(), new ReLU(), new SoftMax()});
-		System.out.println("___________________________________");
-		
-		System.out.println("STARTING NN WITH VALUE MAP");
-		System.out.println();
-//		NeuralNetwork<MapPreferenceModelTuple> mapValues = new NeuralNetwork<MapPreferenceModelTuple>(new int[] {256,100}, 
-//				DataTupleManager.LoadValueMapDataList("PreferenceModels", "newmap_map"), "MAP_NETWORK_TES", new ReLU());
-		NeuralNetwork<MapPreferenceModelTuple> mapValues = new NeuralNetwork<MapPreferenceModelTuple>(new int[] {256,100}, 
-				DataTupleManager.LoadValueMapDataList("PreferenceModels", "newmap_map"), "MAP_NETWORK_256_100_SIG", 
-				new ActivationFunction[] {new ActivationFunction(), new LogisticSigmoid(), new LogisticSigmoid(), new SoftMax()});
-		System.out.println("___________________________________");
-		
-		System.out.println("STARTING NN WITH VALUE MAP");
-		System.out.println();
-		NeuralNetwork<MapPreferenceModelTuple> mapValues2 = new NeuralNetwork<MapPreferenceModelTuple>(new int[] {256,256}, 
-				DataTupleManager.LoadValueMapDataList("PreferenceModels", "newmap_map"), "MAP_NETWORK_TEST_256_256", new LeakyReLU());
-		System.out.println("___________________________________");
-		
-		System.out.println("STARTING NN WITH VALUE MAP");
-		System.out.println();
-		NeuralNetwork<MapPreferenceModelTuple> mapValues_null = new NeuralNetwork<MapPreferenceModelTuple>(new int[] {256,200, 100}, 
-				DataTupleManager.LoadValueMapDataList("PreferenceModels", "newmap_map"), "MAP_NETWORK_TEST_256_200_100", 
-				new ActivationFunction[] {new ActivationFunction(), new LeakyReLU(), new LeakyReLU(), new LeakyReLU(), new SoftMax()});
-		System.out.println("___________________________________");
-		
-		System.out.println("STARTING NN WITH VALUE MAP");
-		System.out.println();
-		NeuralNetwork<MapPreferenceModelTuple> mapValues123123 = new NeuralNetwork<MapPreferenceModelTuple>(new int[] {256,256}, 
-				DataTupleManager.LoadValueMapDataList("PreferenceModels", "newmap_map"), "MAP_NETWORK_TEST_256_256_SWISH", new Swish());
-		System.out.println("___________________________________");
-		
-		System.out.println("STARTING NN WITH VALUE MAP");
-		System.out.println();
-		NeuralNetwork<MapPreferenceModelTuple> mapValues_null12312 = new NeuralNetwork<MapPreferenceModelTuple>(new int[] {256,200, 100}, 
-				DataTupleManager.LoadValueMapDataList("PreferenceModels", "newmap_map"), "MAP_NETWORK_TEST_256_200_100_SWISH", 
-				new ActivationFunction[] {new ActivationFunction(), new Swish(), new Swish(), new Swish(), new SoftMax()});
-		System.out.println("___________________________________");
+//				DataTupleManager.LoadValueMapDataList("PreferenceModels", "newmap_map"), "MAP_NETWORK_256_100_SIG", 
+//				new ActivationFunction[] {new ActivationFunction(), new LogisticSigmoid(), new LogisticSigmoid(), new SoftMax()});
+//		System.out.println("___________________________________");
+//		
+//		System.out.println("STARTING NN WITH VALUE MAP");
+//		System.out.println();
+//		NeuralNetwork<MapPreferenceModelTuple> mapValues2 = new NeuralNetwork<MapPreferenceModelTuple>(new int[] {256,256}, 
+//				DataTupleManager.LoadValueMapDataList("PreferenceModels", "newmap_map"), "MAP_NETWORK_TEST_256_256", new LeakyReLU());
+//		System.out.println("___________________________________");
+//		
+//		System.out.println("STARTING NN WITH VALUE MAP");
+//		System.out.println();
+//		NeuralNetwork<MapPreferenceModelTuple> mapValues_null = new NeuralNetwork<MapPreferenceModelTuple>(new int[] {256,200, 100}, 
+//				DataTupleManager.LoadValueMapDataList("PreferenceModels", "newmap_map"), "MAP_NETWORK_TEST_256_200_100", 
+//				new ActivationFunction[] {new ActivationFunction(), new LeakyReLU(), new LeakyReLU(), new LeakyReLU(), new SoftMax()});
+//		System.out.println("___________________________________");
+//		
+//		System.out.println("STARTING NN WITH VALUE MAP");
+//		System.out.println();
+//		NeuralNetwork<MapPreferenceModelTuple> mapValues123123 = new NeuralNetwork<MapPreferenceModelTuple>(new int[] {256,256}, 
+//				DataTupleManager.LoadValueMapDataList("PreferenceModels", "newmap_map"), "MAP_NETWORK_TEST_256_256_SWISH", new Swish());
+//		System.out.println("___________________________________");
+//		
+//		System.out.println("STARTING NN WITH VALUE MAP");
+//		System.out.println();
+//		NeuralNetwork<MapPreferenceModelTuple> mapValues_null12312 = new NeuralNetwork<MapPreferenceModelTuple>(new int[] {256,200, 100}, 
+//				DataTupleManager.LoadValueMapDataList("PreferenceModels", "newmap_map"), "MAP_NETWORK_TEST_256_200_100_SWISH", 
+//				new ActivationFunction[] {new ActivationFunction(), new Swish(), new Swish(), new Swish(), new SoftMax()});
+//		System.out.println("___________________________________");
 
 	}
 	
@@ -581,9 +605,9 @@ public class NeuralNetwork <T extends DataTuple>
 	{
 		double accuracyThreshold = 0.85;
 		double learningRate = 0.2;
-		int iterations = (int)Math.rint((trainingSet.size() * batchSize));
+		int batchGrow = (int)Math.rint((trainingSet.size() * batchSize));
 		int currentBatch = 0;
-		int batchGrow = (int)(trainingSet.size()/iterations);
+		int iterations = (int)(trainingSet.size()/batchGrow);
 		stepSize = iterations;
 		int counter = 0;
 		for(int epoch = 0; epoch < max_epochs; epoch++)
@@ -645,14 +669,14 @@ public class NeuralNetwork <T extends DataTuple>
 //						}
 //					}
 					
-					//Step 5: Correct all the weights (This is online)
-					for(int layerCount = this.neuralLayers.size() - 1; layerCount > 1; layerCount--)
-					{
-						for(int currentNeuron = 0; currentNeuron < this.neuralLayers.get(layerCount).size; currentNeuron++)
-						{
-							this.neuralLayers.get(layerCount).getNeuron(currentNeuron, DatasetUses.TEST).ChangeWeights(learningRate);;
-						}
-					}
+////					Step 5: Correct all the weights (This is online)
+//					for(int layerCount = this.neuralLayers.size() - 1; layerCount > 1; layerCount--)
+//					{
+//						for(int currentNeuron = 0; currentNeuron < this.neuralLayers.get(layerCount).size; currentNeuron++)
+//						{
+//							this.neuralLayers.get(layerCount).getNeuron(currentNeuron, DatasetUses.TEST).ChangeWeights(learningRate);;
+//						}
+//					}
 					
 					for(int layerCount = 0; layerCount < this.neuralLayers.size(); layerCount++)
 					{
@@ -663,15 +687,15 @@ public class NeuralNetwork <T extends DataTuple>
 					}
 					
 				}
-				
-//				//Step 5: Correct all the weights (This is offline)
-//				for(int layerCount = this.neuralLayers.size() - 1; layerCount > 1; layerCount--)
-//				{
-//					for(int currentNeuron = 0; currentNeuron < this.neuralLayers.get(layerCount).size; currentNeuron++)
-//					{
-//						this.neuralLayers.get(layerCount).getNeuron(currentNeuron, DatasetUses.TEST).ChangeWeights(learningRate);;
-//					}
-//				}
+//				
+				//Step 5: Correct all the weights (This is offline)
+				for(int layerCount = this.neuralLayers.size() - 1; layerCount > 1; layerCount--)
+				{
+					for(int currentNeuron = 0; currentNeuron < this.neuralLayers.get(layerCount).size; currentNeuron++)
+					{
+						this.neuralLayers.get(layerCount).getNeuron(currentNeuron, DatasetUses.TEST).ChangeWeights(learningRate);;
+					}
+				}
 				
 			}
 

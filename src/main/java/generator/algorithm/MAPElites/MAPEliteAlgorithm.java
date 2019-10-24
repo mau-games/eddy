@@ -53,9 +53,11 @@ import util.eventrouting.EventRouter;
 import util.eventrouting.Listener;
 import util.eventrouting.PCGEvent;
 import util.eventrouting.events.AlgorithmDone;
+import util.eventrouting.events.AlgorithmEvent;
 import util.eventrouting.events.AlgorithmStarted;
 import util.eventrouting.events.MAPEGenerationDone;
 import util.eventrouting.events.MAPEGridUpdate;
+import util.eventrouting.events.MAPElitesBroadcastCells;
 import util.eventrouting.events.MAPElitesDone;
 import util.eventrouting.events.MapElitesDoneAllRooms;
 import util.eventrouting.events.MapUpdate;
@@ -550,9 +552,9 @@ public class MAPEliteAlgorithm extends Algorithm implements Listener {
     	//This is only when we want to update the current Generation
     	if(currentGen >= iterationsToPublish)
     	{
-
-    		publishGeneration();
     		broadcastNetworkRooms();
+    		publishGeneration();
+    		
     	}
     	else {
     		currentGen++;
@@ -702,6 +704,7 @@ public class MAPEliteAlgorithm extends Algorithm implements Listener {
     private void publishGeneration()
     {
 		broadcastResultedRooms();
+		broadcastCells();
 //		MAPECollector.getInstance().SaveGeneration(realCurrentGen, MAPElitesDimensions, cells, false); //store the cells in memory
 		
 		//This should be in a call when the ping happens! --> FIXME!!
@@ -834,6 +837,63 @@ public class MAPEliteAlgorithm extends Algorithm implements Listener {
 	}
 	
 	//TODO: There are problems on how the cells are rendered!
+	public void broadcastCells()
+	{
+		//TODO: CHECK FOR THE OTHER THAT ARE ALREADY RENDERED
+		ArrayList<ArrayList<Room>> populationsToBeBroadcasted = new ArrayList<ArrayList<Room>>();
+		MAPElitesBroadcastCells ev = new MAPElitesBroadcastCells();
+		ev.setID(id);
+        
+		int cellIndex = 0;
+        for(GACell cell : cells)
+		{
+        	if(cell.GetFeasiblePopulation().isEmpty())
+        	{
+        		populationsToBeBroadcasted.add(null);
+        	}
+        	else //This is more tricky!!
+        	{
+        		populationsToBeBroadcasted.add(new ArrayList<Room>());
+        	
+        		for(ZoneIndividual ind : cell.GetFeasiblePopulation())
+    			{
+    				boolean unique = true;
+    				Room individualRoom = ind.getPhenotype().getMap(roomWidth, roomHeight, roomDoorPositions, roomCustomTiles, roomOwner);
+    				populationsToBeBroadcasted.get(cellIndex).add(individualRoom);
+//    				
+//    				for (Room storedRoom : ev.GetRooms())
+//    				{
+//    				    if(SimilarityGADimension.sameRooms(storedRoom, individualRoom))
+//    				    {
+//    				    	unique = false;
+//    				    	break;
+//    				    }
+//    				}
+//    				
+//    				if(unique)
+//    				{
+//    					ev.addRoom(individualRoom);
+////    					Room copy = new Room(individualRoom);
+////    					copy.calculateAllDimensionalValues();
+////    					copy.setSpeficidDimensionValue(DimensionTypes.SIMILARITY, 
+////    							SimilarityGADimension.calculateValueIndependently(copy, originalRoom));
+////    					copy.setSpeficidDimensionValue(DimensionTypes.INNER_SIMILARITY, 
+////    							CharacteristicSimilarityGADimension.calculateValueIndependently(copy, originalRoom));
+////    					uniqueGeneratedRooms.put(copy, ind.getFitness());
+//    				}
+    				
+    			}
+        	}	
+        	
+        	cellIndex++;
+		}
+		
+        
+        ev.setPayload(populationsToBeBroadcasted);
+		EventRouter.getInstance().postEvent(ev);
+	}
+	
+
 	public void broadcastResultedRooms()
 	{
 		//TODO: CHECK FOR THE OTHER THAT ARE ALREADY RENDERED
@@ -948,7 +1008,7 @@ public class MAPEliteAlgorithm extends Algorithm implements Listener {
 		{
 			for(ZoneIndividual ind : cell.GetFeasiblePopulation())
 			{
-				PreferenceByModel(ind);
+//				PreferenceByModel(ind);
 			}
 		}
 		

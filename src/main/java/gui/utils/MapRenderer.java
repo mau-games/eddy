@@ -341,6 +341,42 @@ public class MapRenderer implements Listener {
 	 * @param matrix A rectangular matrix of integers. Each integer corresponds
 	 * 		to some predefined value.
 	 */
+	public synchronized Image saveImageDataset(Room room, double preference, int index, String user, String datasetName) 
+	{
+
+		if(room.localConfig != null)
+		{
+			finalMapHeight = room.localConfig.getRenderSizeHeight();
+			finalMapWidth = room.localConfig.getRenderSizeWidth();
+		}
+		else
+		{
+			finalMapHeight = (int)((float)config.getMapRenderHeight() * (float)((float)room.getRowCount() / 10.0f));
+			finalMapWidth = (int)((float)config.getMapRenderWidth() * (float)((float)room.getColCount() / 10.0f));
+		}
+
+		Canvas canvas = new Canvas(finalMapWidth, finalMapHeight);
+		renderMap(canvas.getGraphicsContext2D(), room);
+		final WritableImage writableImage = new WritableImage((int) canvas.getWidth(), (int) canvas.getHeight());
+		Image image = canvas.snapshot(new SnapshotParameters(), writableImage);
+		
+		File file = new File(".\\my-data\\PreferenceModels\\" + user + "\\" + datasetName + "\\" + preference + "\\" + index + ".png");
+		try {
+            ImageIO.write(SwingFXUtils.fromFXImage(writableImage, null), "png", file);
+        } catch (Exception s) {
+        }
+		
+
+		return image;
+	}
+	
+	/**
+	 * Draws a matrix onto a new image.
+	 * 
+	 * @param ctx The graphics context to draw on.
+	 * @param matrix A rectangular matrix of integers. Each integer corresponds
+	 * 		to some predefined value.
+	 */
 	public synchronized Image saveSuggestion(Room room, int index) 
 	{
 

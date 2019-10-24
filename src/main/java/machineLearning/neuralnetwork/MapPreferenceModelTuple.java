@@ -11,6 +11,7 @@ import game.TileTypes;
 public class MapPreferenceModelTuple extends DataTuple 
 {
 	protected static DecimalFormat df3 = new DecimalFormat("#.###");
+	public Room baseRoom;
 	
 	public static double round(double value, int places) {
 	    if (places < 0) throw new IllegalArgumentException();
@@ -22,7 +23,7 @@ public class MapPreferenceModelTuple extends DataTuple
 	
 	public MapPreferenceModelTuple(Room r, boolean like)
 	{	
-		
+		baseRoom = new Room(r);
 		this.numericalData = new ArrayList<Double>();
 		
 		for (int j = 0; j < r.getRowCount(); j++)

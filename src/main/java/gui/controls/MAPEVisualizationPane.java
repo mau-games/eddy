@@ -124,6 +124,7 @@ public class MAPEVisualizationPane extends BorderPane implements Listener
 		SetXLabel(dimensions[0].getDimension().toString());
 		SetYLabel(dimensions[1].getDimension().toString());
 		
+		roomDisplays.forEach(e->e.resetIndices());
 		SetupInnerGrid(roomDisplays, dimensions[0].getGranularity(),  dimensions[1].getGranularity());
 	}
 	
@@ -158,6 +159,7 @@ public class MAPEVisualizationPane extends BorderPane implements Listener
 				GridPane.clearConstraints(roomDisplays.get((i - 1) + j * xResolution).getRoomCanvas());
 				GridPane.setConstraints(roomDisplays.get((i - 1) + j * xResolution).getRoomCanvas(), i, (red - 1));
 				innerSuggestions.getChildren().add(roomDisplays.get((i - 1) + j * xResolution).getRoomCanvas());
+				roomDisplays.get((i - 1) + j * xResolution).setIndices(i - 1, j);
 			}
 		}
 		

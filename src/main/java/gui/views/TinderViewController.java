@@ -285,7 +285,7 @@ public class TinderViewController extends BorderPane implements Listener
 	{
 		System.out.println("dislike");
 		System.out.println(EARooms.size());
-		userPreferenceModel.UpdateModel(false, currentRoom);
+		userPreferenceModel.UpdateModel(false, currentRoom, 0); //FIXME: CHANGED HERE
 		currentRoom = EARooms.get((int)(Math.random() * EARooms.size()));
 		getMapView().updateMap(currentRoom); 
 		SetStats();
@@ -297,7 +297,7 @@ public class TinderViewController extends BorderPane implements Listener
 	{
 		System.out.println("like");
 		System.out.println(EARooms.size());
-		userPreferenceModel.UpdateModel(true, currentRoom);
+		userPreferenceModel.UpdateModel(true, currentRoom, 0); //FIXME: CHANGED HERE
 		currentRoom = EARooms.get((int)(Math.random() * EARooms.size()));
 		getMapView().updateMap(currentRoom); 
 		SetStats();

@@ -32,6 +32,8 @@ public class SuggestionRoom
 	private Node source;
 	private boolean selected = false;
 	
+	private int[] rendererIndices = new int[2];
+	
 	//Super workaround which i have to do unless someone knows how can i do this thing
 	private SuggestionRoom self;
 	
@@ -179,6 +181,25 @@ public class SuggestionRoom
 		selected = value;
 		highlight(value);
 	}
+	
+	public int[] getRendererIndices() { return rendererIndices;}
+	public int getRendererIndices(int dimension) { return rendererIndices[dimension];}
+	
+	public void setIndices(int... indices)
+	{
+		for(int i = 0; i < indices.length; i++)
+		{
+			rendererIndices[i] = indices[i];
+		}
+	}
+	
+	public void resetIndices()
+	{ 
+		for(int i = 0; i < rendererIndices.length; i++)
+		{
+			rendererIndices[i] = -1;
+		}
+	}
 
     /**
      * Highlights the control.
@@ -208,6 +229,6 @@ public class SuggestionRoom
      */
     public void testColor(String color)
     {
-//    	roomViewNode.setStyle("-fx-border-width: 2px; -fx-border-color: " + color + ";");
+    	roomViewNode.setStyle("-fx-border-width: 2px; -fx-border-color: " + color + ";");
     }
 }
