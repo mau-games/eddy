@@ -55,7 +55,8 @@ public class MAPEVisualizationPane extends BorderPane implements Listener
 		mapeScroll.setMinWidth(10);
 		mapeScroll.setMaxWidth(599);
 		mapeScroll.setMinHeight(150);
-		mapeScroll.setMaxHeight(550);
+		mapeScroll.setMaxHeight(400);
+//		mapeScroll.setMaxHeight(550);
 		
 		//Basic setup of inner grid
 		innerSuggestions = new GridPane();		
@@ -176,7 +177,8 @@ public class MAPEVisualizationPane extends BorderPane implements Listener
 		mapeScroll.setMinWidth(10);
 		mapeScroll.setMaxWidth(599);
 		mapeScroll.setMinHeight(150);
-		mapeScroll.setMaxHeight(550);
+//		mapeScroll.setMaxHeight(550);
+		mapeScroll.setMaxHeight(400);
 		
 		this.autosize();
 		

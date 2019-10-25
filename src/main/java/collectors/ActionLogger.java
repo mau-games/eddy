@@ -8,6 +8,7 @@ import java.util.TimerTask;
 import java.util.UUID;
 
 import gui.InteractiveGUIController;
+import gui.InteractiveMLGUIController;
 import javafx.util.Duration;
 import machineLearning.neuralnetwork.DataTupleManager;
 import util.eventrouting.PCGEvent;
@@ -20,6 +21,7 @@ public class ActionLogger {
 	private Duration saveTime = new Duration(30000);
 	protected UUID id;
 	private ArrayList<ActionLog> logs;
+	private ArrayList<ActionLog> suggestionPicker;
 	private File directory;
 	
 	private Timer timer;
@@ -56,13 +58,16 @@ public class ActionLogger {
 		BRUSH_PANE,
 		TILE_PANE,
 		MAP_PANE,
-		WORLD_MAP_PANE
+		WORLD_MAP_PANE,
+		ML_PANE
 	}
 	
 	private ActionLogger()
 	{
 		id = UUID.randomUUID();
 		logs = new ArrayList<ActionLog>();
+		suggestionPicker = new ArrayList<ActionLog>();
+		
 		timer = new Timer();
 		
 		timer.scheduleAtFixedRate(new TimerTask() {
@@ -87,9 +92,16 @@ public class ActionLogger {
 		logs.add(log);
 	}
 	
+	public void addToSuggestion(ActionType action, View currentView, TargetPane targetPane, boolean grouped, Object... event)
+	{
+		ActionLog log = new ActionLog(new Timestamp(System.currentTimeMillis()), action, currentView, targetPane, grouped, event);
+		suggestionPicker.add(log);
+	}
+	
 	public void init()
 	{
-		DataSaverLoader.SaveData(getHeader(), "\\summer-school\\" + InteractiveGUIController.runID , "actionLogs");
+		DataSaverLoader.SaveData(getHeader(), "\\prefer-test\\" + InteractiveMLGUIController.runID , "actionLogs");
+		DataSaverLoader.SaveData(getHeader(), "\\prefer-test\\" + InteractiveMLGUIController.runID , "suggestionPicker");
 	}
 	
 	private String getHeader()
@@ -99,15 +111,26 @@ public class ActionLogger {
 	
 	public void saveNFlush()
 	{
+		//For event logger in general
 		StringBuilder inf = new StringBuilder();
 
 		for(ActionLog log : logs)
 		{
-			inf.append(log.toString() + System.lineSeparator());;
+			inf.append(log.toString() + System.lineSeparator());
 		}
 		
-		DataSaverLoader.SaveData(inf.toString(), "\\summer-school\\" + InteractiveGUIController.runID , "actionLogs");
+		DataSaverLoader.SaveData(inf.toString(), "\\prefer-test\\" + InteractiveMLGUIController.runID , "actionLogs");
 		logs.clear();
+		
+		inf = new StringBuilder();
+
+		for(ActionLog log : suggestionPicker)
+		{
+			inf.append(log.toString() + System.lineSeparator());
+		}
+		
+		DataSaverLoader.SaveData(inf.toString(), "\\prefer-test\\" + InteractiveMLGUIController.runID , "suggestionPicker");
+		suggestionPicker.clear();
 	}
 	
 	public class ActionLog

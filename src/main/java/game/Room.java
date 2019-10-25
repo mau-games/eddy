@@ -56,6 +56,7 @@ import generator.algorithm.MAPElites.Dimensions.MAPEDimensionFXML;
 import generator.algorithm.MAPElites.Dimensions.GADimension.DimensionTypes;
 import generator.config.GeneratorConfig;
 import gui.InteractiveGUIController;
+import gui.InteractiveMLGUIController;
 import gui.controls.Brush.NeighborhoodStyle;
 
 import javax.xml.parsers.*;
@@ -2880,7 +2881,7 @@ public class Room {
 		Document dom;
 	    Element e = null;
 	    Element next = null;
-	    String xml = System.getProperty("user.dir") + "\\my-data\\summer-school\\" + InteractiveGUIController.runID + "\\" + prefix + "room-" + this.toString() + ".xml";
+	    String xml = System.getProperty("user.dir") + "\\my-data\\prefer-test\\" + InteractiveMLGUIController.runID + "\\" + prefix + "room-" + this.toString() + ".xml";
 
 	    // instance of a DocumentBuilderFactory
 	    DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
@@ -2973,7 +2974,7 @@ public class Room {
 	    Element e = null;
 	    Element next = null;
 	    
-	    String xml = System.getProperty("user.dir") + "\\my-data\\summer-school\\" + InteractiveGUIController.runID + "\\" + prefix + "room-" + this.toString() + "_" + saveCounter++ + ".xml";
+	    String xml = System.getProperty("user.dir") + "\\my-data\\prefer-test\\" + InteractiveMLGUIController.runID + "\\" + prefix + "room-" + this.toString() + "_" + saveCounter++ + ".xml";
 
 	    // instance of a DocumentBuilderFactory
 	    DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
@@ -3067,12 +3068,12 @@ public class Room {
 	    Element e = null;
 	    Element next = null;
 	    
-	    File file = new File(DataSaverLoader.projectPath + "\\summer-school\\" + InteractiveGUIController.runID + "\\" + prefix + this.toString());
+	    File file = new File(DataSaverLoader.projectPath + "\\prefer-test\\" + InteractiveMLGUIController.runID + "\\" + prefix + this.toString());
 		if (!file.exists()) {
 			file.mkdirs();
 		}
 	    
-	    String xml = System.getProperty("user.dir") + "\\my-data\\summer-school\\" + InteractiveGUIController.runID + "\\" + prefix + this.toString() + "\\room-" + this.toString() + "_" + saveCounter++ + ".xml";
+	    String xml = System.getProperty("user.dir") + "\\my-data\\prefer-test\\" + InteractiveMLGUIController.runID + "\\" + prefix + this.toString() + "\\room-" + this.toString() + "_" + saveCounter++ + ".xml";
 
 	    // instance of a DocumentBuilderFactory
 	    DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();

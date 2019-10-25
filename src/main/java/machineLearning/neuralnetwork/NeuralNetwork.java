@@ -6,6 +6,7 @@ import java.util.Random;
 import java.util.UUID;
 
 import collectors.DataSaverLoader;
+import gui.InteractiveMLGUIController;
 import machineLearning.neuralnetwork.LossCalculator.lossFunctions;
 import machineLearning.neuralnetwork.Neuron.NeuronTypes;
 import machineLearning.neuralnetwork.activationFunction.ActivationFunction;
@@ -1457,8 +1458,29 @@ public class NeuralNetwork <T extends DataTuple>
 	
 	public void saveModelInformation(String filename)
 	{
+//		String luAcc = "Epoch;Iteration;Learning Rate;Training-loss;Test-loss;Validation-loss;Training-accuracy;Test-accuracy;Validation-Accuracy;Training-size;Test-size;Validation-size";
+//		DataSaverLoader.saveFile("PreferenceModels",filename + networkName + ".csv", luAcc, true);
+//		
+//		for(ModelInformation mi : modelInfoEachStep)
+//		{
+//			luAcc = mi.epoch + ";";
+//			luAcc += mi.iteration + ";";
+//			luAcc += mi.learningRate + ";";
+//			luAcc += mi.getLoss(DatasetUses.TRAINING) + ";";
+//			luAcc += mi.getLoss(DatasetUses.TEST) + ";";
+//			luAcc += mi.getLoss(DatasetUses.VALIDATION) + ";";
+//			luAcc += mi.getAccuracy(DatasetUses.TRAINING) + ";";
+//			luAcc += mi.getAccuracy(DatasetUses.TEST) + ";";
+//			luAcc += mi.getAccuracy(DatasetUses.VALIDATION) + ";";
+//			luAcc += mi.getDatasetSize(DatasetUses.TRAINING) + ";";
+//			luAcc += mi.getDatasetSize(DatasetUses.TEST) + ";";
+//			luAcc += mi.getDatasetSize(DatasetUses.VALIDATION);
+//			 
+//			DataSaverLoader.saveFile("PreferenceModels",filename + networkName + ".csv", luAcc, true);
+//		}
+		
 		String luAcc = "Epoch;Iteration;Learning Rate;Training-loss;Test-loss;Validation-loss;Training-accuracy;Test-accuracy;Validation-Accuracy;Training-size;Test-size;Validation-size";
-		DataSaverLoader.saveFile("PreferenceModels",filename + networkName + ".csv", luAcc, true);
+		DataSaverLoader.saveFile("prefer-test\\" + InteractiveMLGUIController.runID, filename + networkName + ".csv", luAcc, true);
 		
 		for(ModelInformation mi : modelInfoEachStep)
 		{
@@ -1475,8 +1497,9 @@ public class NeuralNetwork <T extends DataTuple>
 			luAcc += mi.getDatasetSize(DatasetUses.TEST) + ";";
 			luAcc += mi.getDatasetSize(DatasetUses.VALIDATION);
 			 
-			DataSaverLoader.saveFile("PreferenceModels",filename + networkName + ".csv", luAcc, true);
+			DataSaverLoader.saveFile("prefer-test\\" + InteractiveMLGUIController.runID,filename + networkName + ".csv", luAcc, true);
 		}
+		
 	}
 	
 	public boolean Classify(int index, ArrayList<T> set, boolean debug)

@@ -355,7 +355,8 @@ public class WorldViewController extends BorderPane implements Listener
 		arrangeControls(heightLabel, 90, -260, 50, 50);
 		arrangeControls(widthField, 140, -310, 50, 30);
 		arrangeControls(heightField, 140, -260, 50, 30);
-		arrangeControls(createNewRoomBtn, -50, -300, -1, -1);
+//		arrangeControls(createNewRoomBtn, -50, -300, -1, -1);
+		arrangeControls(createNewRoomBtn, 0, -300, -1, -1);
 		arrangeControls(removeRoomBtn, 0, -150, -1, -1);
 		arrangeControls(getSuggestionsBtn(), 0, 50, 200, 50);
 //		arrangeControls(getPickInitBtn(), 0, 200, 300, 50);
@@ -443,10 +444,12 @@ public class WorldViewController extends BorderPane implements Listener
 //		buttonPane.getChildren().add(getPickInitBtn());
 		buttonPane.getChildren().add(createNewRoomBtn);
 		buttonPane.getChildren().add(removeRoomBtn);
-		buttonPane.getChildren().add(heightField);
-		buttonPane.getChildren().add(widthField);
-		buttonPane.getChildren().add(widthLabel);
-		buttonPane.getChildren().add(heightLabel);
+		//FIXME: CHANGE THIS TO BE ABLE TO CHANGE THE WIDTH HEIGHT
+//		buttonPane.getChildren().add(heightField);
+//		buttonPane.getChildren().add(widthField);
+//		buttonPane.getChildren().add(widthLabel);
+//		buttonPane.getChildren().add(heightLabel);
+		
 		buttonPane.getChildren().add(restartProgram);
 
 //		buttonPane.getChildren().add(pathTypeComboBox);

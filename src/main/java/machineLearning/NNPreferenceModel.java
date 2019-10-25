@@ -7,6 +7,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import game.Room;
+import gui.InteractiveMLGUIController;
 import gui.utils.MapRenderer;
 import machineLearning.neuralnetwork.DataTupleManager;
 import machineLearning.neuralnetwork.DatasetUses;
@@ -112,8 +113,8 @@ public class NNPreferenceModel extends PreferenceModel
 		separateMapDataset.get(step).add(new MapPreferenceModelTuple(usedRoom, true));
 		separateMapDataset.get(step).get(separateMapDataset.get(step).size() - 1).preference = pref;
 		
-		mapValues.FeedForward(mapTuples.get(mapTuples.size() - 1), DatasetUses.TEST);
-		System.out.println(mapValues.ClassifyContinuous(mapTuples.size() - 1, mapTuples, false));
+//		mapValues.FeedForward(mapTuples.get(mapTuples.size() - 1), DatasetUses.TEST);
+//		System.out.println(mapValues.ClassifyContinuous(mapTuples.size() - 1, mapTuples, false));
 		
 //		attributeValues.FeedForward(tuples.get(tuples.size() - 1), DatasetUses.TEST);
 //		System.out.println(attributeValues.Classify(tuples.get(tuples.size() - 1)));
@@ -182,20 +183,35 @@ public class NNPreferenceModel extends PreferenceModel
 	{
 //		mapValues.incomingData(new ArrayList<MapPreferenceModelTuple>(separatedDataset.get(specificSet)));
 //		SaveMapDataset("TEST_USER");
-		distributeDataset2(separateMapDataset.get(specificSet));
+		distributeDataset2(separateMapDataset.get(specificSet), specificSet);
 	}
 	
 	
-	public void SaveSpecificDataset(String userName, String setName, ArrayList<MapPreferenceModelTuple> set)
+//	public void SaveSpecificDataset(String userName, String setName, ArrayList<MapPreferenceModelTuple> set)
+//	{
+//		DataTupleManager.SaveHeader(set.get(0), "\\PreferenceModels\\" + userName, "_map_" + setName);
+//		for (MapPreferenceModelTuple tuple : set)
+//		{
+//			DataTupleManager.SaveData(tuple, "\\PreferenceModels\\" + userName, "_map_" + setName);
+//		}
+//	}
+//	
+	public void SaveSpecificDataset(String userName, String setName, int specificSet, ArrayList<MapPreferenceModelTuple> set)
 	{
-		DataTupleManager.SaveHeader(set.get(0), "\\PreferenceModels\\" + userName, "_map_" + setName);
+		DataTupleManager.SaveHeader(set.get(0), "\\prefer-test\\" + InteractiveMLGUIController.runID + "\\" + setName, 
+											specificSet + "_map_" + setName);
+		
+		StringBuilder sb = new StringBuilder();
 		for (MapPreferenceModelTuple tuple : set)
 		{
-			DataTupleManager.SaveData(tuple, "\\PreferenceModels\\" + userName, "_map_" + setName);
+			sb.append(tuple.getSaveString());
+			
 		}
+		DataTupleManager.SaveCompleteData(sb, "\\prefer-test\\" + InteractiveMLGUIController.runID + "\\" + setName, 
+				specificSet + "_map_" + setName);
 	}
 	
-	private void distributeDataset2(ArrayList<MapPreferenceModelTuple> fullset)
+	private void distributeDataset2(ArrayList<MapPreferenceModelTuple> fullset, int specificSet)
 	{
 		ArrayList<MapPreferenceModelTuple> training = new ArrayList<MapPreferenceModelTuple>();
 		ArrayList<MapPreferenceModelTuple> validation = new ArrayList<MapPreferenceModelTuple>();
@@ -239,8 +255,8 @@ public class NNPreferenceModel extends PreferenceModel
 		System.out.println("TRAINING: " + training.size());
 		System.out.println("TESTING: " + test.size());
 		
-//		SaveSpecificDataset("RND_USER", "TRAINING", training);
-//		SaveSpecificDataset("RND_USER", "TEST", test);
+		SaveSpecificDataset("RND_USER", "TRAINING", specificSet, training);
+		SaveSpecificDataset("RND_USER", "TEST", specificSet, test);
 //		
 //		int ind=0;
 //		for(MapPreferenceModelTuple tuple : training)

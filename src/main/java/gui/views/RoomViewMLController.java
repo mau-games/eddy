@@ -127,6 +127,7 @@ import util.eventrouting.events.MapUpdate;
 import util.eventrouting.events.RequestAppliedMap;
 import util.eventrouting.events.RequestRoomView;
 import util.eventrouting.events.RequestWorldView;
+import util.eventrouting.events.SaveCurrentGeneration;
 import util.eventrouting.events.SaveDisplayedCells;
 import util.eventrouting.events.StartGA_MAPE;
 import util.eventrouting.events.StartMapMutate;
@@ -277,6 +278,8 @@ public class RoomViewMLController extends BorderPane implements Listener
 		} catch (MissingConfigurationException e) {
 			logger.error("Couldn't read config file.");
 		}
+		
+		saveGenBtn = new Button();
 
 		router.registerListener(this, new MAPElitesBroadcastCells());
 		router.registerListener(this, new MAPEGridUpdate(null));
@@ -307,9 +310,10 @@ public class RoomViewMLController extends BorderPane implements Listener
 
 		mlRooms = new ArrayList<SuggestionRoom>();
 		
-		for(int i = 0; i < 3; i++) 
+		for(int i = 0; i < mlRoomDisplays.size(); i++) 
 		{
 			SuggestionRoom suggestion = new SuggestionRoom(mlRoomDisplays.get(i));
+			suggestion.trainableRoom = false;
 			mlRooms.add(suggestion);
 		}
 		
@@ -404,14 +408,15 @@ public class RoomViewMLController extends BorderPane implements Listener
 			sr.resizeCanvasForRoom(roomToBe);
 		}
 		
+		//FIXME: Temporal change for the test!!
 		for(SuggestionRoom sr : mlRooms)
 		{
-			sr.resizeCanvasForRoom(roomToBe);
+			sr.resizeCanvasForRoom(roomToBe, 14.0, 14.0);
+			sr.getRoomCanvas().draw(null);
 		}
 		
 		preferenceIndices.clear();
 		
-		resetMiniMaps();
 		initMapView();
 		initLegend();
 		resetView();
@@ -421,36 +426,6 @@ public class RoomViewMLController extends BorderPane implements Listener
 //		
 //		OnChangeTab();
 //		generateNewMaps();
-	}
-	
-	/**
-	 * Resets the mini maps for a new run of map generation.
-	 */
-	private void resetMiniMaps() {
-		int nextMap = 0;
-		
-		getMLMap(0).draw(null);
-		getMLMap(0).setText("Waiting for map...");
-
-		getMLMap(1).draw(null);
-		getMLMap(1).setText("Waiting for map...");
-
-		getMLMap(2).draw(null);
-		getMLMap(2).setText("Waiting for map...");
-
-//		getMap(3).draw(null);
-//		getMap(3).setText("Waiting for map...");
-	}
-	
-	/**
-	 * Gets one of the maps (i.e. a labeled view displaying a map) being under
-	 * this object's control.
-	 * 
-	 * @param index An index of a map.
-	 * @return A map if it exists, otherwise null.
-	 */
-	public LabeledCanvas getMLMap(int index) {
-		return mlRoomDisplays.get(index);
 	}
 
 	/**
@@ -674,6 +649,31 @@ public class RoomViewMLController extends BorderPane implements Listener
 		}
 		else if(e instanceof MAPEGridUpdate)
 		{
+			if(currentDimensions != null && currentDimensions.length > 0)
+			{
+				try
+				{
+					ActionLogger.getInstance().storeAction(ActionType.CHANGE_VALUE,
+							View.ROOM, 
+							TargetPane.SUGGESTION_PANE, 
+							false,
+							currentDimensions[0].getDimension(),
+							currentDimensions[0].getGranularity(),
+							currentDimensions[1].getDimension(),
+							currentDimensions[1].getGranularity(),
+							((MAPEGridUpdate) e).getDimensions()[0].getDimension(),
+							((MAPEGridUpdate) e).getDimensions()[0].getGranularity(),
+							((MAPEGridUpdate) e).getDimensions()[1].getDimension(),
+							((MAPEGridUpdate) e).getDimensions()[1].getGranularity()
+							);
+				}
+				catch(Exception exception)
+				{
+					
+				}
+			}
+				
+			
 //			suggestionCanvasOnUse = new SuggestionRoom[0];
 			MAPElitesPane.dimensionsUpdated(roomDisplays, ((MAPEGridUpdate) e).getDimensions());
 			currentDimensions = ((MAPEGridUpdate) e).getDimensions(); 
@@ -768,12 +768,32 @@ public class RoomViewMLController extends BorderPane implements Listener
 				return;
 			}
 			
+			try
+			{
+				ActionLogger.getInstance().storeAction(ActionType.CLICK,
+						View.ROOM, 
+						TargetPane.SUGGESTION_PANE, 
+						false,
+						currentDimensions[0].getDimension(),
+						currentDimensions[0].getGranularity(),
+						selectedSuggestion.getSuggestedRoom().getDimensionValue(currentDimensions[0].getDimension()),
+						currentDimensions[1].getDimension(),
+						currentDimensions[1].getGranularity(),
+						selectedSuggestion.getSuggestedRoom().getDimensionValue(currentDimensions[1].getDimension()),
+						selectedSuggestion.getSuggestedRoom());
+
+				selectedSuggestion.getSuggestedRoom().getRoomXML("clicked-suggestion\\");
+			}
+			catch(Exception exception)
+			{
+				
+			}
+			
 			clearStats();
 			displayStats();
 			getAppSuggestionsBtn().setDisable(false);
 		}
 	}
-
 
 	/**
 	 * Gets the interactive map.
@@ -970,36 +990,7 @@ public class RoomViewMLController extends BorderPane implements Listener
 		//FIXME: CHECK THIS
 //		storeSuggestions(100);
 		generateNewMaps();
-		
-//		switch(currentState)
-//		{
-//		case STOPPED:
-//			router.postEvent(new SuggestedMapsLoading());
-//			resetSuggestedRooms();
-////			prepareViewForSuggestions();
-//			generateNewMaps(getMapView().getMap());
-//			
-//			clearStats();
-//			getWorldGridBtn().setDisable(true);
-////			getGenSuggestionsBtn().setText("Stop Suggestions");
-//			getAppSuggestionsBtn().setDisable(true);
-//			saveGenBtn.setDisable(false);
-//			currentState = EvoState.RUNNING;
-//			break;
-//		case RUNNING:
-//			
-//			router.postEvent(new Stop());
-//			
-//			clearStats();
-//			getWorldGridBtn().setDisable(false);
-////			getGenSuggestionsBtn().setText("Generate Suggestions");
-//			getAppSuggestionsBtn().setDisable(false);
-//			saveGenBtn.setDisable(true);
-//			currentState = EvoState.STOPPED;
-//			
-//			break;
-//		}
-//		
+	
 	}
 
 	/***
@@ -1084,7 +1075,13 @@ public class RoomViewMLController extends BorderPane implements Listener
 		{
 //			sr.getRoomCanvas().resizeRotatingThingie();
 			sr.getRoomCanvas().draw(null);
-			sr.getRoomCanvas().setText("Waiting for map...");
+			sr.setSuggestedRoom(null);
+		}
+		
+		for(SuggestionRoom sr : mlRooms)
+		{
+			sr.getRoomCanvas().draw(null);
+			sr.setSuggestedRoom(null);
 		}
 	}
 
@@ -1103,8 +1100,8 @@ public class RoomViewMLController extends BorderPane implements Listener
 	 * 
 	 * "Why is this public?",  you ask. Because of FXML's method binding.
 	 */
-	public void generateNewMaps(Room room) {
 		// TODO: If we want more diversity in the generated maps, then send more StartMapMutate events.
+	public void generateNewMaps(Room room) {
 		
 		switch(selectedGA)
 		{
@@ -1120,6 +1117,7 @@ public class RoomViewMLController extends BorderPane implements Listener
 			if(currentDimensions.length > 1)
 			{
 				router.postEvent(new StartGA_MAPE(room, currentDimensions));
+				userPreferenceModel.broadcastPreferenceModel();
 			}
 			
 			break;
@@ -1135,14 +1133,63 @@ public class RoomViewMLController extends BorderPane implements Listener
 	{
 		//pass the info from one room to the other one
 
-		if(selectedSuggestion != null)
+		if(selectedSuggestion != null && selectedSuggestion.getSuggestedRoom() != null)
 		{
+			ActionLogger.getInstance().storeAction(ActionType.CHANGE_VALUE,
+					View.ROOM, 
+					TargetPane.SUGGESTION_PANE, 
+					false,
+					currentDimensions[0].getDimension(),
+					currentDimensions[0].getGranularity(),
+					selectedSuggestion.getSuggestedRoom().getDimensionValue(currentDimensions[0].getDimension()),
+					currentDimensions[1].getDimension(),
+					currentDimensions[1].getGranularity(),
+					selectedSuggestion.getSuggestedRoom().getDimensionValue(currentDimensions[1].getDimension()),
+					selectedSuggestion.getSuggestedRoom());
+
+
+			//selectedSuggestion.getSuggestedRoom()(prefix);
+			selectedSuggestion.getSuggestedRoom().getRoomXML("picked-room\\");			
+			router.postEvent(new SaveCurrentGeneration());
+			
 			mapView.getMap().applySuggestion(selectedSuggestion.getSuggestedRoom());
 			updateMap(mapView.getMap());
-//			router.postEvent(new Stop());
-//			storeSuggestions(5);
-			storeSuggestionsContinouos2();
-			CURRENTSTEP++;
+			
+			//In this case, basically if it was selected from the grid!
+			if(selectedSuggestion.trainableRoom)
+			{
+				ActionLogger.getInstance().addToSuggestion(ActionType.CHANGE_VALUE,
+						View.ROOM, 
+						TargetPane.SUGGESTION_PANE, 
+						false,
+						currentDimensions[0].getDimension(),
+						currentDimensions[0].getGranularity(),
+						selectedSuggestion.getSuggestedRoom().getDimensionValue(currentDimensions[0].getDimension()),
+						currentDimensions[1].getDimension(),
+						currentDimensions[1].getGranularity(),
+						selectedSuggestion.getSuggestedRoom().getDimensionValue(currentDimensions[1].getDimension()),
+						selectedSuggestion.getSuggestedRoom(),
+						selectedSuggestion.getOriginalRoom());
+				
+				storeSuggestionsContinouos2();
+				CURRENTSTEP++;
+			}
+			else //it was selected from the preference model
+			{
+				ActionLogger.getInstance().addToSuggestion(ActionType.CHANGE_VALUE,
+						View.ROOM, 
+						TargetPane.ML_PANE, 
+						false,
+						currentDimensions[0].getDimension(),
+						currentDimensions[0].getGranularity(),
+						selectedSuggestion.getSuggestedRoom().getDimensionValue(currentDimensions[0].getDimension()),
+						currentDimensions[1].getDimension(),
+						currentDimensions[1].getGranularity(),
+						selectedSuggestion.getSuggestedRoom().getDimensionValue(currentDimensions[1].getDimension()),
+						selectedSuggestion.getSuggestedRoom(),
+						selectedSuggestion.getOriginalRoom());
+			}
+			
 		}
 	}
 	

@@ -46,6 +46,7 @@ import generator.algorithm.MAPElites.Dimensions.GADimension.DimensionTypes;
 import generator.algorithm.Algorithm.AlgorithmTypes;
 import generator.config.GeneratorConfig;
 import gui.InteractiveGUIController;
+import gui.InteractiveMLGUIController;
 import gui.views.RoomViewMLController;
 import machineLearning.NNPreferenceModel;
 import util.Util;
@@ -76,7 +77,7 @@ public class MAPEliteAlgorithm extends Algorithm implements Listener {
 	int cellAmounts = 1;
 	private ArrayList<GADimension> MAPElitesDimensions;
 	private Random rnd = new Random();
-	private int iterationsToPublish = 50;
+	private int iterationsToPublish = 150;
 	private int breedingGenerations = 5; //this relates to how many generations will it breed 
 	private int realCurrentGen = 0;
 	private int currentGen = 0;
@@ -1222,12 +1223,12 @@ public class MAPEliteAlgorithm extends Algorithm implements Listener {
 	    Element e = null;
 	    Element next = null;
 	    
-	    File file = new File(DataSaverLoader.projectPath + "\\summer-school\\" + InteractiveGUIController.runID + "\\algorithm\\" + id);
+	    File file = new File(DataSaverLoader.projectPath + "\\prefer-test\\" + InteractiveMLGUIController.runID + "\\algorithm\\" + id);
 		if (!file.exists()) {
 			file.mkdirs();
 		}
 	    
-	    String xml = System.getProperty("user.dir") + "\\my-data\\summer-school\\"+ InteractiveGUIController.runID + "\\algorithm\\" + id + "\\algorithm-" + id + "_" + saveCounter + ".xml";
+	    String xml = System.getProperty("user.dir") + "\\my-data\\prefer-test\\" + InteractiveMLGUIController.runID + "\\algorithm\\" + id + "\\algorithm-" + id + "_" + saveCounter + ".xml";
 
 	    // instance of a DocumentBuilderFactory
 	    DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();

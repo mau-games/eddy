@@ -178,15 +178,26 @@ public class InteractiveMLGUIController implements Initializable, Listener {
 		});
 		runID = UUID.randomUUID();
 
-		File file = new File(DataSaverLoader.projectPath + "\\summer-school\\" + runID + "\\algorithm\\");
+		File file = new File(DataSaverLoader.projectPath + "\\prefer-test\\" + runID + "\\algorithm\\");
 		if (!file.exists()) {
 			file.mkdirs();
 		}
-		file = new File(DataSaverLoader.projectPath + "\\summer-school\\" + runID + "\\dungeon\\");
+		file = new File(DataSaverLoader.projectPath + "\\prefer-test\\" + runID + "\\dungeon\\");
 		if (!file.exists()) {
 			file.mkdirs();
 		}
-		file = new File(DataSaverLoader.projectPath + "\\summer-school\\" + runID + "\\room\\");
+		file = new File(DataSaverLoader.projectPath + "\\prefer-test\\" + runID + "\\room\\");
+		if (!file.exists()) {
+			file.mkdirs();
+		}
+		
+		//FOR TRAINING AND TEST DATASETS
+		file = new File(DataSaverLoader.projectPath + "\\prefer-test\\" + runID + "\\TRAINING\\");
+		if (!file.exists()) {
+			file.mkdirs();
+		}
+		
+		file = new File(DataSaverLoader.projectPath + "\\prefer-test\\" + runID + "\\TEST\\");
 		if (!file.exists()) {
 			file.mkdirs();
 		}
@@ -310,15 +321,26 @@ public class InteractiveMLGUIController implements Initializable, Listener {
 		dungeonMap = null;
 		
 		runID = UUID.randomUUID();
-		File file = new File(DataSaverLoader.projectPath + "\\summer-school\\" + runID + "\\algorithm\\");
+		File file = new File(DataSaverLoader.projectPath + "\\prefer-test\\" + runID + "\\algorithm\\");
 		if (!file.exists()) {
 			file.mkdirs();
 		}
-		file = new File(DataSaverLoader.projectPath + "\\summer-school\\" + runID + "\\dungeon\\");
+		file = new File(DataSaverLoader.projectPath + "\\prefer-test\\" + runID + "\\dungeon\\");
 		if (!file.exists()) {
 			file.mkdirs();
 		}
-		file = new File(DataSaverLoader.projectPath + "\\summer-school\\" + runID + "\\room\\");
+		file = new File(DataSaverLoader.projectPath + "\\prefer-test\\" + runID + "\\room\\");
+		if (!file.exists()) {
+			file.mkdirs();
+		}
+		
+		//FOR TRAINING AND TEST DATASETS
+		file = new File(DataSaverLoader.projectPath + "\\prefer-test\\" + runID + "\\TRAINING\\");
+		if (!file.exists()) {
+			file.mkdirs();
+		}
+		
+		file = new File(DataSaverLoader.projectPath + "\\prefer-test\\" + runID + "\\TEST\\");
 		if (!file.exists()) {
 			file.mkdirs();
 		}

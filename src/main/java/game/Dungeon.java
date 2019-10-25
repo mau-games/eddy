@@ -33,6 +33,7 @@ import game.tiles.BossEnemyTile;
 import generator.algorithm.MAPElites.Dimensions.GADimension.DimensionTypes;
 import generator.config.GeneratorConfig;
 import gui.InteractiveGUIController;
+import gui.InteractiveMLGUIController;
 import gui.utils.InformativePopupManager;
 import gui.utils.InformativePopupManager.PresentableInformation;
 import runners.InteractiveGUI;
@@ -549,7 +550,7 @@ public class Dungeon implements Listener
 		Document dom;
 	    Element e = null;
 	    Element next = null;
-	    String xml = System.getProperty("user.dir") + "\\my-data\\summer-school\\" + InteractiveGUIController.runID + "\\dungeon\\dungeon-" + this.id.toString() + "_" + saveCounter++ + ".xml";
+	    String xml = System.getProperty("user.dir") + "\\my-data\\prefer-test\\" + InteractiveMLGUIController.runID + "\\dungeon\\dungeon-" + this.id.toString() + "_" + saveCounter++ + ".xml";
 
 	    // instance of a DocumentBuilderFactory
 	    DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();

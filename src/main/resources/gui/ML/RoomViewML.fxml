@@ -177,20 +177,33 @@
 					<children>
 						<VBox spacing="15">
 							<MAPEVisualizationPane fx:id="MAPElitesPane"/>
-							<HBox spacing="15">
 								<fx:define>
 			                    	<ArrayList fx:id="mlRoomDisplays">
 				                       <LabeledCanvas fx:id="map0" />
 				                       <LabeledCanvas fx:id="map1" />
 				                       <LabeledCanvas fx:id="map2" />
+				                       <LabeledCanvas fx:id="map3" />
+				                       <LabeledCanvas fx:id="map4" />
+				                       <LabeledCanvas fx:id="map5" />
 			                    	</ArrayList>
 			                  	</fx:define>
+			                 <VBox spacing="15">
+			                 <HBox spacing="15">
 			                  	<children>
 									<fx:reference source="map0" />
 									<fx:reference source="map1" />
 									<fx:reference source="map2" />
 								</children>
 		                  	</HBox>
+		                  	<HBox spacing="15">
+			                  	<children>
+									<fx:reference source="map3" />
+									<fx:reference source="map4" />
+									<fx:reference source="map5" />
+								</children>
+		                  	</HBox>
+			                 </VBox>
+							
 							<HBox spacing="20">
 								<DimensionsTable fx:id="MainTable">
 									<columnResizePolicy><TableView fx:constant="CONSTRAINED_RESIZE_POLICY"/></columnResizePolicy>
@@ -276,10 +289,11 @@
 					<Button fx:id="appSuggestionsBtn" contentDisplay="TOP"
 						mnemonicParsing="false" wrapText="true" textAlignment="CENTER"
 						text="Apply Suggestion" onAction="#selectSuggestion" />
+					<!--
 					<Button fx:id="saveGenBtn" contentDisplay="TOP"
 						mnemonicParsing="false" wrapText="true" textAlignment="CENTER"
-						text="Use NN" onAction="#saveCurrentGeneration" />
-
+						text="Use NN" onAction="#saveCurrentGeneration" /> 
+					-->
 				</HBox>
 				<Pane fx:id="minimap" />
 			</VBox>

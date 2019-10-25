@@ -164,6 +164,12 @@ public class PreferenceModel
 
 	}
 	
+	public void broadcastPreferenceModel()
+	{
+		EventRouter.getInstance().postEvent(new UpdatePreferenceModel(this));
+		broadcasted = true;
+	}
+	
 	public double testWithPreference(Room room)
 	{
 		double preferenceValue = 0.0;

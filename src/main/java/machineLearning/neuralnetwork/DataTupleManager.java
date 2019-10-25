@@ -39,6 +39,18 @@ public class DataTupleManager {
 //		IO.saveFile(FileName, data.getSaveString(), true);
 	}
 	
+	public static void SaveCompleteData(StringBuilder data, String internalPath, String fileName)
+	{
+		File file = new File(projectPath + internalPath + "\\" + fileName + ".csv");
+		try {
+			FileUtils.write(file, data.toString(), true);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+//		IO.saveFile(FileName, data.getSaveString(), true);
+	}
+	
 //	public static void SaveCompleteData(DataTuple data, String internalPath, String fileName)
 //	{
 //		File file = new File(projectPath + internalPath + "\\" + fileName + ".csv");

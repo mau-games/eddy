@@ -33,6 +33,7 @@ public class SuggestionRoom
 	private boolean selected = false;
 	
 	private int[] rendererIndices = new int[2];
+	public boolean trainableRoom = true;
 	
 	//Super workaround which i have to do unless someone knows how can i do this thing
 	private SuggestionRoom self;
@@ -146,6 +147,37 @@ public class SuggestionRoom
 
 	}
 	
+	//TODO: Change magic numbers
+		//Force me! 
+		public void resizeCanvasForRoom(Room original, double width, double height) //ReINIT
+		{
+			selected = false;
+			this.originalRoom = original;
+			roomViewNode.setPrefSize(width * 10.0, height * 10.0);
+			
+			float proportion = (float)(Math.min(original.getColCount(), original.getRowCount()))/(float)(Math.max(original.getColCount(), original.getRowCount()));
+			
+			if(original.getColCount() > 10)
+			{
+				roomViewNode.setPrefWidth(width * original.getColCount());
+			}
+			
+			if(original.getRowCount() > 10)
+			{
+				roomViewNode.setPrefHeight(height * original.getRowCount());
+			}
+			
+			if(original.getRowCount() > original.getColCount())
+			{
+				roomViewNode.setPrefWidth(roomViewNode.getPrefHeight() * proportion);
+			}
+			else if(original.getColCount() > original.getRowCount())
+			{
+				roomViewNode.setPrefHeight(roomViewNode.getPrefWidth() * proportion);
+			}
+
+		}
+	
 	public LabeledCanvas getRoomCanvas()
 	{
 		return roomViewNode;
@@ -229,6 +261,6 @@ public class SuggestionRoom
      */
     public void testColor(String color)
     {
-    	roomViewNode.setStyle("-fx-border-width: 2px; -fx-border-color: " + color + ";");
+//    	roomViewNode.setStyle("-fx-border-width: 2px; -fx-border-color: " + color + ";");
     }
 }
