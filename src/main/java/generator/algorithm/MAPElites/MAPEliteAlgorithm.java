@@ -77,7 +77,7 @@ public class MAPEliteAlgorithm extends Algorithm implements Listener {
 	int cellAmounts = 1;
 	private ArrayList<GADimension> MAPElitesDimensions;
 	private Random rnd = new Random();
-	private int iterationsToPublish = 150;
+	private int iterationsToPublish = 120;
 	private int breedingGenerations = 5; //this relates to how many generations will it breed 
 	private int realCurrentGen = 0;
 	private int currentGen = 0;

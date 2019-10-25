@@ -330,7 +330,7 @@ public class RoomViewMLController extends BorderPane implements Listener
 		
 		for(DimensionTypes dimension : DimensionTypes.values())
         {
-        	if(dimension != DimensionTypes.SIMILARITY && dimension != DimensionTypes.SYMMETRY
+        	if(dimension != DimensionTypes.LENIENCY && dimension != DimensionTypes.SYMMETRY
         			&& dimension != DimensionTypes.DIFFICULTY
         			&& dimension != DimensionTypes.GEOM_COMPLEXITY && dimension != DimensionTypes.REWARD)
         	{
