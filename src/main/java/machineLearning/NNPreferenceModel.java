@@ -183,7 +183,8 @@ public class NNPreferenceModel extends PreferenceModel
 	{
 //		mapValues.incomingData(new ArrayList<MapPreferenceModelTuple>(separatedDataset.get(specificSet)));
 //		SaveMapDataset("TEST_USER");
-		distributeDataset2(separateMapDataset.get(specificSet), specificSet);
+//		distributeDataset2(separateMapDataset.get(specificSet), specificSet);
+		distributeDataset2(mapTuples, specificSet);
 	}
 	
 	

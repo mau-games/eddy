@@ -308,7 +308,7 @@ public class InteractiveMLGUIController implements Initializable, Listener {
 	 */
 
 	public void startNewFlow() {
-		roomView.userPreferenceModel.SaveMapTuples("da-network");
+//		roomView.userPreferenceModel.SaveMapTuples("da-network");
 		//TODO: There is mucho more than this, a lot of things need to be redone!
 
 		ActionLogger.getInstance().saveNFlush();

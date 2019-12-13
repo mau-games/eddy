@@ -834,6 +834,16 @@ public class RoomViewMLController extends BorderPane implements Listener
 		redrawPatterns(room);
 		redrawLocks(room);
 		mapIsFeasible(room.isIntraFeasible());
+		
+		room.calculateAllDimensionalValues();
+		
+		System.out.println(room.getDimensionValue(DimensionTypes.LENIENCY));         
+		System.out.println(room.getDimensionValue(DimensionTypes.LINEARITY) + ";");        
+//		System.out.println(room.getDimensionValue(DimensionTypes.SIMILARITY) + ";");       
+		System.out.println(room.getDimensionValue(DimensionTypes.NUMBER_MESO_PATTERN) + ";");
+		System.out.println(room.getDimensionValue(DimensionTypes.NUMBER_PATTERNS) + ";");  
+		System.out.println(room.getDimensionValue(DimensionTypes.SYMMETRY) + ";");         
+		System.out.println(room.getDimensionValue(DimensionTypes.INNER_SIMILARITY) + ";"); 
 	}
 
 	public void updateRoom(Room room) {
@@ -2170,13 +2180,13 @@ public class RoomViewMLController extends BorderPane implements Listener
 				redrawLocks(mapView.getMap());
 				
 				//FIXME: Added for presentation
-//				mapView.getMap().calculateAllDimensionalValues();
-//				System.out.println(mapView.getMap().getDimensionValue(DimensionTypes.LENIENCY));         
-//				System.out.println(mapView.getMap().getDimensionValue(DimensionTypes.LINEARITY) + ";");        
-////				System.out.println(room.getDimensionValue(DimensionTypes.SIMILARITY) + ";");       
-//				System.out.println(mapView.getMap().getDimensionValue(DimensionTypes.NUMBER_MESO_PATTERN) + ";");
-//				System.out.println(mapView.getMap().getDimensionValue(DimensionTypes.NUMBER_PATTERNS) + ";");  
-//				System.out.println(mapView.getMap().getDimensionValue(DimensionTypes.SYMMETRY) + ";"); 
+				mapView.getMap().calculateAllDimensionalValues();
+				System.out.println(mapView.getMap().getDimensionValue(DimensionTypes.LENIENCY));         
+				System.out.println(mapView.getMap().getDimensionValue(DimensionTypes.LINEARITY) + ";");        
+//				System.out.println(room.getDimensionValue(DimensionTypes.SIMILARITY) + ";");       
+				System.out.println(mapView.getMap().getDimensionValue(DimensionTypes.NUMBER_MESO_PATTERN) + ";");
+				System.out.println(mapView.getMap().getDimensionValue(DimensionTypes.NUMBER_PATTERNS) + ";");  
+				System.out.println(mapView.getMap().getDimensionValue(DimensionTypes.SYMMETRY) + ";"); 
 //				redrawHeatMap(mapView.getMap());
 			}
 		}
