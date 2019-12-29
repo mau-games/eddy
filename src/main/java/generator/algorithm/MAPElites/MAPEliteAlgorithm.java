@@ -82,6 +82,14 @@ public class MAPEliteAlgorithm extends Algorithm implements Listener {
 	//For the Expressive range test
 //	ArrayList<Room> uniqueGeneratedRooms = new ArrayList<Room>();
 	HashMap<Room, Double> uniqueGeneratedRooms = new HashMap<Room, Double>();
+	HashMap<Room, Double> uniqueGeneratedRoomsFlush= new HashMap<Room, Double>();
+	HashMap<Room, Double> uniqueGeneratedRoomsSince = new HashMap<Room, Double>();
+	
+	StringBuilder uniqueRoomsData = new StringBuilder();
+	StringBuilder uniqueRoomsSinceData = new StringBuilder();
+	
+	private int saveIterations = 2;
+	private int currentSaveStep = 0;
 	
 	//UGLY WAY OF DOING THIS!
 	ArrayList<ZoneIndividual> currentRendered = new ArrayList<ZoneIndividual>(); //I think this didn't work
@@ -157,6 +165,12 @@ public class MAPEliteAlgorithm extends Algorithm implements Listener {
 		populationSize = 1000;
 		feasibleAmount = 750;
 		
+		//initialize the data storage variables
+		uniqueRoomsData = new StringBuilder();
+		uniqueRoomsSinceData = new StringBuilder();
+		uniqueRoomsData.append("Leniency;Linearity;Similarity;NMesoPatterns;NSpatialPatterns;Symmetry;Inner Similarity;Fitness;Score;;DIM X;DIM Y;STEP" + System.lineSeparator());
+		uniqueRoomsSinceData.append("Leniency;Linearity;Similarity;NMesoPatterns;NSpatialPatterns;Symmetry;Inner Similarity;Fitness;Score;DIM X;DIM Y;STEP" + System.lineSeparator());
+
 		//TODO: THIS IS CREISI!mutate
 //		System.out.println(mutationProbability);
 //		mutationProbability = 0.3f;
@@ -479,7 +493,8 @@ public class MAPEliteAlgorithm extends Algorithm implements Listener {
     
     private void runNoInterbreedingApplElites()
     {
-//    	storeUniqueRooms();
+    	//Comment or uncomment to get 
+    	storeUniqueRooms();
     	
     	//If we have receive the event that the dimensions changed, please modify the dimensions and recalculate the cells!
     	if(dimensionsChanged)
@@ -534,7 +549,17 @@ public class MAPEliteAlgorithm extends Algorithm implements Listener {
     	//This is only when we want to update the current Generation
     	if(currentGen >= iterationsToPublish)
     	{
-
+    		saveIterations--;
+    		
+    		if(saveIterations == 0)
+    		{
+//    			System.out.println("NEXT");
+    			saveIterations=2;
+//    			saveUniqueRoomsToFileAndFlush();
+    			currentSaveStep++;
+    		}
+    		
+//    		System.out.println(realCurrentGen);
     		publishGeneration();
     	}
     	else {
@@ -542,20 +567,20 @@ public class MAPEliteAlgorithm extends Algorithm implements Listener {
     	}
     	
     	//Uncomment to save unique rooms
-//    	
-//    	if(realCurrentGen == 5000)
-//    	{
-//    		System.out.println(uniqueGeneratedRooms.size());
-//    		saveUniqueRoomsToFile();
+    	
+    	if(realCurrentGen == 5000)
+    	{
+    		System.out.println(uniqueGeneratedRooms.size());
+    		saveUniqueRoomsToFile();
 //    		publishGeneration();
-//    	}
-//    	
-//    	if(realCurrentGen % 1000 == 0)
-//    	{
-//    		System.out.println(uniqueGeneratedRooms.size());
-//        	System.out.println("Current Generation: " + realCurrentGen);
-//    	}
-//
+    	}
+    	
+    	if(realCurrentGen % 1000 == 0)
+    	{
+    		System.out.println(uniqueGeneratedRooms.size());
+        	System.out.println("Current Generation: " + realCurrentGen);
+    	}
+
 
     	
     	realCurrentGen++;
@@ -687,7 +712,7 @@ public class MAPEliteAlgorithm extends Algorithm implements Listener {
     private void publishGeneration()
     {
 		broadcastResultedRooms();
-//		MAPECollector.getInstance().SaveGeneration(realCurrentGen, MAPElitesDimensions, cells, false); //store the cells in memory
+		MAPECollector.getInstance().SaveGeneration(realCurrentGen, MAPElitesDimensions, cells, false); //store the cells in memory
 		
 		//This should be in a call when the ping happens! --> FIXME!!
 		UpdateConfigFile();
@@ -966,6 +991,7 @@ public class MAPEliteAlgorithm extends Algorithm implements Listener {
 		return mutatedChildren;
 	}
 	
+	
 	protected void saveUniqueRoomsToFile()
 	{
 		String DIRECTORY= System.getProperty("user.dir") + "\\my-data\\expressive-range\\";
@@ -996,6 +1022,43 @@ public class MAPEliteAlgorithm extends Algorithm implements Listener {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+	}
+	
+	protected void saveUniqueRoomsToFileAndFlush()
+	{
+//		String DIRECTORY= System.getProperty("user.dir") + "\\my-data\\expressive-range\\";
+		String DIRECTORY= System.getProperty("user.dir") + "\\my-data\\custom-save\\";
+		//Create the data:
+		for (Entry<Room, Double> entry : uniqueGeneratedRoomsFlush.entrySet()) 
+		{
+		    Room currentRoom = entry.getKey();
+		    uniqueRoomsData.append(currentRoom.getDimensionValue(DimensionTypes.LENIENCY) + ";");
+		    uniqueRoomsData.append(currentRoom.getDimensionValue(DimensionTypes.LINEARITY) + ";");
+		    uniqueRoomsData.append(currentRoom.getDimensionValue(DimensionTypes.SIMILARITY) + ";");
+		    uniqueRoomsData.append(currentRoom.getDimensionValue(DimensionTypes.NUMBER_MESO_PATTERN) + ";");
+		    uniqueRoomsData.append(currentRoom.getDimensionValue(DimensionTypes.NUMBER_PATTERNS) + ";");
+		    uniqueRoomsData.append(currentRoom.getDimensionValue(DimensionTypes.SYMMETRY) + ";");
+		    uniqueRoomsData.append(currentRoom.getDimensionValue(DimensionTypes.INNER_SIMILARITY) + ";");
+		    uniqueRoomsData.append(entry.getValue() + ";");
+		    uniqueRoomsData.append("1.0;");
+		    uniqueRoomsData.append(dimensions[0].getDimension() + ";");
+		    uniqueRoomsData.append(dimensions[1].getDimension() + ";");
+		    uniqueRoomsData.append(currentSaveStep + ";");
+		    uniqueRoomsData.append("GR" + System.lineSeparator()); //TYPE	    
+		}
+		
+
+//		File file = new File(DIRECTORY + "expressive_range-" + dimensions[0].getDimension() + "_" + dimensions[1].getDimension() + ".csv");
+		File file = new File(DIRECTORY + "custom-unique-overtime_" + id + ".csv");
+		try {
+			FileUtils.write(file, uniqueRoomsData, true);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		uniqueGeneratedRoomsFlush.clear();
+		uniqueRoomsData = new StringBuilder();
 //		IO.saveFile(FileName, data.getSaveString(), true);
 	}
 
@@ -1026,6 +1089,7 @@ public class MAPEliteAlgorithm extends Algorithm implements Listener {
 					copy.setSpeficidDimensionValue(DimensionTypes.INNER_SIMILARITY, 
 							CharacteristicSimilarityGADimension.calculateValueIndependently(copy, originalRoom));
 					uniqueGeneratedRooms.put(copy, ind.getFitness());
+					uniqueGeneratedRoomsFlush.put(copy, ind.getFitness());
 				}
 				
 			}
@@ -1054,6 +1118,7 @@ public class MAPEliteAlgorithm extends Algorithm implements Listener {
 			copy.setSpeficidDimensionValue(DimensionTypes.INNER_SIMILARITY, 
 					CharacteristicSimilarityGADimension.calculateValueIndependently(copy, originalRoom));
 			uniqueGeneratedRooms.put(copy, ind.getFitness());
+			uniqueGeneratedRoomsFlush.put(copy, ind.getFitness());
 		}
 
 	}

@@ -38,6 +38,7 @@ public class LeniencyGADimension extends GADimension {
 		double w2 = 0.3;
 		double w3 = 0.4;
 		
+		//TODO: Problem with the log10 when the enemy or treasure count is 0
 		//Independent calculation
 		double a = w1 *  (Math.log10(individualRoom.getEnemyCount()) * individualRoom.calculateEnemySparsity());
 		double b = w2 * (Math.log10(individualRoom.getEnemyCount()) * individualRoom.calculateEnemyDensity());

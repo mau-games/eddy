@@ -1,6 +1,6 @@
 #Ignore everyting in this directory
 *
+*/expressive-range/copy/**
 #Except this file
 !*/
 !.gitignore
-!/expressive-range/**

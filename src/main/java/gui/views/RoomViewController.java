@@ -1,5 +1,6 @@
 package gui.views;
 
+import java.io.File;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -8,6 +9,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
+import java.util.Map.Entry;
+
+import org.apache.commons.io.FileUtils;
 
 import collectors.ActionLogger;
 import collectors.ActionLogger.ActionType;
@@ -246,6 +250,8 @@ public class RoomViewController extends BorderPane implements Listener
 	
 	public EvoState currentState;
 	
+	int currentEditionStep = 0;
+	
 	/**
 	 * Creates an instance of this class.
 	 */
@@ -319,9 +325,9 @@ public class RoomViewController extends BorderPane implements Listener
 		
 		secondaryTable.setEventListeners();
 		
-		currentState = EvoState.STOPPED;
+		currentState = EvoState.RUNNING;
 		selectedGA = PossibleGAs.MAP_ELITES;
-		saveGenBtn.setDisable(true);
+		saveGenBtn.setDisable(false);
 		
 
 	}
@@ -1093,6 +1099,17 @@ public class RoomViewController extends BorderPane implements Listener
 			if(currentDimensions.length > 1)
 			{
 				router.postEvent(new StartGA_MAPE(room, currentDimensions)); 
+				
+				//Start the evolution using all the dimensions!
+//				MAPEDimensionFXML[] rndDims = new MAPEDimensionFXML[7];
+//				rndDims[0] = new MAPEDimensionFXML(DimensionTypes.SIMILARITY, 5);
+//				rndDims[1] = new MAPEDimensionFXML(DimensionTypes.SYMMETRY, 5);
+//				rndDims[2] = new MAPEDimensionFXML(DimensionTypes.INNER_SIMILARITY, 5);
+//				rndDims[3] = new MAPEDimensionFXML(DimensionTypes.LENIENCY, 5);
+//				rndDims[4] = new MAPEDimensionFXML(DimensionTypes.LINEARITY, 5);
+//				rndDims[5] = new MAPEDimensionFXML(DimensionTypes.NUMBER_PATTERNS, 5);
+//				rndDims[6] = new MAPEDimensionFXML(DimensionTypes.NUMBER_MESO_PATTERN, 5);
+//				router.postEvent(new StartGA_MAPE(room, rndDims));
 			}
 			
 			break;
@@ -1435,6 +1452,40 @@ public class RoomViewController extends BorderPane implements Listener
 		
 		return false;
 	}
+	
+	public void saveEditedRoomInfo()
+	{
+		String DIRECTORY= System.getProperty("user.dir") + "\\my-data\\custom-save\\";
+		StringBuilder sb = new StringBuilder();
+		
+		mapView.getMap().calculateAllDimensionalValues();
+		sb.append(mapView.getMap().getDimensionValue(DimensionTypes.LENIENCY) + ";");         
+		sb.append(mapView.getMap().getDimensionValue(DimensionTypes.LINEARITY) + ";");        
+		sb.append("1.0;");  //similarity
+		sb.append(mapView.getMap().getDimensionValue(DimensionTypes.NUMBER_MESO_PATTERN) + ";");
+		sb.append(mapView.getMap().getDimensionValue(DimensionTypes.NUMBER_PATTERNS) + ";");  
+		sb.append(mapView.getMap().getDimensionValue(DimensionTypes.SYMMETRY) + ";");
+		sb.append("1.0;");  //Inner_similarity
+		sb.append("1.0;");  //fitness
+		sb.append("1.0;");  //score
+		sb.append(currentDimensions[0].getDimension() + ";");
+		sb.append(currentDimensions[1].getDimension() + ";");
+		sb.append(currentEditionStep + ";");  //current STEP
+		sb.append("ER" + System.lineSeparator()); //TYPE	    
+		
+		currentEditionStep++;
+		
+
+//		File file = new File(DIRECTORY + "expressive_range-" + dimensions[0].getDimension() + "_" + dimensions[1].getDimension() + ".csv");
+		File file = new File(DIRECTORY + "custom-room-edition.csv");
+		try {
+			FileUtils.write(file, sb, true);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+	}
 
 	/*
 	 * Event handlers
@@ -1471,7 +1522,11 @@ public class RoomViewController extends BorderPane implements Listener
 				redrawPatterns(mapView.getMap());
 				redrawLocks(mapView.getMap());
 				
-				//FIXME: Added for presentation
+				//TODO: UNCOMMENT TO SAVE EACH STEP!!
+//				saveEditedRoomInfo();
+				
+//				System.out.println(mapView.getMap().fitnessEvaluation());
+
 //				mapView.getMap().calculateAllDimensionalValues();
 //				System.out.println(mapView.getMap().getDimensionValue(DimensionTypes.LENIENCY));         
 //				System.out.println(mapView.getMap().getDimensionValue(DimensionTypes.LINEARITY) + ";");        
