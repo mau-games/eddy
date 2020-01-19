@@ -493,8 +493,8 @@ public class MAPEliteAlgorithm extends Algorithm implements Listener {
     
     private void runNoInterbreedingApplElites()
     {
-    	//Comment or uncomment to get 
-    	storeUniqueRooms();
+    	//Comment or uncomment to store unique rooms every generation (based on what is generated before)
+//    	storeUniqueRooms();
     	
     	//If we have receive the event that the dimensions changed, please modify the dimensions and recalculate the cells!
     	if(dimensionsChanged)
@@ -549,15 +549,16 @@ public class MAPEliteAlgorithm extends Algorithm implements Listener {
     	//This is only when we want to update the current Generation
     	if(currentGen >= iterationsToPublish)
     	{
-    		saveIterations--;
-    		
-    		if(saveIterations == 0)
-    		{
-//    			System.out.println("NEXT");
-    			saveIterations=2;
-//    			saveUniqueRoomsToFileAndFlush();
-    			currentSaveStep++;
-    		}
+    		//TODO: For next evaluation
+//    		saveIterations--;
+//    		
+//    		if(saveIterations == 0)
+//    		{
+////    			System.out.println("NEXT");
+//    			saveIterations=2;
+////    			saveUniqueRoomsToFileAndFlush();
+//    			currentSaveStep++;
+//    		}
     		
 //    		System.out.println(realCurrentGen);
     		publishGeneration();
@@ -568,18 +569,18 @@ public class MAPEliteAlgorithm extends Algorithm implements Listener {
     	
     	//Uncomment to save unique rooms
     	
-    	if(realCurrentGen == 5000)
-    	{
-    		System.out.println(uniqueGeneratedRooms.size());
-    		saveUniqueRoomsToFile();
-//    		publishGeneration();
-    	}
-    	
-    	if(realCurrentGen % 1000 == 0)
-    	{
-    		System.out.println(uniqueGeneratedRooms.size());
-        	System.out.println("Current Generation: " + realCurrentGen);
-    	}
+//    	if(realCurrentGen == 5000)
+//    	{
+//    		System.out.println(uniqueGeneratedRooms.size());
+//    		saveUniqueRoomsToFile();
+////    		publishGeneration();
+//    	}
+//    	
+//    	if(realCurrentGen % 1000 == 0)
+//    	{
+//    		System.out.println(uniqueGeneratedRooms.size());
+//        	System.out.println("Current Generation: " + realCurrentGen);
+//    	}
 
 
     	

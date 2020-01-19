@@ -1526,7 +1526,6 @@ public class RoomViewController extends BorderPane implements Listener
 //				saveEditedRoomInfo();
 				
 //				System.out.println(mapView.getMap().fitnessEvaluation());
-
 //				mapView.getMap().calculateAllDimensionalValues();
 //				System.out.println(mapView.getMap().getDimensionValue(DimensionTypes.LENIENCY));         
 //				System.out.println(mapView.getMap().getDimensionValue(DimensionTypes.LINEARITY) + ";");        
