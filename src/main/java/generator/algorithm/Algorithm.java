@@ -541,7 +541,7 @@ public class Algorithm extends Thread {
     	double corridorFitness = corridorArea/passableTiles; //This is corridor ratio (without the connector)
     	corridorFitness = 1 - Math.abs(corridorFitness - corridorTarget)/Math.max(corridorTarget, 1.0 - corridorTarget);
     	
-    	//Room fitness
+    	//chamber fitness
     	double roomArea = 0;
     	double rawRoomArea = 0;
     	double onlyMesoPatterns = 0.0;
