@@ -17,6 +17,7 @@ public class Tile
 	private ArrayList<Point> positions;
 	protected Point center;
 	private boolean m_immutable;
+	public boolean canDraw = true;
 	public int maxAmountPerRoom;
 	public int width = 1; //tile size
 	public int height = 1; //tile size

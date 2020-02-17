@@ -56,6 +56,8 @@ import util.eventrouting.events.MAPEGenerationDone;
 import util.eventrouting.events.MAPEGridUpdate;
 import util.eventrouting.events.MAPElitesDone;
 import util.eventrouting.events.MapUpdate;
+import util.eventrouting.events.NextStepSequenceExperiment;
+import util.eventrouting.events.RoomEdited;
 import util.eventrouting.events.SaveCurrentGeneration;
 import util.eventrouting.events.SaveDisplayedCells;
 import util.eventrouting.events.UpdatePreferenceModel;
@@ -154,6 +156,7 @@ public class MAPEliteAlgorithm extends Algorithm implements Listener {
 		EventRouter.getInstance().registerListener(this, new MAPEGridUpdate(null));
 		EventRouter.getInstance().registerListener(this, new UpdatePreferenceModel(null));
 		EventRouter.getInstance().registerListener(this, new SaveCurrentGeneration());
+		EventRouter.getInstance().registerListener(this, new RoomEdited(null));
 		
 		this.dimensions = dimensions;
 		initCells(dimensions);
@@ -168,8 +171,8 @@ public class MAPEliteAlgorithm extends Algorithm implements Listener {
 		//initialize the data storage variables
 		uniqueRoomsData = new StringBuilder();
 		uniqueRoomsSinceData = new StringBuilder();
-		uniqueRoomsData.append("Leniency;Linearity;Similarity;NMesoPatterns;NSpatialPatterns;Symmetry;Inner Similarity;Fitness;Score;;DIM X;DIM Y;STEP" + System.lineSeparator());
-		uniqueRoomsSinceData.append("Leniency;Linearity;Similarity;NMesoPatterns;NSpatialPatterns;Symmetry;Inner Similarity;Fitness;Score;DIM X;DIM Y;STEP" + System.lineSeparator());
+		uniqueRoomsData.append("Leniency;Linearity;Similarity;NMesoPatterns;NSpatialPatterns;Symmetry;Inner Similarity;Fitness;Score;;DIM X;DIM Y;STEP;Type" + System.lineSeparator());
+		uniqueRoomsSinceData.append("Leniency;Linearity;Similarity;NMesoPatterns;NSpatialPatterns;Symmetry;Inner Similarity;Fitness;Score;DIM X;DIM Y;STEP;Type" + System.lineSeparator());
 
 		//TODO: THIS IS CREISI!mutate
 //		System.out.println(mutationProbability);
@@ -353,6 +356,10 @@ public class MAPEliteAlgorithm extends Algorithm implements Listener {
 		{
 			storeMAPELITESXml();
 		}
+		else if(e instanceof RoomEdited)
+		{
+			originalRoom = (Room) e.getPayload();
+		}
 	}
 	
 	
@@ -494,7 +501,7 @@ public class MAPEliteAlgorithm extends Algorithm implements Listener {
     private void runNoInterbreedingApplElites()
     {
     	//Comment or uncomment to store unique rooms every generation (based on what is generated before)
-//    	storeUniqueRooms();
+    	storeUniqueRooms();
     	
     	//If we have receive the event that the dimensions changed, please modify the dimensions and recalculate the cells!
     	if(dimensionsChanged)
@@ -550,15 +557,16 @@ public class MAPEliteAlgorithm extends Algorithm implements Listener {
     	if(currentGen >= iterationsToPublish)
     	{
     		//TODO: For next evaluation
-//    		saveIterations--;
-//    		
-//    		if(saveIterations == 0)
-//    		{
-////    			System.out.println("NEXT");
-//    			saveIterations=2;
-////    			saveUniqueRoomsToFileAndFlush();
-//    			currentSaveStep++;
-//    		}
+    		saveIterations--;
+    		
+    		if(saveIterations == 0)
+    		{
+//    			System.out.println("NEXT");
+    			saveIterations=2;
+    			saveUniqueRoomsToFileAndFlush();
+    			currentSaveStep++;
+    			EventRouter.getInstance().postEvent(new NextStepSequenceExperiment());
+    		}
     		
 //    		System.out.println(realCurrentGen);
     		publishGeneration();
@@ -838,6 +846,7 @@ public class MAPEliteAlgorithm extends Algorithm implements Listener {
 		EventRouter.getInstance().unregisterListener(this, new MAPEGridUpdate(null));
 		EventRouter.getInstance().unregisterListener(this, new UpdatePreferenceModel(null));
 		EventRouter.getInstance().unregisterListener(this, new SaveCurrentGeneration());
+		EventRouter.getInstance().unregisterListener(this, new RoomEdited(null));
 		
 		cells.clear();
 		MAPElitesDimensions.clear();
@@ -1125,7 +1134,7 @@ public class MAPEliteAlgorithm extends Algorithm implements Listener {
 	}
 	
 	//ok
-	protected void storeMAPELITESXml()
+	public void storeMAPELITESXml()
 	{
 		Document dom;
 	    Element e = null;

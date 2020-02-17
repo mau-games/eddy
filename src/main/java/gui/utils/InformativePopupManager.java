@@ -77,6 +77,12 @@ public class InformativePopupManager
 		Popup newPopup = new Popup(popupPosX, popupPosY, type);
 		newPopup.setInformation(info);
 		
+		if(mainPane == null)
+		{
+			System.out.println("MAIN PANE HAVE NOT BEING ASSIGNED");
+			return;
+		}
+		
 		mainPane.getChildren().add(newPopup);
 		currentPopups.add(newPopup);
 		

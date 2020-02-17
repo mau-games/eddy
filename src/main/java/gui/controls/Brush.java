@@ -105,7 +105,7 @@ public abstract class Brush
 	
 	public boolean canBrushDraw()
 	{
-		return true;
+		return brushTile.canDraw;
 	}
 	
 	/**
@@ -184,6 +184,7 @@ public abstract class Brush
 		
 		Tile currentTile = null;
 		this.immutable = boss.GetModifierValue("Lock");
+		boolean noRules = boss.GetModifierValue("No-Rules");
 		
 		for(Point position : GetDrawableTiles().getPoints())
 		{
@@ -199,8 +200,8 @@ public abstract class Brush
 													GetMainComponent()); //TILE B
 			
 			// Let's discard any attempts at erasing the doors
-			if(currentTile.GetType() == TileTypes.DOOR
-					|| currentTile.GetType() == TileTypes.HERO)
+			if(!noRules && (currentTile.GetType() == TileTypes.DOOR
+					|| currentTile.GetType() == TileTypes.HERO))
 				continue;
 			
 			//Check if we are about to paint over a boss --> We can also just check if the tile is in the custom tiles
@@ -219,7 +220,19 @@ public abstract class Brush
 			}
 			
 			currentTile.SetImmutable(immutable);
-			room.setTile(position.getX(), position.getY(), GetMainComponent());
+			
+			if(GetMainComponent() == TileTypes.DOOR)
+			{
+				room.createDoor(new util.Point(position.getX(), position.getY()));
+			}
+			else
+			{
+				if(currentTile.GetType() == TileTypes.DOOR)
+					room.removeDoor(new util.Point(position.getX(), position.getY()));
+				
+				room.setTile(position.getX(), position.getY(), GetMainComponent());
+			}
+			
 			interactiveCanvas.getCell(position.getX(), position.getY()).
 				setImage(interactiveCanvas.getImage(GetMainComponent(), interactiveCanvas.scale));
 		}

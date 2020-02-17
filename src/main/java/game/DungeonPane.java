@@ -1,6 +1,7 @@
 package game;
 
 import gui.utils.MapRenderer;
+import javafx.application.Platform;
 import javafx.event.EventHandler;
 import javafx.geometry.Bounds;
 import javafx.scene.Node;
@@ -45,8 +46,10 @@ public class DungeonPane extends Pane
 		
 		if(!wvc.getRendered())
 		{
-			wvc.getCanvas().draw(MapRenderer.getInstance().renderMap(room));
-			wvc.setRendered(true);
+			Platform.runLater(() -> {
+				wvc.getCanvas().draw(MapRenderer.getInstance().renderMap(room));
+				wvc.setRendered(true);
+			});
 		}
 		
 		getChildren().add(wvc.getCanvas());

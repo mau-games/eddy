@@ -207,7 +207,7 @@ public class Drawer
 		if(modifiers.containsKey(modifierName))
 			return modifiers.get(modifierName).GetActive();
 		
-		return null;
+		return false;
 	}
 
 	

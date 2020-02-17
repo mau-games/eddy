@@ -85,6 +85,9 @@ public class Door extends InventorialPattern {
 	}
 	
 	private static double calculateDoorQuality(Room room){
+		
+		room.restartSafetyandGreed();
+		
 		//Door safety
 	    double doorSafetyQuality = evaluateDoorSafety(room);
 	    doorSafetyQuality = Math.abs(doorSafetyQuality - room.getConfig().getEntranceSafety());

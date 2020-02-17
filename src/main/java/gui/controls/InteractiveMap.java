@@ -97,10 +97,13 @@ public class InteractiveMap extends GridPane implements Listener {
 		Point p = coords.get(tile);
 		Tile currentTile = room.getTile(p);
 		
+		if(p == null)
+			return;
+		
 		// Let's discard any attempts at erasing the doors or the hero
-		if (p == null
-				|| currentTile.GetType() == TileTypes.DOOR
-				|| currentTile.GetType() == TileTypes.HERO) {
+		if (!brush.GetModifierValue("No-Rules") &&
+				( currentTile.GetType() == TileTypes.DOOR
+				|| currentTile.GetType() == TileTypes.HERO)) {
 			return;
 		}
 		
@@ -140,10 +143,13 @@ public class InteractiveMap extends GridPane implements Listener {
 		Point p = coords.get(tile);
 		Tile currentTile = aRoom.getTile(p);
 		
+		if(p == null)
+			return;
+		
 		// Let's discard any attempts at erasing the doors or the hero
-		if (p == null
-				|| currentTile.GetType() == TileTypes.DOOR
-				|| currentTile.GetType() == TileTypes.HERO) {
+		if (!brush.GetModifierValue("No-Rules") &&
+				( currentTile.GetType() == TileTypes.DOOR
+				|| currentTile.GetType() == TileTypes.HERO)) {
 			return;
 		}
 		

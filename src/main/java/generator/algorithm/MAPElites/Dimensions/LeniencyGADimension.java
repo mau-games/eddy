@@ -39,6 +39,10 @@ public class LeniencyGADimension extends GADimension {
 		double w3 = 0.4;
 		
 		//TODO: Problem with the log10 when the enemy or treasure count is 0
+		//If we have no enemies the room shouldn't be challenging nor non lenient
+		if(individualRoom.getEnemyCount() == 0)
+			return 1.0;
+		
 		//Independent calculation
 		double a = w1 *  (Math.log10(individualRoom.getEnemyCount()) * individualRoom.calculateEnemySparsity());
 		double b = w2 * (Math.log10(individualRoom.getEnemyCount()) * individualRoom.calculateEnemyDensity());
@@ -47,6 +51,13 @@ public class LeniencyGADimension extends GADimension {
 		//Treasure calculation to increase leniency!
 		double d = 0.5 *  (Math.log10(individualRoom.getTreasureCount()) * individualRoom.calculateTreasureSparsity());
 		double f = 0.5 * (Math.log10(individualRoom.getTreasureCount()) * individualRoom.calculateTreasureDensity());
+		
+		//If there are no treasures their calculations shouldn't be considered
+		if(individualRoom.getTreasureCount() == 0)
+		{
+			d = 0.0;
+			f = 0.0;
+		}
 		
 		//Final Leniency
 		return 1.0 - ((1.0 * (a + b + c)) - (0.5 * (d+f)));
@@ -103,6 +114,10 @@ public class LeniencyGADimension extends GADimension {
 		double w2 = 0.3;
 		double w3 = 0.4;
 		
+		//If we have no enemies the room shouldn't be challenging nor non lenient
+		if(individualRoom.getEnemyCount() == 0)
+			return 1.0;
+		
 		//Independent calculation
 		double a = w1 *  (Math.log10(individualRoom.getEnemyCount()) * individualRoom.calculateEnemySparsity());
 		double b = w2 * (Math.log10(individualRoom.getEnemyCount()) * individualRoom.calculateEnemyDensity());
@@ -111,6 +126,13 @@ public class LeniencyGADimension extends GADimension {
 		//Treasure calculation to increase leniency!
 		double d = 0.5 *  (Math.log10(individualRoom.getTreasureCount()) * individualRoom.calculateTreasureSparsity());
 		double f = 0.5 * (Math.log10(individualRoom.getTreasureCount()) * individualRoom.calculateTreasureDensity());
+		
+		//If there are no treasures their calculations shouldn't be considered
+		if(individualRoom.getTreasureCount() == 0)
+		{
+			d = 0.0;
+			f = 0.0;
+		}
 		
 		//Final Leniency
 		return 1.0 - ((1.0 * (a + b + c)) - (0.5 * (d+f)));
@@ -129,6 +151,10 @@ public class LeniencyGADimension extends GADimension {
 		double w2 = 0.3;
 		double w3 = 0.4;
 		
+		//If we have no enemies the room shouldn't be challenging nor non lenient
+		if(individualRoom.getEnemyCount() == 0)
+			return 1.0;
+		
 		//Independent calculation
 		double a = w1 *  (Math.log10(individualRoom.getEnemyCount()) * individualRoom.calculateEnemySparsity());
 		double b = w2 * (Math.log10(individualRoom.getEnemyCount()) * individualRoom.calculateEnemyDensity());
@@ -137,6 +163,13 @@ public class LeniencyGADimension extends GADimension {
 		//Treasure calculation to increase leniency!
 		double d = 0.5 *  (Math.log10(individualRoom.getTreasureCount()) * individualRoom.calculateTreasureSparsity());
 		double f = 0.5 * (Math.log10(individualRoom.getTreasureCount()) * individualRoom.calculateTreasureDensity());
+		
+		//If there are no treasures their calculations shouldn't be considered
+		if(individualRoom.getTreasureCount() == 0)
+		{
+			d = 0.0;
+			f = 0.0;
+		}
 		
 		//Final Leniency
 		return 1.0 - ((1.0 * (a + b + c)) - (0.5 * (d+f)));

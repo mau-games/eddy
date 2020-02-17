@@ -116,6 +116,39 @@
 }
 #toolbox .slider .axis { -fx-tick-label-fill: white; }
 
+#filePane {
+	-fx-background: transparent;
+	-fx-background-color: transparent;
+	-fx-border-width: 2;
+	-fx-border-color: #c0c0c0;
+}
+
+#editToggle:selected{
+	-fx-background-color: #ff0000;
+	-fx-text-fill: #ffffff;
+}
+
+
+@keyframes shadow-pulse
+{
+     0% {
+          box-shadow: 0 0 0 0px rgba(0, 0, 0, 0.2);
+     }
+     100% {
+          box-shadow: 0 0 0 35px rgba(0, 0, 0, 0);
+     }
+}
+
+.pulseBtn
+{
+	animation: shadow-pulse 1s infinite;
+}
+
+#evaluationPane {
+	-fx-border-width: 2;
+	-fx-border-color: #c0c0c0;
+}
+
 .dimensionLabel {
 	-fx-font-weight: bold;
 	-fx-text-fill: white;

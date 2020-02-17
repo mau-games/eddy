@@ -87,6 +87,8 @@ public class Dungeon implements Listener
 	
 	//scale factor of the (canvas) view
 	private int scaleFactor;
+	
+	private boolean logger = true;
 
 	public Dungeon()
 	{
@@ -132,7 +134,52 @@ public class Dungeon implements Listener
 		}
 		
 		//We set this created room as the initial room
-		setInitialRoom(rooms.get(0), new Point(0,0));
+		if(!rooms.isEmpty())
+			setInitialRoom(rooms.get(0), new Point(0,0));
+	}
+	
+	public Dungeon(GeneratorConfig defaultConfig, int size, int defaultWidth, int defaultHeight, boolean logInfo)
+	{
+		this.id = UUID.randomUUID();
+		ID_COUNTER += 1;
+		
+		logger = logInfo;
+		
+		//Initialize neccesary information
+		bosses = new ArrayList<BossEnemyTile>();
+		
+		dPane = new DungeonPane(this);
+		pathfinding = new DungeonPathFinder(this);
+		network = NetworkBuilder.undirected().allowsParallelEdges(true).build();
+		
+		//Listening to events
+		EventRouter.getInstance().registerListener(this, new FocusRoom(null, null));
+		EventRouter.getInstance().registerListener(this, new RequestWorldView());
+		
+		//Create the amount of rooms with the default values -->
+		this.size = size;
+		this.defaultWidth = defaultWidth;
+		this.defaultHeight = defaultHeight;
+		this.defaultConfig = defaultConfig;
+		this.scaleFactor = defaultScaleFactor;
+		
+		//Create rooms
+		rooms = new ArrayList<Room>();
+		selectedRoom = null;
+		initialRoom = null;
+		currentEditedRoom = null;
+		
+		for(int i = 0; i < size; ++i)
+		{
+			Room auxR = new Room(this, defaultConfig, defaultHeight, defaultWidth, scaleFactor);
+			rooms.add(auxR);
+			network.addNode(auxR);
+			dPane.addVisualRoom(auxR);
+		}
+		
+		//We set this created room as the initial room
+		if(!rooms.isEmpty())
+			setInitialRoom(rooms.get(0), new Point(0,0));
 	}
 	
 	@Override
@@ -168,7 +215,8 @@ public class Dungeon implements Listener
 	}
 	
 	
-	public void addRoom(int width, int height)
+	
+	public Room addRoom(int width, int height)
 	{
 		Room auxR = new Room(this, defaultConfig, height < 0 ? defaultHeight : height, width < 0 ? defaultWidth : width, scaleFactor);
 		rooms.add(auxR);
@@ -182,6 +230,7 @@ public class Dungeon implements Listener
 		}
 		
 		checkInterFeasible(true);
+
 		InformativePopupManager.getInstance().requestPopup(dPane, PresentableInformation.ROOMS_CONNECTED, "");
 		
 		ActionLogger.getInstance().storeAction(ActionType.CREATE_ROOM, 
@@ -193,8 +242,38 @@ public class Dungeon implements Listener
 												height);
 		
 		saveDungeonXML();
-
+		
+		return auxR;
 	}
+	
+	public void addRoom(Room alreadyCreatedRoom)
+	{
+		alreadyCreatedRoom.setOwner(this);
+		rooms.add(alreadyCreatedRoom);
+		network.addNode(alreadyCreatedRoom);
+		dPane.addVisualRoom(alreadyCreatedRoom);
+		this.size++;
+		
+		if(initialRoom == null)
+		{
+			setInitialRoom(alreadyCreatedRoom, new Point(0,0));
+		}
+		
+		checkInterFeasible(true);
+
+		InformativePopupManager.getInstance().requestPopup(dPane, PresentableInformation.ROOMS_CONNECTED, "");
+		
+		ActionLogger.getInstance().storeAction(ActionType.CREATE_ROOM, 
+												View.WORLD, 
+												TargetPane.WORLD_MAP_PANE, 
+												false,
+												alreadyCreatedRoom,
+												alreadyCreatedRoom.getColCount(),
+												alreadyCreatedRoom.getRowCount());
+		
+		saveDungeonXML();
+	}
+	
 	
 	/**
 	 * Remove the selected room from the dungeon
@@ -269,6 +348,15 @@ public class Dungeon implements Listener
 												false,
 												roomToRemove);
 		saveDungeonXML();
+
+	}
+	
+	public void storeAction(ActionType action, View currentView, TargetPane targetPane, boolean grouped, Object... event)
+	{
+		if(logger)
+		{
+			ActionLogger.getInstance().storeAction(action, currentView, targetPane, grouped, event); 
+		}
 
 	}
 	
@@ -353,8 +441,11 @@ public class Dungeon implements Listener
 		
 		checkInterFeasible(true);
 		
-		initRoom.setHeroPosition(initialPos);
-		this.initialRoom.localConfig.getWorldCanvas().setRendered(false);
+		if(this.initialRoom != null)
+		{
+			initRoom.setHeroPosition(initialPos);
+			this.initialRoom.localConfig.getWorldCanvas().setRendered(false);
+		}
 	}
 	
 	public Room getInitialRoom()

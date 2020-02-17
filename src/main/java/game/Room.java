@@ -27,6 +27,7 @@ import java.util.Map.Entry;
 import finder.PatternFinder;
 import finder.Populator;
 import finder.geometry.Bitmap;
+import finder.geometry.Geometry;
 import finder.geometry.Polygon;
 import finder.graph.Edge;
 import finder.graph.Graph;
@@ -106,7 +107,7 @@ public class Room {
 	//Might be interesting to know the dimension of the room?
 	protected HashMap<DimensionTypes, Double> dimensionValues;
 	//I need a special ID for rooms
-	UUID specificID = UUID.randomUUID();
+	public UUID specificID = UUID.randomUUID();
 	int saveCounter = 1;
 
 /////////////////////////OLD///////////////////////////
@@ -152,6 +153,11 @@ public class Room {
 	
 	//NEW THINGS
 	public ZoneNode root;
+	public int scaleFactor;
+	
+	//Important new list --> Sequence of changes done to this room
+	private LinkedList<Room> editionSequence = new LinkedList<Room>();
+	public int indexEditionStep;
 
 	//SIDE!!!
 	public void createLists()
@@ -184,6 +190,22 @@ public class Room {
 		}
 		
 		root = new ZoneNode(null, this, getColCount(), getRowCount());
+	}
+	
+	public Room(GeneratorConfig config, int rows, int cols)
+	{
+		init(rows, cols);
+		this.config = config; //FIXME: Perhaps needs to be changed!
+		localConfig = new RoomConfig(this, 30); //TODO: NEW ADDITION --> HAVE TO BE ADDED EVERYWHERE
+	}
+	
+	public void setupRoom()
+	{
+		finder = new PatternFinder(this);
+		pathfinder = new RoomPathFinder(this);
+		
+		root = new ZoneNode(null, this, getColCount(), getRowCount());
+		node = new finder.graph.Node<Room>(this);	
 	}
 	
 	
@@ -219,6 +241,7 @@ public class Room {
 		this.owner = owner;
 
 		this.config = config;
+		this.scaleFactor = scaleFactor;
 		localConfig = new RoomConfig(this, scaleFactor); //TODO: NEW ADDITION --> HAVE TO BE ADDED EVERYWHERE
 		
 		for (int j = 0; j < height; j++) {
@@ -240,6 +263,8 @@ public class Room {
 	{
 		init(copyMap.getRowCount(), copyMap.getColCount());
 		this.config = copyMap.config;
+		this.scaleFactor = copyMap.scaleFactor;
+		localConfig = new RoomConfig(this, copyMap.scaleFactor); //TODO: NEW ADDITION --> HAVE TO BE ADDED EVERYWHERE
 		
 //		for (int j = 0; j < height; j++)
 //		{
@@ -282,6 +307,12 @@ public class Room {
 		this.owner = copyMap.owner;	
 		copyDoors(copyMap.getDoors());
 		copyCustomTiles(copyMap.customTiles);
+		
+		//Copy the sequences!!!!
+		//TODO: I do not know how to do this better, for now
+		//TODO: You must copy the sequences and the edition step manually
+		//TODO: when you create a copy of the room! 
+//		this.indexEditionStep = copyMap.indexEditionStep;
 		
 		finder = new PatternFinder(this);
 		SetDimensionValues(copyMap.dimensionValues);
@@ -497,7 +528,9 @@ public class Room {
 	private void copyCustomTiles(List<Tile> customs)
 	{
 		customTiles.clear();
-		customTiles.addAll(customs);
+		
+		if(customs != null)
+			customTiles.addAll(customs);
 	}
 	
 	public void setHeroPosition(Point heroPosition)
@@ -591,7 +624,7 @@ public class Room {
             wallCount--;
         } 
 
-        setTile(doorPosition.getX(), doorPosition.getY(), TileTypes.DOOR);
+        setTile(doorPosition.getX(), doorPosition.getY(), new Tile(Point.castToGeometry(doorPosition), TileTypes.DOOR));
         addDoor(doorPosition);
         borders.removePoint(Point.castToGeometry(doorPosition)); //remove this point from the "usable" border
 	}
@@ -824,6 +857,7 @@ public class Room {
 			treasures.add(new Point(x, y));
 			break;
 		default:
+//			System.out.println(newTile);
 			break;
 		}
 	}
@@ -836,7 +870,7 @@ public class Room {
 	 * @param tile A tile.
 	 */
 	public void setTile(int x, int y, TileTypes tile) 
-	{
+	{	
 		wallDensity 		= -1.0f;
 		wallSparsity 		= -1.0f;
 		treasureDensity 	= -1.0f;
@@ -1528,6 +1562,13 @@ public class Room {
     }
     
     public double getDoorGreedness() {return doorGreed;}
+    
+    public void restartSafetyandGreed()
+    {
+    	doorsGreed.clear();
+    	doorsSafety.clear();
+    	treasureSafety = new Hashtable<Point, Double>();
+    }
     
     /**
      * Sets the safety value for the map's entry point.
@@ -2646,6 +2687,16 @@ public class Room {
 		return null;
 	}
 	
+	/**
+	 * This should only be called when loading the XML.
+	 * Once the room is integrated in the dungeon, the dungeon should search for the information on the bosses
+	 * @param customTile
+	 */
+	public void addCustomTileFromXML(Tile customTile)
+	{
+		customTiles.add(customTile);
+	}
+	
 	public Tile addCustomTile(Tile customTile, int maxAmount)
 	{
 		if(CheckCustomTile(customTile, maxAmount))
@@ -2707,6 +2758,43 @@ public class Room {
 		return new FloorTile(custom);
 	}
 	
+
+	public LinkedList<Room> getEditionSequence()
+	{
+		return editionSequence;
+	}
+	
+	public void clearEditionSequence()
+	{
+		editionSequence.clear();
+	}
+	
+	public void addEdition()
+	{
+		Room editionRoom = new Room(this);
+		editionRoom.indexEditionStep = this.indexEditionStep;
+		editionSequence.add(editionRoom); //Will this work? --> OGK
+		
+	}
+	
+	public void addEditions(List<Room> editions)
+	{
+		//or should I create a new room per edition?
+		editionSequence.addAll(editions);//Will this work? -->  OGK
+	}
+	
+	public void setOwner(Dungeon owner)
+	{
+		this.owner = owner;
+		
+		for(Tile customTile : customTiles)
+		{
+			if(customTile instanceof BossEnemyTile)
+			{
+				owner.addBoss((BossEnemyTile) customTile);
+			}
+		}
+	}
 	
 	
 	/////////////////////////////// LOADING MAPS AND STRING DEBUG //////////////////////////////////////////////
@@ -2862,6 +2950,108 @@ public class Room {
 
 		return room;
 	}
+	
+	public String matrixToString(boolean ignoreSpecials) 
+	{
+		StringBuilder map = new StringBuilder();
+
+		for (int j = 0; j < height; j++)
+		{
+			for (int i = 0; i < width; i++)  
+			{
+				if(ignoreSpecials && matrix[j][i] > 3)
+				{
+					map.append(Integer.toHexString(0));
+				}
+				else
+				{
+					map.append(Integer.toHexString(matrix[j][i]));
+				}
+
+			}
+			map.append("\n");
+		}
+
+		return map.toString();
+	}
+
+
+	//This is the one 
+	//I think I could have this static method
+	//But I am also seduce by the idea that I can change the size of the room at runtime which is not possible at the moment.
+	public static Room createRoomFromColumnString(String ... roomColumns)
+	{
+		int cols = roomColumns.length;
+		int rows = roomColumns[0].length(); //This is taking for granted that you are sending columns with the same amount!
+		
+		GeneratorConfig gc = null;
+		try {
+			gc = new GeneratorConfig();
+		} catch (MissingConfigurationException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		Room room = new Room(gc, rows, cols);
+		int x=0;
+		int y=0;
+		
+		//Each index in the array is a column
+		for(String column : roomColumns)
+		{
+			for(String c : column.split(""))
+			{
+				room.setTile(x, y++, new Tile(x,y,Integer.parseInt(c)));	
+			}
+			
+			x++;
+			y=0;
+		}
+		
+		room.setupRoom();
+		
+		return room;
+	}
+	
+	//This is the one 
+	//I think I could have this static method
+	//But I am also seduce by the idea that I can change the size of the room at runtime which is not possible at the moment.
+	public static Room createRoomFromString(String roomString)
+	{
+		String[] roomDividedRows = roomString.split("[\\n]+");
+		
+		int rows = roomDividedRows.length;
+		int cols = roomDividedRows[0].length();
+		
+		GeneratorConfig gc = null;
+		try {
+			gc = new GeneratorConfig();
+		} catch (MissingConfigurationException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		Room room = new Room(gc, rows, cols);
+		int x=0;
+		int y=0;
+		
+		//Each index in the array is a column
+		for(String roomRows : roomDividedRows)
+		{
+			for(String c : roomRows.split(""))
+			{
+				room.setTile(x++, y, new Tile(x,y,Integer.parseInt(c)));	
+			}
+			
+			x = 0;
+			y++;
+		}
+		
+		room.setupRoom();
+		
+		return room;
+	}
+	
 //
 //	@Override
 //	public String toString() {
@@ -3067,6 +3257,104 @@ public class Room {
 	    }
 	}
 
+	public void saveRoomXMLSequence(String direction, String room_id)
+	{
+		
+		Document dom;
+	    Element e = null;
+	    Element next = null;
+	    
+	    File file = new File(DataSaverLoader.projectPath + "\\" + direction + "\\room\\" + room_id);
+		if (!file.exists()) {
+			file.mkdirs();
+		}
+	    
+	    String xml = System.getProperty("user.dir") + "\\my-data\\" + direction + "\\room\\" + room_id + "\\room-" + room_id + "_" + indexEditionStep + ".xml";
+
+	    // instance of a DocumentBuilderFactory
+	    DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+	    try {
+	        // use factory to get an instance of document builder
+	        DocumentBuilder db = dbf.newDocumentBuilder();
+	        // create instance of DOM
+	        dom = db.newDocument();
+
+	        // create the root element
+	        Element rootEle = dom.createElement("Room");
+	        rootEle.setAttribute("ID", this.toString());
+	        rootEle.setAttribute("width", Integer.toString(this.getColCount()));
+	        rootEle.setAttribute("height", Integer.toString(this.getRowCount()));
+	        rootEle.setAttribute("time", new Timestamp(System.currentTimeMillis()).toString());
+//	        rootEle.setAttribute("type", "SUGGESTIONS OR MAIN");
+	        
+	        // create data elements and place them under root
+	        e = dom.createElement("Dimensions");
+	        rootEle.appendChild(e);
+	        
+	        //DIMENSIONS --> THIS IS IMPORTANT TO CHANGE!! TODO:!!
+	        next = dom.createElement("Dimension");
+	        next.setAttribute("name", DimensionTypes.SIMILARITY.toString());
+	        next.setAttribute("value", Double.toString(getDimensionValue(DimensionTypes.SIMILARITY)));
+	        e.appendChild(next);
+	        
+	        next = dom.createElement("Dimension");
+	        next.setAttribute("name", DimensionTypes.SYMMETRY.toString());
+	        next.setAttribute("value", Double.toString(getDimensionValue(DimensionTypes.SYMMETRY)));
+	        e.appendChild(next);
+	        
+	        //TILES
+	        e = dom.createElement("Tiles");
+	        rootEle.appendChild(e);
+	        
+	        for (int j = 0; j < height; j++) 
+			{
+				for (int i = 0; i < width; i++) 
+				{
+					next = dom.createElement("Tile");
+			        next.setAttribute("value", getTile(i, j).GetType().toString());
+			        next.setAttribute("immutable", Boolean.toString(getTile(i, j).GetImmutable()));
+			        next.setAttribute("PosX", Integer.toString(i));
+			        next.setAttribute("PosY", Integer.toString(j));
+			        e.appendChild(next);
+				}
+			}
+	        
+	        e = dom.createElement("Customs");
+	        rootEle.appendChild(e);
+	        
+	        for(Tile custom : customTiles)
+	        {
+	        	next = dom.createElement("Custom");
+		        next.setAttribute("value", custom.GetType().toString());
+		        next.setAttribute("immutable", Boolean.toString(custom.GetImmutable()));
+		        next.setAttribute("centerX", Integer.toString(custom.GetCenterPosition().getX()));
+		        next.setAttribute("centerY", Integer.toString(custom.GetCenterPosition().getY()));
+		        e.appendChild(next);
+	        }
+
+	        dom.appendChild(rootEle);
+
+	        try {
+	            Transformer tr = TransformerFactory.newInstance().newTransformer();
+	            tr.setOutputProperty(OutputKeys.INDENT, "yes");
+	            tr.setOutputProperty(OutputKeys.METHOD, "xml");
+	            tr.setOutputProperty(OutputKeys.ENCODING, "UTF-8");
+	            tr.setOutputProperty(OutputKeys.DOCTYPE_SYSTEM, "room.dtd");
+	            tr.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "4");
+
+	            // send DOM to file
+	            tr.transform(new DOMSource(dom), 
+	                                 new StreamResult(new FileOutputStream(xml)));
+
+	        } catch (TransformerException te) {
+	            System.out.println(te.getMessage());
+	        } catch (IOException ioe) {
+	            System.out.println(ioe.getMessage());
+	        }
+	    } catch (ParserConfigurationException pce) {
+	        System.out.println("UsersXML: Error trying to instantiate DocumentBuilder " + pce);
+	    }
+	}
 	
 	public void getRoomXML(String prefix)
 	{
