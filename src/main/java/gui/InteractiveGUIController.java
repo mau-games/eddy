@@ -15,72 +15,35 @@ import javax.imageio.ImageIO;
 
 import collectors.ActionLogger;
 import collectors.DataSaverLoader;
-import collectors.ActionLogger.ActionType;
-import collectors.ActionLogger.TargetPane;
-import collectors.ActionLogger.View;
-import finder.PatternFinder;
 import game.ApplicationConfig;
 import game.Dungeon;
 import game.Game;
 import game.Room;
 import game.RoomEdge;
 import game.MapContainer;
-import game.TileTypes;
 import generator.config.GeneratorConfig;
 import gui.utils.InformativePopupManager;
-import gui.utils.MapRenderer;
-import gui.views.LaunchViewController;
-import gui.views.RoomViewController;
-import gui.views.SuggestionsViewController;
-import gui.views.WorldViewController;
+import gui.views.*;
 import javafx.application.Platform;
 import javafx.embed.swing.SwingFXUtils;
-import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.ImageCursor;
 import javafx.scene.Node;
-import javafx.scene.control.Button;
-import javafx.scene.control.MenuButton;
 //import javafx.scene.control.Alert;
 //import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.MenuItem;
-import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.stage.FileChooser;
 import javafx.stage.FileChooser.ExtensionFilter;
 import javafx.stage.Stage;
-import util.Point;
 import util.config.MissingConfigurationException;
 import util.eventrouting.EventRouter;
 import util.eventrouting.Listener;
 import util.eventrouting.PCGEvent;
-import util.eventrouting.events.AlgorithmDone;
-import util.eventrouting.events.ApplySuggestion;
-import util.eventrouting.events.ChangeCursor;
-import util.eventrouting.events.InitialRoom;
-import util.eventrouting.events.MapLoaded;
-import util.eventrouting.events.RequestAppliedMap;
-import util.eventrouting.events.RequestConnection;
-import util.eventrouting.events.RequestConnectionRemoval;
-import util.eventrouting.events.RequestEmptyRoom;
-import util.eventrouting.events.RequestNewRoom;
-import util.eventrouting.events.RequestPathFinding;
-import util.eventrouting.events.RequestRoomRemoval;
-import util.eventrouting.events.RequestRedraw;
-import util.eventrouting.events.RequestRoomView;
-import util.eventrouting.events.RequestSuggestionsView;
-import util.eventrouting.events.RequestWorldView;
-import util.eventrouting.events.Start;
-import util.eventrouting.events.StartWorld;
-import util.eventrouting.events.StatusMessage;
-import util.eventrouting.events.Stop;
-import util.eventrouting.events.SuggestedMapsDone;
-import util.eventrouting.events.SuggestedMapsLoading;
-import util.eventrouting.events.UpdateMiniMap;
+import util.eventrouting.events.*;
 
 /*
  * @author Chelsi Nolasco, Malmö University
@@ -111,6 +74,7 @@ public class InteractiveGUIController implements Initializable, Listener {
 	RoomViewController roomView = null;
 	WorldViewController worldView = null;
 	LaunchViewController launchView = null;
+	QuestViewController questView = null; 	//feature-quest
 	EventHandler<MouseEvent> mouseEventHandler = null;
 
 //	final static Logger logger = LoggerFactory.getLogger(InteractiveGUIController.class);
@@ -163,11 +127,13 @@ public class InteractiveGUIController implements Initializable, Listener {
 		router.registerListener(this, new RequestRoomRemoval(null, null, 0));
 		router.registerListener(this, new RequestConnectionRemoval(null, null, 0));
 		router.registerListener(this, new StartWorld(0));
+		router.registerListener(this, new RequestQuestView());	//feature-quest
 
 		suggestionsView = new SuggestionsViewController();
 		roomView = new RoomViewController();
 		worldView = new WorldViewController();
 		launchView = new LaunchViewController();
+		questView = new QuestViewController();
 
 		mainPane.sceneProperty().addListener((observableScene, oldScene, newScene) -> {
 			if (newScene != null) {
@@ -288,6 +254,9 @@ public class InteractiveGUIController implements Initializable, Listener {
 				dungeonMap.removeEdge(edge);
 				backToWorldView();
 		 }
+		 else if(e instanceof RequestQuestView){
+			showQuestView();
+		}
 
 	}
 
@@ -305,6 +274,7 @@ public class InteractiveGUIController implements Initializable, Listener {
 		roomView = new RoomViewController();
 		worldView = new WorldViewController();
 		launchView = new LaunchViewController();
+		questView = new QuestViewController();
 		dungeonMap = null;
 		
 		runID = UUID.randomUUID();
@@ -513,6 +483,7 @@ public class InteractiveGUIController implements Initializable, Listener {
 		roomView.setActive(false);
 		worldView.setActive(true);
 		launchView.setActive(false);
+		questView.setActive(false);
 
 	}
 
@@ -553,6 +524,23 @@ public class InteractiveGUIController implements Initializable, Listener {
 		suggestionsView.setActive(false);
 
 
+	}
+
+	private void showQuestView(){
+		mainPane.getChildren().clear();
+		AnchorPane.setTopAnchor(questView, 0.0);
+		AnchorPane.setRightAnchor(questView, 0.0);
+		AnchorPane.setBottomAnchor(questView, 0.0);
+		AnchorPane.setLeftAnchor(questView, 0.0);
+		mainPane.getChildren().add(questView);
+
+		questView.initQuestView();
+
+		suggestionsView.setActive(false);
+		roomView.setActive(false);
+		worldView.setActive(false);
+		launchView.setActive(false);
+		questView.setActive(true);
 	}
 
 	/*

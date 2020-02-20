@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.lang.*?>
+<?import java.util.*?>
+<?import javafx.scene.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<?import javafx.scene.text.Text?>
+<fx:root type="javafx.scene.layout.BorderPane" stylesheets="@../styling.css" xmlns:fx="http://javafx.com/fxml/1" fx:id="rootWorldViewPane">
+    <center>
+        <Pane fx:id="mapPane" />
+    </center>
+    <left>
+        <StackPane alignment="CENTER" fx:id="buttonPane" />
+    </left>
+    <bottom>
+        <StackPane alignment="CENTER" fx:id="questPane" />
+    </bottom>
+
+</fx:root>
