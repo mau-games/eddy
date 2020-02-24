@@ -35,6 +35,7 @@ import game.tiles.FloorTile;
 import game.tiles.NullTile;
 import game.tiles.TreasureTile;
 import game.tiles.WallTile;
+import generator.algorithm.MAPElites.Dimensions.MAPEDimensionFXML;
 import generator.algorithm.MAPElites.Dimensions.GADimension.DimensionTypes;
 import generator.config.GeneratorConfig;
 import gui.controls.Drawer;
@@ -42,6 +43,7 @@ import gui.controls.EvolutionMAPEPane;
 import gui.controls.InteractiveMap;
 import gui.controls.Modifier;
 import gui.controls.RoomPreview;
+import gui.controls.SuggestionRoom;
 import gui.utils.InformativePopupManager;
 import gui.utils.MapRenderer;
 import gui.utils.InformativePopupManager.PresentableInformation;
@@ -90,6 +92,7 @@ import util.eventrouting.events.SuggestedMapSelected;
 import util.eventrouting.events.SuggestedMapsDone;
 import util.eventrouting.events.intraview.DungeonPreviewSelected;
 import util.eventrouting.events.intraview.LoadedXMLRoomSelected;
+import util.eventrouting.events.intraview.RestartDimensionsExperiment;
 import util.eventrouting.events.intraview.RoomEditionStarted;
 import util.eventrouting.events.intraview.SequencePreviewSelected;
 import util.eventrouting.events.intraview.SessionRoomSelected;
@@ -183,8 +186,10 @@ public class ExperimentsGUIController implements Initializable, Listener {
 	//helpers
 	private static DecimalFormat df2 = new DecimalFormat("#.##", DecimalFormatSymbols.getInstance(Locale.US));
 	
-	
-	
+	//For the experiments
+	private int currentCombination = 0;
+	private ArrayList<MAPEDimensionFXML[]> possibleCombinations = new ArrayList<MAPEDimensionFXML[]>();
+	private boolean useOurCombs = true;
 	
 	//TEST
 	int counter = 10;
@@ -253,6 +258,51 @@ public class ExperimentsGUIController implements Initializable, Listener {
 		//Algorithm panes!
 		evolutionPane = new EvolutionMAPEPane();
 		router.postEvent(new RoomEditionStarted(currentEditRoom));
+		
+		//All the combinations I want
+		possibleCombinations.add(new MAPEDimensionFXML[]{new MAPEDimensionFXML(DimensionTypes.SYMMETRY, 5), 
+				new MAPEDimensionFXML(DimensionTypes.SIMILARITY, 5)});
+		possibleCombinations.add(new MAPEDimensionFXML[]{new MAPEDimensionFXML(DimensionTypes.SYMMETRY, 5), 
+				new MAPEDimensionFXML(DimensionTypes.INNER_SIMILARITY, 5)});
+		possibleCombinations.add(new MAPEDimensionFXML[]{new MAPEDimensionFXML(DimensionTypes.SYMMETRY, 5), 
+				new MAPEDimensionFXML(DimensionTypes.LENIENCY, 5)});
+		possibleCombinations.add(new MAPEDimensionFXML[]{new MAPEDimensionFXML(DimensionTypes.SYMMETRY, 5), 
+				new MAPEDimensionFXML(DimensionTypes.LINEARITY, 5)});
+		possibleCombinations.add(new MAPEDimensionFXML[]{new MAPEDimensionFXML(DimensionTypes.SYMMETRY, 5), 
+				new MAPEDimensionFXML(DimensionTypes.NUMBER_MESO_PATTERN, 5)});
+		possibleCombinations.add(new MAPEDimensionFXML[]{new MAPEDimensionFXML(DimensionTypes.SYMMETRY, 5), 
+				new MAPEDimensionFXML(DimensionTypes.NUMBER_PATTERNS, 5)});
+		possibleCombinations.add(new MAPEDimensionFXML[]{new MAPEDimensionFXML(DimensionTypes.SIMILARITY, 5), 
+				new MAPEDimensionFXML(DimensionTypes.INNER_SIMILARITY, 5)});
+		possibleCombinations.add(new MAPEDimensionFXML[]{new MAPEDimensionFXML(DimensionTypes.SIMILARITY, 5), 
+				new MAPEDimensionFXML(DimensionTypes.LENIENCY, 5)});
+		possibleCombinations.add(new MAPEDimensionFXML[]{new MAPEDimensionFXML(DimensionTypes.SIMILARITY, 5), 
+				new MAPEDimensionFXML(DimensionTypes.LINEARITY, 5)});
+		possibleCombinations.add(new MAPEDimensionFXML[]{new MAPEDimensionFXML(DimensionTypes.SIMILARITY, 5), 
+				new MAPEDimensionFXML(DimensionTypes.NUMBER_MESO_PATTERN, 5)});
+		possibleCombinations.add(new MAPEDimensionFXML[]{new MAPEDimensionFXML(DimensionTypes.SIMILARITY, 5), 
+				new MAPEDimensionFXML(DimensionTypes.NUMBER_PATTERNS, 5)});
+		possibleCombinations.add(new MAPEDimensionFXML[]{new MAPEDimensionFXML(DimensionTypes.INNER_SIMILARITY, 5), 
+				new MAPEDimensionFXML(DimensionTypes.LENIENCY, 5)});
+		possibleCombinations.add(new MAPEDimensionFXML[]{new MAPEDimensionFXML(DimensionTypes.INNER_SIMILARITY, 5), 
+				new MAPEDimensionFXML(DimensionTypes.LINEARITY, 5)});
+		possibleCombinations.add(new MAPEDimensionFXML[]{new MAPEDimensionFXML(DimensionTypes.INNER_SIMILARITY, 5), 
+				new MAPEDimensionFXML(DimensionTypes.NUMBER_MESO_PATTERN, 5)});
+		possibleCombinations.add(new MAPEDimensionFXML[]{new MAPEDimensionFXML(DimensionTypes.INNER_SIMILARITY, 5), 
+				new MAPEDimensionFXML(DimensionTypes.NUMBER_PATTERNS, 5)});
+		possibleCombinations.add(new MAPEDimensionFXML[]{new MAPEDimensionFXML(DimensionTypes.LENIENCY, 5), 
+				new MAPEDimensionFXML(DimensionTypes.LINEARITY, 5)});
+		possibleCombinations.add(new MAPEDimensionFXML[]{new MAPEDimensionFXML(DimensionTypes.LENIENCY, 5), 
+				new MAPEDimensionFXML(DimensionTypes.NUMBER_MESO_PATTERN, 5)});
+		possibleCombinations.add(new MAPEDimensionFXML[]{new MAPEDimensionFXML(DimensionTypes.LENIENCY, 5), 
+				new MAPEDimensionFXML(DimensionTypes.NUMBER_PATTERNS, 5)});
+		possibleCombinations.add(new MAPEDimensionFXML[]{new MAPEDimensionFXML(DimensionTypes.LINEARITY, 5), 
+				new MAPEDimensionFXML(DimensionTypes.NUMBER_MESO_PATTERN, 5)});
+		possibleCombinations.add(new MAPEDimensionFXML[]{new MAPEDimensionFXML(DimensionTypes.LINEARITY, 5), 
+				new MAPEDimensionFXML(DimensionTypes.NUMBER_PATTERNS, 5)});
+		possibleCombinations.add(new MAPEDimensionFXML[]{new MAPEDimensionFXML(DimensionTypes.NUMBER_MESO_PATTERN, 5), 
+				new MAPEDimensionFXML(DimensionTypes.NUMBER_PATTERNS, 5)});
+		
 	}
 	
 	@Override
@@ -271,13 +321,22 @@ public class ExperimentsGUIController implements Initializable, Listener {
 		}
 		else if(e instanceof NextStepSequenceExperiment)
 		{
-			if (runningExperiment && counter != 0) 
+			if (runningExperiment) 
 			{
+				if(counter == 0)
+				{
+					if(!useOurCombs || currentCombination >= possibleCombinations.size())
+					{
+						runningExperiment = false;
+						return;
+					}
+					
+					runExperiment();
+					return;
+				}
+				
 				experimentNextStep(currentEditRoom.getEditionSequence().get(index++));
 				counter--;
-				
-				if(counter == 0)
-					runningExperiment = false;
 	        }
 		}
 		else if(e instanceof SessionRoomSelected)
@@ -1001,6 +1060,12 @@ public class ExperimentsGUIController implements Initializable, Listener {
 		if(runningExperiment)
 			return;
 		
+		currentCombination = 0;
+		runExperiment();
+	}
+	
+	private void runExperiment()
+	{
 		if(stepsTF.getText().toLowerCase().equals("all"))
 		{
 			counter = currentEditRoom.getEditionSequence().size();
@@ -1036,9 +1101,15 @@ public class ExperimentsGUIController implements Initializable, Listener {
         else if(experimentType == SequenceExperiment.EVOLUTIONARY)
         {
         	initializeExperiment(currentEditRoom.getEditionSequence().get(index++));
+        	
+        	Platform.runLater(() -> {
+        		if(useOurCombs)
+            	{
+            		router.postEvent(new RestartDimensionsExperiment(possibleCombinations.get(currentCombination++)));
+            	}
+			});     	
         }
-        
-
+ 
 	}
 
 	/**

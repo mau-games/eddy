@@ -41,6 +41,7 @@ import util.eventrouting.events.Stop;
 import util.eventrouting.events.SuggestedMapSelected;
 import util.eventrouting.events.SuggestedMapsDone;
 import util.eventrouting.events.SuggestionApplied;
+import util.eventrouting.events.intraview.RestartDimensionsExperiment;
 import util.eventrouting.events.intraview.RoomEditionStarted;
 
 public class EvolutionMAPEPane extends AnchorPane implements Listener 
@@ -120,6 +121,7 @@ public class EvolutionMAPEPane extends AnchorPane implements Listener
 		router.registerListener(this, new SuggestedMapSelected(null));
 		router.registerListener(this, new RoomEditionStarted(null));
 		router.registerListener(this, new RoomEdited(null));
+		router.registerListener(this,  new RestartDimensionsExperiment(null));
 		
 		setupMAPElitesGUI();
 		saveGenBtn.setDisable(true);
@@ -215,7 +217,19 @@ public class EvolutionMAPEPane extends AnchorPane implements Listener
 	@Override
 	public void ping(PCGEvent e) {
 		// TODO Auto-generated method stub
-		if(e instanceof RoomEditionStarted)
+		if(e instanceof RestartDimensionsExperiment)
+		{
+			//Restart the pane
+			setupPane();
+			
+			//Update the dimension list
+			MAPElitesPane.dimensionsUpdated(roomDisplays, ((RestartDimensionsExperiment) e).getDimensions());
+			currentDimensions = ((RestartDimensionsExperiment) e).getDimensions(); 
+			
+			//run the Evo again!
+			handleEvolutionPressed();
+		}
+		else if(e instanceof RoomEditionStarted)
 		{
 			currentEditedRoom.set((Room) e.getPayload());
 			setupPane();

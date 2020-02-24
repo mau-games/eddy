@@ -19,12 +19,12 @@
                <children>
                   <HBox alignment="CENTER" prefHeight="432.0" prefWidth="553.0" spacing="25.0">
                      <children>
-                        <VBox alignment="CENTER" prefHeight="359.0" prefWidth="251.0" spacing="10.0">
+                        <VBox alignment="CENTER" prefHeight="877.0" prefWidth="251.0" spacing="10.0">
                            <children>
-                              <StackPane fx:id="roomPane" prefHeight="246.0" prefWidth="251.0" />
-                              <ScrollPane id="filePane" fitToHeight="true" pannable="true" prefHeight="212.0" prefWidth="251.0" VBox.vgrow="ALWAYS">
+                              <StackPane fx:id="roomPane" prefHeight="114.0" prefWidth="251.0" />
+                              <ScrollPane id="filePane" fitToHeight="true" hbarPolicy="ALWAYS" pannable="true" prefHeight="252.0" prefWidth="251.0" VBox.vgrow="ALWAYS">
                                  <content>
-                                    <HBox fx:id="editedRoomSteps" prefHeight="154.0" prefWidth="248.0" spacing="5.0" />
+                                    <HBox fx:id="editedRoomSteps" prefHeight="188.0" prefWidth="248.0" spacing="5.0" />
                                  </content>
                               </ScrollPane>
                               <HBox prefHeight="100.0" prefWidth="200.0" spacing="5.0">
