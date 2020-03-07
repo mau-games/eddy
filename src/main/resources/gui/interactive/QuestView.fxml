@@ -1,21 +1,140 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import java.lang.*?>
-<?import java.util.*?>
-<?import javafx.scene.*?>
+<?import javafx.geometry.*?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
 
-<?import javafx.scene.text.Text?>
-<fx:root type="javafx.scene.layout.BorderPane" stylesheets="@../styling.css" xmlns:fx="http://javafx.com/fxml/1" fx:id="rootWorldViewPane">
+<fx:root fx:id="rootWorldViewPane" stylesheets="@../styling.css" type="javafx.scene.layout.BorderPane" xmlns="http://javafx.com/javafx/10.0.2-internal" xmlns:fx="http://javafx.com/fxml/1">
     <center>
-        <Pane fx:id="mapPane" />
+        <Pane fx:id="mapPane" prefHeight="808.0" prefWidth="279.0" />
     </center>
     <left>
-        <StackPane alignment="CENTER" fx:id="buttonPane" />
+        <StackPane id="actionPane" style="-fx-background-color: GREEN;">
+            <ToolBar id="tbQuestTools" orientation="VERTICAL" prefHeight="615.0" prefWidth="112.0" style="-fx-background-color: BLACK;" StackPane.alignment="CENTER">
+                <Button id="btnToolCapture" maxHeight="30.0" maxWidth="100.0" minHeight="20.0" minWidth="50.0" mnemonicParsing="false" prefHeight="30.0" prefWidth="100.0" text="Capture" textOverrun="CENTER_WORD_ELLIPSIS">
+              </Button>
+                <Button id="btnToolDamage" maxHeight="30.0" maxWidth="100.0" minHeight="20.0" minWidth="50.0" mnemonicParsing="false" prefHeight="30.0" prefWidth="100.0" text="Damage">
+            </Button>
+            <Button id="btnToolDefend" maxHeight="30.0" maxWidth="100.0" minHeight="20.0" minWidth="50.0" mnemonicParsing="false" prefHeight="20.0" prefWidth="100.0" text="Defend">
+            </Button>
+            <Button id="btnToolEscort" maxHeight="30.0" maxWidth="100.0" minHeight="20.0" minWidth="50.0" mnemonicParsing="false" prefHeight="20.0" prefWidth="100.0" text="Escort">
+            </Button>
+            <Button id="btnToolExchange" maxHeight="30.0" maxWidth="100.0" minHeight="20.0" minWidth="50.0" mnemonicParsing="false" prefHeight="20.0" prefWidth="100.0" text="Exchange">
+            </Button>
+            <Button id="btnToolExperiment" maxHeight="30.0" maxWidth="100.0" minHeight="20.0" minWidth="50.0" mnemonicParsing="false" prefHeight="20.0" prefWidth="100.0" text="Experiment">
+            </Button>
+            <Button id="btnToolExplore" maxHeight="30.0" maxWidth="100.0" minHeight="20.0" minWidth="50.0" mnemonicParsing="false" prefHeight="20.0" prefWidth="100.0" text="Explore">
+            </Button>
+            <Button id="btnToolGather" maxHeight="30.0" maxWidth="100.0" minHeight="20.0" minWidth="50.0" mnemonicParsing="false" prefHeight="20.0" prefWidth="100.0" text="Gather">
+            </Button>
+            <Button id="btnToolGive" maxHeight="30.0" maxWidth="100.0" minHeight="20.0" minWidth="50.0" mnemonicParsing="false" prefHeight="20.0" prefWidth="100.0" text="Give">
+            </Button>
+            <Button id="btnToolGoto" maxHeight="30.0" maxWidth="100.0" minHeight="20.0" minWidth="50.0" mnemonicParsing="false" prefHeight="20.0" prefWidth="100.0" text="Goto">
+            </Button>
+            <Button id="btnToolKill" maxHeight="30.0" maxWidth="100.0" minHeight="20.0" minWidth="50.0" mnemonicParsing="false" prefHeight="20.0" prefWidth="100.0" text="Kill">
+            </Button>
+            <Button id="btnToolListen" maxHeight="30.0" maxWidth="100.0" minHeight="20.0" minWidth="50.0" mnemonicParsing="false" prefHeight="20.0" prefWidth="100.0" text="Listen">
+            </Button>
+            <Button id="btnToolRead" maxHeight="30.0" maxWidth="100.0" minHeight="20.0" minWidth="50.0" mnemonicParsing="false" prefHeight="20.0" prefWidth="100.0" text="Read">
+            </Button>
+            <Button id="btnToolRepair" maxHeight="30.0" maxWidth="100.0" minHeight="20.0" minWidth="50.0" mnemonicParsing="false" prefHeight="20.0" prefWidth="100.0" text="Repair">
+            </Button>
+            <Button id="btnToolReport" maxHeight="30.0" maxWidth="100.0" minHeight="20.0" minWidth="50.0" mnemonicParsing="false" prefHeight="20.0" prefWidth="100.0" text="Report">
+            </Button>
+            <Button id="btnToolSpy" maxHeight="30.0" maxWidth="100.0" minHeight="20.0" minWidth="50.0" mnemonicParsing="false" prefHeight="20.0" prefWidth="100.0" text="Spy">
+            </Button>
+            <Button id="btnToolStealth" maxHeight="30.0" maxWidth="100.0" minHeight="20.0" minWidth="50.0" mnemonicParsing="false" prefHeight="20.0" prefWidth="100.0" text="Stealth">
+            </Button>
+            <Button id="btnToolTake" maxHeight="30.0" maxWidth="100.0" minHeight="20.0" minWidth="50.0" mnemonicParsing="false" prefHeight="20.0" prefWidth="100.0" text="Take">
+            </Button>
+            <Button id="btnToolUse" maxHeight="30.0" maxWidth="100.0" minHeight="20.0" minWidth="50.0" mnemonicParsing="false" prefHeight="20.0" prefWidth="100.0" text="Use">
+            </Button>
+            </ToolBar>
+        </StackPane>
     </left>
     <bottom>
-        <StackPane alignment="CENTER" fx:id="questPane" />
+        <StackPane fx:id="questPane" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefHeight="76.0" prefWidth="623.0" style="-fx-background-color: GREEN;">
+            <ToolBar id="tbQuestSeq" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" style="-fx-background-color: BLUE;" StackPane.alignment="CENTER">
+                <Button id="btnSeq1" maxHeight="60.0" maxWidth="80.0" minHeight="60.0" minWidth="80.0" mnemonicParsing="false" prefHeight="34.0" prefWidth="75.0" text="1">
+                </Button>
+                <Button id="btnSeq2" maxHeight="60.0" maxWidth="80.0" minHeight="60.0" minWidth="80.0" mnemonicParsing="false" text="2">
+                </Button>
+                <Button id="btnSeq3" maxHeight="60.0" maxWidth="80.0" minHeight="60.0" minWidth="80.0" mnemonicParsing="false" text="3">
+                </Button>
+                <Button id="btnSeq4" maxHeight="60.0" maxWidth="80.0" minHeight="60.0" minWidth="80.0" mnemonicParsing="false" text="4">
+                </Button>
+                <Button id="btnSeq5" maxHeight="60.0" maxWidth="80.0" minHeight="60.0" minWidth="80.0" mnemonicParsing="false" text="5">
+                </Button>
+                <Button id="btnSeq6" maxHeight="60.0" maxWidth="80.0" minHeight="60.0" minWidth="80.0" mnemonicParsing="false" text="6">
+                </Button>
+                <Button id="btnSeq7" maxHeight="60.0" maxWidth="80.0" minHeight="60.0" minWidth="80.0" mnemonicParsing="false" text="7">
+                </Button>
+                <Button id="btnSeq8" maxHeight="60.0" maxWidth="80.0" minHeight="60.0" minWidth="80.0" mnemonicParsing="false" text="8">
+                </Button>
+                <Button id="btnSeq9" maxHeight="60.0" maxWidth="80.0" minHeight="60.0" minWidth="80.0" mnemonicParsing="false" text="9">
+                </Button>
+                <Button id="btnSeq10" maxHeight="60.0" maxWidth="80.0" minHeight="60.0" minWidth="80.0" mnemonicParsing="false" text="10">
+                </Button>
+                <Button id="btnSeq11" maxHeight="60.0" maxWidth="80.0" minHeight="60.0" minWidth="80.0" mnemonicParsing="false" text="11">
+                </Button>
+                <Button id="btnSeq12" maxHeight="60.0" maxWidth="80.0" minHeight="60.0" minWidth="80.0" mnemonicParsing="false" text="12">
+                </Button>
+                <Button id="btnSeq13" maxHeight="60.0" maxWidth="80.0" minHeight="60.0" minWidth="80.0" mnemonicParsing="false" text="13">
+                </Button>
+                <Button id="btnSeq14" maxHeight="60.0" maxWidth="80.0" minHeight="60.0" minWidth="80.0" mnemonicParsing="false" text="14">
+                </Button>
+                <Button id="btnSeq15" maxHeight="60.0" maxWidth="80.0" minHeight="60.0" minWidth="80.0" mnemonicParsing="false" text="15">
+                </Button>
+            <StackPane.margin>
+               <Insets left="40.0" right="40.0" />
+            </StackPane.margin>
+        </ToolBar>
+        </StackPane>
     </bottom>
-
+   <right>
+      <StackPane prefHeight="555.0" prefWidth="99.0" BorderPane.alignment="CENTER">
+          <ToolBar id="tbQuestLabel" orientation="VERTICAL" prefHeight="615.0" prefWidth="112.0" style="-fx-background-color: BLACK;" StackPane.alignment="CENTER">
+          <Label contentDisplay="CENTER" ellipsisString="" prefHeight="23.0" prefWidth="244.0" text="GENERATED QUESTS" textAlignment="CENTER" textFill="#226b1e" underline="true">
+              <font>
+                  <Font size="24.0" />
+              </font></Label>
+          </ToolBar>
+          <ToolBar id="tbQuestPCG" orientation="VERTICAL" prefHeight="669.0" prefWidth="92.0" style="-fx-background-color: PINK;" StackPane.alignment="CENTER">
+          <Button id="btnPCG1" maxHeight="35.0" maxWidth="80.0" minHeight="35.0" minWidth="80.0" mnemonicParsing="false" text="1">
+          </Button>
+          <Button id="btnPCG2" maxHeight="35.0" maxWidth="80.0" minHeight="35.0" minWidth="80.0" mnemonicParsing="false" text="2">
+          </Button>
+          <Button id="btnPCG3" maxHeight="35.0" maxWidth="80.0" minHeight="35.0" minWidth="80.0" mnemonicParsing="false" text="3">
+          </Button>
+          <Button id="btnPCG4" maxHeight="35.0" maxWidth="80.0" minHeight="35.0" minWidth="80.0" mnemonicParsing="false" text="4">
+          </Button>
+          <Button id="btnPCG5" maxHeight="35.0" maxWidth="80.0" minHeight="35.0" minWidth="80.0" mnemonicParsing="false" text="5">
+          </Button>
+          <Button id="btnPCG6" maxHeight="35.0" maxWidth="80.0" minHeight="35.0" minWidth="80.0" mnemonicParsing="false" text="6">
+          </Button>
+          <Button id="btnPCG7" maxHeight="35.0" maxWidth="80.0" minHeight="35.0" minWidth="80.0" mnemonicParsing="false" text="7">
+          </Button>
+          <Button id="btnPCG8" maxHeight="35.0" maxWidth="80.0" minHeight="35.0" minWidth="80.0" mnemonicParsing="false" text="8">
+          </Button>
+          <Button id="btnPCG9" maxHeight="35.0" maxWidth="80.0" minHeight="35.0" minWidth="80.0" mnemonicParsing="false" text="9">
+          </Button>
+          <Button id="btnPCG10" maxHeight="35.0" maxWidth="80.0" minHeight="35.0" minWidth="80.0" mnemonicParsing="false" text="10">
+          </Button>
+          <Button id="btnPCG11" maxHeight="35.0" maxWidth="80.0" minHeight="35.0" minWidth="80.0" mnemonicParsing="false" text="11">
+          </Button>
+              <Button id="btnPCG12" maxHeight="35.0" maxWidth="80.0" minHeight="35.0" minWidth="80.0" mnemonicParsing="false" text="12">
+              </Button>
+              <Button id="btnPCG13" maxHeight="35.0" maxWidth="80.0" minHeight="35.0" minWidth="80.0" mnemonicParsing="false" text="13">
+              </Button>
+                  <Button id="btnPCG14" maxHeight="35.0" maxWidth="80.0" minHeight="35.0" minWidth="80.0" mnemonicParsing="false" text="14">
+                  </Button>
+                      <Button id="btnPCG15" maxHeight="35.0" maxWidth="80.0" minHeight="35.0" minWidth="80.0" mnemonicParsing="false" text="15">
+                      </Button>
+            <StackPane.margin>
+               <Insets top="70.0" />
+            </StackPane.margin>
+          </ToolBar>
+       </StackPane>
+   </right>
 </fx:root>
