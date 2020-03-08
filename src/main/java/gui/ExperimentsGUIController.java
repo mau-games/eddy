@@ -88,6 +88,7 @@ import util.eventrouting.events.MAPElitesDone;
 import util.eventrouting.events.MapUpdate;
 import util.eventrouting.events.NextStepSequenceExperiment;
 import util.eventrouting.events.RoomEdited;
+import util.eventrouting.events.SaveDisplayedCells;
 import util.eventrouting.events.SuggestedMapSelected;
 import util.eventrouting.events.SuggestedMapsDone;
 import util.eventrouting.events.intraview.DungeonPreviewSelected;
@@ -335,7 +336,12 @@ public class ExperimentsGUIController implements Initializable, Listener {
 					return;
 				}
 				
-				experimentNextStep(currentEditRoom.getEditionSequence().get(index++));
+				Platform.runLater(() -> {
+
+					experimentNextStep(currentEditRoom.getEditionSequence().get(index++));
+					System.out.println("SAVE");
+					router.postEvent(new SaveDisplayedCells());
+				});
 				counter--;
 	        }
 		}
@@ -707,16 +713,19 @@ public class ExperimentsGUIController implements Initializable, Listener {
 	 */
 	private void initializeExperiment(Room startingEdition)
 	{
-		testDungeon.removeRoom(currentEditRoom);
-		currentEditRoom = startingEdition;
-		testDungeon.addRoom(currentEditRoom);
-		initRoomInteractiveView();
-		evaluateRoom();
-		
-		saveExperimentRoom();
-		
-		router.postEvent(new RoomEditionStarted(currentEditRoom));
-//		fillRoomSequence();
+		Platform.runLater(() -> {
+
+			testDungeon.removeRoom(currentEditRoom);
+			currentEditRoom = startingEdition;
+			testDungeon.addRoom(currentEditRoom);
+			initRoomInteractiveView();
+			evaluateRoom();
+			
+			saveExperimentRoom();
+			
+			router.postEvent(new RoomEditionStarted(currentEditRoom));
+	//		fillRoomSequence();
+		});
 	}
 	
 	/**

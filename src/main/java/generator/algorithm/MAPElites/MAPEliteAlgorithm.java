@@ -83,9 +83,9 @@ public class MAPEliteAlgorithm extends Algorithm implements Listener {
 	
 	//For the Expressive range test
 //	ArrayList<Room> uniqueGeneratedRooms = new ArrayList<Room>();
-	HashMap<Room, Double> uniqueGeneratedRooms = new HashMap<Room, Double>();
-	HashMap<Room, Double> uniqueGeneratedRoomsFlush= new HashMap<Room, Double>();
-	HashMap<Room, Double> uniqueGeneratedRoomsSince = new HashMap<Room, Double>();
+	HashMap<Room, Double[]> uniqueGeneratedRooms = new HashMap<Room, Double[]>();
+	HashMap<Room, Double[]> uniqueGeneratedRoomsFlush= new HashMap<Room, Double[]>();
+	HashMap<Room, Double[]> uniqueGeneratedRoomsSince = new HashMap<Room, Double[]>();
 	
 	StringBuilder uniqueRoomsData = new StringBuilder();
 	StringBuilder uniqueRoomsSinceData = new StringBuilder();
@@ -171,8 +171,8 @@ public class MAPEliteAlgorithm extends Algorithm implements Listener {
 		//initialize the data storage variables
 		uniqueRoomsData = new StringBuilder();
 		uniqueRoomsSinceData = new StringBuilder();
-		uniqueRoomsData.append("Leniency;Linearity;Similarity;NMesoPatterns;NSpatialPatterns;Symmetry;Inner Similarity;Fitness;Score;;DIM X;DIM Y;STEP;Type" + System.lineSeparator());
-		uniqueRoomsSinceData.append("Leniency;Linearity;Similarity;NMesoPatterns;NSpatialPatterns;Symmetry;Inner Similarity;Fitness;Score;DIM X;DIM Y;STEP;Type" + System.lineSeparator());
+		uniqueRoomsData.append("Leniency;Linearity;Similarity;NMesoPatterns;NSpatialPatterns;Symmetry;Inner Similarity;Fitness;Score;DIM X;DIM Y;STEP;Gen;Type" + System.lineSeparator());
+		uniqueRoomsSinceData.append("Leniency;Linearity;Similarity;NMesoPatterns;NSpatialPatterns;Symmetry;Inner Similarity;Fitness;Score;DIM X;DIM Y;STEP;Gen;Type" + System.lineSeparator());
 
 		//TODO: THIS IS CREISI!mutate
 //		System.out.println(mutationProbability);
@@ -566,6 +566,7 @@ public class MAPEliteAlgorithm extends Algorithm implements Listener {
     			saveUniqueRoomsToFileAndFlush();
     			currentSaveStep++;
     			EventRouter.getInstance().postEvent(new NextStepSequenceExperiment());
+    			System.out.println(realCurrentGen);
     		}
     		
 //    		System.out.println(realCurrentGen);
@@ -1007,10 +1008,10 @@ public class MAPEliteAlgorithm extends Algorithm implements Listener {
 		String DIRECTORY= System.getProperty("user.dir") + "\\my-data\\expressive-range\\";
 		StringBuilder data = new StringBuilder();
 		
-		data.append("Leniency;Linearity;Similarity;NMesoPatterns;NSpatialPatterns;Symmetry;Inner Similarity;Fitness;Score" + System.lineSeparator());
+		data.append("Leniency;Linearity;Similarity;NMesoPatterns;NSpatialPatterns;Symmetry;Inner Similarity;Fitness;GEN;Score" + System.lineSeparator());
 		
 		//Create the data:
-		for (Entry<Room, Double> entry : uniqueGeneratedRooms.entrySet()) 
+		for (Entry<Room, Double[]> entry : uniqueGeneratedRooms.entrySet()) 
 		{
 		    Room currentRoom = entry.getKey();
 		    data.append(currentRoom.getDimensionValue(DimensionTypes.LENIENCY) + ";");
@@ -1020,7 +1021,8 @@ public class MAPEliteAlgorithm extends Algorithm implements Listener {
 		    data.append(currentRoom.getDimensionValue(DimensionTypes.NUMBER_PATTERNS) + ";");
 		    data.append(currentRoom.getDimensionValue(DimensionTypes.SYMMETRY) + ";");
 		    data.append(currentRoom.getDimensionValue(DimensionTypes.INNER_SIMILARITY) + ";");
-		    data.append(entry.getValue() + ";");
+		    data.append(entry.getValue()[0] + ";");
+		    data.append(entry.getValue()[1] + ";");
 		    data.append("1.0" + System.lineSeparator());
 		}
 		
@@ -1039,7 +1041,7 @@ public class MAPEliteAlgorithm extends Algorithm implements Listener {
 //		String DIRECTORY= System.getProperty("user.dir") + "\\my-data\\expressive-range\\";
 		String DIRECTORY= System.getProperty("user.dir") + "\\my-data\\custom-save\\";
 		//Create the data:
-		for (Entry<Room, Double> entry : uniqueGeneratedRoomsFlush.entrySet()) 
+		for (Entry<Room, Double[]> entry : uniqueGeneratedRoomsFlush.entrySet()) 
 		{
 		    Room currentRoom = entry.getKey();
 		    uniqueRoomsData.append(currentRoom.getDimensionValue(DimensionTypes.LENIENCY) + ";");
@@ -1049,11 +1051,12 @@ public class MAPEliteAlgorithm extends Algorithm implements Listener {
 		    uniqueRoomsData.append(currentRoom.getDimensionValue(DimensionTypes.NUMBER_PATTERNS) + ";");
 		    uniqueRoomsData.append(currentRoom.getDimensionValue(DimensionTypes.SYMMETRY) + ";");
 		    uniqueRoomsData.append(currentRoom.getDimensionValue(DimensionTypes.INNER_SIMILARITY) + ";");
-		    uniqueRoomsData.append(entry.getValue() + ";");
+		    uniqueRoomsData.append(entry.getValue()[0] + ";");
 		    uniqueRoomsData.append("1.0;");
 		    uniqueRoomsData.append(dimensions[0].getDimension() + ";");
 		    uniqueRoomsData.append(dimensions[1].getDimension() + ";");
 		    uniqueRoomsData.append(currentSaveStep + ";");
+		    uniqueRoomsData.append(entry.getValue()[1] + ";");
 		    uniqueRoomsData.append("GR" + System.lineSeparator()); //TYPE	    
 		}
 		
@@ -1098,8 +1101,10 @@ public class MAPEliteAlgorithm extends Algorithm implements Listener {
 							SimilarityGADimension.calculateValueIndependently(copy, originalRoom));
 					copy.setSpeficidDimensionValue(DimensionTypes.INNER_SIMILARITY, 
 							CharacteristicSimilarityGADimension.calculateValueIndependently(copy, originalRoom));
-					uniqueGeneratedRooms.put(copy, ind.getFitness());
-					uniqueGeneratedRoomsFlush.put(copy, ind.getFitness());
+					uniqueGeneratedRooms.put(copy, new Double[] {ind.getFitness(), Double.valueOf(realCurrentGen)});
+					uniqueGeneratedRoomsFlush.put(copy, new Double[] {ind.getFitness(), Double.valueOf(realCurrentGen)});
+//					uniqueGeneratedRoomsFlush.put(copy, ind.getFitness());
+					
 				}
 				
 			}
@@ -1127,8 +1132,10 @@ public class MAPEliteAlgorithm extends Algorithm implements Listener {
 					SimilarityGADimension.calculateValueIndependently(copy, originalRoom));
 			copy.setSpeficidDimensionValue(DimensionTypes.INNER_SIMILARITY, 
 					CharacteristicSimilarityGADimension.calculateValueIndependently(copy, originalRoom));
-			uniqueGeneratedRooms.put(copy, ind.getFitness());
-			uniqueGeneratedRoomsFlush.put(copy, ind.getFitness());
+//			uniqueGeneratedRooms.put(copy, ind.getFitness());
+//			uniqueGeneratedRoomsFlush.put(copy, ind.getFitness());
+			uniqueGeneratedRooms.put(copy, new Double[] {ind.getFitness(), Double.valueOf(realCurrentGen)});
+			uniqueGeneratedRoomsFlush.put(copy, new Double[] {ind.getFitness(), Double.valueOf(realCurrentGen)});
 		}
 
 	}
