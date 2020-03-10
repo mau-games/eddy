@@ -9,6 +9,8 @@ import finder.patterns.meso.ChokePoint;
 import finder.patterns.meso.DeadEnd;
 import finder.patterns.meso.GuardedTreasure;
 import game.Room;
+import game.Tile;
+import game.tiles.BossEnemyTile;
 import generator.algorithm.ZoneIndividual;
 
 public class LeniencyGADimension extends GADimension {
@@ -39,9 +41,21 @@ public class LeniencyGADimension extends GADimension {
 		double w3 = 0.4;
 		
 		//TODO: Problem with the log10 when the enemy or treasure count is 0
+		//Starting value
+		double starting_value = 1.0;
+		for( Tile t : individualRoom.customTiles)
+		{
+			if(t instanceof BossEnemyTile)
+			{
+				starting_value *= 0.5;
+			}
+		}
+		
+		
 		//If we have no enemies the room shouldn't be challenging nor non lenient
+		//unless we have bossess
 		if(individualRoom.getEnemyCount() == 0)
-			return 1.0;
+			return starting_value;
 		
 		//Independent calculation
 		double a = w1 *  (Math.log10(individualRoom.getEnemyCount()) * individualRoom.calculateEnemySparsity());
@@ -60,7 +74,7 @@ public class LeniencyGADimension extends GADimension {
 		}
 		
 		//Final Leniency
-		return 1.0 - ((1.0 * (a + b + c)) - (0.5 * (d+f)));
+		return (1.0 - ((1.0 * (a + b + c)) - (0.5 * (d+f))))*starting_value;
 //
 //		double traversableWeight = 0.1;
 //		double doorsSafetyWeight = 0.45;
@@ -114,9 +128,21 @@ public class LeniencyGADimension extends GADimension {
 		double w2 = 0.3;
 		double w3 = 0.4;
 		
+		//Starting value
+		double starting_value = 1.0;
+		for( Tile t : individualRoom.customTiles)
+		{
+			if(t instanceof BossEnemyTile)
+			{
+				starting_value *= 0.5;
+			}
+		}
+		
+		
 		//If we have no enemies the room shouldn't be challenging nor non lenient
+		//unless we have bossess
 		if(individualRoom.getEnemyCount() == 0)
-			return 1.0;
+			return starting_value;
 		
 		//Independent calculation
 		double a = w1 *  (Math.log10(individualRoom.getEnemyCount()) * individualRoom.calculateEnemySparsity());
@@ -135,7 +161,7 @@ public class LeniencyGADimension extends GADimension {
 		}
 		
 		//Final Leniency
-		return 1.0 - ((1.0 * (a + b + c)) - (0.5 * (d+f)));
+		return (1.0 - ((1.0 * (a + b + c)) - (0.5 * (d+f))))*starting_value;
 	}
 	
 	public static double getValue(Room individualRoom)
@@ -151,9 +177,21 @@ public class LeniencyGADimension extends GADimension {
 		double w2 = 0.3;
 		double w3 = 0.4;
 		
+		//Starting value
+		double starting_value = 1.0;
+		for( Tile t : individualRoom.customTiles)
+		{
+			if(t instanceof BossEnemyTile)
+			{
+				starting_value *= 0.5;
+			}
+		}
+		
+		
 		//If we have no enemies the room shouldn't be challenging nor non lenient
+		//unless we have bossess
 		if(individualRoom.getEnemyCount() == 0)
-			return 1.0;
+			return starting_value;
 		
 		//Independent calculation
 		double a = w1 *  (Math.log10(individualRoom.getEnemyCount()) * individualRoom.calculateEnemySparsity());
@@ -172,6 +210,6 @@ public class LeniencyGADimension extends GADimension {
 		}
 		
 		//Final Leniency
-		return 1.0 - ((1.0 * (a + b + c)) - (0.5 * (d+f)));
+		return (1.0 - ((1.0 * (a + b + c)) - (0.5 * (d+f))))*starting_value;
 	}
 }

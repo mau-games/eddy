@@ -228,7 +228,7 @@ public class ExperimentsGUIController implements Initializable, Listener {
 		router.registerListener(this, new SessionRoomSelected(null));
 		
 		/////////////// Should we do this?!!! ////////////////////
-		testDungeon = new Dungeon(gc, 0, 13, 7, false);
+		testDungeon = new Dungeon(gc, 1, 13, 7, false);
 		currentEditRoom = testDungeon.addRoom(13, 7);
 		currentEditRoom.setTile(0, 0, TileTypes.WALL);
 		currentEditRoom.setTile(1, 0, TileTypes.WALL);
@@ -1090,24 +1090,28 @@ public class ExperimentsGUIController implements Initializable, Listener {
         counter--;
         runningExperiment = true;
         
-        if(experimentType == SequenceExperiment.REPEAT)
+        
+        if(experimentType == SequenceExperiment.REPEAT) //THIS is using timer
         {
     		final Timer tt = new Timer();
     		
     		tt.schedule(new TimerTask(){
     		    public void run() {
+    		    	
+    		    	if (counter == 0) {
+    		        	runningExperiment = false;
+    		            tt.cancel();
+    		        }
+    		    	
     		        //your job- Should be changed to a specific method.
     		    	initializeExperiment(currentEditRoom.getEditionSequence().get(index++));
     		    	
     		        counter--;
-    		        if (counter == 0) {
-    		        	runningExperiment = false;
-    		            tt.cancel();
-    		        }
+    		        
     		    }
     		}, 500l, Long.parseLong(secondsTF.getText()));
         }
-        else if(experimentType == SequenceExperiment.EVOLUTIONARY)
+        else if(experimentType == SequenceExperiment.EVOLUTIONARY) //THE ACTUAL EXPERIMENT!
         {
         	initializeExperiment(currentEditRoom.getEditionSequence().get(index++));
         	

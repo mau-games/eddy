@@ -64,6 +64,8 @@ public class LinearityGADimension extends GADimension {
 		finder.findMesoPatterns();
 		int paths = individualRoom.LinearityWithinRoom();
 		
+//		System.out.println("PATHS:" + paths);
+		
 		double doors = individualRoom.getDoors().size();
 		double maxPaths = ((double)finder.getPatternGraph().countNodes()) + (double)(doors * 3) + doors; //This makes the amount of paths dependant
 		double finalValue = Math.min((double)paths/maxPaths, 1.0);

@@ -849,6 +849,18 @@ public class MAPEliteAlgorithm extends Algorithm implements Listener {
 		EventRouter.getInstance().unregisterListener(this, new SaveCurrentGeneration());
 		EventRouter.getInstance().unregisterListener(this, new RoomEdited(null));
 		
+		HashMap<Room, Double[]> uniqueGeneratedRooms = new HashMap<Room, Double[]>();
+		HashMap<Room, Double[]> uniqueGeneratedRoomsFlush= new HashMap<Room, Double[]>();
+		HashMap<Room, Double[]> uniqueGeneratedRoomsSince = new HashMap<Room, Double[]>();
+		
+		StringBuilder uniqueRoomsData = new StringBuilder();
+		StringBuilder uniqueRoomsSinceData = new StringBuilder();
+		
+		uniqueGeneratedRooms.clear();
+		uniqueGeneratedRoomsFlush.clear();
+		uniqueGeneratedRoomsSince.clear();
+		uniqueRoomsData = null;
+		uniqueRoomsSinceData = null;
 		cells.clear();
 		MAPElitesDimensions.clear();
 	}
