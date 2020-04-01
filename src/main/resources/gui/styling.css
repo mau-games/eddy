@@ -21,7 +21,7 @@
 		-fx-background-color: #2c2f33;
 }
 
-#suggestionsPane, #suggestionsPane . viewport, #MAPElitesPane, #MAPElitesPane . viewport{
+#suggestionsPane, #suggestionsPane . viewport, #MAPElitesPane, #MAPElitesPane . viewport, #mapScrollPane, #mapScrollPane .viewport{
 	-fx-background-color: transparent;
 }
 

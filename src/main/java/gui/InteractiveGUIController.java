@@ -255,6 +255,7 @@ public class InteractiveGUIController implements Initializable, Listener {
 				backToWorldView();
 		 }
 		 else if(e instanceof RequestQuestView){
+		 	questView.initWorldMap(dungeonMap);
 			showQuestView();
 		}
 

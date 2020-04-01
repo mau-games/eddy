@@ -67,6 +67,7 @@ public class InteractiveGUI extends Application {
 
 		} catch (Exception e) {
 //			logger.error("Couldn't load GUI: " + e.getMessage(), e);
+			e.printStackTrace();
 			System.exit(0);
 		}
 	}
