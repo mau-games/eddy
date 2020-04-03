@@ -4,12 +4,16 @@ import game.ApplicationConfig;
 import game.Dungeon;
 import gui.utils.InformativePopupManager;
 import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
-import javafx.scene.control.Label;
-import javafx.scene.control.ScrollPane;
+import javafx.scene.Node;
+import javafx.scene.control.*;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
+import javafx.scene.paint.Paint;
+import javafx.scene.text.Font;
 import util.IntField;
 import util.config.MissingConfigurationException;
 import util.eventrouting.EventRouter;
@@ -33,7 +37,11 @@ public class QuestViewController extends BorderPane implements Listener {
     @FXML
     private BorderPane buttonPane;
     @FXML
-    private StackPane questPane;
+    private FlowPane questPane;
+    @FXML
+    private ToolBar tbQuestTools;
+    @FXML
+    private ToggleGroup questActions;
 
 
     public QuestViewController() {
@@ -55,27 +63,39 @@ public class QuestViewController extends BorderPane implements Listener {
     }
 
     public void initQuestView() {
-        Label title = new Label("Quest Editor");
-        title.setStyle("-fx-font-weight: bold");
-        title.setStyle("-fx-font-size: 40px");
-        title.setStyle("-fx-text-inner-color: white;");
-        //mapPane.getChildren().add(title);
+        questPane.getChildren().stream()
+                .filter(node -> node.getId().equals("questPlaceholder"))
+                .forEach(node -> {
+                    node.addEventHandler(MouseEvent.MOUSE_CLICKED,
+                            event -> {
+                                int actionCount = questPane.getChildren().size();
+                                tbQuestTools.getItems().stream()
+                                        .filter(action -> ((ToggleButton) action).isSelected())
+                                        .forEach(selected -> {
+                                            ToggleButton tb = (ToggleButton) selected;
+                                            ToggleButton toAdd = new ToggleButton();
+                                            toAdd.setText(tb.getText());
+                                            toAdd.setToggleGroup(questActions);
+                                            //TODO: add event for click on ToggleButton in questView
+                                            questPane.getChildren().add(actionCount - 1, toAdd);
+
+                                            Label arrow = new Label("=>");
+                                            arrow.setTextFill(Color.WHITE);
+                                            arrow.setFont(Font.font(14.0));
+                                            arrow.setStyle("-fx-background-color: transparent;");
+
+                                            questPane.getChildren().add(actionCount, arrow);
+                                            tb.setSelected(false);
+                                        });
+                            });
+                });
     }
 
     public void initWorldMap(Dungeon dungeon)
     {
-        //CHECK THE PROPERTY
-//        if(widthField == null)
-//            widthField = new IntField(1, 20, dungeon.defaultWidth);
-//
-//        if(heightField == null)
-//            heightField = new IntField(1, 20, dungeon.defaultHeight);
-//
         this.dungeon = dungeon;
         this.dungeon.dPane.setDisable(true);
         mapPane.getChildren().clear();
-//        mapPane.setBorder(new Border(new BorderStroke(Color.RED, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderWidths.DEFAULT)));
-
 
         dungeon.dPane.renderAll();
         mapPane.getChildren().add(dungeon.dPane);

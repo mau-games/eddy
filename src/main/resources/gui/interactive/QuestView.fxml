@@ -1,29 +1,34 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.geometry.Insets?>
-<?import javafx.scene.control.Button?>
-<?import javafx.scene.control.Label?>
-<?import javafx.scene.control.ScrollPane?>
-<?import javafx.scene.control.ToolBar?>
-<?import javafx.scene.layout.BorderPane?>
-<?import javafx.scene.layout.Pane?>
-<?import javafx.scene.layout.StackPane?>
-<?import javafx.scene.text.Font?>
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
 
-<fx:root fx:id="rootWorldViewPane" stylesheets="@../styling.css" type="javafx.scene.layout.BorderPane" xmlns="http://javafx.com/javafx/8.0.172-ea" xmlns:fx="http://javafx.com/fxml/1">
+<fx:root fx:id="rootWorldViewPane" stylesheets="@../styling.css" type="javafx.scene.layout.BorderPane" xmlns="http://javafx.com/javafx/10.0.2-internal" xmlns:fx="http://javafx.com/fxml/1">
+    <fx:define>
+        <ToggleGroup fx:id="questActionsTools"/>
+        <ToggleGroup fx:id="questActions"/>
+    </fx:define>
     <center>
         <BorderPane>
             <center>
-                <ScrollPane fx:id="mapScrollPane" styleClass="edge-to-edge" BorderPane.alignment="CENTER">
+                <ScrollPane fx:id="mapScrollPane" style="-fx-border-color: transparent lightgray transparent transparent; -fx-border-width: 2px;" styleClass="edge-to-edge" BorderPane.alignment="CENTER">
                     <Pane fx:id="mapPane" disable="true" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" />
                 </ScrollPane>
             </center>
             <bottom>
-                <StackPane fx:id="questPane" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefHeight="300.0" style="-fx-background-color: BLACK;">
-                    <StackPane.margin>
+                <FlowPane fx:id="questPane" hgap="5.0" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefHeight="300.0" style="-fx-border-width: 2px; -fx-border-color: lightgray; -fx-border-insets: 0;" vgap="5.0" BorderPane.alignment="CENTER_LEFT">
+                    <FlowPane.margin>
                         <Insets left="40.0" right="40.0" />
-                    </StackPane.margin>
-                </StackPane>
+                    </FlowPane.margin>
+               <children>
+                  <Button fx:id="questPlaceholder" mnemonicParsing="false" text="+" />
+               </children>
+               <padding>
+                  <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+               </padding>
+                </FlowPane>
             </bottom>
         </BorderPane>
     </center>
@@ -31,33 +36,40 @@
     <left>
         <BorderPane id="actionPane" style="-fx-background-color: BLACK;">
             <center>
-                <ToolBar id="tbQuestTools" maxWidth="1.7976931348623157E308" orientation="VERTICAL" style="-fx-background-color: black;">
-                    <Button id="btnToolCapture" maxWidth="1.7976931348623157E308" mnemonicParsing="false" text="Capture" textOverrun="CENTER_WORD_ELLIPSIS" />
-                    <Button id="btnToolDamage" maxWidth="1.7976931348623157E308" mnemonicParsing="false" text="Damage" />
-                    <Button id="btnToolDefend" maxWidth="1.7976931348623157E308" mnemonicParsing="false" text="Defend" />
-                    <Button id="btnToolEscort" maxWidth="1.7976931348623157E308" mnemonicParsing="false" text="Escort" />
-                    <Button id="btnToolExchange" maxWidth="1.7976931348623157E308" mnemonicParsing="false" text="Exchange" />
-                    <Button id="btnToolExperiment" maxWidth="1.7976931348623157E308" mnemonicParsing="false" text="Experiment" />
-                    <Button id="btnToolExplore" maxWidth="1.7976931348623157E308" mnemonicParsing="false" text="Explore" />
-                    <Button id="btnToolGather" maxWidth="1.7976931348623157E308" mnemonicParsing="false" text="Gather" />
-                    <Button id="btnToolGive" maxWidth="1.7976931348623157E308" mnemonicParsing="false" text="Give" />
-                    <Button id="btnToolGoto" maxWidth="1.7976931348623157E308" mnemonicParsing="false" text="Goto" />
-                    <Button id="btnToolKill" maxWidth="1.7976931348623157E308" mnemonicParsing="false" text="Kill" />
-                    <Button id="btnToolListen" maxWidth="1.7976931348623157E308" mnemonicParsing="false" text="Listen" />
-                    <Button id="btnToolRead" maxWidth="1.7976931348623157E308" mnemonicParsing="false" text="Read" />
-                    <Button id="btnToolRepair" maxWidth="1.7976931348623157E308" mnemonicParsing="false" text="Repair" />
-                    <Button id="btnToolReport" maxWidth="1.7976931348623157E308" mnemonicParsing="false" text="Report" />
-                    <Button id="btnToolSpy" maxWidth="1.7976931348623157E308" mnemonicParsing="false" text="Spy" />
-                    <Button id="btnToolStealth" maxWidth="1.7976931348623157E308" mnemonicParsing="false" text="Stealth" />
-                    <Button id="btnToolTake" maxWidth="1.7976931348623157E308" mnemonicParsing="false" text="Take" />
-                    <Button id="btnToolUse" maxWidth="1.7976931348623157E308" minWidth="-Infinity" mnemonicParsing="false" text="Use" />
+
+                <ToolBar fx:id="tbQuestTools" orientation="VERTICAL" prefWidth="150.0" style="-fx-background-color: black;">
+                    <ToggleButton id="btnToolCapture" maxWidth="1.7976931348623157E308" mnemonicParsing="false" text="Capture" textOverrun="CENTER_WORD_ELLIPSIS" />
+                    <ToggleButton id="btnToolDamage" maxWidth="1.7976931348623157E308" mnemonicParsing="false" text="Damage" toggleGroup="$questActionsTools" />
+                    <ToggleButton id="btnToolDefend" maxWidth="1.7976931348623157E308" mnemonicParsing="false" text="Defend" toggleGroup="$questActionsTools" />
+                    <ToggleButton id="btnToolEscort" maxWidth="1.7976931348623157E308" mnemonicParsing="false" text="Escort" toggleGroup="$questActionsTools" />
+                    <ToggleButton id="btnToolExchange" maxWidth="1.7976931348623157E308" mnemonicParsing="false" text="Exchange" toggleGroup="$questActionsTools" />
+                    <ToggleButton id="btnToolExperiment" maxWidth="1.7976931348623157E308" mnemonicParsing="false" text="Experiment" toggleGroup="$questActionsTools" />
+                    <ToggleButton id="btnToolExplore" maxWidth="1.7976931348623157E308" mnemonicParsing="false" text="Explore" toggleGroup="$questActionsTools" />
+                    <ToggleButton id="btnToolGather" maxWidth="1.7976931348623157E308" mnemonicParsing="false" text="Gather" toggleGroup="$questActionsTools" />
+                    <ToggleButton id="btnToolGive" maxWidth="1.7976931348623157E308" mnemonicParsing="false" text="Give" toggleGroup="$questActionsTools" />
+                    <ToggleButton id="btnToolGoto" maxWidth="1.7976931348623157E308" mnemonicParsing="false" text="Goto" toggleGroup="$questActionsTools" />
+                    <ToggleButton id="btnToolKill" maxWidth="1.7976931348623157E308" mnemonicParsing="false" text="Kill" toggleGroup="$questActionsTools" />
+                    <ToggleButton id="btnToolListen" maxWidth="1.7976931348623157E308" mnemonicParsing="false" text="Listen" toggleGroup="$questActionsTools" />
+                    <ToggleButton id="btnToolRead" maxWidth="1.7976931348623157E308" mnemonicParsing="false" text="Read" toggleGroup="$questActionsTools" />
+                    <ToggleButton id="btnToolRepair" maxWidth="1.7976931348623157E308" mnemonicParsing="false" text="Repair" toggleGroup="$questActionsTools" />
+                    <ToggleButton id="btnToolReport" maxWidth="1.7976931348623157E308" mnemonicParsing="false" text="Report" toggleGroup="$questActionsTools" />
+                    <ToggleButton id="btnToolSpy" maxWidth="1.7976931348623157E308" mnemonicParsing="false" text="Spy" toggleGroup="$questActionsTools" />
+                    <ToggleButton id="btnToolStealth" maxWidth="1.7976931348623157E308" mnemonicParsing="false" text="Stealth" toggleGroup="$questActionsTools" />
+                    <ToggleButton id="btnToolTake" maxWidth="1.7976931348623157E308" mnemonicParsing="false" text="Take" toggleGroup="$questActionsTools" />
+                    <ToggleButton id="btnToolUse" maxWidth="1.7976931348623157E308" minWidth="-Infinity" mnemonicParsing="false" text="Use" toggleGroup="$questActionsTools" />
+               <padding>
+                  <Insets right="10.0" />
+               </padding>
                 </ToolBar>
             </center>
+         <padding>
+            <Insets bottom="10.0" left="10.0" top="10.0" />
+         </padding>
         </BorderPane>
     </left>
     
    <right>
-      <BorderPane maxWidth="1.7976931348623157E308">
+      <BorderPane maxWidth="1.7976931348623157E308" style="-fx-background-color: black;">
           <top>
               <Label contentDisplay="CENTER" maxWidth="1.7976931348623157E308" text="GENERATED QUESTS" textAlignment="CENTER" textFill="white" underline="true" wrapText="true" BorderPane.alignment="TOP_CENTER">
                   <font>
@@ -66,7 +78,7 @@
               </Label>
           </top>
           <center>
-              <ToolBar id="tbQuestPCG" maxWidth="1.7976931348623157E308" orientation="VERTICAL" style="-fx-background-color: PINK;" StackPane.alignment="CENTER">
+              <ToolBar id="tbQuestPCG" maxWidth="1.7976931348623157E308" orientation="VERTICAL" StackPane.alignment="CENTER">
                   <StackPane.margin>
                       <Insets top="70.0" />
                   </StackPane.margin>
@@ -80,6 +92,9 @@
                       </StackPane.margin></Button>
               </StackPane>
           </bottom>
+         <padding>
+            <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+         </padding>
        </BorderPane>
    </right>
 </fx:root>
