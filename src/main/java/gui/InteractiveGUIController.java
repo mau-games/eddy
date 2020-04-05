@@ -255,7 +255,6 @@ public class InteractiveGUIController implements Initializable, Listener {
 				backToWorldView();
 		 }
 		 else if(e instanceof RequestQuestView){
-		 	questView.initWorldMap(dungeonMap);
 			showQuestView();
 		}
 
@@ -535,7 +534,7 @@ public class InteractiveGUIController implements Initializable, Listener {
 		AnchorPane.setLeftAnchor(questView, 0.0);
 		mainPane.getChildren().add(questView);
 
-		questView.initQuestView();
+		questView.initWorldMap(dungeonMap);
 
 		suggestionsView.setActive(false);
 		roomView.setActive(false);

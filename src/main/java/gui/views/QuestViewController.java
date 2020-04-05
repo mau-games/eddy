@@ -3,12 +3,16 @@ package gui.views;
 import game.ApplicationConfig;
 import game.Dungeon;
 import gui.utils.InformativePopupManager;
+import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
 import javafx.scene.control.*;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
+import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
@@ -60,9 +64,10 @@ public class QuestViewController extends BorderPane implements Listener {
         router.registerListener(this, new MapUpdate(null));
 
         initQuestView();
+        initActionToolbar();
     }
 
-    public void initQuestView() {
+    private void initQuestView() {
         questPane.getChildren().stream()
                 .filter(node -> node.getId().equals("questPlaceholder"))
                 .forEach(node -> {
@@ -72,11 +77,20 @@ public class QuestViewController extends BorderPane implements Listener {
                                 tbQuestTools.getItems().stream()
                                         .filter(action -> ((ToggleButton) action).isSelected())
                                         .forEach(selected -> {
-                                            ToggleButton tb = (ToggleButton) selected;
+                                            ToggleButton toggleButton = (ToggleButton) selected;
                                             ToggleButton toAdd = new ToggleButton();
-                                            toAdd.setText(tb.getText());
+                                            toAdd.setText(toggleButton.getText());
                                             toAdd.setToggleGroup(questActions);
-                                            //TODO: add event for click on ToggleButton in questView
+                                            toAdd.addEventHandler(MouseEvent.MOUSE_CLICKED, e -> {
+                                                if(e.getButton().equals(MouseButton.PRIMARY)){
+                                                    tbQuestTools.getItems().stream()
+                                                            .filter(a -> ((ToggleButton)a).isSelected())
+                                                            .forEach(s -> replaceQuestAction(toAdd, (ToggleButton) s));
+                                                } else if (e.getButton().equals(MouseButton.SECONDARY)){
+                                                    System.out.println("secondary");
+                                                    //todo: add a popup option menu
+                                                }
+                                            });
                                             questPane.getChildren().add(actionCount - 1, toAdd);
 
                                             Label arrow = new Label("=>");
@@ -85,14 +99,43 @@ public class QuestViewController extends BorderPane implements Listener {
                                             arrow.setStyle("-fx-background-color: transparent;");
 
                                             questPane.getChildren().add(actionCount, arrow);
-                                            tb.setSelected(false);
+                                            toggleButton.setSelected(false);
                                         });
                             });
                 });
+
+        this.addEventHandler(KeyEvent.KEY_PRESSED, event -> {
+            if(event.getCode().equals(KeyCode.DELETE)){
+                questPane.getChildren().stream()
+                        .filter(questAction -> questAction instanceof ToggleButton)
+                        .filter(questAction -> ((ToggleButton)questAction).isSelected())
+                        .forEach(questAction -> {
+                            System.out.println(event.getCharacter());
+                            Platform.runLater(() -> {
+                                questPane.getChildren().remove(questPane.getChildren().indexOf(questAction) + 1);
+                                questPane.getChildren().remove(questAction);
+                            });
+                        });
+            }
+        });
+                //TODO: add a listener for the toolBar action
     }
 
-    public void initWorldMap(Dungeon dungeon)
-    {
+    private void initActionToolbar(){
+        tbQuestTools.getItems()
+                .forEach(toolbarAction -> {
+                    toolbarAction.addEventHandler(MouseEvent.MOUSE_CLICKED, event -> {
+                        questPane.getChildren()
+                                .filtered(questAction -> questAction instanceof ToggleButton)
+                                .filtered(questAction -> ((ToggleButton)questAction).isSelected())
+                                .forEach(questAction -> {
+                                    replaceQuestAction((ToggleButton)questAction, (ToggleButton)toolbarAction);
+                                });
+                    });
+                });
+    }
+
+    public void initWorldMap(Dungeon dungeon) {
         this.dungeon = dungeon;
         this.dungeon.dPane.setDisable(true);
         mapPane.getChildren().clear();
@@ -115,6 +158,12 @@ public class QuestViewController extends BorderPane implements Listener {
         this.isActive = active;
     }
 
+    private void replaceQuestAction(ToggleButton tbToReplace, ToggleButton tb2){
+        tbToReplace.setText(tb2.getText());
+        tb2.setSelected(false);
+        tbToReplace.setSelected(false);
+    }
+
     public void selectBrush(){
 
     }
@@ -122,9 +171,9 @@ public class QuestViewController extends BorderPane implements Listener {
     @FXML
     private void backWorldView(ActionEvent event) throws IOException
     {
-//        router.postEvent(new Stop());
         dungeon.dPane.setDisable(false);
         router.postEvent(new RequestWorldView());
     }
+
 
 }
