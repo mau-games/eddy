@@ -885,10 +885,10 @@ public class MapRenderer implements Listener {
 			image = new Image("/" + config.getInternalConfig().getString("map.tiles.hero"), width, height, false, true);
 			break;
 		case NPC:
-			image = new Image("/" + config.getInternalConfig().getString("map.tiles.hero"), width, height, false, true);
+			image = new Image("/" + config.getInternalConfig().getString("map.tiles.npc"), width, height, false, true);
 			break;
 		case ITEM:
-			image = new Image("/" + config.getInternalConfig().getString("map.tiles.treasure"), width, height, false, true);
+			image = new Image("/" + config.getInternalConfig().getString("map.tiles.item"), width, height, false, true);
 			break;
 			//TODO: add new tiles
 //		case DOORENTER:
@@ -934,10 +934,10 @@ public class MapRenderer implements Listener {
 				image = new Image("/" + config.getInternalConfig().getString("map.tiles.hero"));
 				break;
 			case NPC:
-				image = new Image("/" + config.getInternalConfig().getString("map.tiles.hero"));
+				image = new Image("/" + config.getInternalConfig().getString("map.tiles.npc"));
 				break;
 			case ITEM:
-				image = new Image("/" + config.getInternalConfig().getString("map.tiles.treasure"));
+				image = new Image("/" + config.getInternalConfig().getString("map.tiles.item"));
 				break;
 			//TODO: add new tiles
 //			case DOORENTER:

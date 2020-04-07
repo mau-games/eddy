@@ -9,7 +9,9 @@
             "doorenter": "graphics/tiles/entrydoor.png",
             "door": "graphics/tiles/door.png",
             "lock": "graphics/tiles/lock.png",
-            "hero": "graphics/tiles/heroTile.png"
+            "hero": "graphics/tiles/heroTile.png",
+            "npc": "graphics/tiles/npc.png",
+            "item": "graphics/tiles/item.png"
         },
         "mesopatterns": {
             "ambush": "graphics/mesopatterns/ambush.png",

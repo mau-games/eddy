@@ -127,7 +127,7 @@
 						<ImageView fitWidth="40.0" pickOnBounds="true"
 								   preserveRatio="true">
 							<image>
-								<Image url="@../../graphics/tiles/heroTile.png" />
+								<Image url="@../../graphics/tiles/NPC.png" />
 							</image>
 						</ImageView>
 					</graphic>
@@ -139,7 +139,7 @@
 						<ImageView fitWidth="40.0" pickOnBounds="true"
 								   preserveRatio="true">
 							<image>
-								<Image url="@../../graphics/tiles/treasure.png" />
+								<Image url="@../../graphics/tiles/item.png" />
 							</image>
 						</ImageView>
 					</graphic>
