@@ -16,8 +16,10 @@ public enum TileTypes {
     DOOR(4),
     ENEMY_BOSS(5),
     HERO(6),
-    NONE(7);
-	
+	NPC(7),
+	ITEM(8),
+	NONE(9);
+
 	private final int value;
 	
 	private TileTypes(int value){
@@ -79,6 +81,12 @@ public enum TileTypes {
 			break;
 		case 6:
 			tile = TileTypes.HERO;
+			break;
+		case 7:
+			tile = TileTypes.NPC;
+			break;
+		case 8:
+			tile = TileTypes.ITEM;
 			break;
 		default:
 			tile = TileTypes.NONE;

@@ -109,13 +109,37 @@
 					</graphic>
 				</ToggleButton>
 				<ToggleButton contentDisplay="TOP" prefWidth="75.0"
-					mnemonicParsing="false" text="BOSS" toggleGroup="$brushes"
-					onAction="#selectBrush" fx:id="bossEnemyBtn">
+							  mnemonicParsing="false" text="BOSS" toggleGroup="$brushes"
+							  onAction="#selectBrush" fx:id="bossEnemyBtn">
 					<graphic>
 						<ImageView fitWidth="40.0" pickOnBounds="true"
-							preserveRatio="true">
+								   preserveRatio="true">
 							<image>
 								<Image url="@../../graphics/tiles/enemy.png" />
+							</image>
+						</ImageView>
+					</graphic>
+				</ToggleButton>
+				<ToggleButton contentDisplay="TOP" prefWidth="75.0"
+							  mnemonicParsing="false" text="NPC" toggleGroup="$brushes"
+							  onAction="#selectBrush" fx:id="npcBtn">
+					<graphic>
+						<ImageView fitWidth="40.0" pickOnBounds="true"
+								   preserveRatio="true">
+							<image>
+								<Image url="@../../graphics/tiles/heroTile.png" />
+							</image>
+						</ImageView>
+					</graphic>
+				</ToggleButton>
+				<ToggleButton contentDisplay="TOP" prefWidth="75.0"
+							  mnemonicParsing="false" text="Item" toggleGroup="$brushes"
+							  onAction="#selectBrush" fx:id="itemBtn">
+					<graphic>
+						<ImageView fitWidth="40.0" pickOnBounds="true"
+								   preserveRatio="true">
+							<image>
+								<Image url="@../../graphics/tiles/treasure.png" />
 							</image>
 						</ImageView>
 					</graphic>

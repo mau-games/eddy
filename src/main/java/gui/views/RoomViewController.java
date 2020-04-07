@@ -11,6 +11,7 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.Map.Entry;
 
+import game.tiles.*;
 import org.apache.commons.io.FileUtils;
 
 import collectors.ActionLogger;
@@ -26,11 +27,6 @@ import game.Room;
 import game.Tile;
 import game.MapContainer;
 import game.TileTypes;
-import game.tiles.BossEnemyTile;
-import game.tiles.EnemyTile;
-import game.tiles.FloorTile;
-import game.tiles.TreasureTile;
-import game.tiles.WallTile;
 import generator.algorithm.Algorithm.AlgorithmTypes;
 import generator.algorithm.MAPElites.Dimensions.GADimension.DimensionTypes;
 import generator.algorithm.MAPElites.GACell;
@@ -862,6 +858,12 @@ public class RoomViewController extends BorderPane implements Listener
 			case "BOSS":
 				myBrush.SetMainComponent(new BossEnemyTile());
 				break;
+			case "NPC":
+				myBrush.SetMainComponent(new NpcTile());
+				break;
+			case "Item":
+				myBrush.SetMainComponent(new ItemTile());
+				break;
 			}
 		
 			ActionLogger.getInstance().storeAction(ActionType.CHANGE_VALUE, 
@@ -1188,7 +1190,7 @@ public class RoomViewController extends BorderPane implements Listener
 	/**
 	 * Redraws the pattern, based on the current map layout.
 	 * 
-	 * @param container
+	 * @param room
 	 */
 	private synchronized void redrawPatterns(Room room) {
 		//Change those 2 width and height hardcoded values (420,420)

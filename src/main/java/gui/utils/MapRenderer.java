@@ -80,7 +80,7 @@ public class MapRenderer implements Listener {
 
 	private ArrayList<Image> tiles = new ArrayList<Image>();
 	private double patternOpacity = 0;
-	private int nbrOfTiles = 7;
+	private int nbrOfTiles = 9;
 	
 	private int finalMapWidth;
 	private int finalMapHeight;
@@ -884,6 +884,13 @@ public class MapRenderer implements Listener {
 		case HERO:
 			image = new Image("/" + config.getInternalConfig().getString("map.tiles.hero"), width, height, false, true);
 			break;
+		case NPC:
+			image = new Image("/" + config.getInternalConfig().getString("map.tiles.hero"), width, height, false, true);
+			break;
+		case ITEM:
+			image = new Image("/" + config.getInternalConfig().getString("map.tiles.treasure"), width, height, false, true);
+			break;
+			//TODO: add new tiles
 //		case DOORENTER:
 //			image = new Image("/" + config.getInternalConfig().getString("map.tiles.doorenter"), width, height, false, true);
 //			break;
@@ -926,6 +933,13 @@ public class MapRenderer implements Listener {
 			case HERO:
 				image = new Image("/" + config.getInternalConfig().getString("map.tiles.hero"));
 				break;
+			case NPC:
+				image = new Image("/" + config.getInternalConfig().getString("map.tiles.hero"));
+				break;
+			case ITEM:
+				image = new Image("/" + config.getInternalConfig().getString("map.tiles.treasure"));
+				break;
+			//TODO: add new tiles
 //			case DOORENTER:
 //				image = new Image("/" + config.getInternalConfig().getString("map.tiles.doorenter"));
 //				break;
