@@ -1,0 +1,81 @@
+package game.quest;
+
+import finder.geometry.Point;
+
+/**
+ * @author Eric Grevillius
+ * @author Elin Olsson
+ */
+public class Action {
+    private boolean precondition;
+    private ActionType type;
+    private Point position;
+    private String name;
+
+    public Action() {
+        precondition = false;
+    }
+
+    public Action(boolean precondition) {
+        this.precondition = precondition;
+    }
+
+    public Action(ActionType type) {
+        this.type = type;
+    }
+
+    public Action(int typeValue){
+        this.type = ActionType.ToActionType(typeValue);
+    }
+
+    public Action(boolean precondition, ActionType type) {
+        this.precondition = precondition;
+        this.type = type;
+    }
+
+    public Action(Action action) {
+        precondition = action.isPreconditionMet();
+        type = action.getType();
+        position = action.getPosition();
+        name = action.getName();
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public boolean isPreconditionMet() {
+        return precondition;
+    }
+
+    public void setPrecondition(boolean precondition) {
+        this.precondition = precondition;
+    }
+
+    public ActionType getType() {
+        return type;
+    }
+
+    public void setType(ActionType type) {
+        this.type = type;
+    }
+
+    public Point getPosition() {
+        return position;
+    }
+
+    public void setPosition(Point position) {
+        this.position = position;
+    }
+
+    public void setPosition(int x, int y){
+        this.position.setX(x);
+        this.position.setY(y);
+    }
+
+    public Action copy()
+    {
+        return new Action(this);
+    }
+
+}

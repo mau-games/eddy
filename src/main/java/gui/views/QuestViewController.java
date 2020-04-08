@@ -30,6 +30,10 @@ import util.eventrouting.events.Stop;
 
 import java.io.IOException;
 
+/**
+ * @author Eric Grevillius
+ * @author Elin Olsson
+ */
 public class QuestViewController extends BorderPane implements Listener {
     private final EventRouter router = EventRouter.getInstance();
     private ApplicationConfig config;

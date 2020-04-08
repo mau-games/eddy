@@ -18,6 +18,7 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
+import game.quest.Quest;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
@@ -66,7 +67,7 @@ public class Dungeon implements Listener
 	private int saveCounter = 1;
 	
 	public MutableNetwork<Room, RoomEdge> network; //TODO: Public for now
-	
+	private Quest quest;
 	ArrayList<Room> rooms;
 	Room initialRoom;
 	Point initialPos;
@@ -116,6 +117,8 @@ public class Dungeon implements Listener
 		this.defaultHeight = defaultHeight;
 		this.defaultConfig = defaultConfig;
 		this.scaleFactor = defaultScaleFactor;
+
+		quest = new Quest();
 		
 		//Create rooms
 		rooms = new ArrayList<Room>();

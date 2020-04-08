@@ -38,7 +38,7 @@
             <center>
 
                 <ToolBar fx:id="tbQuestTools" orientation="VERTICAL" prefWidth="150.0" style="-fx-background-color: black;">
-                    <ToggleButton id="btnToolCapture" maxWidth="1.7976931348623157E308" mnemonicParsing="false" text="Capture" textOverrun="CENTER_WORD_ELLIPSIS" />
+                    <ToggleButton id="btnToolCapture" maxWidth="1.7976931348623157E308" mnemonicParsing="false" text="Capture" toggleGroup="$questActionsTools" />
                     <ToggleButton id="btnToolDamage" maxWidth="1.7976931348623157E308" mnemonicParsing="false" text="Damage" toggleGroup="$questActionsTools" />
                     <ToggleButton id="btnToolDefend" maxWidth="1.7976931348623157E308" mnemonicParsing="false" text="Defend" toggleGroup="$questActionsTools" />
                     <ToggleButton id="btnToolEscort" maxWidth="1.7976931348623157E308" mnemonicParsing="false" text="Escort" toggleGroup="$questActionsTools" />
