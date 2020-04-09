@@ -24,6 +24,7 @@ import util.eventrouting.EventRouter;
 import util.eventrouting.Listener;
 import util.eventrouting.PCGEvent;
 import util.eventrouting.events.MapUpdate;
+import util.eventrouting.events.RequestQuestView;
 import util.eventrouting.events.RequestWorldView;
 import util.eventrouting.events.Stop;
 
@@ -66,6 +67,7 @@ public class QuestViewController extends BorderPane implements Listener {
         }
 
         router.registerListener(this, new MapUpdate(null));
+        router.registerListener(this, new RequestQuestView());
 
         initQuestView();
         initActionToolbar();
@@ -155,7 +157,13 @@ public class QuestViewController extends BorderPane implements Listener {
 
     @Override
     public void ping(PCGEvent e) {
-
+        if (e instanceof RequestQuestView){
+            tbQuestTools.getItems().forEach(node -> {
+                String buttonText = ((ToggleButton)node).getText();
+                boolean disable = dungeon.getQuest().getAvailableActions().stream().noneMatch(actionType -> actionType.toString().equals(buttonText));
+                node.setDisable(disable);
+            });
+        }
     }
 
     public void setActive(boolean active) {

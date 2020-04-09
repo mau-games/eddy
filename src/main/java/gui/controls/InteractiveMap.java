@@ -28,6 +28,7 @@ import util.Point;
 import util.eventrouting.EventRouter;
 import util.eventrouting.Listener;
 import util.eventrouting.PCGEvent;
+import util.eventrouting.events.MapQuestUpdate;
 import util.eventrouting.events.RequestWorldView;
 import util.eventrouting.events.SaveDisplayedCells;
 
@@ -126,6 +127,8 @@ public class InteractiveMap extends GridPane implements Listener {
 //		}
 		
 		brush.DoneDrawing();
+		EventRouter.getInstance().postEvent(new MapQuestUpdate());
+
 	}
 	
 	public void updateTileInARoom(Room aRoom, ImageView tile, Drawer brush)
@@ -148,6 +151,8 @@ public class InteractiveMap extends GridPane implements Listener {
 		}
 		
 		brush.simulateDrawing(Point.castToGeometry(p), aRoom, this);
+		EventRouter.getInstance().postEvent(new MapQuestUpdate());
+
 	}
 
 	public Point CheckTile(ImageView tile)

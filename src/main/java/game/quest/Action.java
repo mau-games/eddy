@@ -25,7 +25,7 @@ public class Action {
     }
 
     public Action(int typeValue){
-        this.type = ActionType.ToActionType(typeValue);
+        this.type = ActionType.toActionType(typeValue);
     }
 
     public Action(boolean precondition, ActionType type) {

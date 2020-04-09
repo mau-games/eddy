@@ -5,26 +5,26 @@ package game.quest;
  * @author Elin Olsson
  */
 public enum ActionType {
-    capture(0),
-    damage(1),
-    defend(2),
-    escort(3),
-    exchange(4),
-    experiment(5),
-    explore(6),
-    gather(7),
-    give(8),
-    go_to(9),
-    kill(10),
-    listen(11),
-    read(12),
-    repair(13),
-    report(14),
-    spy(15),
-    stealth(16),
-    take(17),
-    use(18),
-    none(19);
+    CAPTURE(0),
+    DAMAGE(1),
+    DEFEND(2),
+    ESCORT(3),
+    EXCHANGE(4),
+    EXPERIMENT(5),
+    EXPLORE(6),
+    GATHER(7),
+    GIVE(8),
+    GO_TO(9),
+    KILL(10),
+    LISTEN(11),
+    READ(12),
+    REPAIR(13),
+    REPORT(14),
+    SPY(15),
+    STEALTH(16),
+    TAKE(17),
+    USE(18),
+    NONE(19);
 
     private final int value;
 
@@ -36,68 +36,68 @@ public enum ActionType {
         return value;
     }
 
-    public static ActionType ToActionType(int value){
+    public static ActionType toActionType(int value){
         ActionType type;
         switch (value){
             case 0:
-                type = capture;
+                type = CAPTURE;
                 break;
             case 1:
-                type = damage;
+                type = DAMAGE;
                 break;
             case 2:
-                type = defend;
+                type = DEFEND;
                 break;
             case 3:
-                type = escort;
+                type = ESCORT;
                 break;
             case 4:
-                type = exchange;
+                type = EXCHANGE;
                 break;
             case 5:
-                type = experiment;
+                type = EXPERIMENT;
                 break;
             case 6:
-                type = explore;
+                type = EXPLORE;
                 break;
             case 7:
-                type = gather;
+                type = GATHER;
                 break;
             case 8:
-                type = give;
+                type = GIVE;
                 break;
             case 9:
-                type = go_to;
+                type = GO_TO;
                 break;
             case 10:
-                type = kill;
+                type = KILL;
                 break;
             case 11:
-                type = listen;
+                type = LISTEN;
                 break;
             case 12:
-                type = read;
+                type = READ;
                 break;
             case 13:
-                type = repair;
+                type = REPAIR;
                 break;
             case 14:
-                type = report;
+                type = REPORT;
                 break;
             case 15:
-                type = spy;
+                type = SPY;
                 break;
             case 16:
-                type = stealth;
+                type = STEALTH;
                 break;
             case 17:
-                type = take;
+                type = TAKE;
                 break;
             case 18:
-                type = use;
+                type = USE;
                 break;
             default:
-                type = none;
+                type = NONE;
         }
         return type;
     }

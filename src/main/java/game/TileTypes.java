@@ -43,12 +43,24 @@ public enum TileTypes {
 		return value == ENEMY.getValue();
 	}
 
+	public boolean isEnemyBoss(){
+		return value == ENEMY_BOSS.getValue();
+	}
+
 	public boolean isDoor(){
 		return value == DOOR.getValue();
 	}	
 	
 	public boolean isWall() {
 		return value == WALL.getValue();
+	}
+
+	public boolean isItem(){
+		return value == ITEM.getValue();
+	}
+
+	public boolean isNPC(){
+		return value == NPC.getValue();
 	}
 
 	/**

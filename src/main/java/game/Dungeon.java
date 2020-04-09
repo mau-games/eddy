@@ -41,11 +41,7 @@ import util.Point;
 import util.eventrouting.EventRouter;
 import util.eventrouting.Listener;
 import util.eventrouting.PCGEvent;
-import util.eventrouting.events.FocusRoom;
-import util.eventrouting.events.RequestConnection;
-import util.eventrouting.events.RequestRoomView;
-import util.eventrouting.events.RequestWorldView;
-import util.eventrouting.events.Stop;
+import util.eventrouting.events.*;
 
 /***
  * Dungeon class holds a dungeon in the world of eddy, a dungeon is comprised of:
@@ -118,7 +114,7 @@ public class Dungeon implements Listener
 		this.defaultConfig = defaultConfig;
 		this.scaleFactor = defaultScaleFactor;
 
-		quest = new Quest();
+		quest = new Quest(this);
 		
 		//Create rooms
 		rooms = new ArrayList<Room>();
@@ -196,7 +192,7 @@ public class Dungeon implements Listener
 												height);
 		
 		saveDungeonXML();
-
+		EventRouter.getInstance().postEvent(new MapQuestUpdate());
 	}
 	
 	/**
@@ -272,7 +268,7 @@ public class Dungeon implements Listener
 												false,
 												roomToRemove);
 		saveDungeonXML();
-
+		EventRouter.getInstance().postEvent(new MapQuestUpdate());
 	}
 	
 	/**
@@ -333,6 +329,7 @@ public class Dungeon implements Listener
 												toPosition);
 		
 		saveDungeonXML();
+
 	}
 	
 	public void setInitialRoom(Room initRoom, Point initialPos)
@@ -635,7 +632,11 @@ public class Dungeon implements Listener
 	        System.out.println("UsersXML: Error trying to instantiate DocumentBuilder " + pce);
 	    }
 	}
-	
-///////////////////////// TESTING TRAVERSAL AND RETRIEVAL OF ALL THE PATHS FROM A ROOM TO ANOTHER ROOM ///////////////////////////	
+
+	public Quest getQuest() {
+		return quest;
+	}
+
+	///////////////////////// TESTING TRAVERSAL AND RETRIEVAL OF ALL THE PATHS FROM A ROOM TO ANOTHER ROOM ///////////////////////////
 
 }
