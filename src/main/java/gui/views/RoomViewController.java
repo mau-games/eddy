@@ -1500,7 +1500,6 @@ public class RoomViewController extends BorderPane implements Listener
 			if (event.getTarget() instanceof ImageView) {
 				// Edit the map
 				ImageView tile = (ImageView) event.getTarget();
-				
 				//TODO: This should go to its own class or function at least
 //				if(event.isControlDown())
 //					lockBrush.setSelected(true);

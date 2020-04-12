@@ -56,6 +56,7 @@ import util.config.MissingConfigurationException;
 import util.eventrouting.EventRouter;
 import util.eventrouting.events.AlgorithmDone;
 import util.eventrouting.events.MapLoaded;
+import util.eventrouting.events.MapQuestUpdate;
 import util.eventrouting.events.MapUpdate;
 import generator.algorithm.Algorithm.AlgorithmTypes;
 import generator.algorithm.MAPElites.Dimensions.GADimension;
@@ -621,6 +622,7 @@ public class Room {
 				setTile(i, j, suggestions.getTile(i, j));
 //				matrix[j][i] = suggestions.matrix[j][i];
 //				tileMap[j * width + i] = new Tile(suggestions.tileMap[j * width + i]);
+				EventRouter.getInstance().postEvent(new MapQuestUpdate(getTile(i,j),suggestions.getTile(i,j)));
 			}
 		}	
 		

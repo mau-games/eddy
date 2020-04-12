@@ -2,11 +2,14 @@ package game.quest;
 
 import finder.geometry.Point;
 
+import java.util.UUID;
+
 /**
  * @author Eric Grevillius
  * @author Elin Olsson
  */
 public class Action {
+    private UUID id;
     private boolean precondition;
     private ActionType type;
     private Point position;
@@ -40,8 +43,16 @@ public class Action {
         name = action.getName();
     }
 
+    public UUID getId() {
+        return id;
+    }
+
+    public void setId(UUID id) {
+        this.id = id;
+    }
+
     public String getName() {
-        return name;
+        return type.toString();
     }
 
     public boolean isPreconditionMet() {

@@ -18,7 +18,10 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
+import finder.patterns.micro.Enemy;
+import finder.patterns.micro.Treasure;
 import game.quest.Quest;
+import game.tiles.*;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
@@ -30,7 +33,6 @@ import collectors.ActionLogger.ActionType;
 import collectors.ActionLogger.TargetPane;
 import collectors.ActionLogger.View;
 import finder.patterns.micro.Boss;
-import game.tiles.BossEnemyTile;
 import generator.algorithm.MAPElites.Dimensions.GADimension.DimensionTypes;
 import generator.config.GeneratorConfig;
 import gui.InteractiveGUIController;
@@ -81,6 +83,11 @@ public class Dungeon implements Listener
 	
 	//The start from information that is collected from the dungeon as a spatial platform for interconnected rooms.
 	private ArrayList<BossEnemyTile> bosses;
+	private ArrayList<EnemyTile> enemies;
+	private ArrayList<NpcTile> npcs;
+	private ArrayList<ItemTile> items;
+	private ArrayList<TreasureTile> treasures;
+
 	
 	//scale factor of the (canvas) view
 	private int scaleFactor;
@@ -98,7 +105,11 @@ public class Dungeon implements Listener
 		
 		//Initialize neccesary information
 		bosses = new ArrayList<BossEnemyTile>();
-		
+		enemies = new ArrayList<EnemyTile>();
+		npcs = new ArrayList<NpcTile>();
+		items = new ArrayList<ItemTile>();
+		treasures = new ArrayList<TreasureTile>();
+
 		dPane = new DungeonPane(this);
 		pathfinding = new DungeonPathFinder(this);
 		network = NetworkBuilder.undirected().allowsParallelEdges(true).build();
@@ -132,6 +143,7 @@ public class Dungeon implements Listener
 		
 		//We set this created room as the initial room
 		setInitialRoom(rooms.get(0), new Point(0,0));
+		EventRouter.getInstance().postEvent(new MapQuestUpdate());
 	}
 	
 	@Override
@@ -425,29 +437,126 @@ public class Dungeon implements Listener
 			pathfinding.innerCalculation();
 		}
 	}
-	
+
 	public void addBoss(BossEnemyTile bossTile)
 	{
+		System.out.println("boss added");
 		bosses.add(bossTile);
 	}
-	
+
 	public void removeBoss(BossEnemyTile bossTile)
 	{
 		bosses.remove(bossTile);
 	}
-	
+
 	public void replaceBoss(BossEnemyTile bossTile, BossEnemyTile prevbossTile)
 	{
 		bosses.remove(prevbossTile);
 		bosses.add(bossTile);
 	}
-	
+
 	public ArrayList<BossEnemyTile> getBosses()
 	{
 		return bosses;
 	}
-	
-	///////////////////////// TODO: TESTING TRAVERSAL AND RETRIEVAL OF ALL THE PATHS FROM A ROOM TO ANOTHER ROOM ///////////////////////////	
+
+	public void addEnemy(EnemyTile enemyTile)
+	{
+		System.out.println("enemy added");
+		enemies.add(enemyTile);
+	}
+
+	public void removeEnemy(EnemyTile enemyTile)
+	{
+		System.out.println("enemy removed");
+		enemies.removeIf(tile -> tile.GetCenterPosition().getX() == enemyTile.GetCenterPosition().getX() &&
+				tile.GetCenterPosition().getY() == enemyTile.GetCenterPosition().getY() &&
+				tile.GetType().getValue() == enemyTile.GetType().getValue());
+	}
+
+	public void replaceEnemy(EnemyTile enemyTile, EnemyTile prevenemyTile)
+	{
+		enemies.remove(prevenemyTile);
+		enemies.add(enemyTile);
+	}
+
+	public ArrayList<EnemyTile> getEnemies()
+	{
+		return enemies;
+	}
+
+	public void addNpc(NpcTile npcTile)
+	{
+		System.out.println("npc added");
+		npcs.add(npcTile);
+	}
+
+	public void removeNpc(NpcTile npcTile)
+	{
+		System.out.println("npc removed");
+		npcs.removeIf(tile -> tile.GetCenterPosition().getX() == npcTile.GetCenterPosition().getX() &&
+				tile.GetCenterPosition().getY() == npcTile.GetCenterPosition().getY() &&
+				tile.GetType().getValue() == npcTile.GetType().getValue());
+	}
+
+	public void replaceNpc(NpcTile npcTile, NpcTile prevnpcTile)
+	{
+		npcs.remove(prevnpcTile);
+		npcs.add(npcTile);
+	}
+
+	public ArrayList<NpcTile> getNpcs()
+	{
+		return npcs;
+	}
+
+	public void addItem(ItemTile itemTile)
+	{
+		System.out.println("item added");
+		items.add(itemTile);
+	}
+
+	public void removeItem(ItemTile itemTile)
+	{
+		items.removeIf(tile -> tile.GetCenterPosition().getX() == itemTile.GetCenterPosition().getX() &&
+				tile.GetCenterPosition().getY() == itemTile.GetCenterPosition().getY() &&
+				tile.GetType().getValue() == itemTile.GetType().getValue());
+	}
+
+	public void replaceItem(ItemTile itemTile, ItemTile prevItemTile)
+	{
+		items.remove(prevItemTile);
+		items.add(itemTile);
+	}
+
+	public ArrayList<ItemTile> getItems() {
+		return items;
+	}
+
+	public void addTreasure(TreasureTile treasureTile)
+	{
+		System.out.println("treasure added");
+		treasures.add(treasureTile);
+	}
+
+	public void removeTreasure(TreasureTile treasureTile)
+	{
+		treasures.removeIf(tile -> tile.GetCenterPosition().getX() == treasureTile.GetCenterPosition().getX() &&
+				tile.GetCenterPosition().getY() == treasureTile.GetCenterPosition().getY() &&
+				tile.GetType().getValue() == treasureTile.GetType().getValue());
+	}
+
+	public void replaceTreasure(TreasureTile treasureTile, TreasureTile prevTreasureTile)
+	{
+		treasures.remove(prevTreasureTile);
+		treasures.add(treasureTile);
+	}
+
+	public ArrayList<TreasureTile> getTreasures() {
+		return treasures;
+	}
+
+	///////////////////////// TODO: TESTING TRAVERSAL AND RETRIEVAL OF ALL THE PATHS FROM A ROOM TO ANOTHER ROOM ///////////////////////////
 
 	Stack<Room> ConnectionPath = new Stack<Room>();
 	ArrayList<Stack<Room>> connectionPaths = new ArrayList<Stack<Room>>();
