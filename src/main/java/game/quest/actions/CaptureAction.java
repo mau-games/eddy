@@ -9,8 +9,8 @@ import game.quest.ActionType;
  */
 public class CaptureAction extends Action {
     public CaptureAction() {
+        this.setType(ActionType.CAPTURE);
     }
-
     public CaptureAction(boolean precondition) {
         super(precondition);
     }

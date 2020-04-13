@@ -1,5 +1,6 @@
 package game.quest.actions;
 
+import finder.geometry.Point;
 import game.quest.Action;
 import game.quest.ActionType;
 
@@ -8,6 +9,7 @@ import game.quest.ActionType;
  * @author Elin Olsson
  */
 public class ExchangeAction extends Action {
+    private Point secondPosition;
     public ExchangeAction() {
     }
 
@@ -17,5 +19,13 @@ public class ExchangeAction extends Action {
 
     public ExchangeAction(ActionType type) {
         super(type);
+    }
+
+    public Point getSecondPosition() {
+        return secondPosition;
+    }
+
+    public void setSecondPosition(Point secondPosition) {
+        this.secondPosition = secondPosition;
     }
 }

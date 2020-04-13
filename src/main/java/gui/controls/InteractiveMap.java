@@ -104,7 +104,7 @@ public class InteractiveMap extends GridPane implements Listener {
 				|| currentTile.GetType() == TileTypes.HERO) {
 			return;
 		}
-		
+		EventRouter.getInstance().postEvent(new MapQuestUpdate(currentTile, new Tile(currentTile.GetCenterPosition(), brush.GetMainComponent())));
 		brush.Draw(Point.castToGeometry(p), room, this);
 
 //		
@@ -127,7 +127,6 @@ public class InteractiveMap extends GridPane implements Listener {
 //		}
 		
 		brush.DoneDrawing();
-		EventRouter.getInstance().postEvent(new MapQuestUpdate());
 
 	}
 	
@@ -149,9 +148,8 @@ public class InteractiveMap extends GridPane implements Listener {
 				|| currentTile.GetType() == TileTypes.HERO) {
 			return;
 		}
-		
+		EventRouter.getInstance().postEvent(new MapQuestUpdate(currentTile, new Tile(currentTile.GetCenterPosition(), brush.GetMainComponent())));
 		brush.simulateDrawing(Point.castToGeometry(p), aRoom, this);
-		EventRouter.getInstance().postEvent(new MapQuestUpdate());
 
 	}
 
