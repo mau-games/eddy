@@ -9,6 +9,8 @@ import game.quest.ActionType;
  */
 public class ListenAction extends Action {
     public ListenAction() {
+        this.setType(ActionType.LISTEN);
+
     }
 
     public ListenAction(boolean precondition) {

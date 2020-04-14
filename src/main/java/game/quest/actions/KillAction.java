@@ -9,6 +9,8 @@ import game.quest.ActionType;
  */
 public class KillAction extends Action {
     public KillAction() {
+        this.setType(ActionType.KILL);
+
     }
 
     public KillAction(boolean precondition) {

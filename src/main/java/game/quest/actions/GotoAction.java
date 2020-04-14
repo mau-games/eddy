@@ -9,6 +9,8 @@ import game.quest.ActionType;
  */
 public class GotoAction extends Action {
     public GotoAction() {
+        this.setType(ActionType.GO_TO);
+
     }
 
     public GotoAction(boolean precondition) {

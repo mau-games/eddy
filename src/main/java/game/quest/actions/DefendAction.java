@@ -9,6 +9,8 @@ import game.quest.ActionType;
  */
 public class DefendAction extends Action {
     public DefendAction() {
+        this.setType(ActionType.DEFEND);
+
     }
 
     public DefendAction(boolean precondition) {

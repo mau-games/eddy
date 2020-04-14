@@ -9,6 +9,8 @@ import game.quest.ActionType;
  */
 public class StealthAction extends Action {
     public StealthAction() {
+        this.setType(ActionType.STEALTH);
+
     }
 
     public StealthAction(boolean precondition) {

@@ -9,6 +9,8 @@ import game.quest.ActionType;
  */
 public class RepairAction extends Action {
     public RepairAction() {
+        this.setType(ActionType.REPAIR);
+
     }
 
     public RepairAction(boolean precondition) {

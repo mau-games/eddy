@@ -9,6 +9,8 @@ import game.quest.ActionType;
  */
 public class ExperimentAction extends Action {
     public ExperimentAction() {
+        this.setType(ActionType.EXPERIMENT);
+
     }
 
     public ExperimentAction(boolean precondition) {

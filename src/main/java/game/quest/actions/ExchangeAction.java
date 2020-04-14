@@ -11,6 +11,8 @@ import game.quest.ActionType;
 public class ExchangeAction extends Action {
     private Point secondPosition;
     public ExchangeAction() {
+        this.setType(ActionType.EXCHANGE);
+
     }
 
     public ExchangeAction(boolean precondition) {

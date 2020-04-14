@@ -9,6 +9,7 @@ import game.quest.ActionType;
  */
 public class ReportAction extends Action {
     public ReportAction() {
+        this.setType(ActionType.REPORT);
     }
 
     public ReportAction(boolean precondition) {

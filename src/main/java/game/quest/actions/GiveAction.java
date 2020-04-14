@@ -12,6 +12,8 @@ public class GiveAction extends Action {
     private Point secondPosition;
 
     public GiveAction() {
+        this.setType(ActionType.GIVE);
+
     }
 
     public GiveAction(boolean precondition) {

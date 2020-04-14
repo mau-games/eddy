@@ -9,6 +9,8 @@ import game.quest.ActionType;
  */
 public class GatherAction extends Action {
     public GatherAction() {
+        this.setType(ActionType.GATHER);
+
     }
 
     public GatherAction(boolean precondition) {

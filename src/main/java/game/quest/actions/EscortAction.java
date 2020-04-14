@@ -10,6 +10,8 @@ import game.quest.ActionType;
 public class EscortAction extends Action {
 
     public EscortAction() {
+        this.setType(ActionType.ESCORT);
+
     }
 
     public EscortAction(boolean precondition) {

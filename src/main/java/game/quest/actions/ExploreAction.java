@@ -9,6 +9,8 @@ import game.quest.ActionType;
  */
 public class ExploreAction extends Action {
     public ExploreAction() {
+        this.setType(ActionType.EXPLORE);
+
     }
 
     public ExploreAction(boolean precondition) {

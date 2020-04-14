@@ -9,6 +9,8 @@ import game.quest.ActionType;
  */
 public class ReadAction extends Action {
     public ReadAction() {
+        this.setType(ActionType.READ);
+
     }
 
     public ReadAction(boolean precondition) {

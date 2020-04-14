@@ -9,6 +9,8 @@ import game.quest.ActionType;
  */
 public class UseAction extends Action {
     public UseAction() {
+        this.setType(ActionType.USE);
+
     }
 
     public UseAction(boolean precondition) {

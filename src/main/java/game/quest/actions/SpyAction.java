@@ -9,6 +9,8 @@ import game.quest.ActionType;
  */
 public class SpyAction extends Action {
     public SpyAction() {
+        this.setType(ActionType.SPY);
+
     }
 
     public SpyAction(boolean precondition) {

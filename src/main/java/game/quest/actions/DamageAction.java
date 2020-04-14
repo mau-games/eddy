@@ -9,6 +9,8 @@ import game.quest.ActionType;
  */
 public class DamageAction extends Action {
     public DamageAction() {
+        this.setType(ActionType.DAMAGE);
+
     }
 
     public DamageAction(boolean precondition) {

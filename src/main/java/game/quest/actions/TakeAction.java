@@ -11,6 +11,8 @@ import game.quest.ActionType;
 public class TakeAction extends Action {
     private Point secondPosition;
     public TakeAction() {
+        this.setType(ActionType.TAKE);
+
     }
 
     public TakeAction(boolean precondition) {
