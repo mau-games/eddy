@@ -21,3 +21,4 @@ public class GotoAction extends Action {
         super(type);
     }
 }
+

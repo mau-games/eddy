@@ -21,3 +21,4 @@ public class DefendAction extends Action {
         super(type);
     }
 }
+

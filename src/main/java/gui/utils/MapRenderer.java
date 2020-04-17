@@ -593,6 +593,25 @@ public class MapRenderer implements Listener {
 		}
 
 	}
+
+	public synchronized void drawEligibleTiles(GraphicsContext ctx,
+											   int[][] matrix,
+											   Bitmap borders,
+											   Point brushPosition,
+											   Color c) {
+
+		//TODO: The following calculation should probably be split out into a method ... should just send the width and the height instead
+		int width = matrix[0].length;
+		int height = matrix.length;
+		patternOpacity = config.getPatternOpacity();
+
+		double tileSize = width >= height ? ctx.getCanvas().getWidth() / width : ctx.getCanvas().getHeight() / height;
+
+		drawBitmapProperly(ctx, borders, c, tileSize);
+		if (borders.contains(brushPosition)) {
+			drawPoint(ctx, brushPosition, Color.WHITESMOKE, tileSize);
+		}
+	}
 	
 	/**
 	 * Draws the border of a room.

@@ -21,3 +21,4 @@ public class DamageAction extends Action {
         super(type);
     }
 }
+

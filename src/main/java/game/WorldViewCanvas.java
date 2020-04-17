@@ -6,10 +6,7 @@ import collectors.ActionLogger.ActionType;
 import collectors.ActionLogger.TargetPane;
 import collectors.ActionLogger.View;
 import gui.controls.LabeledCanvas;
-import gui.utils.DungeonDrawer;
-import gui.utils.MapRenderer;
-import gui.utils.MoveElementBrush;
-import gui.utils.RoomConnectorBrush;
+import gui.utils.*;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.SimpleDoubleProperty;
@@ -21,8 +18,8 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.paint.Color;
 import util.Point;
 import util.eventrouting.EventRouter;
-import util.eventrouting.events.FocusRoom;
-import util.eventrouting.events.RequestRoomView;
+import util.eventrouting.PCGEvent;
+import util.eventrouting.events.*;
 
 public class WorldViewCanvas 
 {
@@ -45,6 +42,7 @@ public class WorldViewCanvas
 	
 	//CANVAS
 	private Canvas borderCanvas;
+	private Canvas tileCanvas;
 	private Canvas pathCanvas;
 	private Canvas interFeasibilityCanvas; //creisi
 	
@@ -72,6 +70,18 @@ public class WorldViewCanvas
             	worldGraphicNode.startFullDrag();
             }
         });
+		worldGraphicNode.addEventFilter(MouseEvent.MOUSE_CLICKED, event -> {
+			source = (Node)event.getSource();
+			if (DungeonDrawer.getInstance().getBrush() instanceof QuestPositionBrush){
+				currentBrushPosition =  new Point((int)( event.getX() / tileSizeWidth.get()), (int)( event.getY() / tileSizeHeight.get() ));
+				DungeonDrawer.getInstance().getBrush().onClickRoom(owner,currentBrushPosition);
+				tileCanvas.setVisible(false);
+			}
+		});
+
+
+		EventRouter.getInstance().registerListener(this::ping, new RequestDisplayQuestTilesSelection());
+		EventRouter.getInstance().registerListener(this::ping, new RequestDisplayQuestTilesUnselection());
 		
 		rendered = false;
 		viewSizeHeight = 0;
@@ -92,6 +102,11 @@ public class WorldViewCanvas
 		worldGraphicNode.getChildren().add(borderCanvas);
 		borderCanvas.setVisible(false);
 		borderCanvas.setMouseTransparent(true);
+
+		tileCanvas = new Canvas(viewSizeHeight, viewSizeHeight);
+		worldGraphicNode.getChildren().add(tileCanvas);
+		tileCanvas.setVisible(false);
+		tileCanvas.setMouseTransparent(true);
 		
 		pathCanvas = new Canvas(viewSizeHeight, viewSizeHeight);
 		worldGraphicNode.getChildren().add(pathCanvas);
@@ -103,7 +118,18 @@ public class WorldViewCanvas
 		interFeasibilityCanvas.setVisible(true); //This should be controlled by a toggle button (simple)
 		interFeasibilityCanvas.setMouseTransparent(true);
 	}
-	
+
+	private void ping(PCGEvent e) {
+		if (e instanceof RequestDisplayQuestTilesSelection){
+//			System.out.println("DisplayQuestTiles");
+			tileCanvas.setVisible(true);
+			drawTiles();
+		} else if (e instanceof RequestDisplayQuestTilesUnselection){
+//			System.out.println("UnDisplayQuestTiles");
+			tileCanvas.setVisible(false);
+		}
+	}
+
 	//TODO: We can delete this method... probably is not useful anymore
 	public void setParent()
 	{
@@ -149,6 +175,9 @@ public class WorldViewCanvas
 		//Change the size of the border canvas (where you can place doors)
 		borderCanvas.setWidth(viewSizeWidth);
 		borderCanvas.setHeight(viewSizeHeight);
+
+		tileCanvas.setWidth(viewSizeWidth);
+		tileCanvas.setHeight(viewSizeHeight);
 		
 		pathCanvas.setWidth(viewSizeWidth);
 		pathCanvas.setHeight(viewSizeHeight);
@@ -386,6 +415,19 @@ public class WorldViewCanvas
 	    			owner.borders, 
 	    			Point.castToGeometry(currentBrushPosition) , 
 	    			Color.WHITE);
+		}
+	}
+
+	private synchronized void drawTiles()
+	{
+		if(tileCanvas.isVisible())
+		{
+			tileCanvas.getGraphicsContext2D().clearRect(0, 0, tileCanvas.getWidth(), tileCanvas.getHeight());
+			MapRenderer.getInstance().drawEligibleTiles(tileCanvas.getGraphicsContext2D(),
+					owner.matrix,
+					owner.enemyTiles,
+					Point.castToGeometry(currentBrushPosition) ,
+					Color.GREEN);
 		}
 	}
 	

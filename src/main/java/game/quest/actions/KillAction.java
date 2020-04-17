@@ -21,3 +21,4 @@ public class KillAction extends Action {
         super(type);
     }
 }
+

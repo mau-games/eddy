@@ -31,3 +31,4 @@ public class ExchangeAction extends Action {
         this.secondPosition = secondPosition;
     }
 }
+

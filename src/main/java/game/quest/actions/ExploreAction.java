@@ -21,3 +21,4 @@ public class ExploreAction extends Action {
         super(type);
     }
 }
+

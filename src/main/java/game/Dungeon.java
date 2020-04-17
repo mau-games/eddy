@@ -455,20 +455,42 @@ public class Dungeon implements Listener
 		bosses.add(bossTile);
 	}
 
+	public void addBoss(BossEnemyTile bossTile,Room room)
+	{
+		System.out.println("boss added");
+		room.bossTiles.addPoint(bossTile.GetCenterPosition());
+		bosses.add(bossTile);
+	}
+
+	public void removeBoss(BossEnemyTile bossTile, Room room)
+	{
+		bosses.removeIf(tile -> tile.GetCenterPosition().getY() == bossTile.GetCenterPosition().getY() &&
+				tile.GetCenterPosition().getX() == bossTile.GetCenterPosition().getX());
+	}
+
+	public void replaceBoss(BossEnemyTile bossTile, BossEnemyTile prevbossTile, Room room)
+	{
+		removeBoss(prevbossTile,room);
+		addBoss(bossTile,room);
+	}
+
 	public ArrayList<BossEnemyTile> getBosses()
 	{
 		return bosses;
 	}
 
-	public void addEnemy(EnemyTile enemyTile)
+	public void addEnemy(EnemyTile enemyTile, Room room)
 	{
 		System.out.println("enemy added");
+		room.enemyTiles.addPoint(enemyTile.GetCenterPosition());
 		enemies.add(enemyTile);
 	}
 
-	public void removeEnemy(EnemyTile enemyTile)
+	public void removeEnemy(EnemyTile enemyTile, Room room)
 	{
 		System.out.println("enemy removed");
+		room.enemyTiles.getPoints().removeIf(point -> point.getY() == enemyTile.GetCenterPosition().getY() &&
+				point.getX() == enemyTile.GetCenterPosition().getX());
 		enemies.removeIf(tile -> tile.GetCenterPosition().getX() == enemyTile.GetCenterPosition().getX() &&
 				tile.GetCenterPosition().getY() == enemyTile.GetCenterPosition().getY() &&
 				tile.GetType().getValue() == enemyTile.GetType().getValue());
@@ -485,15 +507,18 @@ public class Dungeon implements Listener
 		return enemies;
 	}
 
-	public void addNpc(NpcTile npcTile)
+	public void addNpc(NpcTile npcTile, Room room)
 	{
 		System.out.println("npc added");
+		room.npcTiles.addPoint(npcTile.GetCenterPosition());
 		npcs.add(npcTile);
 	}
 
-	public void removeNpc(NpcTile npcTile)
+	public void removeNpc(NpcTile npcTile, Room room)
 	{
 		System.out.println("npc removed");
+		room.npcTiles.getPoints().removeIf(point -> point.getY() == npcTile.GetCenterPosition().getY() &&
+				point.getX() == npcTile.GetCenterPosition().getX());
 		npcs.removeIf(tile -> tile.GetCenterPosition().getX() == npcTile.GetCenterPosition().getX() &&
 				tile.GetCenterPosition().getY() == npcTile.GetCenterPosition().getY() &&
 				tile.GetType().getValue() == npcTile.GetType().getValue());
@@ -510,14 +535,17 @@ public class Dungeon implements Listener
 		return npcs;
 	}
 
-	public void addItem(ItemTile itemTile)
+	public void addItem(ItemTile itemTile, Room room)
 	{
 		System.out.println("item added");
+		room.itemTiles.addPoint(itemTile.GetCenterPosition());
 		items.add(itemTile);
 	}
 
-	public void removeItem(ItemTile itemTile)
+	public void removeItem(ItemTile itemTile, Room room)
 	{
+		room.itemTiles.getPoints().removeIf(point -> point.getY() == itemTile.GetCenterPosition().getY() &&
+				point.getX() == itemTile.GetCenterPosition().getX());
 		items.removeIf(tile -> tile.GetCenterPosition().getX() == itemTile.GetCenterPosition().getX() &&
 				tile.GetCenterPosition().getY() == itemTile.GetCenterPosition().getY() &&
 				tile.GetType().getValue() == itemTile.GetType().getValue());
@@ -533,14 +561,17 @@ public class Dungeon implements Listener
 		return items;
 	}
 
-	public void addTreasure(TreasureTile treasureTile)
+	public void addTreasure(TreasureTile treasureTile, Room room)
 	{
 		System.out.println("treasure added");
+		room.treasureTiles.addPoint(treasureTile.GetCenterPosition());
 		treasures.add(treasureTile);
 	}
 
-	public void removeTreasure(TreasureTile treasureTile)
+	public void removeTreasure(TreasureTile treasureTile, Room room)
 	{
+		room.treasureTiles.getPoints().removeIf(point -> point.getY() == treasureTile.GetCenterPosition().getY() &&
+				point.getX() == treasureTile.GetCenterPosition().getX());
 		treasures.removeIf(tile -> tile.GetCenterPosition().getX() == treasureTile.GetCenterPosition().getX() &&
 				tile.GetCenterPosition().getY() == treasureTile.GetCenterPosition().getY() &&
 				tile.GetType().getValue() == treasureTile.GetType().getValue());

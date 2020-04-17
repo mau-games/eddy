@@ -1,6 +1,7 @@
 package game.quest;
 
 import finder.geometry.Point;
+import game.Room;
 
 import java.util.UUID;
 
@@ -12,6 +13,7 @@ public class Action {
     private UUID id;
     private boolean precondition;
     private ActionType type;
+    private Room room;
     private Point position;
     private String name;
 
@@ -89,4 +91,11 @@ public class Action {
         return new Action(this);
     }
 
+    public Room getRoom() {
+        return room;
+    }
+
+    public void setRoom(Room room) {
+        this.room = room;
+    }
 }

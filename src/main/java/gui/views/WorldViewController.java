@@ -708,7 +708,6 @@ public class WorldViewController extends BorderPane implements Listener
 			public void handle(ActionEvent event) {
 				ActionLogger.getInstance().storeAction(ActionType.CLICK, View.WORLD, TargetPane.BUTTON_PANE, false, "Open Quest Editor");
 				router.postEvent(new RequestQuestView());
-				DungeonDrawer.getInstance().changeBrushTo(DungeonBrushes.MOVEMENT);
 			}
 		});
 	}

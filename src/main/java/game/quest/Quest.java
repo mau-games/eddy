@@ -4,10 +4,7 @@ import finder.patterns.micro.Treasure;
 import game.Dungeon;
 import game.Tile;
 import game.TileTypes;
-import game.tiles.EnemyTile;
-import game.tiles.ItemTile;
-import game.tiles.NpcTile;
-import game.tiles.TreasureTile;
+import game.tiles.*;
 import util.eventrouting.EventRouter;
 import util.eventrouting.Listener;
 import util.eventrouting.PCGEvent;
@@ -91,25 +88,7 @@ public class Quest {
         final int hasItem = owner.getItems().size();
         final int hasNPC = owner.getNpcs().size();
         final int hasEnemies = owner.getEnemies().size() + owner.getBosses().size();
-//        owner.getAllRooms().forEach(room -> {
-//            for (int[] tileTypeRow : room.toMatrix()) {
-//                for (int tileType : tileTypeRow) {
-//                    switch (TileTypes.toTileType(tileType)){
-//                        case ENEMY:
-//                        case ENEMY_BOSS:
-//                            hasEnemies[0]++;
-//                            break;
-//                        case TREASURE:
-//                        case ITEM:
-//                            hasItem[0]++;
-//                            break;
-//                        case NPC:
-//                            hasNPC[0]++;
-//                            break;
-//                    }
-//                }
-//            }
-//        });
+
         if (hasItem > 0){
             availableActions.add(ActionType.DAMAGE);
             availableActions.add(ActionType.DEFEND);
@@ -152,24 +131,28 @@ public class Quest {
             if (update.hasPayload()){
                 Tile prev = update.getPrev();
                 if(prev.GetType().isEnemy()){
-                    owner.removeEnemy(new EnemyTile(prev));
+                    owner.removeEnemy(new EnemyTile(prev),update.getRoom());
                 } else if (prev.GetType().isNPC()){
-                    owner.removeNpc(new NpcTile(prev));
+                    owner.removeNpc(new NpcTile(prev),update.getRoom());
                 } else if (prev.GetType().isItem()){
-                    owner.removeItem(new ItemTile(prev));
+                    owner.removeItem(new ItemTile(prev),update.getRoom());
                 } else if (prev.GetType().isTreasure()){
-                    owner.removeTreasure(new TreasureTile(prev));
+                    owner.removeTreasure(new TreasureTile(prev),update.getRoom());
+                } else if (prev.GetType().isEnemyBoss()) {
+                    owner.removeBoss(new BossEnemyTile(prev), update.getRoom());
                 }
 
                 Tile next = update.getNext();
                 if(next.GetType().isEnemy()){
-                    owner.addEnemy(new EnemyTile(next));
+                    owner.addEnemy(new EnemyTile(next),update.getRoom());
                 } else if (next.GetType().isNPC()){
-                    owner.addNpc(new NpcTile(next));
+                    owner.addNpc(new NpcTile(next),update.getRoom());
                 } else if (next.GetType().isItem()){
-                    owner.addItem(new ItemTile(next));
+                    owner.addItem(new ItemTile(next),update.getRoom());
                 } else if (next.GetType().isTreasure()){
-                    owner.addTreasure(new TreasureTile(next));
+                    owner.addTreasure(new TreasureTile(next),update.getRoom());
+                } else if (prev.GetType().isEnemyBoss()) {
+                    owner.addBoss(new BossEnemyTile(prev), update.getRoom());
                 }
             }
             checkForAvailableActions();

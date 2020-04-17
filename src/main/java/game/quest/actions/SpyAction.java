@@ -21,3 +21,4 @@ public class SpyAction extends Action {
         super(type);
     }
 }
+

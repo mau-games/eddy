@@ -22,3 +22,4 @@ public class EscortAction extends Action {
         super(type);
     }
 }
+

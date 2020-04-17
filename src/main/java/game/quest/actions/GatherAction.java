@@ -21,3 +21,4 @@ public class GatherAction extends Action {
         super(type);
     }
 }
+

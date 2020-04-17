@@ -98,6 +98,11 @@ public class Room {
 	
 	public int maxNumberDoors; //--> HAHA
 	public Bitmap borders = new Bitmap();
+	public Bitmap enemyTiles = new Bitmap();
+	public Bitmap npcTiles = new Bitmap();
+	public Bitmap itemTiles = new Bitmap();
+	public Bitmap treasureTiles = new Bitmap();
+	public Bitmap bossTiles = new Bitmap();
 	public Bitmap path = new Bitmap();//TODO: For testing
 	public Bitmap nonInterFeasibleTiles = new Bitmap();//TODO: For testing
 	
@@ -622,7 +627,7 @@ public class Room {
 				setTile(i, j, suggestions.getTile(i, j));
 //				matrix[j][i] = suggestions.matrix[j][i];
 //				tileMap[j * width + i] = new Tile(suggestions.tileMap[j * width + i]);
-				EventRouter.getInstance().postEvent(new MapQuestUpdate(getTile(i,j),suggestions.getTile(i,j)));
+				EventRouter.getInstance().postEvent(new MapQuestUpdate(getTile(i,j),suggestions.getTile(i,j), this));
 			}
 		}	
 		

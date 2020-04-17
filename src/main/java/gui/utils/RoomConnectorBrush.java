@@ -76,8 +76,8 @@ public class RoomConnectorBrush extends InterRoomBrush
 			
 		}
 	}
-	
-	
+
+
 	public void InitDrawing()
 	{
 		

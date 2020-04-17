@@ -20,3 +20,4 @@ public class ReportAction extends Action {
         super(type);
     }
 }
+

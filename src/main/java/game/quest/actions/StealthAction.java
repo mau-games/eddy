@@ -21,3 +21,4 @@ public class StealthAction extends Action {
         super(type);
     }
 }
+

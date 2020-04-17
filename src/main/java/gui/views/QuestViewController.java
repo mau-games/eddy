@@ -1,11 +1,13 @@
 package gui.views;
 
+import finder.geometry.Point;
 import game.ApplicationConfig;
 import game.Dungeon;
 import game.Tile;
 import game.quest.Action;
 import game.quest.ActionType;
 import game.quest.actions.*;
+import gui.utils.DungeonDrawer;
 import gui.utils.InformativePopupManager;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
@@ -23,9 +25,7 @@ import util.config.MissingConfigurationException;
 import util.eventrouting.EventRouter;
 import util.eventrouting.Listener;
 import util.eventrouting.PCGEvent;
-import util.eventrouting.events.MapUpdate;
-import util.eventrouting.events.RequestQuestView;
-import util.eventrouting.events.RequestWorldView;
+import util.eventrouting.events.*;
 
 
 import java.io.IOException;
@@ -40,9 +40,11 @@ public class QuestViewController extends BorderPane implements Listener {
     private ApplicationConfig config;
     private boolean isActive = false;
     private Dungeon dungeon;
+    private Point selectedPosition;
+    private QuestPositionUpdate updatedPosition = null;
 
     @FXML
-    private Pane mapPane;
+    private ScrollPane mapScrollPane;
     @FXML
     private BorderPane buttonPane;
     @FXML
@@ -68,6 +70,7 @@ public class QuestViewController extends BorderPane implements Listener {
 
         router.registerListener(this, new MapUpdate(null));
         router.registerListener(this, new RequestQuestView());
+        router.registerListener(this, new QuestPositionUpdate(null,null));
 
         initQuestView();
         initActionToolbar();
@@ -111,23 +114,30 @@ public class QuestViewController extends BorderPane implements Listener {
         tbQuestTools.getItems()
                 .forEach(toolbarAction -> {
                     toolbarAction.addEventHandler(MouseEvent.MOUSE_CLICKED, event -> {
-                        questPane.getChildren()
-                                .filtered(questAction -> questAction instanceof ToggleButton)
-                                .filtered(questAction -> ((ToggleButton)questAction).isSelected())
-                                .forEach(questAction -> {
-                                    Platform.runLater(() -> replaceQuestAction((ToggleButton)questAction, (ToggleButton)toolbarAction));
-                                });
+                        if (((ToggleButton)toolbarAction).isSelected()){
+                            DungeonDrawer.getInstance().changeBrushTo(DungeonDrawer.DungeonBrushes.QUEST_POS);
+                            System.out.println("request DisplayQuestTiles");
+                            EventRouter.getInstance().postEvent(new RequestDisplayQuestTilesSelection());
+                            questPane.getChildren()
+                                    .filtered(questAction -> questAction instanceof ToggleButton)
+                                    .filtered(questAction -> ((ToggleButton)questAction).isSelected())
+                                    .forEach(questAction -> {
+                                        //TODO: needs to account for position and room
+//                                    Platform.runLater(() -> replaceQuestAction((ToggleButton)questAction, (ToggleButton)toolbarAction));
+                                    });
+                        } else {
+                            System.out.println("request UnDisplayQuestTiles");
+                            EventRouter.getInstance().postEvent(new RequestDisplayQuestTilesUnselection());
+                        }
                     });
                 });
     }
 
     public void initWorldMap(Dungeon dungeon) {
         this.dungeon = dungeon;
-        this.dungeon.dPane.setDisable(true);
-        mapPane.getChildren().clear();
 
         dungeon.dPane.renderAll();
-        mapPane.getChildren().add(dungeon.dPane);
+        mapScrollPane.setContent(dungeon.dPane);
 
 		if(this.dungeon.getAllRooms().size() > 3 && this.dungeon.getBosses().isEmpty())
 		{
@@ -138,12 +148,22 @@ public class QuestViewController extends BorderPane implements Listener {
     @Override
     public void ping(PCGEvent e) {
         if (e instanceof RequestQuestView){
+            //disable current dungeon brush so accidents wont happen :)
+            DungeonDrawer.getInstance().changeBrushTo(DungeonDrawer.DungeonBrushes.NONE);
+
+            //refresh toolbarActionToggleButton
             tbQuestTools.getItems().forEach(node -> {
                 String buttonText = ((ToggleButton)node).getId();
                 boolean disable = dungeon.getQuest().getAvailableActions().stream().noneMatch(actionType -> actionType.toString().equals(buttonText));
                 node.setDisable(disable);
             });
             //TODO: refresh/reset the QuestActionToggleButtons
+        } else if (e instanceof QuestPositionUpdate){
+            updatedPosition = (QuestPositionUpdate) e;
+            System.out.println(String.format("%s => { %d : %d }",
+                    updatedPosition.getRoom(),
+                    updatedPosition.getPoint().getX(),
+                    updatedPosition.getPoint().getY()));
         }
     }
 
@@ -165,7 +185,10 @@ public class QuestViewController extends BorderPane implements Listener {
             if(e.getButton().equals(MouseButton.PRIMARY)){
                 tbQuestTools.getItems().stream()
                         .filter(a -> ((ToggleButton)a).isSelected())
-                        .forEach(s -> replaceQuestAction(toAdd, (ToggleButton) s));
+                        .forEach(s -> {
+                            //TODO: needs to account for position and room
+//                            replaceQuestAction(toAdd, (ToggleButton) s)
+                        });
             } else if (e.getButton().equals(MouseButton.SECONDARY)){
                 System.out.println("secondary");
                 //todo: add a popup option menu
@@ -366,6 +389,8 @@ public class QuestViewController extends BorderPane implements Listener {
     @FXML
     private void backWorldView(ActionEvent event) throws IOException
     {
+        EventRouter.getInstance().postEvent(new RequestDisplayQuestTilesUnselection());
+        DungeonDrawer.getInstance().changeBrushTo(DungeonDrawer.DungeonBrushes.MOVEMENT);
         dungeon.dPane.setDisable(false);
         router.postEvent(new RequestWorldView());
     }

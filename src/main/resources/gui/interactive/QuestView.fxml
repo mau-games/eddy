@@ -14,7 +14,7 @@
         <BorderPane>
             <center>
                 <ScrollPane fx:id="mapScrollPane" style="-fx-border-color: transparent lightgray transparent transparent; -fx-border-width: 2px;" styleClass="edge-to-edge" BorderPane.alignment="CENTER">
-                    <Pane fx:id="mapPane" disable="true" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" />
+<!--                    <Pane fx:id="mapPane" disable="true" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" />-->
                 </ScrollPane>
             </center>
             <bottom>
