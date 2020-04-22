@@ -5,6 +5,8 @@ import collectors.ActionLogger;
 import collectors.ActionLogger.ActionType;
 import collectors.ActionLogger.TargetPane;
 import collectors.ActionLogger.View;
+import finder.geometry.Bitmap;
+import gui.controls.Brush;
 import gui.controls.LabeledCanvas;
 import gui.utils.*;
 import javafx.beans.binding.Bindings;
@@ -20,6 +22,8 @@ import util.Point;
 import util.eventrouting.EventRouter;
 import util.eventrouting.PCGEvent;
 import util.eventrouting.events.*;
+
+import java.util.List;
 
 public class WorldViewCanvas 
 {
@@ -53,7 +57,9 @@ public class WorldViewCanvas
 	public DoubleProperty tileSizeHeight;
 
 	private Point currentBrushPosition = new Point();
-	
+	private Bitmap questBitmap = new Bitmap();
+	private boolean doublePos = false;
+
 	public WorldViewCanvas(Room owner)
 	{
 		this.owner = owner;
@@ -74,14 +80,19 @@ public class WorldViewCanvas
 			source = (Node)event.getSource();
 			if (DungeonDrawer.getInstance().getBrush() instanceof QuestPositionBrush){
 				currentBrushPosition =  new Point((int)( event.getX() / tileSizeWidth.get()), (int)( event.getY() / tileSizeHeight.get() ));
-				DungeonDrawer.getInstance().getBrush().onClickRoom(owner,currentBrushPosition);
-				tileCanvas.setVisible(false);
+//				((QuestPositionBrush)DungeonDrawer.getInstance().getBrush()).setSecondPos
+				EventRouter.getInstance().postEvent(
+						new QuestPositionUpdate(
+								new finder.geometry.Point(
+										currentBrushPosition.getX(),
+										currentBrushPosition.getY()),
+								owner,
+								doublePos));
 			}
 		});
 
-
-		EventRouter.getInstance().registerListener(this::ping, new RequestDisplayQuestTilesSelection());
-		EventRouter.getInstance().registerListener(this::ping, new RequestDisplayQuestTilesUnselection());
+		EventRouter.getInstance().registerListener(this::ping, new RequestDisplayQuestTilesSelection(null));
+		EventRouter.getInstance().registerListener(this::ping, new RequestDisplayQuestTilesUnselection(false));
 		
 		rendered = false;
 		viewSizeHeight = 0;
@@ -121,21 +132,45 @@ public class WorldViewCanvas
 
 	private void ping(PCGEvent e) {
 		if (e instanceof RequestDisplayQuestTilesSelection){
-//			System.out.println("DisplayQuestTiles");
 			tileCanvas.setVisible(true);
+			questBitmap.clearAllPoints();
+			((List<TileTypes>)e.getPayload()).forEach(tileTypes -> {
+				switch(tileTypes){
+					case NPC:
+						questBitmap.AddAllPoints(owner.npcTiles.getPoints());
+						break;
+					case ENEMY:
+						questBitmap.AddAllPoints(owner.enemyTiles.getPoints());
+						break;
+					case TREASURE:
+						questBitmap.AddAllPoints(owner.treasureTiles.getPoints());
+						break;
+					case ENEMY_BOSS:
+						questBitmap.AddAllPoints(owner.bossTiles.getPoints());
+						break;
+					case ITEM:
+						questBitmap.AddAllPoints(owner.itemTiles.getPoints());
+						break;
+					case FLOOR:
+						//TODO: needs tweaking
+						owner.isIntraFeasible();
+						questBitmap.AddAllPoints(owner.walkableTiles.getPoints());
+						break;
+				}
+		});
 			drawTiles();
 		} else if (e instanceof RequestDisplayQuestTilesUnselection){
 //			System.out.println("UnDisplayQuestTiles");
-			tileCanvas.setVisible(false);
+			doublePos = (boolean) e.getPayload();
+			tileCanvas.setVisible(doublePos);
+			if (doublePos){
+				questBitmap.clearAllPoints();
+				questBitmap.AddAllPoints(owner.npcTiles.getPoints());
+				drawTiles();
+			}
 		}
 	}
 
-	//TODO: We can delete this method... probably is not useful anymore
-	public void setParent()
-	{
-		System.out.println("XPOSITION: " + xPosition.get() +", YPOSITION: " + yPosition.get());
-	}
-	
 	public LabeledCanvas getCanvas() { return worldGraphicNode; }
 	
 	public void setRendered(boolean value)
@@ -212,7 +247,9 @@ public class WorldViewCanvas
 	            		highlight(true);
 	            	}
 
-	            	DungeonDrawer.getInstance().getBrush().onEnteredRoom(owner);
+					if (DungeonDrawer.getInstance().getBrush() != null) {
+						DungeonDrawer.getInstance().getBrush().onEnteredRoom(owner);
+					}
 	            }
 	        });
 
@@ -265,7 +302,9 @@ public class WorldViewCanvas
 	            	}
 	            	else
 	            	{
-	            		DungeonDrawer.getInstance().getBrush().onReleaseRoom(owner, currentBrushPosition);
+						if (DungeonDrawer.getInstance().getBrush() != null) {
+							DungeonDrawer.getInstance().getBrush().onReleaseRoom(owner, currentBrushPosition);
+						}
 	            	}
 	            	
 	            	Bounds ltoS = worldGraphicNode.localToScene(worldGraphicNode.getBoundsInLocal());
@@ -311,17 +350,25 @@ public class WorldViewCanvas
 	            @Override
 	            public void handle(MouseEvent event) 
 	            {
-	            	if(DungeonDrawer.getInstance().getBrush() instanceof RoomConnectorBrush)
+	            	ShapeBrush brush = DungeonDrawer.getInstance().getBrush();
+	            	if(brush instanceof RoomConnectorBrush)
 	            	{
 		            	borderCanvas.setVisible(true);
 		            	drawBorder();
-	            	}
+	            	} else if (brush instanceof QuestPositionBrush){
+	            		tileCanvas.setVisible(true);
+	            		drawTiles();
+					}
 	            	else
 	            	{
 	            		highlight(true);
 	            	}
 
-	            	DungeonDrawer.getInstance().getBrush().onEnteredRoom(owner); //This could also use the event actually :O
+
+	            	if (brush != null) {
+	            		DungeonDrawer.getInstance().getBrush().onEnteredRoom(owner); //This could also use the event actually :O
+					}
+
 	            }
 
 	        });
@@ -332,8 +379,14 @@ public class WorldViewCanvas
 	            @Override
 	            public void handle(MouseEvent event) 
 	            {
-	            	currentBrushPosition =  new Point((int)( event.getX() / tileSizeWidth.get()), (int)( event.getY() / tileSizeHeight.get() ));            	
-	            	drawBorder();
+	            	ShapeBrush brush = DungeonDrawer.getInstance().getBrush();
+	            	currentBrushPosition =  new Point((int)( event.getX() / tileSizeWidth.get()), (int)( event.getY() / tileSizeHeight.get() ));
+	            	if(brush instanceof RoomConnectorBrush) {
+						drawBorder();
+					} else if (brush instanceof QuestPositionBrush){
+	            		tileCanvas.setVisible(true);
+	            		drawTiles();
+					}
 	            }
 	        });
 
@@ -347,7 +400,9 @@ public class WorldViewCanvas
 	            		//TODO: I think is better that the dungeon receives an event to request room view but maybe that will be too convoluted
 	            		MapContainer mc = new MapContainer(); // this map container thingy, idk, me not like it
 	            		mc.setMap(owner);
-	            		EventRouter.getInstance().postEvent(new RequestRoomView(mc, 0, 0, null));
+	            		if (DungeonDrawer.getInstance().getBrush() != null && !(DungeonDrawer.getInstance().getBrush() instanceof QuestPositionBrush)){
+							EventRouter.getInstance().postEvent(new RequestRoomView(mc, 0, 0, null));
+						}
 	            	}
 	            	
 	            	EventRouter.getInstance().postEvent(new FocusRoom(owner, null));
@@ -367,7 +422,9 @@ public class WorldViewCanvas
 	            	}
 	            	else
 	            	{
-	            		DungeonDrawer.getInstance().getBrush().onClickRoom(owner,currentBrushPosition);
+						if (DungeonDrawer.getInstance().getBrush() != null) {
+							DungeonDrawer.getInstance().getBrush().onClickRoom(owner,currentBrushPosition);
+						}
 	            	}
 
 	            }
@@ -420,12 +477,13 @@ public class WorldViewCanvas
 
 	private synchronized void drawTiles()
 	{
+
 		if(tileCanvas.isVisible())
 		{
 			tileCanvas.getGraphicsContext2D().clearRect(0, 0, tileCanvas.getWidth(), tileCanvas.getHeight());
 			MapRenderer.getInstance().drawEligibleTiles(tileCanvas.getGraphicsContext2D(),
 					owner.matrix,
-					owner.enemyTiles,
+					questBitmap,
 					Point.castToGeometry(currentBrushPosition) ,
 					Color.GREEN);
 		}

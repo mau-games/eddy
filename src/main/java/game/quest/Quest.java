@@ -90,8 +90,6 @@ public class Quest {
         final int hasEnemies = owner.getEnemies().size() + owner.getBosses().size();
 
         if (hasItem > 0){
-            availableActions.add(ActionType.DAMAGE);
-            availableActions.add(ActionType.DEFEND);
             availableActions.add(ActionType.EXPERIMENT);
             availableActions.add(ActionType.GATHER);
             availableActions.add(ActionType.READ);
@@ -101,7 +99,8 @@ public class Quest {
         if (hasNPC > 0){
             availableActions.add(ActionType.LISTEN);
             availableActions.add(ActionType.REPORT);
-            availableActions.add(ActionType.ESCORT);        }
+            availableActions.add(ActionType.ESCORT);
+        }
         if (hasEnemies > 0){
             availableActions.add(ActionType.KILL);
         }
@@ -109,6 +108,10 @@ public class Quest {
             availableActions.add(ActionType.CAPTURE);
             availableActions.add(ActionType.STEALTH);
             availableActions.add(ActionType.SPY);
+        }
+        if (hasNPC > 0 || hasItem > 0){
+            availableActions.add(ActionType.DAMAGE);
+            availableActions.add(ActionType.DEFEND);
         }
         if (hasItem > 0 && hasNPC > 0){
             availableActions.add(ActionType.EXCHANGE);

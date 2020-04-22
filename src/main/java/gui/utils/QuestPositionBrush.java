@@ -18,7 +18,7 @@ public class QuestPositionBrush extends ShapeBrush {
     public void onClickRoom(Room clickedRoom, Point clickPosition) {
         this.room = clickedRoom;
         this.position = clickPosition;
-        EventRouter.getInstance().postEvent(new QuestPositionUpdate(new finder.geometry.Point(position.getX(),position.getY()),room));
+
     }
 
     @Override

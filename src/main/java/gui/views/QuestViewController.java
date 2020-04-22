@@ -3,16 +3,17 @@ package gui.views;
 import finder.geometry.Point;
 import game.ApplicationConfig;
 import game.Dungeon;
-import game.Tile;
+import game.TileTypes;
 import game.quest.Action;
 import game.quest.ActionType;
+import game.quest.ActionWithSecondPosition;
 import game.quest.actions.*;
 import gui.utils.DungeonDrawer;
-import gui.utils.InformativePopupManager;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
+import javafx.geometry.Pos;
 import javafx.scene.control.*;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
@@ -40,8 +41,10 @@ public class QuestViewController extends BorderPane implements Listener {
     private ApplicationConfig config;
     private boolean isActive = false;
     private Dungeon dungeon;
-    private Point selectedPosition;
+    private ActionType selectedActionType;
     private QuestPositionUpdate updatedPosition = null;
+    private QuestPositionUpdate secondUpdatedPosition = null;
+    private boolean doublePosition = false;
 
     @FXML
     private ScrollPane mapScrollPane;
@@ -70,7 +73,7 @@ public class QuestViewController extends BorderPane implements Listener {
 
         router.registerListener(this, new MapUpdate(null));
         router.registerListener(this, new RequestQuestView());
-        router.registerListener(this, new QuestPositionUpdate(null,null));
+        router.registerListener(this, new QuestPositionUpdate(null,null, false));
 
         initQuestView();
         initActionToolbar();
@@ -88,10 +91,11 @@ public class QuestViewController extends BorderPane implements Listener {
                                         .forEach(selected -> {
                                             ToggleButton toggleButton = (ToggleButton) selected;
                                             int questCount = dungeon.getQuest().getActions().size();
-                                            Action action = addQuestAction(toggleButton, questCount);
-                                            addQuestPaneAction(action, actionCount - 1);
-                                            toggleButton.setSelected(false);
-
+                                            if (updatedPosition != null){
+                                                Action action = addQuestAction(toggleButton, questCount);
+                                                addQuestPaneAction(action, actionCount - 1);
+                                                toggleButton.setSelected(false);
+                                            }
                                         });
                             });
                 });
@@ -116,8 +120,9 @@ public class QuestViewController extends BorderPane implements Listener {
                     toolbarAction.addEventHandler(MouseEvent.MOUSE_CLICKED, event -> {
                         if (((ToggleButton)toolbarAction).isSelected()){
                             DungeonDrawer.getInstance().changeBrushTo(DungeonDrawer.DungeonBrushes.QUEST_POS);
-                            System.out.println("request DisplayQuestTiles");
-                            EventRouter.getInstance().postEvent(new RequestDisplayQuestTilesSelection());
+                            selectedActionType = ActionType.valueOf(((ToggleButton) toolbarAction).getId());
+                            List<TileTypes> types = findTileTypeByAction();
+                            EventRouter.getInstance().postEvent(new RequestDisplayQuestTilesSelection(types));
                             questPane.getChildren()
                                     .filtered(questAction -> questAction instanceof ToggleButton)
                                     .filtered(questAction -> ((ToggleButton)questAction).isSelected())
@@ -126,23 +131,64 @@ public class QuestViewController extends BorderPane implements Listener {
 //                                    Platform.runLater(() -> replaceQuestAction((ToggleButton)questAction, (ToggleButton)toolbarAction));
                                     });
                         } else {
-                            System.out.println("request UnDisplayQuestTiles");
-                            EventRouter.getInstance().postEvent(new RequestDisplayQuestTilesUnselection());
+                            EventRouter.getInstance().postEvent(new RequestDisplayQuestTilesUnselection(false));
                         }
                     });
                 });
+    }
+
+    private List<TileTypes> findTileTypeByAction() {
+        List<TileTypes> typesList = new LinkedList<TileTypes>();
+        switch (selectedActionType) {
+            case EXPLORE:
+            case GO_TO:
+                typesList.add(TileTypes.FLOOR);
+                break;
+            case EXPERIMENT:
+            case GATHER:
+            case READ:
+            case REPAIR:
+            case USE:
+            case EXCHANGE:
+            case GIVE:
+            case TAKE:
+                typesList.add(TileTypes.ITEM);
+                break;
+            case LISTEN:
+            case REPORT:
+            case ESCORT:
+                typesList.add(TileTypes.NPC);
+                break;
+            case KILL:
+                typesList.add(TileTypes.ENEMY);
+                typesList.add(TileTypes.ENEMY_BOSS);
+                break;
+            case CAPTURE:
+            case STEALTH:
+            case SPY:
+                typesList.add(TileTypes.NPC);
+                typesList.add(TileTypes.ENEMY);
+                typesList.add(TileTypes.ENEMY_BOSS);
+                break;
+            case DAMAGE:
+                typesList.add(TileTypes.ENEMY);
+                typesList.add(TileTypes.ENEMY_BOSS);
+            case DEFEND:
+                typesList.add(TileTypes.ITEM);
+                typesList.add(TileTypes.NPC);
+                break;
+        }
+        return typesList;
     }
 
     public void initWorldMap(Dungeon dungeon) {
         this.dungeon = dungeon;
 
         dungeon.dPane.renderAll();
-        mapScrollPane.setContent(dungeon.dPane);
-
-		if(this.dungeon.getAllRooms().size() > 3 && this.dungeon.getBosses().isEmpty())
-		{
-			InformativePopupManager.getInstance().requestPopup(dungeon.dPane, InformativePopupManager.PresentableInformation.NO_BOSS_YET, "");
-		}
+        StackPane pane = new StackPane(dungeon.dPane);
+        pane.setAlignment(Pos.CENTER);
+        mapScrollPane.setContent(null);
+        mapScrollPane.setContent(pane);
     }
 
     @Override
@@ -153,17 +199,34 @@ public class QuestViewController extends BorderPane implements Listener {
 
             //refresh toolbarActionToggleButton
             tbQuestTools.getItems().forEach(node -> {
-                String buttonText = ((ToggleButton)node).getId();
-                boolean disable = dungeon.getQuest().getAvailableActions().stream().noneMatch(actionType -> actionType.toString().equals(buttonText));
+                String buttonID = ((ToggleButton)node).getId();
+                boolean disable = dungeon.getQuest().getAvailableActions().stream().noneMatch(actionType -> actionType.toString().equals(buttonID));
                 node.setDisable(disable);
             });
             //TODO: refresh/reset the QuestActionToggleButtons
         } else if (e instanceof QuestPositionUpdate){
-            updatedPosition = (QuestPositionUpdate) e;
-            System.out.println(String.format("%s => { %d : %d }",
-                    updatedPosition.getRoom(),
-                    updatedPosition.getPoint().getX(),
-                    updatedPosition.getPoint().getY()));
+            doublePosition = ((QuestPositionUpdate) e).isSecondPosition();
+            if (doublePosition) {
+                secondUpdatedPosition = (QuestPositionUpdate) e;
+                System.out.println(String.format("%s => { %d : %d }",
+                        secondUpdatedPosition.getRoom(),
+                        secondUpdatedPosition.getPoint().getX(),
+                        secondUpdatedPosition.getPoint().getY()));
+                //do stuff to select the second position and make sure it doesn't loop around
+                doublePosition = false;
+            } else {
+                updatedPosition = (QuestPositionUpdate) e;
+                System.out.println(String.format("%s => { %d : %d }",
+                        updatedPosition.getRoom(),
+                        updatedPosition.getPoint().getX(),
+                        updatedPosition.getPoint().getY()));
+                doublePosition = (selectedActionType.isExchange() || selectedActionType.isGive() || selectedActionType.isTake());
+                selectedActionType = ActionType.NONE;
+            }
+            if (!doublePosition) {
+                DungeonDrawer.getInstance().changeBrushTo(DungeonDrawer.DungeonBrushes.NONE);
+            }
+            EventRouter.getInstance().postEvent(new RequestDisplayQuestTilesUnselection(doublePosition));
         }
     }
 
@@ -207,7 +270,6 @@ public class QuestViewController extends BorderPane implements Listener {
 
     /**
      * adds action to quest and gives it random available position  for now.
-     * TODO: let the user choose a available position on the map
      * @param toolbarActionToggleButton
      * @return
      */
@@ -217,144 +279,154 @@ public class QuestViewController extends BorderPane implements Listener {
         //add QuestAction in Quest
         ActionType type = ActionType.valueOf(toolbarActionToggleButton.getId().toUpperCase());
         Action action = null;
-        List<Tile> tiles = new ArrayList<Tile>();
+//        List<Tile> tiles = new ArrayList<Tile>();
         switch (type){
             case CAPTURE:
                 action = new CaptureAction();
-                tiles.addAll(dungeon.getEnemies());
-                tiles.addAll(dungeon.getBosses());
-                tiles.addAll(dungeon.getNpcs());
-                if (tiles.size() > 0) //TODO: temporary until other method for finding user-picked position
-                    action.setPosition(tiles.get(random.nextInt(tiles.size()-1)).GetCenterPosition());
+//                tiles.addAll(dungeon.getEnemies());
+//                tiles.addAll(dungeon.getBosses());
+//                tiles.addAll(dungeon.getNpcs());
+//                if (tiles.size() > 0)
+//                    action.setPosition(tiles.get(random.nextInt(tiles.size()-1)).GetCenterPosition());
                 break;
             case DAMAGE:
                 action = new DamageAction();
-                tiles.addAll(dungeon.getItems());
-                if (tiles.size() > 0) //TODO: temporary until other method for finding user-picked position
-                    action.setPosition(tiles.get(random.nextInt(tiles.size()-1)).GetCenterPosition());
+//                tiles.addAll(dungeon.getItems());
+//                if (tiles.size() > 0)
+//                    action.setPosition(tiles.get(random.nextInt(tiles.size()-1)).GetCenterPosition());
                 break;
             case DEFEND:
                 action = new DefendAction();
-                tiles.addAll(dungeon.getItems());
-                if (tiles.size() > 0) //TODO: temporary until other method for finding user-picked position
-                    action.setPosition(tiles.get(random.nextInt(tiles.size()-1)).GetCenterPosition());
+//                tiles.addAll(dungeon.getItems());
+//                if (tiles.size() > 0)
+//                    action.setPosition(tiles.get(random.nextInt(tiles.size()-1)).GetCenterPosition());
                 break;
             case ESCORT:
                 action = new EscortAction();
-                tiles.addAll(dungeon.getNpcs());
-                if (tiles.size() > 0) //TODO: temporary until other method for finding user-picked position
-                    action.setPosition(tiles.get(random.nextInt(tiles.size()-1)).GetCenterPosition());
+//                tiles.addAll(dungeon.getNpcs());
+//                if (tiles.size() > 0)
+//                    action.setPosition(tiles.get(random.nextInt(tiles.size()-1)).GetCenterPosition());
                 break;
             case EXCHANGE: //needs 2 positions
                 action = new ExchangeAction();
-                tiles.addAll(dungeon.getItems());
-                if (tiles.size() > 0) //TODO: temporary until other method for finding user-picked position
-                    action.setPosition(tiles.get(random.nextInt(tiles.size()-1)).GetCenterPosition());
-                tiles.clear();
-                tiles.addAll(dungeon.getNpcs());
-                if (tiles.size() > 0) //TODO: temporary until other method for finding user-picked position
-                    ((ExchangeAction)action).setSecondPosition(tiles.get(random.nextInt(tiles.size()-1)).GetCenterPosition());
+//                tiles.addAll(dungeon.getItems());
+//                if (tiles.size() > 0)
+//                    action.setPosition(tiles.get(random.nextInt(tiles.size()-1)).GetCenterPosition());
+//                tiles.clear();
+//                tiles.addAll(dungeon.getNpcs());
+//                if (tiles.size() > 0)
+//                    ((ExchangeAction)action).setSecondPosition(tiles.get(random.nextInt(tiles.size()-1)).GetCenterPosition());
                 break;
             case EXPERIMENT:
                 action = new ExperimentAction();
-                tiles.addAll(dungeon.getItems());
-                if (tiles.size() > 0) //TODO: temporary until other method for finding user-picked position
-                    action.setPosition(tiles.get(random.nextInt(tiles.size()-1)).GetCenterPosition());
+//                tiles.addAll(dungeon.getItems());
+//                if (tiles.size() > 0)
+//                    action.setPosition(tiles.get(random.nextInt(tiles.size()-1)).GetCenterPosition());
                 break;
             case EXPLORE:
                 action = new ExploreAction();
-                dungeon.getAllRooms().forEach(room -> Collections.addAll(tiles, room.getTileBasedMap()));
-                if (tiles.size() > 0) //TODO: temporary until other method for finding user-picked position
-                    action.setPosition(tiles.get(random.nextInt(tiles.size()-1)).GetCenterPosition());
+//                dungeon.getAllRooms().forEach(room -> Collections.addAll(tiles, room.getTileBasedMap()));
+//                if (tiles.size() > 0)
+//                    action.setPosition(tiles.get(random.nextInt(tiles.size()-1)).GetCenterPosition());
                 break;
             case GATHER:
                 action = new GatherAction();
-                tiles.addAll(dungeon.getItems());
-                if (tiles.size() > 0) //TODO: temporary until other method for finding user-picked position
-                    action.setPosition(tiles.get(random.nextInt(tiles.size()-1)).GetCenterPosition());
+//                tiles.addAll(dungeon.getItems());
+//                if (tiles.size() > 0)
+//                    action.setPosition(tiles.get(random.nextInt(tiles.size()-1)).GetCenterPosition());
                 break;
             case GIVE:
                 action = new GiveAction();
-                tiles.addAll(dungeon.getItems());
-                if (tiles.size() > 0) //TODO: temporary until other method for finding user-picked position
-                    action.setPosition(tiles.get(random.nextInt(tiles.size()-1)).GetCenterPosition());
-                tiles.clear();
-                tiles.addAll(dungeon.getNpcs());
-                if (tiles.size() > 0) //TODO: temporary until other method for finding user-picked position
-                    ((GiveAction)action).setSecondPosition(tiles.get(random.nextInt(tiles.size()-1)).GetCenterPosition());
+//                tiles.addAll(dungeon.getItems());
+//                if (tiles.size() > 0)
+//                    action.setPosition(tiles.get(random.nextInt(tiles.size()-1)).GetCenterPosition());
+//                tiles.clear();
+//                tiles.addAll(dungeon.getNpcs());
+//                if (tiles.size() > 0)
+//                    ((GiveAction)action).setSecondPosition(tiles.get(random.nextInt(tiles.size()-1)).GetCenterPosition());
                 break;
             case GO_TO:
                 action = new GotoAction();
-                dungeon.getAllRooms().forEach(room -> Collections.addAll(tiles, room.getTileBasedMap()));
-                if (tiles.size() > 0) //TODO: temporary until other method for finding user-picked position
-                    action.setPosition(tiles.get(random.nextInt(tiles.size()-1)).GetCenterPosition());
+//                dungeon.getAllRooms().forEach(room -> Collections.addAll(tiles, room.getTileBasedMap()));
+//                if (tiles.size() > 0)
+//                    action.setPosition(tiles.get(random.nextInt(tiles.size()-1)).GetCenterPosition());
                 break;
             case KILL:
                 action = new KillAction();
-                tiles.addAll(dungeon.getEnemies());
-                tiles.addAll(dungeon.getBosses());
-                if (tiles.size() > 0) //TODO: temporary until other method for finding user-picked position
-                    action.setPosition(tiles.get(random.nextInt(tiles.size()-1)).GetCenterPosition());
+//                tiles.addAll(dungeon.getEnemies());
+//                tiles.addAll(dungeon.getBosses());
+//                if (tiles.size() > 0)
+//                    action.setPosition(tiles.get(random.nextInt(tiles.size()-1)).GetCenterPosition());
                 break;
             case LISTEN:
                 action = new ListenAction();
-                tiles.addAll(dungeon.getNpcs());
-                if (tiles.size() > 0) //TODO: temporary until other method for finding user-picked position
-                    action.setPosition(tiles.get(random.nextInt(tiles.size()-1)).GetCenterPosition());
+//                tiles.addAll(dungeon.getNpcs());
+//                if (tiles.size() > 0)
+//                    action.setPosition(tiles.get(random.nextInt(tiles.size()-1)).GetCenterPosition());
                 break;
             case READ:
                 action = new ReadAction();
-                tiles.addAll(dungeon.getItems());
-                if (tiles.size() > 0) //TODO: temporary until other method for finding user-picked position
-                    action.setPosition(tiles.get(random.nextInt(tiles.size()-1)).GetCenterPosition());
+//                tiles.addAll(dungeon.getItems());
+//                if (tiles.size() > 0)
+//                    action.setPosition(tiles.get(random.nextInt(tiles.size()-1)).GetCenterPosition());
                 break;
             case REPAIR:
                 action = new RepairAction();
-                tiles.addAll(dungeon.getItems());
-                if (tiles.size() > 0) //TODO: temporary until other method for finding user-picked position
-                    action.setPosition(tiles.get(random.nextInt(tiles.size()-1)).GetCenterPosition());
+//                tiles.addAll(dungeon.getItems());
+//                if (tiles.size() > 0)
+//                    action.setPosition(tiles.get(random.nextInt(tiles.size()-1)).GetCenterPosition());
                 break;
             case REPORT:
                 action = new ReportAction();
-                tiles.addAll(dungeon.getNpcs());
-                if (tiles.size() > 0) //TODO: temporary until other method for finding user-picked position
-                    action.setPosition(tiles.get(random.nextInt(tiles.size()-1)).GetCenterPosition());
+//                tiles.addAll(dungeon.getNpcs());
+//                if (tiles.size() > 0)
+//                    action.setPosition(tiles.get(random.nextInt(tiles.size()-1)).GetCenterPosition());
                 break;
             case SPY:
                 action = new SpyAction();
-                tiles.addAll(dungeon.getEnemies());
-                tiles.addAll(dungeon.getBosses());
-                tiles.addAll(dungeon.getNpcs());
-                if (tiles.size() > 0) //TODO: temporary until other method for finding user-picked position
-                    action.setPosition(tiles.get(random.nextInt(tiles.size()-1)).GetCenterPosition());
+//                tiles.addAll(dungeon.getEnemies());
+//                tiles.addAll(dungeon.getBosses());
+//                tiles.addAll(dungeon.getNpcs());
+//                if (tiles.size() > 0)
+//                    action.setPosition(tiles.get(random.nextInt(tiles.size()-1)).GetCenterPosition());
                 break;
             case STEALTH:
                 action = new StealthAction();
-                tiles.addAll(dungeon.getEnemies());
-                tiles.addAll(dungeon.getBosses());
-                tiles.addAll(dungeon.getNpcs());
-                if (tiles.size() > 0) //TODO: temporary until other method for finding user-picked position
-                    action.setPosition(tiles.get(random.nextInt(tiles.size()-1)).GetCenterPosition());
+//                tiles.addAll(dungeon.getEnemies());
+//                tiles.addAll(dungeon.getBosses());
+//                tiles.addAll(dungeon.getNpcs());
+//                if (tiles.size() > 0)
+//                    action.setPosition(tiles.get(random.nextInt(tiles.size()-1)).GetCenterPosition());
                 break;
             case TAKE:
                 action = new TakeAction();
-                tiles.addAll(dungeon.getItems());
-                if (tiles.size() > 0) //TODO: temporary until other method for finding user-picked position
-                    action.setPosition(tiles.get(random.nextInt(tiles.size()-1)).GetCenterPosition());
-
-                tiles.clear();
-                tiles.addAll(dungeon.getNpcs());
-                if (tiles.size() > 0) //TODO: temporary until other method for finding user-picked position
-                    ((TakeAction)action).setSecondPosition(tiles.get(random.nextInt(tiles.size()-1)).GetCenterPosition());
+//                tiles.addAll(dungeon.getItems());
+//                if (tiles.size() > 0)
+//                    action.setPosition(tiles.get(random.nextInt(tiles.size()-1)).GetCenterPosition());
+//
+//                tiles.clear();
+//                tiles.addAll(dungeon.getNpcs());
+//                if (tiles.size() > 0)
+//                    ((TakeAction)action).setSecondPosition(tiles.get(random.nextInt(tiles.size()-1)).GetCenterPosition());
                 break;
             case USE:
                 action = new UseAction();
-                tiles.addAll(dungeon.getItems());
+//                tiles.addAll(dungeon.getItems());
                 break;
         }
         if (action != null){
             action.setId(UUID.randomUUID());
             action.setType(type);
+            action.setPosition(updatedPosition.getPoint());
+            action.setRoom(updatedPosition.getRoom());
+            updatedPosition = null;
+            if (secondUpdatedPosition != null){
+                if (action instanceof ActionWithSecondPosition){
+                    ((ActionWithSecondPosition)action).setSecondPosition(secondUpdatedPosition.getPoint());
+                    ((ActionWithSecondPosition)action).setSecondRoom(secondUpdatedPosition.getRoom());
+                    secondUpdatedPosition = null;
+                }
+            }
         }
         dungeon.getQuest().addActionsAt(index,action);
 
@@ -389,7 +461,7 @@ public class QuestViewController extends BorderPane implements Listener {
     @FXML
     private void backWorldView(ActionEvent event) throws IOException
     {
-        EventRouter.getInstance().postEvent(new RequestDisplayQuestTilesUnselection());
+        EventRouter.getInstance().postEvent(new RequestDisplayQuestTilesUnselection(false));
         DungeonDrawer.getInstance().changeBrushTo(DungeonDrawer.DungeonBrushes.MOVEMENT);
         dungeon.dPane.setDisable(false);
         router.postEvent(new RequestWorldView());

@@ -101,4 +101,16 @@ public enum ActionType {
         }
         return type;
     }
+
+    public boolean isExchange() {
+        return value == EXCHANGE.getValue();
+    }
+
+    public boolean isGive() {
+        return value == GIVE.getValue();
+    }
+
+    public boolean isTake() {
+        return value == TAKE.getValue();
+    }
 }

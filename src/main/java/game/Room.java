@@ -27,6 +27,7 @@ import java.util.Map.Entry;
 import finder.PatternFinder;
 import finder.Populator;
 import finder.geometry.Bitmap;
+import finder.geometry.Multipoint;
 import finder.geometry.Polygon;
 import finder.graph.Edge;
 import finder.graph.Graph;
@@ -103,6 +104,7 @@ public class Room {
 	public Bitmap itemTiles = new Bitmap();
 	public Bitmap treasureTiles = new Bitmap();
 	public Bitmap bossTiles = new Bitmap();
+	public Bitmap walkableTiles = new Bitmap();
 	public Bitmap path = new Bitmap();//TODO: For testing
 	public Bitmap nonInterFeasibleTiles = new Bitmap();//TODO: For testing
 	
@@ -1747,6 +1749,7 @@ public class Room {
 	{
     	Queue<Node> queue = new LinkedList<Node>();
     	clearFailedPaths();
+    	walkableTiles.clearAllPoints();
     	int treasure = 0;
     	int enemies = 0;
     	int doors = 0;
@@ -1801,6 +1804,7 @@ public class Room {
                 		continue;
                 	
             		walkableSpaces.remove(child);
+            		walkableTiles.addPoint(new finder.geometry.Point(child.getX(),child.getY()));
             		section.addPoint(child);
 
                     //Create child node
@@ -3346,5 +3350,8 @@ public class Room {
     	return fitness;
 	}
 
-	
+
+	public Bitmap accessibleFloorTiles() {
+		return null;
+	}
 }

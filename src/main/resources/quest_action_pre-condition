@@ -1,7 +1,7 @@
 -capture=Somebody is there.
 -damage=Somebody or something is there.
--defend=Somebody or something is there Attempts to damage it have failed.
--escort=Somebody is there They will now accompany you.
+-defend=Somebody or something is there.
+-escort=Somebody is there
 -exchange=Somebody is there, they and you have something.
 -experiment=Something is there.
 -explore=None.
