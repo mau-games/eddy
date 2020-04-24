@@ -1,9 +1,8 @@
 package generator.algorithm.grammar;
 
 import collectors.ActionLogger;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
+import com.google.gson.*;
+import com.google.gson.reflect.TypeToken;
 import game.Dungeon;
 import game.Tile;
 import game.quest.Action;
@@ -14,11 +13,13 @@ import game.quest.actions.*;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
+import java.io.IOException;
+import java.lang.reflect.Type;
 import java.util.*;
 
 public class QuestGrammar {
-    private final static String defaultConfig = "quest_rules.json";
-    private final static Map<String, List<List<String>>> rules = new LinkedHashMap<>();
+    private final static String defaultConfig = "config/quest_rules.json";
+    private static Map<String, List<List<String>>> rules = new LinkedHashMap<>();
     public final static String START_VALUE = "<QUEST>";
     private final Random random = new Random();
     private final Dungeon dungeon;
@@ -33,10 +34,10 @@ public class QuestGrammar {
     }
 
     public Quest expand(Quest toExpand, String value){
+//        System.out.println(value);
         if (rules.containsKey(value.toUpperCase())){
             List<String> nextValues = pickRandom(rules.get(value));
-            pickRandom(rules.get(value)).forEach(s -> expand(toExpand, s));
-            //expand more
+            nextValues.forEach(s -> expand(toExpand, s));
         } else {
             Action action = createActionOnType(value);
             toExpand.addActions(action);
@@ -65,230 +66,238 @@ public class QuestGrammar {
      */
     private Action createActionOnType(String value) {
         Action action = null;
-        List<Tile> tiles = new ArrayList<Tile>();
+//        List<Tile> tiles = new ArrayList<Tile>();
         switch (ActionType.valueOf(value.toUpperCase())){
             case CAPTURE:
                 action = new CaptureAction();
-                tiles.addAll(dungeon.getEnemies());
-                tiles.addAll(dungeon.getBosses());
-                tiles.addAll(dungeon.getNpcs());
-                if (tiles.size() > 1) { //TODO: copy to other options
-                    action.setPosition(tiles.get(random.nextInt(tiles.size()-1)).GetCenterPosition());
-                } else {
-                    //get only one
-                    action.setPosition(tiles.get(0).GetCenterPosition());
-                }
+//                tiles.addAll(dungeon.getEnemies());
+//                tiles.addAll(dungeon.getBosses());
+//                tiles.addAll(dungeon.getNpcs());
+//                if (tiles.size() > 1) { //TODO: copy to other options
+//                    action.setPosition(tiles.get(random.nextInt(tiles.size()-1)).GetCenterPosition());
+//                } else {
+//                    //get only one
+//                    action.setPosition(tiles.get(0).GetCenterPosition());
+//                }
                 break;
             case DAMAGE:
                 action = new DamageAction();
-                tiles.addAll(dungeon.getItems());
-                if (tiles.size() > 1) { //TODO: copy to other options
-                    action.setPosition(tiles.get(random.nextInt(tiles.size()-1)).GetCenterPosition());
-                } else {
-                    //get only one
-                    action.setPosition(tiles.get(0).GetCenterPosition());
-                }                break;
+//                tiles.addAll(dungeon.getItems());
+//                if (tiles.size() > 1) { //TODO: copy to other options
+//                    action.setPosition(tiles.get(random.nextInt(tiles.size()-1)).GetCenterPosition());
+//                } else {
+//                    //get only one
+//                    action.setPosition(tiles.get(0).GetCenterPosition());
+//                }
+                break;
             case DEFEND:
                 action = new DefendAction();
-                tiles.addAll(dungeon.getItems());
-                if (tiles.size() > 1) { //TODO: copy to other options
-                    action.setPosition(tiles.get(random.nextInt(tiles.size()-1)).GetCenterPosition());
-                } else {
-                    //get only one
-                    action.setPosition(tiles.get(0).GetCenterPosition());
-                }                break;
+//                tiles.addAll(dungeon.getItems());
+//                if (tiles.size() > 1) { //TODO: copy to other options
+//                    action.setPosition(tiles.get(random.nextInt(tiles.size()-1)).GetCenterPosition());
+//                } else {
+//                    //get only one
+//                    action.setPosition(tiles.get(0).GetCenterPosition());
+//                }
+                break;
             case ESCORT:
                 action = new EscortAction();
-                tiles.addAll(dungeon.getNpcs());
-                if (tiles.size() > 1) { //TODO: copy to other options
-                    action.setPosition(tiles.get(random.nextInt(tiles.size()-1)).GetCenterPosition());
-                } else {
-                    //get only one
-                    action.setPosition(tiles.get(0).GetCenterPosition());
-                }                break;
+//                tiles.addAll(dungeon.getNpcs());
+//                if (tiles.size() > 1) { //TODO: copy to other options
+//                    action.setPosition(tiles.get(random.nextInt(tiles.size()-1)).GetCenterPosition());
+//                } else {
+//                    //get only one
+//                    action.setPosition(tiles.get(0).GetCenterPosition());
+//                }
+                break;
             case EXCHANGE: //needs 2 positions
                 action = new ExchangeAction();
-                tiles.addAll(dungeon.getItems());
-                if (tiles.size() > 1) { //TODO: copy to other options
-                    action.setPosition(tiles.get(random.nextInt(tiles.size()-1)).GetCenterPosition());
-                } else {
-                    //get only one
-                    action.setPosition(tiles.get(0).GetCenterPosition());
-                }
-                tiles.clear();
-                tiles.addAll(dungeon.getNpcs());
-                if (tiles.size() > 1) { //TODO: copy to other options
-                    ((ExchangeAction)action).setSecondPosition(tiles.get(random.nextInt(tiles.size()-1)).GetCenterPosition());
-                } else {
-                    //get only one
-                    action.setPosition(tiles.get(0).GetCenterPosition());
-                }
+//                tiles.addAll(dungeon.getItems());
+//                if (tiles.size() > 1) { //TODO: copy to other options
+//                    action.setPosition(tiles.get(random.nextInt(tiles.size()-1)).GetCenterPosition());
+//                } else {
+//                    //get only one
+//                    action.setPosition(tiles.get(0).GetCenterPosition());
+//                }
+//                tiles.clear();
+//                tiles.addAll(dungeon.getNpcs());
+//                if (tiles.size() > 1) { //TODO: copy to other options
+//                    ((ExchangeAction)action).setSecondPosition(tiles.get(random.nextInt(tiles.size()-1)).GetCenterPosition());
+//                } else {
+//                    //get only one
+//                    action.setPosition(tiles.get(0).GetCenterPosition());
+//                }
                 break;
             case EXPERIMENT:
                 action = new ExperimentAction();
-                tiles.addAll(dungeon.getItems());
-                if (tiles.size() > 1) { //TODO: copy to other options
-                    action.setPosition(tiles.get(random.nextInt(tiles.size()-1)).GetCenterPosition());
-                } else {
-                    //get only one
-                    action.setPosition(tiles.get(0).GetCenterPosition());
-                }
+//                tiles.addAll(dungeon.getItems());
+//                if (tiles.size() > 1) { //TODO: copy to other options
+//                    action.setPosition(tiles.get(random.nextInt(tiles.size()-1)).GetCenterPosition());
+//                } else {
+//                    //get only one
+//                    action.setPosition(tiles.get(0).GetCenterPosition());
+//                }
                 break;
             case EXPLORE:
                 action = new ExploreAction();
-                dungeon.getAllRooms().forEach(room -> Collections.addAll(tiles, room.getTileBasedMap()));
-                action.setPosition(tiles.get(random.nextInt(tiles.size()-1)).GetCenterPosition());
+//                dungeon.getAllRooms().forEach(room -> Collections.addAll(tiles, room.getTileBasedMap()));
+//                action.setPosition(tiles.get(random.nextInt(tiles.size()-1)).GetCenterPosition());
+//                break;
+//            case GATHER:
+//                action = new GatherAction();
+//                tiles.addAll(dungeon.getItems());
+//                if (tiles.size() > 1) { //TODO: copy to other options
+//                    action.setPosition(tiles.get(random.nextInt(tiles.size()-1)).GetCenterPosition());
+//                } else {
+//                    //get only one
+//                    action.setPosition(tiles.get(0).GetCenterPosition());
+//                }
                 break;
             case GATHER:
                 action = new GatherAction();
-                tiles.addAll(dungeon.getItems());
-                if (tiles.size() > 1) { //TODO: copy to other options
-                    action.setPosition(tiles.get(random.nextInt(tiles.size()-1)).GetCenterPosition());
-                } else {
-                    //get only one
-                    action.setPosition(tiles.get(0).GetCenterPosition());
-                }
                 break;
             case GIVE:
-                action = new GiveAction();tiles.addAll(dungeon.getItems());
-                if (tiles.size() > 1) { //TODO: copy to other options
-                    action.setPosition(tiles.get(random.nextInt(tiles.size()-1)).GetCenterPosition());
-                } else {
-                    //get only one
-                    action.setPosition(tiles.get(0).GetCenterPosition());
-                }
-                tiles.clear();
-                tiles.addAll(dungeon.getNpcs());
-                if (tiles.size() > 1) { //TODO: copy to other options
-                    ((GiveAction)action).setSecondPosition(tiles.get(random.nextInt(tiles.size()-1)).GetCenterPosition());
-                } else {
-                    //get only one
-                    action.setPosition(tiles.get(0).GetCenterPosition());
-                }
+                action = new GiveAction();
+//                tiles.addAll(dungeon.getItems());
+//                if (tiles.size() > 1) { //TODO: copy to other options
+//                    action.setPosition(tiles.get(random.nextInt(tiles.size()-1)).GetCenterPosition());
+//                } else {
+//                    //get only one
+//                    action.setPosition(tiles.get(0).GetCenterPosition());
+//                }
+//                tiles.clear();
+//                tiles.addAll(dungeon.getNpcs());
+//                if (tiles.size() > 1) { //TODO: copy to other options
+//                    ((GiveAction)action).setSecondPosition(tiles.get(random.nextInt(tiles.size()-1)).GetCenterPosition());
+//                } else {
+//                    //get only one
+//                    action.setPosition(tiles.get(0).GetCenterPosition());
+//                }
                 break;
             case GO_TO:
                 action = new GotoAction();
-                dungeon.getAllRooms().forEach(room -> Collections.addAll(tiles, room.getTileBasedMap()));
-                if (tiles.size() > 1) { //TODO: copy to other options
-                    action.setPosition(tiles.get(random.nextInt(tiles.size()-1)).GetCenterPosition());
-                } else {
-                    //get only one
-                    action.setPosition(tiles.get(0).GetCenterPosition());
-                }
+//                dungeon.getAllRooms().forEach(room -> Collections.addAll(tiles, room.getTileBasedMap()));
+//                if (tiles.size() > 1) { //TODO: copy to other options
+//                    action.setPosition(tiles.get(random.nextInt(tiles.size()-1)).GetCenterPosition());
+//                } else {
+//                    //get only one
+//                    action.setPosition(tiles.get(0).GetCenterPosition());
+//                }
                 break;
             case KILL:
                 action = new KillAction();
-                tiles.addAll(dungeon.getEnemies());
-                tiles.addAll(dungeon.getBosses());
-                if (tiles.size() > 1) { //TODO: copy to other options
-                    action.setPosition(tiles.get(random.nextInt(tiles.size()-1)).GetCenterPosition());
-                } else {
-                    //get only one
-                    action.setPosition(tiles.get(0).GetCenterPosition());
-                }
+//                tiles.addAll(dungeon.getEnemies());
+//                tiles.addAll(dungeon.getBosses());
+//                if (tiles.size() > 1) { //TODO: copy to other options
+//                    action.setPosition(tiles.get(random.nextInt(tiles.size()-1)).GetCenterPosition());
+//                } else {
+//                    //get only one
+//                    action.setPosition(tiles.get(0).GetCenterPosition());
+//                }
                 break;
             case LISTEN:
                 action = new ListenAction();
-                tiles.addAll(dungeon.getNpcs());
-                if (tiles.size() > 1) { //TODO: copy to other options
-                    action.setPosition(tiles.get(random.nextInt(tiles.size()-1)).GetCenterPosition());
-                } else {
-                    //get only one
-                    action.setPosition(tiles.get(0).GetCenterPosition());
-                }
+//                tiles.addAll(dungeon.getNpcs());
+//                if (tiles.size() > 1) { //TODO: copy to other options
+//                    action.setPosition(tiles.get(random.nextInt(tiles.size()-1)).GetCenterPosition());
+//                } else {
+//                    //get only one
+//                    action.setPosition(tiles.get(0).GetCenterPosition());
+//                }
                 break;
             case READ:
                 action = new ReadAction();
-                tiles.addAll(dungeon.getItems());
-                if (tiles.size() > 1) { //TODO: copy to other options
-                    action.setPosition(tiles.get(random.nextInt(tiles.size()-1)).GetCenterPosition());
-                } else {
-                    //get only one
-                    action.setPosition(tiles.get(0).GetCenterPosition());
-                }
+//                tiles.addAll(dungeon.getItems());
+//                if (tiles.size() > 1) { //TODO: copy to other options
+//                    action.setPosition(tiles.get(random.nextInt(tiles.size()-1)).GetCenterPosition());
+//                } else {
+//                    //get only one
+//                    action.setPosition(tiles.get(0).GetCenterPosition());
+//                }
                 break;
             case REPAIR:
                 action = new RepairAction();
-                tiles.addAll(dungeon.getItems());
-                if (tiles.size() > 1) { //TODO: copy to other options
-                    action.setPosition(tiles.get(random.nextInt(tiles.size()-1)).GetCenterPosition());
-                } else {
-                    //get only one
-                    action.setPosition(tiles.get(0).GetCenterPosition());
-                }
+//                tiles.addAll(dungeon.getItems());
+//                if (tiles.size() > 1) { //TODO: copy to other options
+//                    action.setPosition(tiles.get(random.nextInt(tiles.size()-1)).GetCenterPosition());
+//                } else {
+//                    //get only one
+//                    action.setPosition(tiles.get(0).GetCenterPosition());
+//                }
                 break;
             case REPORT:
                 action = new ReportAction();
-                tiles.addAll(dungeon.getNpcs());
-                if (tiles.size() > 1) { //TODO: copy to other options
-                    action.setPosition(tiles.get(random.nextInt(tiles.size()-1)).GetCenterPosition());
-                } else {
-                    //get only one
-                    action.setPosition(tiles.get(0).GetCenterPosition());
-                }
+//                tiles.addAll(dungeon.getNpcs());
+//                if (tiles.size() > 1) { //TODO: copy to other options
+//                    action.setPosition(tiles.get(random.nextInt(tiles.size()-1)).GetCenterPosition());
+//                } else {
+//                    //get only one
+//                    action.setPosition(tiles.get(0).GetCenterPosition());
+//                }
                 break;
             case SPY:
                 action = new SpyAction();
-                tiles.addAll(dungeon.getEnemies());
-                tiles.addAll(dungeon.getBosses());
-                tiles.addAll(dungeon.getNpcs());
-                if (tiles.size() > 1) { //TODO: copy to other options
-                    action.setPosition(tiles.get(random.nextInt(tiles.size()-1)).GetCenterPosition());
-                } else {
-                    //get only one
-                    action.setPosition(tiles.get(0).GetCenterPosition());
-                }
+//                tiles.addAll(dungeon.getEnemies());
+//                tiles.addAll(dungeon.getBosses());
+//                tiles.addAll(dungeon.getNpcs());
+//                if (tiles.size() > 1) { //TODO: copy to other options
+//                    action.setPosition(tiles.get(random.nextInt(tiles.size()-1)).GetCenterPosition());
+//                } else {
+//                    //get only one
+//                    action.setPosition(tiles.get(0).GetCenterPosition());
+//                }
                 break;
             case STEALTH:
                 action = new StealthAction();
-                tiles.addAll(dungeon.getEnemies());
-                tiles.addAll(dungeon.getBosses());
-                tiles.addAll(dungeon.getNpcs());
-                if (tiles.size() > 1) { //TODO: copy to other options
-                    action.setPosition(tiles.get(random.nextInt(tiles.size()-1)).GetCenterPosition());
-                } else {
-                    //get only one
-                    action.setPosition(tiles.get(0).GetCenterPosition());
-                }
+//                tiles.addAll(dungeon.getEnemies());
+//                tiles.addAll(dungeon.getBosses());
+//                tiles.addAll(dungeon.getNpcs());
+//                if (tiles.size() > 1) { //TODO: copy to other options
+//                    action.setPosition(tiles.get(random.nextInt(tiles.size()-1)).GetCenterPosition());
+//                } else {
+//                    //get only one
+//                    action.setPosition(tiles.get(0).GetCenterPosition());
+//                }
                 break;
             case TAKE:
                 action = new TakeAction();
-                tiles.addAll(dungeon.getItems());
-                if (tiles.size() > 1) { //TODO: copy to other options
-                    action.setPosition(tiles.get(random.nextInt(tiles.size()-1)).GetCenterPosition());
-                } else {
-                    //get only one
-                    action.setPosition(tiles.get(0).GetCenterPosition());
-                }
-                tiles.clear();
-                tiles.addAll(dungeon.getNpcs());
-                if (tiles.size() > 1) { //TODO: copy to other options
-                    ((TakeAction)action).setSecondPosition(tiles.get(random.nextInt(tiles.size()-1)).GetCenterPosition());
-                } else {
-                    //get only one
-                    action.setPosition(tiles.get(0).GetCenterPosition());
-                }
+//                tiles.addAll(dungeon.getItems());
+//                if (tiles.size() > 1) { //TODO: copy to other options
+//                    action.setPosition(tiles.get(random.nextInt(tiles.size()-1)).GetCenterPosition());
+//                } else {
+//                    //get only one
+//                    action.setPosition(tiles.get(0).GetCenterPosition());
+//                }
+//                tiles.clear();
+//                tiles.addAll(dungeon.getNpcs());
+//                if (tiles.size() > 1) { //TODO: copy to other options
+//                    ((TakeAction)action).setSecondPosition(tiles.get(random.nextInt(tiles.size()-1)).GetCenterPosition());
+//                } else {
+//                    //get only one
+//                    action.setPosition(tiles.get(0).GetCenterPosition());
+//                }
                 break;
             case USE:
                 action = new UseAction();
-                tiles.addAll(dungeon.getItems());
-                if (tiles.size() > 1) { //TODO: copy to other options
-                    action.setPosition(tiles.get(random.nextInt(tiles.size()-1)).GetCenterPosition());
-                } else {
+//                tiles.addAll(dungeon.getItems());
+//                if (tiles.size() > 1) { //TODO: copy to other options
+//                    action.setPosition(tiles.get(random.nextInt(tiles.size()-1)).GetCenterPosition());
+//                } else {
                     //get only one
-                    action.setPosition(tiles.get(0).GetCenterPosition());
-                }
+//                    action.setPosition(tiles.get(0).GetCenterPosition());
+//                }
                 break;
         }
         if (action != null) action.setId(UUID.randomUUID());
+//        else System.out.println(value);
         return action;
     }
-
 
     private String readFile(String fileName){
         String toReturn = "";
         try {
-            BufferedReader br = new BufferedReader(new FileReader(fileName));
+            ClassLoader loader = QuestGrammar.class.getClassLoader();
+            BufferedReader br = new BufferedReader(new FileReader(loader.getResource(fileName).getFile()));
             StringBuilder builder = new StringBuilder();
             String line = br.readLine();
             while (line != null){
@@ -303,12 +312,16 @@ public class QuestGrammar {
     }
 
     private void parseJSONAndPopulateRules(String toParse) {
+//        Gson gson = new Gson();
+//        Type rulesMapType = new TypeToken<Map<String,List<List<String>>>>() {}.getType();
+//        rules = gson.fromJson(toParse, rulesMapType);
+
         JsonObject jsonObject = new JsonParser().parse(toParse).getAsJsonObject();
-        jsonObject.entrySet().stream().forEach(stringJsonElementEntry -> {
-            String key = stringJsonElementEntry.getKey().toUpperCase();
-            JsonArray jsonArray = stringJsonElementEntry.getValue().getAsJsonArray();
+        Set<Map.Entry<String, JsonElement>> entrySet = jsonObject.entrySet();
+        for (Map.Entry<String, JsonElement> entry: entrySet) {
+            String key = entry.getKey().toUpperCase();
+            JsonArray jsonArray = entry.getValue().getAsJsonArray();
             List<List<String>> values = new ArrayList<>();
-            int i = 0;
             jsonArray.forEach(jsonElement -> {
                 List<String> sequence = new ArrayList<>();
                 jsonElement.getAsJsonArray().forEach(stringElement -> {
@@ -317,7 +330,7 @@ public class QuestGrammar {
                 values.add(sequence);
             });
             rules.put(key, values);
-        });
+        }
     }
 
     private List<String> pickRandom(List<List<String>> listOfLists){
@@ -329,5 +342,26 @@ public class QuestGrammar {
         List<List<String>> listOfList = new ArrayList<>();
         rules.values().forEach(listOfList::addAll);
         return listOfList;
+    }
+
+    public static void main(String[] args) throws IOException {
+        Dungeon dungeon = new Dungeon();
+        QuestGrammar grammar = new QuestGrammar(dungeon);
+        Quest quest = dungeon.getQuest();
+
+        for (int i = 0; i < 1000; i++) {
+            try {
+                grammar.expand(quest, QuestGrammar.START_VALUE);
+//                quest.getActions().forEach(action -> System.out.print(action.getType().getValue() + "-"));
+                System.out.println();
+            } catch (StackOverflowError e){
+                System.out.println("StackOverFlow");
+            }
+            System.out.println(quest.getActions().size());
+            System.out.println();
+        }
+
+
+
     }
 }

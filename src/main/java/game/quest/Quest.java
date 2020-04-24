@@ -154,11 +154,19 @@ public class Quest {
                     owner.addItem(new ItemTile(next),update.getRoom());
                 } else if (next.GetType().isTreasure()){
                     owner.addTreasure(new TreasureTile(next),update.getRoom());
-                } else if (prev.GetType().isEnemyBoss()) {
+                } else if (next.GetType().isEnemyBoss()) {
                     owner.addBoss(new BossEnemyTile(prev), update.getRoom());
                 }
             }
             checkForAvailableActions();
         }
+    }
+    
+    public int[] toIntArray(){
+        int[] arr = new int[actions.size()];
+        for (int i = 0; i < arr.length; i++) {
+            arr[i] = actions.get(i).getType().getValue();
+        }
+        return arr;
     }
 }

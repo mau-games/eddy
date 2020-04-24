@@ -2,11 +2,7 @@ package game;
 
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Set;
-import java.util.Stack;
-import java.util.UUID;
+import java.util.*;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -96,6 +92,12 @@ public class Dungeon implements Listener
 	{
 		dPane = new DungeonPane(this);
 		pathfinding = new DungeonPathFinder(this);
+		quest = new Quest(this);
+		bosses = new ArrayList<BossEnemyTile>();
+		enemies = new ArrayList<EnemyTile>();
+		npcs = new ArrayList<NpcTile>();
+		items = new ArrayList<ItemTile>();
+		treasures = new ArrayList<TreasureTile>();
 	}
 	
 	public Dungeon(GeneratorConfig defaultConfig, int size, int defaultWidth, int defaultHeight)
@@ -440,12 +442,14 @@ public class Dungeon implements Listener
 
 	public void addBoss(BossEnemyTile bossTile)
 	{
-		System.out.println("boss added");
+		System.out.println("boss added - old");
 		bosses.add(bossTile);
 	}
 
 	public void removeBoss(BossEnemyTile bossTile)
 	{
+		System.out.println("boss removed - old");
+
 		bosses.remove(bossTile);
 	}
 
@@ -457,13 +461,26 @@ public class Dungeon implements Listener
 
 	public void addBoss(BossEnemyTile bossTile,Room room)
 	{
-		System.out.println("boss added");
-		room.bossTiles.addPoint(bossTile.GetCenterPosition());
+		System.out.println("boss added - new");
+		int centerX = bossTile.GetCenterPosition().getX();
+		int centerY = bossTile.GetCenterPosition().getY();
+		List<finder.geometry.Point> points = new LinkedList<>();
+		points.add(bossTile.GetCenterPosition());
+		points.add(new finder.geometry.Point(centerX+1,centerY+1));
+		points.add(new finder.geometry.Point(centerX,centerY+1));
+		points.add(new finder.geometry.Point(centerX+1,centerY));
+		points.add(new finder.geometry.Point(centerX-1,centerY-1));
+		points.add(new finder.geometry.Point(centerX-1,centerY));
+		points.add(new finder.geometry.Point(centerX,centerY-1));
+		points.add(new finder.geometry.Point(centerX+1,centerY-1));
+		points.add(new finder.geometry.Point(centerX-1,centerY+1));
+		room.bossTiles.AddAllPoints(points);
 		bosses.add(bossTile);
 	}
 
 	public void removeBoss(BossEnemyTile bossTile, Room room)
 	{
+		System.out.println("boss removed - new");
 		bosses.removeIf(tile -> tile.GetCenterPosition().getY() == bossTile.GetCenterPosition().getY() &&
 				tile.GetCenterPosition().getX() == bossTile.GetCenterPosition().getX());
 	}

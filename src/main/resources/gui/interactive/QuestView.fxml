@@ -40,12 +40,9 @@
             <center>
 
                 <ToolBar fx:id="tbQuestTools" orientation="VERTICAL" prefWidth="150.0" style="-fx-background-color: black;">
-                    <ToggleButton id="CAPTURE" disable="true" maxWidth="1.7976931348623157E308" mnemonicParsing="false" text="CAPTURE" />
-                    <ToggleButton id="DAMAGE" disable="true" maxWidth="1.7976931348623157E308" mnemonicParsing="false" text="DAMAGE" />
-                    <ToggleButton id="DEFEND" disable="true" maxWidth="1.7976931348623157E308" mnemonicParsing="false" text="DEFEND">
-                  <toggleGroup>
-                     <ToggleGroup fx:id="questActionsTools" />
-                  </toggleGroup></ToggleButton>
+                    <ToggleButton id="CAPTURE" disable="true" maxWidth="1.7976931348623157E308" mnemonicParsing="false" text="CAPTURE" toggleGroup="$questActionsTools"/>
+                    <ToggleButton id="DAMAGE" disable="true" maxWidth="1.7976931348623157E308" mnemonicParsing="false" text="DAMAGE" toggleGroup="$questActionsTools"/>
+                    <ToggleButton id="DEFEND" disable="true" maxWidth="1.7976931348623157E308" mnemonicParsing="false" text="DEFEND" toggleGroup="$questActionsTools"/>
                     <ToggleButton id="ESCORT" disable="true" maxWidth="1.7976931348623157E308" mnemonicParsing="false" text="ESCORT" toggleGroup="$questActionsTools" />
                     <ToggleButton id="EXCHANGE" disable="true" maxWidth="1.7976931348623157E308" mnemonicParsing="false" text="EXCHANGE" toggleGroup="$questActionsTools" />
                     <ToggleButton id="EXPERIMENT" disable="true" maxWidth="1.7976931348623157E308" mnemonicParsing="false" text="EXPERIMENT" toggleGroup="$questActionsTools" />
