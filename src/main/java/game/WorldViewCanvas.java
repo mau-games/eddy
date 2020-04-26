@@ -23,6 +23,8 @@ import util.eventrouting.EventRouter;
 import util.eventrouting.PCGEvent;
 import util.eventrouting.events.*;
 
+import java.lang.reflect.Array;
+import java.util.Arrays;
 import java.util.List;
 
 public class WorldViewCanvas 
@@ -93,6 +95,7 @@ public class WorldViewCanvas
 
 		EventRouter.getInstance().registerListener(this::ping, new RequestDisplayQuestTilesSelection(null));
 		EventRouter.getInstance().registerListener(this::ping, new RequestDisplayQuestTilesUnselection(false));
+		EventRouter.getInstance().registerListener(this::ping, new RequestDisplayQuestTilePosition());
 		
 		rendered = false;
 		viewSizeHeight = 0;
@@ -158,7 +161,7 @@ public class WorldViewCanvas
 						break;
 				}
 		});
-			drawTiles();
+			drawTiles(Color.GREEN);
 		} else if (e instanceof RequestDisplayQuestTilesUnselection){
 //			System.out.println("UnDisplayQuestTiles");
 			doublePos = (boolean) e.getPayload();
@@ -166,7 +169,20 @@ public class WorldViewCanvas
 			if (doublePos){
 				questBitmap.clearAllPoints();
 				questBitmap.AddAllPoints(owner.npcTiles.getPoints());
-				drawTiles();
+				drawTiles(Color.GREEN);
+			}
+		} else if (e instanceof RequestDisplayQuestTilePosition){
+				if (!tileCanvas.isVisible()){
+					tileCanvas.setVisible(true);
+					questBitmap.clearAllPoints();
+					for (QuestPositionUpdate update: ((RequestDisplayQuestTilePosition) e).getPos()) {
+						if (update != null){
+							if (update.getRoom().equals(owner)){
+								questBitmap.addPoint(update.getPoint());
+							}
+						}
+					}
+					drawTiles(Color.BLUEVIOLET);
 			}
 		}
 	}
@@ -357,7 +373,7 @@ public class WorldViewCanvas
 		            	drawBorder();
 	            	} else if (brush instanceof QuestPositionBrush){
 	            		tileCanvas.setVisible(true);
-	            		drawTiles();
+	            		drawTiles(Color.GREEN);
 					}
 	            	else
 	            	{
@@ -385,7 +401,7 @@ public class WorldViewCanvas
 						drawBorder();
 					} else if (brush instanceof QuestPositionBrush){
 	            		tileCanvas.setVisible(true);
-	            		drawTiles();
+	            		drawTiles(Color.GREEN);
 					}
 	            }
 	        });
@@ -475,9 +491,8 @@ public class WorldViewCanvas
 		}
 	}
 
-	private synchronized void drawTiles()
+	private synchronized void drawTiles(Color color)
 	{
-
 		if(tileCanvas.isVisible())
 		{
 			tileCanvas.getGraphicsContext2D().clearRect(0, 0, tileCanvas.getWidth(), tileCanvas.getHeight());
@@ -485,7 +500,21 @@ public class WorldViewCanvas
 					owner.matrix,
 					questBitmap,
 					Point.castToGeometry(currentBrushPosition) ,
-					Color.GREEN);
+					color);
+		}
+	}
+
+	private synchronized  void drawTile(finder.geometry.Point... points){
+		if(tileCanvas.isVisible())
+		{
+			Bitmap bitmap = new Bitmap();
+			bitmap.AddAllPoints(Arrays.asList(points));
+			tileCanvas.getGraphicsContext2D().clearRect(0, 0, tileCanvas.getWidth(), tileCanvas.getHeight());
+			MapRenderer.getInstance().drawEligibleTiles(tileCanvas.getGraphicsContext2D(),
+					owner.matrix,
+					bitmap,
+					Point.castToGeometry(currentBrushPosition) ,
+					Color.BLUEVIOLET);
 		}
 	}
 	

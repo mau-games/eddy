@@ -113,4 +113,8 @@ public enum ActionType {
     public boolean isTake() {
         return value == TAKE.getValue();
     }
+
+    public boolean isNone() {
+        return value == NONE.getValue();
+    }
 }

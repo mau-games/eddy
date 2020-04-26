@@ -41,7 +41,7 @@ public class QuestViewController extends BorderPane implements Listener {
     private ApplicationConfig config;
     private boolean isActive = false;
     private Dungeon dungeon;
-    private ActionType selectedActionType;
+    private ActionType selectedActionType = ActionType.NONE;
     private QuestPositionUpdate updatedPosition = null;
     private QuestPositionUpdate secondUpdatedPosition = null;
     private boolean doublePosition = false;
@@ -56,6 +56,8 @@ public class QuestViewController extends BorderPane implements Listener {
     private ToolBar tbQuestTools;
     @FXML
     private ToggleGroup questActions;
+    @FXML
+    private ToggleGroup questActionsTools;
 
 
     public QuestViewController() {
@@ -91,7 +93,7 @@ public class QuestViewController extends BorderPane implements Listener {
                                         .forEach(selected -> {
                                             ToggleButton toggleButton = (ToggleButton) selected;
                                             int questCount = dungeon.getQuest().getActions().size();
-                                            if (updatedPosition != null){
+                                            if (!doublePosition && updatedPosition != null){
                                                 Action action = addQuestAction(toggleButton, questCount);
                                                 addQuestPaneAction(action, actionCount - 1);
                                                 toggleButton.setSelected(false);
@@ -123,15 +125,9 @@ public class QuestViewController extends BorderPane implements Listener {
                             selectedActionType = ActionType.valueOf(((ToggleButton) toolbarAction).getId());
                             List<TileTypes> types = findTileTypeByAction();
                             EventRouter.getInstance().postEvent(new RequestDisplayQuestTilesSelection(types));
-                            questPane.getChildren()
-                                    .filtered(questAction -> questAction instanceof ToggleButton)
-                                    .filtered(questAction -> ((ToggleButton)questAction).isSelected())
-                                    .forEach(questAction -> {
-                                        //TODO: needs to account for position and room
-//                                    Platform.runLater(() -> replaceQuestAction((ToggleButton)questAction, (ToggleButton)toolbarAction));
-                                    });
                         } else {
                             EventRouter.getInstance().postEvent(new RequestDisplayQuestTilesUnselection(false));
+                            selectedActionType = ActionType.NONE;
                         }
                     });
                 });
@@ -203,28 +199,31 @@ public class QuestViewController extends BorderPane implements Listener {
                 boolean disable = dungeon.getQuest().getAvailableActions().stream().noneMatch(actionType -> actionType.toString().equals(buttonID));
                 node.setDisable(disable);
             });
-            //TODO: refresh/reset the QuestActionToggleButtons
         } else if (e instanceof QuestPositionUpdate){
             doublePosition = ((QuestPositionUpdate) e).isSecondPosition();
             if (doublePosition) {
                 secondUpdatedPosition = (QuestPositionUpdate) e;
-                System.out.println(String.format("%s => { %d : %d }",
-                        secondUpdatedPosition.getRoom(),
-                        secondUpdatedPosition.getPoint().getX(),
-                        secondUpdatedPosition.getPoint().getY()));
+                questPane.getChildren()
+                        .filtered(questAction -> questAction instanceof ToggleButton)
+                        .filtered(questAction -> ((ToggleButton)questAction).isSelected())
+                        .forEach(questAction -> {
+                            Platform.runLater(() -> replaceQuestAction((ToggleButton)questAction, (ToggleButton) questActionsTools.getSelectedToggle()));
+                        });
                 //do stuff to select the second position and make sure it doesn't loop around
                 doublePosition = false;
             } else {
                 updatedPosition = (QuestPositionUpdate) e;
-                System.out.println(String.format("%s => { %d : %d }",
-                        updatedPosition.getRoom(),
-                        updatedPosition.getPoint().getX(),
-                        updatedPosition.getPoint().getY()));
                 doublePosition = (selectedActionType.isExchange() || selectedActionType.isGive() || selectedActionType.isTake());
                 selectedActionType = ActionType.NONE;
             }
             if (!doublePosition) {
                 DungeonDrawer.getInstance().changeBrushTo(DungeonDrawer.DungeonBrushes.NONE);
+                questPane.getChildren()
+                        .filtered(questAction -> questAction instanceof ToggleButton)
+                        .filtered(questAction -> ((ToggleButton)questAction).isSelected())
+                        .forEach(questAction -> {
+                                    Platform.runLater(() -> replaceQuestAction((ToggleButton)questAction, (ToggleButton) questActionsTools.getSelectedToggle()));
+                        });
             }
             EventRouter.getInstance().postEvent(new RequestDisplayQuestTilesUnselection(doublePosition));
         }
@@ -246,15 +245,29 @@ public class QuestViewController extends BorderPane implements Listener {
         toAdd.setToggleGroup(questActions);
         toAdd.addEventHandler(MouseEvent.MOUSE_CLICKED, e -> {
             if(e.getButton().equals(MouseButton.PRIMARY)){
-                tbQuestTools.getItems().stream()
-                        .filter(a -> ((ToggleButton)a).isSelected())
-                        .forEach(s -> {
-                            //TODO: needs to account for position and room
-//                            replaceQuestAction(toAdd, (ToggleButton) s)
-                        });
+                if (!doublePosition && updatedPosition != null){
+                    tbQuestTools.getItems().stream()
+                            .filter(a -> ((ToggleButton)a).isSelected())
+                            .forEach(s -> {
+                                Platform.runLater(() -> replaceQuestAction(toAdd, (ToggleButton) s));
+                            });
+                }
             } else if (e.getButton().equals(MouseButton.SECONDARY)){
-                System.out.println("secondary");
-                //todo: add a popup option menu
+                //for future use if a pop-up menu is needed.
+            }
+        });
+        toAdd.addEventHandler(MouseEvent.MOUSE_ENTERED, e -> {
+            Action tileAction = dungeon.getQuest().getAction(UUID.fromString(toAdd.getId()));
+            QuestPositionUpdate firstPosition = new QuestPositionUpdate(tileAction.getPosition(),tileAction.getRoom(),false);
+            QuestPositionUpdate secondPosition = null;
+            if (tileAction instanceof ActionWithSecondPosition) {
+                secondPosition = new QuestPositionUpdate(((ActionWithSecondPosition)tileAction).getSecondPosition(),((ActionWithSecondPosition)tileAction).getRoom(),false);
+            }
+            EventRouter.getInstance().postEvent(new RequestDisplayQuestTilePosition(firstPosition,secondPosition));
+        });
+        toAdd.addEventHandler(MouseEvent.MOUSE_EXITED, e -> {
+            if (selectedActionType.isNone()){ //this means that the user is not in the process of picking a position
+                EventRouter.getInstance().postEvent(new RequestDisplayQuestTilesUnselection(false));
             }
         });
         questPane.getChildren().add(index, toAdd);
@@ -275,143 +288,65 @@ public class QuestViewController extends BorderPane implements Listener {
      */
     private Action addQuestAction(ToggleButton toolbarActionToggleButton, int index) {
         Random random = new Random();
-
-        //add QuestAction in Quest
         ActionType type = ActionType.valueOf(toolbarActionToggleButton.getId().toUpperCase());
         Action action = null;
-//        List<Tile> tiles = new ArrayList<Tile>();
         switch (type){
             case CAPTURE:
                 action = new CaptureAction();
-//                tiles.addAll(dungeon.getEnemies());
-//                tiles.addAll(dungeon.getBosses());
-//                tiles.addAll(dungeon.getNpcs());
-//                if (tiles.size() > 0)
-//                    action.setPosition(tiles.get(random.nextInt(tiles.size()-1)).GetCenterPosition());
                 break;
             case DAMAGE:
                 action = new DamageAction();
-//                tiles.addAll(dungeon.getItems());
-//                if (tiles.size() > 0)
-//                    action.setPosition(tiles.get(random.nextInt(tiles.size()-1)).GetCenterPosition());
                 break;
             case DEFEND:
                 action = new DefendAction();
-//                tiles.addAll(dungeon.getItems());
-//                if (tiles.size() > 0)
-//                    action.setPosition(tiles.get(random.nextInt(tiles.size()-1)).GetCenterPosition());
                 break;
             case ESCORT:
                 action = new EscortAction();
-//                tiles.addAll(dungeon.getNpcs());
-//                if (tiles.size() > 0)
-//                    action.setPosition(tiles.get(random.nextInt(tiles.size()-1)).GetCenterPosition());
                 break;
-            case EXCHANGE: //needs 2 positions
+            case EXCHANGE:
                 action = new ExchangeAction();
-//                tiles.addAll(dungeon.getItems());
-//                if (tiles.size() > 0)
-//                    action.setPosition(tiles.get(random.nextInt(tiles.size()-1)).GetCenterPosition());
-//                tiles.clear();
-//                tiles.addAll(dungeon.getNpcs());
-//                if (tiles.size() > 0)
-//                    ((ExchangeAction)action).setSecondPosition(tiles.get(random.nextInt(tiles.size()-1)).GetCenterPosition());
                 break;
             case EXPERIMENT:
                 action = new ExperimentAction();
-//                tiles.addAll(dungeon.getItems());
-//                if (tiles.size() > 0)
-//                    action.setPosition(tiles.get(random.nextInt(tiles.size()-1)).GetCenterPosition());
                 break;
             case EXPLORE:
                 action = new ExploreAction();
-//                dungeon.getAllRooms().forEach(room -> Collections.addAll(tiles, room.getTileBasedMap()));
-//                if (tiles.size() > 0)
-//                    action.setPosition(tiles.get(random.nextInt(tiles.size()-1)).GetCenterPosition());
                 break;
             case GATHER:
                 action = new GatherAction();
-//                tiles.addAll(dungeon.getItems());
-//                if (tiles.size() > 0)
-//                    action.setPosition(tiles.get(random.nextInt(tiles.size()-1)).GetCenterPosition());
                 break;
             case GIVE:
                 action = new GiveAction();
-//                tiles.addAll(dungeon.getItems());
-//                if (tiles.size() > 0)
-//                    action.setPosition(tiles.get(random.nextInt(tiles.size()-1)).GetCenterPosition());
-//                tiles.clear();
-//                tiles.addAll(dungeon.getNpcs());
-//                if (tiles.size() > 0)
-//                    ((GiveAction)action).setSecondPosition(tiles.get(random.nextInt(tiles.size()-1)).GetCenterPosition());
                 break;
             case GO_TO:
                 action = new GotoAction();
-//                dungeon.getAllRooms().forEach(room -> Collections.addAll(tiles, room.getTileBasedMap()));
-//                if (tiles.size() > 0)
-//                    action.setPosition(tiles.get(random.nextInt(tiles.size()-1)).GetCenterPosition());
                 break;
             case KILL:
                 action = new KillAction();
-//                tiles.addAll(dungeon.getEnemies());
-//                tiles.addAll(dungeon.getBosses());
-//                if (tiles.size() > 0)
-//                    action.setPosition(tiles.get(random.nextInt(tiles.size()-1)).GetCenterPosition());
                 break;
             case LISTEN:
                 action = new ListenAction();
-//                tiles.addAll(dungeon.getNpcs());
-//                if (tiles.size() > 0)
-//                    action.setPosition(tiles.get(random.nextInt(tiles.size()-1)).GetCenterPosition());
                 break;
             case READ:
                 action = new ReadAction();
-//                tiles.addAll(dungeon.getItems());
-//                if (tiles.size() > 0)
-//                    action.setPosition(tiles.get(random.nextInt(tiles.size()-1)).GetCenterPosition());
                 break;
             case REPAIR:
                 action = new RepairAction();
-//                tiles.addAll(dungeon.getItems());
-//                if (tiles.size() > 0)
-//                    action.setPosition(tiles.get(random.nextInt(tiles.size()-1)).GetCenterPosition());
                 break;
             case REPORT:
                 action = new ReportAction();
-//                tiles.addAll(dungeon.getNpcs());
-//                if (tiles.size() > 0)
-//                    action.setPosition(tiles.get(random.nextInt(tiles.size()-1)).GetCenterPosition());
                 break;
             case SPY:
                 action = new SpyAction();
-//                tiles.addAll(dungeon.getEnemies());
-//                tiles.addAll(dungeon.getBosses());
-//                tiles.addAll(dungeon.getNpcs());
-//                if (tiles.size() > 0)
-//                    action.setPosition(tiles.get(random.nextInt(tiles.size()-1)).GetCenterPosition());
                 break;
             case STEALTH:
                 action = new StealthAction();
-//                tiles.addAll(dungeon.getEnemies());
-//                tiles.addAll(dungeon.getBosses());
-//                tiles.addAll(dungeon.getNpcs());
-//                if (tiles.size() > 0)
-//                    action.setPosition(tiles.get(random.nextInt(tiles.size()-1)).GetCenterPosition());
                 break;
             case TAKE:
                 action = new TakeAction();
-//                tiles.addAll(dungeon.getItems());
-//                if (tiles.size() > 0)
-//                    action.setPosition(tiles.get(random.nextInt(tiles.size()-1)).GetCenterPosition());
-//
-//                tiles.clear();
-//                tiles.addAll(dungeon.getNpcs());
-//                if (tiles.size() > 0)
-//                    ((TakeAction)action).setSecondPosition(tiles.get(random.nextInt(tiles.size()-1)).GetCenterPosition());
                 break;
             case USE:
                 action = new UseAction();
-//                tiles.addAll(dungeon.getItems());
                 break;
         }
         if (action != null){
@@ -452,10 +387,6 @@ public class QuestViewController extends BorderPane implements Listener {
 
         toolbarActionToggleButton.setSelected(false);
         questActionToggleButton.setSelected(false);
-    }
-
-    public void selectBrush(){
-
     }
 
     @FXML
