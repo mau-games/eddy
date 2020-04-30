@@ -23,6 +23,7 @@ import java.util.UUID;
 import javax.swing.text.Position;
 
 import java.util.Map.Entry;
+import java.util.stream.Collectors;
 
 import finder.PatternFinder;
 import finder.Populator;
@@ -1804,7 +1805,6 @@ public class Room {
                 		continue;
                 	
             		walkableSpaces.remove(child);
-            		walkableTiles.addPoint(new finder.geometry.Point(child.getX(),child.getY()));
             		section.addPoint(child);
 
                     //Create child node
@@ -1846,12 +1846,15 @@ public class Room {
 			{
 				treasure += section.getTreasures();
 				enemies += section.getEnemies();
+				walkableTiles.AddAllPoints(section.getPositions().stream().map(Point::castToGeometry).collect(Collectors.toList()));
 			}
 			else
 			{
 				sectionsReachable = false;
 			}
 		}
+
+    	//TODO: check roomsection reachability
 
     	for(int i = treasure; i < getTreasureCount();i++)
     		addFailedPathToTreasures();
