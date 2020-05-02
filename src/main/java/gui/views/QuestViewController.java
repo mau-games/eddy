@@ -58,6 +58,10 @@ public class QuestViewController extends BorderPane implements Listener {
     private ToggleGroup questActions;
     @FXML
     private ToggleGroup questActionsTools;
+    @FXML
+    private CheckBox togglePath;
+    @FXML
+    private CheckBox toggleHelp;
 
 
     public QuestViewController() {
@@ -131,6 +135,20 @@ public class QuestViewController extends BorderPane implements Listener {
                         }
                     });
                 });
+        togglePath.addEventHandler(MouseEvent.MOUSE_CLICKED, event -> {
+            //TODO ELIN:show quest path
+            //find best path from hero to first action
+            //loop through all actions {
+            // if action with second position
+            // then find best path from first to second position
+            // find best path second position to next
+            // else
+            // find best path current to next
+            // }
+        });
+        toggleHelp.addEventHandler(MouseEvent.MOUSE_CLICKED, event -> {
+            //TODO ELIN:show quest path
+        });
     }
 
     private List<TileTypes> findTileTypeByAction() {
