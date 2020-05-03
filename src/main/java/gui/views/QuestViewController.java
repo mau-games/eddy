@@ -27,8 +27,9 @@ import util.eventrouting.EventRouter;
 import util.eventrouting.Listener;
 import util.eventrouting.PCGEvent;
 import util.eventrouting.events.*;
-
-
+import gui.controls.Popup;
+import gui.utils.InformativePopupManager;
+import gui.utils.InformativePopupManager.PresentableInformation;
 import java.io.IOException;
 import java.util.*;
 
@@ -120,11 +121,11 @@ public class QuestViewController extends BorderPane implements Listener {
         });
     }
 
-    private void initActionToolbar(){
+    private void initActionToolbar() {
         tbQuestTools.getItems()
                 .forEach(toolbarAction -> {
                     toolbarAction.addEventHandler(MouseEvent.MOUSE_CLICKED, event -> {
-                        if (((ToggleButton)toolbarAction).isSelected()){
+                        if (((ToggleButton) toolbarAction).isSelected()) {
                             DungeonDrawer.getInstance().changeBrushTo(DungeonDrawer.DungeonBrushes.QUEST_POS);
                             selectedActionType = ActionType.valueOf(((ToggleButton) toolbarAction).getId());
                             List<TileTypes> types = findTileTypeByAction();
@@ -135,23 +136,23 @@ public class QuestViewController extends BorderPane implements Listener {
                         }
                     });
                 });
-        togglePath.addEventHandler(MouseEvent.MOUSE_CLICKED, event -> {
-            //TODO ELIN:show quest path
-            //find best path from hero to first action
-            //loop through all actions {
-            // if action with second position
-            // then find best path from first to second position
-            // find best path second position to next
-            // else
-            // find best path current to next
-            // }
-        });
+//        togglePath.addEventHandler(MouseEvent.MOUSE_CLICKED, event -> {
+        //TODO ELIN:show quest path
+        //find best path from hero to first action
+        //loop through all actions {
+        // if action with second position
+        // then find best path from first to second position
+        // find best path second position to next
+        // else
+        // find best path current to next
+        // }
+        //     });
         toggleHelp.addEventHandler(MouseEvent.MOUSE_CLICKED, event -> {
-            //TODO ELIN:show quest path
+       // InformativePopupManager.getInstance().requestPopup(dungeon.dPane, PresentableInformation.PLACE_ONE_POSITION, "");
+       // InformativePopupManager.getInstance().requestPopup(dungeon.dPane, PresentableInformation.PLACE_TWO_POSITIONS, "");
         });
     }
-
-    private List<TileTypes> findTileTypeByAction() {
+    private List<TileTypes> findTileTypeByAction(){
         List<TileTypes> typesList = new LinkedList<TileTypes>();
         switch (selectedActionType) {
             case EXPLORE:
@@ -197,7 +198,6 @@ public class QuestViewController extends BorderPane implements Listener {
 
     public void initWorldMap(Dungeon dungeon) {
         this.dungeon = dungeon;
-
         dungeon.dPane.renderAll();
         StackPane pane = new StackPane(dungeon.dPane);
         pane.setAlignment(Pos.CENTER);

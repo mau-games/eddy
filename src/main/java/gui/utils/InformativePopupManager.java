@@ -17,7 +17,10 @@ public class InformativePopupManager
 		ROOM_INFEASIBLE_LOCK,
 		CHANGE_DIMENSIONS,
 		NO_BOSS_YET,
-		ROOMS_CONNECTED
+		ROOMS_CONNECTED,
+		PLACE_ONE_POSITION,
+		PLACE_TWO_POSITIONS
+
 	}
 	
 	private static InformativePopupManager instance = null;
@@ -118,11 +121,14 @@ public class InformativePopupManager
 		case ROOMS_CONNECTED:
 			text="Rooms must be connected and all areas should be reachable, else they are infeasible!";
 			break;
-		default:
+			case PLACE_ONE_POSITION:
+				text="This action requires one position to be placed on the map!";
+				break;
+				case PLACE_TWO_POSITIONS:
+				text= "This action requires two positions to be placed on the map!";
+			default:
 			break;
-		
 		}
-		
 		return text;
 	}
 }
