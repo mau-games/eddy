@@ -70,7 +70,7 @@
          <bottom>
                   <VBox alignment="TOP_CENTER" style="-fx-border-color: transparent lightgray transparent transparent; -fx-border-width: 2px;" BorderPane.alignment="CENTER">
                       <CheckBox text="Toggle Path" />
-                      <CheckBox text="Toggle Help" />
+                      <CheckBox text="Toggle Help" selected="true" fx:id="toggleHelp" />
                   </VBox>
          </bottom>
         </BorderPane>

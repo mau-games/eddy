@@ -19,7 +19,11 @@ public class InformativePopupManager
 		NO_BOSS_YET,
 		ROOMS_CONNECTED,
 		PLACE_ONE_POSITION,
-		PLACE_TWO_POSITIONS
+		PLACE_TWO_POSITIONS,
+		HELP_MODE,
+		NO_HELP_MODE,
+		ADD_ACTION,
+		ACTION_NOT_AVAILABLE
 
 	}
 	
@@ -121,11 +125,15 @@ public class InformativePopupManager
 		case ROOMS_CONNECTED:
 			text="Rooms must be connected and all areas should be reachable, else they are infeasible!";
 			break;
-			case PLACE_ONE_POSITION:
-				text="This action requires one position to be placed on the map!";
-				break;
-				case PLACE_TWO_POSITIONS:
-				text= "This action requires two positions to be placed on the map!";
+		case PLACE_ONE_POSITION:
+			text="Place a position on the map!";
+			break;
+		case PLACE_TWO_POSITIONS:
+			text= "Place a second position on the map!";
+			break;
+		case ACTION_NOT_AVAILABLE:
+			text= "Try adding different tiles to enable more actions!";
+			break;
 			default:
 			break;
 		}
