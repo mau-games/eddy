@@ -40,8 +40,6 @@
     ["<get>","use"],
     ["use"],
     ["damage"],
-    ["use"],
-    ["<get>","use"],
     ["<get>","experiment"]],
   "<equipment>": [
     ["repair"],

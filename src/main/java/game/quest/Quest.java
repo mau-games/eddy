@@ -26,7 +26,7 @@ public class Quest {
 
     public Quest() {
         this.actions = new ArrayList<Action>();
-        EventRouter.getInstance().registerListener(this::pings, new MapQuestUpdate());
+//        EventRouter.getInstance().registerListener(this::pings, new MapQuestUpdate());
     }
 
     public Quest(Dungeon owner) {
@@ -168,5 +168,9 @@ public class Quest {
             arr[i] = actions.get(i).getType().getValue();
         }
         return arr;
+    }
+
+    public void clearAction() {
+        actions.clear();
     }
 }

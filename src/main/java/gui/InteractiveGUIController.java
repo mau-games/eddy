@@ -235,6 +235,7 @@ public class InteractiveGUIController implements Initializable, Listener {
 			if (size != 0) {
 				initWorldView();
 				worldView.initialSetup();
+				dungeonMap.getAllRooms().forEach(Room::isIntraFeasible);
 			}
 
 		}
@@ -561,7 +562,7 @@ public class InteractiveGUIController implements Initializable, Listener {
 		}
 		
 		dungeonMap = new Dungeon(gc, 2, width, height);
-		
+
 		return dungeonMap;
 	}
 

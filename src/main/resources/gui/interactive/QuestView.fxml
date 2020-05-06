@@ -9,6 +9,7 @@
     <fx:define>
         <ToggleGroup fx:id="questActionsTools" />
         <ToggleGroup fx:id="questActions" />
+        <ToggleGroup fx:id="generatorActions" />
     </fx:define>
     <center>
         <BorderPane>
@@ -40,28 +41,68 @@
             <center>
 
                 <ToolBar fx:id="tbQuestTools" orientation="VERTICAL" prefWidth="150.0" style="-fx-background-color: black;">
-                    <ToggleButton id="CAPTURE" disable="true" maxWidth="1.7976931348623157E308" mnemonicParsing="false" text="CAPTURE" toggleGroup="$questActionsTools"/>
-                    <ToggleButton id="DAMAGE" disable="true" maxWidth="1.7976931348623157E308" mnemonicParsing="false" text="DAMAGE" toggleGroup="$questActionsTools"/>
-                    <ToggleButton id="DEFEND" disable="true" maxWidth="1.7976931348623157E308" mnemonicParsing="false" text="DEFEND" toggleGroup="$questActionsTools"/>
-                    <ToggleButton id="ESCORT" disable="true" maxWidth="1.7976931348623157E308" mnemonicParsing="false" text="ESCORT" toggleGroup="$questActionsTools" />
-                    <ToggleButton id="EXCHANGE" disable="true" maxWidth="1.7976931348623157E308" mnemonicParsing="false" text="EXCHANGE" toggleGroup="$questActionsTools" />
-                    <ToggleButton id="EXPERIMENT" disable="true" maxWidth="1.7976931348623157E308" mnemonicParsing="false" text="EXPERIMENT" toggleGroup="$questActionsTools" />
-                    <ToggleButton id="EXPLORE" disable="true" maxWidth="1.7976931348623157E308" mnemonicParsing="false" text="EXPLORE" toggleGroup="$questActionsTools" />
-                    <ToggleButton id="GATHER" disable="true" maxWidth="1.7976931348623157E308" mnemonicParsing="false" text="GATHER" toggleGroup="$questActionsTools" />
-                    <ToggleButton id="GIVE" disable="true" maxWidth="1.7976931348623157E308" mnemonicParsing="false" text="GIVE" toggleGroup="$questActionsTools" />
-                    <ToggleButton id="GO_TO" disable="true" maxWidth="1.7976931348623157E308" mnemonicParsing="false" text="GOTO" toggleGroup="$questActionsTools" />
-                    <ToggleButton id="KILL" disable="true" maxWidth="1.7976931348623157E308" mnemonicParsing="false" text="KILL" toggleGroup="$questActionsTools" />
-                    <ToggleButton id="LISTEN" disable="true" maxWidth="1.7976931348623157E308" mnemonicParsing="false" text="LISTEN" toggleGroup="$questActionsTools" />
-                    <ToggleButton id="READ" disable="true" maxWidth="1.7976931348623157E308" mnemonicParsing="false" text="READ" toggleGroup="$questActionsTools" />
-                    <ToggleButton id="REPAIR" disable="true" maxWidth="1.7976931348623157E308" mnemonicParsing="false" text="REPAIR" toggleGroup="$questActionsTools" />
-                    <ToggleButton id="REPORT" disable="true" maxWidth="1.7976931348623157E308" mnemonicParsing="false" text="REPORT" toggleGroup="$questActionsTools" />
-                    <ToggleButton id="SPY" disable="true" maxWidth="1.7976931348623157E308" mnemonicParsing="false" text="SPY" toggleGroup="$questActionsTools" />
-                    <ToggleButton id="STEALTH" disable="true" maxWidth="1.7976931348623157E308" mnemonicParsing="false" text="STEALTH" toggleGroup="$questActionsTools" />
-                    <ToggleButton id="TAKE" disable="true" maxWidth="1.7976931348623157E308" mnemonicParsing="false" text="TAKE" toggleGroup="$questActionsTools" />
-                    <ToggleButton id="USE" disable="true" maxWidth="1.7976931348623157E308" minWidth="-Infinity" mnemonicParsing="false" text="USE" toggleGroup="$questActionsTools" />
-               <padding>
-                  <Insets right="10.0" />
-               </padding>
+
+                    <ToggleButton id="CAPTURE" disable="true" maxWidth="1.7976931348623157E308" mnemonicParsing="false" text="CAPTURE" toggleGroup="$questActionsTools" >
+                        <tooltip><Tooltip text="CAPTURE" /> </tooltip>
+                    </ToggleButton>
+                    <ToggleButton id="DAMAGE" disable="true" maxWidth="1.7976931348623157E308" mnemonicParsing="false" text="DAMAGE" toggleGroup="$questActionsTools" >
+                        <tooltip><Tooltip text="DAMAGE" /> </tooltip>
+                    </ToggleButton>
+                    <ToggleButton id="DEFEND" disable="true" maxWidth="1.7976931348623157E308" mnemonicParsing="false" text="DEFEND" toggleGroup="$questActionsTools" >
+                        <tooltip><Tooltip text="DEFEND" /> </tooltip>
+                    </ToggleButton>
+                    <ToggleButton id="ESCORT" disable="true" maxWidth="1.7976931348623157E308" mnemonicParsing="false" text="ESCORT" toggleGroup="$questActionsTools" >
+                        <tooltip><Tooltip text="ESCORT" /> </tooltip>
+                    </ToggleButton>
+                    <ToggleButton id="EXCHANGE" disable="true" maxWidth="1.7976931348623157E308" mnemonicParsing="false" text="EXCHANGE" toggleGroup="$questActionsTools" >
+                        <tooltip><Tooltip text="EXCHANGE" /> </tooltip>
+                    </ToggleButton>
+                    <ToggleButton id="EXPERIMENT" disable="true" maxWidth="1.7976931348623157E308" mnemonicParsing="false" text="EXPERIMENT" toggleGroup="$questActionsTools" >
+                        <tooltip><Tooltip text="EXPERIMENT" /> </tooltip>
+                    </ToggleButton>
+                    <ToggleButton id="EXPLORE" disable="true" maxWidth="1.7976931348623157E308" mnemonicParsing="false" text="EXPLORE" toggleGroup="$questActionsTools" >
+                        <tooltip><Tooltip text="EXPLORE" /> </tooltip>
+                    </ToggleButton>
+                    <ToggleButton id="GATHER" disable="true" maxWidth="1.7976931348623157E308" mnemonicParsing="false" text="GATHER" toggleGroup="$questActionsTools" >
+                        <tooltip><Tooltip text="GATHER" /> </tooltip>
+                    </ToggleButton>
+                    <ToggleButton id="GIVE" disable="true" maxWidth="1.7976931348623157E308" mnemonicParsing="false" text="GIVE" toggleGroup="$questActionsTools" >
+                        <tooltip><Tooltip text="GIVE" /> </tooltip>
+                    </ToggleButton>
+                    <ToggleButton id="GO_TO" disable="true" maxWidth="1.7976931348623157E308" mnemonicParsing="false" text="GOTO" toggleGroup="$questActionsTools" >
+                        <tooltip><Tooltip text="GO_TO" /> </tooltip>
+                    </ToggleButton>
+                    <ToggleButton id="KILL" disable="true" maxWidth="1.7976931348623157E308" mnemonicParsing="false" text="KILL" toggleGroup="$questActionsTools" >
+                        <tooltip><Tooltip text="KILL" /> </tooltip>
+                    </ToggleButton>
+                    <ToggleButton id="LISTEN" disable="true" maxWidth="1.7976931348623157E308" mnemonicParsing="false" text="LISTEN" toggleGroup="$questActionsTools" >
+                        <tooltip><Tooltip text="LISTEN" /> </tooltip>
+                    </ToggleButton>
+                    <ToggleButton id="READ" disable="true" maxWidth="1.7976931348623157E308" mnemonicParsing="false" text="READ" toggleGroup="$questActionsTools" >
+                        <tooltip><Tooltip text="READ" /> </tooltip>
+                    </ToggleButton>
+                    <ToggleButton id="REPAIR" disable="true" maxWidth="1.7976931348623157E308" mnemonicParsing="false" text="REPAIR" toggleGroup="$questActionsTools" >
+                        <tooltip><Tooltip text="REPAIR" /> </tooltip>
+                    </ToggleButton>
+                    <ToggleButton id="REPORT" disable="true" maxWidth="1.7976931348623157E308" mnemonicParsing="false" text="REPORT" toggleGroup="$questActionsTools" >
+                        <tooltip><Tooltip text="REPORT" /> </tooltip>
+                    </ToggleButton>
+                    <ToggleButton id="SPY" disable="true" maxWidth="1.7976931348623157E308" mnemonicParsing="false" text="SPY" toggleGroup="$questActionsTools" >
+                        <tooltip><Tooltip text="SPY" /> </tooltip>
+                    </ToggleButton>
+                    <ToggleButton id="STEALTH" disable="true" maxWidth="1.7976931348623157E308" mnemonicParsing="false" text="STEALTH" toggleGroup="$questActionsTools" >
+                        <tooltip><Tooltip text="STEALTH" /> </tooltip>
+                    </ToggleButton>
+                    <ToggleButton id="TAKE" disable="true" maxWidth="1.7976931348623157E308" mnemonicParsing="false" text="TAKE" toggleGroup="$questActionsTools" >
+                        <tooltip><Tooltip text="TAKE" /> </tooltip>
+                    </ToggleButton>
+                    <ToggleButton id="USE" disable="true" maxWidth="1.7976931348623157E308" minWidth="-Infinity" mnemonicParsing="false" text="USE" toggleGroup="$questActionsTools" >
+                        <tooltip><Tooltip text="USE" /> </tooltip>
+                    </ToggleButton>
+
+                    <padding>
+                        <Insets right="10.0" />
+                    </padding>
                 </ToolBar>
             </center>
          <padding>
@@ -69,8 +110,8 @@
          </padding>
          <bottom>
                   <VBox alignment="TOP_CENTER" style="-fx-border-color: transparent lightgray transparent transparent; -fx-border-width: 2px;" BorderPane.alignment="CENTER">
-                      <CheckBox text="Toggle Path" />
-                      <CheckBox text="Toggle Help" selected="true" fx:id="toggleHelp" />
+                      <CheckBox fx:id="toggleHelp" selected="true" text="Toggle Help" />
+                      <CheckBox fx:id="togglePath" text="Toggle Path" />
                   </VBox>
          </bottom>
         </BorderPane>
@@ -78,31 +119,35 @@
     
    <right>
       <BorderPane maxWidth="1.7976931348623157E308" style="-fx-background-color: black;">
-          <top>
-              <Label contentDisplay="CENTER" maxWidth="1.7976931348623157E308" text="GENERATED QUESTS" textAlignment="CENTER" textFill="white" underline="true" wrapText="true" BorderPane.alignment="TOP_CENTER">
-                  <font>
-                      <Font size="24.0" />
-                  </font>
-              </Label>
-          </top>
           <center>
-              <ToolBar id="tbQuestPCG" maxWidth="1.7976931348623157E308" orientation="VERTICAL" StackPane.alignment="CENTER">
-                  <StackPane.margin>
-                      <Insets top="70.0" />
-                  </StackPane.margin>
-              </ToolBar>
+              <FlowPane fx:id="generatorPane" alignment="TOP_CENTER" columnHalignment="CENTER" maxWidth="1.7976931348623157E308" orientation="VERTICAL" vgap="5.0" StackPane.alignment="CENTER">
+               <padding>
+                   <Insets top="10" />
+               </padding>
+              </FlowPane>
           </center>
           <bottom>
               <StackPane>
                   <Button fx:id="btnBackToWorld" alignment="BASELINE_CENTER" maxHeight="1.7976931348623157E308" mnemonicParsing="false" onAction="#backWorldView" text="Back To World View" textAlignment="CENTER" wrapText="true">
                       <StackPane.margin>
                           <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
-                      </StackPane.margin></Button>
+                      </StackPane.margin>
+                  </Button>
               </StackPane>
           </bottom>
          <padding>
             <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
          </padding>
+         <top>
+            <VBox alignment="TOP_CENTER" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefWidth="132.0" BorderPane.alignment="CENTER">
+                 <Label contentDisplay="CENTER" maxWidth="1.7976931348623157E308" text="Generated suggestions" textAlignment="CENTER" textFill="white" underline="true" wrapText="true" xmlns="http://javafx.com/javafx/10.0.2-internal" xmlns:fx="http://javafx.com/fxml/1">
+                     <font>
+                         <Font size="24.0" />
+                     </font>
+                </Label>
+                <Button fx:id="regenerateButton" maxWidth="1.7976931348623157E308" text="Re-generate" textAlignment="CENTER" />
+             </VBox>
+         </top>
        </BorderPane>
    </right>
 </fx:root>

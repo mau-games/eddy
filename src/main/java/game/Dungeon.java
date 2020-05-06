@@ -14,8 +14,6 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
-import finder.patterns.micro.Enemy;
-import finder.patterns.micro.Treasure;
 import game.quest.Quest;
 import game.tiles.*;
 import org.w3c.dom.Document;
@@ -28,13 +26,10 @@ import collectors.ActionLogger;
 import collectors.ActionLogger.ActionType;
 import collectors.ActionLogger.TargetPane;
 import collectors.ActionLogger.View;
-import finder.patterns.micro.Boss;
-import generator.algorithm.MAPElites.Dimensions.GADimension.DimensionTypes;
 import generator.config.GeneratorConfig;
 import gui.InteractiveGUIController;
 import gui.utils.InformativePopupManager;
 import gui.utils.InformativePopupManager.PresentableInformation;
-import runners.InteractiveGUI;
 import util.Point;
 import util.eventrouting.EventRouter;
 import util.eventrouting.Listener;
@@ -79,10 +74,11 @@ public class Dungeon implements Listener
 	
 	//The start from information that is collected from the dungeon as a spatial platform for interconnected rooms.
 	private ArrayList<BossEnemyTile> bosses;
-	private ArrayList<EnemyTile> enemies;
-	private ArrayList<NpcTile> npcs;
-	private ArrayList<ItemTile> items;
-	private ArrayList<TreasureTile> treasures;
+	private ArrayList<QuestPositionUpdate> bossesPositions;
+	private ArrayList<QuestPositionUpdate> enemiesPositions;
+	private ArrayList<QuestPositionUpdate> npcsPositions;
+	private ArrayList<QuestPositionUpdate> itemsPositions;
+	private ArrayList<QuestPositionUpdate> treasuresPositions;
 
 	
 	//scale factor of the (canvas) view
@@ -94,10 +90,11 @@ public class Dungeon implements Listener
 		pathfinding = new DungeonPathFinder(this);
 		quest = new Quest(this);
 		bosses = new ArrayList<BossEnemyTile>();
-		enemies = new ArrayList<EnemyTile>();
-		npcs = new ArrayList<NpcTile>();
-		items = new ArrayList<ItemTile>();
-		treasures = new ArrayList<TreasureTile>();
+		bossesPositions = new ArrayList<QuestPositionUpdate>();
+		enemiesPositions = new ArrayList<QuestPositionUpdate>();
+		npcsPositions = new ArrayList<QuestPositionUpdate>();
+		itemsPositions = new ArrayList<QuestPositionUpdate>();
+		treasuresPositions = new ArrayList<QuestPositionUpdate>();
 	}
 	
 	public Dungeon(GeneratorConfig defaultConfig, int size, int defaultWidth, int defaultHeight)
@@ -107,10 +104,11 @@ public class Dungeon implements Listener
 		
 		//Initialize neccesary information
 		bosses = new ArrayList<BossEnemyTile>();
-		enemies = new ArrayList<EnemyTile>();
-		npcs = new ArrayList<NpcTile>();
-		items = new ArrayList<ItemTile>();
-		treasures = new ArrayList<TreasureTile>();
+		bossesPositions = new ArrayList<QuestPositionUpdate>();
+		enemiesPositions = new ArrayList<QuestPositionUpdate>();
+		npcsPositions = new ArrayList<QuestPositionUpdate>();
+		itemsPositions = new ArrayList<QuestPositionUpdate>();
+		treasuresPositions = new ArrayList<QuestPositionUpdate>();
 
 		dPane = new DungeonPane(this);
 		pathfinding = new DungeonPathFinder(this);
@@ -459,6 +457,11 @@ public class Dungeon implements Listener
 		bosses.add(bossTile);
 	}
 
+	public ArrayList<BossEnemyTile> getBosses()
+	{
+		return bosses;
+	}
+
 	public void addBoss(BossEnemyTile bossTile,Room room)
 	{
 		System.out.println("boss added - new");
@@ -475,14 +478,14 @@ public class Dungeon implements Listener
 		points.add(new finder.geometry.Point(centerX+1,centerY-1));
 		points.add(new finder.geometry.Point(centerX-1,centerY+1));
 		room.bossTiles.AddAllPoints(points);
-		bosses.add(bossTile);
+		bossesPositions.add(new QuestPositionUpdate(bossTile.GetCenterPosition(), room, false));
 	}
 
-	public void removeBoss(BossEnemyTile bossTile, Room room)
+	public void removeBoss(BossEnemyTile tile, Room room)
 	{
 		System.out.println("boss removed - new");
-		bosses.removeIf(tile -> tile.GetCenterPosition().getY() == bossTile.GetCenterPosition().getY() &&
-				tile.GetCenterPosition().getX() == bossTile.GetCenterPosition().getX());
+		bossesPositions.removeIf(bossEnemyTile -> tile.GetCenterPosition().getY() == tile.GetCenterPosition().getY() &&
+				tile.GetCenterPosition().getX() == tile.GetCenterPosition().getX());
 	}
 
 	public void replaceBoss(BossEnemyTile bossTile, BossEnemyTile prevbossTile, Room room)
@@ -491,117 +494,87 @@ public class Dungeon implements Listener
 		addBoss(bossTile,room);
 	}
 
-	public ArrayList<BossEnemyTile> getBosses()
+	public ArrayList<QuestPositionUpdate> getBossesPositions()
 	{
-		return bosses;
+		return bossesPositions;
 	}
 
 	public void addEnemy(EnemyTile enemyTile, Room room)
 	{
-		System.out.println("enemy added");
 		room.enemyTiles.addPoint(enemyTile.GetCenterPosition());
-		enemies.add(enemyTile);
+		enemiesPositions.add(new QuestPositionUpdate(enemyTile.GetCenterPosition(),room, false));
 	}
 
-	public void removeEnemy(EnemyTile enemyTile, Room room)
+	public void removeEnemy(EnemyTile tile, Room room)
 	{
-		System.out.println("enemy removed");
-		room.enemyTiles.getPoints().removeIf(point -> point.getY() == enemyTile.GetCenterPosition().getY() &&
-				point.getX() == enemyTile.GetCenterPosition().getX());
-		enemies.removeIf(tile -> tile.GetCenterPosition().getX() == enemyTile.GetCenterPosition().getX() &&
-				tile.GetCenterPosition().getY() == enemyTile.GetCenterPosition().getY() &&
-				tile.GetType().getValue() == enemyTile.GetType().getValue());
+		room.enemyTiles.getPoints().removeIf(point -> point.getY() == tile.GetCenterPosition().getY() &&
+				point.getX() == tile.GetCenterPosition().getX());
+		enemiesPositions.removeIf(enemyTiles -> enemyTiles.getPoint().getX() == tile.GetCenterPosition().getX() &&
+				enemyTiles.getPoint().getY() == tile.GetCenterPosition().getY());
 	}
 
-	public void replaceEnemy(EnemyTile enemyTile, EnemyTile prevenemyTile)
-	{
-		enemies.remove(prevenemyTile);
-		enemies.add(enemyTile);
-	}
 
-	public ArrayList<EnemyTile> getEnemies()
+	public ArrayList<QuestPositionUpdate> getEnemies()
 	{
-		return enemies;
+		return enemiesPositions;
 	}
 
 	public void addNpc(NpcTile npcTile, Room room)
 	{
-		System.out.println("npc added");
 		room.npcTiles.addPoint(npcTile.GetCenterPosition());
-		npcs.add(npcTile);
+		npcsPositions.add(new QuestPositionUpdate(npcTile.GetCenterPosition(),room, false));
 	}
 
-	public void removeNpc(NpcTile npcTile, Room room)
+	public void removeNpc(NpcTile tile, Room room)
 	{
 		System.out.println("npc removed");
-		room.npcTiles.getPoints().removeIf(point -> point.getY() == npcTile.GetCenterPosition().getY() &&
-				point.getX() == npcTile.GetCenterPosition().getX());
-		npcs.removeIf(tile -> tile.GetCenterPosition().getX() == npcTile.GetCenterPosition().getX() &&
-				tile.GetCenterPosition().getY() == npcTile.GetCenterPosition().getY() &&
-				tile.GetType().getValue() == npcTile.GetType().getValue());
+		room.npcTiles.getPoints().removeIf(point -> point.getY() == tile.GetCenterPosition().getY() &&
+				point.getX() == tile.GetCenterPosition().getX());
+		npcsPositions.removeIf(npctile -> npctile.getPoint().getX() == tile.GetCenterPosition().getX() &&
+				npctile.getPoint().getY() == tile.GetCenterPosition().getY());
 	}
 
-	public void replaceNpc(NpcTile npcTile, NpcTile prevnpcTile)
+	public ArrayList<QuestPositionUpdate> getNpcs()
 	{
-		npcs.remove(prevnpcTile);
-		npcs.add(npcTile);
-	}
-
-	public ArrayList<NpcTile> getNpcs()
-	{
-		return npcs;
+		return npcsPositions;
 	}
 
 	public void addItem(ItemTile itemTile, Room room)
 	{
 		System.out.println("item added");
 		room.itemTiles.addPoint(itemTile.GetCenterPosition());
-		items.add(itemTile);
+		itemsPositions.add(new QuestPositionUpdate(itemTile.GetCenterPosition(),room,false));
 	}
 
-	public void removeItem(ItemTile itemTile, Room room)
+	public void removeItem(ItemTile tile, Room room)
 	{
-		room.itemTiles.getPoints().removeIf(point -> point.getY() == itemTile.GetCenterPosition().getY() &&
-				point.getX() == itemTile.GetCenterPosition().getX());
-		items.removeIf(tile -> tile.GetCenterPosition().getX() == itemTile.GetCenterPosition().getX() &&
-				tile.GetCenterPosition().getY() == itemTile.GetCenterPosition().getY() &&
-				tile.GetType().getValue() == itemTile.GetType().getValue());
+		room.itemTiles.getPoints().removeIf(point -> point.getY() == tile.GetCenterPosition().getY() &&
+				point.getX() == tile.GetCenterPosition().getX());
+		itemsPositions.removeIf(itemTile -> itemTile.getPoint().getX() == tile.GetCenterPosition().getX() &&
+				itemTile.getPoint().getY() == tile.GetCenterPosition().getY());
 	}
 
-	public void replaceItem(ItemTile itemTile, ItemTile prevItemTile)
-	{
-		items.remove(prevItemTile);
-		items.add(itemTile);
-	}
-
-	public ArrayList<ItemTile> getItems() {
-		return items;
+	public ArrayList<QuestPositionUpdate> getItems() {
+		return itemsPositions;
 	}
 
 	public void addTreasure(TreasureTile treasureTile, Room room)
 	{
 		System.out.println("treasure added");
 		room.treasureTiles.addPoint(treasureTile.GetCenterPosition());
-		treasures.add(treasureTile);
+		treasuresPositions.add(new QuestPositionUpdate(treasureTile.GetCenterPosition(), room, false));
 	}
 
-	public void removeTreasure(TreasureTile treasureTile, Room room)
+	public void removeTreasure(TreasureTile tile, Room room)
 	{
-		room.treasureTiles.getPoints().removeIf(point -> point.getY() == treasureTile.GetCenterPosition().getY() &&
-				point.getX() == treasureTile.GetCenterPosition().getX());
-		treasures.removeIf(tile -> tile.GetCenterPosition().getX() == treasureTile.GetCenterPosition().getX() &&
-				tile.GetCenterPosition().getY() == treasureTile.GetCenterPosition().getY() &&
-				tile.GetType().getValue() == treasureTile.GetType().getValue());
+		room.treasureTiles.getPoints().removeIf(point -> point.getY() == tile.GetCenterPosition().getY() &&
+				point.getX() == tile.GetCenterPosition().getX());
+		treasuresPositions.removeIf(treasureTile -> treasureTile.getPoint().getX() == tile.GetCenterPosition().getX() &&
+				treasureTile.getPoint().getY() == tile.GetCenterPosition().getY());
 	}
 
-	public void replaceTreasure(TreasureTile treasureTile, TreasureTile prevTreasureTile)
-	{
-		treasures.remove(prevTreasureTile);
-		treasures.add(treasureTile);
-	}
-
-	public ArrayList<TreasureTile> getTreasures() {
-		return treasures;
+	public ArrayList<QuestPositionUpdate> getTreasures() {
+		return treasuresPositions;
 	}
 
 	///////////////////////// TODO: TESTING TRAVERSAL AND RETRIEVAL OF ALL THE PATHS FROM A ROOM TO ANOTHER ROOM ///////////////////////////
@@ -624,7 +597,8 @@ public class Dungeon implements Listener
 			return false;
 		}
 	}
-	
+
+	//TODO: use or tweak for togglePath
 	public boolean traverseTillDoor(Room end, Point endPos)
 	{
 		return pathfinding.calculateBestPath(initialRoom, end, initialPos, endPos, network);

@@ -56,10 +56,7 @@ import game.tiles.HeroTile;
 import util.Point;
 import util.config.MissingConfigurationException;
 import util.eventrouting.EventRouter;
-import util.eventrouting.events.AlgorithmDone;
-import util.eventrouting.events.MapLoaded;
-import util.eventrouting.events.MapQuestUpdate;
-import util.eventrouting.events.MapUpdate;
+import util.eventrouting.events.*;
 import generator.algorithm.Algorithm.AlgorithmTypes;
 import generator.algorithm.MAPElites.Dimensions.GADimension;
 import generator.algorithm.MAPElites.Dimensions.MAPEDimensionFXML;
@@ -108,7 +105,9 @@ public class Room {
 	public Bitmap walkableTiles = new Bitmap();
 	public Bitmap path = new Bitmap();//TODO: For testing
 	public Bitmap nonInterFeasibleTiles = new Bitmap();//TODO: For testing
-	
+
+	public List<QuestPositionUpdate> walkablePositions = new ArrayList<QuestPositionUpdate>();
+
 	public RoomPathFinder pathfinder;
 	public Dungeon owner;
 	
@@ -219,7 +218,7 @@ public class Room {
 		pathfinder = new RoomPathFinder(this);
 		
 		root = new ZoneNode(null, this, getColCount(), getRowCount());
-
+		isIntraFeasible();
 	}
 	
 	public Room(Dungeon owner, GeneratorConfig config, int rows, int cols, int scaleFactor) //THIS IS CALLED WHEN ADDING ROOMS TO THE DUNGEON!
@@ -242,7 +241,7 @@ public class Room {
 		
 		root = new ZoneNode(null, this, getColCount(), getRowCount());
 		node = new finder.graph.Node<Room>(this);
-
+//		isIntraFeasible();
 	}
 	
 	public Room(Room copyMap) //THIS IS CALLED WHEN CREATING A ZONE IN THE TREE (TO HAVE A COPY OF THE DOORS)
@@ -357,6 +356,7 @@ public class Room {
 //		this.localConfig = new RoomConfig(this, 40); //TODO: NEW ADDITION --> HAVE TO BE ADDED EVERYWHERE
 		
 		CloneMap(rootCopy.GetMap(), chromosomes);
+		isIntraFeasible();
 	}
 	
 	private void CloneMap(Room room, int[] chromosomes) //FROM THE PREVIOUS CONSTRUCTOR
@@ -1751,6 +1751,7 @@ public class Room {
     	Queue<Node> queue = new LinkedList<Node>();
     	clearFailedPaths();
     	walkableTiles.clearAllPoints();
+    	walkablePositions.clear();
     	int treasure = 0;
     	int enemies = 0;
     	int doors = 0;
@@ -1847,6 +1848,7 @@ public class Room {
 				treasure += section.getTreasures();
 				enemies += section.getEnemies();
 				walkableTiles.AddAllPoints(section.getPositions().stream().map(Point::castToGeometry).collect(Collectors.toList()));
+				walkablePositions.addAll(section.getPositions().stream().map(point -> new QuestPositionUpdate(Point.castToGeometry(point), this, false)).collect(Collectors.toList()));
 			}
 			else
 			{
@@ -3355,6 +3357,10 @@ public class Room {
 
 
 	public Bitmap accessibleFloorTiles() {
-		return null;
+		return walkableTiles;
+	}
+
+	public List<QuestPositionUpdate> getWalkablePositions() {
+		return walkablePositions;
 	}
 }
