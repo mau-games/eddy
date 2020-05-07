@@ -107,6 +107,7 @@ public class QuestGrammar {
             case DAMAGE:
                 action = new DamageAction();
                 tiles.addAll(owner.getItems());
+                tiles.addAll(owner.getNpcs());
                 if (tiles.size() > 1) {
                     QuestPositionUpdate position = tiles.get(random.nextInt(tiles.size()-1));
                     action.setPosition(position.getPoint());
@@ -121,6 +122,7 @@ public class QuestGrammar {
             case DEFEND:
                 action = new DefendAction();
                 tiles.addAll(owner.getItems());
+                tiles.addAll(owner.getNpcs());
                 if (tiles.size() > 1) {
                     QuestPositionUpdate position = tiles.get(random.nextInt(tiles.size()-1));
                     action.setPosition(position.getPoint());

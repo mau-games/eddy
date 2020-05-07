@@ -82,14 +82,17 @@ public class WorldViewCanvas
 			source = (Node)event.getSource();
 			if (DungeonDrawer.getInstance().getBrush() instanceof QuestPositionBrush){
 				currentBrushPosition =  new Point((int)( event.getX() / tileSizeWidth.get()), (int)( event.getY() / tileSizeHeight.get() ));
-//				((QuestPositionBrush)DungeonDrawer.getInstance().getBrush()).setSecondPos
-				EventRouter.getInstance().postEvent(
-						new QuestPositionUpdate(
-								new finder.geometry.Point(
-										currentBrushPosition.getX(),
-										currentBrushPosition.getY()),
-								owner,
-								doublePos));
+				if (questBitmap.contains(Point.castToGeometry(currentBrushPosition))){
+					EventRouter.getInstance().postEvent(
+							new QuestPositionUpdate(
+									new finder.geometry.Point(
+											currentBrushPosition.getX(),
+											currentBrushPosition.getY()),
+									owner,
+									doublePos));
+				} else {
+					EventRouter.getInstance().postEvent(new QuestPositionInvalid());
+				}
 			}
 		});
 

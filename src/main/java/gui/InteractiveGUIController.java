@@ -22,6 +22,7 @@ import game.Room;
 import game.RoomEdge;
 import game.MapContainer;
 import generator.config.GeneratorConfig;
+import gui.utils.DungeonDrawer;
 import gui.utils.InformativePopupManager;
 import gui.views.*;
 import javafx.application.Platform;
@@ -171,7 +172,9 @@ public class InteractiveGUIController implements Initializable, Listener {
 	{
 		if(e instanceof ChangeCursor)
 		{
-			mainPane.getScene().setCursor(new ImageCursor(((ChangeCursor)e).getCursorImage()));
+			if (mainPane != null) {
+				mainPane.getScene().setCursor(new ImageCursor(((ChangeCursor)e).getCursorImage()));
+			}
 		}
 		else if(e instanceof InitialRoom)
 		{
@@ -221,6 +224,7 @@ public class InteractiveGUIController implements Initializable, Listener {
 
 		} else if (e instanceof RequestWorldView) {
 //			router.postEvent(new Stop());
+//			DungeonDrawer.getInstance().changeBrushTo(DungeonDrawer.DungeonBrushes.MOVEMENT);
 			backToWorldView();
 
 		} else if (e instanceof RequestEmptyRoom) {
@@ -236,6 +240,7 @@ public class InteractiveGUIController implements Initializable, Listener {
 				initWorldView();
 				worldView.initialSetup();
 				dungeonMap.getAllRooms().forEach(Room::isIntraFeasible);
+				DungeonDrawer.getInstance().changeBrushTo(DungeonDrawer.DungeonBrushes.MOVEMENT);
 			}
 
 		}
@@ -463,6 +468,7 @@ public class InteractiveGUIController implements Initializable, Listener {
 		worldView.setActive(false);
 		launchView.setActive(true);
 
+//		DungeonDrawer.getInstance().changeBrushTo(DungeonDrawer.DungeonBrushes.MOVEMENT);
 	}
 
 

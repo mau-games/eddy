@@ -173,4 +173,21 @@ public class Quest {
     public void clearAction() {
         actions.clear();
     }
+
+    /**
+     * Match is true until proven wrong
+     * @param quest
+     * @return
+     */
+    public boolean startsWith(Quest quest) {
+        for (int i = 0; i < quest.getActions().size(); i++){
+            if ( i < actions.size()) {
+                System.out.println(actions.get(i).getType() + " == " + quest.getActions().get(i).getType());
+                if (!(actions.get(i).getType().getValue() == quest.getActions().get(i).getType().getValue())){
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
 }

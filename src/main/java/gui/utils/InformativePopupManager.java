@@ -23,9 +23,9 @@ public class InformativePopupManager
 		HELP_MODE,
 		NO_HELP_MODE,
 		ADD_ACTION,
-		ACTION_NOT_AVAILABLE
-
-	}
+		ACTION_NOT_AVAILABLE,
+		INVALID_QUEST_POSITION
+    }
 	
 	private static InformativePopupManager instance = null;
 	private ArrayList<Popup> currentPopups;
@@ -134,7 +134,10 @@ public class InformativePopupManager
 		case ACTION_NOT_AVAILABLE:
 			text= "Try adding different tiles to enable more actions!";
 			break;
-			default:
+		case INVALID_QUEST_POSITION:
+			text = "Try selecting one of the highlighted positions!";
+			break;
+		default:
 			break;
 		}
 		return text;
