@@ -87,7 +87,7 @@ public class Quest {
         availableActions.clear();
         final int hasItem = owner.getItems().size();
         final int hasNPC = owner.getNpcs().size();
-        final int hasEnemies = owner.getEnemies().size() + owner.getBosses().size();
+        final int hasEnemies = owner.getEnemies().size() + owner.getBossesPositions().size();
 
         if (hasItem > 0){
             availableActions.add(ActionType.EXPERIMENT);

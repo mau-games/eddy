@@ -23,8 +23,12 @@ public class InformativePopupManager
 		HELP_MODE,
 		NO_HELP_MODE,
 		ADD_ACTION,
+		DELETE_ACTION,
+		REPLACE_ACTION,
 		ACTION_NOT_AVAILABLE,
-		INVALID_QUEST_POSITION
+		INVALID_QUEST_POSITION,
+		DELETE_REPLACE_ACTION,
+		ADDED_ACTION,
     }
 	
 	private static InformativePopupManager instance = null;
@@ -136,6 +140,19 @@ public class InformativePopupManager
 			break;
 		case INVALID_QUEST_POSITION:
 			text = "Try selecting one of the highlighted positions!";
+			break;
+		case DELETE_REPLACE_ACTION:
+			text = "This action can be replace or removed. \n" +
+					"Press your DELETE key to remove this action.";
+			break;
+		case DELETE_ACTION:
+			text = "Action was deleted";
+			break;
+		case REPLACE_ACTION:
+			text = "Action was replaced";
+			break;
+		case ADDED_ACTION:
+			text = "Action was added";
 			break;
 		default:
 			break;

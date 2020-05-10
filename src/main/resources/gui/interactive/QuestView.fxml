@@ -12,14 +12,14 @@
         <ToggleGroup fx:id="generatorActions" />
     </fx:define>
     <center>
-        <BorderPane>
+        <BorderPane style="-fx-border-color: transparent lightgray transparent lightgray; -fx-border-width: 2px;">
             <center>
-                <ScrollPane fx:id="mapScrollPane" pannable="true" style="-fx-border-color: transparent lightgray transparent transparent; -fx-border-width: 2px;" styleClass="edge-to-edge" BorderPane.alignment="CENTER" />
+                    <StackPane fx:id="mapPane" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" />
             </center>
             <bottom>
-                <BorderPane>
+                <BorderPane style="-fx-border-color: lightgray transparent; -fx-border-width: 2px;">
                     <center>
-                        <FlowPane fx:id="questPane" hgap="5.0" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefHeight="300.0" style="-fx-border-width: 2px; -fx-border-color: lightgray; -fx-border-insets: 0;" vgap="5.0" BorderPane.alignment="CENTER_LEFT">
+                        <FlowPane fx:id="questPane" hgap="5.0" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefHeight="300.0" vgap="5.0" BorderPane.alignment="CENTER_LEFT">
                             <FlowPane.margin>
                                 <Insets left="40.0" right="40.0" />
                             </FlowPane.margin>
@@ -31,6 +31,16 @@
                             </padding>
                         </FlowPane>
                     </center>
+               <bottom>
+                  <StackPane alignment="BOTTOM_RIGHT" BorderPane.alignment="CENTER">
+                     <children>
+                        <Button fx:id="clearQuestButton" mnemonicParsing="false" text="Erase Quest">
+                           <StackPane.margin>
+                              <Insets bottom="8.0" left="8.0" right="8.0" top="8.0" />
+                           </StackPane.margin></Button>
+                     </children>
+                  </StackPane>
+               </bottom>
                 </BorderPane>
             </bottom>
         </BorderPane>
@@ -42,61 +52,64 @@
 
                 <ToolBar fx:id="tbQuestTools" orientation="VERTICAL" prefWidth="150.0" style="-fx-background-color: black;">
 
-                    <ToggleButton id="CAPTURE" disable="true" maxWidth="1.7976931348623157E308" mnemonicParsing="false" text="CAPTURE" toggleGroup="$questActionsTools" >
+                    <ToggleButton id="CAPTURE" disable="true" maxWidth="1.7976931348623157E308" mnemonicParsing="false" text="CAPTURE">
                         <tooltip><Tooltip text="CAPTURE" /> </tooltip>
+                  <toggleGroup>
+                     <ToggleGroup fx:id="questActionsTools" />
+                  </toggleGroup>
                     </ToggleButton>
-                    <ToggleButton id="DAMAGE" disable="true" maxWidth="1.7976931348623157E308" mnemonicParsing="false" text="DAMAGE" toggleGroup="$questActionsTools" >
+                    <ToggleButton id="DAMAGE" disable="true" maxWidth="1.7976931348623157E308" mnemonicParsing="false" text="DAMAGE">
                         <tooltip><Tooltip text="DAMAGE" /> </tooltip>
                     </ToggleButton>
-                    <ToggleButton id="DEFEND" disable="true" maxWidth="1.7976931348623157E308" mnemonicParsing="false" text="DEFEND" toggleGroup="$questActionsTools" >
+                    <ToggleButton id="DEFEND" disable="true" maxWidth="1.7976931348623157E308" mnemonicParsing="false" text="DEFEND" toggleGroup="$questActionsTools">
                         <tooltip><Tooltip text="DEFEND" /> </tooltip>
                     </ToggleButton>
-                    <ToggleButton id="ESCORT" disable="true" maxWidth="1.7976931348623157E308" mnemonicParsing="false" text="ESCORT" toggleGroup="$questActionsTools" >
+                    <ToggleButton id="ESCORT" disable="true" maxWidth="1.7976931348623157E308" mnemonicParsing="false" text="ESCORT" toggleGroup="$questActionsTools">
                         <tooltip><Tooltip text="ESCORT" /> </tooltip>
                     </ToggleButton>
-                    <ToggleButton id="EXCHANGE" disable="true" maxWidth="1.7976931348623157E308" mnemonicParsing="false" text="EXCHANGE" toggleGroup="$questActionsTools" >
+                    <ToggleButton id="EXCHANGE" disable="true" maxWidth="1.7976931348623157E308" mnemonicParsing="false" text="EXCHANGE" toggleGroup="$questActionsTools">
                         <tooltip><Tooltip text="EXCHANGE" /> </tooltip>
                     </ToggleButton>
-                    <ToggleButton id="EXPERIMENT" disable="true" maxWidth="1.7976931348623157E308" mnemonicParsing="false" text="EXPERIMENT" toggleGroup="$questActionsTools" >
+                    <ToggleButton id="EXPERIMENT" disable="true" maxWidth="1.7976931348623157E308" mnemonicParsing="false" text="EXPERIMENT" toggleGroup="$questActionsTools">
                         <tooltip><Tooltip text="EXPERIMENT" /> </tooltip>
                     </ToggleButton>
-                    <ToggleButton id="EXPLORE" disable="true" maxWidth="1.7976931348623157E308" mnemonicParsing="false" text="EXPLORE" toggleGroup="$questActionsTools" >
+                    <ToggleButton id="EXPLORE" disable="true" maxWidth="1.7976931348623157E308" mnemonicParsing="false" text="EXPLORE" toggleGroup="$questActionsTools">
                         <tooltip><Tooltip text="EXPLORE" /> </tooltip>
                     </ToggleButton>
-                    <ToggleButton id="GATHER" disable="true" maxWidth="1.7976931348623157E308" mnemonicParsing="false" text="GATHER" toggleGroup="$questActionsTools" >
+                    <ToggleButton id="GATHER" disable="true" maxWidth="1.7976931348623157E308" mnemonicParsing="false" text="GATHER" toggleGroup="$questActionsTools">
                         <tooltip><Tooltip text="GATHER" /> </tooltip>
                     </ToggleButton>
-                    <ToggleButton id="GIVE" disable="true" maxWidth="1.7976931348623157E308" mnemonicParsing="false" text="GIVE" toggleGroup="$questActionsTools" >
+                    <ToggleButton id="GIVE" disable="true" maxWidth="1.7976931348623157E308" mnemonicParsing="false" text="GIVE" toggleGroup="$questActionsTools">
                         <tooltip><Tooltip text="GIVE" /> </tooltip>
                     </ToggleButton>
-                    <ToggleButton id="GO_TO" disable="true" maxWidth="1.7976931348623157E308" mnemonicParsing="false" text="GOTO" toggleGroup="$questActionsTools" >
+                    <ToggleButton id="GO_TO" disable="true" maxWidth="1.7976931348623157E308" mnemonicParsing="false" text="GOTO" toggleGroup="$questActionsTools">
                         <tooltip><Tooltip text="GO_TO" /> </tooltip>
                     </ToggleButton>
-                    <ToggleButton id="KILL" disable="true" maxWidth="1.7976931348623157E308" mnemonicParsing="false" text="KILL" toggleGroup="$questActionsTools" >
+                    <ToggleButton id="KILL" disable="true" maxWidth="1.7976931348623157E308" mnemonicParsing="false" text="KILL" toggleGroup="$questActionsTools">
                         <tooltip><Tooltip text="KILL" /> </tooltip>
                     </ToggleButton>
-                    <ToggleButton id="LISTEN" disable="true" maxWidth="1.7976931348623157E308" mnemonicParsing="false" text="LISTEN" toggleGroup="$questActionsTools" >
+                    <ToggleButton id="LISTEN" disable="true" maxWidth="1.7976931348623157E308" mnemonicParsing="false" text="LISTEN" toggleGroup="$questActionsTools">
                         <tooltip><Tooltip text="LISTEN" /> </tooltip>
                     </ToggleButton>
-                    <ToggleButton id="READ" disable="true" maxWidth="1.7976931348623157E308" mnemonicParsing="false" text="READ" toggleGroup="$questActionsTools" >
+                    <ToggleButton id="READ" disable="true" maxWidth="1.7976931348623157E308" mnemonicParsing="false" text="READ" toggleGroup="$questActionsTools">
                         <tooltip><Tooltip text="READ" /> </tooltip>
                     </ToggleButton>
-                    <ToggleButton id="REPAIR" disable="true" maxWidth="1.7976931348623157E308" mnemonicParsing="false" text="REPAIR" toggleGroup="$questActionsTools" >
+                    <ToggleButton id="REPAIR" disable="true" maxWidth="1.7976931348623157E308" mnemonicParsing="false" text="REPAIR" toggleGroup="$questActionsTools">
                         <tooltip><Tooltip text="REPAIR" /> </tooltip>
                     </ToggleButton>
-                    <ToggleButton id="REPORT" disable="true" maxWidth="1.7976931348623157E308" mnemonicParsing="false" text="REPORT" toggleGroup="$questActionsTools" >
+                    <ToggleButton id="REPORT" disable="true" maxWidth="1.7976931348623157E308" mnemonicParsing="false" text="REPORT" toggleGroup="$questActionsTools">
                         <tooltip><Tooltip text="REPORT" /> </tooltip>
                     </ToggleButton>
-                    <ToggleButton id="SPY" disable="true" maxWidth="1.7976931348623157E308" mnemonicParsing="false" text="SPY" toggleGroup="$questActionsTools" >
+                    <ToggleButton id="SPY" disable="true" maxWidth="1.7976931348623157E308" mnemonicParsing="false" text="SPY" toggleGroup="$questActionsTools">
                         <tooltip><Tooltip text="SPY" /> </tooltip>
                     </ToggleButton>
-                    <ToggleButton id="STEALTH" disable="true" maxWidth="1.7976931348623157E308" mnemonicParsing="false" text="STEALTH" toggleGroup="$questActionsTools" >
+                    <ToggleButton id="STEALTH" disable="true" maxWidth="1.7976931348623157E308" mnemonicParsing="false" text="STEALTH" toggleGroup="$questActionsTools">
                         <tooltip><Tooltip text="STEALTH" /> </tooltip>
                     </ToggleButton>
-                    <ToggleButton id="TAKE" disable="true" maxWidth="1.7976931348623157E308" mnemonicParsing="false" text="TAKE" toggleGroup="$questActionsTools" >
+                    <ToggleButton id="TAKE" disable="true" maxWidth="1.7976931348623157E308" mnemonicParsing="false" text="TAKE" toggleGroup="$questActionsTools">
                         <tooltip><Tooltip text="TAKE" /> </tooltip>
                     </ToggleButton>
-                    <ToggleButton id="USE" disable="true" maxWidth="1.7976931348623157E308" minWidth="-Infinity" mnemonicParsing="false" text="USE" toggleGroup="$questActionsTools" >
+                    <ToggleButton id="USE" disable="true" maxWidth="1.7976931348623157E308" minWidth="-Infinity" mnemonicParsing="false" text="USE" toggleGroup="$questActionsTools">
                         <tooltip><Tooltip text="USE" /> </tooltip>
                     </ToggleButton>
 
@@ -109,7 +122,7 @@
             <Insets bottom="10.0" left="10.0" top="10.0" />
          </padding>
          <bottom>
-                  <VBox alignment="TOP_CENTER" style="-fx-border-color: transparent lightgray transparent transparent; -fx-border-width: 2px;" BorderPane.alignment="CENTER">
+                  <VBox alignment="TOP_CENTER" BorderPane.alignment="CENTER">
                       <CheckBox fx:id="toggleHelp" selected="true" text="Toggle Help" />
                       <CheckBox fx:id="togglePath" text="Toggle Path" />
                   </VBox>
@@ -122,7 +135,7 @@
           <center>
               <FlowPane fx:id="generatorPane" alignment="TOP_CENTER" columnHalignment="CENTER" maxWidth="1.7976931348623157E308" orientation="VERTICAL" vgap="5.0" StackPane.alignment="CENTER">
                <padding>
-                   <Insets top="10" />
+                   <Insets top="50" />
                </padding>
               </FlowPane>
           </center>

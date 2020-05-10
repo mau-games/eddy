@@ -4,6 +4,7 @@ import com.google.gson.*;
 import game.Dungeon;
 import game.quest.Action;
 import game.quest.ActionType;
+import game.quest.ActionWithSecondPosition;
 import game.quest.Quest;
 import game.quest.actions.*;
 import util.eventrouting.events.QuestPositionUpdate;
@@ -88,314 +89,314 @@ public class QuestGrammar {
         switch (ActionType.valueOf(value.toUpperCase())){
             case CAPTURE:
                 action = new CaptureAction();
-//                tiles.addAll(owner.getEnemies());
-//                tiles.addAll(owner.getBossesPositions());
-//                tiles.addAll(owner.getNpcs());
-//                if (tiles.size() > 1) {
-//                    QuestPositionUpdate position = tiles.get(random.nextInt(tiles.size()-1));
-//                    action.setPosition(position.getPoint());
-//                    action.setRoom(position.getRoom());
-//                    //needs room
-//                } else {
-//                    //get only one
-//                    action.setPosition(tiles.get(0).getPoint());
-//                    action.setRoom(tiles.get(0).getRoom());
-//                }
+                tiles.addAll(owner.getEnemies());
+                tiles.addAll(owner.getBossesPositions());
+                tiles.addAll(owner.getNpcs());
+                if (tiles.size() > 1) {
+                    QuestPositionUpdate position = tiles.get(random.nextInt(tiles.size()-1));
+                    action.setPosition(position.getPoint());
+                    action.setRoom(position.getRoom());
+                    //needs room
+                } else {
+                    //get only one
+                    action.setPosition(tiles.get(0).getPoint());
+                    action.setRoom(tiles.get(0).getRoom());
+                }
                 break;
             case DAMAGE:
                 action = new DamageAction();
-//                tiles.addAll(owner.getItems());
-//                tiles.addAll(owner.getNpcs());
-//                if (tiles.size() > 1) {
-//                    QuestPositionUpdate position = tiles.get(random.nextInt(tiles.size()-1));
-//                    action.setPosition(position.getPoint());
-//                    action.setRoom(position.getRoom());
-//                    //needs room
-//                } else {
-//                    //get only one
-//                    action.setPosition(tiles.get(0).getPoint());
-//                    action.setRoom(tiles.get(0).getRoom());
-//                }
+                tiles.addAll(owner.getItems());
+                tiles.addAll(owner.getNpcs());
+                if (tiles.size() > 1) {
+                    QuestPositionUpdate position = tiles.get(random.nextInt(tiles.size()-1));
+                    action.setPosition(position.getPoint());
+                    action.setRoom(position.getRoom());
+                    //needs room
+                } else {
+                    //get only one
+                    action.setPosition(tiles.get(0).getPoint());
+                    action.setRoom(tiles.get(0).getRoom());
+                }
                 break;
             case DEFEND:
                 action = new DefendAction();
-//                tiles.addAll(owner.getItems());
-//                tiles.addAll(owner.getNpcs());
-//                if (tiles.size() > 1) {
-//                    QuestPositionUpdate position = tiles.get(random.nextInt(tiles.size()-1));
-//                    action.setPosition(position.getPoint());
-//                    action.setRoom(position.getRoom());
-//                    //needs room
-//                } else {
-//                    //get only one
-//                    action.setPosition(tiles.get(0).getPoint());
-//                    action.setRoom(tiles.get(0).getRoom());
-//                }
+                tiles.addAll(owner.getItems());
+                tiles.addAll(owner.getNpcs());
+                if (tiles.size() > 1) {
+                    QuestPositionUpdate position = tiles.get(random.nextInt(tiles.size()-1));
+                    action.setPosition(position.getPoint());
+                    action.setRoom(position.getRoom());
+                    //needs room
+                } else {
+                    //get only one
+                    action.setPosition(tiles.get(0).getPoint());
+                    action.setRoom(tiles.get(0).getRoom());
+                }
                 break;
             case ESCORT:
                 action = new EscortAction();
-//                tiles.addAll(owner.getNpcs());
-//                if (tiles.size() > 1) {
-//                    QuestPositionUpdate position = tiles.get(random.nextInt(tiles.size()-1));
-//                    action.setPosition(position.getPoint());
-//                    action.setRoom(position.getRoom());
-//                    //needs room
-//                } else {
-//                    //get only one
-//                    action.setPosition(tiles.get(0).getPoint());
-//                    action.setRoom(tiles.get(0).getRoom());
-//                }
+                tiles.addAll(owner.getNpcs());
+                if (tiles.size() > 1) {
+                    QuestPositionUpdate position = tiles.get(random.nextInt(tiles.size()-1));
+                    action.setPosition(position.getPoint());
+                    action.setRoom(position.getRoom());
+                    //needs room
+                } else {
+                    //get only one
+                    action.setPosition(tiles.get(0).getPoint());
+                    action.setRoom(tiles.get(0).getRoom());
+                }
                 break;
             case EXCHANGE: //needs 2 positions
                 action = new ExchangeAction();
-//                tiles.addAll(owner.getItems());
-//                if (tiles.size() > 1) {
-//                    QuestPositionUpdate position = tiles.get(random.nextInt(tiles.size()-1));
-//                    action.setPosition(position.getPoint());
-//                    action.setRoom(position.getRoom());
-//                    //needs room
-//                } else {
-//                    //get only one
-//                    action.setPosition(tiles.get(0).getPoint());
-//                    action.setRoom(tiles.get(0).getRoom());
-//                }
-//                tiles.clear();
-//                tiles.addAll(owner.getNpcs());
-//                if (tiles.size() > 1) {
-//                    QuestPositionUpdate position = tiles.get(random.nextInt(tiles.size()-1));
-//                    ((ActionWithSecondPosition)action).setSecondPosition(position.getPoint());
-//                    ((ActionWithSecondPosition)action).setSecondRoom(position.getRoom());
-//                    //needs room
-//                } else {
-//                    //get only one
-//                    ((ActionWithSecondPosition)action).setSecondPosition(tiles.get(0).getPoint());
-//                    ((ActionWithSecondPosition)action).setSecondRoom(tiles.get(0).getRoom());
-//                }
+                tiles.addAll(owner.getItems());
+                if (tiles.size() > 1) {
+                    QuestPositionUpdate position = tiles.get(random.nextInt(tiles.size()-1));
+                    action.setPosition(position.getPoint());
+                    action.setRoom(position.getRoom());
+                    //needs room
+                } else {
+                    //get only one
+                    action.setPosition(tiles.get(0).getPoint());
+                    action.setRoom(tiles.get(0).getRoom());
+                }
+                tiles.clear();
+                tiles.addAll(owner.getNpcs());
+                if (tiles.size() > 1) {
+                    QuestPositionUpdate position = tiles.get(random.nextInt(tiles.size()-1));
+                    ((ActionWithSecondPosition)action).setSecondPosition(position.getPoint());
+                    ((ActionWithSecondPosition)action).setSecondRoom(position.getRoom());
+                    //needs room
+                } else {
+                    //get only one
+                    ((ActionWithSecondPosition)action).setSecondPosition(tiles.get(0).getPoint());
+                    ((ActionWithSecondPosition)action).setSecondRoom(tiles.get(0).getRoom());
+                }
                 break;
             case EXPERIMENT:
                 action = new ExperimentAction();
-//                tiles.addAll(owner.getItems());
-//                if (tiles.size() > 1) {
-//                    QuestPositionUpdate position = tiles.get(random.nextInt(tiles.size()-1));
-//                    action.setPosition(position.getPoint());
-//                    action.setRoom(position.getRoom());
-//                    //needs room
-//                } else {
-//                    //get only one
-//                    action.setPosition(tiles.get(0).getPoint());
-//                    action.setRoom(tiles.get(0).getRoom());
-//                }
+                tiles.addAll(owner.getItems());
+                if (tiles.size() > 1) {
+                    QuestPositionUpdate position = tiles.get(random.nextInt(tiles.size()-1));
+                    action.setPosition(position.getPoint());
+                    action.setRoom(position.getRoom());
+                    //needs room
+                } else {
+                    //get only one
+                    action.setPosition(tiles.get(0).getPoint());
+                    action.setRoom(tiles.get(0).getRoom());
+                }
                 break;
             case EXPLORE:
                 action = new ExploreAction();
-//                owner.getAllRooms().forEach(room -> tiles.addAll(room.getWalkablePositions()));
-//                if (tiles.size() > 1) {
-//                    QuestPositionUpdate position = tiles.get(random.nextInt(tiles.size()-1));
-//                    action.setPosition(position.getPoint());
-//                    action.setRoom(position.getRoom());
-//                    //needs room
-//                } else {
-//                    //get only one
-//                    action.setPosition(tiles.get(0).getPoint());
-//                    action.setRoom(tiles.get(0).getRoom());
-//                }
+                owner.getAllRooms().forEach(room -> tiles.addAll(room.getWalkablePositions()));
+                if (tiles.size() > 1) {
+                    QuestPositionUpdate position = tiles.get(random.nextInt(tiles.size()-1));
+                    action.setPosition(position.getPoint());
+                    action.setRoom(position.getRoom());
+                    //needs room
+                } else {
+                    //get only one
+                    action.setPosition(tiles.get(0).getPoint());
+                    action.setRoom(tiles.get(0).getRoom());
+                }
                 break;
             case GATHER:
                 action = new GatherAction();
-//                tiles.addAll(owner.getItems());
-//                if (tiles.size() > 1) {
-//                    QuestPositionUpdate position = tiles.get(random.nextInt(tiles.size()-1));
-//                    action.setPosition(position.getPoint());
-//                    action.setRoom(position.getRoom());
-//                    //needs room
-//                } else {
-//                    //get only one
-//                    action.setPosition(tiles.get(0).getPoint());
-//                    action.setRoom(tiles.get(0).getRoom());
-//                }
+                tiles.addAll(owner.getItems());
+                if (tiles.size() > 1) {
+                    QuestPositionUpdate position = tiles.get(random.nextInt(tiles.size()-1));
+                    action.setPosition(position.getPoint());
+                    action.setRoom(position.getRoom());
+                    //needs room
+                } else {
+                    //get only one
+                    action.setPosition(tiles.get(0).getPoint());
+                    action.setRoom(tiles.get(0).getRoom());
+                }
                 break;
             case GIVE:
                 action = new GiveAction();
-//                tiles.addAll(owner.getItems());
-//                if (tiles.size() > 1) {
-//                    QuestPositionUpdate position = tiles.get(random.nextInt(tiles.size()-1));
-//                    action.setPosition(position.getPoint());
-//                    action.setRoom(position.getRoom());
-//                    //needs room
-//                } else {
-//                    //get only one
-//                    action.setPosition(tiles.get(0).getPoint());
-//                    action.setRoom(tiles.get(0).getRoom());
-//                }
-//                tiles.clear();
-//                tiles.addAll(owner.getNpcs());
-//                if (tiles.size() > 1) {
-//                    QuestPositionUpdate position = tiles.get(random.nextInt(tiles.size()-1));
-//                    ((ActionWithSecondPosition)action).setSecondPosition(position.getPoint());
-//                    ((ActionWithSecondPosition)action).setSecondRoom(position.getRoom());
-//                    //needs room
-//                } else {
-//                    //get only one
-//                    ((ActionWithSecondPosition)action).setSecondPosition(tiles.get(0).getPoint());
-//                    ((ActionWithSecondPosition)action).setSecondRoom(tiles.get(0).getRoom());
-//                }
+                tiles.addAll(owner.getItems());
+                if (tiles.size() > 1) {
+                    QuestPositionUpdate position = tiles.get(random.nextInt(tiles.size()-1));
+                    action.setPosition(position.getPoint());
+                    action.setRoom(position.getRoom());
+                    //needs room
+                } else {
+                    //get only one
+                    action.setPosition(tiles.get(0).getPoint());
+                    action.setRoom(tiles.get(0).getRoom());
+                }
+                tiles.clear();
+                tiles.addAll(owner.getNpcs());
+                if (tiles.size() > 1) {
+                    QuestPositionUpdate position = tiles.get(random.nextInt(tiles.size()-1));
+                    ((ActionWithSecondPosition)action).setSecondPosition(position.getPoint());
+                    ((ActionWithSecondPosition)action).setSecondRoom(position.getRoom());
+                    //needs room
+                } else {
+                    //get only one
+                    ((ActionWithSecondPosition)action).setSecondPosition(tiles.get(0).getPoint());
+                    ((ActionWithSecondPosition)action).setSecondRoom(tiles.get(0).getRoom());
+                }
                 break;
             case GO_TO:
                 action = new GotoAction();
-//                owner.getAllRooms().forEach(room -> tiles.addAll(room.getWalkablePositions()));
-//                if (tiles.size() > 1) {
-//                    QuestPositionUpdate position = tiles.get(random.nextInt(tiles.size()-1));
-//                    action.setPosition(position.getPoint());
-//                    action.setRoom(position.getRoom());
-//                    //needs room
-//                } else {
-//                    //get only one
-//                    action.setPosition(tiles.get(0).getPoint());
-//                    action.setRoom(tiles.get(0).getRoom());
-//                }
+                owner.getAllRooms().forEach(room -> tiles.addAll(room.getWalkablePositions()));
+                if (tiles.size() > 1) {
+                    QuestPositionUpdate position = tiles.get(random.nextInt(tiles.size()-1));
+                    action.setPosition(position.getPoint());
+                    action.setRoom(position.getRoom());
+                    //needs room
+                } else {
+                    //get only one
+                    action.setPosition(tiles.get(0).getPoint());
+                    action.setRoom(tiles.get(0).getRoom());
+                }
                 break;
             case KILL:
                 action = new KillAction();
-//                tiles.addAll(owner.getEnemies());
-//                tiles.addAll(owner.getBossesPositions());
-//                if (tiles.size() > 1) {
-//                    QuestPositionUpdate position = tiles.get(random.nextInt(tiles.size()-1));
-//                    action.setPosition(position.getPoint());
-//                    action.setRoom(position.getRoom());
-//                    //needs room
-//                } else {
-//                    //get only one
-//                    action.setPosition(tiles.get(0).getPoint());
-//                    action.setRoom(tiles.get(0).getRoom());
-//                }
+                tiles.addAll(owner.getEnemies());
+                tiles.addAll(owner.getBossesPositions());
+                if (tiles.size() > 1) {
+                    QuestPositionUpdate position = tiles.get(random.nextInt(tiles.size()-1));
+                    action.setPosition(position.getPoint());
+                    action.setRoom(position.getRoom());
+                    //needs room
+                } else {
+                    //get only one
+                    action.setPosition(tiles.get(0).getPoint());
+                    action.setRoom(tiles.get(0).getRoom());
+                }
                 break;
             case LISTEN:
                 action = new ListenAction();
-//                tiles.addAll(owner.getNpcs());
-//                if (tiles.size() > 1) {
-//                    QuestPositionUpdate position = tiles.get(random.nextInt(tiles.size()-1));
-//                    action.setPosition(position.getPoint());
-//                    action.setRoom(position.getRoom());
-//                    //needs room
-//                } else {
-//                    //get only one
-//                    action.setPosition(tiles.get(0).getPoint());
-//                    action.setRoom(tiles.get(0).getRoom());
-//                }
+                tiles.addAll(owner.getNpcs());
+                if (tiles.size() > 1) {
+                    QuestPositionUpdate position = tiles.get(random.nextInt(tiles.size()-1));
+                    action.setPosition(position.getPoint());
+                    action.setRoom(position.getRoom());
+                    //needs room
+                } else {
+                    //get only one
+                    action.setPosition(tiles.get(0).getPoint());
+                    action.setRoom(tiles.get(0).getRoom());
+                }
                 break;
             case READ:
                 action = new ReadAction();
-//                tiles.addAll(owner.getItems());
-//                if (tiles.size() > 1) {
-//                    QuestPositionUpdate position = tiles.get(random.nextInt(tiles.size()-1));
-//                    action.setPosition(position.getPoint());
-//                    action.setRoom(position.getRoom());
-//                    //needs room
-//                } else {
-//                    //get only one
-//                    action.setPosition(tiles.get(0).getPoint());
-//                    action.setRoom(tiles.get(0).getRoom());
-//                }
+                tiles.addAll(owner.getItems());
+                if (tiles.size() > 1) {
+                    QuestPositionUpdate position = tiles.get(random.nextInt(tiles.size()-1));
+                    action.setPosition(position.getPoint());
+                    action.setRoom(position.getRoom());
+                    //needs room
+                } else {
+                    //get only one
+                    action.setPosition(tiles.get(0).getPoint());
+                    action.setRoom(tiles.get(0).getRoom());
+                }
                 break;
             case REPAIR:
                 action = new RepairAction();
-//                tiles.addAll(owner.getItems());
-//                if (tiles.size() > 1) {
-//                    QuestPositionUpdate position = tiles.get(random.nextInt(tiles.size()-1));
-//                    action.setPosition(position.getPoint());
-//                    action.setRoom(position.getRoom());
-//                    //needs room
-//                } else {
-//                    //get only one
-//                    action.setPosition(tiles.get(0).getPoint());
-//                    action.setRoom(tiles.get(0).getRoom());
-//                }
+                tiles.addAll(owner.getItems());
+                if (tiles.size() > 1) {
+                    QuestPositionUpdate position = tiles.get(random.nextInt(tiles.size()-1));
+                    action.setPosition(position.getPoint());
+                    action.setRoom(position.getRoom());
+                    //needs room
+                } else {
+                    //get only one
+                    action.setPosition(tiles.get(0).getPoint());
+                    action.setRoom(tiles.get(0).getRoom());
+                }
                 break;
             case REPORT:
                 action = new ReportAction();
-//                tiles.addAll(owner.getNpcs());
-//                if (tiles.size() > 1) {
-//                    QuestPositionUpdate position = tiles.get(random.nextInt(tiles.size()-1));
-//                    action.setPosition(position.getPoint());
-//                    action.setRoom(position.getRoom());
-//                    //needs room
-//                } else {
-//                    //get only one
-//                    action.setPosition(tiles.get(0).getPoint());
-//                    action.setRoom(tiles.get(0).getRoom());
-//                }
+                tiles.addAll(owner.getNpcs());
+                if (tiles.size() > 1) {
+                    QuestPositionUpdate position = tiles.get(random.nextInt(tiles.size()-1));
+                    action.setPosition(position.getPoint());
+                    action.setRoom(position.getRoom());
+                    //needs room
+                } else {
+                    //get only one
+                    action.setPosition(tiles.get(0).getPoint());
+                    action.setRoom(tiles.get(0).getRoom());
+                }
                 break;
             case SPY:
                 action = new SpyAction();
-//                tiles.addAll(owner.getEnemies());
-//                tiles.addAll(owner.getBossesPositions());
-//                tiles.addAll(owner.getNpcs());
-//                if (tiles.size() > 1) {
-//                    QuestPositionUpdate position = tiles.get(random.nextInt(tiles.size()-1));
-//                    action.setPosition(position.getPoint());
-//                    action.setRoom(position.getRoom());
-//                    //needs room
-//                } else {
-//                    //get only one
-//                    action.setPosition(tiles.get(0).getPoint());
-//                    action.setRoom(tiles.get(0).getRoom());
-//                }
+                tiles.addAll(owner.getEnemies());
+                tiles.addAll(owner.getBossesPositions());
+                tiles.addAll(owner.getNpcs());
+                if (tiles.size() > 1) {
+                    QuestPositionUpdate position = tiles.get(random.nextInt(tiles.size()-1));
+                    action.setPosition(position.getPoint());
+                    action.setRoom(position.getRoom());
+                    //needs room
+                } else {
+                    //get only one
+                    action.setPosition(tiles.get(0).getPoint());
+                    action.setRoom(tiles.get(0).getRoom());
+                }
                 break;
             case STEALTH:
                 action = new StealthAction();
-//                tiles.addAll(owner.getEnemies());
-//                tiles.addAll(owner.getBossesPositions());
-//                tiles.addAll(owner.getNpcs());
-//                if (tiles.size() > 1) {
-//                    QuestPositionUpdate position = tiles.get(random.nextInt(tiles.size()-1));
-//                    action.setPosition(position.getPoint());
-//                    action.setRoom(position.getRoom());
-//                    //needs room
-//                } else {
-//                    //get only one
-//                    action.setPosition(tiles.get(0).getPoint());
-//                    action.setRoom(tiles.get(0).getRoom());
-//                }
+                tiles.addAll(owner.getEnemies());
+                tiles.addAll(owner.getBossesPositions());
+                tiles.addAll(owner.getNpcs());
+                if (tiles.size() > 1) {
+                    QuestPositionUpdate position = tiles.get(random.nextInt(tiles.size()-1));
+                    action.setPosition(position.getPoint());
+                    action.setRoom(position.getRoom());
+                    //needs room
+                } else {
+                    //get only one
+                    action.setPosition(tiles.get(0).getPoint());
+                    action.setRoom(tiles.get(0).getRoom());
+                }
                 break;
             case TAKE:
                 action = new TakeAction();
-//                tiles.addAll(owner.getItems());
-//                if (tiles.size() > 1) {
-//                    QuestPositionUpdate position = tiles.get(random.nextInt(tiles.size()-1));
-//                    action.setPosition(position.getPoint());
-//                    action.setRoom(position.getRoom());
-//                    //needs room
-//                } else {
-//                    //get only one
-//                    action.setPosition(tiles.get(0).getPoint());
-//                    action.setRoom(tiles.get(0).getRoom());
-//                }
-//                tiles.clear();
-//                tiles.addAll(owner.getNpcs());
-//                if (tiles.size() > 1) {
-//                    QuestPositionUpdate position = tiles.get(random.nextInt(tiles.size()-1));
-//                    ((ActionWithSecondPosition)action).setSecondPosition(position.getPoint());
-//                    ((ActionWithSecondPosition)action).setSecondRoom(position.getRoom());
-//                    //needs room
-//                } else {
-//                    //get only one
-//                    ((ActionWithSecondPosition)action).setSecondPosition(tiles.get(0).getPoint());
-//                    ((ActionWithSecondPosition)action).setSecondRoom(tiles.get(0).getRoom());
-//                }
+                tiles.addAll(owner.getItems());
+                if (tiles.size() > 1) {
+                    QuestPositionUpdate position = tiles.get(random.nextInt(tiles.size()-1));
+                    action.setPosition(position.getPoint());
+                    action.setRoom(position.getRoom());
+                    //needs room
+                } else {
+                    //get only one
+                    action.setPosition(tiles.get(0).getPoint());
+                    action.setRoom(tiles.get(0).getRoom());
+                }
+                tiles.clear();
+                tiles.addAll(owner.getNpcs());
+                if (tiles.size() > 1) {
+                    QuestPositionUpdate position = tiles.get(random.nextInt(tiles.size()-1));
+                    ((ActionWithSecondPosition)action).setSecondPosition(position.getPoint());
+                    ((ActionWithSecondPosition)action).setSecondRoom(position.getRoom());
+                    //needs room
+                } else {
+                    //get only one
+                    ((ActionWithSecondPosition)action).setSecondPosition(tiles.get(0).getPoint());
+                    ((ActionWithSecondPosition)action).setSecondRoom(tiles.get(0).getRoom());
+                }
                 break;
             case USE:
                 action = new UseAction();
-//                tiles.addAll(owner.getItems());
-//                if (tiles.size() > 1) {
-//                    QuestPositionUpdate position = tiles.get(random.nextInt(tiles.size()-1));
-//                    action.setPosition(position.getPoint());
-//                    action.setRoom(position.getRoom());
-//                    //needs room
-//                } else {
-//                    //get only one
-//                    action.setPosition(tiles.get(0).getPoint());
-//                    action.setRoom(tiles.get(0).getRoom());
-//                }
+                tiles.addAll(owner.getItems());
+                if (tiles.size() > 1) {
+                    QuestPositionUpdate position = tiles.get(random.nextInt(tiles.size()-1));
+                    action.setPosition(position.getPoint());
+                    action.setRoom(position.getRoom());
+                    //needs room
+                } else {
+                    //get only one
+                    action.setPosition(tiles.get(0).getPoint());
+                    action.setRoom(tiles.get(0).getRoom());
+                }
                 break;
         }
         if (action != null) action.setId(UUID.randomUUID());

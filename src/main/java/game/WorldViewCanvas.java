@@ -180,8 +180,10 @@ public class WorldViewCanvas
 					questBitmap.clearAllPoints();
 					for (QuestPositionUpdate update: ((RequestDisplayQuestTilePosition) e).getPos()) {
 						if (update != null){
-							if (update.getRoom().equals(owner)){
-								questBitmap.addPoint(update.getPoint());
+							if (owner != null){
+								if (update.getRoom().equals(owner)){
+									questBitmap.addPoint(update.getPoint());
+								}
 							}
 						}
 					}
