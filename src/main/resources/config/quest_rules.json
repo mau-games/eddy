@@ -1,5 +1,5 @@
 {
-  "<QUEST>": [["<knowledge>"],["<comfort>"],["<reputation>"],["<protection>"],["<conquest>"],["<wealth>"],["<ability>"],["<equipment>"]],
+  "<QUEST>": [["<knowledge>"],["<comfort>"],["<reputation>"],["<serenity>"],["<protection>"],["<conquest>"],["<wealth>"],["<ability>"],["<equipment>"]],
   "<knowledge>": [
     ["<get>","<go_to>","give"],
     ["<spy>"],
