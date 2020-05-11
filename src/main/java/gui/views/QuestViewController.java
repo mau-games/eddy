@@ -49,7 +49,7 @@ import java.util.stream.Collectors;
  */
 public class QuestViewController extends BorderPane implements Listener {
     private final EventRouter router = EventRouter.getInstance();
-    private static final int GENERATOR_ATTEMPT_LIMIT = 10;
+    private static final int GENERATOR_ATTEMPT_LIMIT = 100;
     private ApplicationConfig config;
     private boolean isActive = false;
     private Dungeon dungeon;
