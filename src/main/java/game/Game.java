@@ -4,10 +4,14 @@ import java.util.ArrayList;
 import java.util.List;
 
 
+import game.quest.ActionType;
+import game.quest.Quest;
 import generator.algorithm.Algorithm;
 import generator.algorithm.Algorithm.AlgorithmTypes;
 import generator.algorithm.MAPElites.MAPEliteAlgorithm;
 import generator.algorithm.MAPElites.Dimensions.MAPEDimensionFXML;
+import generator.algorithm.grammar.QuestGenerator;
+import generator.algorithm.grammar.QuestGrammar;
 import generator.config.GeneratorConfig;
 import util.Point;
 import util.Util;
@@ -16,23 +20,14 @@ import util.config.MissingConfigurationException;
 import util.eventrouting.EventRouter;
 import util.eventrouting.Listener;
 import util.eventrouting.PCGEvent;
-import util.eventrouting.events.AlgorithmDone;
-import util.eventrouting.events.AlgorithmStarted;
-import util.eventrouting.events.BatchDone;
-import util.eventrouting.events.RenderingDone;
-import util.eventrouting.events.RequestSuggestionsView;
-import util.eventrouting.events.Start;
-import util.eventrouting.events.StartBatch;
-import util.eventrouting.events.StartGA_MAPE;
-import util.eventrouting.events.StartMapMutate;
-import util.eventrouting.events.Stop;
-import util.eventrouting.events.SuggestedMapsDone;
+import util.eventrouting.events.*;
 
 public class Game implements Listener{
 //	private final Logger logger = LoggerFactory.getLogger(Game.class);
 
 	private ApplicationConfig config;
 	private List<Algorithm> runs = new ArrayList<Algorithm>();
+	private List<QuestGenerator> questGenerators = new ArrayList<QuestGenerator>();
 	private int batchRunsLeft = 0;
 	private int batchRunsStillToFinish = 0;
 	private boolean batch = false;
@@ -76,6 +71,10 @@ public class Game implements Listener{
         EventRouter.getInstance().registerListener(this, new RenderingDone());
         EventRouter.getInstance().registerListener(this, new StartBatch());
         EventRouter.getInstance().registerListener(this, new RequestSuggestionsView(null, 0));
+        EventRouter.getInstance().registerListener(this, new StartQuestGeneration(null,null, 0));
+        EventRouter.getInstance().registerListener(this, new StopQuestGeneration());
+        EventRouter.getInstance().registerListener(this, new QuestSuggestionsDone(null));
+
 	}
 
     private void RunMAPElites(Room room,  MAPEDimensionFXML[] dimensions)
@@ -85,6 +84,12 @@ public class Game implements Listener{
 		((MAPEliteAlgorithm)ga).initPopulations(room, dimensions);
 		ga.start();
     }
+
+    private void RunQuestGenerator(Quest quest, QuestGrammar grammar, int questLimit){
+    	QuestGenerator generator = new QuestGenerator(quest,grammar, questLimit);
+    	questGenerators.add(generator);
+    	generator.start();
+	}
 
     private void mutateFromMap(Room room, int mutations, MapMutationType mutationType, AlgorithmTypes algorithmType, boolean randomise){
 
@@ -230,20 +235,30 @@ public class Game implements Listener{
 		for(Algorithm a : runs){
 			if(a.isAlive()) a.terminate();
 		}
+		for (QuestGenerator g: questGenerators) {
+			if (g.isAlive()) g.terminate();
+		}
 		//    	if(geneticAlgorithm != null && geneticAlgorithm.isAlive()){
 		//    		geneticAlgorithm.terminate();
 		//    	}
 	}
-	
+
 	private void algorithmRunDone(Algorithm geneticAlgorithm)
 	{
 		runs.remove(geneticAlgorithm);
-		
+
 		if(runs.isEmpty())
 		{
 			EventRouter.getInstance().postEvent(new SuggestedMapsDone());
 		}
 
+	}
+
+	private void generatorRunDone(QuestGenerator generator) {
+		questGenerators.remove(generator);
+		if (questGenerators.isEmpty()){
+			System.out.println("No QuestGenerators Running");
+		}
 	}
 
 	@Override
@@ -252,17 +267,17 @@ public class Game implements Listener{
 		{
 			StartGA_MAPE MAPEinfo = (StartGA_MAPE)e;
 
-			
+
 			RunMAPElites((Room)e.getPayload(), MAPEinfo.getDimensions());
 		}
-		else if(e instanceof RequestSuggestionsView){ 
+		else if(e instanceof RequestSuggestionsView){
 			readConfiguration();
 			MapContainer container = (MapContainer) e.getPayload();
 			startAll(((RequestSuggestionsView) e).getNbrOfThreads(), container);
 
-		}			
+		}
 		else if (e instanceof StartMapMutate) {
-			
+
 			StartMapMutate smm = (StartMapMutate)e;
 //			System.out.println("LETS CREATE!, mutation: " + smm.getMutations() + ", algorithmTypes: " + smm.getAlgorithmTypes());
 			mutateFromMap((Room)e.getPayload(),smm.getMutations(),smm.getMutationType(),smm.getAlgorithmTypes(),smm.getRandomiseConfig());
@@ -284,7 +299,19 @@ public class Game implements Listener{
 		else if(e instanceof AlgorithmDone)
 		{
 			algorithmRunDone(((AlgorithmDone) e).getAlgorithm());
+		} else if (e instanceof StartQuestGeneration){
+			RunQuestGenerator(
+					((StartQuestGeneration) e).getQuest(),
+					((StartQuestGeneration) e).getGrammar(),
+					((StartQuestGeneration) e).getLimit());
+		} else if (e instanceof QuestSuggestionsDone){
+			generatorRunDone(((QuestSuggestionsDone)e).getGenerator());
+		} else if (e instanceof StopQuestGeneration){
+			for (QuestGenerator g: questGenerators) {
+				if (g.isAlive()) g.terminate();
+			}
 		}
+
 	}
 
 	/**

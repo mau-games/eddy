@@ -73,7 +73,26 @@ public class Quest {
                 .orElse(null);
     }
 
-
+    /**
+     * Compares the action of current and given quest.
+     * @param o
+     * @return if they are not Equals
+     */
+    public boolean notEquals(Object o){
+        if (!(o instanceof Quest)){
+            return false;
+        }
+        int size = ((Quest) o).actions.size();
+        if (actions.size() != size){
+            return true;
+        }
+        for (int i = 0; i < size; i++) {
+            if (actions.get(i).getType().getValue() != ((Quest) o).actions.get(i).getType().getValue()){
+                return true;
+            }
+        }
+        return false;
+    }
 
     public boolean isFeasible() {
         return feasible;
@@ -182,7 +201,7 @@ public class Quest {
     public boolean startsWith(Quest quest) {
         for (int i = 0; i < quest.getActions().size(); i++){
             if ( i < actions.size()) {
-                System.out.println(actions.get(i).getType() + " == " + quest.getActions().get(i).getType());
+//                System.out.println(actions.get(i).getType() + " == " + quest.getActions().get(i).getType());
                 if (!(actions.get(i).getType().getValue() == quest.getActions().get(i).getType().getValue())){
                     return false;
                 }

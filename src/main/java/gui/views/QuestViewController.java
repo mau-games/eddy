@@ -9,14 +9,12 @@ import game.quest.ActionWithSecondPosition;
 import game.quest.Quest;
 import game.quest.actions.*;
 import generator.algorithm.grammar.QuestGrammar;
+import gui.controls.LabeledCanvas;
 import gui.utils.DungeonDrawer;
 import javafx.application.Platform;
-import javafx.beans.binding.Bindings;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
-import javafx.geometry.Insets;
-import javafx.geometry.Pos;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -26,7 +24,6 @@ import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
-import javafx.scene.paint.Paint;
 import javafx.scene.text.Font;
 import javafx.scene.text.TextAlignment;
 import util.config.MissingConfigurationException;
@@ -37,11 +34,9 @@ import util.eventrouting.events.*;
 import gui.utils.InformativePopupManager;
 import gui.utils.InformativePopupManager.PresentableInformation;
 
-import javax.swing.*;
 import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.stream.Collectors;
 
 /**
  * @author Eric Grevillius
@@ -87,6 +82,8 @@ public class QuestViewController extends BorderPane implements Listener {
     private Button regenerateButton;
     @FXML
     private Button clearQuestButton;
+    LabeledCanvas canvas;
+
 
     public QuestViewController() {
         super();
@@ -105,6 +102,7 @@ public class QuestViewController extends BorderPane implements Listener {
         router.registerListener(this, new RequestQuestView());
         router.registerListener(this, new QuestPositionUpdate(null, null, false));
         router.registerListener(this, new QuestPositionInvalid());
+        router.registerListener(this, new QuestSuggestionUpdate());
 
         initQuestView();
         initActionToolbar();
@@ -136,6 +134,7 @@ public class QuestViewController extends BorderPane implements Listener {
                                             }
                                         });
                                 generatorPane.getChildren().stream()
+                                        .filter(action -> action instanceof ToggleButton)
                                         .filter(action -> ((ToggleButton) action).isSelected())
                                         .forEach(selected -> Platform.runLater(() -> {
                                             ToggleButton toggleButton = (ToggleButton) selected;
@@ -277,42 +276,44 @@ public class QuestViewController extends BorderPane implements Listener {
     }
 
     private void initGeneratorPane() {
+        canvas = new LabeledCanvas();
         questGrammar = new QuestGrammar(dungeon);
         suggestedQuests = new ArrayList<Quest>();
         globalQuestIndex = 0;
 
-        regenerateButton.addEventHandler(MouseEvent.MOUSE_CLICKED, event -> generateSuggestions());
+//        regenerateButton.addEventHandler(MouseEvent.MOUSE_CLICKED, event -> generateSuggestions());
 
-        generateSuggestions();
+//        generateSuggestions();
+        router.postEvent(new StartQuestGeneration(dungeon.getQuest(),questGrammar,dungeon.getAllRooms().size()*5));
     }
 
-    private void generateSuggestions() {
-        //remove all old suggestions
-        suggestedQuests.clear();
-
-        //start generating new suggestions
-        int tries = -1;
-        while (suggestedQuests.isEmpty()) {
-            int limit = dungeon.getAllRooms().size() * 5;
-            for (int i = 0; i < QuestGrammar.Motives.length; i++) {
-                Quest quest = new Quest();
-                while (quest.getActions().isEmpty()) {
-                    questGrammar.expand(quest, QuestGrammar.START_VALUE, dungeon.getQuest().getAvailableActions(), 0, limit);
-                }
-                suggestedQuests.add(quest);
-            }
-            suggestedQuests = suggestedQuests.stream().filter(quest -> quest.startsWith(dungeon.getQuest())).collect(Collectors.toList());
-            // TODO: else pre-add the current and generate new
-
-            if (tries++ >= GENERATOR_ATTEMPT_LIMIT){
-
-                suggestedQuests.clear();
-                break;
-
-            }
-        }
-        reRenderGeneratedAction();
-    }
+//    private void generateSuggestions() {
+//        //remove all old suggestions
+//        suggestedQuests.clear();
+//
+//        //start generating new suggestions
+//        int tries = -1;
+//        while (suggestedQuests.isEmpty()) {
+//            int limit = dungeon.getAllRooms().size() * 5;
+//            for (int i = 0; i < QuestGrammar.Motives.length; i++) {
+//                Quest quest = new Quest();
+//                while (quest.getActions().isEmpty()) {
+//                    questGrammar.expand(quest, QuestGrammar.START_VALUE, dungeon.getQuest().getAvailableActions(), 0, limit);
+//                }
+//                suggestedQuests.add(quest);
+//            }
+//            suggestedQuests = suggestedQuests.stream().filter(quest -> quest.startsWith(dungeon.getQuest())).collect(Collectors.toList());
+//            // TODO: else pre-add the current and generate new
+//
+//            if (tries++ >= GENERATOR_ATTEMPT_LIMIT){
+//
+//                suggestedQuests.clear();
+//                break;
+//
+//            }
+//        }
+//        reRenderGeneratedAction();
+//    }
 
     private void reRenderGeneratedAction() {
         generatorPane.getChildren().clear();
@@ -338,24 +339,27 @@ public class QuestViewController extends BorderPane implements Listener {
             generatorPane.getChildren().add(title);
             generatorPane.getChildren().add(label);
         } else {
-            for (int i = 0; i < suggestedQuests.size(); i++) {
-                int index = i;
-                if (globalQuestIndex < suggestedQuests.get(i).getActions().size()) {
-                    //merge duplicates
-                    if (generatorPane.getChildren()
-                            .stream()
-                            .noneMatch(node ->
-                                    ((ToggleButton) node)
-                                            .getText()
-                                            .equals(suggestedQuests
-                                                    .get(index)
-                                                    .getAction(globalQuestIndex)
-                                                    .getName()))) {
-                        //add generated suggestions buttons
-                        addVisualGeneratorPaneAction(suggestedQuests.get(index).getAction(globalQuestIndex), generatorPane.getChildren().size(), index);
-                    }
-                }
-            }
+//            for (int i = 0; i < suggestedQuests.size(); i++) {
+//                int index = i;
+//                if (globalQuestIndex < suggestedQuests.get(i).getActions().size()) {
+//                    //merge duplicates
+//                    if (generatorPane.getChildren()
+//                            .stream()
+//                            .noneMatch(node ->
+//                                    ((ToggleButton) node)
+//                                            .getText()
+//                                            .equals(suggestedQuests
+//                                                    .get(index)
+//                                                    .getAction(globalQuestIndex)
+//                                                    .getName()))) {
+//                        //add generated suggestions buttons
+//                        addVisualGeneratorPaneAction(suggestedQuests.get(index).getAction(globalQuestIndex), generatorPane.getChildren().size(), index);
+//                    }
+//                }
+//            }
+//            canvas.draw(null);
+//            generatorPane.getChildren().add(canvas);
+
         }
     }
 
@@ -449,6 +453,25 @@ public class QuestViewController extends BorderPane implements Listener {
                             .requestPopup(dungeon.dPane, PresentableInformation.INVALID_QUEST_POSITION, "");
                 }
             }
+        } else if (e instanceof QuestSuggestionUpdate){
+            suggestedQuests = ((QuestSuggestionUpdate) e).getQuests();
+            System.out.println("SuggestedQuests to render: " + suggestedQuests.size());
+            Platform.runLater(this::reRenderGeneratedAction);
+//            AtomicBoolean added = new AtomicBoolean(false);
+//            ((QuestSuggestionUpdate) e).getQuests().forEach(quest -> {
+//                if (suggestedQuests.isEmpty()){
+//                    added.set(suggestedQuests.add(quest));
+//                } else {
+//                    boolean noneMatch = suggestedQuests.stream().anyMatch(quest::notEquals);
+//                    if (noneMatch){
+//                        added.set(suggestedQuests.add(quest));
+//                    }
+//                }
+//            });
+//            if (added.get()) {
+//                System.out.println("Quest suggestion added");
+//                Platform.runLater(this::reRenderGeneratedAction);
+//            }
         }
     }
 
@@ -702,6 +725,7 @@ public class QuestViewController extends BorderPane implements Listener {
 
     @FXML
     private void backWorldView(ActionEvent event) throws IOException {
+        router.postEvent(new StopQuestGeneration());
         EventRouter.getInstance().postEvent(new RequestDisplayQuestTilesUnselection(false));
         DungeonDrawer.getInstance().changeBrushTo(DungeonDrawer.DungeonBrushes.MOVEMENT);
         dungeon.dPane.setDisable(false);
