@@ -1,5 +1,6 @@
 package generator.algorithm.grammar;
 
+import game.quest.Action;
 import game.quest.ActionType;
 import game.quest.Quest;
 import javafx.application.Platform;
@@ -20,9 +21,11 @@ public class QuestGenerator extends Thread {
     private Quest quest;
     private final QuestGrammar grammar;
     private List<Quest> suggestedQuests;
+    private List<Action> suggestedActions;
     private final int limit;
     private final List<ActionType> availableActions;
     private boolean stop = false;
+    private int globalQuestIndex = 0;
 
     public QuestGenerator(Quest quest, QuestGrammar grammar, int questLimit) {
         this.quest = quest;
@@ -30,12 +33,19 @@ public class QuestGenerator extends Thread {
         this.limit = questLimit;
         this.availableActions = quest.getAvailableActions();
         suggestedQuests = new ArrayList<>();
+        suggestedActions = new ArrayList<>();
         EventRouter.getInstance().registerListener(this::ping, new QuestGenerationConfigUpdate());
     }
 
     private void ping(PCGEvent e) {
         if (e instanceof QuestGenerationConfigUpdate){
-            updateQuest((Quest)e.getPayload());
+            if(e.getPayload() instanceof Quest){
+                System.out.println("Generator config update is quest");
+                updateQuest((Quest) e.getPayload());
+            } else if (e.getPayload().getClass().isInstance(1)){
+                System.out.println("Generator config update is int");
+                updateGlobalQuestIndex((Integer) e.getPayload());
+            }
         }
     }
 
@@ -45,6 +55,13 @@ public class QuestGenerator extends Thread {
             suggestedQuests.clear();
         }
     }
+
+    public synchronized void updateGlobalQuestIndex(int index){
+        this.globalQuestIndex = index;
+        suggestedActions.clear();
+        extractAndCompressActions(suggestedQuests);
+    }
+
 
     public void terminate(){
         stop = true;
@@ -95,6 +112,7 @@ public class QuestGenerator extends Thread {
                     long now = System.currentTimeMillis();
                     if ((now - startTime) > BROADCAST_TIMEOUT) { //broadcast only once every second
                         System.out.println(now - startTime);
+                        extractAndCompressActions(temporaryList);
                         broadcastQuestSuggestionUpdate();
                         startTime = now;
                     }
@@ -103,5 +121,18 @@ public class QuestGenerator extends Thread {
 
         }
         EventRouter.getInstance().postEvent(new QuestSuggestionsDone(this));
+    }
+
+    private void extractAndCompressActions(List<Quest> quests) {
+        for (int i = 0; i < quests.size(); i++) {
+                int index = i;
+                if (globalQuestIndex < quests.get(i).getActions().size()) {
+                    //merge duplicates
+                    if (suggestedActions.stream().noneMatch(action -> action.getName().equals(quests.get(index).getAction(globalQuestIndex).getName()))) {
+                        //add generated suggestions buttons
+                        suggestedActions.add(suggestedQuests.get(index).getAction(globalQuestIndex));
+                    }
+                }
+            }
     }
 }
