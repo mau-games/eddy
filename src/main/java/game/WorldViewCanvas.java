@@ -47,6 +47,7 @@ public class WorldViewCanvas
 	private Canvas borderCanvas;
 	private Canvas pathCanvas;
 	private Canvas interFeasibilityCanvas; //creisi
+	private Canvas objectiveCanvas;
 	
 	public DoubleProperty xPosition; //TODO: public just to test
 	public DoubleProperty yPosition;
@@ -64,7 +65,7 @@ public class WorldViewCanvas
 		//Events to the graphic node
 		worldGraphicNode.addEventFilter(MouseEvent.MOUSE_ENTERED, new MouseEventH());
 		worldGraphicNode.addEventFilter(MouseEvent.MOUSE_DRAGGED, new MouseEventDrag());
-		worldGraphicNode.setOnDragDetected(new EventHandler<MouseEvent>() 
+		worldGraphicNode.setOnDragDetected(new EventHandler<MouseEvent>()
 		{
             @Override
             public void handle(MouseEvent event) //TODO: THERE ARE SOME ERRORS FROM THIS POINT!!
@@ -102,6 +103,11 @@ public class WorldViewCanvas
 		worldGraphicNode.getChildren().add(interFeasibilityCanvas);
 		interFeasibilityCanvas.setVisible(true); //This should be controlled by a toggle button (simple)
 		interFeasibilityCanvas.setMouseTransparent(true);
+		
+		objectiveCanvas = new Canvas(viewSizeHeight, viewSizeHeight);
+		worldGraphicNode.getChildren().add(objectiveCanvas);
+		objectiveCanvas.setVisible(false);
+		objectiveCanvas.setMouseTransparent(true);
 	}
 	
 	//TODO: We can delete this method... probably is not useful anymore
@@ -115,7 +121,6 @@ public class WorldViewCanvas
 	public void setRendered(boolean value)
 	{
 		rendered = value;
-
 	}
 	
 	public boolean getRendered() { return rendered; }
@@ -155,6 +160,9 @@ public class WorldViewCanvas
 		
 		interFeasibilityCanvas.setWidth(viewSizeWidth);
 		interFeasibilityCanvas.setHeight(viewSizeHeight);
+		
+		objectiveCanvas.setWidth(viewSizeWidth);
+		objectiveCanvas.setHeight(viewSizeHeight);
 		
 		//Update the size of the tiles in the graphic display
 		tileSizeWidth.set(viewSizeWidth/ owner.getColCount());
@@ -374,6 +382,35 @@ public class WorldViewCanvas
 	public void setInterFeasibilityVisible(boolean visibility)
 	{
 		interFeasibilityCanvas.setVisible(visibility);
+	}
+	
+	public void toggleObjectiveCanvas(boolean state)
+	{
+		if (state)
+		{
+			objectiveCanvas.setVisible(true);
+			drawObjectives();
+		}
+		if (!state)
+		{
+			objectiveCanvas.setVisible(false);
+		}
+	}
+	
+	private synchronized void drawObjectives()
+	{
+		if (objectiveCanvas.isVisible())
+		{
+			Color color;
+			objectiveCanvas.getGraphicsContext2D().clearRect(0, 0, objectiveCanvas.getWidth(), objectiveCanvas.getHeight());
+			
+			if (owner.getHasMainObjective())
+				color = Color.GREEN;
+			else
+				color = Color.BLUE;
+			
+			MapRenderer.getInstance().drawMacroPatterns(objectiveCanvas.getGraphicsContext2D(), viewSizeWidth, viewSizeHeight, owner.getRoomObjective(), color);
+		}
 	}
 	
 	private synchronized void drawBorder() 

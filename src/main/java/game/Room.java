@@ -109,7 +109,11 @@ public class Room {
 	//I need a special ID for rooms
 	public UUID specificID = UUID.randomUUID();
 	int saveCounter = 1;
-
+	
+	//For objectives
+	private CompositePattern roomObjective; 
+	private boolean hasMainObjective = false;
+	
 /////////////////////////OLD///////////////////////////
 
 	private Tile[] tileMap; //This HAVE to be the real tilemap
@@ -167,6 +171,32 @@ public class Room {
 		
 		if(treasures == null)
 			treasures = new ArrayList<Point>();
+	}
+	
+	public void SetRoomObjective() {	
+		CompositePattern tempObjective = null;
+		
+		for (CompositePattern objective : finder.getMacroPatterns())
+		{
+			if (tempObjective == null)
+				tempObjective = objective;
+			else if (objective.getQuality() > tempObjective.getQuality())
+				tempObjective = objective;
+		}
+		
+		roomObjective = tempObjective;
+	}
+	
+	public CompositePattern getRoomObjective() {
+		return roomObjective;
+	}
+	
+	public boolean getHasMainObjective() {
+		return hasMainObjective;
+	}
+	
+	public void setHasMainObjective(boolean state) {
+		hasMainObjective = state;
 	}
 	
 	/**
@@ -232,7 +262,6 @@ public class Room {
 		pathfinder = new RoomPathFinder(this);
 		
 		root = new ZoneNode(null, this, getColCount(), getRowCount());
-
 	}
 	
 	public Room(Dungeon owner, GeneratorConfig config, int rows, int cols, int scaleFactor) //THIS IS CALLED WHEN ADDING ROOMS TO THE DUNGEON!
@@ -256,7 +285,6 @@ public class Room {
 		
 		root = new ZoneNode(null, this, getColCount(), getRowCount());
 		node = new finder.graph.Node<Room>(this);
-
 	}
 	
 	public Room(Room copyMap) //THIS IS CALLED WHEN CREATING A ZONE IN THE TREE (TO HAVE A COPY OF THE DOORS)
@@ -317,7 +345,7 @@ public class Room {
 		finder = new PatternFinder(this);
 		SetDimensionValues(copyMap.dimensionValues);
 		pathfinder = new RoomPathFinder(this);
-		root = new ZoneNode(null, this, getColCount(), getRowCount());	
+		root = new ZoneNode(null, this, getColCount(), getRowCount());
 	}
 	
 	public Room(Room copyMap, ZoneNode zones) //THIS IS CALLED WHEN CREATING A ZONE IN THE TREE (TO HAVE A COPY OF THE DOORS)
@@ -368,7 +396,7 @@ public class Room {
 
 		finder = new PatternFinder(this);
 		pathfinder = new RoomPathFinder(this);
-		root = zones;	
+		root = zones;
 	}
 	
 	public Room(GeneratorConfig config, ZoneNode rootCopy, int[] chromosomes, int rows, int cols) //THIS IS CALLED FROM THE PHENOTYPE BUT WHEN WE HAVE THE ZONES

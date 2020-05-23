@@ -13,6 +13,9 @@ import finder.graph.Node;
 import finder.patterns.CompositePattern;
 import finder.patterns.Pattern;
 import finder.patterns.SpacialPattern;
+import finder.patterns.macro.DefeatEnemies;
+import finder.patterns.macro.DefeatBoss;
+import finder.patterns.macro.FindTreasure;
 import finder.patterns.meso.Ambush;
 import finder.patterns.meso.ChokePoint;
 import finder.patterns.meso.DeadEnd;
@@ -134,11 +137,13 @@ public class PatternFinder {
 		return findMesoPatterns();
 	}
 	
-	
 	public List<Pattern> getMicroPatterns(){
 		return findMicroPatterns();
 	}
 	
+	public List<CompositePattern> getMacroPatterns() {
+		return findMacroPatterns();
+	}
 	
 	private void buildPatternGraph(){
 		//Build the pattern graph
@@ -340,7 +345,12 @@ public class PatternFinder {
 	 * 
 	 * @return A list of all found pattern instances.
 	 */
+	
 	public List<CompositePattern> findMacroPatterns() {
+		if (macropatterns != null) {
+			return macropatterns;
+		}
+		
 		macropatterns = new ArrayList<CompositePattern>();
 		
 		/*
@@ -357,7 +367,19 @@ public class PatternFinder {
 			findMesoPatterns();
 		}
 		
-		return null;
+		DefeatEnemies de = DefeatEnemies.getBestDefeatEnemies(mesopatterns);
+		if (de != null)
+			macropatterns.add(de);
+		
+		DefeatBoss db = DefeatBoss.getBestDefeatBoss(mesopatterns);
+		if (db != null)
+			macropatterns.add(db);
+		
+		FindTreasure ft = FindTreasure.getBestFindTreasure(mesopatterns);
+		if (ft != null)
+			macropatterns.add(ft);
+		
+		return macropatterns;
 	}
 	
 	/**
