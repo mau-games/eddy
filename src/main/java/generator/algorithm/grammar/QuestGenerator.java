@@ -6,6 +6,7 @@ import game.quest.Quest;
 import javafx.application.Platform;
 import util.eventrouting.EventRouter;
 import util.eventrouting.PCGEvent;
+import util.eventrouting.events.QuestActionSuggestionUpdate;
 import util.eventrouting.events.QuestGenerationConfigUpdate;
 import util.eventrouting.events.QuestSuggestionUpdate;
 import util.eventrouting.events.QuestSuggestionsDone;
@@ -46,6 +47,8 @@ public class QuestGenerator extends Thread {
                 System.out.println("Generator config update is int");
                 updateGlobalQuestIndex((Integer) e.getPayload());
             }
+        } else {
+            //TODO: generate a new quest at the end of the current one
         }
     }
 
@@ -53,6 +56,7 @@ public class QuestGenerator extends Thread {
         synchronized (this.quest) {
             this.quest = quest;
             suggestedQuests.clear();
+            suggestedActions.clear();
         }
     }
 
@@ -60,6 +64,7 @@ public class QuestGenerator extends Thread {
         this.globalQuestIndex = index;
         suggestedActions.clear();
         extractAndCompressActions(suggestedQuests);
+        broadcastQuestActionSuggestionUpdate();
     }
 
 
@@ -74,53 +79,64 @@ public class QuestGenerator extends Thread {
         EventRouter.getInstance().postEvent(update);
     }
 
+    protected synchronized void broadcastQuestActionSuggestionUpdate(){
+//        System.out.println("Broadcast QuestSuggestionUpdate");
+//        long start = System.currentTimeMillis();
+        QuestActionSuggestionUpdate update = new QuestActionSuggestionUpdate();
+        suggestedActions.forEach(update::add);
+        EventRouter.getInstance().postEvent(update);
+//        System.out.println("broadcastQuestActionSuggestionUpdate: " + (System.currentTimeMillis() - start) + "ms");
+    }
+
     /**
      * Starts the algorithm. Called when the thread starts.
      */
     public void run() {
-        System.out.println(this + " running ... ");
-        List<Quest> temporaryList = new ArrayList<Quest>();
-        long startTime = System.currentTimeMillis(); //broadcast only once every second
-        while (!stop) {
-            temporaryList.clear();
-            //start generating new suggestions for each motive
-            for (int i = 0; i < QuestGrammar.Motives.length; i++) {
-                Quest quest = new Quest();
-                while (quest.getActions().isEmpty()) {
-                    grammar.expand(quest, QuestGrammar.Motives[i], availableActions, 0, limit);
+        try {
+            System.out.println(this + " running ... ");
+            List<Quest> temporaryList = new ArrayList<Quest>();
+            while (!stop) {
+                temporaryList.clear();
+                //start generating new suggestions for each motive
+                for (int i = 0; i < QuestGrammar.Motives.length; i++) {
+                    Quest quest = new Quest();
+                    while (quest.getActions().isEmpty()) {
+                        grammar.expand(quest, QuestGrammar.Motives[i], availableActions, 0, limit);
+                    }
+                    temporaryList.add(quest);
                 }
-                temporaryList.add(quest);
-            }
-            synchronized (quest) {
-                temporaryList = temporaryList.stream().filter(quest -> quest.startsWith(quest)).collect(Collectors.toList());
-            }
 
-            AtomicBoolean unique = new AtomicBoolean(false);
-//            List<Quest> finalTemporaryList = temporaryList;
-            temporaryList.forEach(quest -> {
-                if (suggestedQuests.isEmpty()){
-                    unique.set(suggestedQuests.add(quest));
-                } else {
-                    boolean noneMatch = suggestedQuests.stream().anyMatch(quest::notEquals);
-                    if (noneMatch){
+                //Filter
+                synchronized (quest) {
+                    temporaryList = temporaryList.stream().filter(quest -> quest.startsWith(quest)).collect(Collectors.toList());
+                    quest.notifyAll();
+                }
+
+                //Save if unique
+                AtomicBoolean unique = new AtomicBoolean(false);
+                temporaryList.forEach(quest -> {
+                    if (suggestedQuests.isEmpty()){
                         unique.set(suggestedQuests.add(quest));
+                    } else {
+                        boolean noneMatch = suggestedQuests.stream().anyMatch(quest::notEquals);
+                        if (noneMatch){
+                            unique.set(suggestedQuests.add(quest));
+                        }
                     }
-                }
-            });
-            if (unique.get()) {
-                if (!suggestedQuests.isEmpty()){
-                    long now = System.currentTimeMillis();
-                    if ((now - startTime) > BROADCAST_TIMEOUT) { //broadcast only once every second
-                        System.out.println(now - startTime);
+                });
+
+                if (unique.get()) {
+                    if (!temporaryList.isEmpty()){
                         extractAndCompressActions(temporaryList);
-                        broadcastQuestSuggestionUpdate();
-                        startTime = now;
+                        broadcastQuestActionSuggestionUpdate();
+                        Thread.sleep(BROADCAST_TIMEOUT);
                     }
                 }
             }
-
+            EventRouter.getInstance().postEvent(new QuestSuggestionsDone(this));
+        } catch (InterruptedException e) {
+            e.printStackTrace();
         }
-        EventRouter.getInstance().postEvent(new QuestSuggestionsDone(this));
     }
 
     private void extractAndCompressActions(List<Quest> quests) {
@@ -128,9 +144,13 @@ public class QuestGenerator extends Thread {
                 int index = i;
                 if (globalQuestIndex < quests.get(i).getActions().size()) {
                     //merge duplicates
-                    if (suggestedActions.stream().noneMatch(action -> action.getName().equals(quests.get(index).getAction(globalQuestIndex).getName()))) {
-                        //add generated suggestions buttons
-                        suggestedActions.add(suggestedQuests.get(index).getAction(globalQuestIndex));
+                    boolean noneMatch = suggestedActions.stream()
+                            .noneMatch(action ->
+                                    action.getType().getValue() ==
+                                            quests.get(index).getAction(globalQuestIndex).getType().getValue());
+                    if (noneMatch){
+                        //add generated suggested action
+                        suggestedActions.add(quests.get(index).getAction(globalQuestIndex));
                     }
                 }
             }
