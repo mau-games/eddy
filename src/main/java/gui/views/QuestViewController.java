@@ -27,6 +27,7 @@ import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.TextAlignment;
 import org.checkerframework.checker.units.qual.A;
+import util.Point;
 import util.config.MissingConfigurationException;
 import util.eventrouting.EventRouter;
 import util.eventrouting.Listener;
@@ -56,7 +57,7 @@ public class QuestViewController extends BorderPane implements Listener {
     private boolean firstTime = true;
 
     private QuestGrammar questGrammar;
-//    private List<Quest> suggestedQuests;
+    //    private List<Quest> suggestedQuests;
     private List<Action> suggestedActions;
     private int globalQuestIndex;
 
@@ -144,12 +145,15 @@ public class QuestViewController extends BorderPane implements Listener {
                                                 added.set(true);
                                             }
                                         });
-                                if(added.get()){
+                                if (added.get()) {
                                     globalQuestIndex++;
                                     updateQuestAndIndexToGenerator();
-                                    if (toggleHelp.isSelected()){
+                                    if (toggleHelp.isSelected()) {
                                         InformativePopupManager.getInstance().restartPopups();
                                         InformativePopupManager.getInstance().requestPopup(dungeon.dPane, PresentableInformation.ADDED_ACTION, "");
+                                    }
+                                    if (togglePath.isSelected()){
+                                        calculateAndPaintQuestPath();
                                     }
                                 }
                             });
@@ -165,9 +169,12 @@ public class QuestViewController extends BorderPane implements Listener {
                                 removeQuestAction((ToggleButton) questAction);
                                 globalQuestIndex = dungeon.getQuest().getActions().size();
                                 updateQuestAndIndexToGenerator();
-                                if (toggleHelp.isSelected()){
+                                if (toggleHelp.isSelected()) {
                                     InformativePopupManager.getInstance().restartPopups();
                                     InformativePopupManager.getInstance().requestPopup(dungeon.dPane, PresentableInformation.DELETE_ACTION, "");
+                                }
+                                if (togglePath.isSelected()){
+                                    calculateAndPaintQuestPath();
                                 }
                             });
                         });
@@ -176,9 +183,12 @@ public class QuestViewController extends BorderPane implements Listener {
 
         clearQuestButton.addEventHandler(MouseEvent.MOUSE_CLICKED, event -> {
             dungeon.getQuest().clearAction();
-            int end = questPane.getChildren().size()-1;
-            questPane.getChildren().remove(0,end);
+            int end = questPane.getChildren().size() - 1;
+            questPane.getChildren().remove(0, end);
             updateQuestAndIndexToGenerator();
+            if (togglePath.isSelected()){
+                calculateAndPaintQuestPath();
+            }
         });
     }
 
@@ -204,17 +214,14 @@ public class QuestViewController extends BorderPane implements Listener {
                         }
                     });
                 });
-//        togglePath.addEventHandler(MouseEvent.MOUSE_CLICKED, event -> {
-        //TODO ELIN:show quest path
-        //find best path from hero to first action
-        //loop through all actions {
-        // if action with second position
-        // then find best path from first to second position
-        // find best path second position to next
-        // else
-        // find best path current to next
-        // }
-        //     });
+        togglePath.addEventHandler(MouseEvent.MOUSE_CLICKED, event -> {
+            // find best path from hero to first action
+            if (togglePath.isSelected()) {
+                calculateAndPaintQuestPath();
+            } else {
+                unpaintPath();
+            }
+        });
         if (toggleHelp != null) {
             toggleHelp.addEventHandler(MouseEvent.MOUSE_CLICKED, event -> {
                 InformativePopupManager.getInstance().restartPopups();
@@ -224,6 +231,49 @@ public class QuestViewController extends BorderPane implements Listener {
                     Platform.runLater(() -> InformativePopupManager.getInstance().requestPopup(dungeon.dPane, PresentableInformation.NO_HELP_MODE, "OK no help!"));
                 }
             });
+        }
+    }
+
+    private void unpaintPath() {
+        dungeon.getAllRooms().forEach(room -> {
+            room.paintPath(false);
+            room.clearPath();
+        });
+
+    }
+
+    private void calculateAndPaintQuestPath() {
+        unpaintPath();
+        List<Action> actions = dungeon.getQuest().getActions();
+        //      find best path and paint initial position to first
+        if (!actions.isEmpty()){
+            dungeon.calculateAndPaintBestPath(
+                    dungeon.getInitialRoom(),
+                    actions.get(0).getRoom(),
+                    dungeon.getInitialPosition(),
+                    new Point(actions.get(0).getPosition().getX(), actions.get(0).getPosition().getY()));
+        }
+        for (int i = 0; i < actions.size(); i++) {
+            if (actions.get(i) instanceof ActionWithSecondPosition) {
+                ActionWithSecondPosition action = (ActionWithSecondPosition) actions.get(i);
+                //      then find best path from first to second position
+                dungeon.calculateAndPaintBestPath(action.getRoom(), action.getSecondRoom(),
+                        new Point(action.getPosition().getX(), action.getPosition().getY()),
+                        new Point(action.getSecondPosition().getX(), action.getSecondPosition().getY()));
+                //      find best path second position to next
+                if (i + 1 < actions.size()) {
+                    dungeon.calculateAndPaintBestPath(action.getSecondRoom(), actions.get(i + 1).getRoom(),
+                            new Point(action.getSecondPosition().getX(), action.getSecondPosition().getY()),
+                            new Point(actions.get(i + 1).getPosition().getX(), actions.get(i + 1).getPosition().getY()));
+                }
+            } else {
+                if (i + 1 < actions.size()) {
+                    //      find best path current to next
+                    dungeon.calculateAndPaintBestPath(actions.get(i).getRoom(), actions.get(i + 1).getRoom(),
+                            new Point(actions.get(i).getPosition().getX(), actions.get(i).getPosition().getY()),
+                            new Point(actions.get(i + 1).getPosition().getX(), actions.get(i + 1).getPosition().getY()));
+                }
+            }
         }
     }
 
@@ -285,14 +335,14 @@ public class QuestViewController extends BorderPane implements Listener {
 //        regenerateButton.addEventHandler(MouseEvent.MOUSE_CLICKED, event -> router.postEvent(new ));
 
 //        generateSuggestions();
-        router.postEvent(new StartQuestGeneration(dungeon.getQuest(),questGrammar,dungeon.getAllRooms().size()*5));
+        router.postEvent(new StartQuestGeneration(dungeon.getQuest(), questGrammar, dungeon.getAllRooms().size() * 5));
         globalQuestIndex = 0;
         updateIndexToGenerator();
     }
 
     private void reRenderGeneratedAction() {
         generatorPane.getChildren().clear();
-        if (suggestedActions.isEmpty()){
+        if (suggestedActions.isEmpty()) {
             Label title = new Label("Oops!");
             title.textFillProperty().setValue(Color.WHITE);
             title.textAlignmentProperty().setValue(TextAlignment.CENTER);
@@ -316,8 +366,8 @@ public class QuestViewController extends BorderPane implements Listener {
             generatorPane.getChildren().add(title);
             generatorPane.getChildren().add(label);
         } else {
-            for (int i = 0; i <suggestedActions.size(); i++){
-                addVisualGeneratorPaneAction(suggestedActions.get(i),i);
+            for (int i = 0; i < suggestedActions.size(); i++) {
+                addVisualGeneratorPaneAction(suggestedActions.get(i), i);
             }
             canvas.draw(null);
             generatorPane.getChildren().add(canvas);
@@ -414,7 +464,7 @@ public class QuestViewController extends BorderPane implements Listener {
                             .requestPopup(dungeon.dPane, PresentableInformation.INVALID_QUEST_POSITION, "");
                 }
             }
-        } else if (e instanceof QuestActionSuggestionUpdate){
+        } else if (e instanceof QuestActionSuggestionUpdate) {
             AtomicBoolean unique = new AtomicBoolean(true);
             List<Action> actions = ((QuestActionSuggestionUpdate) e).getActions();
             suggestedActions.forEach(action -> unique.set(actions.stream()
@@ -423,7 +473,7 @@ public class QuestViewController extends BorderPane implements Listener {
 
             unique.set((unique.get() || suggestedActions.size() != actions.size()));
 
-            if(unique.get()) {
+            if (unique.get()) {
                 suggestedActions.clear();
                 suggestedActions.addAll(actions);
                 System.out.println("SuggestedActions to render: " + suggestedActions.size());
@@ -467,8 +517,8 @@ public class QuestViewController extends BorderPane implements Listener {
         toAdd.addEventHandler(MouseEvent.MOUSE_CLICKED, e -> {
             if (e.getButton().equals(MouseButton.PRIMARY)) {
                 if (toAdd.isSelected()) {
-                    if (toggleHelp.isSelected()){
-                        InformativePopupManager.getInstance().requestPopup(dungeon.dPane, PresentableInformation.DELETE_REPLACE_ACTION,"");
+                    if (toggleHelp.isSelected()) {
+                        InformativePopupManager.getInstance().requestPopup(dungeon.dPane, PresentableInformation.DELETE_REPLACE_ACTION, "");
                     }
                     Action tileAction = dungeon.getQuest().getAction(UUID.fromString(toAdd.getId()));
                     globalQuestIndex = dungeon.getQuest().indexOf(tileAction);
@@ -701,20 +751,23 @@ public class QuestViewController extends BorderPane implements Listener {
         toolbarActionToggleButton.setSelected(false);
         questActionToggleButton.setSelected(false);
 
-        if (toggleHelp.isSelected()){
+        if (toggleHelp.isSelected()) {
             InformativePopupManager.getInstance().restartPopups();
             InformativePopupManager.getInstance().requestPopup(dungeon.dPane, PresentableInformation.REPLACE_ACTION, "");
         }
+        if (togglePath.isSelected()){
+            calculateAndPaintQuestPath();
+        }
     }
 
-    private void updateQuestAndIndexToGenerator(){
+    private void updateQuestAndIndexToGenerator() {
         updateIndexToGenerator();
         QuestGenerationConfigUpdate questGenerationConfigUpdate = new QuestGenerationConfigUpdate();
         questGenerationConfigUpdate.setPayload(dungeon.getQuest());
         router.postEvent(questGenerationConfigUpdate);
     }
 
-    private void updateIndexToGenerator(){
+    private void updateIndexToGenerator() {
         QuestGenerationConfigUpdate questGenerationConfigUpdate = new QuestGenerationConfigUpdate();
         questGenerationConfigUpdate.setPayload(globalQuestIndex);
         router.postEvent(questGenerationConfigUpdate);

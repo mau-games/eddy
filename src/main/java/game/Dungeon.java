@@ -438,6 +438,22 @@ public class Dungeon implements Listener
 		}
 	}
 
+	public void calculateAndPaintBestPath(Room init, Room end, Point initPos, Point endPos)
+	{
+		if(pathfinding.calculateBestPath(init, end, initPos, endPos, network))
+		{
+			//Clear all the paths in all the rooms
+			for(Room room : rooms)
+			{
+//				room.clearPath();
+				room.paintPath(true);
+			}
+
+//			pathfinding.printPath();
+			pathfinding.innerCalculation();
+		}
+	}
+
 	public void addBoss(BossEnemyTile bossTile)
 	{
 		System.out.println("boss added - old");
