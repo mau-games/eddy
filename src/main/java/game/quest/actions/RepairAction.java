@@ -1,5 +1,6 @@
 package game.quest.actions;
 
+import game.Tile;
 import game.quest.Action;
 import game.quest.ActionType;
 
@@ -19,6 +20,12 @@ public class RepairAction extends Action {
 
     public RepairAction(ActionType type) {
         super(type);
+    }
+
+    @Override
+    public void checkConditions() {
+        Tile tile = getRoom().getTile(getPosition().getX(),getPosition().getY());
+        setPrecondition(tile.GetType().isItem());
     }
 }
 

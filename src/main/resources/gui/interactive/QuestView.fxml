@@ -31,16 +31,16 @@
                             </padding>
                         </FlowPane>
                     </center>
-               <bottom>
-                  <StackPane alignment="BOTTOM_RIGHT" BorderPane.alignment="CENTER">
-                     <children>
-                        <Button fx:id="clearQuestButton" mnemonicParsing="false" text="Erase Quest">
-                           <StackPane.margin>
-                              <Insets bottom="8.0" left="8.0" right="8.0" top="8.0" />
-                           </StackPane.margin></Button>
-                     </children>
-                  </StackPane>
-               </bottom>
+                    <bottom>
+                       <StackPane alignment="BOTTOM_RIGHT" BorderPane.alignment="CENTER">
+                          <children>
+                             <Button fx:id="clearQuestButton" mnemonicParsing="false" text="Erase Quest">
+                                <StackPane.margin>
+                                   <Insets bottom="8.0" left="8.0" right="8.0" top="8.0" />
+                                </StackPane.margin></Button>
+                          </children>
+                       </StackPane>
+                    </bottom>
                 </BorderPane>
             </bottom>
         </BorderPane>

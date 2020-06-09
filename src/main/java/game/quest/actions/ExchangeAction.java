@@ -2,6 +2,7 @@ package game.quest.actions;
 
 import finder.geometry.Point;
 import game.Room;
+import game.Tile;
 import game.quest.Action;
 import game.quest.ActionType;
 import game.quest.ActionWithSecondPosition;
@@ -43,6 +44,15 @@ public class ExchangeAction extends ActionWithSecondPosition {
     @Override
     public void setSecondRoom(Room room) {
         this.secondRoom = secondRoom;
+    }
+
+    @Override
+    public void checkConditions() {
+        Tile tile = getRoom().getTile(getPosition().getX(),getPosition().getY());
+        Tile secondTile = getSecondRoom().getTile(getSecondPosition().getX(),getSecondPosition().getY());
+        setPrecondition(
+                tile.GetType().isItem() ||
+                secondTile.GetType().isNPC());
     }
 }
 

@@ -21,7 +21,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class Quest {
     private List<Action> actions;
     private Dungeon owner;
-    private boolean feasible;
+    private boolean feasible = true;
     private List<ActionType> availableActions = new ArrayList<>();
 
     public Quest() {
@@ -177,10 +177,16 @@ public class Quest {
                     owner.addBoss(new BossEnemyTile(prev), update.getRoom());
                 }
             }
+            checkCurrentActions();
             checkForAvailableActions();
         }
     }
-    
+
+    private void checkCurrentActions() {
+        actions.forEach(Action::checkConditions);
+        feasible = actions.stream().allMatch(Action::isPreconditionMet);
+    }
+
     public int[] toIntArray(){
         int[] arr = new int[actions.size()];
         for (int i = 0; i < arr.length; i++) {

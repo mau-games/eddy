@@ -20,5 +20,12 @@ public class GotoAction extends Action {
     public GotoAction(ActionType type) {
         super(type);
     }
+
+    @Override
+    public void checkConditions() {
+        setPrecondition(getRoom().walkablePositions.stream().anyMatch(walkablePosition ->
+                walkablePosition.getPoint().getX() == getPosition().getX() &&
+                        walkablePosition.getPoint().getY() == getPosition().getY()));
+    }
 }
 

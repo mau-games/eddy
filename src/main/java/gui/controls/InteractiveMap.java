@@ -104,20 +104,19 @@ public class InteractiveMap extends GridPane implements Listener {
 				|| currentTile.GetType() == TileTypes.HERO) {
 			return;
 		}
-		EventRouter.getInstance().postEvent(new MapQuestUpdate(currentTile, new Tile(currentTile.GetCenterPosition(), brush.GetMainComponent()), room));
 		brush.Draw(Point.castToGeometry(p), room, this);
 
-//		
+//
 //		//The brush has all the points that will be modified
 //		//TODO: I THINK THAT the brush should do this part!
 //		for(finder.geometry.Point position : brush.GetDrawableTiles().getPoints())
 //		{
 //			currentTile = room.getTile(position.getX(), position.getY());
-//			
+//
 //			// Let's discard any attempts at erasing the doors
 //			if(currentTile.GetType() == TileTypes.DOOR)
 //				continue;
-//			
+//
 //			currentTile.SetImmutable(brush.GetModifierValue("Lock"));
 //			if(brush.GetMainComponent() != null)
 //			{
@@ -125,8 +124,9 @@ public class InteractiveMap extends GridPane implements Listener {
 //				drawTile(position.getX(), position.getY(), brush.GetMainComponent());
 //			}
 //		}
-		
+
 		brush.DoneDrawing();
+		EventRouter.getInstance().postEvent(new MapQuestUpdate(currentTile, new Tile(currentTile.GetCenterPosition(), brush.GetMainComponent()), room));
 
 	}
 	
@@ -148,8 +148,8 @@ public class InteractiveMap extends GridPane implements Listener {
 				|| currentTile.GetType() == TileTypes.HERO) {
 			return;
 		}
-		EventRouter.getInstance().postEvent(new MapQuestUpdate(currentTile, new Tile(currentTile.GetCenterPosition(), brush.GetMainComponent()), aRoom));
 		brush.simulateDrawing(Point.castToGeometry(p), aRoom, this);
+		EventRouter.getInstance().postEvent(new MapQuestUpdate(currentTile, new Tile(currentTile.GetCenterPosition(), brush.GetMainComponent()), aRoom));
 
 	}
 

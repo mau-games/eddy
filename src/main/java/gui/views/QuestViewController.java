@@ -411,6 +411,13 @@ public class QuestViewController extends BorderPane implements Listener {
                 InformativePopupManager.getInstance()
                         .requestPopup(dungeon.dPane, PresentableInformation.ACTION_NOT_AVAILABLE, "");
             }
+            questPane.getChildren().filtered(node -> node instanceof ToggleButton).forEach(node -> {
+                if (dungeon.getQuest().getAction(UUID.fromString(node.getId())).isPreconditionMet()){
+                    node.getStyleClass().remove("danger");
+                } else {
+                    node.getStyleClass().add("danger");
+                }
+            });
             initGeneratorPane();
         } else if (e instanceof QuestPositionUpdate) {
             doublePosition = ((QuestPositionUpdate) e).isSecondPosition();

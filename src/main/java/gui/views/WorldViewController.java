@@ -34,12 +34,7 @@ import javafx.fxml.FXMLLoader;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.canvas.Canvas;
-import javafx.scene.control.Button;
-import javafx.scene.control.ComboBox;
-import javafx.scene.control.Control;
-import javafx.scene.control.Label;
-import javafx.scene.control.ToggleButton;
-import javafx.scene.control.Tooltip;
+import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
@@ -178,6 +173,22 @@ public class WorldViewController extends BorderPane implements Listener
 //		{
 //			InformativePopupManager.getInstance().requestPopup(dungeon.dPane, PresentableInformation.NO_BOSS_YET, "");
 //		}
+
+		if (!dungeon.getQuest().isFeasible()){
+			Alert alert = new Alert(Alert.AlertType.WARNING,
+					"Something in the dungeon has changed.\n" +
+					"One or more actions' preconditions are no longer met. \n" +
+							"Enter the Quest-editor to see which actions that caused this error.\n" +
+							"To fix this, either change the tiles or change the actions.",
+					ButtonType.OK);
+			alert.setTitle("QUEST NOT FEASIBLE");
+			Image image = new Image("graphics/mesopatterns/ambush.png");
+			ImageView imageview = new ImageView(image);
+			imageview.setFitWidth(100);
+			imageview.setFitHeight(100);
+			alert.setGraphic(imageview);
+			alert.showAndWait();
+		}
 	}
 	
 	/**

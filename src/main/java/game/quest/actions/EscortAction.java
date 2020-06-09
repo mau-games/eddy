@@ -1,5 +1,6 @@
 package game.quest.actions;
 
+import game.Tile;
 import game.quest.Action;
 import game.quest.ActionType;
 
@@ -20,6 +21,12 @@ public class EscortAction extends Action {
 
     public EscortAction(ActionType type) {
         super(type);
+    }
+
+    @Override
+    public void checkConditions() {
+        Tile tile = getRoom().getTile(getPosition().getX(),getPosition().getY());
+        setPrecondition(tile.GetType().isNPC());
     }
 }
 

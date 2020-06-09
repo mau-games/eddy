@@ -1,5 +1,6 @@
 package game.quest.actions;
 
+import game.Tile;
 import game.quest.Action;
 import game.quest.ActionType;
 
@@ -18,6 +19,12 @@ public class ReportAction extends Action {
 
     public ReportAction(ActionType type) {
         super(type);
+    }
+
+    @Override
+    public void checkConditions() {
+        Tile tile = getRoom().getTile(getPosition().getX(),getPosition().getY());
+        setPrecondition(tile.GetType().isNPC());
     }
 }
 

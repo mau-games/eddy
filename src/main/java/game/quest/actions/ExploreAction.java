@@ -1,5 +1,6 @@
 package game.quest.actions;
 
+import game.Tile;
 import game.quest.Action;
 import game.quest.ActionType;
 
@@ -19,6 +20,13 @@ public class ExploreAction extends Action {
 
     public ExploreAction(ActionType type) {
         super(type);
+    }
+
+    @Override
+    public void checkConditions() {
+        setPrecondition(getRoom().walkablePositions.stream().anyMatch(walkablePosition ->
+                walkablePosition.getPoint().getX() == getPosition().getX() &&
+                walkablePosition.getPoint().getY() == getPosition().getY()));
     }
 }
 

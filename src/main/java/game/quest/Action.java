@@ -9,7 +9,7 @@ import java.util.UUID;
  * @author Eric Grevillius
  * @author Elin Olsson
  */
-public class Action {
+public abstract class Action {
     private UUID id;
     private boolean precondition;
     private ActionType type;
@@ -18,7 +18,7 @@ public class Action {
     private String name;
 
     public Action() {
-        precondition = false;
+        precondition = true;
     }
 
     public Action(boolean precondition) {
@@ -86,10 +86,10 @@ public class Action {
         this.position.setY(y);
     }
 
-    public Action copy()
-    {
-        return new Action(this);
-    }
+//    public abstract Action copy();
+//    {
+//        return new Action(this);
+//    }
 
     public Room getRoom() {
         return room;
@@ -98,4 +98,6 @@ public class Action {
     public void setRoom(Room room) {
         this.room = room;
     }
+
+    public abstract void checkConditions();
 }
