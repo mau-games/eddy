@@ -175,7 +175,7 @@ public class WorldViewController extends BorderPane implements Listener
 //		}
 
 		if (!dungeon.getQuest().isFeasible()){
-			Alert alert = new Alert(Alert.AlertType.WARNING,
+			Alert alert = new Alert(Alert.AlertType.INFORMATION,
 					"Something in the dungeon has changed.\n" +
 					"One or more actions' preconditions are no longer met. \n" +
 							"Enter the Quest-editor to see which actions that caused this error.\n" +
@@ -186,6 +186,7 @@ public class WorldViewController extends BorderPane implements Listener
 			ImageView imageview = new ImageView(image);
 			imageview.setFitWidth(100);
 			imageview.setFitHeight(100);
+			alert.setHeaderText("");
 			alert.setGraphic(imageview);
 			alert.showAndWait();
 		}

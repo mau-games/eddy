@@ -396,8 +396,8 @@ public class QuestViewController extends BorderPane implements Listener {
             firstTime = false;
             //disable current dungeon brush so accidents wont happen :)
             DungeonDrawer.getInstance().changeBrushTo(DungeonDrawer.DungeonBrushes.NONE);
-            final boolean[] IsAnyDisabled = {false};
             //refresh toolbarActionToggleButton
+            final boolean[] IsAnyDisabled = {false};
             tbQuestTools.getItems().forEach(node -> {
                 String buttonID = ((ToggleButton) node).getTooltip().getText();
                 boolean disable = dungeon.getQuest().getAvailableActions().stream()
@@ -411,6 +411,7 @@ public class QuestViewController extends BorderPane implements Listener {
                 InformativePopupManager.getInstance()
                         .requestPopup(dungeon.dPane, PresentableInformation.ACTION_NOT_AVAILABLE, "");
             }
+            //check the validity of each action
             questPane.getChildren().filtered(node -> node instanceof ToggleButton).forEach(node -> {
                 if (dungeon.getQuest().getAction(UUID.fromString(node.getId())).isPreconditionMet()){
                     node.getStyleClass().remove("danger");
@@ -418,6 +419,9 @@ public class QuestViewController extends BorderPane implements Listener {
                     node.getStyleClass().add("danger");
                 }
             });
+            if (togglePath.isSelected()){
+                calculateAndPaintQuestPath();
+            }
             initGeneratorPane();
         } else if (e instanceof QuestPositionUpdate) {
             doublePosition = ((QuestPositionUpdate) e).isSecondPosition();
@@ -782,6 +786,7 @@ public class QuestViewController extends BorderPane implements Listener {
 
     @FXML
     private void backWorldView(ActionEvent event) throws IOException {
+        unpaintPath();
         router.postEvent(new StopQuestGeneration());
         router.postEvent(new RequestDisplayQuestTilesUnselection(false));
         DungeonDrawer.getInstance().changeBrushTo(DungeonDrawer.DungeonBrushes.MOVEMENT);

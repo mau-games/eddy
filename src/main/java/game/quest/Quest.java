@@ -46,16 +46,19 @@ public class Quest {
 
     public void addActions(Action... actions){
         Collections.addAll(this.actions, actions);
+        feasible = this.actions.stream().allMatch(Action::isPreconditionMet);
     }
 
     public void addActionsAt(int index, Action... actions) {
         for (Action a : actions) {
             this.actions.add(index++, a);
         }
+        feasible = this.actions.stream().allMatch(Action::isPreconditionMet);
     }
 
     public void removeAction(Action action){
         this.actions.remove(action);
+        feasible = this.actions.stream().allMatch(Action::isPreconditionMet);
     }
 
     public int indexOf(Action action){

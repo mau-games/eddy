@@ -22,11 +22,15 @@ public class CaptureAction extends Action {
 
     @Override
     public void checkConditions() {
+        getRoom().isIntraFeasible();
         Tile tile = getRoom().getTile(getPosition().getX(),getPosition().getY());
         setPrecondition(
-                tile.GetType().isEnemyBoss() ||
-                tile.GetType().isEnemy() ||
-                tile.GetType().isNPC()
+                getRoom().walkablePositions.stream().anyMatch(walkablePosition ->
+                        walkablePosition.getPoint().getX() == getPosition().getX() &&
+                        walkablePosition.getPoint().getY() == getPosition().getY()) &&
+                        (tile.GetType().isEnemyBoss() ||
+                        tile.GetType().isEnemy() ||
+                        tile.GetType().isNPC())
         );
     }
 }

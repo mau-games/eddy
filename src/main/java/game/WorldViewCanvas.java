@@ -26,6 +26,7 @@ import util.eventrouting.events.*;
 import java.lang.reflect.Array;
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class WorldViewCanvas 
 {
@@ -141,26 +142,39 @@ public class WorldViewCanvas
 			tileCanvas.setVisible(true);
 			questBitmap.clearAllPoints();
 			((List<TileTypes>)e.getPayload()).forEach(tileTypes -> {
+				owner.isIntraFeasible();
+				List<finder.geometry.Point> walkableTilesPoints = owner.walkableTiles.getPoints();
+
 				switch(tileTypes){
 					case NPC:
-						questBitmap.AddAllPoints(owner.npcTiles.getPoints());
+						questBitmap
+								.AddAllPoints(owner.npcTiles.getPoints()
+										.stream()
+										.filter(point -> walkableTilesPoints.stream().anyMatch(point::equals))
+										.collect(Collectors.toList()));
 						break;
 					case ENEMY:
-						questBitmap.AddAllPoints(owner.enemyTiles.getPoints());
+						questBitmap.AddAllPoints(owner.enemyTiles.getPoints().stream()
+								.filter(point -> walkableTilesPoints.stream().anyMatch(point::equals))
+								.collect(Collectors.toList()));
 						break;
 					case TREASURE:
-						questBitmap.AddAllPoints(owner.treasureTiles.getPoints());
+						questBitmap.AddAllPoints(owner.treasureTiles.getPoints().stream()
+								.filter(point -> walkableTilesPoints.stream().anyMatch(point::equals))
+								.collect(Collectors.toList()));
 						break;
 					case ENEMY_BOSS:
-						questBitmap.AddAllPoints(owner.bossTiles.getPoints());
+						questBitmap.AddAllPoints(owner.bossTiles.getPoints().stream()
+								.filter(point -> walkableTilesPoints.stream().anyMatch(point::equals))
+								.collect(Collectors.toList()));
 						break;
 					case ITEM:
-						questBitmap.AddAllPoints(owner.itemTiles.getPoints());
+						questBitmap.AddAllPoints(owner.itemTiles.getPoints().stream()
+								.filter(point -> walkableTilesPoints.stream().anyMatch(point::equals))
+								.collect(Collectors.toList()));
 						break;
 					case FLOOR:
-						//TODO: needs tweaking
-						owner.isIntraFeasible();
-						questBitmap.AddAllPoints(owner.walkableTiles.getPoints());
+						questBitmap.AddAllPoints(walkableTilesPoints);
 						break;
 				}
 		});
