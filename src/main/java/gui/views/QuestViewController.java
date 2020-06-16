@@ -331,10 +331,6 @@ public class QuestViewController extends BorderPane implements Listener {
         canvas = new LabeledCanvas();
         questGrammar = new QuestGrammar(dungeon);
         suggestedActions = new ArrayList<Action>();
-
-//        regenerateButton.addEventHandler(MouseEvent.MOUSE_CLICKED, event -> router.postEvent(new ));
-
-//        generateSuggestions();
         router.postEvent(new StartQuestGeneration(dungeon.getQuest(), questGrammar, dungeon.getAllRooms().size() * 5));
         globalQuestIndex = 0;
         updateIndexToGenerator();
@@ -394,9 +390,7 @@ public class QuestViewController extends BorderPane implements Listener {
                 alert.showAndWait();
             }
             firstTime = false;
-            //disable current dungeon brush so accidents wont happen :)
             DungeonDrawer.getInstance().changeBrushTo(DungeonDrawer.DungeonBrushes.NONE);
-            //refresh toolbarActionToggleButton
             final boolean[] IsAnyDisabled = {false};
             tbQuestTools.getItems().forEach(node -> {
                 String buttonID = ((ToggleButton) node).getTooltip().getText();
@@ -437,8 +431,6 @@ public class QuestViewController extends BorderPane implements Listener {
                             globalQuestIndex = dungeon.getQuest().getActions().size();
                             updateIndexToGenerator();
                         });
-
-                //do stuff to select the second position and make sure it doesn't loop around
                 doublePosition = false;
             } else {
                 updatedPosition = (QuestPositionUpdate) e;
@@ -491,22 +483,6 @@ public class QuestViewController extends BorderPane implements Listener {
 
                 Platform.runLater(this::reRenderGeneratedAction);
             }
-//            reRenderGeneratedAction();
-//            AtomicBoolean added = new AtomicBoolean(false);
-//            ((QuestSuggestionUpdate) e).getQuests().forEach(quest -> {
-//                if (suggestedQuests.isEmpty()){
-//                    added.set(suggestedQuests.add(quest));
-//                } else {
-//                    boolean noneMatch = suggestedQuests.stream().anyMatch(quest::notEquals);
-//                    if (noneMatch){
-//                        added.set(suggestedQuests.add(quest));
-//                    }
-//                }
-//            });
-//            if (added.get()) {
-//                System.out.println("Quest suggestion added");
-//                Platform.runLater(this::reRenderGeneratedAction);
-//            }
         }
     }
 

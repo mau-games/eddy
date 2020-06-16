@@ -52,13 +52,10 @@
 
                 <ToolBar fx:id="tbQuestTools" orientation="VERTICAL" prefWidth="150.0" style="-fx-background-color: black;">
 
-                    <ToggleButton id="CAPTURE" disable="true" maxWidth="1.7976931348623157E308" mnemonicParsing="false" text="CAPTURE">
+                    <ToggleButton id="CAPTURE" disable="true" maxWidth="1.7976931348623157E308" mnemonicParsing="false" text="CAPTURE" toggleGroup="$questActionsTools">
                         <tooltip><Tooltip text="CAPTURE" /> </tooltip>
-                  <toggleGroup>
-                     <ToggleGroup fx:id="questActionsTools" />
-                  </toggleGroup>
                     </ToggleButton>
-                    <ToggleButton id="DAMAGE" disable="true" maxWidth="1.7976931348623157E308" mnemonicParsing="false" text="DAMAGE">
+                    <ToggleButton id="DAMAGE" disable="true" maxWidth="1.7976931348623157E308" mnemonicParsing="false" text="DAMAGE" toggleGroup="$questActionsTools">
                         <tooltip><Tooltip text="DAMAGE" /> </tooltip>
                     </ToggleButton>
                     <ToggleButton id="DEFEND" disable="true" maxWidth="1.7976931348623157E308" mnemonicParsing="false" text="DEFEND" toggleGroup="$questActionsTools">
@@ -158,7 +155,6 @@
                          <Font size="24.0" />
                      </font>
                 </Label>
-                <Button fx:id="regenerateButton" maxWidth="1.7976931348623157E308" text="Re-generate" textAlignment="CENTER" />
              </VBox>
          </top>
        </BorderPane>
