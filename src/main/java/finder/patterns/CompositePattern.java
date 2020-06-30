@@ -14,6 +14,8 @@ import game.Room;
  */
 public abstract class CompositePattern extends Pattern {
 	
+	protected double quality;
+	
 	protected List<Pattern> patterns = new ArrayList<Pattern>();
 	
 	/**
@@ -27,5 +29,13 @@ public abstract class CompositePattern extends Pattern {
 	
 	public static List<CompositePattern> matches(Room room, Graph<Pattern> patternGraph, List<CompositePattern> currentMeso) {
 		return new ArrayList<CompositePattern>();
+	}
+	
+	public double getQuality() {
+		return quality;
+	}
+	
+	public void setQuality(double value) {
+		quality = value;
 	}
 }

@@ -25,6 +25,9 @@ import finder.patterns.CompositePattern;
 import finder.patterns.InventorialPattern;
 import finder.patterns.Pattern;
 import finder.patterns.SpacialPattern;
+import finder.patterns.macro.DefeatBoss;
+import finder.patterns.macro.DefeatEnemies;
+import finder.patterns.macro.FindTreasure;
 import finder.patterns.meso.Ambush;
 import finder.patterns.meso.ChokePoint;
 import finder.patterns.meso.DeadEnd;
@@ -772,6 +775,17 @@ public class MapRenderer implements Listener {
 		}
 	}
 	
+	public void drawMacroPatterns(GraphicsContext ctx, float width, float height, CompositePattern objective, Color color)
+	{
+		Point center = new Point ((int)width / 2, (int)height / 2);
+		Image image = getMesoPatternImage(objective);
+		float scale = 0.25f;
+		Point offset = new Point((int)(image.getWidth() / 2 * scale), (int)(image.getHeight() / 2 * scale));
+		
+		drawArbitraryRectangle(ctx, center, width, height, color);
+		ctx.drawImage(image, center.getX() - offset.getX(), center.getY() - offset.getY(), image.getWidth() * scale, image.getHeight() * scale);
+	}
+	
 	private Point getPatternCentre(SpacialPattern p, double pWidth){
 		Point sum = ((Bitmap)p.getGeometry()).getPoints().stream().reduce(new Point(),(Point result, Point point)->{result.setX(result.getX()+point.getX()); result.setY(result.getY()+point.getY());return result;});
 		double x = (double)sum.getX()/((Bitmap)p.getGeometry()).getNumberOfPoints();
@@ -940,13 +954,13 @@ public class MapRenderer implements Listener {
 	
 	private Image getMesoPatternImage(Pattern p){
 		Image image = null;
-		if(p instanceof TreasureRoom){
+		if(p instanceof TreasureRoom || p instanceof FindTreasure){
 			image = new Image("/graphics/mesopatterns/treasure_room.png");
-		} else if (p instanceof GuardRoom){
+		} else if (p instanceof GuardRoom || p instanceof DefeatEnemies){
 			image = new Image("/graphics/mesopatterns/guard_room.png");
 		} else if (p instanceof GuardedTreasure){
 			image = new Image("/graphics/mesopatterns/guarded_treasure.png");
-		} else if (p instanceof Ambush){
+		} else if (p instanceof Ambush || p instanceof DefeatBoss){
 			image = new Image("/graphics/mesopatterns/ambush.png");
 		}
 		return image;

@@ -101,7 +101,7 @@ public class DeadEnd extends CompositePattern {
 		List<Pattern> finalPatterns = new ArrayList<Pattern>(); //IDK if I should add everything together! 
 		patternGraph.resetGraph();
 		
-		//TODO: This can be optimized!! ik noW!
+		//TODO: This can be optimized!! I know!
 		while(!patternQueue.isEmpty()){
 			
 			Node<Pattern> current = patternQueue.remove();
