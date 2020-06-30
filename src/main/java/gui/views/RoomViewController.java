@@ -1512,7 +1512,6 @@ public class RoomViewController extends BorderPane implements Listener
 				if(myBrush.GetModifierValue("Lock"))
 				{
 					InformativePopupManager.getInstance().requestPopup(mapView, PresentableInformation.LOCK_RESTART, "");
-
 				}
 				
 				mapView.updateTile(tile, myBrush);

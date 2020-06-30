@@ -271,6 +271,7 @@ public class EvolutionMAPEPane extends AnchorPane implements Listener
 				LabeledCanvas canvas;
 				synchronized (roomDisplays) {
 					
+					//TODO: Change here if you want to 
 					renderCell(generatedRooms, currentDimensions.length - 1, 
 							new float [] {currentDimensions[0].getGranularity(), currentDimensions[1].getGranularity()}, new int[] {0,0});
 				}

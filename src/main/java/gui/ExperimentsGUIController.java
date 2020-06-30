@@ -261,49 +261,55 @@ public class ExperimentsGUIController implements Initializable, Listener {
 		router.postEvent(new RoomEditionStarted(currentEditRoom));
 		
 		//All the combinations I want
+//		possibleCombinations.add(new MAPEDimensionFXML[]{new MAPEDimensionFXML(DimensionTypes.SYMMETRY, 5), 
+//				new MAPEDimensionFXML(DimensionTypes.SIMILARITY, 5)});
+//		possibleCombinations.add(new MAPEDimensionFXML[]{new MAPEDimensionFXML(DimensionTypes.SYMMETRY, 5), 
+//				new MAPEDimensionFXML(DimensionTypes.INNER_SIMILARITY, 5)});
+//		possibleCombinations.add(new MAPEDimensionFXML[]{new MAPEDimensionFXML(DimensionTypes.SYMMETRY, 5), 
+//				new MAPEDimensionFXML(DimensionTypes.LENIENCY, 5)});
+//		possibleCombinations.add(new MAPEDimensionFXML[]{new MAPEDimensionFXML(DimensionTypes.SYMMETRY, 5), 
+//				new MAPEDimensionFXML(DimensionTypes.LINEARITY, 5)});
+//		possibleCombinations.add(new MAPEDimensionFXML[]{new MAPEDimensionFXML(DimensionTypes.SYMMETRY, 5), 
+//				new MAPEDimensionFXML(DimensionTypes.NUMBER_MESO_PATTERN, 5)});
+//		possibleCombinations.add(new MAPEDimensionFXML[]{new MAPEDimensionFXML(DimensionTypes.SYMMETRY, 5), 
+//				new MAPEDimensionFXML(DimensionTypes.NUMBER_PATTERNS, 5)});
+//		possibleCombinations.add(new MAPEDimensionFXML[]{new MAPEDimensionFXML(DimensionTypes.SIMILARITY, 5), 
+//				new MAPEDimensionFXML(DimensionTypes.INNER_SIMILARITY, 5)});
+//		possibleCombinations.add(new MAPEDimensionFXML[]{new MAPEDimensionFXML(DimensionTypes.SIMILARITY, 5), 
+//				new MAPEDimensionFXML(DimensionTypes.LENIENCY, 5)});
+//		possibleCombinations.add(new MAPEDimensionFXML[]{new MAPEDimensionFXML(DimensionTypes.SIMILARITY, 5), 
+//				new MAPEDimensionFXML(DimensionTypes.LINEARITY, 5)});
+//		possibleCombinations.add(new MAPEDimensionFXML[]{new MAPEDimensionFXML(DimensionTypes.SIMILARITY, 5), 
+//				new MAPEDimensionFXML(DimensionTypes.NUMBER_MESO_PATTERN, 5)});
+//		possibleCombinations.add(new MAPEDimensionFXML[]{new MAPEDimensionFXML(DimensionTypes.SIMILARITY, 5), 
+//				new MAPEDimensionFXML(DimensionTypes.NUMBER_PATTERNS, 5)});
+//		possibleCombinations.add(new MAPEDimensionFXML[]{new MAPEDimensionFXML(DimensionTypes.INNER_SIMILARITY, 5), 
+//				new MAPEDimensionFXML(DimensionTypes.LENIENCY, 5)});
+//		possibleCombinations.add(new MAPEDimensionFXML[]{new MAPEDimensionFXML(DimensionTypes.INNER_SIMILARITY, 5), 
+//				new MAPEDimensionFXML(DimensionTypes.LINEARITY, 5)});
+//		possibleCombinations.add(new MAPEDimensionFXML[]{new MAPEDimensionFXML(DimensionTypes.INNER_SIMILARITY, 5), 
+//				new MAPEDimensionFXML(DimensionTypes.NUMBER_MESO_PATTERN, 5)});
+//		possibleCombinations.add(new MAPEDimensionFXML[]{new MAPEDimensionFXML(DimensionTypes.INNER_SIMILARITY, 5), 
+//				new MAPEDimensionFXML(DimensionTypes.NUMBER_PATTERNS, 5)}); 
+//		possibleCombinations.add(new MAPEDimensionFXML[]{new MAPEDimensionFXML(DimensionTypes.LENIENCY, 5), 
+//				new MAPEDimensionFXML(DimensionTypes.LINEARITY, 5)});
+//		possibleCombinations.add(new MAPEDimensionFXML[]{new MAPEDimensionFXML(DimensionTypes.LENIENCY, 5), 
+//				new MAPEDimensionFXML(DimensionTypes.NUMBER_MESO_PATTERN, 5)});
+//		possibleCombinations.add(new MAPEDimensionFXML[]{new MAPEDimensionFXML(DimensionTypes.LENIENCY, 5), 
+//				new MAPEDimensionFXML(DimensionTypes.NUMBER_PATTERNS, 5)});
+//		possibleCombinations.add(new MAPEDimensionFXML[]{new MAPEDimensionFXML(DimensionTypes.LINEARITY, 5), 
+//				new MAPEDimensionFXML(DimensionTypes.NUMBER_MESO_PATTERN, 5)});
+//		possibleCombinations.add(new MAPEDimensionFXML[]{new MAPEDimensionFXML(DimensionTypes.LINEARITY, 5), 
+//				new MAPEDimensionFXML(DimensionTypes.NUMBER_PATTERNS, 5)});
+//		possibleCombinations.add(new MAPEDimensionFXML[]{new MAPEDimensionFXML(DimensionTypes.NUMBER_MESO_PATTERN, 5), 
+//				new MAPEDimensionFXML(DimensionTypes.NUMBER_PATTERNS, 5)});
 		possibleCombinations.add(new MAPEDimensionFXML[]{new MAPEDimensionFXML(DimensionTypes.SYMMETRY, 5), 
-				new MAPEDimensionFXML(DimensionTypes.SIMILARITY, 5)});
-		possibleCombinations.add(new MAPEDimensionFXML[]{new MAPEDimensionFXML(DimensionTypes.SYMMETRY, 5), 
-				new MAPEDimensionFXML(DimensionTypes.INNER_SIMILARITY, 5)});
-		possibleCombinations.add(new MAPEDimensionFXML[]{new MAPEDimensionFXML(DimensionTypes.SYMMETRY, 5), 
-				new MAPEDimensionFXML(DimensionTypes.LENIENCY, 5)});
-		possibleCombinations.add(new MAPEDimensionFXML[]{new MAPEDimensionFXML(DimensionTypes.SYMMETRY, 5), 
+				new MAPEDimensionFXML(DimensionTypes.SIMILARITY, 5),
+				new MAPEDimensionFXML(DimensionTypes.NUMBER_MESO_PATTERN, 5), 
+				new MAPEDimensionFXML(DimensionTypes.NUMBER_PATTERNS, 5),
+				new MAPEDimensionFXML(DimensionTypes.INNER_SIMILARITY, 5),
+				new MAPEDimensionFXML(DimensionTypes.LENIENCY, 5), 
 				new MAPEDimensionFXML(DimensionTypes.LINEARITY, 5)});
-		possibleCombinations.add(new MAPEDimensionFXML[]{new MAPEDimensionFXML(DimensionTypes.SYMMETRY, 5), 
-				new MAPEDimensionFXML(DimensionTypes.NUMBER_MESO_PATTERN, 5)});
-		possibleCombinations.add(new MAPEDimensionFXML[]{new MAPEDimensionFXML(DimensionTypes.SYMMETRY, 5), 
-				new MAPEDimensionFXML(DimensionTypes.NUMBER_PATTERNS, 5)});
-		possibleCombinations.add(new MAPEDimensionFXML[]{new MAPEDimensionFXML(DimensionTypes.SIMILARITY, 5), 
-				new MAPEDimensionFXML(DimensionTypes.INNER_SIMILARITY, 5)});
-		possibleCombinations.add(new MAPEDimensionFXML[]{new MAPEDimensionFXML(DimensionTypes.SIMILARITY, 5), 
-				new MAPEDimensionFXML(DimensionTypes.LENIENCY, 5)});
-		possibleCombinations.add(new MAPEDimensionFXML[]{new MAPEDimensionFXML(DimensionTypes.SIMILARITY, 5), 
-				new MAPEDimensionFXML(DimensionTypes.LINEARITY, 5)});
-		possibleCombinations.add(new MAPEDimensionFXML[]{new MAPEDimensionFXML(DimensionTypes.SIMILARITY, 5), 
-				new MAPEDimensionFXML(DimensionTypes.NUMBER_MESO_PATTERN, 5)});
-		possibleCombinations.add(new MAPEDimensionFXML[]{new MAPEDimensionFXML(DimensionTypes.SIMILARITY, 5), 
-				new MAPEDimensionFXML(DimensionTypes.NUMBER_PATTERNS, 5)});
-		possibleCombinations.add(new MAPEDimensionFXML[]{new MAPEDimensionFXML(DimensionTypes.INNER_SIMILARITY, 5), 
-				new MAPEDimensionFXML(DimensionTypes.LENIENCY, 5)});
-		possibleCombinations.add(new MAPEDimensionFXML[]{new MAPEDimensionFXML(DimensionTypes.INNER_SIMILARITY, 5), 
-				new MAPEDimensionFXML(DimensionTypes.LINEARITY, 5)});
-		possibleCombinations.add(new MAPEDimensionFXML[]{new MAPEDimensionFXML(DimensionTypes.INNER_SIMILARITY, 5), 
-				new MAPEDimensionFXML(DimensionTypes.NUMBER_MESO_PATTERN, 5)});
-		possibleCombinations.add(new MAPEDimensionFXML[]{new MAPEDimensionFXML(DimensionTypes.INNER_SIMILARITY, 5), 
-				new MAPEDimensionFXML(DimensionTypes.NUMBER_PATTERNS, 5)});
-		possibleCombinations.add(new MAPEDimensionFXML[]{new MAPEDimensionFXML(DimensionTypes.LENIENCY, 5), 
-				new MAPEDimensionFXML(DimensionTypes.LINEARITY, 5)});
-		possibleCombinations.add(new MAPEDimensionFXML[]{new MAPEDimensionFXML(DimensionTypes.LENIENCY, 5), 
-				new MAPEDimensionFXML(DimensionTypes.NUMBER_MESO_PATTERN, 5)});
-		possibleCombinations.add(new MAPEDimensionFXML[]{new MAPEDimensionFXML(DimensionTypes.LENIENCY, 5), 
-				new MAPEDimensionFXML(DimensionTypes.NUMBER_PATTERNS, 5)});
-		possibleCombinations.add(new MAPEDimensionFXML[]{new MAPEDimensionFXML(DimensionTypes.LINEARITY, 5), 
-				new MAPEDimensionFXML(DimensionTypes.NUMBER_MESO_PATTERN, 5)});
-		possibleCombinations.add(new MAPEDimensionFXML[]{new MAPEDimensionFXML(DimensionTypes.LINEARITY, 5), 
-				new MAPEDimensionFXML(DimensionTypes.NUMBER_PATTERNS, 5)});
-		possibleCombinations.add(new MAPEDimensionFXML[]{new MAPEDimensionFXML(DimensionTypes.NUMBER_MESO_PATTERN, 5), 
-				new MAPEDimensionFXML(DimensionTypes.NUMBER_PATTERNS, 5)});
-		
 	}
 	
 	@Override
@@ -326,6 +332,7 @@ public class ExperimentsGUIController implements Initializable, Listener {
 			{
 				if(counter == 0)
 				{
+					currentCombination++;
 					if(!useOurCombs || currentCombination >= possibleCombinations.size())
 					{
 						runningExperiment = false;
@@ -1087,6 +1094,9 @@ public class ExperimentsGUIController implements Initializable, Listener {
 		index = Integer.parseInt(fromTF.getText());
 		counter = counter - index;
 		
+//		index = 0;
+//		counter = 50;
+//		
         counter--;
         runningExperiment = true;
         
@@ -1104,8 +1114,8 @@ public class ExperimentsGUIController implements Initializable, Listener {
     		        }
     		    	
     		        //your job- Should be changed to a specific method.
+//    		    	initializeExperiment(currentEditRoom.getEditionSequence().get(index)); //This for not changing
     		    	initializeExperiment(currentEditRoom.getEditionSequence().get(index++));
-    		    	
     		        counter--;
     		        
     		    }
@@ -1114,11 +1124,11 @@ public class ExperimentsGUIController implements Initializable, Listener {
         else if(experimentType == SequenceExperiment.EVOLUTIONARY) //THE ACTUAL EXPERIMENT!
         {
         	initializeExperiment(currentEditRoom.getEditionSequence().get(index++));
-        	
+//	    	initializeExperiment(currentEditRoom.getEditionSequence().get(index)); //This for not changing
         	Platform.runLater(() -> {
         		if(useOurCombs)
             	{
-            		router.postEvent(new RestartDimensionsExperiment(possibleCombinations.get(currentCombination++)));
+            		router.postEvent(new RestartDimensionsExperiment(possibleCombinations.get(currentCombination)));
             	}
 			});     	
         }
@@ -1314,7 +1324,7 @@ public class ExperimentsGUIController implements Initializable, Listener {
 		if(!file.exists())
 		{
 			data.append("filename;Leniency;Linearity;Similarity;NMesoPatterns;NSpatialPatterns;Symmetry;Inner Similarity;Fitness;"
-					+ "Type" + System.lineSeparator());
+					+ "Score;DIM X;DIM Y;STEP;Gen;Type" + System.lineSeparator());
 		}
 		
 		data.append(currentEditRoom.specificID.toString() + ";");
@@ -1326,9 +1336,14 @@ public class ExperimentsGUIController implements Initializable, Listener {
 		data.append(symText.getText() + ";");
 		data.append(1.0 + ";");
 		data.append(fitnessText.getText() + ";");
+		data.append("1.0;");
+		data.append(possibleCombinations.get(currentCombination)[0].getDimension() + ";");
+	    data.append(possibleCombinations.get(currentCombination)[1].getDimension() + ";");
+	    data.append(index - 1 + ";");
+	    data.append(0 + ";");
 		data.append("ER" + System.lineSeparator());
 
-
+		;
 		try {
 			FileUtils.write(file, data, true);
 		} catch (IOException e) {

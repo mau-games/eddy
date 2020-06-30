@@ -567,6 +567,13 @@ public class MAPEliteAlgorithm extends Algorithm implements Listener {
     			currentSaveStep++;
     			EventRouter.getInstance().postEvent(new NextStepSequenceExperiment());
     			System.out.println(realCurrentGen);
+    			int cellsFilled = 0;
+    			for(GACell cell : cells)
+    			{
+    				if(!cell.GetFeasiblePopulation().isEmpty())
+    					cellsFilled++;
+    			}
+    			System.out.println("cells filled: " + cellsFilled + "; cell count: " + cells.size());
     		}
     		
 //    		System.out.println(realCurrentGen);
