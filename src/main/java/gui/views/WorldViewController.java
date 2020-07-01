@@ -1,5 +1,6 @@
 package gui.views;
 
+import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -400,7 +401,7 @@ public class WorldViewController extends BorderPane implements Listener
 		ConfigurationUtility c = config.getInternalConfig();
 		
 		//ADD ROOM
-		ImageView brushBtnImage = new ImageView(new Image(c.getString("map.dungeonbrushes.addRoom"), 200, 200, true, true));
+		ImageView brushBtnImage = new ImageView(new Image(this.getClass().getResourceAsStream("/" + c.getString("map.dungeonbrushes.addRoom")), 200, 200, true, true));
 //		BorderPane imageViewWrapper = new BorderPane(brushBtnImage);
 		createNewRoomBtn.setGraphic(brushBtnImage);
 		createNewRoomBtn.setStyle("-fx-background-color: transparent; -fx-padding: 5;\r\n" + 

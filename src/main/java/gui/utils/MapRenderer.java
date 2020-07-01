@@ -1,6 +1,8 @@
 package gui.utils;
 
 import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Dictionary;
 import java.util.LinkedList;
@@ -883,31 +885,32 @@ public class MapRenderer implements Listener {
 		
 		switch (TileTypes.toTileType(pixel)) {
 		case DOOR:
-			image = new Image("/" + config.getInternalConfig().getString("map.tiles.door"), width, height, false, true);
+			image = new Image(this.getClass().getResourceAsStream("/" + config.getInternalConfig().getString("map.tiles.door")), width, height, false, true);
 			break;
 		case TREASURE:
-			image = new Image("/" + config.getInternalConfig().getString("map.tiles.treasure"), width, height, false, true);
+			image = new Image(this.getClass().getResourceAsStream("/" + config.getInternalConfig().getString("map.tiles.treasure")), width, height, false, true);
 			break;
 		case ENEMY:
-			image = new Image("/" + config.getInternalConfig().getString("map.tiles.enemy"), width, height, false, true);
+			image = new Image(this.getClass().getResourceAsStream("/" + config.getInternalConfig().getString("map.tiles.enemy")), width, height, false, true);
 			break;
 		case ENEMY_BOSS:
-			image = new Image("/" + config.getInternalConfig().getString("map.tiles.enemy"), width, height, false, true);
+			image = new Image(this.getClass().getResourceAsStream("/" + config.getInternalConfig().getString("map.tiles.enemy")), width, height, false, true);
 			break;
 		case WALL:
-			image = new Image("/" + config.getInternalConfig().getString("map.tiles.wall"), width, height, false, true);
+			image = new Image(this.getClass().getResourceAsStream("/" + config.getInternalConfig().getString("map.tiles.wall")), width, height, false, true);
 			break;
 		case FLOOR:
-			image = new Image("/" + config.getInternalConfig().getString("map.tiles.floor"), width, height, false, true);
+			image = new Image(this.getClass().getResourceAsStream("/" + config.getInternalConfig().getString("map.tiles.floor")), width, height, false, true);
 			break;
 		case HERO:
-			image = new Image("/" + config.getInternalConfig().getString("map.tiles.hero"), width, height, false, true);
+			image = new Image(this.getClass().getResourceAsStream("/" + config.getInternalConfig().getString("map.tiles.hero")), width, height, false, true);
 			break;
 		case NPC:
-			image = new Image("/" + config.getInternalConfig().getString("map.tiles.npc"), width, height, false, true);
+			image = new Image(this.getClass().getResourceAsStream("/" + config.getInternalConfig().getString("map.tiles.npc")), width, height, false, true);
 			break;
 		case ITEM:
-			image = new Image("/" + config.getInternalConfig().getString("map.tiles.item"), width, height, false, true);
+
+			image = new Image(this.getClass().getResourceAsStream("/" + config.getInternalConfig().getString("map.tiles.item")), width, height, false, true);
 			break;
 			//TODO: add new tiles
 //		case DOORENTER:

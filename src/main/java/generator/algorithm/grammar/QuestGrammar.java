@@ -10,9 +10,12 @@ import game.quest.actions.*;
 import util.eventrouting.events.QuestPositionUpdate;
 
 import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
+
+import org.apache.commons.io.IOUtils;
 
 public class QuestGrammar {
     public enum QuestMotives {
@@ -407,15 +410,8 @@ public class QuestGrammar {
     private String readFile(String fileName){
         String toReturn = "";
         try {
-            ClassLoader loader = QuestGrammar.class.getClassLoader();
-            BufferedReader br = new BufferedReader(new FileReader(loader.getResource(fileName).getFile()));
-            StringBuilder builder = new StringBuilder();
-            String line = br.readLine();
-            while (line != null){
-                builder.append(line);
-                line = br.readLine();
-            }
-            toReturn = builder.toString();
+            ClassLoader loader = QuestGrammar.class.getClassLoader();           
+            toReturn = IOUtils.toString(this.getClass().getResourceAsStream("/" + fileName), StandardCharsets.UTF_8);
         } catch (Exception e) {
             e.printStackTrace();
         }
