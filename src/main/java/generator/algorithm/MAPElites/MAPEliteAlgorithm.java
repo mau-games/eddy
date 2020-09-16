@@ -501,7 +501,7 @@ public class MAPEliteAlgorithm extends Algorithm implements Listener {
     private void runNoInterbreedingApplElites()
     {
     	//Comment or uncomment to store unique rooms every generation (based on what is generated before)
-    	storeUniqueRooms();
+//    	storeUniqueRooms();
     	
     	//If we have receive the event that the dimensions changed, please modify the dimensions and recalculate the cells!
     	if(dimensionsChanged)
@@ -559,22 +559,23 @@ public class MAPEliteAlgorithm extends Algorithm implements Listener {
     		//TODO: For next evaluation
     		saveIterations--;
     		
-    		if(saveIterations == 0)
-    		{
-//    			System.out.println("NEXT");
-    			saveIterations=2;
-    			saveUniqueRoomsToFileAndFlush();
-    			currentSaveStep++;
-    			EventRouter.getInstance().postEvent(new NextStepSequenceExperiment());
-    			System.out.println(realCurrentGen);
-    			int cellsFilled = 0;
-    			for(GACell cell : cells)
-    			{
-    				if(!cell.GetFeasiblePopulation().isEmpty())
-    					cellsFilled++;
-    			}
-    			System.out.println("cells filled: " + cellsFilled + "; cell count: " + cells.size());
-    		}
+    		//Uncomment to save everytime we publish
+//    		if(saveIterations == 0)
+//    		{
+////    			System.out.println("NEXT");
+//    			saveIterations=2;
+//    			saveUniqueRoomsToFileAndFlush();
+//    			currentSaveStep++;
+//    			EventRouter.getInstance().postEvent(new NextStepSequenceExperiment());
+//    			System.out.println(realCurrentGen);
+//    			int cellsFilled = 0;
+//    			for(GACell cell : cells)
+//    			{
+//    				if(!cell.GetFeasiblePopulation().isEmpty())
+//    					cellsFilled++;
+//    			}
+//    			System.out.println("cells filled: " + cellsFilled + "; cell count: " + cells.size());
+//    		}
     		
 //    		System.out.println(realCurrentGen);
     		publishGeneration();
