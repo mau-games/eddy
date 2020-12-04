@@ -253,6 +253,11 @@ public class SymmetryGADimension extends GADimension {
     		}
     	}
     	
+//    	System.out.println("vertical: " + identicalVerticalSplit);
+//    	System.out.println("horizontal: " + identicalHorizontalSplit);
+//    	System.out.println("frontslash: " + identicalFrontslashDiagonalSplit);
+//    	System.out.println("backslahs: " + identicalBackslashDiagonalSplit);
+    	
     	// Find the highest symmetry
     	int highestSymmetric = 0;
     	highestSymmetric = highestSymmetric < identicalVerticalSplit ? identicalVerticalSplit : highestSymmetric;
@@ -260,6 +265,9 @@ public class SymmetryGADimension extends GADimension {
     	highestSymmetric = highestSymmetric < identicalFrontslashDiagonalSplit ? identicalFrontslashDiagonalSplit : highestSymmetric;
     	highestSymmetric = highestSymmetric < identicalBackslashDiagonalSplit ? identicalBackslashDiagonalSplit : highestSymmetric;
     	double symmetricFitness = 0;
+    	
+//    	System.out.println("bef. normalization: " + symmetricFitness);
+    	
     	if(totalWalls != 0)
     		symmetricFitness = (double)highestSymmetric / (double)totalWalls;
     	else
@@ -269,6 +277,8 @@ public class SymmetryGADimension extends GADimension {
     	
     	if(symmetricFitness > 1)
     		System.out.println("Problem with Symmetry, the value is higher than 1!!");
+    	
+//    	System.out.println(symmetricFitness);
     	
 		return symmetricFitness;
 	}

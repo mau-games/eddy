@@ -1,5 +1,7 @@
 package generator.algorithm;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -7,8 +9,10 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
 import java.util.UUID;
+import java.util.Map.Entry;
 import java.util.stream.Collectors;
 
+import org.apache.commons.io.FileUtils;
 
 import finder.PatternFinder;
 import finder.Populator;
@@ -33,6 +37,10 @@ import game.Room;
 import game.Tile;
 import game.MapContainer;
 import game.TileTypes;
+import generator.algorithm.MAPElites.GACell;
+import generator.algorithm.MAPElites.Dimensions.CharacteristicSimilarityGADimension;
+import generator.algorithm.MAPElites.Dimensions.SimilarityGADimension;
+import generator.algorithm.MAPElites.Dimensions.GADimension.DimensionTypes;
 import generator.config.GeneratorConfig;
 import machineLearning.PreferenceModel;
 import util.Point;
@@ -41,12 +49,20 @@ import util.algorithms.Node;
 import util.config.ConfigurationUtility;
 import util.config.MissingConfigurationException;
 import util.eventrouting.EventRouter;
+import util.eventrouting.Listener;
+import util.eventrouting.PCGEvent;
 import util.eventrouting.events.AlgorithmDone;
 import util.eventrouting.events.AlgorithmStarted;
 import util.eventrouting.events.GenerationDone;
+import util.eventrouting.events.MAPEGridUpdate;
 import util.eventrouting.events.MapUpdate;
+import util.eventrouting.events.NextStepSequenceExperiment;
+import util.eventrouting.events.RoomEdited;
+import util.eventrouting.events.SaveCurrentGeneration;
 import util.eventrouting.events.StatusMessage;
+import util.eventrouting.events.UpdatePreferenceModel;
 
+import game.AlgorithmSetup;
 /**
  * This class is the base class of genetic algorithms
  * It implements all the basic functionality of a FI-2POP strategies
@@ -56,7 +72,7 @@ import util.eventrouting.events.StatusMessage;
  * @author Alberto Alvarez, Malmö University
  *
  */
-public class Algorithm extends Thread {
+public class Algorithm extends Thread implements Listener {
 	protected UUID id;
 //	protected final Logger logger = LoggerFactory.getLogger(Algorithm.class);
 	protected GeneratorConfig config;
@@ -89,8 +105,29 @@ public class Algorithm extends Thread {
 	protected List<Tile> roomCustomTiles;
 	protected Dungeon roomOwner; //-->> This probably will need to be some  type of static variable with an instance.
 	
+	//For the Expressive range test
+	private int iterationsToPublish = 50;
+	private int breedingGenerations = 5; //this relates to how many generations will it breed 
+	private int realCurrentGen = 0;
+	private int currentGen = 0;
+	private int generations = 5000;
+	
+	
+//	ArrayList<Room> uniqueGeneratedRooms = new ArrayList<Room>();
+	HashMap<Room, Double[]> uniqueGeneratedRooms = new HashMap<Room, Double[]>();
+	HashMap<Room, Double[]> uniqueGeneratedRoomsFlush= new HashMap<Room, Double[]>();
+	HashMap<Room, Double[]> uniqueGeneratedRoomsSince = new HashMap<Room, Double[]>();
+	
+	StringBuilder uniqueRoomsData = new StringBuilder();
+	StringBuilder uniqueRoomsSinceData = new StringBuilder();
+	
+	private int saveIterations = 2;
+	private int currentSaveStep = 0;
+	
 	//This is for testing the preference MODEL TODO: for fitness
 	protected PreferenceModel userPreferences; //TODO: PROBABLY THIS WILL BE REPLACED for a class to calculate fitness in different manners!
+	
+	protected boolean save_data = false;
 
 	public enum AlgorithmTypes //TODO: This needs to change
 	{
@@ -147,7 +184,6 @@ public class Algorithm extends Thread {
 		
 		this.config = config;
 		
-		//TODO: What is this?
 		this.algorithmTypes = algorithmTypes;
 		if(algorithmTypes == AlgorithmTypes.Similarity)
 			this.algorithmTypes = AlgorithmTypes.Native;
@@ -185,14 +221,17 @@ public class Algorithm extends Thread {
 		this.algorithmTypes = algorithmTypes;
 		room.setConfig(this.config);
 		id = UUID.randomUUID();
-		populationSize = config.getPopulationSize();
+//		populationSize = config.getPopulationSize();
+		populationSize = 1250; //Setting same as experiments
 		mutationProbability = (float)config.getMutationProbability();
 		offspringSize = (float)config.getOffspringSize();
-		feasibleAmount = (int)((double)populationSize * config.getFeasibleProportion());
+//		feasibleAmount = (int)((double)populationSize * config.getFeasibleProportion());
+		feasibleAmount = 625; //Setting same as experiments
 		roomTarget = config.getRoomProportion();
 		corridorTarget = config.getCorridorProportion();
 		
-
+		this.save_data = AlgorithmSetup.getInstance().getSaveData();
+		
 		// Uncomment this for silly debugging
 //		System.out.println("Starting run #" + id);
 		
@@ -228,11 +267,23 @@ public class Algorithm extends Thread {
 
 	public void initPopulations(Room room){
 		broadcastStatusUpdate("Initialising...");
+		
+//		EventRouter.getInstance().registerListener(this, new SaveCurrentGeneration()); 
+		EventRouter.getInstance().registerListener(this, new MAPEGridUpdate(null));
+		EventRouter.getInstance().registerListener(this, new UpdatePreferenceModel(null));
+		EventRouter.getInstance().registerListener(this, new SaveCurrentGeneration());
+		EventRouter.getInstance().registerListener(this, new RoomEdited(null));
 				
 		feasiblePool = new ArrayList<ZoneIndividual>();
 		infeasiblePool = new ArrayList<ZoneIndividual>();
 		feasiblePopulation = new ArrayList<ZoneIndividual>();
 		infeasiblePopulation = new ArrayList<ZoneIndividual>();
+		
+		//initialize the data storage variables
+		uniqueRoomsData = new StringBuilder();
+		uniqueRoomsSinceData = new StringBuilder();
+		uniqueRoomsData.append("Leniency;Linearity;Similarity;NMesoPatterns;NSpatialPatterns;Symmetry;Inner Similarity;Fitness;Score;DIM X;DIM Y;STEP;Gen;Type" + System.lineSeparator());
+		uniqueRoomsSinceData.append("Leniency;Linearity;Similarity;NMesoPatterns;NSpatialPatterns;Symmetry;Inner Similarity;Fitness;Score;DIM X;DIM Y;STEP;Gen;Type" + System.lineSeparator());
 
 		int i = 0;
 		int j = 0;
@@ -291,6 +342,265 @@ public class Algorithm extends Thread {
 		broadcastStatusUpdate("Population generated.");
 	}
 	
+	@Override
+	public void ping(PCGEvent e) {
+		// TODO Auto-generated method stub
+		// TODO Auto-generated method stub
+		if(e instanceof MAPEGridUpdate)
+		{
+//			this.dimensions = ((MAPEGridUpdate) e).getDimensions(); 
+//			dimensionsChanged = true;
+		}
+		else if(e instanceof UpdatePreferenceModel) 
+		{
+			this.userPreferences = ((UpdatePreferenceModel) e).getCurrentUserModel(); 
+			//TODO: PLEASE CHANGE THIS
+//					RecreateCells();
+//			dimensionsChanged = true;
+		}
+		else if(e instanceof SaveCurrentGeneration)
+		{
+//			storeMAPELITESXml();
+		}
+		else if(e instanceof RoomEdited)
+		{
+			originalRoom = (Room) e.getPayload();
+		}
+	}
+	
+	protected void saveUniqueRoomsToFile()
+	{
+		String DIRECTORY= System.getProperty("user.dir") + "\\my-data\\expressive-range\\";
+		StringBuilder data = new StringBuilder();
+		
+		data.append("Leniency;Linearity;Similarity;NMesoPatterns;NSpatialPatterns;Symmetry;Inner Similarity;Fitness;GEN;Score" + System.lineSeparator());
+		
+		//Create the data:
+		for (Entry<Room, Double[]> entry : uniqueGeneratedRooms.entrySet()) 
+		{
+		    Room currentRoom = entry.getKey();
+		    data.append(currentRoom.getDimensionValue(DimensionTypes.LENIENCY) + ";");
+		    data.append(currentRoom.getDimensionValue(DimensionTypes.LINEARITY) + ";");
+		    data.append(currentRoom.getDimensionValue(DimensionTypes.SIMILARITY) + ";");
+		    data.append(currentRoom.getDimensionValue(DimensionTypes.NUMBER_MESO_PATTERN) + ";");
+		    data.append(currentRoom.getDimensionValue(DimensionTypes.NUMBER_PATTERNS) + ";");
+		    data.append(currentRoom.getDimensionValue(DimensionTypes.SYMMETRY) + ";");
+		    data.append(currentRoom.getDimensionValue(DimensionTypes.INNER_SIMILARITY) + ";");
+		    data.append(entry.getValue()[0] + ";");
+		    data.append(entry.getValue()[1] + ";");
+		    data.append("1.0" + System.lineSeparator());
+		}
+		
+
+		File file = new File(DIRECTORY + "expressive_range-singleobj.csv");
+		try {
+			FileUtils.write(file, data, true);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	
+	protected void saveUniqueRoomsToFileAndFlush()
+	{
+//		String DIRECTORY= System.getProperty("user.dir") + "\\my-data\\expressive-range\\";
+		String DIRECTORY= System.getProperty("user.dir") + "\\my-data\\custom-save\\";
+		//Create the data:
+		for (Entry<Room, Double[]> entry : uniqueGeneratedRoomsFlush.entrySet()) 
+		{
+		    Room currentRoom = entry.getKey();
+		    uniqueRoomsData.append(currentRoom.getDimensionValue(DimensionTypes.LENIENCY) + ";");
+		    uniqueRoomsData.append(currentRoom.getDimensionValue(DimensionTypes.LINEARITY) + ";");
+		    uniqueRoomsData.append(currentRoom.getDimensionValue(DimensionTypes.SIMILARITY) + ";");
+		    uniqueRoomsData.append(currentRoom.getDimensionValue(DimensionTypes.NUMBER_MESO_PATTERN) + ";");
+		    uniqueRoomsData.append(currentRoom.getDimensionValue(DimensionTypes.NUMBER_PATTERNS) + ";");
+		    uniqueRoomsData.append(currentRoom.getDimensionValue(DimensionTypes.SYMMETRY) + ";");
+		    uniqueRoomsData.append(currentRoom.getDimensionValue(DimensionTypes.INNER_SIMILARITY) + ";");
+		    uniqueRoomsData.append(entry.getValue()[0] + ";");
+		    uniqueRoomsData.append("1.0;");
+//		    uniqueRoomsData.append(dimensions[0].getDimension() + ";");
+//		    uniqueRoomsData.append(dimensions[1].getDimension() + ";");
+		    uniqueRoomsData.append("no;");
+		    uniqueRoomsData.append("no;");
+		    uniqueRoomsData.append(currentSaveStep + ";");
+		    uniqueRoomsData.append(entry.getValue()[1] + ";");
+		    uniqueRoomsData.append("GR" + System.lineSeparator()); //TYPE	    
+		}
+		
+
+//		File file = new File(DIRECTORY + "expressive_range-" + dimensions[0].getDimension() + "_" + dimensions[1].getDimension() + ".csv");
+//		File file = new File(DIRECTORY + "custom-unique-overtime_" + id + ".csv");
+		File file = new File(DIRECTORY + "expressive_range-singleobj_" + id + ".csv");
+		try {
+			FileUtils.write(file, uniqueRoomsData, true);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		uniqueGeneratedRoomsFlush.clear();
+		uniqueRoomsData = new StringBuilder();
+//		IO.saveFile(FileName, data.getSaveString(), true);
+	}
+
+	
+	protected void storeUniqueRooms() //Only feasible
+	{
+		
+		for(ZoneIndividual ind: feasiblePopulation)
+		{
+			boolean unique = true;
+			Room individualRoom = ind.getPhenotype().getMap(roomWidth, roomHeight, roomDoorPositions, roomCustomTiles, roomOwner);
+			for (Room key : uniqueGeneratedRooms.keySet()) 
+			{
+			    if(SimilarityGADimension.sameRooms(key, individualRoom))
+			    {
+			    	unique = false;
+			    	break;
+			    }
+			}
+			
+			if(unique)
+			{
+				Room copy = new Room(individualRoom);
+				copy.calculateAllDimensionalValues();
+				copy.setSpeficidDimensionValue(DimensionTypes.SIMILARITY, 
+						SimilarityGADimension.calculateValueIndependently(copy, originalRoom));
+				copy.setSpeficidDimensionValue(DimensionTypes.INNER_SIMILARITY, 
+						CharacteristicSimilarityGADimension.calculateValueIndependently(copy, originalRoom));
+				uniqueGeneratedRooms.put(copy, new Double[] {ind.getFitness(), Double.valueOf(realCurrentGen)});
+				uniqueGeneratedRoomsFlush.put(copy, new Double[] {ind.getFitness(), Double.valueOf(realCurrentGen)});
+//				uniqueGeneratedRoomsFlush.put(copy, ind.getFitness());
+				
+			}
+		}
+	}
+	
+	protected void storeRoom(ZoneIndividual ind ) //Only feasible
+	{
+		boolean unique = true;
+		Room individualRoom = ind.getPhenotype().getMap(roomWidth, roomHeight, roomDoorPositions, roomCustomTiles, roomOwner);
+		for (Room key : uniqueGeneratedRooms.keySet()) 
+		{
+		    if(SimilarityGADimension.sameRooms(key, individualRoom))
+		    {
+		    	unique = false;
+		    	break;
+		    }
+		}
+		
+		if(unique)
+		{
+			Room copy = new Room(individualRoom);
+			copy.calculateAllDimensionalValues();
+			copy.setSpeficidDimensionValue(DimensionTypes.SIMILARITY, 
+					SimilarityGADimension.calculateValueIndependently(copy, originalRoom));
+			copy.setSpeficidDimensionValue(DimensionTypes.INNER_SIMILARITY, 
+					CharacteristicSimilarityGADimension.calculateValueIndependently(copy, originalRoom));
+//			uniqueGeneratedRooms.put(copy, ind.getFitness());
+//			uniqueGeneratedRoomsFlush.put(copy, ind.getFitness());
+			uniqueGeneratedRooms.put(copy, new Double[] {ind.getFitness(), Double.valueOf(realCurrentGen)});
+			uniqueGeneratedRoomsFlush.put(copy, new Double[] {ind.getFitness(), Double.valueOf(realCurrentGen)});
+		}
+
+	}
+	
+	public Room NoSaveRun()
+	{
+		Room bestRoom = null;
+		
+		for(int generationCount = 1; generationCount <= generations; generationCount++) {
+        	if(stop)
+        		return bestRoom;
+        	
+//        	broadcastStatusUpdate("Generation " + generationCount);
+
+        	movedInfeasiblesKept = 0;
+        	evaluateAndTrimPools();
+        	copyPoolsToPopulations();
+
+            double[] dataValid = infoGenerational(feasiblePopulation, true);
+            
+            
+            bestRoom = best.getPhenotype().getMap(roomWidth, roomHeight, roomDoorPositions, roomCustomTiles, roomOwner);
+//        	
+        	breedFeasibleZoneIndividuals();
+        	breedInfeasibleZoneIndividuals();
+        	
+        	//This is only when we want to update the current Generation
+        	if(currentGen >= iterationsToPublish) 
+        	{
+        		//PUBLISH THE BEST!	
+        		currentGen = 0;
+        	}
+        	else 
+        	{
+        		currentGen++;
+        	}
+
+        	
+        	realCurrentGen++;
+		}
+        	
+        	return bestRoom;
+	}
+	
+	public Room SaveRun()
+	{
+		
+		Room bestRoom = null;
+		
+		for(int generationCount = 1; generationCount <= generations; generationCount++) {
+        	if(stop)
+        		return bestRoom;
+        	
+//        	broadcastStatusUpdate("Generation " + generationCount);
+        	
+            storeUniqueRooms();
+
+        	movedInfeasiblesKept = 0;
+        	evaluateAndTrimPools();
+        	copyPoolsToPopulations();
+
+            double[] dataValid = infoGenerational(feasiblePopulation, true);
+            
+            
+            bestRoom = best.getPhenotype().getMap(roomWidth, roomHeight, roomDoorPositions, roomCustomTiles, roomOwner);
+//        	
+        	breedFeasibleZoneIndividuals();
+        	breedInfeasibleZoneIndividuals();
+
+        	
+        	//This is only when we want to update the current Generation
+        	if(currentGen >= iterationsToPublish) 
+        	{
+        		//TODO: For next evaluation
+        		saveIterations--;
+        		
+        		//Uncomment to save everytime we publish
+        		if(saveIterations == 0)
+        		{
+//        			System.out.println("NEXT");
+        			saveIterations=2;
+        			saveUniqueRoomsToFileAndFlush();
+        			currentSaveStep++;
+        			EventRouter.getInstance().postEvent(new NextStepSequenceExperiment());
+        			System.out.println(realCurrentGen);
+        		}
+
+        		currentGen = 0;
+        	}
+        	else 
+        	{
+        		currentGen++;
+        	}
+        	
+        	realCurrentGen++;
+		}
+        	
+        	return bestRoom;
+	}
+	
 	/**
 	 * Starts the algorithm. Called when the thread starts.
 	 */
@@ -301,70 +611,23 @@ public class Algorithm extends Thread {
 		EventRouter.getInstance().postEvent(as);
 		
 		broadcastStatusUpdate("Evolving...");
-        int generations = config.getGenerations();
+//        int generations = config.getGenerations();
+        currentGen = 0;
+        realCurrentGen = 0;
 //        generations = 5;
-        
         Room room = null;
-
-        for(int generationCount = 1; generationCount <= generations; generationCount++) {
-        	if(stop)
-        		return;
-        	
-//        	broadcastStatusUpdate("Generation " + generationCount);
-
-        	
-        	movedInfeasiblesKept = 0;
-        	evaluateAndTrimPools();
-        	copyPoolsToPopulations();
-
-            double[] dataValid = infoGenerational(feasiblePopulation, true);
-            
-//            broadcastStatusUpdate("BEST fitness: " + best.getFitness());
-//            System.out.println("DOORS: " + best.getPhenotype().getMap().getDoorCount());
-            
-            room = best.getPhenotype().getMap(roomWidth, roomHeight, roomDoorPositions, roomCustomTiles, roomOwner);
-           
-            //broadcastMapUpdate(map);
-            
-          
-//        	broadcastStatusUpdate("Corridor Fitness: " + best.getCorridorFitness());
-//        	broadcastStatusUpdate("Room Fitness: " + best.getRoomFitness());
-//
-//        	broadcastStatusUpdate("Corridors & Connectors: " + best.getCorridorArea());
-//        	broadcastStatusUpdate("Passable tiles: " + best.getPhenotype().getMap().getNonWallTileCount());
-//        	
-//        	broadcastStatusUpdate("Infeasibles moved: " + infeasiblesMoved);
-//        	broadcastStatusUpdate("Moved infeasibles kept: " + movedInfeasiblesKept);
-//        	
-        	breedFeasibleZoneIndividuals();
-        	breedInfeasibleZoneIndividuals();
-
-//        	
-//        	//Check diversity:
-//        	double distance = 0.0;
-//        	for(int i = 0; i < feasiblePopulation.size(); i++){
-//        		if(feasiblePopulation.get(i) != best)
-//        			distance += best.getDistance(feasiblePopulation.get(i));
-//        	}
-//        	double averageDistance = distance / (double)(feasiblePopulation.size() - 1);
-//        	broadcastStatusUpdate("Average distance from best ZoneIndividual: " + averageDistance);
-//        	
-//        	double passableTiles = map.getNonWallTileCount();
-        	
-        	//map.getPatternFinder().findMesoPatterns();
-        	
-        	//Data we want:
-        	// Best fitness
-        	// Average fitness
-        	// Corridor fitness
-        	// Room fitness
-        	// Corridor proportion (& connector)
-        	// Room proportion
-        	//String generation = "" + best.getFitness() + "," + dataValid[0] + "," + best.getCorridorFitness() + "," + best.getRoomFitness() + "," + best.getCorridorArea()/passableTiles + "," + best.getRoomArea()/passableTiles + "," + best.getTreasureAndEnemyFitness();
-        	//EventRouter.getInstance().postEvent(new GenerationDone(generation));
-        	
-//        	System.out.println("HERE");
+        
+        if(save_data)
+        {
+        	room = SaveRun();
         }
+        else
+        {
+        	room = NoSaveRun();
+        }
+
+        
+        System.out.println("FINISHED");
 
         broadcastMapUpdate(room);
         PatternFinder finder = room.getPatternFinder();
@@ -1085,4 +1348,6 @@ public class Algorithm extends Thread {
             infeasiblePopulation.add(invalid);
         }
     }
+
+
 }

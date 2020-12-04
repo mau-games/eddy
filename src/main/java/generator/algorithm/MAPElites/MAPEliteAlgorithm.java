@@ -498,10 +498,8 @@ public class MAPEliteAlgorithm extends Algorithm implements Listener {
     	realCurrentGen++;
     }
     
-    private void runNoInterbreedingApplElites()
+    private void noSaveRunNoInterbreedingApplElites()
     {
-    	//Comment or uncomment to store unique rooms every generation (based on what is generated before)
-//    	storeUniqueRooms();
     	
     	//If we have receive the event that the dimensions changed, please modify the dimensions and recalculate the cells!
     	if(dimensionsChanged)
@@ -556,26 +554,94 @@ public class MAPEliteAlgorithm extends Algorithm implements Listener {
     	//This is only when we want to update the current Generation
     	if(currentGen >= iterationsToPublish)
     	{
+    		publishGeneration();
+    		currentGen = 0;
+    	}
+    	else {
+    		currentGen++;
+    	}
+    	
+    	realCurrentGen++;
+    }
+    
+    
+    private void saveRunNoInterbreedingApplElites()
+    {
+    	//Comment or uncomment to store unique rooms every generation (based on what is generated before)
+    	storeUniqueRooms();
+    	
+    	//If we have receive the event that the dimensions changed, please modify the dimensions and recalculate the cells!
+    	if(dimensionsChanged)
+    	{
+    		RecreateCells();
+    		dimensionsChanged = false;
+    	}
+    	
+		ArrayList<ZoneIndividual> feasibleParents = new ArrayList<ZoneIndividual>();
+		ArrayList<ZoneIndividual> infeasibleParents = new ArrayList<ZoneIndividual>();
+		
+    	List<ZoneIndividual> feasibleChildren = new ArrayList<ZoneIndividual>();
+    	List<ZoneIndividual> infeasibleChildren = new ArrayList<ZoneIndividual>();
+		GACell current = null;
+
+		for(int count = 0; count < breedingGenerations; count++) //Actual gens
+    	{
+//    			children = new ArrayList<ZoneIndividual>();
+    		//This could actually be looped to select parents from different cells (according to TALAKAT)
+    		current = SelectCell(true);
+    		
+    		if(current != null)
+    		{
+    			current.exploreCell();
+    			feasibleParents.addAll(tournamentSelection(current.GetFeasiblePopulation(), 5));   		
+    		}
+    		
+    		//This could actually be looped to select parents from different cells (according to TALAKAT)
+			current = SelectCell(false);
+    		
+    		if(current != null)
+    		{
+    			infeasibleParents.addAll(tournamentSelection(current.GetInfeasiblePopulation(), 5));
+    		}
+    	}
+    	
+		//Breed!
+		feasibleChildren.addAll(crossOverBetweenProgenitors(feasibleParents));
+		infeasibleChildren.addAll(crossOverBetweenProgenitors(infeasibleParents));
+		
+		CheckAndAssignToCell(feasibleChildren, false);
+		CheckAndAssignToCell(infeasibleChildren, true);
+		
+    	//Now we sort both populations in a given cell and cut through capacity!!!
+    	for(GACell cell : cells)
+		{
+			cell.SortPopulations(false);
+			cell.ApplyElitism();
+		}
+    		
+    	//This is only when we want to update the current Generation
+    	if(currentGen >= iterationsToPublish)
+    	{
     		//TODO: For next evaluation
     		saveIterations--;
     		
     		//Uncomment to save everytime we publish
-//    		if(saveIterations == 0)
-//    		{
-////    			System.out.println("NEXT");
-//    			saveIterations=2;
-//    			saveUniqueRoomsToFileAndFlush();
-//    			currentSaveStep++;
-//    			EventRouter.getInstance().postEvent(new NextStepSequenceExperiment());
-//    			System.out.println(realCurrentGen);
-//    			int cellsFilled = 0;
-//    			for(GACell cell : cells)
-//    			{
-//    				if(!cell.GetFeasiblePopulation().isEmpty())
-//    					cellsFilled++;
-//    			}
-//    			System.out.println("cells filled: " + cellsFilled + "; cell count: " + cells.size());
-//    		}
+    		if(saveIterations == 0)
+    		{
+//    			System.out.println("NEXT");
+    			saveIterations=2;
+    			saveUniqueRoomsToFileAndFlush();
+    			currentSaveStep++;
+    			EventRouter.getInstance().postEvent(new NextStepSequenceExperiment());
+
+    			int cellsFilled = 0;
+    			for(GACell cell : cells)
+    			{
+    				if(!cell.GetFeasiblePopulation().isEmpty())
+    					cellsFilled++;
+    			}
+    			System.out.println("cells filled: " + cellsFilled + "; cell count: " + cells.size() + "; CurrentGEN: " + realCurrentGen);
+    		}
     		
 //    		System.out.println(realCurrentGen);
     		publishGeneration();
@@ -729,7 +795,7 @@ public class MAPEliteAlgorithm extends Algorithm implements Listener {
     
     private void publishGeneration()
     {
-		broadcastResultedRooms();
+//		broadcastResultedRooms();
 		MAPECollector.getInstance().SaveGeneration(realCurrentGen, MAPElitesDimensions, cells, false); //store the cells in memory
 		
 		//This should be in a call when the ping happens! --> FIXME!!
@@ -808,8 +874,18 @@ public class MAPEliteAlgorithm extends Algorithm implements Listener {
         while(!stop) //continuous evolution
         {
 //        	runNoInterbreedingExperiment();
-//        	runInterbreedingExperiment(); // This one and run experiment previous are the best!
-        	runNoInterbreedingApplElites(); //This is actually the good one!! 2019-04-23
+//        	runInterbreedingExperiment(); 
+        	
+        	if(save_data)
+        	{
+        		saveRunNoInterbreedingApplElites();//This is actually the good one!! 2019-04-23
+        	}
+        	else 
+        	{
+        		noSaveRunNoInterbreedingApplElites();
+        	}
+        	
+//        	runNoInterbreedingApplElites(); //This is actually the good one!! 2019-04-23
 //        	runInterbreedingApplElites();
         }
         

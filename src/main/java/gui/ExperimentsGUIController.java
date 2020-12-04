@@ -28,6 +28,7 @@ import game.Dungeon;
 import game.Room;
 import game.Tile;
 import game.TileTypes;
+import game.Game.MapMutationType;
 import game.tiles.BossEnemyTile;
 import game.tiles.DoorTile;
 import game.tiles.EnemyTile;
@@ -35,6 +36,7 @@ import game.tiles.FloorTile;
 import game.tiles.NullTile;
 import game.tiles.TreasureTile;
 import game.tiles.WallTile;
+import generator.algorithm.Algorithm.AlgorithmTypes;
 import generator.algorithm.MAPElites.Dimensions.MAPEDimensionFXML;
 import generator.algorithm.MAPElites.Dimensions.GADimension.DimensionTypes;
 import generator.config.GeneratorConfig;
@@ -89,6 +91,7 @@ import util.eventrouting.events.MapUpdate;
 import util.eventrouting.events.NextStepSequenceExperiment;
 import util.eventrouting.events.RoomEdited;
 import util.eventrouting.events.SaveDisplayedCells;
+import util.eventrouting.events.StartMapMutate;
 import util.eventrouting.events.SuggestedMapSelected;
 import util.eventrouting.events.SuggestedMapsDone;
 import util.eventrouting.events.intraview.DungeonPreviewSelected;
@@ -303,6 +306,7 @@ public class ExperimentsGUIController implements Initializable, Listener {
 //				new MAPEDimensionFXML(DimensionTypes.NUMBER_PATTERNS, 5)});
 //		possibleCombinations.add(new MAPEDimensionFXML[]{new MAPEDimensionFXML(DimensionTypes.NUMBER_MESO_PATTERN, 5), 
 //				new MAPEDimensionFXML(DimensionTypes.NUMBER_PATTERNS, 5)});
+		
 		possibleCombinations.add(new MAPEDimensionFXML[]{new MAPEDimensionFXML(DimensionTypes.SYMMETRY, 5), 
 				new MAPEDimensionFXML(DimensionTypes.SIMILARITY, 5),
 				new MAPEDimensionFXML(DimensionTypes.NUMBER_MESO_PATTERN, 5), 
@@ -1129,6 +1133,7 @@ public class ExperimentsGUIController implements Initializable, Listener {
         		if(useOurCombs)
             	{
             		router.postEvent(new RestartDimensionsExperiment(possibleCombinations.get(currentCombination)));
+//            		router.postEvent(new StartMapMutate(currentEditRoom, MapMutationType.Preserving, AlgorithmTypes.Native, 1, false));
             	}
 			});     	
         }

@@ -1520,6 +1520,7 @@ public class RoomViewController extends BorderPane implements Listener
 				mapIsFeasible(mapView.getMap().isIntraFeasible());
 				redrawPatterns(mapView.getMap());
 				redrawLocks(mapView.getMap());
+//				mapView.getMap().calculateAllDimensionalValues();
 				
 				//TODO: UNCOMMENT TO SAVE EACH STEP!!
 //				saveEditedRoomInfo();
