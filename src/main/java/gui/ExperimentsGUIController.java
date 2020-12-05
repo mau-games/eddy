@@ -23,6 +23,7 @@ import collectors.XMLHandler;
 import collectors.ActionLogger.ActionType;
 import collectors.ActionLogger.TargetPane;
 import collectors.ActionLogger.View;
+import game.AlgorithmSetup;
 import game.ApplicationConfig;
 import game.Dungeon;
 import game.Room;
@@ -52,6 +53,7 @@ import gui.utils.InformativePopupManager.PresentableInformation;
 import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
+import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -62,6 +64,7 @@ import javafx.scene.Node;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.Button;
+import javafx.scene.control.ComboBox;
 import javafx.scene.control.RadioButton;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.Slider;
@@ -106,7 +109,8 @@ public class ExperimentsGUIController implements Initializable, Listener {
 	public enum SequenceExperiment
 	{
 		REPEAT,
-		EVOLUTIONARY
+		OBJECTIVE,
+		MAPELITES
 	}
 	
 	////////// MAIN CENTER PANE /////////
@@ -121,12 +125,15 @@ public class ExperimentsGUIController implements Initializable, Listener {
 	@FXML public Text linText;
 	@FXML public Text symText;
 	@FXML public TextField evaluationFilename;
+	
 	//Run Experiment PANE!!!
 	@FXML TextField secondsTF;
 	@FXML TextField stepsTF;
 	@FXML TextField fromTF;
-	@FXML private ToggleGroup experimentToggle;
+//	@FXML private ToggleGroup experimentToggle;
 	@FXML public TextField experimentFilename;
+	@FXML public ToggleButton saveDataButton;
+	@FXML public ComboBox<SequenceExperiment> experimentTypeCombo;
 	private SequenceExperiment experimentType = SequenceExperiment.REPEAT;
 	
 	///////BOTTOM BUTTONS!! /////////
@@ -316,6 +323,25 @@ public class ExperimentsGUIController implements Initializable, Listener {
 				new MAPEDimensionFXML(DimensionTypes.LINEARITY, 5)});
 	}
 	
+	/***
+	 * Initialize the view! 
+	 */
+	@Override
+	public void initialize(URL location, ResourceBundle resources) {
+		// TODO Auto-generated method stub
+        
+        brushesSide.setVisible(false);
+        continueBtn.setDisable(true);
+        evolutionPane.setVisible(true);
+		evolutionPane.setActive(true);
+		rightSidePane.getChildren().clear();
+		rightSidePane.getChildren().add(evolutionPane);
+		
+		experimentTypeCombo.getItems().setAll(experimentType.values());	
+		initializeView();
+
+	}
+	
 	@Override
 	public void ping(PCGEvent e) {
 		
@@ -365,6 +391,12 @@ public class ExperimentsGUIController implements Initializable, Listener {
 			sequenceStepSelected((Room)e.getPayload());
 		}
 		
+	}
+	
+	public void onSaveChange()
+	{
+//		System.out.println(saveDataButton.isSelected());
+		AlgorithmSetup.getInstance().setSaveData(saveDataButton.isSelected());
 	}
 	
 	/**
@@ -767,40 +799,7 @@ public class ExperimentsGUIController implements Initializable, Listener {
 		}
 	}
 
-	/***
-	 * Initialize the view! 
-	 */
-	@Override
-	public void initialize(URL location, ResourceBundle resources) {
-		// TODO Auto-generated method stub
-        
-        brushesSide.setVisible(false);
-        continueBtn.setDisable(true);
-        evolutionPane.setVisible(true);
-		evolutionPane.setActive(true);
-		rightSidePane.getChildren().clear();
-		rightSidePane.getChildren().add(evolutionPane);
-		
-		experimentToggle.selectedToggleProperty().addListener(new ChangeListener<Toggle>(){
-		    public void changed(ObservableValue<? extends Toggle> ov,
-		        Toggle old_toggle, Toggle new_toggle) {
-		            if (experimentToggle.getSelectedToggle() != null) {
-		            	switch(((RadioButton)experimentToggle.getSelectedToggle()).getText())
-		            	{
-		            	case "Repeat":
-		            		experimentType = SequenceExperiment.REPEAT;
-		            		break;
-		            	case "Evo":
-		            		experimentType = SequenceExperiment.EVOLUTIONARY;
-		            		break;
-		            	}
-		            }                
-		        }
-		});
-//		
-		initializeView();
 
-	}
 	
 	private void RenderSpecificBatch()
 	{
@@ -974,8 +973,13 @@ public class ExperimentsGUIController implements Initializable, Listener {
 	@FXML
 	public void onExperimentTypeChanged()
 	{
-		System.out.println(experimentToggle.getSelectedToggle());
-		System.out.println(((RadioButton)experimentToggle.getSelectedToggle()).getText());
+		
+		System.out.println(experimentTypeCombo.getValue());
+		System.out.println(experimentType);
+		experimentType = experimentTypeCombo.getValue();
+		System.out.println(experimentType);
+//		System.out.println(experimentToggle.getSelectedToggle());
+//		System.out.println(((RadioButton)experimentToggle.getSelectedToggle()).getText());
 	}
 
 	/**
@@ -1125,7 +1129,19 @@ public class ExperimentsGUIController implements Initializable, Listener {
     		    }
     		}, 500l, Long.parseLong(secondsTF.getText()));
         }
-        else if(experimentType == SequenceExperiment.EVOLUTIONARY) //THE ACTUAL EXPERIMENT!
+        else if(experimentType == SequenceExperiment.OBJECTIVE) //THE ACTUAL EXPERIMENT!
+        {
+        	initializeExperiment(currentEditRoom.getEditionSequence().get(index++));
+//	    	initializeExperiment(currentEditRoom.getEditionSequence().get(index)); //This for not changing
+        	Platform.runLater(() -> {
+        		if(useOurCombs)
+            	{
+//            		router.postEvent(new RestartDimensionsExperiment(possibleCombinations.get(currentCombination)));
+            		router.postEvent(new StartMapMutate(currentEditRoom, MapMutationType.Preserving, AlgorithmTypes.Native, 1, false));
+            	}
+			});     	
+        }
+        else if(experimentType == SequenceExperiment.MAPELITES) //THE ACTUAL EXPERIMENT!
         {
         	initializeExperiment(currentEditRoom.getEditionSequence().get(index++));
 //	    	initializeExperiment(currentEditRoom.getEditionSequence().get(index)); //This for not changing

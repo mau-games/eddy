@@ -1,26 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.geometry.Insets?>
-<?import javafx.scene.control.Button?>
-<?import javafx.scene.control.ComboBox?>
-<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.effect.*?>
+<?import javafx.scene.image.*?>
+<?import javafx.scene.text.*?>
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
 <?import javafx.scene.control.Slider?>
-<?import javafx.scene.control.Tab?>
-<?import javafx.scene.control.TabPane?>
-<?import javafx.scene.control.TextField?>
-<?import javafx.scene.control.ToggleButton?>
-<?import javafx.scene.control.ToggleGroup?>
-<?import javafx.scene.control.ToolBar?>
+<?import java.lang.*?>
+<?import javafx.scene.layout.*?>
 <?import javafx.scene.image.Image?>
 <?import javafx.scene.image.ImageView?>
-<?import javafx.scene.layout.AnchorPane?>
-<?import javafx.scene.layout.BorderPane?>
-<?import javafx.scene.layout.HBox?>
-<?import javafx.scene.layout.StackPane?>
-<?import javafx.scene.layout.VBox?>
-<?import javafx.scene.text.Text?>
 
-<BorderPane fx:id="mainBorderPane" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="667.0" prefWidth="1137.0" stylesheets="@experimentRunnerStyling.css" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="gui.ExperimentsGUIController">
+<BorderPane fx:id="mainBorderPane" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="667.0" prefWidth="1137.0" stylesheets="@experimentRunnerStyling.css" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="gui.ExperimentsGUIController">
    <center>
       <HBox alignment="CENTER" prefHeight="100.0" prefWidth="200.0" BorderPane.alignment="CENTER">
          <children>
@@ -147,8 +138,19 @@
                                           <VBox id="evaluationPane" alignment="CENTER" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="300.0" prefWidth="150.0" spacing="10.0">
                                              <children>
                                                 <Text fill="WHITE" strokeType="OUTSIDE" strokeWidth="0.0" text="Experiment" />
-                                                <ComboBox fx:id="experimentTypeCombo" onAction="#onExperimentTypeChanged" prefWidth="150.0" promptText="Experiment Type" visibleRowCount="5" /> 
-                                                <ToggleButton id="saveToggle" fx:id="saveDataButton" mnemonicParsing="false" onAction="#onSaveChange" text="Save" />
+                                                <HBox alignment="CENTER" layoutX="12.0" layoutY="49.0" prefHeight="100.0" prefWidth="200.0" spacing="5.0">
+                                                   <children>
+                                                      <RadioButton mnemonicParsing="false" onAction="#onExperimentTypeChanged" selected="true" text="Repeat" textFill="WHITE">
+                                                         <toggleGroup>
+                                                            <ToggleGroup fx:id="experimentToggle" />
+                                                         </toggleGroup>
+                                                      </RadioButton>
+                                                      <RadioButton mnemonicParsing="false" onAction="#onExperimentTypeChanged" text="Evo" textFill="WHITE" toggleGroup="$experimentToggle" />
+                                                   </children>
+                                                   <padding>
+                                                      <Insets left="3.0" right="3.0" top="3.0" />
+                                                   </padding>
+                                                </HBox>
                                                 <HBox alignment="CENTER" prefHeight="100.0" prefWidth="200.0" spacing="5.0">
                                                    <children>
                                                       <Text fill="WHITE" strokeType="OUTSIDE" strokeWidth="0.0" text="Seconds" />

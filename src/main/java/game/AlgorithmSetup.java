@@ -3,7 +3,7 @@ package game;
 public class AlgorithmSetup {
 	
 	private static AlgorithmSetup instance = null;
-	private boolean SAVE_DATA = true;
+	private boolean SAVE_DATA = false;
 	
 	public boolean getSaveData() {
 		return SAVE_DATA;
