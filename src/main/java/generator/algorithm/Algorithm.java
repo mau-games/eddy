@@ -5,9 +5,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.List;
-import java.util.Queue;
 import java.util.UUID;
 import java.util.Map.Entry;
 import java.util.stream.Collectors;
@@ -15,7 +13,6 @@ import java.util.stream.Collectors;
 import org.apache.commons.io.FileUtils;
 
 import finder.PatternFinder;
-import finder.Populator;
 import finder.geometry.Polygon;
 import finder.patterns.CompositePattern;
 import finder.patterns.Pattern;
@@ -27,17 +24,13 @@ import finder.patterns.meso.TreasureRoom;
 import finder.patterns.micro.Connector;
 import finder.patterns.micro.Corridor;
 import finder.patterns.micro.Enemy;
-import finder.patterns.micro.Entrance;
 import finder.patterns.micro.Boss;
 import finder.patterns.micro.Chamber;
 import finder.patterns.micro.Treasure;
 import game.Dungeon;
-import game.Game;
 import game.Room;
 import game.Tile;
 import game.MapContainer;
-import game.TileTypes;
-import generator.algorithm.MAPElites.GACell;
 import generator.algorithm.MAPElites.Dimensions.CharacteristicSimilarityGADimension;
 import generator.algorithm.MAPElites.Dimensions.SimilarityGADimension;
 import generator.algorithm.MAPElites.Dimensions.GADimension.DimensionTypes;
@@ -45,15 +38,11 @@ import generator.config.GeneratorConfig;
 import machineLearning.PreferenceModel;
 import util.Point;
 import util.Util;
-import util.algorithms.Node;
-import util.config.ConfigurationUtility;
-import util.config.MissingConfigurationException;
 import util.eventrouting.EventRouter;
 import util.eventrouting.Listener;
 import util.eventrouting.PCGEvent;
 import util.eventrouting.events.AlgorithmDone;
 import util.eventrouting.events.AlgorithmStarted;
-import util.eventrouting.events.GenerationDone;
 import util.eventrouting.events.MAPEGridUpdate;
 import util.eventrouting.events.MapUpdate;
 import util.eventrouting.events.NextStepSequenceExperiment;
@@ -110,7 +99,7 @@ public class Algorithm extends Thread implements Listener {
 	private int breedingGenerations = 5; //this relates to how many generations will it breed 
 	private int realCurrentGen = 0;
 	private int currentGen = 0;
-	private int generations = 5000;
+	private int iter_generations = 5000;
 	
 	
 //	ArrayList<Room> uniqueGeneratedRooms = new ArrayList<Room>();
@@ -167,6 +156,9 @@ public class Algorithm extends Thread implements Listener {
 		roomTarget = config.getRoomProportion();
 		corridorTarget = config.getCorridorProportion();
 
+		this.save_data = AlgorithmSetup.getInstance().getSaveData();
+		this.iter_generations = AlgorithmSetup.getInstance().getITER_GENERATIONS();
+
 		// Uncomment this for silly debugging
 //		System.out.println("Starting run #" + id);
 //		initPopulations();
@@ -197,6 +189,9 @@ public class Algorithm extends Thread implements Listener {
 		feasibleAmount = (int)((double)populationSize * config.getFeasibleProportion());
 		roomTarget = config.getRoomProportion();
 		corridorTarget = config.getCorridorProportion();
+
+		this.save_data = AlgorithmSetup.getInstance().getSaveData();
+		this.iter_generations = AlgorithmSetup.getInstance().getITER_GENERATIONS();
 		
 		// Uncomment this for silly debugging
 //		System.out.println("Starting run #" + id);
@@ -231,6 +226,7 @@ public class Algorithm extends Thread implements Listener {
 		corridorTarget = config.getCorridorProportion();
 		
 		this.save_data = AlgorithmSetup.getInstance().getSaveData();
+		this.iter_generations = AlgorithmSetup.getInstance().getITER_GENERATIONS();
 		
 		// Uncomment this for silly debugging
 //		System.out.println("Starting run #" + id);
@@ -509,7 +505,7 @@ public class Algorithm extends Thread implements Listener {
 	{
 		Room bestRoom = null;
 		
-		for(int generationCount = 1; generationCount <= generations; generationCount++) {
+		for(int generationCount = 1; generationCount <= iter_generations; generationCount++) {
         	if(stop)
         		return bestRoom;
         	
@@ -550,7 +546,7 @@ public class Algorithm extends Thread implements Listener {
 		
 		Room bestRoom = null;
 		
-		for(int generationCount = 1; generationCount <= generations; generationCount++) {
+		for(int generationCount = 1; generationCount <= iter_generations; generationCount++) {
         	if(stop)
         		return bestRoom;
         	

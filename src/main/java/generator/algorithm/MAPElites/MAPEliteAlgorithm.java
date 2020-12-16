@@ -795,7 +795,7 @@ public class MAPEliteAlgorithm extends Algorithm implements Listener {
     
     private void publishGeneration()
     {
-//		broadcastResultedRooms();
+		broadcastResultedRooms();
 		MAPECollector.getInstance().SaveGeneration(realCurrentGen, MAPElitesDimensions, cells, false); //store the cells in memory
 		
 		//This should be in a call when the ping happens! --> FIXME!!
@@ -1058,7 +1058,8 @@ public class MAPEliteAlgorithm extends Algorithm implements Listener {
 		}
 		
 		if(cellsWithPop.isEmpty()) return null;
-		
+
+		//This is where you would add the code to UCB
 		selected = cellsWithPop.get(rnd.nextInt(cellsWithPop.size()));
 		
 //		while(selected == null)
