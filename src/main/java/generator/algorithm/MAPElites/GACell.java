@@ -128,6 +128,18 @@ public class GACell
 	public void ApplyElitism()
 	{
 		int sharedCapacity = maximumnCapacity / 2;
+
+		for(int i = sharedCapacity; i < feasiblePopulation.size(); ++i)
+		{
+			//This only happens if you have more that maximun capacity:
+			feasiblePopulation.get(i).Destructor();
+		}
+
+		for(int i = sharedCapacity; i < infeasiblePopulation.size(); ++i)
+		{
+			//This only happens if you have more that maximun capacity:
+			infeasiblePopulation.get(i).Destructor();
+		}
 		
 		feasiblePopulation = feasiblePopulation.stream().limit(sharedCapacity).collect(Collectors.toList());
 		infeasiblePopulation = infeasiblePopulation.stream().limit(sharedCapacity).collect(Collectors.toList());

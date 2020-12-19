@@ -515,7 +515,7 @@ public class MAPEliteAlgorithm extends Algorithm implements Listener {
     	List<ZoneIndividual> infeasibleChildren = new ArrayList<ZoneIndividual>();
 		GACell current = null;
 
-		for(int count = 0; count < breedingGenerations; count++) //Actual gens
+		for(int count = 0; count < breedingGenerations; count++) //Actual gens (breeding generations is a hyper parameter to pick more parents)
     	{
 //    			children = new ArrayList<ZoneIndividual>();
     		//This could actually be looped to select parents from different cells (according to TALAKAT)
@@ -1059,7 +1059,6 @@ public class MAPEliteAlgorithm extends Algorithm implements Listener {
 		
 		if(cellsWithPop.isEmpty()) return null;
 
-		//This is where you would add the code to UCB
 		selected = cellsWithPop.get(rnd.nextInt(cellsWithPop.size()));
 		
 //		while(selected == null)
@@ -1078,6 +1077,134 @@ public class MAPEliteAlgorithm extends Algorithm implements Listener {
 		
 		return selected;
 	}
+
+//	//Selects which cell to pick parents (Rnd)
+//	protected GACell UCBselectCell(boolean feasible)
+//	{
+//		GACell selected = null;
+//		List<GACell> cellsWithPop = new ArrayList<GACell>();
+//
+//		//1. First create a list of the cells with populations
+//		for(GACell cell : cells)
+//		{
+//			if(feasible && !cell.GetFeasiblePopulation().isEmpty())
+//			{
+//				cellsWithPop.add(cell);
+//			}
+//			else if(!feasible && !cell.GetInfeasiblePopulation().isEmpty())
+//			{
+//				cellsWithPop.add(cell);
+//			}
+//		}
+//
+//		if(cellsWithPop.isEmpty()) return null;
+//
+//		//2. Now select based on UCB.
+//
+//		selected = cellsWithPop.get(rnd.nextInt(cellsWithPop.size()));
+//
+//		return selected;
+//	}
+//
+//	/**
+//	 * Calculate UCT value for the best child choosing
+//	 * @param parent the actual CELL node of currentNode
+//	 * @param n child node of currentNode
+//	 * @param c Exploration coefficient
+//	 * @return
+//	 */
+//	private double UCB1(GACell currentCell)
+//	{
+//		double result = 0.0;
+//		double C = (float) Math.sqrt(2);
+//
+//		//VALUE in original UCB1 (or UCT) is used as the value of the children (or value of the node)
+//		//So perhaps this can be adjusted to:
+//		//1. fitness of individual
+//		//2. diversity of individuals
+//		//3. avg. of the fitness of the children it has produced such a individual? -- might be hard if never chosen.
+//
+//		float value = n.GetMaxValue(tactic);
+//		if(C > 0.0f)
+//		{
+//			if(parent.times_visited != 0 && n.times_visited != 0)
+//			{
+//				//Parents.times_visited can be used to explore how many times has it being explored the cell
+//
+//				//Rather than times visited for child (individuals in population), we can use how many times has it being used for
+//				//crossover and mutation (and then these two can be parameterized so we can adjust the weights, but also if it is
+//				//positive to have been cross many times or not!)
+//				value += c * (Math.sqrt((Math.log((float)parent.times_visited)) / (float)n.times_visited));
+//			}
+//			else
+//			{
+//				value = Float.MAX_VALUE;
+//			}
+//		}
+//
+//		return result;
+//	}
+//
+//	/**
+//	 * Propagate the reward calculated in the simulation from the currentnode to the root.
+//	 * @param reward
+//	 */
+//	private void Backpropagate(MCTSReward reward)
+//	{
+//		//KEY TO IMPROVE THE SEARCH!!!!!
+////		int tree_depth = simulator.GetMaxTreeDepth();
+//
+//		while(currentNode != null)
+//		{
+////			if(current_depth > tree_depth)
+////			{
+////				current_depth -= currentNode.path_cost;
+////				currentNode= currentNode.parent;
+////				continue;
+////			}
+////
+//			currentNode.times_visited++;
+//			currentNode.IncreaseReward(reward);
+//			currentNode = currentNode.parent;
+//		}
+//	}
+//
+//
+//	/**
+//	 * Expand the nonterminal nodes with one available child.
+//	 * Chose a node to expand with BestChild(C) method
+//	 */
+//	private void TreePolicy() {
+//		currentNode = rootNode;
+//		current_depth = currentNode.path_cost;
+//		Game st = currentNode.state.copy();
+//
+//		while(!Terminate(0) && !DepthReached(0))
+//		{
+//			if(!currentNode.IsFullyExpanded())
+//			{
+//				if(Expand()) //explore a child!
+//				{
+//					return;
+//				}
+//				else
+//				{
+//					continue;
+//				}
+//			}
+//			else if(!currentNode.children.isEmpty())
+//			{
+//				currentNode = BestChild(C); //This is when UCB1 is called!
+//				current_depth += currentNode.path_cost; //In pacman we have this idea of path cost (how much it cost to reach the child)
+//			}
+//			else
+//			{
+//				return;
+//			}
+//
+//			st = currentNode.state.copy();
+//		}
+//	}
 	
 	protected ArrayList<ZoneIndividual> createMutatedChildren(List<ZoneIndividual> population, float mProbability)
 	{
@@ -1091,6 +1218,11 @@ public class MAPEliteAlgorithm extends Algorithm implements Listener {
 						ind.getGenotype().GetRootChromosome()), this.mutationProbability);
 				
 				child.mutateAll(mProbability, this.roomWidth, this.roomHeight);
+
+				//We add the new child to the list for the parent
+				child.setParent(ind);
+				ind.addChild(child);
+
 				mutatedChildren.add(child);
 			}
 		}

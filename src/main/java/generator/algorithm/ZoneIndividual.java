@@ -26,6 +26,10 @@ import util.Util;
  */
 public class ZoneIndividual {
 	private double fitness;
+
+	//This is to keep a list of what children have this individual be part of
+	private ArrayList<ZoneIndividual> children = new ArrayList<ZoneIndividual>();
+	private ArrayList<ZoneIndividual> parents = new ArrayList<ZoneIndividual>();
 	
 	protected HashMap<DimensionTypes, Double> dimensionValues;
 	
@@ -130,7 +134,41 @@ public class ZoneIndividual {
 		
 		genotype.ProduceGenotype(room);
 	}
-	
+
+	//Call anything is necessary here! Call this when the
+
+	/**
+	 * Call anything necessary here to safely terminate this child.
+	 */
+	public void Destructor()
+	{
+//		this.getParents().stream().forEach(s -> s.removeChild(this));
+		for(ZoneIndividual parent : this.getParents())
+		{
+			parent.removeChild(this);
+		}
+		this.removeParents();
+
+		//Now we go to the children
+		for(ZoneIndividual child : this.getChildren())
+		{
+			child.removeParent(this);
+		}
+		this.clearChildren();
+
+	}
+
+	public ArrayList<ZoneIndividual> getChildren(){return children;}
+	public void addChild(ZoneIndividual child){children.add(child);}
+	public void removeChild(ZoneIndividual child){children.remove(child);}
+	public void clearChildren(){children = null;}
+
+	public void removeParent(ZoneIndividual parent){parents.remove(parent);}
+	public ArrayList<ZoneIndividual> getParents(){return parents;}
+	public void setParent(ZoneIndividual parent){this.parents.add(parent);}
+	public void setParents(ArrayList<ZoneIndividual> parent){this.parents.addAll(parent);}
+	public void removeParents(){this.parents = null;}
+
 	/**
 	 * Generate a genotype
 	 * 

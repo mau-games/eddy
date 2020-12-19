@@ -1141,23 +1141,34 @@ public class Algorithm extends Thread implements Listener {
      */
     protected List<ZoneIndividual> crossOverBetweenProgenitors(List<ZoneIndividual> progenitors)
     {
-        List<ZoneIndividual> sons = new ArrayList<ZoneIndividual>();
+        List<ZoneIndividual> children = new ArrayList<ZoneIndividual>();
         int sizeProgenitors = progenitors.size();
-        int countSons = 0;
-        int sonSize = sizeProgenitors * 2;
+        int countChildren = 0;
+        int childrenSize = sizeProgenitors * 2;
 
-        while (countSons < sonSize)
+        while (countChildren < childrenSize)
         {
-            ZoneIndividual[] offspring = progenitors.get(
-            									Util.getNextInt(0, sizeProgenitors)).twoPointCrossover(progenitors.get(Util.getNextInt(0, sizeProgenitors)),
+        	ZoneIndividual parent0 = progenitors.get(Util.getNextInt(0, sizeProgenitors));
+        	//I should take care that the parent is not the same!
+			ZoneIndividual parent1 = progenitors.get(Util.getNextInt(0, sizeProgenitors));
+
+            ZoneIndividual[] offspring = parent0.twoPointCrossover(parent1,
             									roomWidth, 
             									roomHeight);
-            
-            sons.addAll(Arrays.asList(offspring));
-            countSons += 2;
+
+            for(ZoneIndividual child : offspring)
+			{
+				child.setParent(parent0);
+				child.setParent(parent1);
+				parent0.addChild(child);
+				parent1.addChild(child);
+			}
+
+			children.addAll(Arrays.asList(offspring));
+			countChildren += 2;
         }
 
-        return sons;
+        return children;
     }
 
     
