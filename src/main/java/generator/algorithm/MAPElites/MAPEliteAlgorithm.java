@@ -92,9 +92,13 @@ public class MAPEliteAlgorithm extends Algorithm implements Listener {
 	
 	private int saveIterations = 2;
 	private int currentSaveStep = 0;
+
+	//FOR UCB MAP-Elites
+	private int cellSelectionCounter = 0;
 	
 	//UGLY WAY OF DOING THIS!
 	ArrayList<ZoneIndividual> currentRendered = new ArrayList<ZoneIndividual>(); //I think this didn't work
+
 
 	public MAPEliteAlgorithm(GeneratorConfig config) {
 		super(config);
@@ -149,8 +153,7 @@ public class MAPEliteAlgorithm extends Algorithm implements Listener {
 			CreateCellsOpposite(dimension-1, dimensionSizes, indices);
 		}
 	}
-	
-	
+
 	public void initPopulations(Room room, MAPEDimensionFXML[] dimensions){
 		broadcastStatusUpdate("Initialising...");
 		EventRouter.getInstance().registerListener(this, new MAPEGridUpdate(null));
@@ -171,8 +174,8 @@ public class MAPEliteAlgorithm extends Algorithm implements Listener {
 		//initialize the data storage variables
 		uniqueRoomsData = new StringBuilder();
 		uniqueRoomsSinceData = new StringBuilder();
-		uniqueRoomsData.append("Leniency;Linearity;Similarity;NMesoPatterns;NSpatialPatterns;Symmetry;Inner Similarity;Fitness;Score;DIM X;DIM Y;STEP;Gen;Type" + System.lineSeparator());
-		uniqueRoomsSinceData.append("Leniency;Linearity;Similarity;NMesoPatterns;NSpatialPatterns;Symmetry;Inner Similarity;Fitness;Score;DIM X;DIM Y;STEP;Gen;Type" + System.lineSeparator());
+		uniqueRoomsData.append("Room;Leniency;Linearity;Similarity;NMesoPatterns;NSpatialPatterns;Symmetry;Inner Similarity;Fitness;Score;DIM X;DIM Y;STEP;Gen;Type" + System.lineSeparator());
+		uniqueRoomsSinceData.append("Room;Leniency;Linearity;Similarity;NMesoPatterns;NSpatialPatterns;Symmetry;Inner Similarity;Fitness;Score;DIM X;DIM Y;STEP;Gen;Type" + System.lineSeparator());
 
 		//TODO: THIS IS CREISI!mutate
 //		System.out.println(mutationProbability);
@@ -500,7 +503,7 @@ public class MAPEliteAlgorithm extends Algorithm implements Listener {
     
     private void noSaveRunNoInterbreedingApplElites()
     {
-    	
+
     	//If we have receive the event that the dimensions changed, please modify the dimensions and recalculate the cells!
     	if(dimensionsChanged)
     	{
@@ -519,10 +522,12 @@ public class MAPEliteAlgorithm extends Algorithm implements Listener {
     	{
 //    			children = new ArrayList<ZoneIndividual>();
     		//This could actually be looped to select parents from different cells (according to TALAKAT)
-    		current = SelectCell(true);
+//    		current = SelectCell(true);
+			current = UCBselectCell(true);
     		
     		if(current != null)
     		{
+				cellSelectionCounter++;
     			current.exploreCell();
     			feasibleParents.addAll(tournamentSelection(current.GetFeasiblePopulation(), 5));   		
     		}
@@ -568,7 +573,8 @@ public class MAPEliteAlgorithm extends Algorithm implements Listener {
     private void saveRunNoInterbreedingApplElites()
     {
     	//Comment or uncomment to store unique rooms every generation (based on what is generated before)
-    	storeUniqueRooms();
+//    	storeUniqueRooms();
+    	storeUniquePostProcess();
     	
     	//If we have receive the event that the dimensions changed, please modify the dimensions and recalculate the cells!
     	if(dimensionsChanged)
@@ -586,17 +592,19 @@ public class MAPEliteAlgorithm extends Algorithm implements Listener {
 
 		for(int count = 0; count < breedingGenerations; count++) //Actual gens
     	{
-//    			children = new ArrayList<ZoneIndividual>();
-    		//This could actually be looped to select parents from different cells (according to TALAKAT)
-    		current = SelectCell(true);
+
+//    		current = SelectCell(true);
+    		current = UCBselectCell(true);
+    		current.setSelected(true);
     		
     		if(current != null)
     		{
+				cellSelectionCounter++;
     			current.exploreCell();
     			feasibleParents.addAll(tournamentSelection(current.GetFeasiblePopulation(), 5));   		
     		}
     		
-    		//This could actually be looped to select parents from different cells (according to TALAKAT)
+    		//This could actually be looped to select parents from different cells (according to TALAKAT) - we are doing this
 			current = SelectCell(false);
     		
     		if(current != null)
@@ -617,20 +625,23 @@ public class MAPEliteAlgorithm extends Algorithm implements Listener {
 		{
 			cell.SortPopulations(false);
 			cell.ApplyElitism();
+			cell.setSelected(false);
 		}
     		
     	//This is only when we want to update the current Generation
     	if(currentGen >= iterationsToPublish)
     	{
+    		System.out.println("no partner! " + originalRoom.toString());
+			System.out.println("Generation: " + realCurrentGen);
     		//TODO: For next evaluation
     		saveIterations--;
     		
-    		//Uncomment to save everytime we publish
+//    		//Uncomment to save everytime we publish
     		if(saveIterations == 0)
     		{
 //    			System.out.println("NEXT");
     			saveIterations=2;
-    			saveUniqueRoomsToFileAndFlush();
+//    			saveUniqueRoomsToFileAndFlush();
     			currentSaveStep++;
     			EventRouter.getInstance().postEvent(new NextStepSequenceExperiment());
 
@@ -666,7 +677,7 @@ public class MAPEliteAlgorithm extends Algorithm implements Listener {
 //    	}
 
 
-    	
+		saveUniqueRoomsToFileAndFlush();
     	realCurrentGen++;
     }
     
@@ -795,7 +806,7 @@ public class MAPEliteAlgorithm extends Algorithm implements Listener {
     
     private void publishGeneration()
     {
-		broadcastResultedRooms();
+//		broadcastResultedRooms();
 		MAPECollector.getInstance().SaveGeneration(realCurrentGen, MAPElitesDimensions, cells, false); //store the cells in memory
 		
 		//This should be in a call when the ping happens! --> FIXME!!
@@ -1059,6 +1070,7 @@ public class MAPEliteAlgorithm extends Algorithm implements Listener {
 		
 		if(cellsWithPop.isEmpty()) return null;
 
+
 		selected = cellsWithPop.get(rnd.nextInt(cellsWithPop.size()));
 		
 //		while(selected == null)
@@ -1078,72 +1090,96 @@ public class MAPEliteAlgorithm extends Algorithm implements Listener {
 		return selected;
 	}
 
-//	//Selects which cell to pick parents (Rnd)
-//	protected GACell UCBselectCell(boolean feasible)
-//	{
-//		GACell selected = null;
-//		List<GACell> cellsWithPop = new ArrayList<GACell>();
-//
-//		//1. First create a list of the cells with populations
-//		for(GACell cell : cells)
-//		{
-//			if(feasible && !cell.GetFeasiblePopulation().isEmpty())
-//			{
-//				cellsWithPop.add(cell);
-//			}
-//			else if(!feasible && !cell.GetInfeasiblePopulation().isEmpty())
-//			{
-//				cellsWithPop.add(cell);
-//			}
-//		}
-//
-//		if(cellsWithPop.isEmpty()) return null;
-//
-//		//2. Now select based on UCB.
-//
+	//Selects which cell to pick parents (Rnd)
+	protected GACell UCBselectCell(boolean feasible)
+	{
+		GACell selected = null;
+		List<GACell> cellsWithPop = new ArrayList<GACell>();
+
+		//1. First create a list of the cells with populations
+		for(GACell cell : cells)
+		{
+			if(feasible && !cell.GetFeasiblePopulation().isEmpty() && !cell.getSelected())
+			{
+				cellsWithPop.add(cell);
+			}
+			else if(!feasible && !cell.GetInfeasiblePopulation().isEmpty())
+			{
+				cellsWithPop.add(cell);
+			}
+		}
+
+		if(cellsWithPop.isEmpty()) return null;
+
+		//2. Now select based on UCB.
+
+		selected = getCellUCB1(cellsWithPop);
+
 //		selected = cellsWithPop.get(rnd.nextInt(cellsWithPop.size()));
-//
-//		return selected;
-//	}
-//
-//	/**
-//	 * Calculate UCT value for the best child choosing
-//	 * @param parent the actual CELL node of currentNode
-//	 * @param n child node of currentNode
-//	 * @param c Exploration coefficient
-//	 * @return
-//	 */
-//	private double UCB1(GACell currentCell)
-//	{
-//		double result = 0.0;
-//		double C = (float) Math.sqrt(2);
-//
-//		//VALUE in original UCB1 (or UCT) is used as the value of the children (or value of the node)
-//		//So perhaps this can be adjusted to:
-//		//1. fitness of individual
-//		//2. diversity of individuals
-//		//3. avg. of the fitness of the children it has produced such a individual? -- might be hard if never chosen.
-//
-//		float value = n.GetMaxValue(tactic);
-//		if(C > 0.0f)
-//		{
-//			if(parent.times_visited != 0 && n.times_visited != 0)
-//			{
-//				//Parents.times_visited can be used to explore how many times has it being explored the cell
-//
-//				//Rather than times visited for child (individuals in population), we can use how many times has it being used for
-//				//crossover and mutation (and then these two can be parameterized so we can adjust the weights, but also if it is
-//				//positive to have been cross many times or not!)
-//				value += c * (Math.sqrt((Math.log((float)parent.times_visited)) / (float)n.times_visited));
-//			}
-//			else
-//			{
-//				value = Float.MAX_VALUE;
-//			}
-//		}
-//
-//		return result;
-//	}
+
+		return selected;
+	}
+
+	private GACell getCellUCB1(List<GACell> candidateCells)
+	{
+		GACell selected = null;
+		double max = Double.MIN_VALUE;
+
+		for(GACell candidate : candidateCells)
+		{
+			double current = UCB1(candidate);
+
+			if(current > max)
+			{
+				max = current;
+				selected = candidate;
+			}
+		}
+
+		return selected;
+	}
+
+	/**
+	 * Calculate UCT value for the best child choosing
+	 * @param parent the actual CELL node of currentNode
+	 * @param n child node of currentNode
+	 * @param c Exploration coefficient
+	 * @return
+	 */
+	private double UCB1(GACell currentCell)
+	{
+		double C = (float) Math.sqrt(2);
+
+		//VALUE in original UCB1 (or UCT) is used as the value of the children (or value of the node)
+		//So perhaps this can be adjusted to:
+		//1. fitness of individual
+		//2. diversity of individuals
+		//3. avg. of the fitness of the children it has produced such a individual? -- might be hard if never chosen.
+
+//		float value = currentCell.getMaxRewardAvgFitness(false);
+//		float value = currentCell.getMaxRewardActualExplorationSuccess(false);
+		float value = currentCell.getMaxRewardGlobalExplorationSuccess(false);
+
+		//Or, 4. as described in the multi-emitter paper successes (how many still remain in the archive)/selection (how many times this was selected)
+		if(C > 0.0f)
+		{
+			if(currentCell.getExploration() != 0)
+			{
+				//Parents.times_visited can be used to explore how many times has it being explored the cell
+
+				//Rather than times visited for child (individuals in population), we can use how many times has it being used for
+				//crossover and mutation (and then these two can be parameterized so we can adjust the weights, but also if it is
+				//positive to have been cross many times or not!)
+				value += C * (Math.sqrt((Math.log((float)cellSelectionCounter)) / (float)currentCell.getExploration()));
+			}
+			else
+			{
+				value = Float.MAX_VALUE;
+			}
+		}
+
+		return value;
+	}
 //
 //	/**
 //	 * Propagate the reward calculated in the simulation from the currentnode to the root.
@@ -1273,6 +1309,7 @@ public class MAPEliteAlgorithm extends Algorithm implements Listener {
 		for (Entry<Room, Double[]> entry : uniqueGeneratedRoomsFlush.entrySet()) 
 		{
 		    Room currentRoom = entry.getKey();
+			uniqueRoomsData.append(currentRoom.flattenMatrixtoString(false) + ";");
 		    uniqueRoomsData.append(currentRoom.getDimensionValue(DimensionTypes.LENIENCY) + ";");
 		    uniqueRoomsData.append(currentRoom.getDimensionValue(DimensionTypes.LINEARITY) + ";");
 		    uniqueRoomsData.append(currentRoom.getDimensionValue(DimensionTypes.SIMILARITY) + ";");
@@ -1302,6 +1339,41 @@ public class MAPEliteAlgorithm extends Algorithm implements Listener {
 		uniqueGeneratedRoomsFlush.clear();
 		uniqueRoomsData = new StringBuilder();
 //		IO.saveFile(FileName, data.getSaveString(), true);
+	}
+
+	protected void storeUniquePostProcess() //Only feasible
+	{
+		for(GACell cell : cells)
+		{
+			for(ZoneIndividual ind : cell.GetFeasiblePopulation())
+			{
+				boolean unique = true;
+				Room individualRoom = ind.getPhenotype().getMap(roomWidth, roomHeight, roomDoorPositions, roomCustomTiles, roomOwner);
+				for (Room key : uniqueGeneratedRoomsFlush.keySet())
+				{
+					if(SimilarityGADimension.sameRooms(key, individualRoom))
+					{
+						unique = false;
+						break;
+					}
+				}
+
+				if(unique)
+				{
+					Room copy = new Room(individualRoom, true);
+					copy.calculateAllDimensionalValues();
+					copy.setSpeficidDimensionValue(DimensionTypes.SIMILARITY,
+							SimilarityGADimension.calculateValueIndependently(copy, originalRoom));
+					copy.setSpeficidDimensionValue(DimensionTypes.INNER_SIMILARITY,
+							CharacteristicSimilarityGADimension.calculateValueIndependently(copy, originalRoom));
+//					uniqueGeneratedRooms.put(copy, new Double[] {ind.getFitness(), Double.valueOf(realCurrentGen)});
+					uniqueGeneratedRoomsFlush.put(copy, new Double[] {ind.getFitness(), Double.valueOf(realCurrentGen)});
+//					uniqueGeneratedRoomsFlush.put(copy, ind.getFitness());
+
+				}
+
+			}
+		}
 	}
 
 	

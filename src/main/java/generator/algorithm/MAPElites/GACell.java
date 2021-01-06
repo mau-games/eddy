@@ -1,12 +1,7 @@
 package generator.algorithm.MAPElites;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.Map.Entry;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 import generator.algorithm.ZoneIndividual;
@@ -37,6 +32,10 @@ public class GACell
 	protected LinkedHashMap <DimensionTypes, GADimensionsGranularity> cellDimensions;
 	protected LinkedHashMap <DimensionTypes, Integer> cellIndices;
 	protected int exploreCounter = 0;
+	protected int exploreCounterInfeasible = 0;
+
+	protected int globalFeasibleChildrenCounter = 0;
+	protected boolean selected = false;
 	
 	//Something about the dimensions (I have to do it as generic as i can so i can test a lot!)
 	
@@ -98,7 +97,10 @@ public class GACell
 			feasiblePopulation.add(individual);
 		else
 			infeasiblePopulation.add(individual);
-		
+
+		//fixme: probably change!
+		individual.belongingCell = this;
+
 		return true;
 	}
 	
@@ -140,9 +142,27 @@ public class GACell
 			//This only happens if you have more that maximun capacity:
 			infeasiblePopulation.get(i).Destructor();
 		}
-		
-		feasiblePopulation = feasiblePopulation.stream().limit(sharedCapacity).collect(Collectors.toList());
-		infeasiblePopulation = infeasiblePopulation.stream().limit(sharedCapacity).collect(Collectors.toList());
+
+		List<ZoneIndividual> feas = new ArrayList<ZoneIndividual>();
+		List<ZoneIndividual> infeas = new ArrayList<ZoneIndividual>();
+
+		for(int i = 0; i < sharedCapacity && i < feasiblePopulation.size(); ++i)
+		{
+			//This only happens if you have more that maximun capacity:
+			feas.add(feasiblePopulation.get(i));
+		}
+
+		for(int i = 0; i < sharedCapacity && i < infeasiblePopulation.size(); ++i)
+		{
+			//This only happens if you have more that maximun capacity:
+			infeas.add(infeasiblePopulation.get(i));
+		}
+
+		feasiblePopulation = null; feasiblePopulation=feas;
+		infeasiblePopulation = null; infeasiblePopulation=infeas;
+
+//		feasiblePopulation = feasiblePopulation.stream().limit(sharedCapacity).collect(Collectors.toList());
+//		infeasiblePopulation = infeasiblePopulation.stream().limit(sharedCapacity).collect(Collectors.toList());
 	}
 	
 	public List<ZoneIndividual> GetFeasiblePopulation()
@@ -164,4 +184,92 @@ public class GACell
 	{
 		return exploreCounter;
 	}
+
+	public void increaseGlobalFeasibleCount()
+	{
+		globalFeasibleChildrenCounter++;
+	}
+
+	public int getGlobalFeasibleCount()
+	{
+		return globalFeasibleChildrenCounter;
+	}
+
+	public void setSelected(boolean selected)
+	{
+		this.selected = selected;
+	}
+
+	public boolean getSelected()
+	{
+		return selected;
+	}
+
+	/***
+	 * The mean reward of the cell is the avg. fitness of the population {feasible}
+	 * @return
+	 */
+	public float getMaxRewardAvgFitness(boolean feasibleInfeasible)
+	{
+		float avgFit = 0.0f;
+
+		for(ZoneIndividual feasible : feasiblePopulation)
+		{
+			avgFit += feasible.getFitness();
+		}
+
+		if(feasibleInfeasible)
+		{
+			for(ZoneIndividual infeasible : infeasiblePopulation)
+			{
+				avgFit += infeasible.getChildren().size();
+			}
+
+			avgFit /= ((float)feasiblePopulation.size() + (float)infeasiblePopulation.size());
+		}
+		else
+		{
+			avgFit /= (float)feasiblePopulation.size();
+		}
+
+		return avgFit;
+	}
+
+	/***
+	 * The mean reward of the cell is the avg. children output of population{feasible} (at the moment)
+	 * @return
+	 */
+	public float getMaxRewardActualExplorationSuccess(boolean feasibleInfeasible)
+	{
+		float exp_suc = 0.0f;
+
+		for(ZoneIndividual feasible : feasiblePopulation)
+		{
+			exp_suc += feasible.getChildren().size();
+		}
+
+		if(feasibleInfeasible)
+		{
+			for(ZoneIndividual infeasible : infeasiblePopulation)
+			{
+				exp_suc += infeasible.getChildren().size();
+			}
+		}
+
+		exp_suc /= (float)getExploration();
+		return exp_suc;
+	}
+
+	/***
+	 * The mean reward of the cell is the avg. children output of population{feasible} (in global)
+	 * @return
+	 */
+	public float getMaxRewardGlobalExplorationSuccess(boolean feasibleInfeasible)
+	{
+		float exp_suc = getGlobalFeasibleCount();
+
+		exp_suc /= (float)getExploration();
+		return exp_suc;
+	}
+
 }

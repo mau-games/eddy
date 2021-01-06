@@ -14,6 +14,7 @@ import game.TileTypes;
 import game.ZoneNode;
 import generator.algorithm.MAPElites.Dimensions.GADimension;
 import generator.algorithm.MAPElites.Dimensions.GADimension.DimensionTypes;
+import generator.algorithm.MAPElites.GACell;
 import generator.config.GeneratorConfig;
 import util.Util;
 
@@ -32,6 +33,7 @@ public class ZoneIndividual {
 	private ArrayList<ZoneIndividual> parents = new ArrayList<ZoneIndividual>();
 	
 	protected HashMap<DimensionTypes, Double> dimensionValues;
+	public GACell belongingCell;
 	
 	//TODO: Reconsider these...
 	private double treasureAndEnemyFitness;
@@ -156,10 +158,18 @@ public class ZoneIndividual {
 		}
 		this.clearChildren();
 
+		belongingCell = null;
+
 	}
 
 	public ArrayList<ZoneIndividual> getChildren(){return children;}
-	public void addChild(ZoneIndividual child){children.add(child);}
+	public void addChild(ZoneIndividual child)
+	{
+		children.add(child);
+
+		if(belongingCell != null)
+			belongingCell.increaseGlobalFeasibleCount();
+	}
 	public void removeChild(ZoneIndividual child){children.remove(child);}
 	public void clearChildren(){children = null;}
 

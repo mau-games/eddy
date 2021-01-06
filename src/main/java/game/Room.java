@@ -198,6 +198,46 @@ public class Room {
 	public void setHasMainObjective(boolean state) {
 		hasMainObjective = state;
 	}
+
+	public Room(Room copyMap, boolean tosave) //THIS IS CALLED WHEN CREATING A ZONE IN THE TREE (TO HAVE A COPY OF THE DOORS)
+	{
+		init(copyMap.getRowCount(), copyMap.getColCount());
+		this.config = copyMap.config;
+
+		for (int j = 0; j < height; j++)
+		{
+			for (int i = 0; i < width; i++)
+			{
+				matrix[j][i] = copyMap.matrix[j][i];
+				tileMap[j * width + i] = new Tile(copyMap.tileMap[j * width + i]);
+			}
+		}
+
+		for (int j = 0; j < height; j++){
+			for (int i = 0; i < width; i++) {
+				switch (TileTypes.toTileType(matrix[j][i])) {
+					case WALL:
+						wallCount++;
+						break;
+					case ENEMY:
+						enemies.add(new Point(i, j));
+						break;
+					case TREASURE:
+						treasures.add(new Point(i, j));
+						break;
+					default:
+						break;
+				}
+			}
+		}
+
+		this.owner = copyMap.owner;
+		copyDoors(copyMap.getDoors());
+		copyCustomTiles(copyMap.customTiles);
+
+		finder = new PatternFinder(this);
+		SetDimensionValues(copyMap.dimensionValues);
+	}
 	
 	/**
 	 * Creates an instance of map.
@@ -2998,6 +3038,29 @@ public class Room {
 
 			}
 			map.append("\n");
+		}
+
+		return map.toString();
+	}
+
+	public String flattenMatrixtoString(boolean ignoreSpecials)
+	{
+		StringBuilder map = new StringBuilder();
+
+		for (int j = 0; j < height; j++)
+		{
+			for (int i = 0; i < width; i++)
+			{
+				if(ignoreSpecials && matrix[j][i] > 3)
+				{
+					map.append(Integer.toHexString(0));
+				}
+				else
+				{
+					map.append(Integer.toHexString(matrix[j][i]));
+				}
+
+			}
 		}
 
 		return map.toString();
