@@ -611,7 +611,7 @@ public class MAPEliteAlgorithm extends Algorithm implements Listener {
 		
 		CheckAndAssignToCell(feasibleChildren, false);
 		CheckAndAssignToCell(infeasibleChildren, true);
-		
+
     	//Now we sort both populations in a given cell and cut through capacity!!!
     	for(GACell cell : cells)
 		{
