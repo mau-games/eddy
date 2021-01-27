@@ -8,9 +8,8 @@ import java.util.*;
 
 public class GrammarPattern {
 
-    GrammarGraph pattern;
-
-    ArrayList<GrammarGraph> productionRules;
+    public GrammarGraph pattern;
+    public ArrayList<GrammarGraph> productionRules;
 
     public GrammarPattern()
     {
@@ -21,6 +20,12 @@ public class GrammarPattern {
     public void setPattern(GrammarGraph pattern)
     {
         this.pattern = pattern;
+    }
+
+    //For the evolutionary algorithm
+    public void editPattern()
+    {
+
     }
 
     public void addProductionRule(GrammarGraph rule)

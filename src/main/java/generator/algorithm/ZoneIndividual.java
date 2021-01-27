@@ -21,7 +21,7 @@ import util.Util;
  * Represents a member of Eddy's dungeon level population
  * TODO: Not so sold on how mutationProbability is passed around here
  * 
- * @author Alexander Baldwin, Malmö Högskola
+ * @author Alberto Alvarez, Malmö University
  *
  */
 public class ZoneIndividual {

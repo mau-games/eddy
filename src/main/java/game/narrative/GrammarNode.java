@@ -38,6 +38,20 @@ public class GrammarNode {
         return true;
     }
 
+    public void removeAllConnection()
+    {
+        //First remove all connections to this node
+        for(GrammarNode connection : connections.keySet())
+        {
+            connection.removeConnection(this);
+        }
+
+        //Then remove all connections from this node.
+        // For now, this is okay, but in reality i should call some type of destructor
+        connections = new HashMap<GrammarNode, Integer>();
+
+    }
+
     public int removeConnection(GrammarNode otherNode)
     {
         int connectionType = -1; // -1 = no connection
@@ -130,9 +144,28 @@ public class GrammarNode {
 
         for(Map.Entry<GrammarNode, Integer> keyValue : connections.entrySet())
         {
-            result += "(" + keyValue.getKey().id + "," + keyValue.getValue() + ") ";
+            //0 = no direction --> connection is on both
+            //1 = unidirectional
+            //2 = bidirectional
+
+            String connection_type = "";
+
+            switch(keyValue.getValue())
+            {
+                case 0: connection_type = "No Direction"; break;
+                case 1: connection_type = "Unidirectional"; break;
+                case 2: connection_type = "Bidirectional"; break;
+            }
+
+//            result += "(" + keyValue.getKey().id + "," + keyValue.getValue() + ") ";
+            result += "(" + keyValue.getKey().id + "," + connection_type + ") ";
+
         }
 
         return result;
     }
+
+    public void setID(int id) {this.id = id;}
+    public int getID() {return id;}
+
 }

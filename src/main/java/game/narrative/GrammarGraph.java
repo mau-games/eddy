@@ -9,11 +9,53 @@ import java.util.*;
  */
 public class GrammarGraph
 {
+    public int ID_counter; //Actually this can literally just be the size of nodes.
     public ArrayList<GrammarNode> nodes;
 
     public GrammarGraph()
     {
         nodes = new ArrayList<GrammarNode>();
+    }
+
+    public GrammarNode addNode(TVTropeType nodeType)
+    {
+        GrammarNode n = new GrammarNode(ID_counter, nodeType);
+        nodes.add(n);
+        ID_counter++;
+
+        return n;
+    }
+
+    public void addNode(GrammarNode node, boolean setID)
+    {
+        //fixme: ids needs to be done!
+
+        if(setID)
+        {
+            node.setID(ID_counter);
+        }
+
+        nodes.add(node);
+        ID_counter++;
+    }
+
+    public void removeNode(GrammarNode node)
+    {
+        //fixme: ids need to be fix
+        int node_id = getNodeIndex(node);
+
+        if(node_id != -1)
+        {
+            node.removeAllConnection();
+            nodes.remove(node);
+
+            for(int i = node_id; i < nodes.size(); i++)
+            {
+                nodes.get(i).setID(i);
+            }
+
+            ID_counter--;
+        }
     }
 
     /// <summary>

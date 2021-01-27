@@ -39,7 +39,7 @@ public class NarrativeStructure {
         grammarGraph.nodes.add(conflict);
         grammarGraph.nodes.add(enemy);
 
-        System.out.println(grammarGraph.toString());
+
 
         GrammarPattern pattern_1 = new GrammarPattern();
         GrammarGraph ipatt_1 = new GrammarGraph();
@@ -84,8 +84,24 @@ public class NarrativeStructure {
         pattern_2.addProductionRule(opatt_21);
 
 //        pattern_1.match(grammarGraph, 4);
-        pattern_2.match(grammarGraph, 4);
+        System.out.println("RULES::::\n");
 
+        System.out.println("PATTERN 1:");
+        System.out.println("INPUT:");
+        System.out.println(pattern_1.pattern.toString());
+        System.out.println("OUTPUT:");
+        System.out.println(pattern_1.productionRules.get(0).toString());
+
+        System.out.println("PATTERN 2:");
+        System.out.println("INPUT:");
+        System.out.println(pattern_2.pattern.toString());
+        System.out.println("OUTPUT:");
+        System.out.println(pattern_2.productionRules.get(0).toString());
+
+        System.out.println("CURRENT GRAMMAR:");
+
+        System.out.println(grammarGraph.toString());
+        pattern_2.match(grammarGraph, 4);
         System.out.println(grammarGraph.toString());
 //        ArrayList<GrammarGraph> perms = grammarGraph.getPermutations(2);
 //        System.out.println(perms);
