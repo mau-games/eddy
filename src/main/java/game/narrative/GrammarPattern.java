@@ -38,6 +38,7 @@ public class GrammarPattern {
     public void match(GrammarGraph currentGraph, int maxConnections)
     {
         ArrayList<GrammarGraph> permutations = currentGraph.getPermutations(this.pattern.nodes.size());
+        Collections.shuffle(permutations);
         GrammarGraph selectedSubgraph = new GrammarGraph();
 
         for(GrammarGraph perm : permutations)
@@ -54,12 +55,17 @@ public class GrammarPattern {
             return;
         }
 
+        //fixme: For testing only
+        System.out.println("SELECTED SUBGRAPH!");
+        System.out.println(selectedSubgraph.toString());
+
         //break connections within the subgraph
         selectedSubgraph.removeInterestedConnections();
 
         GrammarGraph selectedPattern = this.productionRules.get(Util.getNextInt(0, this.productionRules.size()));
 
         //Add nodes if needed!
+        //TODO: WHAT IF WE NEED TO REMOVE BRA? we need to indicate to the bigger graph i think (for indices)
         for (int i = selectedSubgraph.nodes.size(); i < selectedPattern.nodes.size(); i++)
         {
             GrammarNode newNode = new GrammarNode(currentGraph.nodes.size(), selectedPattern.nodes.get(i).grammarNodeType);

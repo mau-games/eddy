@@ -79,12 +79,13 @@ public class GrammarIndividual
     {
         dimensionValues = new HashMap<GADimension.DimensionTypes, Double>();
 
-        for(GADimension dimension : dimensions)
-        {
-            dimensionValues.put(dimension.GetType(), dimension.CalculateValue(this, original));
-        }
-
-        this.getPhenotype().getMap(-1, 1, null, null, null).SetDimensionValues(dimensionValues);
+        //TODO:
+//        for(GADimension dimension : dimensions)
+//        {
+//            dimensionValues.put(dimension.GetType(), dimension.CalculateValue(this, original));
+//        }
+//
+//        this.getPhenotype().getMap(-1, 1, null, null, null).SetDimensionValues(dimensionValues);
     }
 
     public double getDimensionValue(GADimension.DimensionTypes currentDimension)
@@ -99,7 +100,8 @@ public class GrammarIndividual
         {
             //For now just a random
             int select=Util.getNextInt(0, 3);
-            GrammarIndividual mutated_version = new GrammarIndividual(config, new ZoneGenotype(config, genotype.getChromosome().clone(), genotype.GetRootChromosome()), mutationProbability);
+//            GrammarIndividual mutated_version = new GrammarIndividual(config, new ZoneGenotype(config, genotype.getChromosome().clone(), genotype.GetRootChromosome()), mutationProbability);
+            GrammarIndividual mutated_version = new GrammarIndividual();
 
             //These are all for changing input patterns
             switch(select)
@@ -192,7 +194,7 @@ public class GrammarIndividual
      */
     public GrammarPhenotype getPhenotype(){
         if(phenotype == null){
-            phenotype = new GrammarPhenotype(config, genotype);
+//            phenotype = new GrammarPhenotype(config, genotype);
         }
         return phenotype;
     }

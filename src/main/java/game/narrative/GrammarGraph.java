@@ -28,8 +28,6 @@ public class GrammarGraph
 
     public void addNode(GrammarNode node, boolean setID)
     {
-        //fixme: ids needs to be done!
-
         if(setID)
         {
             node.setID(ID_counter);
@@ -41,7 +39,6 @@ public class GrammarGraph
 
     public void removeNode(GrammarNode node)
     {
-        //fixme: ids need to be fix
         int node_id = getNodeIndex(node);
 
         if(node_id != -1)

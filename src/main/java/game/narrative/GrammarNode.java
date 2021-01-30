@@ -1,13 +1,10 @@
 package game.narrative;
 
 import com.sun.org.apache.xerces.internal.xni.grammars.Grammar;
-import game.narrative.tvtropes.TVTrope;
 import game.narrative.TVTropeType;
+import util.Util;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 
 public class GrammarNode {
@@ -52,6 +49,20 @@ public class GrammarNode {
 
     }
 
+    public boolean removeRndConnection()
+    {
+        if(connections.isEmpty())
+            return false;
+
+        List<GrammarNode> keysAsArray = new ArrayList<GrammarNode>(connections.keySet());
+        GrammarNode connection = keysAsArray.get(Util.getNextInt(0, keysAsArray.size()-1));
+
+        connection.removeConnection(this);
+        connections.remove(connection);
+
+        return true;
+    }
+
     public int removeConnection(GrammarNode otherNode)
     {
         int connectionType = -1; // -1 = no connection
@@ -63,6 +74,11 @@ public class GrammarNode {
         }
 
         return connectionType;
+    }
+
+    public boolean checkConnectionExists(GrammarNode otherNode)
+    {
+        return connections.containsKey(otherNode);
     }
 
     public int checkConnection()
@@ -167,5 +183,8 @@ public class GrammarNode {
 
     public void setID(int id) {this.id = id;}
     public int getID() {return id;}
+
+    public TVTropeType getGrammarNodeType() {return grammarNodeType;}
+    public void setGrammarNodeType(TVTropeType type){grammarNodeType = type;}
 
 }

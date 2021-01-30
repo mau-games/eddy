@@ -98,14 +98,96 @@ public class NarrativeStructure {
         System.out.println("OUTPUT:");
         System.out.println(pattern_2.productionRules.get(0).toString());
 
+        System.out.println("RND PATTERN!!!:::");
+
+        GrammarPattern rnd_pattern = createRule();
+
+        System.out.println("INPUT:");
+        System.out.println(rnd_pattern.pattern.toString());
+        System.out.println("OUTPUT:");
+        System.out.println(rnd_pattern.productionRules.get(0).toString());
+
         System.out.println("CURRENT GRAMMAR:");
 
+        System.out.println(grammarGraph.toString());
+        rnd_pattern.match(grammarGraph, 4);
+        System.out.println(grammarGraph.toString());
+        pattern_1.match(grammarGraph, 4);
         System.out.println(grammarGraph.toString());
         pattern_2.match(grammarGraph, 4);
         System.out.println(grammarGraph.toString());
 //        ArrayList<GrammarGraph> perms = grammarGraph.getPermutations(2);
 //        System.out.println(perms);
 
+    }
+
+    public GrammarPattern createRule()
+    {
+        GrammarPattern rndRule = new GrammarPattern();
+        GrammarGraph pattern = new GrammarGraph();
+
+        int node_amount = Util.getNextInt(1, 4);
+
+        //Create the nodes
+        for(int i = 0; i < node_amount; i++)
+        {
+            //I add any but maybe i shouldn't; lets try!
+            pattern.addNode(TVTropeType.ANY);
+        }
+
+        //Add random connections
+        for(int i = 0; i < node_amount; i++)
+            addConnection(pattern);
+
+        rndRule.setPattern(pattern);
+
+        //Now create the production
+        GrammarGraph production1 = new GrammarGraph();
+        node_amount = Util.getNextInt(1, 4);
+
+        for(int i = 0; i < node_amount; i++)
+        {
+            //I add any but maybe i shouldn't; lets try!
+            production1.addNode(TVTropeType.ANY);
+        }
+
+        //Add random connections
+        for(int i = 0; i < node_amount; i++)
+            addConnection(production1);
+
+        rndRule.addProductionRule(production1);
+//        this.chromosome.add(rndRule);,
+
+        return rndRule;
+
+    }
+
+    private GrammarGraph addConnection(GrammarGraph pat)
+    {
+        if(pat.nodes.size() >= 2)
+        {
+            int first_index = Util.getNextInt(0, pat.nodes.size());
+            int second_index = Util.getNextInt(0, pat.nodes.size());
+            GrammarNode first = pat.nodes.get(first_index);
+
+            while( second_index == first_index)
+                second_index = Util.getNextInt(0, pat.nodes.size());
+
+            GrammarNode second = pat.nodes.get(second_index);
+
+            //Fixme: This still needs more testing!
+            if(!first.checkConnectionExists(second))
+            {
+                int connection_type = Util.getNextInt(0, 3);
+                connection_type = 1;
+                first.addConnection(second, connection_type);
+
+                if(connection_type != 1)
+                    second.addConnection(first, connection_type);
+            }
+        }
+
+        return pat;
     }
 
     public void generateGraph()
