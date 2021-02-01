@@ -9,12 +9,31 @@ import java.util.*;
  */
 public class GrammarGraph
 {
-    public int ID_counter; //Actually this can literally just be the size of nodes.
+    public int ID_counter = 0; //Actually this can literally just be the size of nodes.
     public ArrayList<GrammarNode> nodes;
 
     public GrammarGraph()
     {
         nodes = new ArrayList<GrammarNode>();
+    }
+
+    //Copy constructor.
+    public GrammarGraph(GrammarGraph other)
+    {
+        nodes = new ArrayList<GrammarNode>();
+
+        for(GrammarNode other_nodes : other.nodes)
+        {
+            addNode(other_nodes.getGrammarNodeType());
+        }
+
+        for(int i = 0; i < other.nodes.size(); i++)
+        {
+            for(Map.Entry<GrammarNode, Integer> keyValue : other.nodes.get(i).connections.entrySet())
+            {
+                nodes.get(i).addConnection(nodes.get(other.getNodeIndex(keyValue.getKey())), keyValue.getValue());
+            }
+        }
     }
 
     public GrammarNode addNode(TVTropeType nodeType)

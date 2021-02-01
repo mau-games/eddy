@@ -55,7 +55,7 @@ public class GrammarNode {
             return false;
 
         List<GrammarNode> keysAsArray = new ArrayList<GrammarNode>(connections.keySet());
-        GrammarNode connection = keysAsArray.get(Util.getNextInt(0, keysAsArray.size()-1));
+        GrammarNode connection = keysAsArray.get(Util.getNextInt(0, keysAsArray.size()));
 
         connection.removeConnection(this);
         connections.remove(connection);

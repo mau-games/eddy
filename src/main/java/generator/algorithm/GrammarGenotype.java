@@ -7,6 +7,7 @@ import game.narrative.TVTropeType;
 import generator.config.GeneratorConfig;
 import util.Util;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class GrammarGenotype
@@ -43,16 +44,70 @@ public class GrammarGenotype
 
     public GrammarGenotype()
     {
+        this.chromosome = new ArrayList<GrammarPattern>();
         produceRndChromosome();
+    }
+
+    public GrammarGenotype(GrammarGenotype other)
+    {
+        this.chromosome = new ArrayList<GrammarPattern>();
+        for(GrammarPattern genome : other.chromosome)
+        {
+            this.chromosome.add(new GrammarPattern(genome));
+        }
     }
 
     public GrammarGenotype(List<GrammarPattern> chromosome)
     {
-        this.chromosome = chromosome;
+        this.chromosome = new ArrayList<GrammarPattern>();
+        for(GrammarPattern genome : chromosome)
+        {
+            this.chromosome.add(new GrammarPattern(genome));
+        }
     }
 
     private void produceRndChromosome()
     {
+        int rule_count = Util.getNextInt(1, 4);
+
+        for(int j = 0; j < rule_count; j++)
+        {
+            GrammarPattern rndRule = new GrammarPattern();
+            GrammarGraph pattern = new GrammarGraph();
+
+            int node_amount = Util.getNextInt(1, 4);
+
+            //Create the nodes
+            for(int i = 0; i < node_amount; i++)
+            {
+                //I add any but maybe i shouldn't; lets try!
+                pattern.addNode(TVTropeType.ANY);
+            }
+
+            //Add random connections
+            for(int i = 0; i < node_amount; i++)
+                addConnection(pattern);
+
+            rndRule.setPattern(pattern);
+
+            //Now create the production
+            GrammarGraph production1 = new GrammarGraph();
+            node_amount = Util.getNextInt(1, 4);
+
+            for(int i = 0; i < node_amount; i++)
+            {
+                //I add any but maybe i shouldn't; lets try!
+                production1.addNode(TVTropeType.ANY);
+            }
+
+            //Add random connections
+            for(int i = 0; i < node_amount; i++)
+                addConnection(production1);
+
+            rndRule.addProductionRule(production1);
+
+            this.chromosome.add(rndRule);
+        }
 
     }
 
@@ -71,6 +126,10 @@ public class GrammarGenotype
     {
         GrammarPattern rndRule = chromosome.get(Util.getNextInt(0, this.chromosome.size()));
         GrammarGraph pat = rndRule.pattern;
+
+        if (pat.nodes.size() <= 1)
+            return;
+
         pat.removeNode(pat.nodes.get(Util.getNextInt(0, pat.nodes.size())));
 
         rndRule.setPattern(pat);
@@ -87,7 +146,7 @@ public class GrammarGenotype
         {
 
         }
-        pat.removeNode(pat.nodes.get(Util.getNextInt(0, pat.nodes.size())));
+//        pat.removeNode(pat.nodes.get(Util.getNextInt(0, pat.nodes.size())));
 
         rndRule.setPattern(pat);
     }
@@ -97,8 +156,7 @@ public class GrammarGenotype
         GrammarPattern rndRule = chromosome.get(Util.getNextInt(0, this.chromosome.size()));
         GrammarGraph pat = rndRule.pattern;
 
-        //TODO: Not clear if this actually works!
-        pat.nodes.get(Util.getNextInt(0, pat.nodes.size() - 1)).setGrammarNodeType(
+        pat.nodes.get(Util.getNextInt(0, pat.nodes.size())).setGrammarNodeType(
                 TVTropeType.values()[Util.getNextInt(0, TVTropeType.values().length)]);
 
         rndRule.setPattern(pat); //Perhaps not needed
@@ -165,7 +223,11 @@ public class GrammarGenotype
     public void removeNodeRndOutput()
     {
         GrammarPattern rndRule = chromosome.get(Util.getNextInt(0, this.chromosome.size()));
-        GrammarGraph rndOutput = rndRule.productionRules.get(Util.getNextInt(0, this.chromosome.size()));
+        GrammarGraph rndOutput = rndRule.productionRules.get(Util.getNextInt(0, rndRule.productionRules.size()));
+
+        if (rndOutput.nodes.size() <= 1)
+            return;
+
         rndOutput.removeNode(rndOutput.nodes.get(Util.getNextInt(0, rndOutput.nodes.size())));
     }
 
@@ -175,17 +237,17 @@ public class GrammarGenotype
     public void changeNodeTypeRndOutput()
     {
         GrammarPattern rndRule = chromosome.get(Util.getNextInt(0, this.chromosome.size()));
-        GrammarGraph rndOutput = rndRule.productionRules.get(Util.getNextInt(0, this.chromosome.size()));
+        GrammarGraph rndOutput = rndRule.productionRules.get(Util.getNextInt(0, rndRule.productionRules.size()));
 
         //TODO: Not clear if this actually works!
-        rndOutput.nodes.get(Util.getNextInt(0, rndOutput.nodes.size() - 1)).setGrammarNodeType(
+        rndOutput.nodes.get(Util.getNextInt(0, rndOutput.nodes.size())).setGrammarNodeType(
                 TVTropeType.values()[Util.getNextInt(0, TVTropeType.values().length)]);
     }
 
     public void addConnectionRndOutput()
     {
         GrammarPattern rndRule = chromosome.get(Util.getNextInt(0, this.chromosome.size()));
-        GrammarGraph rndOutput = rndRule.productionRules.get(Util.getNextInt(0, this.chromosome.size()));
+        GrammarGraph rndOutput = rndRule.productionRules.get(Util.getNextInt(0, rndRule.productionRules.size()));
 
         if(rndOutput.nodes.size() >= 2)
         {
@@ -210,7 +272,7 @@ public class GrammarGenotype
     public void removeConnectionRndOutput()
     {
         GrammarPattern rndRule = chromosome.get(Util.getNextInt(0, this.chromosome.size()));
-        GrammarGraph rndOutput = rndRule.productionRules.get(Util.getNextInt(0, this.chromosome.size()));
+        GrammarGraph rndOutput = rndRule.productionRules.get(Util.getNextInt(0, rndRule.productionRules.size()));
 
         if(rndOutput.nodes.size() >= 2)
         {

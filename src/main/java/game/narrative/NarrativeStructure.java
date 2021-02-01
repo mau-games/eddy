@@ -2,6 +2,13 @@ package game.narrative;
 
 import com.sun.org.apache.xerces.internal.xni.grammars.Grammar;
 import finder.geometry.Bitmap;
+import game.Room;
+import generator.algorithm.Algorithm;
+import generator.algorithm.MAPElites.Dimensions.MAPEDimensionFXML;
+import generator.algorithm.MAPElites.GrammarMAPEliteAlgorithm;
+import generator.algorithm.MAPElites.MAPEliteAlgorithm;
+import generator.algorithm.MAPElites.grammarDimensions.GADimensionGrammar;
+import generator.algorithm.MAPElites.grammarDimensions.MAPEDimensionGrammarFXML;
 import util.Point;
 import util.Util;
 import util.algorithms.Node;
@@ -17,8 +24,22 @@ public class NarrativeStructure {
 
     GrammarGraph grammarGraph;
 
+    private void RunMAPElites(MAPEDimensionGrammarFXML[] dimensions)
+    {
+        Algorithm ga = new GrammarMAPEliteAlgorithm();
+        ((GrammarMAPEliteAlgorithm)ga).initPopulations(dimensions);
+        ga.start();
+    }
+
     public NarrativeStructure()
     {
+        //now it looks like it works.
+        //Now i need to make it that you actually create the phenotype!
+        RunMAPElites(new MAPEDimensionGrammarFXML[]{
+                new MAPEDimensionGrammarFXML(GADimensionGrammar.GrammarDimensionTypes.CONFLICT, 5),
+                        new MAPEDimensionGrammarFXML(GADimensionGrammar.GrammarDimensionTypes.SIZE, 5)
+                });
+
         //CORE RULES
         productionRules.put("hero", new String[]{"5ma","neo","sh"});
         productionRules.put("conflict", new String[]{"covs","cose","cona","coso"});

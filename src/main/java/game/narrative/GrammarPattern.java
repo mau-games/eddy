@@ -17,6 +17,19 @@ public class GrammarPattern {
         productionRules = new ArrayList<GrammarGraph>();
     }
 
+    public GrammarPattern(GrammarPattern other)
+    {
+        pattern = new GrammarGraph();
+        productionRules = new ArrayList<GrammarGraph>();
+
+        setPattern(new GrammarGraph(other.pattern));
+
+        for(GrammarGraph production_rule : other.productionRules)
+        {
+            addProductionRule(new GrammarGraph(production_rule));
+        }
+    }
+
     public void setPattern(GrammarGraph pattern)
     {
         this.pattern = pattern;

@@ -99,7 +99,7 @@ public class Algorithm extends Thread implements Listener {
 	private int breedingGenerations = 5; //this relates to how many generations will it breed 
 	private int realCurrentGen = 0;
 	private int currentGen = 0;
-	private int iter_generations = 5000;
+	protected int iter_generations = 5000;
 	
 	
 //	ArrayList<Room> uniqueGeneratedRooms = new ArrayList<Room>();

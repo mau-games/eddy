@@ -4,7 +4,7 @@ import com.sun.org.apache.xerces.internal.xni.grammars.Grammar;
 import game.Room;
 import game.narrative.GrammarGraph;
 import game.narrative.GrammarPattern;
-import generator.algorithm.MAPElites.Dimensions.GADimension;
+import generator.algorithm.MAPElites.grammarDimensions.GADimensionGrammar;
 import generator.config.GeneratorConfig;
 import util.Util;
 
@@ -15,7 +15,7 @@ import java.util.List;
 public class GrammarIndividual
 {
     private double fitness;
-    protected HashMap<GADimension.DimensionTypes, Double> dimensionValues; //This will change to specific dimensions!
+    protected HashMap<GADimensionGrammar.GrammarDimensionTypes, Double> dimensionValues; //This will change to specific dimensions!
 
     private GrammarGenotype genotype;
     private GrammarPhenotype phenotype;
@@ -38,10 +38,20 @@ public class GrammarIndividual
         this.genotype = new GrammarGenotype(); //Create its own.
     }
 
+    public GrammarIndividual(float mutation_probability)
+    {
+        this.genotype = new GrammarGenotype(); //Create its own.
+        this.mutationProbability = mutation_probability;
+        this.config = null;
+        this.phenotype = null;
+        this.fitness = 0.0;
+        this.evaluate = false;
+    }
+
     public GrammarIndividual(GeneratorConfig config, GrammarGenotype genotype, float mutationProbability)
     {
         this.config = config;
-        this.genotype = genotype;
+        this.genotype = new GrammarGenotype(genotype);
         this.phenotype = null;
         this.fitness = 0.0;
         this.evaluate = false;
@@ -75,33 +85,33 @@ public class GrammarIndividual
 //        genotype.ProduceGenotype(room);
 //    }
 
-    public void SetDimensionValues(ArrayList<GADimension> dimensions, Room original)
+    public void SetDimensionValues(ArrayList<GADimensionGrammar> dimensions, Room original)
     {
-        dimensionValues = new HashMap<GADimension.DimensionTypes, Double>();
+        dimensionValues = new HashMap<GADimensionGrammar.GrammarDimensionTypes, Double>();
 
-        //TODO:
-//        for(GADimension dimension : dimensions)
-//        {
-//            dimensionValues.put(dimension.GetType(), dimension.CalculateValue(this, original));
-//        }
+        //FIXME: target graph
+        for(GADimensionGrammar dimension : dimensions)
+        {
+            dimensionValues.put(dimension.GetType(), dimension.CalculateValue(this, null));
+        }
 //
 //        this.getPhenotype().getMap(-1, 1, null, null, null).SetDimensionValues(dimensionValues);
     }
 
-    public double getDimensionValue(GADimension.DimensionTypes currentDimension)
+    public double getDimensionValue(GADimensionGrammar.GrammarDimensionTypes currentDimension)
     {
         return dimensionValues.get(currentDimension);
     }
 
-    public GrammarIndividual mutate()
+    public GrammarIndividual mutate(boolean test_mutation_prob)
     {
         //Check if mutate at all
-        if(Util.getNextFloat(0.0f, 1.0f) > mutationProbability)
+        if(!test_mutation_prob || Util.getNextFloat(0.0f, 1.0f) > mutationProbability)
         {
             //For now just a random
-            int select=Util.getNextInt(0, 3);
+            int select=Util.getNextInt(0, 6);
 //            GrammarIndividual mutated_version = new GrammarIndividual(config, new ZoneGenotype(config, genotype.getChromosome().clone(), genotype.GetRootChromosome()), mutationProbability);
-            GrammarIndividual mutated_version = new GrammarIndividual();
+            GrammarIndividual mutated_version = new GrammarIndividual(null, this.getGenotype().getChromosome(), this.mutationProbability);
 
             //These are all for changing input patterns
             switch(select)
