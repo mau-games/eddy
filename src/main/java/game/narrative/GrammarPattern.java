@@ -51,11 +51,15 @@ public class GrammarPattern {
     public void match(GrammarGraph currentGraph, int maxConnections)
     {
         ArrayList<GrammarGraph> permutations = currentGraph.getPermutations(this.pattern.nodes.size());
-        Collections.shuffle(permutations);
+//        Collections.shuffle(permutations);
         GrammarGraph selectedSubgraph = new GrammarGraph();
 
         for(GrammarGraph perm : permutations)
         {
+            if(this.pattern.nodes.size() > perm.nodes.size())
+                continue;
+
+
             if(pattern.testGraphMatchPattern(perm))
             {
                 selectedSubgraph = perm;
@@ -69,8 +73,8 @@ public class GrammarPattern {
         }
 
         //fixme: For testing only
-        System.out.println("SELECTED SUBGRAPH!");
-        System.out.println(selectedSubgraph.toString());
+//        System.out.println("SELECTED SUBGRAPH!");
+//        System.out.println(selectedSubgraph.toString());
 
         //break connections within the subgraph
         selectedSubgraph.removeInterestedConnections();
@@ -79,12 +83,22 @@ public class GrammarPattern {
 
         //Add nodes if needed!
         //TODO: WHAT IF WE NEED TO REMOVE BRA? we need to indicate to the bigger graph i think (for indices)
+        //Got you cover fam!
         for (int i = selectedSubgraph.nodes.size(); i < selectedPattern.nodes.size(); i++)
         {
             GrammarNode newNode = new GrammarNode(currentGraph.nodes.size(), selectedPattern.nodes.get(i).grammarNodeType);
-            currentGraph.nodes.add(newNode);
-            selectedSubgraph.nodes.add(newNode);
+            currentGraph.addNode(newNode, false);
+            selectedSubgraph.addNode(newNode, false);
+//            currentGraph.nodes.add(newNode);
+//            selectedSubgraph.nodes.add(newNode);
         }
+
+        for (int i = selectedSubgraph.nodes.size(); i > selectedPattern.nodes.size(); i--)
+        {
+            selectedSubgraph.removeNode(i-1);
+            currentGraph.removeNode(i-1);
+        }
+
 
         //add connections?
         for (int i = 0; i < selectedPattern.nodes.size(); i++)

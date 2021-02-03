@@ -24,21 +24,33 @@ public class NarrativeStructure {
 
     GrammarGraph grammarGraph;
 
-    private void RunMAPElites(MAPEDimensionGrammarFXML[] dimensions)
+    private void RunMAPElites(MAPEDimensionGrammarFXML[] dimensions, GrammarGraph ax)
     {
-        Algorithm ga = new GrammarMAPEliteAlgorithm();
+        Algorithm ga = new GrammarMAPEliteAlgorithm(ax);
         ((GrammarMAPEliteAlgorithm)ga).initPopulations(dimensions);
         ga.start();
     }
 
     public NarrativeStructure()
     {
+        GrammarGraph graph_axiom = new GrammarGraph();
+        GrammarNode a1 = graph_axiom.addNode(TVTropeType.ANY);
+        GrammarNode b1 = graph_axiom.addNode(TVTropeType.ANY);
+        a1.addConnection(b1, 1);
+
+//        GrammarNode hero = new GrammarNode(0, TVTropeType.HERO);
+//        GrammarNode conflict = new GrammarNode(1, TVTropeType.CONFLICT);
+//        GrammarNode enemy = new GrammarNode(2, TVTropeType.ENEMY);
+//
+//        hero.addConnection(conflict, 1);
+//        conflict.addConnection(enemy, 1);
+
         //now it looks like it works.
         //Now i need to make it that you actually create the phenotype!
         RunMAPElites(new MAPEDimensionGrammarFXML[]{
                 new MAPEDimensionGrammarFXML(GADimensionGrammar.GrammarDimensionTypes.CONFLICT, 5),
                         new MAPEDimensionGrammarFXML(GADimensionGrammar.GrammarDimensionTypes.SIZE, 5)
-                });
+                }, graph_axiom);
 
         //CORE RULES
         productionRules.put("hero", new String[]{"5ma","neo","sh"});

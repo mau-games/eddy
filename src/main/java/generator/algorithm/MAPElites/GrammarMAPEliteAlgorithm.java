@@ -11,6 +11,8 @@ import finder.patterns.micro.*;
 import game.AlgorithmSetup;
 import game.MapContainer;
 import game.Room;
+import game.narrative.GrammarGraph;
+import game.narrative.TVTropeType;
 import generator.algorithm.Algorithm;
 import generator.algorithm.MAPElites.Dimensions.*;
 import generator.algorithm.MAPElites.Dimensions.GADimension.DimensionTypes;
@@ -79,6 +81,10 @@ public class GrammarMAPEliteAlgorithm extends Algorithm implements Listener {
 	//UGLY WAY OF DOING THIS!
 	ArrayList<GrammarIndividual> currentRendered = new ArrayList<GrammarIndividual>(); //I think this didn't work
 
+
+	GrammarGraph axiom;
+	GrammarGraph target;
+
 	public GrammarMAPEliteAlgorithm(GeneratorConfig config) {
 		super(config);
 	}
@@ -103,8 +109,9 @@ public class GrammarMAPEliteAlgorithm extends Algorithm implements Listener {
 		super(room, algorithmTypes);
 	}
 
-	public GrammarMAPEliteAlgorithm()
+	public GrammarMAPEliteAlgorithm(GrammarGraph axiom)
 	{
+		this.axiom = axiom;
 		id = UUID.randomUUID();
 //		populationSize = config.getPopulationSize();
 		populationSize = 1250; //Setting same as experiments
@@ -145,24 +152,6 @@ public class GrammarMAPEliteAlgorithm extends Algorithm implements Listener {
 			indices[dimension] = i;
 			CreateCellsOpposite(dimension-1, dimensionSizes, indices);
 		}
-	}
-
-	/**
-	 * Checks if an ZoneIndividual is valid (feasible), that is:
-	 * 1. There exist paths between the entrance and all other doors
-	 * 2. There exist paths between the entrance and all enemies
-	 * 3. There exist paths between the entrance and all treasures
-	 * 4. There is at least one enemy
-	 * 5. There is at least one treasure
-	 *
-	 * @param ind The ZoneIndividual to check
-	 * @return Return true if ZoneIndividual is valid, otherwise return false
-	 */
-	protected boolean checkGrammarIndividual(GrammarIndividual ind){
-
-		//FIXME: IMPLEMENT!
-
-		return Util.getNextInt(0, 2) == 0;
 	}
 	
 	
@@ -381,6 +370,32 @@ public class GrammarMAPEliteAlgorithm extends Algorithm implements Listener {
 	}
 
 	/**
+	 * Checks if an ZoneIndividual is valid (feasible), that is:
+	 * 1. There exist paths between the entrance and all other doors
+	 * 2. There exist paths between the entrance and all enemies
+	 * 3. There exist paths between the entrance and all treasures
+	 * 4. There is at least one enemy
+	 * 5. There is at least one treasure
+	 *
+	 * @param ind The ZoneIndividual to check
+	 * @return Return true if ZoneIndividual is valid, otherwise return false
+	 */
+	protected boolean checkGrammarIndividual(GrammarIndividual ind){
+
+		//FIXME: IMPLEMENT!
+
+		GrammarGraph nStructure = ind.getPhenotype().getGrammarGraphOutput(axiom, 1);
+		int unconnectedNodes = nStructure.checkUnconnectedNodes();
+
+
+		return nStructure.fullyConnectedGraph();
+
+//		return unconnectedNodes <= 0;
+
+
+	}
+
+	/**
 	 * Evaluates the fitness of a valid ZoneIndividual using the following factors:
 	 *  1. Entrance safety (how close are enemies to the entrance)
 	 *  2. Proportion of tiles that are enemies
@@ -392,7 +407,40 @@ public class GrammarMAPEliteAlgorithm extends Algorithm implements Listener {
 	 */
 	public void evaluateFeasibleGrammarIndividual(GrammarIndividual ind)
 	{
-		ind.setFitness(1.0);
+		GrammarGraph nStructure = ind.getPhenotype().getGrammarGraphOutput(axiom, 1);
+		double fitness = 0.0;
+		double w_any = 0.2;
+		double w_node_repetition = 0.3;
+		double w_tSize = 0.5; //Size is going to be done by the elites+
+		int min_freq_nodes = 1;
+		float expected_size = 4.0f;
+		TVTropeType[] excluded_repeated_nodes = {TVTropeType.CONFLICT};
+
+		//AND THEN WHAT?
+
+		//A bit hardcore, perhaps we should scale based on how different
+		//then we could use as target one step more.
+		if(axiom.testGraphMatchPattern(nStructure))
+			fitness = 0.0;
+		else
+		{
+			//Get first how many ANY exist
+			float cumulative_any = 1.0f - nStructure.checkAmountNodes(TVTropeType.ANY);
+
+			//get the right size!! -- probably for elites
+			float targetSize = expected_size - nStructure.checkGraphSize();
+			targetSize *= 0.1f;
+			targetSize = 1.0f - Math.abs(targetSize);
+//			fitness += targetSize;
+
+			//Penalize repeting nodes
+			float node_repetition = 1.0f - nStructure.SameNodes(min_freq_nodes, excluded_repeated_nodes);
+
+			fitness = (w_any * (cumulative_any)) + (w_tSize * targetSize) + (w_node_repetition * node_repetition);
+
+		}
+		ind.setFitness(fitness);
+//		ind.setFitness(1.0);
 		ind.setEvaluate(true);
 	}
 
@@ -408,7 +456,49 @@ public class GrammarMAPEliteAlgorithm extends Algorithm implements Listener {
 	 */
 	public void evaluateInfeasibleGrammarIndividual(GrammarIndividual ind)
 	{
-		ind.setFitness(1.0);
+		GrammarGraph nStructure = ind.getPhenotype().getGrammarGraphOutput(axiom, 1);
+		double fitness = 0.0;
+		double w_any = 0.2;
+		double w_node_repetition = 0.3;
+		double w_tSize = 0.5; //Size is going to be done by the elites+
+		int min_freq_nodes = 1;
+		TVTropeType[] excluded_repeated_nodes = {TVTropeType.CONFLICT};
+
+		//AND THEN WHAT?
+
+		//FIXME: IT IS ALWAYS ANY!
+		if(nStructure.nodes.get(0).getGrammarNodeType() == TVTropeType.ANY)
+		{
+			ind.setFitness(0.0);
+//		ind.setFitness(1.0);
+			ind.setEvaluate(true);
+			return;
+		}
+
+
+		//A bit hardcore, perhaps we should scale based on how different
+		//then we could use as target one step more.
+		if(axiom.testGraphMatchPattern(nStructure))
+			fitness = 0.0;
+		else
+		{
+			//Get first how many ANY exist
+			float cumulative_any = 1.0f - nStructure.checkAmountNodes(TVTropeType.ANY);
+
+			//get the right size!! -- probably for elites
+			float targetSize = 6.0f - nStructure.checkGraphSize();
+			targetSize *= 0.1f;
+			targetSize = 1.0f - Math.abs(targetSize);
+//			fitness += targetSize;
+
+			//Penalize repeting nodes
+			float node_repetition = 1.0f - nStructure.SameNodes(min_freq_nodes, excluded_repeated_nodes);
+
+			fitness = (w_any * (cumulative_any)) + (w_tSize * targetSize) + (w_node_repetition * node_repetition);
+
+		}
+		ind.setFitness(fitness);
+//		ind.setFitness(1.0);
 		ind.setEvaluate(true);
 	}
 	
@@ -665,6 +755,7 @@ public class GrammarMAPEliteAlgorithm extends Algorithm implements Listener {
     	}
     	
     	realCurrentGen++;
+		System.out.println(realCurrentGen);
     }
     
     

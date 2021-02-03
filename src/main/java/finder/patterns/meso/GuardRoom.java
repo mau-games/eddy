@@ -32,7 +32,7 @@ public class GuardRoom extends CompositePattern {
 	
 	public GuardRoom(GeneratorConfig config, int enemyCount){
 //		quality = Math.min((double)enemyCount/config.getGuardRoomTargetEnemyAmount(),1.0); //previous
-		quality = Math.max(0, 1.0 - (double)Math.abs(enemyCount - config.getGuardRoomTargetEnemyAmount())/config.getGuardRoomTargetEnemyAmount());
+		quality = Math.max(0, 1.0 - (double)Math.abs(enemyCount - config.getGuardRoomTargetEnemyAmount())/config.getGuardRoomTargetEnemyAmount()); //TODO: This is a big issue!½
 	}	
 	
 	public static List<CompositePattern> matches(Room room, Graph<Pattern> patternGraph, List<CompositePattern> currentMeso) {

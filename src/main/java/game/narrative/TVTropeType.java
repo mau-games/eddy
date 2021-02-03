@@ -8,17 +8,17 @@ public enum TVTropeType {
     MODIFIER(4),
     FIVE_MA(11),
     NEO(12),
-    SH(13),
-    COVS(21),
-    COSE(22),
-    CONA(23),
-    COSO(24),
-    EMP(31),
-    BAD(32),
-    DRA(33),
-    CHK(41),
-    MCG(42),
-    MHQ(43);
+    SH(13), //Superhero
+    COVS(21), //Conflict against another
+    COSE(22), //Conflict against self?
+    CONA(23), //Conflict against nature?
+    COSO(24), //Conflict against society
+    EMP(31), //The empire
+    BAD(32), //BAD
+    DRA(33), //Drake
+    CHK(41), //Chekov's gun
+    MCG(42), //Macguffin
+    MHQ(43); //May help you on your quest
 
     private final int value;
 
