@@ -31,7 +31,7 @@ public class NarrativeStructure {
         ga.start();
     }
 
-    public NarrativeStructure()
+    private void runExperiment()
     {
         GrammarGraph graph_axiom = new GrammarGraph();
         GrammarNode a1 = graph_axiom.addNode(TVTropeType.ANY);
@@ -49,8 +49,198 @@ public class NarrativeStructure {
         //Now i need to make it that you actually create the phenotype!
         RunMAPElites(new MAPEDimensionGrammarFXML[]{
                 new MAPEDimensionGrammarFXML(GADimensionGrammar.GrammarDimensionTypes.CONFLICT, 5),
-                        new MAPEDimensionGrammarFXML(GADimensionGrammar.GrammarDimensionTypes.SIZE, 5)
-                }, graph_axiom);
+                new MAPEDimensionGrammarFXML(GADimensionGrammar.GrammarDimensionTypes.SIZE, 5)
+        }, graph_axiom);
+    }
+
+    public void runTestRemoveNode_Connections()
+    {
+        GrammarGraph graph_axiom = new GrammarGraph();
+        GrammarNode a1 = graph_axiom.addNode(TVTropeType.ANY);
+        GrammarNode b1 = graph_axiom.addNode(TVTropeType.ANY);
+        a1.addConnection(b1, 1);
+
+        //PATTERN 1
+
+        GrammarPattern pattern_1 = new GrammarPattern();
+        GrammarGraph ipatt_1 = new GrammarGraph();
+        GrammarGraph opatt_11 = new GrammarGraph();
+
+        GrammarNode a = new GrammarNode(0, TVTropeType.ANY);
+        GrammarNode b = new GrammarNode(1, TVTropeType.ANY);
+        GrammarNode c = new GrammarNode(2, TVTropeType.ANY);
+        a.addConnection(c, 1);
+        b.addConnection(c, 1);
+        b.addConnection(a, 1);
+        ipatt_1.nodes.add(a); ipatt_1.nodes.add(b); ipatt_1.nodes.add(c);
+
+        a = new GrammarNode(0, TVTropeType.ANY);
+        opatt_11.nodes.add(a);
+
+        pattern_1.setPattern(ipatt_1);
+        pattern_1.addProductionRule(opatt_11);
+
+        //PATTERN 2
+
+        GrammarPattern pattern_2 = new GrammarPattern();
+        GrammarGraph ipatt_2 = new GrammarGraph();
+        GrammarGraph opatt_21 = new GrammarGraph();
+
+        a = new GrammarNode(0, TVTropeType.ANY);
+        b = new GrammarNode(1, TVTropeType.ANY);
+        a.addConnection(b, 1);
+        ipatt_2.nodes.add(a); ipatt_2.nodes.add(b);
+
+        a = new GrammarNode(0, TVTropeType.ANY);
+        b = new GrammarNode(1, TVTropeType.ANY);
+        c = new GrammarNode(2, TVTropeType.ANY);
+        a.addConnection(c, 1);
+        b.addConnection(c, 1);
+        opatt_21.nodes.add(a); opatt_21.nodes.add(b); opatt_21.nodes.add(c);
+
+        pattern_2.setPattern(ipatt_2);
+        pattern_2.addProductionRule(opatt_21);
+
+        //PATTERN 2
+
+        GrammarPattern pattern_3 = new GrammarPattern();
+        GrammarGraph ipatt_3 = new GrammarGraph();
+        GrammarGraph opatt_31 = new GrammarGraph();
+
+        a = new GrammarNode(0, TVTropeType.ANY);
+        b = new GrammarNode(1, TVTropeType.ANY);
+        c = new GrammarNode(2, TVTropeType.ANY);
+        a.addConnection(c, 1);
+        c.addConnection(b, 1);
+        ipatt_3.nodes.add(a); ipatt_3.nodes.add(b); ipatt_3.nodes.add(c);
+
+        a = new GrammarNode(0, TVTropeType.ANY);
+        b = new GrammarNode(1, TVTropeType.ANY);
+//        c = new GrammarNode(2, TVTropeType.ANY);
+        a.addConnection(b, 1);
+//        c.addConnection(b, 1);
+        opatt_31.nodes.add(a);opatt_31.nodes.add(b);
+//        opatt_31.nodes.add(b); opatt_31.nodes.add(c);
+
+        pattern_3.setPattern(ipatt_3);
+        pattern_3.addProductionRule(opatt_31);
+
+        //APPLY CHANGES
+
+        System.out.println(graph_axiom.toString());
+        pattern_1.match(graph_axiom, 4);
+        System.out.println(graph_axiom.toString());
+        pattern_2.match(graph_axiom, 4);
+        System.out.println(graph_axiom.toString());
+        pattern_3.match(graph_axiom, 4); //THIS IS THE RULE THAT GAVE PROBLEMS
+        System.out.println(graph_axiom.toString());
+
+        GrammarGraph gaxiom = new GrammarGraph();
+        a1 = gaxiom.addNode(TVTropeType.ANY);
+        b1 = gaxiom.addNode(TVTropeType.ANY);
+        a1.addConnection(b1, 1);
+
+
+
+//        pattern_2.match(grammarGraph, 4);
+//        System.out.println(grammarGraph.toString());
+    }
+
+    public void runTestGhostConns_RepeatedID()
+    {
+        GrammarGraph graph_axiom = new GrammarGraph();
+        GrammarNode a1 = graph_axiom.addNode(TVTropeType.ANY);
+        GrammarNode b1 = graph_axiom.addNode(TVTropeType.ANY);
+        a1.addConnection(b1, 1);
+
+        //PATTERN 1
+
+        GrammarPattern pattern_1 = new GrammarPattern();
+        GrammarGraph ipatt_1 = new GrammarGraph();
+        GrammarGraph opatt_11 = new GrammarGraph();
+
+        GrammarNode a = new GrammarNode(0, TVTropeType.ANY);
+//        GrammarNode b = new GrammarNode(1, TVTropeType.ANY);
+//        GrammarNode c = new GrammarNode(2, TVTropeType.ANY);
+//        a.addConnection(c, 1);
+//        b.addConnection(c, 1);
+//        b.addConnection(a, 1);
+        ipatt_1.nodes.add(a);
+        a = new GrammarNode(0, TVTropeType.ANY);
+        GrammarNode b = new GrammarNode(1, TVTropeType.ANY);
+        a.addConnection(b, 1);
+        opatt_11.nodes.add(a); opatt_11.nodes.add(b);
+
+        pattern_1.setPattern(ipatt_1);
+        pattern_1.addProductionRule(opatt_11);
+
+        //PATTERN 2
+
+        GrammarPattern pattern_2 = new GrammarPattern();
+        GrammarGraph ipatt_2 = new GrammarGraph();
+        GrammarGraph opatt_21 = new GrammarGraph();
+
+        a = new GrammarNode(0, TVTropeType.ANY);
+        b = new GrammarNode(1, TVTropeType.ANY);
+        GrammarNode c = new GrammarNode(2, TVTropeType.ANY);
+        b.addConnection(a, 1);
+        ipatt_2.nodes.add(a); ipatt_2.nodes.add(b); ipatt_2.nodes.add(c);
+
+        a = new GrammarNode(0, TVTropeType.ANY);
+        b = new GrammarNode(1, TVTropeType.ANY);
+//        c = new GrammarNode(2, TVTropeType.ANY);
+//        a.addConnection(c, 1);
+        b.addConnection(a, 1);
+        opatt_21.nodes.add(a); opatt_21.nodes.add(b);
+
+        pattern_2.setPattern(ipatt_2);
+        pattern_2.addProductionRule(opatt_21);
+
+        //PATTERN 3
+
+        GrammarPattern pattern_3 = new GrammarPattern();
+        GrammarGraph ipatt_3 = new GrammarGraph();
+        GrammarGraph opatt_31 = new GrammarGraph();
+
+        a = new GrammarNode(0, TVTropeType.ANY);
+        b = new GrammarNode(1, TVTropeType.ANY);
+//        c = new GrammarNode(2, TVTropeType.ANY);
+        a.addConnection(b, 1);
+//        c.addConnection(b, 1);
+        ipatt_3.nodes.add(a); ipatt_3.nodes.add(b);
+
+        a = new GrammarNode(0, TVTropeType.ANY);
+        opatt_31.nodes.add(a);
+
+        pattern_3.setPattern(ipatt_3);
+        pattern_3.addProductionRule(opatt_31);
+
+        //APPLY CHANGES
+
+        System.out.println(graph_axiom.toString());
+        pattern_1.match(graph_axiom, 4);
+        System.out.println(graph_axiom.toString());
+        pattern_2.match(graph_axiom, 4);
+        System.out.println(graph_axiom.toString());
+        pattern_3.match(graph_axiom, 4); //THIS IS THE RULE THAT GAVE PROBLEMS
+        System.out.println(graph_axiom.toString());
+
+        GrammarGraph gaxiom = new GrammarGraph();
+        a1 = gaxiom.addNode(TVTropeType.ANY);
+        b1 = gaxiom.addNode(TVTropeType.ANY);
+        a1.addConnection(b1, 1);
+
+        short dist = gaxiom.distanceBetweenGraphs(graph_axiom);
+
+//        pattern_2.match(grammarGraph, 4);
+//        System.out.println(grammarGraph.toString());
+    }
+
+    public NarrativeStructure()
+    {
+//        runTestRemoveNode_Connections();
+        runTestGhostConns_RepeatedID();
+        runExperiment();
 
         //CORE RULES
         productionRules.put("hero", new String[]{"5ma","neo","sh"});
@@ -72,7 +262,9 @@ public class NarrativeStructure {
         grammarGraph.nodes.add(conflict);
         grammarGraph.nodes.add(enemy);
 
+        grammarGraph.computeAdjacencyMatrix();
 
+        //PATTERN 1
 
         GrammarPattern pattern_1 = new GrammarPattern();
         GrammarGraph ipatt_1 = new GrammarGraph();
@@ -116,6 +308,35 @@ public class NarrativeStructure {
         pattern_2.setPattern(ipatt_2);
         pattern_2.addProductionRule(opatt_21);
 
+        //PATTERN 2
+
+        GrammarPattern pattern_3 = new GrammarPattern();
+        GrammarGraph ipatt_3 = new GrammarGraph();
+        GrammarGraph opatt_31 = new GrammarGraph();
+
+        a = new GrammarNode(0, TVTropeType.ANY);
+        b = new GrammarNode(1, TVTropeType.ANY);
+//        a.addConnection(b, 1);
+        ipatt_3.nodes.add(a); ipatt_3.nodes.add(b);
+
+        a = new GrammarNode(0, TVTropeType.ANY);
+        b = new GrammarNode(1, TVTropeType.ANY);
+//        c = new GrammarNode(2, TVTropeType.ANY);
+//        a.addConnection(c, 1);
+//        c.addConnection(b, 1);
+        opatt_31.nodes.add(a);opatt_31.nodes.add(b);
+//        opatt_31.nodes.add(b); opatt_31.nodes.add(c);
+
+        pattern_3.setPattern(ipatt_3);
+        pattern_3.addProductionRule(opatt_31);
+
+        System.out.println("DISTANCE BETWEEN CORE AND PATTERN 3");
+        grammarGraph.distanceBetweenGraphs(ipatt_3);
+
+        //PATTERN RND URLE
+
+        GrammarPattern rnd_pattern = createRule();
+
 //        pattern_1.match(grammarGraph, 4);
         System.out.println("RULES::::\n");
 
@@ -133,8 +354,6 @@ public class NarrativeStructure {
 
         System.out.println("RND PATTERN!!!:::");
 
-        GrammarPattern rnd_pattern = createRule();
-
         System.out.println("INPUT:");
         System.out.println(rnd_pattern.pattern.toString());
         System.out.println("OUTPUT:");
@@ -142,6 +361,8 @@ public class NarrativeStructure {
 
         System.out.println("CURRENT GRAMMAR:");
 
+        System.out.println(grammarGraph.toString());
+        pattern_3.match(grammarGraph, 4);
         System.out.println(grammarGraph.toString());
         rnd_pattern.match(grammarGraph, 4);
         System.out.println(grammarGraph.toString());

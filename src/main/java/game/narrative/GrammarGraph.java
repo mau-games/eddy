@@ -86,9 +86,10 @@ public class GrammarGraph
             GrammarNode node = nodes.get(node_id);
             removeAllConnectionsToNode(node);
             node.removeAllConnection();
+            int actual_id = node.id;
             nodes.remove(node);
 
-            for(int i = node_id; i < nodes.size(); i++)
+            for(int i = actual_id; i < nodes.size(); i++)
             {
                 nodes.get(i).setID(i);
             }
@@ -132,6 +133,108 @@ public class GrammarGraph
         }
     }
 
+    public void removeGhostConnections()
+    {
+        for (GrammarNode n : nodes)
+        {
+//            HashMap<GrammarNode, Integer> nChildren = n.getChildrenClone();
+            ArrayList<GrammarNode> childrenToBeRemoved = new ArrayList<GrammarNode>();
+
+            //More javatonic way of doing this (but I also need to do an operation for the node to be removed)
+//            n.connections.entrySet().removeIf(b -> this.getNodeIndex(b.getKey()) == -1);
+
+            for(Map.Entry<GrammarNode, Integer> nChild :  n.connections.entrySet())
+            {
+                if(this.getNodeIndex(nChild.getKey()) == -1)
+                {
+                    childrenToBeRemoved.add(nChild.getKey());
+                    //The node does not exist anymore!
+                }
+            }
+
+            for(GrammarNode childToRemove : childrenToBeRemoved)
+            {
+                n.removeConnection(childToRemove);
+                childToRemove.removeConnection(n);
+            }
+
+
+        }
+    }
+
+
+    public short distanceBetweenGraphs(GrammarGraph other)
+    {
+        int size = this.nodes.size();
+        byte[][] self_adjacency_matrix = this.computeAdjacencyMatrix();
+        byte[] flatten_self = new byte[this.nodes.size() * this.nodes.size()];
+        byte[][] other_adjacency_matrix = other.computeAdjacencyMatrix();
+        byte[] flatten_other = new byte[this.nodes.size() * this.nodes.size()];
+
+        //Calculate first the hamming distance based on self length.
+        short dist = 0;
+
+        //Flat arrays
+//        for(int i = 0)
+        for (int j = 0; j < size; j++)
+        {
+            for (int i = 0; i < size; i++)
+            {
+                int step = j * size + i;
+                if(j < other_adjacency_matrix.length && i < other_adjacency_matrix[0].length)
+                {
+//                    dist += Math.abs(self_adjacency_matrix[j][i] ^ other_adjacency_matrix[j][i]);
+                    dist += Math.abs(self_adjacency_matrix[j][i] ^ other_adjacency_matrix[j][i]);
+
+                }
+
+//                flatten_self[step] = self_adjacency_matrix[j][i];
+//
+//                if(step > )
+
+            }
+        }
+
+//        System.out.println(dist);
+        return dist;
+
+    }
+
+    public byte[][] computeAdjacencyMatrix()
+    {
+        int size = this.nodes.size();
+        byte[][] adjacency_matrix = new byte[this.nodes.size()][this.nodes.size()];
+
+        for(int i = 0; i < this.nodes.size(); i++)
+        {
+            for(Map.Entry<GrammarNode, Integer> keyValue : this.nodes.get(i).connections.entrySet())
+            {
+                adjacency_matrix[i][keyValue.getKey().id] = 1;
+//                nodes.get(i).addConnection(nodes.get(other.getNodeIndex(keyValue.getKey())), keyValue.getValue());
+            }
+        }
+
+
+
+//        StringBuilder map = new StringBuilder();
+//
+//        for (int j = 0; j < size; j++)
+//        {
+//            for (int i = 0; i < size; i++)
+//            {
+//                {
+//                    map.append(adjacency_matrix[j][i]);
+//                }
+//
+//            }
+//            map.append("\n");
+//        }
+//
+//        System.out.println(map.toString());
+
+        return adjacency_matrix;
+    }
+
     public boolean testGraphMatchPattern(GrammarGraph testedGraph)
     {
         for(int i = 0; i < this.nodes.size(); ++i)
@@ -158,14 +261,32 @@ public class GrammarGraph
                 testing.add(pIndex);
             }
 
-            ArrayList<GrammarNode> testChildren = new ArrayList<>(testGraphChildren.keySet());
-            ArrayList<GrammarNode> mainChildren = new ArrayList<>(thisChildren.keySet());
+//            ArrayList<Integer> testing2 = new ArrayList<Integer>();
+//            for(GrammarNode otherChild : testGraphChildren.keySet())
+//            {
+//                int pIndex = testedGraph.getNodeIndex(otherChild);
+//                testing2.add(pIndex);
+//            }
 
+
+//            ArrayList<GrammarNode> testChildren = new ArrayList<>(testGraphChildren.keySet());
+//            ArrayList<GrammarNode> mainChildren = new ArrayList<>(thisChildren.keySet());
+
+//            //Sizes might be right but still can be connected to the wrong ones, check that children in each matches!
+//            for(int j = 0; j < testChildren.size(); j++)
+//            {
+//                Integer gIndex = this.getNodeIndex(mainChildren.get(j));
+//                if (!testing.remove(gIndex)) {
+//                    return false;
+//                }
+//            }
+
+            //Fixed!
             //Sizes might be right but still can be connected to the wrong ones, check that children in each matches!
-            for(int j = 0; j < testChildren.size(); j++)
+            for(GrammarNode otherChild : testGraphChildren.keySet())
             {
-                Integer gIndex = this.getNodeIndex(mainChildren.get(j));
-                if (!testing.remove(gIndex)) {
+                int gIndex = testedGraph.getNodeIndex(otherChild);
+                if (!testing.remove(Integer.valueOf(gIndex))) {
                     return false;
                 }
             }
@@ -356,6 +477,7 @@ public class GrammarGraph
         HashMap<TVTropeType, Integer> nTypes = new HashMap<>();
         float output = 0.0f;
 
+        //Count nodes and repetition
         for(GrammarNode node : nodes)
         {
             if(nTypes.containsKey(node.grammarNodeType))
@@ -366,6 +488,7 @@ public class GrammarGraph
                 nTypes.put(node.grammarNodeType,1);
         }
 
+        //If any node is repeated more than "min_freq", and is not part of the excluded nodes (special ones) we count it!
         for(Map.Entry<TVTropeType, Integer> keyValue : nTypes.entrySet())
         {
             if(keyValue.getValue() > min_freq && !Arrays.stream(excluded_nodes).anyMatch(keyValue.getKey()::equals))
@@ -374,6 +497,7 @@ public class GrammarGraph
             }
         }
 
+        //Relative normalized value
         return output/(float)nodes.size();
 
     }

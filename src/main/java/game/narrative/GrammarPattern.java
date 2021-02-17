@@ -93,6 +93,7 @@ public class GrammarPattern {
 //            selectedSubgraph.nodes.add(newNode);
         }
 
+        //Remove nodes if needed!
         for (int i = selectedSubgraph.nodes.size(); i > selectedPattern.nodes.size(); i--)
         {
             selectedSubgraph.removeNode(i-1);
@@ -110,7 +111,7 @@ public class GrammarPattern {
             {
                 int index = selectedPattern.getNodeIndex(patternChild.getKey());
 
-                //Check this!"
+                //TODO: Remember to Check this! because of how the connection is added
 
                 selectedSubgraph.nodes.get(i).addConnection(selectedSubgraph.nodes.get(index), patternChild.getValue());
                 if(patternChild.getValue() == 0 || patternChild.getValue() == 2)
@@ -119,6 +120,9 @@ public class GrammarPattern {
                 }
             }
         }
+
+        //Final removal of connections in case we removed a node and we have a ghost connection!
+        selectedSubgraph.removeGhostConnections();
 
 //        //Go through each of the nodes in the graph
 //        for(GrammarNode graphNode : currentGraph.nodes)

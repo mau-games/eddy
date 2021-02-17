@@ -409,14 +409,26 @@ public class GrammarMAPEliteAlgorithm extends Algorithm implements Listener {
 	{
 		GrammarGraph nStructure = ind.getPhenotype().getGrammarGraphOutput(axiom, 1);
 		double fitness = 0.0;
-		double w_any = 0.2;
-		double w_node_repetition = 0.3;
-		double w_tSize = 0.5; //Size is going to be done by the elites+
-		int min_freq_nodes = 1;
-		float expected_size = 4.0f;
-		TVTropeType[] excluded_repeated_nodes = {TVTropeType.CONFLICT};
+		double w_any = 0.2; //Weight for the amount of "ANY" in the grammar (ANY is a wildcard)
+		double w_node_repetition = 0.3; //Weight for the node repetition count
+		int min_freq_nodes = 1; //Min freq for the node repetition
+		TVTropeType[] excluded_repeated_nodes = {TVTropeType.CONFLICT}; //Nodes to exclude from the count.
+		//TODO: Size is going to be done by the elites+
+		double w_tSize = 0.5; //Weight for the size of the resulting grammar
+		float expected_size = 4.0f; //Expected size (anything more or less than this decreases fitness)
+
 
 		//AND THEN WHAT?
+		//TESTING
+//		if(nStructure.nodes.get(0).getGrammarNodeType() == TVTropeType.ANY)
+//		{
+//			ind.setFitness(0.0);
+////		ind.setFitness(1.0);
+//			ind.setEvaluate(true);
+//			return;
+//		}
+
+		short dist = axiom.distanceBetweenGraphs(nStructure);
 
 		//A bit hardcore, perhaps we should scale based on how different
 		//then we could use as target one step more.
