@@ -239,7 +239,7 @@ public class NarrativeStructure {
     public NarrativeStructure()
     {
 //        runTestRemoveNode_Connections();
-        runTestGhostConns_RepeatedID();
+//        runTestGhostConns_RepeatedID();
         runExperiment();
 
         //CORE RULES

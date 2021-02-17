@@ -1,6 +1,7 @@
 package game.narrative;
 
 import com.sun.org.apache.xerces.internal.xni.grammars.Grammar;
+import generator.algorithm.MAPElites.GrammarMAPEliteAlgorithm;
 
 import java.lang.reflect.Array;
 import java.util.*;
@@ -79,20 +80,45 @@ public class GrammarGraph
         }
     }
 
+    public int removeNodeByPosition(int node_position)
+    {
+        if(node_position != -1)
+        {
+            GrammarNode n_pos = nodes.remove(node_position);
+            removeAllConnectionsToNode(n_pos);
+            n_pos.removeAllConnection();
+            int actual_id = n_pos.id;
+            ID_counter--;
+            return actual_id;
+
+        }
+
+        return -1;
+    }
+
     public void removeNode(int node_id)
     {
-        if(node_id != -1)
-        {
-            GrammarNode node = nodes.get(node_id);
-            removeAllConnectionsToNode(node);
-            node.removeAllConnection();
-            int actual_id = node.id;
-            nodes.remove(node);
+        GrammarNode toRemove = getNodeByID(node_id);
 
-            for(int i = actual_id; i < nodes.size(); i++)
+        if(toRemove != null)
+        {
+//            GrammarNode node = nodes.get(node_id);
+            removeAllConnectionsToNode(toRemove);
+            toRemove.removeAllConnection();
+            int actual_id = toRemove.id;
+            nodes.remove(toRemove);
+
+            for(GrammarNode n : nodes)
             {
-                nodes.get(i).setID(i);
+                if(n.id > actual_id)
+                    n.setID(n.getID() - 1);
             }
+//
+//            //FIXME: HERE IS ONE OF THE PROBLEMS!
+//            for(int i = actual_id; i < nodes.size(); i++)
+//            {
+//                nodes.get(i).setID(i);
+//            }
 
             ID_counter--;
         }
@@ -117,6 +143,28 @@ public class GrammarGraph
     /// <returns>index of the node in the node array</returns>
     public int getNodeIndex(GrammarNode n){
         return this.nodes.indexOf(n);
+    }
+
+    /// <summary>
+    /// get the index of the node in the node array in the graph
+    /// </summary>
+    /// <param name="n">the node needed to find its index</param>
+    /// <returns>index of the node in the node array</returns>
+    public GrammarNode getNodeByID(int node_id){
+
+        GrammarNode result = null;
+
+        for(GrammarNode node : nodes)
+        {
+            if(node.id == node_id)
+            {
+                result = node;
+                break;
+            }
+
+        }
+
+        return result;
     }
 
     public void removeInterestedConnections()
@@ -162,7 +210,7 @@ public class GrammarGraph
         }
     }
 
-
+    //NOW WE START HERE!
     public short distanceBetweenGraphs(GrammarGraph other)
     {
         int size = this.nodes.size();

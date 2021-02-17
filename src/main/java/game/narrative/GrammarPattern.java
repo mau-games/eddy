@@ -96,8 +96,9 @@ public class GrammarPattern {
         //Remove nodes if needed!
         for (int i = selectedSubgraph.nodes.size(); i > selectedPattern.nodes.size(); i--)
         {
-            selectedSubgraph.removeNode(i-1);
-            currentGraph.removeNode(i-1);
+            int idToRemove = selectedSubgraph.removeNodeByPosition(i-1);
+//            selectedSubgraph.removeNode(i-1);
+            currentGraph.removeNode(idToRemove);
         }
 
 
