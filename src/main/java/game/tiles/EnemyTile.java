@@ -60,7 +60,7 @@ public class EnemyTile extends Tile {
 	{
 		usage = BrushUsage.DEFAULT;
 	}
-	
+	// Jesper
 	@Override
 	public void SetUsed()
 	{

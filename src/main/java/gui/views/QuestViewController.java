@@ -2,6 +2,7 @@ package gui.views;
 
 import game.ApplicationConfig;
 import game.Dungeon;
+import game.Tile;
 import game.TileTypes;
 import game.quest.Action;
 import game.quest.ActionType;
@@ -111,7 +112,7 @@ public class QuestViewController extends BorderPane implements Listener {
         initActionToolbar();
 
     }
-
+    //trycker på plus
     private void initQuestView() {
         questPane.getChildren().stream()
                 .filter(node -> node.getId().equals("questPlaceholder"))
@@ -129,6 +130,8 @@ public class QuestViewController extends BorderPane implements Listener {
                                                 Action action = addQuestAction(toggleButton, questCount);
                                                 addVisualQuestPaneAction(action, paneCount - 1);
                                                 toggleButton.setSelected(false);
+                                                Tile tile = updatedPosition.getRoom().getTile(updatedPosition.getPoint().getX(), updatedPosition.getPoint().getY());
+                                                tile.SetUsed();
                                                 added.set(true);
                                             }
                                         });
@@ -191,7 +194,7 @@ public class QuestViewController extends BorderPane implements Listener {
             }
         });
     }
-
+    //trycker på panelen till vänster
     private void initActionToolbar() {
         tbQuestTools.getItems()
                 .forEach(toolbarAction -> {
