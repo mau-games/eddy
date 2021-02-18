@@ -27,7 +27,9 @@ public class KillAction extends Action {
         Tile tile = getRoom().getTile(getPosition().getX(),getPosition().getY());
         setPrecondition(
                 tile.GetType().isEnemyBoss() ||
-                        tile.GetType().isEnemy()
+                        tile.GetType().isEnemy() ||
+                        tile.used == false
+                        
         );
     }
 }

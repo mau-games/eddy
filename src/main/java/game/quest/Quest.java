@@ -109,8 +109,18 @@ public class Quest {
         availableActions.clear();
         final int hasItem = owner.getItems().size();
         final int hasNPC = owner.getNpcs().size();
-        final int hasEnemies = owner.getEnemies().size() + owner.getBossesPositions().size();
-
+        final int hasEnemies = owner.getEnemies().size() + owner.getBossesPositions().size();        
+        /*for (int i = 0; i < owner.getAllRooms().size(); i++)
+        {
+        	for (int j = 0; j < owner.getAllRooms().get(i).matrix[0].length; j++)
+            {
+        		for (int k = 0; k < owner.getAllRooms().get(i).matrix[1].length; j++)
+                {
+                	
+                }
+            }
+        }*/
+        
         if (hasItem > 0){
             availableActions.add(ActionType.EXPERIMENT);
             availableActions.add(ActionType.GATHER);
@@ -180,9 +190,9 @@ public class Quest {
                     owner.addBoss(new BossEnemyTile(prev), update.getRoom());
                 }
             }
-            checkCurrentActions();
-            checkForAvailableActions();
         }
+        checkCurrentActions();
+        checkForAvailableActions();
     }
 
     private void checkCurrentActions() {
