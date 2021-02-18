@@ -20,6 +20,7 @@ public class Tile
 	public int maxAmountPerRoom;
 	public int width = 1; //tile size
 	public int height = 1; //tile size
+	public boolean used;
 	
 	//When using the tile as a brush
 	protected BrushUsage usage = BrushUsage.DEFAULT;
@@ -151,6 +152,11 @@ public class Tile
 	public void ToggleImmutable()
 	{
 		m_immutable = !m_immutable;
+	}
+	
+	public void SetUsed()
+	{
+		this.used = true;
 	}
 
 }
