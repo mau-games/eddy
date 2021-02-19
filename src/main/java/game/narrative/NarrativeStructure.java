@@ -262,7 +262,7 @@ public class NarrativeStructure {
         grammarGraph.nodes.add(conflict);
         grammarGraph.nodes.add(enemy);
 
-        grammarGraph.computeAdjacencyMatrix();
+        grammarGraph.computeAdjacencyMatrix(0);
 
         //PATTERN 1
 

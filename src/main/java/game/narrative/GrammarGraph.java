@@ -210,48 +210,81 @@ public class GrammarGraph
         }
     }
 
-    //NOW WE START HERE!
+    //TODO: NOW WE START HERE!
     public short distanceBetweenGraphs(GrammarGraph other)
     {
         int size = this.nodes.size();
-        byte[][] self_adjacency_matrix = this.computeAdjacencyMatrix();
-        byte[] flatten_self = new byte[this.nodes.size() * this.nodes.size()];
-        byte[][] other_adjacency_matrix = other.computeAdjacencyMatrix();
-        byte[] flatten_other = new byte[this.nodes.size() * this.nodes.size()];
-
-        //Calculate first the hamming distance based on self length.
+        int other_size = other.nodes.size();
+        int padding_size = Math.abs(size - other_size);
+        int max_size = 0;
+        int min_size = 0;
         short dist = 0;
+        short dist_connection = 0;
+        short dist_nNodes = (short)padding_size;
+        short dist_typeNodes = 0;
 
-        //Flat arrays
-//        for(int i = 0)
-        for (int j = 0; j < size; j++)
+        byte[][] self_adjacency_matrix = null;
+//        byte[] flatten_self = new byte[this.nodes.size() * this.nodes.size()];
+        byte[][] other_adjacency_matrix = null;
+//        byte[] flatten_other = new byte[this.nodes.size() * this.nodes.size()];
+
+        if(size > other_size)
         {
-            for (int i = 0; i < size; i++)
-            {
-                int step = j * size + i;
-                if(j < other_adjacency_matrix.length && i < other_adjacency_matrix[0].length)
-                {
-//                    dist += Math.abs(self_adjacency_matrix[j][i] ^ other_adjacency_matrix[j][i]);
-                    dist += Math.abs(self_adjacency_matrix[j][i] ^ other_adjacency_matrix[j][i]);
+            self_adjacency_matrix = this.computeAdjacencyMatrix(0);
+            other_adjacency_matrix = other.computeAdjacencyMatrix(padding_size);
+            max_size = size;
+            min_size = other_size;
+        }
+        else
+        {
+            self_adjacency_matrix = this.computeAdjacencyMatrix(padding_size);
+            other_adjacency_matrix = other.computeAdjacencyMatrix(0);
+            max_size = other_size;
+            min_size = size;
+        }
 
-                }
+
+
+        //1. Calculate first the hamming distance based on self length.
+        //Faktist, I think it will be better to calculate based on longest
+        //This part only evaluates connection distance
+        for (int j = 0; j < max_size; j++)
+        {
+            for (int i = 0; i < max_size; i++)
+            {
+//                int step = j * size + i;
+                dist_connection += Math.abs(self_adjacency_matrix[j][i] ^ other_adjacency_matrix[j][i]);
+
+//                if(j < other_adjacency_matrix.length && i < other_adjacency_matrix[0].length)
+//                {
+//                    dist += Math.abs(self_adjacency_matrix[j][i] ^ other_adjacency_matrix[j][i]);
+//                }
 
 //                flatten_self[step] = self_adjacency_matrix[j][i];
 //
 //                if(step > )
-
             }
         }
 
+        //2. Now calculate distance on the type of node
+        for(int i = 0; i < min_size; i++)
+        {
+            if(!this.nodes.get(i).checkNode(other.nodes.get(i)))
+                dist_typeNodes++;
+        }
+
 //        System.out.println(dist);
+
+        dist = (short)(dist_connection + dist_typeNodes + dist_nNodes);
+
         return dist;
 
     }
 
-    public byte[][] computeAdjacencyMatrix()
+    public byte[][] computeAdjacencyMatrix(int padding_size)
     {
         int size = this.nodes.size();
-        byte[][] adjacency_matrix = new byte[this.nodes.size()][this.nodes.size()];
+        byte[][] adjacency_matrix = new byte[this.nodes.size() + padding_size][this.nodes.size() + padding_size];
 
         for(int i = 0; i < this.nodes.size(); i++)
         {
@@ -261,6 +294,16 @@ public class GrammarGraph
 //                nodes.get(i).addConnection(nodes.get(other.getNodeIndex(keyValue.getKey())), keyValue.getValue());
             }
         }
+
+//        for (int j = size; j < size + padding_size; j++)
+//        {
+//            for (int i = size; i < size + padding_size; i++)
+//            {
+//
+////                adjacency_matrix[j][i] = -1;
+//
+//            }
+//        }
 
 
 
