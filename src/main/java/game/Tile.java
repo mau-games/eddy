@@ -153,10 +153,5 @@ public class Tile
 	{
 		m_immutable = !m_immutable;
 	}
-	//Jesper
-	public void SetUsed()
-	{
-		this.used = true;
-	}
 
 }

@@ -521,7 +521,7 @@ public class Dungeon implements Listener
 		enemiesPositions.add(new QuestPositionUpdate(enemyTile.GetCenterPosition(),room, false));
 	}
 
-	public void removeEnemy(EnemyTile tile, Room room)
+	public void removeEnemy(Tile tile, Room room)
 	{
 		room.enemyTiles.getPoints().removeIf(point -> point.getY() == tile.GetCenterPosition().getY() &&
 				point.getX() == tile.GetCenterPosition().getX());
@@ -562,7 +562,7 @@ public class Dungeon implements Listener
 		itemsPositions.add(new QuestPositionUpdate(itemTile.GetCenterPosition(),room,false));
 	}
 
-	public void removeItem(ItemTile tile, Room room)
+	public void removeItem(Tile tile, Room room)
 	{
 		room.itemTiles.getPoints().removeIf(point -> point.getY() == tile.GetCenterPosition().getY() &&
 				point.getX() == tile.GetCenterPosition().getX());

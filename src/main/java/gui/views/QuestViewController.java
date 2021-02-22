@@ -2,6 +2,7 @@ package gui.views;
 
 import game.ApplicationConfig;
 import game.Dungeon;
+import game.DungeonPane;
 import game.Tile;
 import game.TileTypes;
 import game.quest.Action;
@@ -9,6 +10,8 @@ import game.quest.ActionType;
 import game.quest.ActionWithSecondPosition;
 import game.quest.Quest;
 import game.quest.actions.*;
+import game.tiles.EnemyTile;
+import game.tiles.ItemTile;
 import generator.algorithm.grammar.QuestGrammar;
 import gui.controls.LabeledCanvas;
 import gui.utils.DungeonDrawer;
@@ -112,7 +115,7 @@ public class QuestViewController extends BorderPane implements Listener {
         initActionToolbar();
 
     }
-    //trycker på plus
+    //trycker på plus + ändring av JA
     private void initQuestView() {
         questPane.getChildren().stream()
                 .filter(node -> node.getId().equals("questPlaceholder"))
@@ -131,7 +134,9 @@ public class QuestViewController extends BorderPane implements Listener {
                                                 addVisualQuestPaneAction(action, paneCount - 1);
                                                 toggleButton.setSelected(false);
                                                 Tile tile = action.getRoom().getTile(action.getPosition().getX(), action.getPosition().getY());
-                                                tile.SetUsed();
+                                                CheckUsedTile(tile, action);
+                                                dungeon.getQuest().checkForAvailableActions();
+                                                RefreshPanel();
                                                 added.set(true);
                                             }
                                         });
@@ -203,6 +208,8 @@ public class QuestViewController extends BorderPane implements Listener {
                             DungeonDrawer.getInstance().changeBrushTo(DungeonDrawer.DungeonBrushes.QUEST_POS);
                             selectedActionType = ActionType.valueOf(((ToggleButton) toolbarAction).getId());
                             List<TileTypes> types = findTileTypeByAction();
+                            //dungeon.getAllRooms().get(0).getEnemies().get(0).getX();
+                            //types.get(0).
                             router.postEvent(new RequestDisplayQuestTilesSelection(types));
                             if (toggleHelp.isSelected()) {
                                 InformativePopupManager.getInstance().restartPopups();
@@ -394,20 +401,7 @@ public class QuestViewController extends BorderPane implements Listener {
             }
             firstTime = false;
             DungeonDrawer.getInstance().changeBrushTo(DungeonDrawer.DungeonBrushes.NONE);
-            final boolean[] IsAnyDisabled = {false};
-            tbQuestTools.getItems().forEach(node -> {
-                String buttonID = ((ToggleButton) node).getTooltip().getText();
-                boolean disable = dungeon.getQuest().getAvailableActions().stream()
-                        .noneMatch(actionType -> actionType.toString().equals(buttonID));
-                node.setDisable(disable);
-                if (disable) {
-                    IsAnyDisabled[0] = true;
-                }
-            });
-            if (IsAnyDisabled[0] && toggleHelp.isSelected()) {
-                InformativePopupManager.getInstance()
-                        .requestPopup(dungeon.dPane, PresentableInformation.ACTION_NOT_AVAILABLE, "");
-            }
+            RefreshPanel();
             //check the validity of each action
             questPane.getChildren().filtered(node -> node instanceof ToggleButton).forEach(node -> {
                 if (dungeon.getQuest().getAction(UUID.fromString(node.getId())).isPreconditionMet()){
@@ -772,6 +766,31 @@ public class QuestViewController extends BorderPane implements Listener {
         dungeon.dPane.setDisable(false);
         router.postEvent(new RequestWorldView());
     }
-
-
+    private void RefreshPanel()
+    {
+    	final boolean[] IsAnyDisabled = {false};
+        tbQuestTools.getItems().forEach(node -> {
+            String buttonID = ((ToggleButton) node).getTooltip().getText();
+            boolean disable = dungeon.getQuest().getAvailableActions().stream()
+                    .noneMatch(actionType -> actionType.toString().equals(buttonID));
+            node.setDisable(disable);
+            if (disable) {
+                IsAnyDisabled[0] = true;
+            }
+        });
+        if (IsAnyDisabled[0] && toggleHelp.isSelected()) {
+            InformativePopupManager.getInstance()
+                    .requestPopup(dungeon.dPane, PresentableInformation.ACTION_NOT_AVAILABLE, "");
+        }
+    }
+    private void CheckUsedTile(Tile tile, Action action)
+    {
+        if (tile.GetType() == TileTypes.ENEMY) {
+            dungeon.removeEnemy(tile, action.getRoom());
+		}
+        else if (tile.GetType() == TileTypes.ITEM) {
+			dungeon.removeItem(tile, action.getRoom());
+		}
+    }
+    
 }
