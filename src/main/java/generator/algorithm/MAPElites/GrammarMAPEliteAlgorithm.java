@@ -387,6 +387,10 @@ public class GrammarMAPEliteAlgorithm extends Algorithm implements Listener {
 		GrammarGraph nStructure = ind.getPhenotype().getGrammarGraphOutput(axiom, 1);
 		int unconnectedNodes = nStructure.checkUnconnectedNodes();
 
+		short dist = axiom.distanceBetweenGraphs(nStructure);
+
+		//With this, the graph will be fully connected and always a step more than axiom!
+//		return nStructure.fullyConnectedGraph() && dist == 1;
 
 		return nStructure.fullyConnectedGraph();
 

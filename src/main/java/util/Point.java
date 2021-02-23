@@ -23,6 +23,8 @@ public class Point {
 	
 	public Point(double x, double y) {
 		// TODO Auto-generated constructor stub
+		this.x = (int)x;
+		this.y = (int)y;
 	}
 
 	public int getX(){

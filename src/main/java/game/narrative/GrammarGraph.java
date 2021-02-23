@@ -1,6 +1,7 @@
 package game.narrative;
 
 import com.sun.org.apache.xerces.internal.xni.grammars.Grammar;
+import game.DungeonPane;
 import generator.algorithm.MAPElites.GrammarMAPEliteAlgorithm;
 
 import java.lang.reflect.Array;
@@ -14,9 +15,13 @@ public class GrammarGraph
     public int ID_counter = 0; //Actually this can literally just be the size of nodes.
     public ArrayList<GrammarNode> nodes;
 
+    //TODO: WIP
+    public NarrativePane nPane;
+
     public GrammarGraph()
     {
         nodes = new ArrayList<GrammarNode>();
+        nPane = new NarrativePane(this);
     }
 
     //Copy constructor.

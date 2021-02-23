@@ -1,37 +1,20 @@
 package gui.views;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-
 import collectors.ActionLogger;
 import collectors.ActionLogger.ActionType;
 import collectors.ActionLogger.TargetPane;
 import collectors.ActionLogger.View;
-import finder.patterns.macro.FindTreasure;
-import finder.patterns.macro.DefeatBoss;
-import finder.patterns.macro.DefeatEnemies;
-import game.ApplicationConfig;
-import game.Dungeon;
-import game.DungeonPane;
-import game.MapContainer;
-import game.PathInformation;
-import game.Room;
+import com.sun.org.apache.xerces.internal.xni.grammars.Grammar;
+import game.*;
+import game.narrative.GrammarGraph;
 import game.narrative.TVTropeType;
 import gui.controls.LabeledCanvas;
 import gui.controls.NarrativeShape;
 import gui.controls.Popup;
-import gui.utils.AnimatedGif;
-import gui.utils.Animation;
 import gui.utils.DungeonDrawer;
-import gui.utils.InformativePopupManager;
 import gui.utils.DungeonDrawer.DungeonBrushes;
-import gui.utils.InformativePopupManager.PresentableInformation;
 import gui.utils.InterRoomBrush;
 import gui.utils.MapRenderer;
-import gui.utils.MoveElementBrush;
-import gui.utils.RoomConnectorBrush;
-import javafx.animation.Timeline;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
@@ -39,61 +22,47 @@ import javafx.fxml.FXMLLoader;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.canvas.Canvas;
-import javafx.scene.control.Button;
-import javafx.scene.control.ComboBox;
-import javafx.scene.control.Control;
-import javafx.scene.control.Label;
-import javafx.scene.control.ToggleButton;
-import javafx.scene.control.Tooltip;
+import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.input.ScrollEvent;
-import javafx.scene.layout.Border;
-import javafx.scene.layout.BorderStroke;
-import javafx.scene.layout.BorderStrokeStyle;
-import javafx.scene.layout.BorderWidths;
-import javafx.scene.layout.CornerRadii;
-import javafx.scene.layout.GridPane;
-import javafx.scene.layout.Pane;
-import javafx.scene.layout.Region;
-import javafx.scene.layout.StackPane;
-import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
-import javafx.scene.paint.Paint;
 import javafx.scene.shape.Line;
+import javafx.scene.shape.Polygon;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.transform.Scale;
+import util.IntField;
+import util.Point;
 import util.config.ConfigurationUtility;
 import util.config.MissingConfigurationException;
 import util.eventrouting.EventRouter;
 import util.eventrouting.Listener;
 import util.eventrouting.PCGEvent;
 import util.eventrouting.events.*;
-import util.IntField;
-import util.Point;
 
-/*  
- * @author Chelsi Nolasco, Malmö University
- * @author Axel Österman, Malmö University*/
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
-public class WorldViewController extends BorderPane implements Listener
+public class NarrativeStructureViewController extends BorderPane implements Listener
 {
 
 	private ApplicationConfig config;
 	private EventRouter router = EventRouter.getInstance();
 	private boolean isActive = false;
 	private boolean isToggled = false;
-	
+
 	private Button suggestionsBtn = new Button();
 	private Button createNewRoomBtn = new Button();
 	private Button removeRoomBtn = new Button();
 	private Button pickInitBtn = new Button();
 	private Button toggleFilterButton = new Button();
-	
+
 	private ArrayList<Button> brushBtns = new ArrayList<Button>(); //TODO: This can be improved to be dependant on how many brushes and have maybe its own class?
 	private ComboBox<PathInformation.PathType> pathTypeComboBox = new ComboBox<>();
-	
+
 	private Label widthLabel = new Label("Width =");
 	private Label heightLabel = new Label("Height =");
 	private IntField widthField = new IntField(3, 20, 13);
@@ -107,16 +76,16 @@ public class WorldViewController extends BorderPane implements Listener
 	@FXML private List<LabeledCanvas> mapDisplays;
 
 	private Node source;
-	
-	private Dungeon dungeon;
-	
+
+	private GrammarGraph mainGraph;
+
 	double anchorX;
 	double anchorY;
 
 	//Line to appear when we try to draw connections between rooms (just visual feedback)
 	private Line auxLine;
-	
-	public WorldViewController() {
+
+	public NarrativeStructureViewController() {
 		super();
 		FXMLLoader loader = new FXMLLoader(getClass().getResource("/gui/interactive/WorldView.fxml"));
 		loader.setRoot(this);
@@ -134,14 +103,14 @@ public class WorldViewController extends BorderPane implements Listener
 
 		router.registerListener(this, new MapUpdate(null));
 
-		initWorldView();
+		initNarrativeView();
 	}
 
 	public void setActive(boolean state) {
 		isActive = state;
 	}
 
-	private void initWorldView() 
+	private void initNarrativeView()
 	{
 		//setup visual line
 		auxLine = new Line();
@@ -161,59 +130,27 @@ public class WorldViewController extends BorderPane implements Listener
 		worldButtonEvents();
 		initOptions();	
 	}
-	
-	public void initWorldMap(Dungeon dungeon) 
+
+	public void initNarrative(GrammarGraph grammar)
 	{
 		//CHECK THE PROPERTY
 		if(widthField == null)
-			widthField = new IntField(1, 20, dungeon.defaultWidth);
-		
+			widthField = new IntField(1, 20, 10);
+
 		if(heightField == null)
-			heightField = new IntField(1, 20, dungeon.defaultHeight);
-		
-		this.dungeon = dungeon;
+			heightField = new IntField(1, 20, 10);
+
+		this.mainGraph = grammar;
 		worldPane.getChildren().clear();
 		worldPane.setBorder(new Border(new BorderStroke(Color.RED, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderWidths.DEFAULT)));
 
-		
-		dungeon.dPane.renderAll();
-		worldPane.getChildren().add(dungeon.dPane);
 
-//		NarrativeShape testNarrativeShape = new NarrativeShape(TVTropeType.COVS);
-//		NarrativeShape testNarrativeShape = new NarrativeShape(TVTropeType.FIVE_MA);
-//		NarrativeShape testNarrativeShape = new NarrativeShape(TVTropeType.MCG);
-		NarrativeShape testNarrativeShape = new NarrativeShape(TVTropeType.EMP);
+		mainGraph.nPane.renderAll();
+		worldPane.getChildren().add(mainGraph.nPane);
 
-		worldPane.getChildren().add(testNarrativeShape);
-//		
-//		if(this.dungeon.getAllRooms().size() > 3 && this.dungeon.getBosses().isEmpty())
-//		{
-//			InformativePopupManager.getInstance().requestPopup(dungeon.dPane, PresentableInformation.NO_BOSS_YET, "");
-//		}
-	}
-	
-	/**
-	 * Hard coded but necessary as it is initial setup!
-	 */
-	public void initialSetup()
-	{
-		ArrayList<Room> initRooms = dungeon.getAllRooms();
-		
-		initRooms.get(1).localConfig.getWorldCanvas().getCanvas().setTranslateX(
-				initRooms.get(1).localConfig.getWorldCanvas().viewSizeWidth + 
-				initRooms.get(1).localConfig.getWorldCanvas().viewSizeWidth / 2.0);
-		
-		EventRouter.getInstance().postEvent(new RequestConnection(null, 
-				-1, 
-				initRooms.get(0), initRooms.get(1), 
-				new Point(initRooms.get(0).getColCount() -1, initRooms.get(0).getRowCount()/2), 
-				new Point(0, initRooms.get(1).getRowCount()/2)));	
-		
-		for(Node child : worldPane.getChildren())
-		{
-			child.setLayoutX(child.getLayoutX() + (200));
-			child.setLayoutY(child.getLayoutY() + 200); 
-		}
+//		NarrativeShape testNarrativeShape = new NarrativeShape(TVTropeType.ANY);
+//
+//		worldPane.getChildren().add(testNarrativeShape);
 	}
 	
 	public class MouseEventWorldPane implements EventHandler<MouseEvent>
@@ -589,37 +526,24 @@ public class WorldViewController extends BorderPane implements Listener
 //				DungeonDrawer.getInstance().changeBrushTo(DungeonBrushes.PATH_FINDING);
 //			}
 //
-//		}); 
-		
+//		});
+
 		getSuggestionsBtn().setOnAction(new EventHandler<ActionEvent>() {
 			@Override
-			public void handle(ActionEvent e) 
+			public void handle(ActionEvent e)
 			{
-				if(dungeon.getSelectedRoom().getDoorCount() > 0)
-				{
-					ActionLogger.getInstance().storeAction(ActionType.CLICK,
-															View.WORLD, 
-															TargetPane.BUTTON_PANE, 
-															false,
-															"Suggestions");
-					DungeonDrawer.getInstance().changeBrushTo(DungeonBrushes.MOVEMENT);
-					MapContainer mc = new MapContainer();
-					mc.setMap(dungeon.getSelectedRoom());
-//					router.postEvent(new RequestSuggestionsView(mc, 6));
+				mainGraph.nPane.renderAll();
 
-					router.postEvent(new RequestNarrativeView());
-				}
 
-				
 				//uncomment to reset scale
-//				for(Node child : worldPane.getChildren()) 
+//				for(Node child : worldPane.getChildren())
 //        		{
 //        	        ((DungeonPane)child).resetScale();
 //        		}
 			}
 
-		}); 
-		
+		});
+
 //		DungeonDrawer.getInstance().nextBrush();
 		
 		pickInitBtn.setOnAction(new EventHandler<ActionEvent>() { //TODO: This must change!
@@ -640,7 +564,7 @@ public class WorldViewController extends BorderPane implements Listener
 														false,
 														"Create Room");
 				
-				router.postEvent(new RequestNewRoom(dungeon, -1, widthField.getValue(), heightField.getValue()));
+//				router.postEvent(new RequestNewRoom(dungeon, -1, widthField.getValue(), heightField.getValue()));
 				DungeonDrawer.getInstance().changeBrushTo(DungeonBrushes.MOVEMENT);
 			}
 		}); 
@@ -669,16 +593,16 @@ public class WorldViewController extends BorderPane implements Listener
 			@Override
 			public void handle(ActionEvent e) {
 
-				if(dungeon.getSelectedRoom() != null)
-				{
-					ActionLogger.getInstance().storeAction(ActionType.CLICK, 
-															View.WORLD, 
-															TargetPane.BUTTON_PANE, 
-															false,
-															"Remove Room");
-					router.postEvent(new RequestRoomRemoval(dungeon.getSelectedRoom(), dungeon, -1));
-					DungeonDrawer.getInstance().changeBrushTo(DungeonBrushes.MOVEMENT);
-				}
+//				if(dungeon.getSelectedRoom() != null)
+//				{
+//					ActionLogger.getInstance().storeAction(ActionType.CLICK,
+//															View.WORLD,
+//															TargetPane.BUTTON_PANE,
+//															false,
+//															"Remove Room");
+//					router.postEvent(new RequestRoomRemoval(dungeon.getSelectedRoom(), dungeon, -1));
+//					DungeonDrawer.getInstance().changeBrushTo(DungeonBrushes.MOVEMENT);
+//				}
 					
 			}
 

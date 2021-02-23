@@ -2,10 +2,10 @@ package game.narrative;
 
 public enum TVTropeType {
     ANY(0),
-    HERO(1),
-    CONFLICT(2),
-    ENEMY(3),
-    MODIFIER(4),
+    HERO(10),
+    CONFLICT(20),
+    ENEMY(30),
+    MODIFIER(40),
     FIVE_MA(11),
     NEO(12),
     SH(13), //Superhero
@@ -26,6 +26,8 @@ public enum TVTropeType {
         this.value = value;
     }
 
-
+    public int getValue() {
+        return value;
+    }
 
 }

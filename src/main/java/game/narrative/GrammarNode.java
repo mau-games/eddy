@@ -2,6 +2,8 @@ package game.narrative;
 
 import com.sun.org.apache.xerces.internal.xni.grammars.Grammar;
 import game.narrative.TVTropeType;
+import gui.controls.NarrativeShape;
+import util.Point;
 import util.Util;
 
 import java.util.*;
@@ -16,8 +18,12 @@ public class GrammarNode {
     //1 = unidirectional
     //2 = bidirectional
     HashMap<GrammarNode, Integer> connections;
-
     TVTropeType grammarNodeType;
+
+    //Graphical stuff!
+    NarrativeShape graphic_element;
+    //To which node i am connected, the graphic element.
+    HashMap<GrammarNode, NarrativeShapeEdge> graphic_connection;
 
     public GrammarNode(int id, TVTropeType nodeType)
     {
@@ -186,5 +192,150 @@ public class GrammarNode {
 
     public TVTropeType getGrammarNodeType() {return grammarNodeType;}
     public void setGrammarNodeType(TVTropeType type){grammarNodeType = type;}
+
+
+    /***
+     * This will only be required when wanting to paint the graph.
+     * But until then we try to avoid doing anything with graphics!
+     * @return the graphics shape of this node!
+     */
+    public NarrativeShape getNarrativeShape()
+    {
+        if(graphic_element == null)
+        {
+            graphic_element = new NarrativeShape(grammarNodeType);
+        }
+
+        return graphic_element;
+    }
+
+    /***
+     * This will only be required when wanting to paint the graph.
+     * But until then we try to avoid doing anything with graphics!
+     * @return the graphics shape of this node!
+     */
+    public List<NarrativeShapeEdgeLine> getNarrativeShapeConnections()
+    {
+        ArrayList<NarrativeShapeEdgeLine> return_edges = new ArrayList<NarrativeShapeEdgeLine>();
+
+        if(graphic_connection == null)
+            graphic_connection = new HashMap<GrammarNode, NarrativeShapeEdge>();
+
+        for(Map.Entry<GrammarNode, Integer> keyValue : connections.entrySet())
+        {
+            //We don't have a graphic representation of the connection
+            if(!graphic_connection.containsKey(keyValue.getKey()))
+            {
+                NarrativeShapeEdge nse = new NarrativeShapeEdge(this.getNarrativeShape(),
+                        keyValue.getKey().getNarrativeShape(),
+                        this.getNarrativeShape().getRNDPositionShapeBorder(),
+                        keyValue.getKey().getNarrativeShape().getRNDPositionShapeBorder());
+
+                graphic_connection.put(keyValue.getKey(), nse);
+                return_edges.add(nse.graphicElement);
+            }
+            else
+                return_edges.add(graphic_connection.get(keyValue.getKey()).graphicElement);
+
+        }
+
+        return return_edges;
+    }
+
+    /***
+     * This will only be required when wanting to paint the graph.
+     * But until then we try to avoid doing anything with graphics!
+     * @return the graphics shape of this node!
+     */
+    public List<NarrativeShapeEdgeLine> recreateConnectionsBasedPosition()
+    {
+        ArrayList<NarrativeShapeEdgeLine> return_edges = new ArrayList<NarrativeShapeEdgeLine>();
+        graphic_connection = new HashMap<GrammarNode, NarrativeShapeEdge>();
+
+        for(Map.Entry<GrammarNode, Integer> keyValue : connections.entrySet())
+        {
+            //We don't have a graphic representation of the connection
+            if(!graphic_connection.containsKey(keyValue.getKey()))
+            {
+                Point from;
+                Point to;
+
+                double dx = Math.abs(this.getNarrativeShape().xPosition.get() - keyValue.getKey().getNarrativeShape().xPosition.get());
+                double dy = Math.abs(this.getNarrativeShape().yPosition.get() - keyValue.getKey().getNarrativeShape().yPosition.get());
+
+                if(dx > dy)
+                {
+                    if(this.getNarrativeShape().xPosition.get() > keyValue.getKey().getNarrativeShape().xPosition.get()) //From is greater than To in X
+                    {
+                        from = this.getNarrativeShape().getPositionShapeBorder(3);
+                        to = keyValue.getKey().getNarrativeShape().getPositionShapeBorder(1);
+                    }
+                    else
+                    {
+                        from = this.getNarrativeShape().getPositionShapeBorder(1);
+                        to = keyValue.getKey().getNarrativeShape().getPositionShapeBorder(3);
+                    }
+                }
+                else
+                {
+                    if(this.getNarrativeShape().yPosition.get() > keyValue.getKey().getNarrativeShape().yPosition.get())
+                    {
+                        from = this.getNarrativeShape().getPositionShapeBorder(0);
+                        to = keyValue.getKey().getNarrativeShape().getPositionShapeBorder(2);
+                    }
+                    else
+                    {
+                        from = this.getNarrativeShape().getPositionShapeBorder(2);
+                        to = keyValue.getKey().getNarrativeShape().getPositionShapeBorder(0);
+                    }
+                }
+
+//                if(this.getNarrativeShape().xPosition.get() > keyValue.getKey().getNarrativeShape().xPosition.get()) //From is greater than To in X
+//                {
+//                    double dx = this.getNarrativeShape().xPosition.get() - keyValue.getKey().getNarrativeShape().xPosition.get();
+//
+//                    if(this.getNarrativeShape().yPosition.get() > keyValue.getKey().getNarrativeShape().yPosition.get())
+//                    {
+//                        double dy = this.getNarrativeShape().yPosition.get() - keyValue.getKey().getNarrativeShape().yPosition.get();
+//
+//                        if(dx > dy)
+//                        from = this.getNarrativeShape().getPositionShapeBorder(0);
+//                        to = keyValue.getKey().getNarrativeShape().getPositionShapeBorder(2);
+//                    }
+//                    else
+//                    {
+//                        from = this.getNarrativeShape().getPositionShapeBorder(2);
+//                        to = keyValue.getKey().getNarrativeShape().getPositionShapeBorder(0);
+//                    }
+//                }
+//                else{ //From is lesser than To in X
+//
+//                    if(this.getNarrativeShape().yPosition.get() > keyValue.getKey().getNarrativeShape().yPosition.get())
+//                    {
+//                        from = this.getNarrativeShape().getPositionShapeBorder(0);
+//                        to = keyValue.getKey().getNarrativeShape().getPositionShapeBorder(2);
+//                    }
+//                    else
+//                    {
+//                        from = this.getNarrativeShape().getPositionShapeBorder(2);
+//                        to = keyValue.getKey().getNarrativeShape().getPositionShapeBorder(0);
+//                    }
+//                }
+
+                NarrativeShapeEdge nse = new NarrativeShapeEdge(this.getNarrativeShape(),
+                        keyValue.getKey().getNarrativeShape(),
+                        from,
+                        to);
+
+                graphic_connection.put(keyValue.getKey(), nse);
+                return_edges.add(nse.graphicElement);
+            }
+            else
+                return_edges.add(graphic_connection.get(keyValue.getKey()).graphicElement);
+
+        }
+
+        return return_edges;
+    }
 
 }

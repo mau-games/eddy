@@ -26,13 +26,13 @@ import game.Room;
 import game.RoomEdge;
 import game.MapContainer;
 import game.TileTypes;
+import game.narrative.GrammarGraph;
+import game.narrative.GrammarNode;
+import game.narrative.TVTropeType;
 import generator.config.GeneratorConfig;
 import gui.utils.InformativePopupManager;
 import gui.utils.MapRenderer;
-import gui.views.LaunchViewController;
-import gui.views.RoomViewController;
-import gui.views.SuggestionsViewController;
-import gui.views.WorldViewController;
+import gui.views.*;
 import javafx.application.Platform;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.event.ActionEvent;
@@ -58,29 +58,7 @@ import util.config.MissingConfigurationException;
 import util.eventrouting.EventRouter;
 import util.eventrouting.Listener;
 import util.eventrouting.PCGEvent;
-import util.eventrouting.events.AlgorithmDone;
-import util.eventrouting.events.ApplySuggestion;
-import util.eventrouting.events.ChangeCursor;
-import util.eventrouting.events.InitialRoom;
-import util.eventrouting.events.MapLoaded;
-import util.eventrouting.events.RequestAppliedMap;
-import util.eventrouting.events.RequestConnection;
-import util.eventrouting.events.RequestConnectionRemoval;
-import util.eventrouting.events.RequestEmptyRoom;
-import util.eventrouting.events.RequestNewRoom;
-import util.eventrouting.events.RequestPathFinding;
-import util.eventrouting.events.RequestRoomRemoval;
-import util.eventrouting.events.RequestRedraw;
-import util.eventrouting.events.RequestRoomView;
-import util.eventrouting.events.RequestSuggestionsView;
-import util.eventrouting.events.RequestWorldView;
-import util.eventrouting.events.Start;
-import util.eventrouting.events.StartWorld;
-import util.eventrouting.events.StatusMessage;
-import util.eventrouting.events.Stop;
-import util.eventrouting.events.SuggestedMapsDone;
-import util.eventrouting.events.SuggestedMapsLoading;
-import util.eventrouting.events.UpdateMiniMap;
+import util.eventrouting.events.*;
 
 /*
  * @author Chelsi Nolasco, Malmö University
@@ -111,6 +89,7 @@ public class InteractiveGUIController implements Initializable, Listener {
 	RoomViewController roomView = null;
 	WorldViewController worldView = null;
 	LaunchViewController launchView = null;
+	NarrativeStructureViewController narrativeView = null;
 	EventHandler<MouseEvent> mouseEventHandler = null;
 
 //	final static Logger logger = LoggerFactory.getLogger(InteractiveGUIController.class);
@@ -134,6 +113,8 @@ public class InteractiveGUIController implements Initializable, Listener {
 	
 	//NEW
 	private Dungeon dungeonMap = new Dungeon();
+
+	private GrammarGraph graph;
 	
 	public static UUID runID;
 	
@@ -163,11 +144,14 @@ public class InteractiveGUIController implements Initializable, Listener {
 		router.registerListener(this, new RequestRoomRemoval(null, null, 0));
 		router.registerListener(this, new RequestConnectionRemoval(null, null, 0));
 		router.registerListener(this, new StartWorld(0));
+		router.registerListener(this, new RequestNarrativeView());
 
 		suggestionsView = new SuggestionsViewController();
 		roomView = new RoomViewController();
 		worldView = new WorldViewController();
 		launchView = new LaunchViewController();
+		narrativeView = new NarrativeStructureViewController();
+		initializeGraphGrammar();
 
 		mainPane.sceneProperty().addListener((observableScene, oldScene, newScene) -> {
 			if (newScene != null) {
@@ -196,6 +180,23 @@ public class InteractiveGUIController implements Initializable, Listener {
 		InformativePopupManager.getInstance().setMainPane(mainPane);
 //		mainPane.getChildren().add(new Popup(200,200));
 		initLaunchView();
+
+	}
+
+	private void initializeGraphGrammar()
+	{
+		graph = new GrammarGraph();
+
+		GrammarNode hero = new GrammarNode(0, TVTropeType.HERO);
+		GrammarNode conflict = new GrammarNode(1, TVTropeType.CONFLICT);
+		GrammarNode enemy = new GrammarNode(2, TVTropeType.ENEMY);
+
+		hero.addConnection(conflict, 1);
+		conflict.addConnection(enemy, 1);
+
+		graph.nodes.add(hero);
+		graph.nodes.add(conflict);
+		graph.nodes.add(enemy);
 
 	}
 
@@ -288,6 +289,16 @@ public class InteractiveGUIController implements Initializable, Listener {
 				dungeonMap.removeEdge(edge);
 				backToWorldView();
 		 }
+		 else if(e instanceof RequestNarrativeView)
+		{
+			if(narrativeView == null)
+			{
+				narrativeView = new NarrativeStructureViewController();
+//				initNarrativeView();
+			}
+
+			initNarrativeView();
+		}
 
 	}
 
@@ -448,6 +459,8 @@ public class InteractiveGUIController implements Initializable, Listener {
 		roomView.setActive(false);
 		worldView.setActive(false);
 		launchView.setActive(false);
+		narrativeView.setActive(false);
+
 
 
 		suggestionsView.initialise(room);
@@ -475,6 +488,8 @@ public class InteractiveGUIController implements Initializable, Listener {
 		roomView.setActive(false);
 		worldView.setActive(true);
 		launchView.setActive(false);
+		narrativeView.setActive(false);
+
 
 	}
 
@@ -491,7 +506,33 @@ public class InteractiveGUIController implements Initializable, Listener {
 		roomView.setActive(false);
 		worldView.setActive(false);
 		launchView.setActive(true);
+		narrativeView.setActive(false);
 
+	}
+
+	/**
+	 * Initialises the world view.
+	 */
+
+	private void initNarrativeView() {
+		mainPane.getChildren().clear();
+		AnchorPane.setTopAnchor(narrativeView, 0.0);
+		AnchorPane.setRightAnchor(narrativeView, 0.0);
+		AnchorPane.setBottomAnchor(narrativeView, 0.0);
+		AnchorPane.setLeftAnchor(narrativeView, 0.0);
+		mainPane.getChildren().add(narrativeView);
+
+		narrativeView.initNarrative(graph);
+
+//		saveItem.setDisable(false);
+//		saveAsItem.setDisable(false);
+//		exportItem.setDisable(false);
+
+		suggestionsView.setActive(false);
+		roomView.setActive(false);
+		worldView.setActive(false);
+		launchView.setActive(false);
+		narrativeView.setActive(true);
 	}
 
 
@@ -513,6 +554,7 @@ public class InteractiveGUIController implements Initializable, Listener {
 		roomView.setActive(false);
 		worldView.setActive(true);
 		launchView.setActive(false);
+		narrativeView.setActive(false);
 
 	}
 
@@ -551,6 +593,7 @@ public class InteractiveGUIController implements Initializable, Listener {
 		roomView.setActive(true);		
 		launchView.setActive(false);
 		suggestionsView.setActive(false);
+		narrativeView.setActive(false);
 
 
 	}
