@@ -13,6 +13,7 @@ import javafx.scene.image.Image;
 
 public class Tile
 {
+	
 	protected TileTypes m_type;
 	private ArrayList<Point> positions;
 	protected Point center;

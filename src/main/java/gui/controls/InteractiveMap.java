@@ -10,6 +10,7 @@ import game.Game;
 import game.Room;
 import game.Tile;
 import game.TileTypes;
+import game.tiles.NpcTile;
 import gui.utils.MapRenderer;
 import javafx.application.Platform;
 import javafx.geometry.HPos;
@@ -44,6 +45,7 @@ public class InteractiveMap extends GridPane implements Listener {
 	private int cols = 0;
 	private int rows = 0;
 	public double scale = 0;
+	private Tile lastTile;
 	
 	private  MapRenderer renderer = MapRenderer.getInstance();
 	private final HashMap<ImageView, Point> coords = new HashMap<ImageView, Point>();
@@ -127,7 +129,7 @@ public class InteractiveMap extends GridPane implements Listener {
 
 		brush.DoneDrawing();
 		EventRouter.getInstance().postEvent(new MapQuestUpdate(currentTile, new Tile(currentTile.GetCenterPosition(), brush.GetMainComponent()), room));
-
+		lastTile = room.getTile(p);
 	}
 	
 	public void updateTileInARoom(Room aRoom, ImageView tile, Drawer brush)
@@ -367,5 +369,12 @@ public class InteractiveMap extends GridPane implements Listener {
 			});
 		}
 		
+	}
+	
+	public Tile GetLastTile() {
+		if (lastTile.GetType() == TileTypes.NPC) {
+			return lastTile;
+		}
+		return null;
 	}
 }

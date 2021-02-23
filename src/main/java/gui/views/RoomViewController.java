@@ -81,6 +81,7 @@ import javafx.scene.control.TableRow;
 import javafx.scene.control.TableView;
 import javafx.scene.control.ToggleButton;
 import javafx.scene.control.ToggleGroup;
+import javafx.scene.control.ToolBar;
 import javafx.scene.control.Tooltip;
 import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.scene.image.Image;
@@ -173,6 +174,9 @@ public class RoomViewController extends BorderPane implements Listener
 	@FXML private ToggleButton treasureBtn;
 	@FXML private ToggleButton enemyBtn;
 	@FXML private ToggleButton bossEnemyBtn;
+	@FXML private FlowPane npcChoice;
+	@FXML private Button villianChoice;
+	@FXML private Button friendChoice;
 	
 	//Brush Slider
 	@FXML private Slider brushSlider;
@@ -228,6 +232,7 @@ public class RoomViewController extends BorderPane implements Listener
 
 	private int RequestCounter = 0;
 	public Drawer myBrush;
+	private Tile lastNpcTile;
 	
 	int mapWidth;
 	int mapHeight;
@@ -325,7 +330,7 @@ public class RoomViewController extends BorderPane implements Listener
 		selectedGA = PossibleGAs.MAP_ELITES;
 		saveGenBtn.setDisable(false);
 		
-
+		NpcChoice();
 	}
 	
 	@FXML
@@ -1523,6 +1528,13 @@ public class RoomViewController extends BorderPane implements Listener
 				redrawPatterns(mapView.getMap());
 				redrawLocks(mapView.getMap());
 				
+				if (myBrush.GetMainComponent() == TileTypes.NPC) {
+					npcChoice.getChildren().stream().forEach(node -> {
+						node.setDisable(false);
+						lastNpcTile = mapView.GetLastTile();
+					});
+				}
+				
 				//TODO: UNCOMMENT TO SAVE EACH STEP!!
 //				saveEditedRoomInfo();
 				
@@ -1538,6 +1550,28 @@ public class RoomViewController extends BorderPane implements Listener
 			}
 		}
 		
+	}
+	
+	private void NpcChoice()
+	{
+		npcChoice.getChildren().stream().forEach(node -> {
+			node.addEventHandler(MouseEvent.MOUSE_CLICKED, event -> {
+				int temp = 0;
+				switch (((Button)event.getSource()).getId()) {
+				case "friendChoice":
+					temp = 10;
+					if (lastNpcTile.GetType() == TileTypes.NPC) {
+						
+					}
+					break;
+				case "villianChoice":
+					//lastNpcTile
+				default :
+					break;
+				}
+				System.out.println(temp + ((Button)event.getSource()).getId());
+			});
+		});
 	}
 	
 	/*

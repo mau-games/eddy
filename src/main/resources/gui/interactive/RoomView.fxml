@@ -42,6 +42,7 @@
 <?import javafx.scene.control.cell.TextFieldTableCell?>
 <?import gui.controls.DimensionsTable?>
 <?import gui.controls.Popup?>
+<?import javafx.scene.control.Cell?>
 
 
 <fx:root type="javafx.scene.layout.BorderPane"
@@ -184,8 +185,36 @@
 		</ToolBar>
 	</left>
 	<center>
-		<StackPane alignment="CENTER" fx:id="mapPane" />
+        <BorderPane style="-fx-border-color: transparent lightgray transparent lightgray;">
+            <center>
+                    <StackPane fx:id="mapPane" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" />
+            </center>
+            <bottom>
+                <BorderPane style="-fx-border-color: lightgray transparent;">
+                    <center>
+                        <FlowPane fx:id="npcChoice" hgap="5.0" maxHeight="100" maxWidth="400" prefHeight="100.0" vgap="5.0" BorderPane.alignment="CENTER_LEFT" orientation="HORIZONTAL">
+                            <FlowPane.margin>
+                                <Insets left="40.0" right="40.0" />
+                            </FlowPane.margin>
+                            <children>
+                                <Button fx:id="villianChoice" mnemonicParsing="false" text="Villian" disable="true"/>
+                            </children>
+                            <padding>
+                                <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+                            </padding>
+                            <FlowPane.margin>
+                                <Insets left="40.0" right="40.0" />
+                            </FlowPane.margin>
+                          	<children>
+                             <Button fx:id="friendChoice" mnemonicParsing="false" text="Friend" disable="true"/>
+                          	</children>
+                        </FlowPane>
+                     </center>
+                </BorderPane>
+            </bottom>
+        </BorderPane>
 	</center>
+	
 
 	<right>
 
