@@ -23,8 +23,16 @@ public class TVTropeMenuItem extends MenuItem
             @Override
             public void handle(ActionEvent event) {
 
-//                System.out.println(((TVTropeMenuItem)event.getSource()).getParentPopup().getX());
-//                System.out.println(((TVTropeMenuItem)event.getSource()).getParentPopup().getAnchorX());
+
+                System.out.println(((TVTropeMenuItem)event.getSource()).getParentPopup().getOwnerNode().getLayoutX());
+                System.out.println(((TVTropeMenuItem)event.getSource()).getParentPopup());
+                System.out.println(((TVTropeMenuItem)event.getSource()).getParentPopup().getOwnerNode().getBoundsInLocal());
+
+                System.out.println(((TVTropeMenuItem)event.getSource()).getParentPopup().getX());
+                System.out.println(((TVTropeMenuItem)event.getSource()).getParentPopup().getAnchorX());
+
+                System.out.println(((TVTropeMenuItem)event.getTarget()).getParentPopup().getX());
+                System.out.println(((TVTropeMenuItem)event.getSource()).getParentPopup().getAnchorX());
                 
 //                System.out.println(((TVTropeMenuItem)event.getSource()).getParentPopup().get());
                 EventRouter.getInstance().postEvent(new RequestNewGrammarStructureNode(

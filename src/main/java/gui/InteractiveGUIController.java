@@ -41,6 +41,8 @@ import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.geometry.Bounds;
+import javafx.geometry.Point2D;
 import javafx.scene.ImageCursor;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
@@ -160,7 +162,6 @@ public class InteractiveGUIController implements Initializable, Listener {
 			if (newScene != null) {
 				stage = (Stage) newScene.getWindow();
 			}
-
 		});
 
 		runID = UUID.randomUUID();
@@ -305,11 +306,17 @@ public class InteractiveGUIController implements Initializable, Listener {
 		 else if(e instanceof RequestNewGrammarStructureNode)
 		{
 			GrammarNode created_node = graph.addNode((TVTropeType) e.getPayload());
-			created_node.getNarrativeShape().relocate(
-					((RequestNewGrammarStructureNode) e).x_pos,
-					((RequestNewGrammarStructureNode) e).y_pos);
+
+//			created_node.getNarrativeShape().relocate(
+//					((RequestNewGrammarStructureNode) e).x_pos,
+//					((RequestNewGrammarStructureNode) e).y_pos);
 
 			graph.nPane.renderAll();
+
+			//Transform the positions to the local coordinates of the node!!! Fan, cannot believe I spent 2 hours on this...
+			Point2D local_translation_point = created_node.getNarrativeShape().screenToLocal(((RequestNewGrammarStructureNode) e).x_pos, ((RequestNewGrammarStructureNode) e).y_pos);
+			created_node.getNarrativeShape().setTranslateX(local_translation_point.getX());
+			created_node.getNarrativeShape().setTranslateY(local_translation_point.getY());
 		}
 		 else if(e instanceof RequestGrammarStructureNodeRemoval)
 		{

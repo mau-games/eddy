@@ -35,7 +35,7 @@ public class NarrativePane extends Pane
 		this.owner = owner;
 		this.addEventHandler(MouseEvent.MOUSE_PRESSED, new MouseEventWorldPane());
 		this.addEventHandler(MouseEvent.MOUSE_ENTERED, new MouseEventWorldPane());
-//		setBorder(new Border(new BorderStroke(Color.WHITE, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderWidths.DEFAULT)));
+		setBorder(new Border(new BorderStroke(Color.WHITE, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderWidths.DEFAULT)));
 		currentScale = getScaleX();
 	}
 	
