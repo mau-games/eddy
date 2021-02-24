@@ -182,9 +182,9 @@ public class WorldViewController extends BorderPane implements Listener
 //		NarrativeShape testNarrativeShape = new NarrativeShape(TVTropeType.COVS);
 //		NarrativeShape testNarrativeShape = new NarrativeShape(TVTropeType.FIVE_MA);
 //		NarrativeShape testNarrativeShape = new NarrativeShape(TVTropeType.MCG);
-		NarrativeShape testNarrativeShape = new NarrativeShape(TVTropeType.EMP);
+//		NarrativeShape testNarrativeShape = new NarrativeShape(TVTropeType.EMP);
 
-		worldPane.getChildren().add(testNarrativeShape);
+//		worldPane.getChildren().add(testNarrativeShape);
 //		
 //		if(this.dungeon.getAllRooms().size() > 3 && this.dungeon.getBosses().isEmpty())
 //		{
@@ -252,6 +252,7 @@ public class WorldViewController extends BorderPane implements Listener
 	            {
 	            	if(DungeonDrawer.getInstance().getBrush() instanceof InterRoomBrush)
 	            	{
+	            		//TODO: Replicate this in the narrativeStructView
 		    			auxLine.setEndX(event.getX());
 		    			auxLine.setEndY(event.getY());
 	            	}

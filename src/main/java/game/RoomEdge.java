@@ -101,7 +101,7 @@ public class RoomEdge
 	        });
 		}
 	}
-	
+
 	//Ugly things one has to do :( 
 	protected RoomEdge getSelf()
 	{

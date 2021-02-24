@@ -28,10 +28,12 @@ import game.MapContainer;
 import game.TileTypes;
 import game.narrative.GrammarGraph;
 import game.narrative.GrammarNode;
+import game.narrative.NarrativeShapeEdge;
 import game.narrative.TVTropeType;
 import generator.config.GeneratorConfig;
 import gui.utils.InformativePopupManager;
 import gui.utils.MapRenderer;
+import gui.utils.narrativeeditor.NarrativeStructDrawer;
 import gui.views.*;
 import javafx.application.Platform;
 import javafx.embed.swing.SwingFXUtils;
@@ -60,10 +62,7 @@ import util.eventrouting.Listener;
 import util.eventrouting.PCGEvent;
 import util.eventrouting.events.*;
 
-/*
- * @author Chelsi Nolasco, Malmö University
- * @author Axel Österman, Malmö University
- */
+
 
 //Definetely I agree that this class can be the one "controlling" all the views and have in any moment the most updated version of
 //the dungeon. But it is simply doing too much at the moment, It should "create" the dungeon but if another room wants to be incorporated
@@ -145,6 +144,10 @@ public class InteractiveGUIController implements Initializable, Listener {
 		router.registerListener(this, new RequestConnectionRemoval(null, null, 0));
 		router.registerListener(this, new StartWorld(0));
 		router.registerListener(this, new RequestNarrativeView());
+		router.registerListener(this, new RequestNewGrammarStructureNode(null, -1, -1));
+		router.registerListener(this, new RequestGrammarStructureNodeRemoval(null));
+		router.registerListener(this, new RequestConnectionGrammarStructureGraph(null, null, 0));
+		router.registerListener(this, new RequestGrammarNodeConnectionRemoval(null));
 
 		suggestionsView = new SuggestionsViewController();
 		roomView = new RoomViewController();
@@ -288,7 +291,7 @@ public class InteractiveGUIController implements Initializable, Listener {
 				//TODO: Here you should check for which dungeon
 				dungeonMap.removeEdge(edge);
 				backToWorldView();
-		 }
+		 } //FOR NARRATIVE STUFF!
 		 else if(e instanceof RequestNarrativeView)
 		{
 			if(narrativeView == null)
@@ -298,6 +301,36 @@ public class InteractiveGUIController implements Initializable, Listener {
 			}
 
 			initNarrativeView();
+		}
+		 else if(e instanceof RequestNewGrammarStructureNode)
+		{
+			GrammarNode created_node = graph.addNode((TVTropeType) e.getPayload());
+			created_node.getNarrativeShape().relocate(
+					((RequestNewGrammarStructureNode) e).x_pos,
+					((RequestNewGrammarStructureNode) e).y_pos);
+
+			graph.nPane.renderAll();
+		}
+		 else if(e instanceof RequestGrammarStructureNodeRemoval)
+		{
+			graph.removeNode((GrammarNode) e.getPayload());
+			graph.nPane.renderAll();
+		}
+		 else if(e instanceof RequestConnectionGrammarStructureGraph)
+		{
+			((RequestConnectionGrammarStructureGraph) e).from.addConnection(
+					((RequestConnectionGrammarStructureGraph) e).to,
+					((RequestConnectionGrammarStructureGraph) e).connection_type);
+
+			graph.nPane.renderAll();
+
+			NarrativeStructDrawer.getInstance().done();
+		}
+		else if(e instanceof RequestGrammarNodeConnectionRemoval)
+		{
+			//I Think that this one will actually remove everything
+			((NarrativeShapeEdge) e.getPayload()).from.owner.removeConnection(((NarrativeShapeEdge) e.getPayload()).to.owner);
+			graph.nPane.renderAll();
 		}
 
 	}

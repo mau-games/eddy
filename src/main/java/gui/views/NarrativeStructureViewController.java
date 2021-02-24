@@ -7,10 +7,12 @@ import collectors.ActionLogger.View;
 import com.sun.org.apache.xerces.internal.xni.grammars.Grammar;
 import game.*;
 import game.narrative.GrammarGraph;
+import game.narrative.NarrativePane;
 import game.narrative.TVTropeType;
 import gui.controls.LabeledCanvas;
 import gui.controls.NarrativeShape;
 import gui.controls.Popup;
+import gui.controls.TVTropeMenuItem;
 import gui.utils.DungeonDrawer;
 import gui.utils.DungeonDrawer.DungeonBrushes;
 import gui.utils.InterRoomBrush;
@@ -25,6 +27,8 @@ import javafx.scene.canvas.Canvas;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.input.ContextMenuEvent;
+import javafx.scene.input.KeyCombination;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.input.ScrollEvent;
 import javafx.scene.layout.*;
@@ -48,7 +52,6 @@ import java.util.List;
 
 public class NarrativeStructureViewController extends BorderPane implements Listener
 {
-
 	private ApplicationConfig config;
 	private EventRouter router = EventRouter.getInstance();
 	private boolean isActive = false;
@@ -125,6 +128,68 @@ public class NarrativeStructureViewController extends BorderPane implements List
 		setRight(buttonPane);
 		worldPane.addEventHandler(MouseEvent.MOUSE_PRESSED, new MouseEventWorldPane());
 
+		ContextMenu contextMenu = new ContextMenu();
+
+		MenuItem menuItem = new MenuItem("Menu Item");
+
+		// Set accelerator to menuItem.
+		menuItem.setAccelerator(KeyCombination.keyCombination("Ctrl+O"));
+
+		Menu anyMenu = new Menu("Any");
+
+		Menu heroMenu = new Menu("Hero");
+		TVTropeMenuItem heroChild1 = new TVTropeMenuItem("Hero", TVTropeType.HERO);
+		TVTropeMenuItem heroChild2 = new TVTropeMenuItem("5MA", TVTropeType.FIVE_MA);
+		TVTropeMenuItem heroChild3 = new TVTropeMenuItem("NEO", TVTropeType.NEO);
+		TVTropeMenuItem heroChild4 = new TVTropeMenuItem("SH", TVTropeType.SH);
+		heroMenu.getItems().addAll(heroChild1, heroChild2, heroChild3, heroChild4);
+
+		Menu conflictMenu = new Menu("Conflict");
+		TVTropeMenuItem conflictChild1 = new TVTropeMenuItem("Conflict", TVTropeType.CONFLICT);
+		TVTropeMenuItem conflictChild2 = new TVTropeMenuItem("CONA", TVTropeType.CONA);
+		TVTropeMenuItem conflictChild3 = new TVTropeMenuItem("COSO", TVTropeType.COSO);
+		conflictMenu.getItems().addAll(conflictChild1, conflictChild2, conflictChild3);
+
+		Menu enemyMenu = new Menu("Enemy");
+		TVTropeMenuItem EnemyChild1 = new TVTropeMenuItem("Enemy", TVTropeType.ENEMY);
+		TVTropeMenuItem EnemyChild2 = new TVTropeMenuItem("EMP", TVTropeType.EMP);
+		TVTropeMenuItem EnemyChild3 = new TVTropeMenuItem("BAD", TVTropeType.BAD);
+		TVTropeMenuItem EnemyChild4 = new TVTropeMenuItem("DRAKE", TVTropeType.DRA);
+		enemyMenu.getItems().addAll(EnemyChild1, EnemyChild2, EnemyChild3, EnemyChild4);
+
+		Menu modifierMenu = new Menu("Modifier");
+		TVTropeMenuItem modifierChild1 = new TVTropeMenuItem("Modifier", TVTropeType.MODIFIER);
+		TVTropeMenuItem modifierChild2 = new TVTropeMenuItem("CHK", TVTropeType.CHK);
+		TVTropeMenuItem modifierChild3 = new TVTropeMenuItem("MCG", TVTropeType.MCG);
+		TVTropeMenuItem modifierChild4 = new TVTropeMenuItem("MHQ", TVTropeType.MHQ);
+		modifierMenu.getItems().addAll(modifierChild1, modifierChild2, modifierChild3, modifierChild4);
+
+
+//		CheckMenuItem checkMenuItem = new CheckMenuItem("Check Menu Item");
+//		checkMenuItem.setSelected(true);
+//
+//		SeparatorMenuItem separatorMenuItem = new SeparatorMenuItem();
+//
+//		RadioMenuItem radioMenuItem1 = new RadioMenuItem("Radio - Option 1");
+//		RadioMenuItem radioMenuItem2 = new RadioMenuItem("Radio - Option 2");
+//		ToggleGroup group = new ToggleGroup();
+//
+//		radioMenuItem1.setToggleGroup(group);
+//		radioMenuItem2.setToggleGroup(group);
+
+		// Add MenuItem to ContextMenu
+		contextMenu.getItems().addAll(menuItem, anyMenu, heroMenu, //
+				conflictMenu, enemyMenu, modifierMenu);
+
+		worldPane.setOnContextMenuRequested(new EventHandler<ContextMenuEvent>() {
+
+			@Override
+			public void handle(ContextMenuEvent event) {
+
+				contextMenu.show(worldPane, event.getScreenX(), event.getScreenY());
+			}
+		});
+
 		//Don't allow children to pass over the pane!
 		clipChildren(worldPane, 12);
 		worldButtonEvents();
@@ -173,7 +238,7 @@ public class NarrativeStructureViewController extends BorderPane implements List
             		{
             			newScale.setX( child.getScaleX() + (0.001 * event.getDeltaY()) );
             	        newScale.setY( child.getScaleY() + (0.001 * event.getDeltaY()) );
-            	        ((DungeonPane)child).tryScale(newScale);
+            	        ((NarrativePane)child).tryScale(newScale);
             		}
 
         			event.consume();

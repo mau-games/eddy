@@ -12,6 +12,7 @@ import javafx.scene.input.MouseEvent;
 import util.Point;
 import util.eventrouting.EventRouter;
 import util.eventrouting.events.RequestConnectionRemoval;
+import util.eventrouting.events.RequestGrammarNodeConnectionRemoval;
 
 public class NarrativeShapeEdge
 {
@@ -24,6 +25,7 @@ public class NarrativeShapeEdge
 	public NarrativeShape to;
 	public Point fromPosition; //this pos actually is the one of the door
 	public Point toPosition; //this pos actually is the one of the door
+	public int connection_type;
 	
 	DoubleProperty fX = new SimpleDoubleProperty();
 	DoubleProperty fY = new SimpleDoubleProperty();
@@ -32,7 +34,7 @@ public class NarrativeShapeEdge
 	
 	public boolean rendered = false;
 
-	public NarrativeShapeEdge(NarrativeShape from, NarrativeShape to, Point fromPosition, Point toPosition)
+	public NarrativeShapeEdge(NarrativeShape from, NarrativeShape to, Point fromPosition, Point toPosition, int connection_type)
 	{
 //		fX.bind(from.xPosition);
 //		fY.bind(from.yPosition);
@@ -69,13 +71,14 @@ public class NarrativeShapeEdge
 		
 		System.out.println("LineF pos: (" + fX.getValue() + "," + fY.getValue() + ")" );
 
-		graphicElement = new NarrativeShapeEdgeLine(fX, fY, tX, tY);
+		graphicElement = new NarrativeShapeEdgeLine(fX, fY, tX, tY, connection_type);
 		graphicElement.addEventFilter(MouseEvent.MOUSE_ENTERED, new MouseEventEdge());
 		
 		this.from = from;
 		this.to = to;
 		this.fromPosition = fromPosition;
 		this.toPosition = toPosition;
+		this.connection_type = connection_type;
 	}
 	
 	public class MouseEventEdge implements EventHandler<MouseEvent>
@@ -91,7 +94,7 @@ public class NarrativeShapeEdge
 	            @Override
 	            public void handle(MouseEvent event) 
 	            {
-	            	graphicElement.setStrokeWidth(8);
+	            	graphicElement.line.setStrokeWidth(8);
 	            }
 
 	        });
@@ -101,7 +104,7 @@ public class NarrativeShapeEdge
 	            @Override
 	            public void handle(MouseEvent event) 
 	            {
-//	            	EventRouter.getInstance().postEvent(new RequestConnectionRemoval(getSelf(), null, -1));
+	            	EventRouter.getInstance().postEvent(new RequestGrammarNodeConnectionRemoval(getSelf()));
 	            }
 	        });
 
@@ -110,7 +113,7 @@ public class NarrativeShapeEdge
 			  @Override
 	            public void handle(MouseEvent event) 
 	            {
-	            	graphicElement.setStrokeWidth(2);
+	            	graphicElement.line.setStrokeWidth(2);
 	            }
 
 	        });

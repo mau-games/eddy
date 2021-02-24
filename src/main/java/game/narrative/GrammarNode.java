@@ -38,6 +38,11 @@ public class GrammarNode {
             return false;
 
         connections.put(otherNode, connectionType);
+
+        //So bidirection or no direction
+        if(connectionType != 1)
+            otherNode.addConnection(this, connectionType);
+
         return true;
     }
 
@@ -77,6 +82,10 @@ public class GrammarNode {
         {
             connectionType = connections.get(otherNode);
             connections.remove(otherNode);
+
+            //So bidirection or no direction
+            if(connectionType != 1)
+                otherNode.removeConnection(this);
         }
 
         return connectionType;
@@ -203,7 +212,7 @@ public class GrammarNode {
     {
         if(graphic_element == null)
         {
-            graphic_element = new NarrativeShape(grammarNodeType);
+            graphic_element = new NarrativeShape(grammarNodeType, this);
         }
 
         return graphic_element;
@@ -229,7 +238,8 @@ public class GrammarNode {
                 NarrativeShapeEdge nse = new NarrativeShapeEdge(this.getNarrativeShape(),
                         keyValue.getKey().getNarrativeShape(),
                         this.getNarrativeShape().getRNDPositionShapeBorder(),
-                        keyValue.getKey().getNarrativeShape().getRNDPositionShapeBorder());
+                        keyValue.getKey().getNarrativeShape().getRNDPositionShapeBorder(),
+                        keyValue.getValue());
 
                 graphic_connection.put(keyValue.getKey(), nse);
                 return_edges.add(nse.graphicElement);
@@ -325,7 +335,8 @@ public class GrammarNode {
                 NarrativeShapeEdge nse = new NarrativeShapeEdge(this.getNarrativeShape(),
                         keyValue.getKey().getNarrativeShape(),
                         from,
-                        to);
+                        to,
+                        keyValue.getValue());
 
                 graphic_connection.put(keyValue.getKey(), nse);
                 return_edges.add(nse.graphicElement);

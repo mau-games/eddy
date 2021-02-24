@@ -3,18 +3,25 @@ package gui.controls;
 import collectors.ActionLogger;
 import game.MapContainer;
 import game.WorldViewCanvas;
+import game.narrative.GrammarNode;
 import game.narrative.TVTropeType;
 import gui.utils.DungeonDrawer;
 import gui.utils.MoveElementBrush;
 import gui.utils.RoomConnectorBrush;
+import gui.utils.narrativeeditor.NarrativeStructDrawer;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.SimpleDoubleProperty;
+import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Bounds;
 import javafx.scene.Group;
 import javafx.scene.Node;
+import javafx.scene.control.ContextMenu;
 import javafx.scene.control.Label;
+import javafx.scene.control.Menu;
+import javafx.scene.control.MenuItem;
+import javafx.scene.input.ContextMenuEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
@@ -27,6 +34,8 @@ import util.Point;
 import util.Util;
 import util.eventrouting.EventRouter;
 import util.eventrouting.events.FocusRoom;
+import util.eventrouting.events.RequestGrammarStructureNodeRemoval;
+import util.eventrouting.events.RequestNewGrammarStructureNode;
 import util.eventrouting.events.RequestRoomView;
 
 import java.util.ArrayList;
@@ -61,20 +70,25 @@ public class NarrativeShape extends StackPane
     public DoubleProperty tileSizeHeight;
 
     private Point currentBrushPosition = new Point();
+    public GrammarNode owner;
 
-    public NarrativeShape(TVTropeType trope_type)
+    public NarrativeShape(TVTropeType trope_type, GrammarNode owner)
     {
+        this.owner = owner;
         self = this;
         this.trope_type = trope_type;
         recreateShape(trope_type);
-        other_text.setStyle("-fx-text-fill: red;");
-        other_text.setFont(new Font("Arial", 21));
+        other_text.setStyle("-fx-text-fill: white;");
+        other_text.setFont(new Font("Arial", 16));
 
         this.getChildren().add(shape);
 //        this.getChildren().add(narrative_text);
         this.getChildren().add(other_text);
-        this.setBorder(new Border(new BorderStroke(Color.GREEN,
-                BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderWidths.DEFAULT)));
+        shape.setStroke(Color.BLACK);
+        shape.setFill(Color.TRANSPARENT);
+        shape.setStrokeWidth(3.0);
+//        this.setBorder(new Border(new BorderStroke(Color.GREEN,
+//                BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderWidths.DEFAULT)));
 
         //FOR INTERACTION
 
@@ -87,6 +101,61 @@ public class NarrativeShape extends StackPane
             {
                 self.startFullDrag();
 
+            }
+        });
+
+        //PROBABLY PUT ALL OF THIS IN A METHOD!
+        ContextMenu contextMenu = new ContextMenu();
+        MenuItem removeNode = new MenuItem("Remove Node");
+
+        Menu addConnection = new Menu("Add Connection");
+        MenuItem child_addConnection1 = new MenuItem("Undirected");
+        MenuItem child_addConnection2 = new MenuItem("Unidirectional");
+        MenuItem child_addConnection3 = new MenuItem("Bidirectional");
+        addConnection.getItems().addAll(child_addConnection1, child_addConnection2, child_addConnection3);
+
+        contextMenu.getItems().addAll(removeNode, addConnection);
+
+        removeNode.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+                EventRouter.getInstance().postEvent(new RequestGrammarStructureNodeRemoval(owner));
+//                    System.out.println("Cut..." + trope.name());
+            }
+        });
+
+        child_addConnection1.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+                NarrativeStructDrawer.getInstance().changeBrushTo(NarrativeStructDrawer.NarrativeStructBrushesType.GRAMMAR_NODE_CONNECTOR, 0);
+                NarrativeStructDrawer.getInstance().getBrush().onClickGrammarNode(owner);
+            }
+        });
+
+        child_addConnection2.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+                NarrativeStructDrawer.getInstance().changeBrushTo(NarrativeStructDrawer.NarrativeStructBrushesType.GRAMMAR_NODE_CONNECTOR, 1);
+                NarrativeStructDrawer.getInstance().getBrush().onClickGrammarNode(owner);
+            }
+        });
+
+        child_addConnection3.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+                NarrativeStructDrawer.getInstance().changeBrushTo(NarrativeStructDrawer.NarrativeStructBrushesType.GRAMMAR_NODE_CONNECTOR, 2);
+                NarrativeStructDrawer.getInstance().getBrush().onClickGrammarNode(owner);
+            }
+        });
+
+        shape.setOnContextMenuRequested(new EventHandler<ContextMenuEvent>() {
+
+            @Override
+            public void handle(ContextMenuEvent event)
+            {
+
+                contextMenu.show(shape, event.getScreenX(), event.getScreenY());
+                event.consume();
             }
         });
 
@@ -373,16 +442,7 @@ public class NarrativeShape extends StackPane
                     prevPositionY = ltoS.getMaxY() - (ltoS.getHeight() / 2.0);
 
                     currentBrushPosition =  new Point((int)( event.getX() / tileSizeWidth.get()), (int)( event.getY() / tileSizeHeight.get() ));
-//
-//                    if(DungeonDrawer.getInstance().getBrush() instanceof RoomConnectorBrush)
-//                    {
-//                        if(owner.isPointInBorder(currentBrushPosition))
-//                            DungeonDrawer.getInstance().getBrush().onClickRoom(owner,currentBrushPosition);
-//                    }
-//                    else
-//                    {
-//                        DungeonDrawer.getInstance().getBrush().onClickRoom(owner,currentBrushPosition);
-//                    }
+                    NarrativeStructDrawer.getInstance().getBrush().onClickGrammarNode(owner);
 
                 }
             });
