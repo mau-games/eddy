@@ -153,6 +153,20 @@ public class WorldViewCanvas
 										.filter(point -> walkableTilesPoints.stream().anyMatch(point::equals))
 										.collect(Collectors.toList()));
 						break;
+					case VILLIAN:
+						questBitmap
+								.AddAllPoints(owner.villianTiles.getPoints()
+										.stream()
+										.filter(point -> walkableTilesPoints.stream().anyMatch(point::equals))
+										.collect(Collectors.toList()));
+						break;
+					case FRIEND:
+						questBitmap
+								.AddAllPoints(owner.friendTiles.getPoints()
+										.stream()
+										.filter(point -> walkableTilesPoints.stream().anyMatch(point::equals))
+										.collect(Collectors.toList()));
+						break;
 					case ENEMY:
 						questBitmap.AddAllPoints(owner.enemyTiles.getPoints().stream()
 								.filter(point -> walkableTilesPoints.stream().anyMatch(point::equals))

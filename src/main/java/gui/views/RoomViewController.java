@@ -33,6 +33,7 @@ import generator.algorithm.MAPElites.GACell;
 import generator.algorithm.MAPElites.Dimensions.MAPEDimensionFXML;
 import game.Game.MapMutationType;
 import game.Game.PossibleGAs;
+import gui.controls.Brush;
 import gui.controls.DimensionsTable;
 import gui.controls.Drawer;
 import gui.controls.InteractiveMap;
@@ -119,6 +120,7 @@ import util.eventrouting.PCGEvent;
 import util.eventrouting.events.ApplySuggestion;
 import util.eventrouting.events.MAPEGridUpdate;
 import util.eventrouting.events.MAPElitesDone;
+import util.eventrouting.events.MapQuestUpdate;
 import util.eventrouting.events.MapUpdate;
 import util.eventrouting.events.RequestAppliedMap;
 import util.eventrouting.events.RequestRoomView;
@@ -330,7 +332,7 @@ public class RoomViewController extends BorderPane implements Listener
 		selectedGA = PossibleGAs.MAP_ELITES;
 		saveGenBtn.setDisable(false);
 		
-		NpcChoice();
+		
 	}
 	
 	@FXML
@@ -1531,7 +1533,15 @@ public class RoomViewController extends BorderPane implements Listener
 				if (myBrush.GetMainComponent() == TileTypes.NPC) {
 					npcChoice.getChildren().stream().forEach(node -> {
 						node.setDisable(false);
-						lastNpcTile = mapView.GetLastTile();
+						
+					});
+					lastNpcTile = mapView.GetLastTile();
+					NpcChoice(mapView.getMap());
+				}
+				else {
+					npcChoice.getChildren().stream().forEach(node -> {
+						node.setDisable(true);
+						
 					});
 				}
 				
@@ -1552,24 +1562,28 @@ public class RoomViewController extends BorderPane implements Listener
 		
 	}
 	
-	private void NpcChoice()
+	private void NpcChoice(Room room)
 	{
 		npcChoice.getChildren().stream().forEach(node -> {
 			node.addEventHandler(MouseEvent.MOUSE_CLICKED, event -> {
-				int temp = 0;
 				switch (((Button)event.getSource()).getId()) {
 				case "friendChoice":
-					temp = 10;
 					if (lastNpcTile.GetType() == TileTypes.NPC) {
-						
+						EventRouter.getInstance().postEvent(new MapQuestUpdate(lastNpcTile, new FriendTile(lastNpcTile.GetCenterPosition(), TileTypes.FRIEND), room));
+						room.getTile(lastNpcTile.GetCenterPosition().getX(),lastNpcTile.GetCenterPosition().getY()).SetType(TileTypes.FRIEND);
 					}
 					break;
 				case "villianChoice":
-					//lastNpcTile
+					if (lastNpcTile.GetType() == TileTypes.NPC) {
+						EventRouter.getInstance().postEvent(new MapQuestUpdate(lastNpcTile, new VillianTile(lastNpcTile.GetCenterPosition(), TileTypes.VILLIAN), room));
+						room.getTile(lastNpcTile.GetCenterPosition().getX(),lastNpcTile.GetCenterPosition().getY()).SetType(TileTypes.VILLIAN);
+					}
 				default :
 					break;
 				}
-				System.out.println(temp + ((Button)event.getSource()).getId());
+				System.out.println(((Button)event.getSource()).getId());
+				System.out.println(room.getTile(lastNpcTile.GetCenterPosition().getX(),lastNpcTile.GetCenterPosition().getY()).GetType());
+				node.setDisable(true);
 			});
 		});
 	}

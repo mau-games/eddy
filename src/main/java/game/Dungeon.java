@@ -79,6 +79,8 @@ public class Dungeon implements Listener
 	private ArrayList<QuestPositionUpdate> npcsPositions;
 	private ArrayList<QuestPositionUpdate> itemsPositions;
 	private ArrayList<QuestPositionUpdate> treasuresPositions;
+	private ArrayList<QuestPositionUpdate> villianPositions;
+	private ArrayList<QuestPositionUpdate> friendPositions;
 
 	
 	//scale factor of the (canvas) view
@@ -95,6 +97,8 @@ public class Dungeon implements Listener
 		npcsPositions = new ArrayList<QuestPositionUpdate>();
 		itemsPositions = new ArrayList<QuestPositionUpdate>();
 		treasuresPositions = new ArrayList<QuestPositionUpdate>();
+		villianPositions = new ArrayList<QuestPositionUpdate>();
+		friendPositions = new ArrayList<QuestPositionUpdate>();
 	}
 	
 	public Dungeon(GeneratorConfig defaultConfig, int size, int defaultWidth, int defaultHeight)
@@ -109,6 +113,8 @@ public class Dungeon implements Listener
 		npcsPositions = new ArrayList<QuestPositionUpdate>();
 		itemsPositions = new ArrayList<QuestPositionUpdate>();
 		treasuresPositions = new ArrayList<QuestPositionUpdate>();
+		villianPositions = new ArrayList<QuestPositionUpdate>();
+		friendPositions = new ArrayList<QuestPositionUpdate>();
 
 		dPane = new DungeonPane(this);
 		pathfinding = new DungeonPathFinder(this);
@@ -534,6 +540,46 @@ public class Dungeon implements Listener
 	{
 		return enemiesPositions;
 	}
+	
+	public void addFriend(FriendTile friendTile, Room room)
+	{
+		room.friendTiles.addPoint(friendTile.GetCenterPosition());
+		friendPositions.add(new QuestPositionUpdate(friendTile.GetCenterPosition(),room, false));
+	}
+	
+	public void removeFriend(Tile tile, Room room)
+	{
+		System.out.println("npc removed");
+		room.friendTiles.getPoints().removeIf(point -> point.getY() == tile.GetCenterPosition().getY() &&
+				point.getX() == tile.GetCenterPosition().getX());
+		friendPositions.removeIf(npctile -> npctile.getPoint().getX() == tile.GetCenterPosition().getX() &&
+				npctile.getPoint().getY() == tile.GetCenterPosition().getY());
+	}
+	
+	public ArrayList<QuestPositionUpdate> getFriends()
+	{
+		return friendPositions;
+	}
+	
+	public void addVillian(VillianTile villianTile, Room room)
+	{
+		room.villianTiles.addPoint(villianTile.GetCenterPosition());
+		villianPositions.add(new QuestPositionUpdate(villianTile.GetCenterPosition(),room, false));
+	}
+	
+	public void removeVillian(Tile tile, Room room)
+	{
+		System.out.println("npc removed");
+		room.villianTiles.getPoints().removeIf(point -> point.getY() == tile.GetCenterPosition().getY() &&
+				point.getX() == tile.GetCenterPosition().getX());
+		villianPositions.removeIf(npctile -> npctile.getPoint().getX() == tile.GetCenterPosition().getX() &&
+				npctile.getPoint().getY() == tile.GetCenterPosition().getY());
+	}
+	
+	public ArrayList<QuestPositionUpdate> getVillians()
+	{
+		return villianPositions;
+	}
 
 	public void addNpc(NpcTile npcTile, Room room)
 	{
@@ -541,7 +587,7 @@ public class Dungeon implements Listener
 		npcsPositions.add(new QuestPositionUpdate(npcTile.GetCenterPosition(),room, false));
 	}
 
-	public void removeNpc(NpcTile tile, Room room)
+	public void removeNpc(Tile tile, Room room)
 	{
 		System.out.println("npc removed");
 		room.npcTiles.getPoints().removeIf(point -> point.getY() == tile.GetCenterPosition().getY() &&

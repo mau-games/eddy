@@ -18,7 +18,9 @@ public enum TileTypes {
     HERO(6),
 	NPC(7),
 	ITEM(8),
-	NONE(9);
+	NONE(9),
+	FRIEND(10),
+	VILLIAN(11);
 
 	private final int value;
 	
@@ -62,6 +64,14 @@ public enum TileTypes {
 	public boolean isNPC(){
 		return value == NPC.getValue();
 	}
+	
+	public boolean isFriend(){
+		return value == FRIEND.getValue();
+	}
+	
+	public boolean isVillian(){
+		return value == VILLIAN.getValue();
+	}
 
 	/**
 	 * Creates a TileType out of an integer value.
@@ -99,6 +109,12 @@ public enum TileTypes {
 			break;
 		case 8:
 			tile = TileTypes.ITEM;
+			break;
+		case 10:
+			tile = TileTypes.FRIEND;
+			break;
+		case 11:
+			tile = TileTypes.VILLIAN;
 			break;
 		default:
 			tile = TileTypes.NONE;

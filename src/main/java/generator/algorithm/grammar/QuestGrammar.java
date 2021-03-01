@@ -276,6 +276,8 @@ public class QuestGrammar {
             case LISTEN:
                 action = new ListenAction();
                 tiles.addAll(owner.getNpcs());
+                tiles.addAll(owner.getFriends());
+                tiles.addAll(owner.getVillians());
                 if (tiles.size() > 1) {
                     QuestPositionUpdate position = tiles.get(random.nextInt(tiles.size()-1));
                     action.setPosition(position.getPoint());
@@ -318,6 +320,8 @@ public class QuestGrammar {
             case REPORT:
                 action = new ReportAction();
                 tiles.addAll(owner.getNpcs());
+                tiles.addAll(owner.getVillians());
+                tiles.addAll(owner.getFriends());
                 if (tiles.size() > 1) {
                     QuestPositionUpdate position = tiles.get(random.nextInt(tiles.size()-1));
                     action.setPosition(position.getPoint());

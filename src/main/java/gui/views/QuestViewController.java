@@ -135,7 +135,7 @@ public class QuestViewController extends BorderPane implements Listener {
                                                 toggleButton.setSelected(false);
                                                 Tile tile = action.getRoom().getTile(action.getPosition().getX(), action.getPosition().getY());
                                                 CheckUsedTile(tile, action);
-                                                dungeon.getQuest().checkForAvailableActions();
+                                                dungeon.getQuest().checkForAvailableActions(action);
                                                 RefreshPanel();
                                                 added.set(true);
                                             }
@@ -208,8 +208,6 @@ public class QuestViewController extends BorderPane implements Listener {
                             DungeonDrawer.getInstance().changeBrushTo(DungeonDrawer.DungeonBrushes.QUEST_POS);
                             selectedActionType = ActionType.valueOf(((ToggleButton) toolbarAction).getId());
                             List<TileTypes> types = findTileTypeByAction();
-                            //dungeon.getAllRooms().get(0).getEnemies().get(0).getX();
-                            //types.get(0).
                             router.postEvent(new RequestDisplayQuestTilesSelection(types));
                             if (toggleHelp.isSelected()) {
                                 InformativePopupManager.getInstance().restartPopups();
@@ -305,7 +303,20 @@ public class QuestViewController extends BorderPane implements Listener {
                 typesList.add(TileTypes.ITEM);
                 break;
             case LISTEN:
+            	typesList.add(TileTypes.VILLIAN);
+            	typesList.add(TileTypes.FRIEND);
+            	break;
             case REPORT:
+            	if (dungeon.getQuest().checkIfLastActionWasFriendActions()) {
+
+                	typesList.add(TileTypes.FRIEND);
+                	break;
+				}
+            	else if (dungeon.getQuest().checkIfLastActionWasVillianActions()) {
+
+                	typesList.add(TileTypes.VILLIAN);
+                	break;
+				}
             case ESCORT:
                 typesList.add(TileTypes.NPC);
                 break;
@@ -323,6 +334,7 @@ public class QuestViewController extends BorderPane implements Listener {
             case DAMAGE:
                 typesList.add(TileTypes.ENEMY);
                 typesList.add(TileTypes.ENEMY_BOSS);
+                break;
             case DEFEND:
                 typesList.add(TileTypes.ITEM);
                 typesList.add(TileTypes.NPC);
@@ -791,6 +803,15 @@ public class QuestViewController extends BorderPane implements Listener {
         else if (tile.GetType() == TileTypes.ITEM) {
 			dungeon.removeItem(tile, action.getRoom());
 		}
+        else if (tile.GetType() == TileTypes.VILLIAN && dungeon.getQuest().getActions().get(dungeon.getQuest().getActions().size() - 1).getType() == ActionType.REPORT) {
+        	dungeon.removeVillian(tile, action.getRoom());
+        }
+        else if (tile.GetType() == TileTypes.FRIEND && dungeon.getQuest().getActions().get(dungeon.getQuest().getActions().size() - 1).getType() == ActionType.REPORT) {
+        	dungeon.removeFriend(tile, action.getRoom());
+        }
+        else if (tile.GetType() == TileTypes.NPC && dungeon.getQuest().getActions().get(dungeon.getQuest().getActions().size() - 1).getType() == ActionType.REPORT) {
+        	dungeon.removeNpc(tile, action.getRoom());
+        }
     }
     
 }

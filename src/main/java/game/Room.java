@@ -99,6 +99,8 @@ public class Room {
 	public Bitmap borders = new Bitmap();
 	public Bitmap enemyTiles = new Bitmap();
 	public Bitmap npcTiles = new Bitmap();
+	public Bitmap villianTiles = new Bitmap();
+	public Bitmap friendTiles = new Bitmap();
 	public Bitmap itemTiles = new Bitmap();
 	public Bitmap treasureTiles = new Bitmap();
 	public Bitmap bossTiles = new Bitmap();
