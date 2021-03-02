@@ -562,7 +562,7 @@ public class InteractiveGUIController implements Initializable, Listener {
 		AnchorPane.setLeftAnchor(narrativeView, 0.0);
 		mainPane.getChildren().add(narrativeView);
 
-		narrativeView.initNarrative(graph);
+		narrativeView.initNarrative(graph, dungeonMap.getSelectedRoom());
 
 //		saveItem.setDisable(false);
 //		saveAsItem.setDisable(false);

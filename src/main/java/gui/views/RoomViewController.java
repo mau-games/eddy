@@ -142,6 +142,7 @@ import game.DungeonPane;
  * FIXME: A lot of things need to change here! 
  * 
  * @author Johan Holmberg, Malmö University
+ * @author Alberto Alvarez, Malmö University
  * @author Chelsi Nolasco, Malmö University
  * @author Axel Österman, Malmö University
  */

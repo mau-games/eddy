@@ -46,6 +46,7 @@ public class GrammarNode {
         return true;
     }
 
+    //TODO: This is not correct
     public void removeAllConnection()
     {
         //First remove all connections to this node

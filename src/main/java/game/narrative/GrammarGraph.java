@@ -141,6 +141,21 @@ public class GrammarGraph
         }
     }
 
+    public ArrayList<GrammarNode> getAllConnectionsToNode(GrammarNode nodeToCheck)
+    {
+        ArrayList<GrammarNode> others = new ArrayList<GrammarNode>();
+
+        for(GrammarNode other : nodes)
+        {
+            if(other == nodeToCheck)
+                continue;
+            else if(other.checkConnectionExists(nodeToCheck))
+                others.add(other);
+        }
+
+        return others;
+    }
+
     /// <summary>
     /// get the index of the node in the node array in the graph
     /// </summary>

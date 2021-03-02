@@ -52,12 +52,14 @@ public class NarrativeShapeEdgeLine extends Group
 		triangle = new Polygon(0, 0, 0 - 16, 0 + 10, 0 - 16, 0 - 10);
 		Rotate rotate = new Rotate(0,0,0,1,Rotate.Z_AXIS);
 		triangle.getTransforms().add(rotate);
+
 		dx.addListener((observable, oldValue, newValue) -> {
 			rotate.setAngle(getAngle(dy.doubleValue(), newValue.doubleValue()));
 		});
 		dy.addListener((observable, oldValue, newValue) -> {
 			rotate.setAngle(getAngle(newValue.doubleValue(), dx.doubleValue()));
 		});
+
 //		rotate.setAngle(getAngle(dy.doubleValue(), dx.doubleValue()));
 //		triangle.getTransforms().add(rotate);
 //		triangle.relocate(line.endXProperty().get(), line.endYProperty().get() );
@@ -69,6 +71,9 @@ public class NarrativeShapeEdgeLine extends Group
 //		triangle.layoutYProperty().bind(Bindings.subtract(triangle.getLayoutBounds().getMinY(), line.endYProperty()));
 		this.getChildren().add(triangle);
 //		this.getChildren().add(triangle);
+
+		rotate.setAngle(getAngle(dy.doubleValue(), dx.doubleValue()));
+
 	}
 
 	private double getAngle(double dy ,double dx){

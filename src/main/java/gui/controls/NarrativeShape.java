@@ -72,8 +72,11 @@ public class NarrativeShape extends StackPane
     private Point currentBrushPosition = new Point();
     public GrammarNode owner;
 
+    public Point grid_placement = new Point();
+
     public NarrativeShape(TVTropeType trope_type, GrammarNode owner)
     {
+        super();
         this.owner = owner;
         self = this;
         this.trope_type = trope_type;
