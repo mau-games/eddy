@@ -105,6 +105,171 @@ public class NarrativePane extends Pane
 		}
 	}
 
+	//Iterate through connections to and from current node to place it at the right position.
+	private int iterateConnections(GrammarNode current_node, ArrayList<Point> positions, ArrayList<GrammarNode> connections, int counter,
+								   ArrayList<GrammarNode> visitedNodes, Stack<GrammarNode> toCheckNodes, ArrayList<Point> grid, Point current,
+								   int current_x, int current_y, double margin)
+	{
+
+		for(GrammarNode testedNode: connections)
+		{
+			if(visitedNodes.contains(testedNode))
+				continue;
+
+			current = current_node.getNarrativeShape().grid_placement;
+			current_x = current.getX();
+			current_y = current.getY();
+
+			NarrativeShape narShape = current_node.getNarrativeShape();
+			Bounds connectionBounds = narShape.localToScreen(narShape.getBoundsInLocal());
+
+			narShape = testedNode.getNarrativeShape();
+
+			Bounds localBoundsInParent = narShape.getBoundsInParent();
+			Point2D local_translation_point = narShape.screenToLocal(connectionBounds.getMaxX(), connectionBounds.getMaxY());
+
+			//Iterate to find a non-occupied position in the neighborhood of the currentNode
+			//fixme: this will definitely have problems if there are not available positions
+			while(grid.contains(current))
+			{
+				counter++;
+				counter = counter % 8;
+
+
+				if(counter == 0)
+				{
+					current = new Point(current_x + 1, current_y);
+				}
+				else if(counter == 1)
+				{
+					current = new Point(current_x, current_y + 1);
+				}
+				else if(counter == 2)
+				{
+					current = new Point(current_x - 1, current_y);
+				}
+				else if(counter == 3)
+				{
+					current = new Point(current_x, current_y - 1);
+				}
+				else if(counter == 4)
+				{
+					current = new Point(current_x + 1, current_y -1);
+				}
+				else if(counter == 5)
+				{
+					current = new Point(current_x + 1, current_y +1);
+				}
+				else if(counter == 6)
+				{
+					current = new Point(current_x - 1, current_y +1);
+				}
+				else if(counter == 7)
+				{
+					current = new Point(current_x - 1, current_y -1);
+				}
+			}
+
+			//We now have a valid point, lets place it in the "grid"
+			grid.add(current);
+			narShape.grid_placement = current;
+
+			//counter = 0 --> we place to the right (E)
+			//counter = 1 --> we place at the bottom (S)
+			//counter = 2 --> we place to the left (W)
+			//counter = 3 --> we place at the top (N)
+			//counter = 4 --> we place to the top-right (NE)
+			//counter = 5 --> we place at the bottom-right (SE)
+			//counter = 6 --> we place to the bottom-left (SW)
+			//counter = 7 --> we place at the top-left (NW)
+			if(counter == 0)
+			{
+				local_translation_point = narShape.screenToLocal(connectionBounds.getMaxX() + margin,
+						connectionBounds.getMinY());
+
+				narShape.setTranslateX(local_translation_point.getX() + localBoundsInParent.getMinX());
+				narShape.setTranslateY(local_translation_point.getY() + localBoundsInParent.getMinY());
+
+				positions.get(counter).setX((int)(narShape.localToScreen(narShape.getBoundsInLocal()).getMinX() + narShape.getBoundsInLocal().getWidth()));
+			}
+			else if(counter == 1)
+			{
+				local_translation_point = narShape.screenToLocal(connectionBounds.getMinX(),
+						connectionBounds.getMinY() + narShape.getBoundsInLocal().getHeight() + margin);
+
+				narShape.setTranslateX(local_translation_point.getX() + localBoundsInParent.getMinX());
+				narShape.setTranslateY(local_translation_point.getY() + localBoundsInParent.getMinY());
+
+				positions.get(counter).setY((int)(narShape.localToScreen(narShape.getBoundsInLocal()).getMinY() + narShape.getBoundsInLocal().getHeight()));
+			}
+			else if(counter == 2)
+			{
+				local_translation_point = narShape.screenToLocal(connectionBounds.getMinX() - connectionBounds.getWidth() - margin,
+						connectionBounds.getMinY());
+
+				narShape.setTranslateX(local_translation_point.getX() + localBoundsInParent.getMinX());
+				narShape.setTranslateY(local_translation_point.getY() + localBoundsInParent.getMinY());
+
+				positions.get(counter).setX((int)(narShape.localToScreen(narShape.getBoundsInLocal()).getMinX() - narShape.getBoundsInLocal().getWidth()));
+			}
+			else if(counter == 3)
+			{
+				local_translation_point = narShape.screenToLocal(connectionBounds.getMinX(),
+						connectionBounds.getMinY()  - narShape.getBoundsInLocal().getHeight() - margin);
+
+				narShape.setTranslateX(local_translation_point.getX() + localBoundsInParent.getMinX());
+				narShape.setTranslateY(local_translation_point.getY() + localBoundsInParent.getMinY());
+
+				positions.get(counter).setY((int)(narShape.localToScreen(narShape.getBoundsInLocal()).getMinY() - narShape.getBoundsInLocal().getHeight()));
+			}
+			if(counter == 4)
+			{
+				local_translation_point = narShape.screenToLocal(connectionBounds.getMaxX() + margin,
+						connectionBounds.getMinY()  - narShape.getBoundsInLocal().getHeight() - margin);
+
+				narShape.setTranslateX(local_translation_point.getX() + localBoundsInParent.getMinX());
+				narShape.setTranslateY(local_translation_point.getY() + localBoundsInParent.getMinY());
+
+//				positions.get(counter).setX((int)(narShape.localToScreen(narShape.getBoundsInLocal()).getMinX() + narShape.getBoundsInLocal().getWidth()));
+			}
+			else if(counter == 5)
+			{
+				local_translation_point = narShape.screenToLocal(connectionBounds.getMaxX() + margin,
+						connectionBounds.getMinY() + narShape.getBoundsInLocal().getHeight() + margin);
+
+				narShape.setTranslateX(local_translation_point.getX() + localBoundsInParent.getMinX());
+				narShape.setTranslateY(local_translation_point.getY() + localBoundsInParent.getMinY());
+
+//				positions.get(counter).setY((int)(narShape.localToScreen(narShape.getBoundsInLocal()).getMinY() + narShape.getBoundsInLocal().getHeight()));
+			}
+			else if(counter == 6)
+			{
+				local_translation_point = narShape.screenToLocal(connectionBounds.getMinX() - connectionBounds.getWidth() - margin,
+						connectionBounds.getMinY() + narShape.getBoundsInLocal().getHeight() + margin);
+
+				narShape.setTranslateX(local_translation_point.getX() + localBoundsInParent.getMinX());
+				narShape.setTranslateY(local_translation_point.getY() + localBoundsInParent.getMinY());
+
+//				positions.get(counter).setX((int)(narShape.localToScreen(narShape.getBoundsInLocal()).getMinX() - narShape.getBoundsInLocal().getWidth()));
+			}
+			else if(counter == 7)
+			{
+				local_translation_point = narShape.screenToLocal(connectionBounds.getMinX() - connectionBounds.getWidth() - margin,
+						connectionBounds.getMinY()  - narShape.getBoundsInLocal().getHeight() - margin);
+
+				narShape.setTranslateX(local_translation_point.getX() + localBoundsInParent.getMinX());
+				narShape.setTranslateY(local_translation_point.getY() + localBoundsInParent.getMinY());
+
+//				positions.get(counter).setY((int)(narShape.localToScreen(narShape.getBoundsInLocal()).getMinY() - narShape.getBoundsInLocal().getHeight()));
+			}
+
+			toCheckNodes.add(testedNode);
+			visitedNodes.add(testedNode);
+		}
+
+		return counter;
+	}
+
 	public void layoutGraph()
 	{
 		//MAKE SOME KIND OF GRID SO IT IS CLEAR WHERE EACH IS!
@@ -112,61 +277,35 @@ public class NarrativePane extends Pane
 		Point current = new Point(0, 0);
 		int current_x = 0;
 		int current_y = 0;
-//		String current = "0";
-//		String towards = "0";
 
 		renderAll();
-
-		ArrayList<String> visitedConnections = new ArrayList<String>();
 		ArrayList<GrammarNode> visitedNodes = new ArrayList<GrammarNode>();
-
-		Queue<String> toCheckConnections = new LinkedList<String>();
 		Stack<GrammarNode> toCheckNodes = new Stack<GrammarNode>();
 
 		NarrativeShape narShape = owner.nodes.get(0).getNarrativeShape();
-		Point2D local_translation_point2 = narShape.screenToLocal(narShape.getLayoutX(),narShape.getLayoutY());
 
 		ArrayList<Point> positions = new ArrayList<Point>();
-//		positions.add(new Point(Math.abs(local_translation_point2.getX()),Math.abs(local_translation_point2.getY()))); //N
-//		positions.add(new Point(Math.abs(local_translation_point2.getX()),Math.abs(local_translation_point2.getY()))); //N
-//		positions.add(new Point(Math.abs(local_translation_point2.getX()),Math.abs(local_translation_point2.getY()))); //N
-//		positions.add(new Point(Math.abs(local_translation_point2.getX()),Math.abs(local_translation_point2.getY()))); //N
-
-		Bounds dsa = narShape.getBoundsInLocal();
 
 		positions.add(new Point(narShape.localToScreen(narShape.getBoundsInLocal()).getMinX(), narShape.localToScreen(narShape.getBoundsInLocal()).getMinY())); //N
 		positions.add(new Point(narShape.localToScreen(narShape.getBoundsInLocal()).getMinX(), narShape.localToScreen(narShape.getBoundsInLocal()).getMinY())); //N
 		positions.add(new Point(narShape.localToScreen(narShape.getBoundsInLocal()).getMinX(), narShape.localToScreen(narShape.getBoundsInLocal()).getMinY())); //N
 		positions.add(new Point(narShape.localToScreen(narShape.getBoundsInLocal()).getMinX(), narShape.localToScreen(narShape.getBoundsInLocal()).getMinY())); //N
 
+		//needed in case there are non-connected nodes
 		toCheckNodes.addAll(owner.nodes);
 		toCheckNodes.add(owner.nodes.get(0));
 
 		narShape = owner.nodes.get(0).getNarrativeShape();
 
-//		positions.get(0).setX((int)narShape.getTranslateX());
-//		positions.get(0).setY((int)narShape.getTranslateY());
-
+		//calculate the first movement
 		Point2D local_translation_point = narShape.screenToLocal(positions.get(0).getX(), positions.get(0).getY());
-		narShape.setTranslateX(local_translation_point.getX());
-		narShape.setTranslateY(local_translation_point.getY());
-
-//		narShape.setLayoutX(positions.get(0).getX());
-//		narShape.setLayoutY(positions.get(0).getY());
-
-//		positions.get(0).setX((int)narShape.xPosition.get());
-//		positions.get(0).setY((int)narShape.yPosition.get());
-
-//		positions.get(0).setX((int)narShape.localToScreen(narShape.getBoundsInLocal()).getMinX());
-//		positions.get(0).setY((int)narShape.localToScreen(narShape.getBoundsInLocal()).getMinY());
-
-
+//		narShape.setTranslateX(local_translation_point.getX());
+//		narShape.setTranslateY(local_translation_point.getY());
+//
 //		positions.get(0).setX((int)(narShape.localToScreen(narShape.getBoundsInLocal()).getMinX() + narShape.getBoundsInLocal().getWidth()));
-		positions.get(0).setY((int)(narShape.localToScreen(narShape.getBoundsInLocal()).getMinY() - narShape.getBoundsInLocal().getHeight()));
-//		positions.get(0).setY((int)narShape.getTranslateY());
+//		positions.get(0).setY((int)(narShape.localToScreen(narShape.getBoundsInLocal()).getMinY() - narShape.getBoundsInLocal().getHeight()));
 
-//		while(!toCheckNodes.isEmpty())
-
+		//this works but I feel something will need to change (is kind of getting for granted that everything is interconnected
 		current_x = 1;
 		current_y = 0;
 		current = new Point(current_x, current_y);
@@ -174,30 +313,30 @@ public class NarrativePane extends Pane
 //		for(GrammarNode daNode : owner.nodes)
 		while(!toCheckNodes.isEmpty())
 		{
-			GrammarNode daNode = toCheckNodes.pop();
-
+			GrammarNode current_node = toCheckNodes.pop();
 			int counter = 1;
 
-
-			narShape = daNode.getNarrativeShape();
+			narShape = current_node.getNarrativeShape();
 			Bounds localBounds = narShape.localToScreen(narShape.getBoundsInLocal());
 			Bounds localBoundsInParent = narShape.getBoundsInParent();
 
-			if(!visitedNodes.contains(daNode))
+			//In case the node has not been visited before (was not connected to anything that has been examined)
+			if(!visitedNodes.contains(current_node))
 			{
-				visitedNodes.add(daNode);
+				visitedNodes.add(current_node);
 
+				//Find an available position!
 				while(grid.contains(current))
 				{
-					if(counter == 1)
+					if(counter == 0)
 					{
 						current = new Point(current_x + 1, current_y);
 					}
-					else if(counter == 2)
+					else if(counter == 1)
 					{
 						current = new Point(current_x, current_y + 1);
 					}
-					else if(counter == 3)
+					else if(counter == 2)
 					{
 						current = new Point(current_x - 1, current_y);
 					}
@@ -214,382 +353,26 @@ public class NarrativePane extends Pane
 				narShape.grid_placement = current;
 
 
-//				current = new Point(current_x, current_y);
-//				grid.add(current);
-//				narShape.grid_placement = current;
-
-				local_translation_point = narShape.screenToLocal(positions.get(1).getX(), positions.get(1).getY());
-//			narShape.
-//			narShape.setLayoutX(local_translation_point.getX());
+				local_translation_point = narShape.screenToLocal(positions.get(0).getX(), positions.get(0).getY());
 				narShape.setTranslateX(localBoundsInParent.getMinX() + local_translation_point.getX());
 				narShape.setTranslateY(localBoundsInParent.getMinY() + local_translation_point.getY());
 			}
 
-//			positions.get(1).setX((int)(narShape.localToScreen(narShape.getBoundsInLocal()).getMinX() + narShape.getBoundsInLocal().getWidth()));
+			//Iterate actual connections from current_node to others
+			counter = -1;
+			counter = iterateConnections(current_node, positions, new ArrayList<GrammarNode>(current_node.connections.keySet()), counter, visitedNodes,
+					toCheckNodes, grid, current, current_x, current_y, 20.0);
 
-
-//			//Place Node
-//			nShape.setLayoutX(positions.get(1).getX());
-//			nShape.setLayoutY(positions.get(1).getY());
-//
-//			positions.get(1).setX((int)nShape.xPosition.get());
-//			positions.get(1).setY((int)nShape.yPosition.get());
-
-//			current = narShape.grid_placement;
-//			current_x = current.getX();
-//			current_y = current.getY();
-
-			counter = 0;
-
-//			daNode.removeAllConnection();
-
-			for(Map.Entry<GrammarNode, Integer> keyValue : daNode.connections.entrySet())
-			{
-				if(visitedNodes.contains(keyValue.getKey()))
-					continue;
-
-				current = daNode.getNarrativeShape().grid_placement;
-				current_x = current.getX();
-				current_y = current.getY();
-
-				Bounds connectionBounds = daNode.getNarrativeShape().localToScreen(narShape.getBoundsInLocal());
-
-				narShape = keyValue.getKey().getNarrativeShape();
-				localBoundsInParent = narShape.getBoundsInParent();
-//				localBounds = narShape.getParent().getBoundsInLocal();
-//				localBounds = narShape.localToScreen(narShape.getBoundsInLocal());
-
-//				local_translation_point = narShape.screenToLocal(positions.get(counter).getX(), positions.get(counter).getY());
-				local_translation_point = narShape.screenToLocal(connectionBounds.getMaxX(), connectionBounds.getMaxY());
-
-//				narShape.setTranslateX(connectionBounds.getMaxX() + localBoundsInParent.getMinX());
-//				narShape.setTranslateY(connectionBounds.getMaxY() + localBoundsInParent.getMinY());
-
-
-
-				while(grid.contains(current))
-				{
-					counter++;
-					counter = counter % 4;
-
-					if(counter == 1)
-					{
-						current = new Point(current_x + 1, current_y);
-					}
-					else if(counter == 2)
-					{
-						current = new Point(current_x, current_y + 1);
-					}
-					else if(counter == 3)
-					{
-						current = new Point(current_x - 1, current_y);
-					}
-					else
-					{
-						current = new Point(current_x, current_y - 1);
-					}
-
-				}
-
-				grid.add(current);
-				narShape.grid_placement = current;
-
-				if(counter == 1)
-				{
-					local_translation_point = narShape.screenToLocal(connectionBounds.getMaxX() + 20.0, connectionBounds.getMinY());
-
-					narShape.setTranslateX(local_translation_point.getX() + localBoundsInParent.getMinX());
-					narShape.setTranslateY(local_translation_point.getY() + localBoundsInParent.getMinY());
-					localBounds = narShape.localToScreen(narShape.getBoundsInLocal());
-
-					positions.get(counter).setX((int)(narShape.localToScreen(narShape.getBoundsInLocal()).getMinX() + narShape.getBoundsInLocal().getWidth()));
-//					positions.get(counter).setY((int)(narShape.localToScreen(narShape.getBoundsInLocal()).getMinY() + narShape.getBoundsInLocal().getHeight()));
-				}
-				else if(counter == 2)
-				{
-					local_translation_point = narShape.screenToLocal(connectionBounds.getMinX(), connectionBounds.getMaxY() + 20.0);
-
-					narShape.setTranslateX(local_translation_point.getX() + localBoundsInParent.getMinX());
-					narShape.setTranslateY(local_translation_point.getY() + localBoundsInParent.getMinY());
-
-//					positions.get(counter).setX((int)(narShape.localToScreen(narShape.getBoundsInLocal()).getMinX() + narShape.getBoundsInLocal().getWidth()));
-					positions.get(counter).setY((int)(narShape.localToScreen(narShape.getBoundsInLocal()).getMinY() + narShape.getBoundsInLocal().getHeight()));
-				}
-				else if(counter == 3)
-				{
-					local_translation_point = narShape.screenToLocal(connectionBounds.getMinX() - connectionBounds.getWidth() - 20.0, connectionBounds.getMinY());
-
-					narShape.setTranslateX(local_translation_point.getX() + localBoundsInParent.getMinX());
-					narShape.setTranslateY(local_translation_point.getY() + localBoundsInParent.getMinY());
-					localBounds = narShape.localToScreen(narShape.getBoundsInLocal());
-
-					positions.get(counter).setX((int)(narShape.localToScreen(narShape.getBoundsInLocal()).getMinX() - narShape.getBoundsInLocal().getWidth()));
-//					positions.get(counter).setY((int)(narShape.localToScreen(narShape.getBoundsInLocal()).getMinY() + narShape.getBoundsInLocal().getHeight()));
-				}
-				else
-				{
-					local_translation_point = narShape.screenToLocal(connectionBounds.getMinX(), connectionBounds.getMinY()  - connectionBounds.getHeight() - 20.0);
-
-					narShape.setTranslateX(local_translation_point.getX() + localBoundsInParent.getMinX());
-					narShape.setTranslateY(local_translation_point.getY() + localBoundsInParent.getMinY());
-					localBounds = narShape.localToScreen(narShape.getBoundsInLocal());
-
-//					positions.get(counter).setX((int)(narShape.localToScreen(narShape.getBoundsInLocal()).getMinX() + narShape.getBoundsInLocal().getWidth()));
-					positions.get(counter).setY((int)(narShape.localToScreen(narShape.getBoundsInLocal()).getMinY() - narShape.getBoundsInLocal().getHeight()));
-				}
-
-//				if(counter == 1)
-//				{
-//					localBounds = narShape.localToScreen(narShape.getBoundsInLocal());
-//					positions.get(counter).setX((int)(narShape.localToScreen(narShape.getBoundsInLocal()).getMinX() + narShape.getBoundsInLocal().getWidth()));
-////					positions.get(counter).setY((int)(narShape.localToScreen(narShape.getBoundsInLocal()).getMinY() + narShape.getBoundsInLocal().getHeight()));
-//				}
-//				else if(counter == 2)
-//				{
-////					positions.get(counter).setX((int)(narShape.localToScreen(narShape.getBoundsInLocal()).getMinX() + narShape.getBoundsInLocal().getWidth()));
-//					positions.get(counter).setY((int)(narShape.localToScreen(narShape.getBoundsInLocal()).getMinY() + narShape.getBoundsInLocal().getHeight()));
-//				}
-//				else if(counter == 3)
-//				{
-//					positions.get(counter).setX((int)(narShape.localToScreen(narShape.getBoundsInLocal()).getMinX() - narShape.getBoundsInLocal().getWidth()));
-////					positions.get(counter).setY((int)(narShape.localToScreen(narShape.getBoundsInLocal()).getMinY() + narShape.getBoundsInLocal().getHeight()));
-//				}
-//				else
-//				{
-////					positions.get(counter).setX((int)(narShape.localToScreen(narShape.getBoundsInLocal()).getMinX() + narShape.getBoundsInLocal().getWidth()));
-//					positions.get(counter).setY((int)(narShape.localToScreen(narShape.getBoundsInLocal()).getMinY() - narShape.getBoundsInLocal().getHeight()));
-//				}
-
-//				positions.get(counter).setX((int)(narShape.localToScreen(narShape.getBoundsInLocal()).getMinX() + narShape.getBoundsInLocal().getWidth()));
-//				positions.get(counter).setY((int)(narShape.localToScreen(narShape.getBoundsInLocal()).getMinY() + narShape.getBoundsInLocal().getHeight()));
-
-//				positions.get(counter).setX((int)narShape.getTranslateX());
-//				positions.get(counter).setY((int)narShape.getTranslateY());
-
-				//Place Node
-//				nShape.setLayoutX(positions.get(counter).getX() + nShape.getWidth());
-//				nShape.setLayoutY(positions.get(counter).getY() +  nShape.getHeight());
-//
-//				positions.get(counter).setX((int)nShape.xPosition.get());
-//				positions.get(counter).setY((int)nShape.yPosition.get());
-
-//				counter++;
-//				counter = counter % 4;
-				toCheckNodes.add(keyValue.getKey());
-				visitedNodes.add(keyValue.getKey());
-			}
-
+			//little hack to start in the right place
 			counter--;
-			counter = counter % 4;
+			counter = counter % 8;
 
-			for(GrammarNode toNode : owner.getAllConnectionsToNode(daNode))
-			{
-				if(visitedNodes.contains(toNode))
-					continue;
-
-				current = daNode.getNarrativeShape().grid_placement;
-				current_x = current.getX();
-				current_y = current.getY();
-
-				Bounds connectionBounds = daNode.getNarrativeShape().localToScreen(narShape.getBoundsInLocal());
-
-				narShape = toNode.getNarrativeShape();
-				localBoundsInParent = narShape.getBoundsInParent();
-//				localBounds = narShape.getParent().getBoundsInLocal();
-//				localBounds = narShape.localToScreen(narShape.getBoundsInLocal());
-
-//				local_translation_point = narShape.screenToLocal(positions.get(counter).getX(), positions.get(counter).getY());
-				local_translation_point = narShape.screenToLocal(connectionBounds.getMaxX(), connectionBounds.getMaxY());
-
-//				narShape.setTranslateX(connectionBounds.getMaxX() + localBoundsInParent.getMinX());
-//				narShape.setTranslateY(connectionBounds.getMaxY() + localBoundsInParent.getMinY());
-
-
-
-				while(grid.contains(current))
-				{
-					counter++;
-					counter = counter % 4;
-					if(counter == 1)
-					{
-						current = new Point(current_x + 1, current_y);
-					}
-					else if(counter == 2)
-					{
-						current = new Point(current_x, current_y + 1);
-					}
-					else if(counter == 3)
-					{
-						current = new Point(current_x - 1, current_y);
-					}
-					else
-					{
-						current = new Point(current_x, current_y - 1);
-					}
-
-				}
-
-				grid.add(current);
-				narShape.grid_placement = current;
-
-				if(counter == 1)
-				{
-					local_translation_point = narShape.screenToLocal(connectionBounds.getMaxX() + 20.0, connectionBounds.getMinY());
-
-					narShape.setTranslateX(local_translation_point.getX() + localBoundsInParent.getMinX());
-					narShape.setTranslateY(local_translation_point.getY() + localBoundsInParent.getMinY());
-					localBounds = narShape.localToScreen(narShape.getBoundsInLocal());
-
-					positions.get(counter).setX((int)(narShape.localToScreen(narShape.getBoundsInLocal()).getMinX() + narShape.getBoundsInLocal().getWidth()));
-//					positions.get(counter).setY((int)(narShape.localToScreen(narShape.getBoundsInLocal()).getMinY() + narShape.getBoundsInLocal().getHeight()));
-				}
-				else if(counter == 2)
-				{
-					local_translation_point = narShape.screenToLocal(connectionBounds.getMinX(), connectionBounds.getMaxY() + 20.0);
-
-					narShape.setTranslateX(local_translation_point.getX() + localBoundsInParent.getMinX());
-					narShape.setTranslateY(local_translation_point.getY() + localBoundsInParent.getMinY());
-
-//					positions.get(counter).setX((int)(narShape.localToScreen(narShape.getBoundsInLocal()).getMinX() + narShape.getBoundsInLocal().getWidth()));
-					positions.get(counter).setY((int)(narShape.localToScreen(narShape.getBoundsInLocal()).getMinY() + narShape.getBoundsInLocal().getHeight()));
-				}
-				else if(counter == 3)
-				{
-					local_translation_point = narShape.screenToLocal(connectionBounds.getMaxX() + 20.0, connectionBounds.getMinY());
-
-					narShape.setTranslateX(local_translation_point.getX() + localBoundsInParent.getMinX());
-					narShape.setTranslateY(local_translation_point.getY() + localBoundsInParent.getMinY());
-					localBounds = narShape.localToScreen(narShape.getBoundsInLocal());
-
-					positions.get(counter).setX((int)(narShape.localToScreen(narShape.getBoundsInLocal()).getMinX() + narShape.getBoundsInLocal().getWidth()));
-
-					positions.get(counter).setX((int)(narShape.localToScreen(narShape.getBoundsInLocal()).getMinX() - narShape.getBoundsInLocal().getWidth()));
-//					positions.get(counter).setY((int)(narShape.localToScreen(narShape.getBoundsInLocal()).getMinY() + narShape.getBoundsInLocal().getHeight()));
-				}
-				else
-				{
-					local_translation_point = narShape.screenToLocal(connectionBounds.getMinX(), connectionBounds.getMinY()  - connectionBounds.getHeight() - 20.0);
-
-					narShape.setTranslateX(local_translation_point.getX() + localBoundsInParent.getMinX());
-					narShape.setTranslateY(local_translation_point.getY() + localBoundsInParent.getMinY());
-					localBounds = narShape.localToScreen(narShape.getBoundsInLocal());
-
-//					positions.get(counter).setX((int)(narShape.localToScreen(narShape.getBoundsInLocal()).getMinX() + narShape.getBoundsInLocal().getWidth()));
-					positions.get(counter).setY((int)(narShape.localToScreen(narShape.getBoundsInLocal()).getMinY() - narShape.getBoundsInLocal().getHeight()));
-				}
-
-//				if(counter == 1)
-//				{
-//					localBounds = narShape.localToScreen(narShape.getBoundsInLocal());
-//					positions.get(counter).setX((int)(narShape.localToScreen(narShape.getBoundsInLocal()).getMinX() + narShape.getBoundsInLocal().getWidth()));
-////					positions.get(counter).setY((int)(narShape.localToScreen(narShape.getBoundsInLocal()).getMinY() + narShape.getBoundsInLocal().getHeight()));
-//				}
-//				else if(counter == 2)
-//				{
-////					positions.get(counter).setX((int)(narShape.localToScreen(narShape.getBoundsInLocal()).getMinX() + narShape.getBoundsInLocal().getWidth()));
-//					positions.get(counter).setY((int)(narShape.localToScreen(narShape.getBoundsInLocal()).getMinY() + narShape.getBoundsInLocal().getHeight()));
-//				}
-//				else if(counter == 3)
-//				{
-//					positions.get(counter).setX((int)(narShape.localToScreen(narShape.getBoundsInLocal()).getMinX() - narShape.getBoundsInLocal().getWidth()));
-////					positions.get(counter).setY((int)(narShape.localToScreen(narShape.getBoundsInLocal()).getMinY() + narShape.getBoundsInLocal().getHeight()));
-//				}
-//				else
-//				{
-////					positions.get(counter).setX((int)(narShape.localToScreen(narShape.getBoundsInLocal()).getMinX() + narShape.getBoundsInLocal().getWidth()));
-//					positions.get(counter).setY((int)(narShape.localToScreen(narShape.getBoundsInLocal()).getMinY() - narShape.getBoundsInLocal().getHeight()));
-//				}
-
-//				positions.get(counter).setX((int)(narShape.localToScreen(narShape.getBoundsInLocal()).getMinX() + narShape.getBoundsInLocal().getWidth()));
-//				positions.get(counter).setY((int)(narShape.localToScreen(narShape.getBoundsInLocal()).getMinY() + narShape.getBoundsInLocal().getHeight()));
-
-//				positions.get(counter).setX((int)narShape.getTranslateX());
-//				positions.get(counter).setY((int)narShape.getTranslateY());
-
-				//Place Node
-//				nShape.setLayoutX(positions.get(counter).getX() + nShape.getWidth());
-//				nShape.setLayoutY(positions.get(counter).getY() +  nShape.getHeight());
-//
-//				positions.get(counter).setX((int)nShape.xPosition.get());
-//				positions.get(counter).setY((int)nShape.yPosition.get());
-
-//				counter++;
-//				counter = counter % 4;
-				toCheckNodes.add(toNode);
-				visitedNodes.add(toNode);
-			}
+			//Iterate nodes that are connected to current_node!
+			counter = iterateConnections(current_node, positions, owner.getAllConnectionsToNode(current_node), counter, visitedNodes,
+					toCheckNodes, grid, current, current_x, current_y, 20.0);
 		}
 
 		renderAll();
-//
-//
-//		while(!toCheckNodes.isEmpty())
-//		{
-//			GrammarNode curNode = toCheckNodes.remove();
-//			String curConnection = "";
-//
-//			if(!toCheckConnections.isEmpty())
-//				curConnection = toCheckConnections.remove();
-//
-//			if(!curConnection.equals("") && !visitedConnections.contains(curConnection))
-//			{
-//				visitedConnections.add(curConnection);
-//			}
-//
-//			//If we have already been here there is no need to check again
-//			if(visitedNodes.contains(curNode))
-//				continue;
-//
-//			visitedNodes.add(curNode);
-//
-//			NarrativeShape narShape = curNode.getNarrativeShape();
-//
-//
-//			//first add my connections
-//			//TODO: this works for every type of connection
-//			for(Map.Entry<GrammarNode, Integer> keyValue : curNode.connections.entrySet())
-//			{
-//				toCheckNodes.add(keyValue.getKey());
-//				toCheckConnections.add(Integer.toString(curNode.id)+Integer.toString(keyValue.getKey().id));
-//			}
-//
-//			for(GrammarNode other : owner.nodes)
-//			{
-//				if(other == curNode)
-//					continue;
-//
-//				if(other.checkConnectionExists(curNode))
-//				{
-//					toCheckNodes.add(other);
-//					toCheckConnections.add(Integer.toString(other.id)+Integer.toString(curNode.id));
-//				}
-//			}
-//		}
-
-
-		////////////////////////////////////////////////////////////////////////////////////////////////////
-
-//		//if we haven't visited all nodes we know this is not fully connected
-//		return nodes.size() == visitedNodes.size();
-//
-//		for(GrammarNode node : owner.nodes)
-//		{
-//			NarrativeShape narShape = node.getNarrativeShape();
-//			if(!narShape.getRendered())
-//			{
-////				narShape.getCanvas().draw(MapRenderer.getInstance().renderMap(room));
-//				narShape.setRendered(true);
-//			}
-//
-//			if(!getChildren().contains(narShape))
-//				getChildren().add(narShape);
-//
-//			//Now get connections!
-////			getChildren().addAll(node.getNarrativeShapeConnections());
-//			getChildren().addAll(node.recreateConnectionsBasedPosition());
-//
-//
-//		}
 	}
 	
 	//EVENT
