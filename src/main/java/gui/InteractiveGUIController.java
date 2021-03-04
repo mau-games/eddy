@@ -317,11 +317,17 @@ public class InteractiveGUIController implements Initializable, Listener {
 			Point2D local_translation_point = created_node.getNarrativeShape().screenToLocal(((RequestNewGrammarStructureNode) e).x_pos, ((RequestNewGrammarStructureNode) e).y_pos);
 			created_node.getNarrativeShape().setTranslateX(local_translation_point.getX());
 			created_node.getNarrativeShape().setTranslateY(local_translation_point.getY());
+
+			if(graph.fullyConnectedGraph())
+				router.postEvent(new NarrativeStructEdited(graph));
 		}
 		 else if(e instanceof RequestGrammarStructureNodeRemoval)
 		{
 			graph.removeNode((GrammarNode) e.getPayload());
 			graph.nPane.renderAll();
+
+			if(graph.fullyConnectedGraph())
+				router.postEvent(new NarrativeStructEdited(graph));
 		}
 		 else if(e instanceof RequestConnectionGrammarStructureGraph)
 		{
@@ -332,12 +338,19 @@ public class InteractiveGUIController implements Initializable, Listener {
 			graph.nPane.renderAll();
 
 			NarrativeStructDrawer.getInstance().done();
+
+			if(graph.fullyConnectedGraph())
+				router.postEvent(new NarrativeStructEdited(graph));
 		}
 		else if(e instanceof RequestGrammarNodeConnectionRemoval)
 		{
 			//I Think that this one will actually remove everything
-			((NarrativeShapeEdge) e.getPayload()).from.owner.removeConnection(((NarrativeShapeEdge) e.getPayload()).to.owner);
+			((NarrativeShapeEdge) e.getPayload()).from.owner.removeConnection(((NarrativeShapeEdge) e.getPayload()).to.owner, true);
 			graph.nPane.renderAll();
+
+			if(graph.fullyConnectedGraph())
+				router.postEvent(new NarrativeStructEdited(graph));
+
 		}
 
 	}

@@ -1,12 +1,8 @@
 package generator.algorithm.MAPElites.grammarDimensions;
 
-import com.sun.org.apache.xerces.internal.xni.grammars.Grammar;
-import game.Room;
 import game.narrative.GrammarGraph;
 import generator.algorithm.GrammarIndividual;
-import generator.algorithm.MAPElites.Dimensions.*;
 import generator.algorithm.MAPElites.GADimensionsGranularity;
-import generator.algorithm.ZoneIndividual;
 
 //PLS COMMENT!!
 public abstract class GADimensionGrammar
@@ -14,7 +10,7 @@ public abstract class GADimensionGrammar
 	public enum GrammarDimensionTypes //Till example
 	{
 		CONFLICT,
-		SIZE,
+		STEP,
 		DIVERSITY
 	}
 
@@ -54,7 +50,7 @@ public abstract class GADimensionGrammar
 		{
 			case CONFLICT:
 				return new ConflictGADimensionGrammar(granularity.floatValue());
-			case SIZE:
+			case STEP:
 				return new SizeGADimensionGrammar(granularity.floatValue());
 			case DIVERSITY:
 				return new DiversityGADimensionGrammar(granularity.floatValue());
@@ -74,7 +70,7 @@ public abstract class GADimensionGrammar
 		{
 			case CONFLICT:
 				return ConflictGADimensionGrammar.getValue(individual_grammar);
-			case SIZE:
+			case STEP:
 				return SizeGADimensionGrammar.getValue(individual_grammar);
 			case DIVERSITY:
 				return DiversityGADimensionGrammar.getValue(individual_grammar);

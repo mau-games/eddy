@@ -15,6 +15,7 @@ import javafx.scene.shape.Rectangle;
 import util.eventrouting.EventRouter;
 import util.eventrouting.events.SuggestedMapSelected;
 import util.eventrouting.events.SuggestedNarrativeHovered;
+import util.eventrouting.events.SuggestedNarrativeSelected;
 
 import java.util.Stack;
 
@@ -30,6 +31,7 @@ public class SuggestionNarrativeStructure
 	private Rectangle shape;
 	private Color cell_color;
 	private GrammarGraph elite;
+	private GrammarGraph selected_elite;
 	private GrammarGraph original;
 
 	private Node source;
@@ -93,8 +95,8 @@ public class SuggestionNarrativeStructure
 
 	            @Override
 	            public void handle(MouseEvent event) 
-	            {	            	
-//	            	EventRouter.getInstance().postEvent(new SuggestedMapSelected(self));
+	            {
+					EventRouter.getInstance().postEvent(new SuggestedNarrativeSelected(self));
 	            	selected = !selected;
 	            	highlight(true);
 	            	
@@ -167,9 +169,15 @@ public class SuggestionNarrativeStructure
 		return elite;
 	}
 
+	public GrammarGraph getSelectedElite()
+	{
+		return selected_elite;
+	}
+
 	public void setElite(GrammarGraph elite)
 	{
 		this.elite = elite;
+		this.selected_elite = new GrammarGraph(elite);
 	}
 
 	public void setCellFitness(double cell_fitness)
@@ -213,14 +221,16 @@ public class SuggestionNarrativeStructure
     {
     	if(selected)
     	{
-			graphicNode.setStyle("-fx-border-width: 2px; -fx-border-color: #fcdf3c;");
+			graphicNode.setStyle("-fx-border-color: #fcdf3c;");
     	}
     	else
     	{
     		if (state) {
-				graphicNode.setStyle("-fx-border-width: 2px; -fx-border-color: #6b87f9;");
+				graphicNode.setStyle("-fx-border-color: #6b87f9;");
         	} else {
-				graphicNode.setStyle("-fx-border-width: 0px; -fx-background-color:#2c2f33;");
+//				graphicNode.setStyle("-fx-border-width: 0px; -fx-background-color:#2c2f33;");
+				graphicNode.setStyle("-fx-background-color:#2c2f33;");
+
         	}
     	}
     }

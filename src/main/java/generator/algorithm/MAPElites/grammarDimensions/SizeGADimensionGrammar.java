@@ -1,18 +1,8 @@
 package generator.algorithm.MAPElites.grammarDimensions;
 
-import finder.PatternFinder;
-import finder.patterns.CompositePattern;
-import finder.patterns.meso.ChokePoint;
-import finder.patterns.meso.DeadEnd;
-import finder.patterns.meso.GuardedTreasure;
-import game.Room;
 import game.narrative.GrammarGraph;
 import generator.algorithm.GrammarIndividual;
-import generator.algorithm.MAPElites.Dimensions.GADimension;
-import generator.algorithm.ZoneIndividual;
 import util.Util;
-
-import java.util.List;
 
 public class SizeGADimensionGrammar extends GADimensionGrammar {
 
@@ -21,7 +11,7 @@ public class SizeGADimensionGrammar extends GADimensionGrammar {
 	public SizeGADimensionGrammar(float granularity)
 	{
 		super();
-		dimension = GrammarDimensionTypes.SIZE;
+		dimension = GrammarDimensionTypes.STEP;
 		this.granularity = granularity;
 	}
 

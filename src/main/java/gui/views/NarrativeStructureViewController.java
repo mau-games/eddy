@@ -19,14 +19,13 @@ import gui.utils.DungeonDrawer;
 import gui.utils.DungeonDrawer.DungeonBrushes;
 import gui.utils.InterRoomBrush;
 import gui.utils.MapRenderer;
-import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
-import javafx.geometry.HPos;
 import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
+import javafx.geometry.VPos;
 import javafx.scene.Node;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.control.*;
@@ -83,7 +82,8 @@ public class NarrativeStructureViewController extends BorderPane implements List
 
 	private Node source;
 
-	private GrammarGraph mainGraph;
+	private GrammarGraph editedGraph;
+	private GrammarGraph renderedGraph;
 
 	double anchorX;
 	double anchorY;
@@ -104,9 +104,10 @@ public class NarrativeStructureViewController extends BorderPane implements List
 	private ArrayList<SuggestionNarrativeStructure> narrativeStructureDisplays;
 	private MAPEDimensionGrammarFXML[] currentDimensions = new MAPEDimensionGrammarFXML[] {};
 
-	@FXML HBox elite_previews;
+	@FXML VBox elite_previews;
 	@FXML NarrativePane elite_preview_1;
 	@FXML NarrativePane elite_preview_2;
+	Separator elite_sep;
 
 	GrammarGraph elp_1;
 	GrammarGraph elp_2;
@@ -139,6 +140,8 @@ public class NarrativeStructureViewController extends BorderPane implements List
 		router.registerListener(this, new MAPENarrativeGridUpdate(null));
 		router.registerListener(this, new NarrativeStructMAPElitesDone());
 		router.registerListener(this, new SuggestedNarrativeHovered(null));
+		router.registerListener(this, new SuggestedNarrativeSelected(null));
+		router.registerListener(this, new NarrativeStructEdited(null));
 
 		//Create the graphs!
 		Scale newScale = new Scale();
@@ -163,12 +166,10 @@ public class NarrativeStructureViewController extends BorderPane implements List
 //		elite_preview_2.renderAll();
 		elite_preview_2.forceScale(newScale);
 
-		Separator elite_sep = new Separator();
-		elite_sep.setOrientation(Orientation.VERTICAL);
+		elite_sep= new Separator();
+		elite_sep.setOrientation(Orientation.HORIZONTAL);
 //		elite_sep.setValignment(VPos.CENTER);
-		elite_sep.setHalignment(HPos.CENTER);
-//		elite_sep.setPrefHeight(50);
-
+		elite_sep.setValignment(VPos.CENTER);
 		elite_previews.getChildren().addAll(elite_preview_1, elite_sep, elite_preview_2);
 
 
@@ -199,13 +200,10 @@ public class NarrativeStructureViewController extends BorderPane implements List
 
 		for(GADimensionGrammar.GrammarDimensionTypes dimension : GADimensionGrammar.GrammarDimensionTypes.values())
 		{
-//			if(dimension != GADimension.DimensionTypes.SIMILARITY && dimension != GADimension.DimensionTypes.SYMMETRY
-//					&& dimension != GADimension.DimensionTypes.DIFFICULTY
-//					&& dimension != GADimension.DimensionTypes.GEOM_COMPLEXITY && dimension != GADimension.DimensionTypes.REWARD)
+			if(dimension != GADimensionGrammar.GrammarDimensionTypes.STEP && dimension != GADimensionGrammar.GrammarDimensionTypes.DIVERSITY)
 			{
 				secondaryTable.getItems().add(new MAPEDimensionGrammarFXML(dimension, 5));
 			}
-
 		}
 
 		secondaryTable.setEventListeners();
@@ -308,7 +306,7 @@ public class NarrativeStructureViewController extends BorderPane implements List
 		redrawConnections.setOnAction(new EventHandler<ActionEvent>() {
 			@Override
 			public void handle(ActionEvent event) {
-				mainGraph.nPane.renderAll();
+				renderedGraph.nPane.renderAll();
 			}
 		});
 
@@ -320,7 +318,7 @@ public class NarrativeStructureViewController extends BorderPane implements List
 		reorganizeGraph.setOnAction(new EventHandler<ActionEvent>() {
 			@Override
 			public void handle(ActionEvent event) {
-				mainGraph.nPane.layoutGraph();
+				renderedGraph.nPane.layoutGraph();
 			}
 		});
 
@@ -368,43 +366,24 @@ public class NarrativeStructureViewController extends BorderPane implements List
 		if(heightField == null)
 			heightField = new IntField(1, 20, 10);
 
-		this.mainGraph = grammar;
+		this.editedGraph = new GrammarGraph(grammar);
+		this.renderedGraph = grammar;
+
 		worldPane.getChildren().clear();
 		worldPane.setBorder(new Border(new BorderStroke(Color.RED, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderWidths.DEFAULT)));
 
 
-		mainGraph.nPane.renderAll();
-		worldPane.getChildren().add(mainGraph.nPane);
+		renderedGraph.nPane.renderAll();
+		worldPane.getChildren().add(renderedGraph.nPane);
 
 		elite_preview_1.layoutGraph();
 		elite_preview_2.layoutGraph();
 
-		RunMAPElites(core_graph);
-
-//		worldPane.setLayoutX(0);
-//		worldPane.setPrefWidth(500);
-//		worldPane.setMinWidth(500);
-//		worldPane.setMaxWidth(500);
-
-		//TODO: OLD
-//		for(SuggestionRoom sr : roomDisplays)
-//		{
-//			sr.resizeCanvasForRoom(currentRoom);
-//		}
-//
-//		resetSuggestedRooms();
-
-//		initMapView();
-//		initLegend();
-//		resetView();
-//		roomToBe.forceReevaluation();
-//		updateRoom(roomToBe);
-//		generateNewMaps();
-
-//		NarrativeShape testNarrativeShape = new NarrativeShape(TVTropeType.ANY);
-//
-//		worldPane.getChildren().add(testNarrativeShape);
+//		RunMAPElites(core_graph);
+		RunMAPElites(editedGraph);
 	}
+
+
 
 	/**
 	 * Resets the mini suggestions for a new run of map generation
@@ -719,7 +698,7 @@ public class NarrativeStructureViewController extends BorderPane implements List
 			if(filled_cells.get(ind) != null)
 			{
 				narrativeStructureDisplays.get(ind).setElite(
-						filled_cells.get(ind).GetFeasiblePopulation().get(0).getPhenotype().getGrammarGraphOutput(core_graph, 1));
+						filled_cells.get(ind).GetFeasiblePopulation().get(0).getPhenotype().getGrammarGraphOutput(editedGraph, 1));
 				narrativeStructureDisplays.get(ind).setCellFitness(
 						filled_cells.get(ind).getEliteFitness());
 			}
@@ -773,24 +752,45 @@ public class NarrativeStructureViewController extends BorderPane implements List
 			newScale.setY(0.6);
 
 			elite_previews.getChildren().clear();
-
-
-			elite_previews.getChildren().remove(elite_preview_1);
 			elite_preview_1 = hovered_suggestion.getElite().nPane;
 			elite_preview_1.forceScale(newScale);
 
 
-			Separator elite_sep = new Separator();
-			elite_sep.setOrientation(Orientation.VERTICAL);
-//			elite_sep.setValignment(VPos.CENTER);
-			elite_sep.setHalignment(HPos.CENTER);
-//			elite_sep.setPrefHeight(50);
-
 			elite_previews.getChildren().addAll(elite_preview_1, elite_sep, elite_preview_2);
 
 			elite_preview_1.layoutGraph();
-		}
+			elite_preview_1.setMaxHeight(300);
+//			elite_preview_1.setPrefHeight(300);
 
+		}
+		else if(e instanceof SuggestedNarrativeSelected)
+		{
+			if(selected_suggestion != null)
+				selected_suggestion.setSelected(false);
+
+			selected_suggestion = (SuggestionNarrativeStructure) ((SuggestedNarrativeSelected) e).getPayload();
+			Scale newScale = new Scale();
+			newScale.setPivotX(0);
+			newScale.setPivotY(0);
+			newScale.setX(0.6);
+			newScale.setY(0.6);
+
+//			elite_previews.getChildren().clear();
+			elite_previews.getChildren().remove(elite_preview_2);
+			elite_preview_2 = selected_suggestion.getSelectedElite().nPane;
+			elite_preview_2.forceScale(newScale);
+
+			elite_previews.getChildren().add(elite_preview_2);
+
+			elite_preview_2.layoutGraph();
+			elite_preview_2.setMaxHeight(300);
+//			elite_preview_1.setPrefHeight(300);
+
+		}
+		else if(e instanceof NarrativeStructEdited)
+		{
+			editedGraph = new GrammarGraph((GrammarGraph) e.getPayload());
+		}
 	}
 
 	public Button getPickInitBtn() {
@@ -889,7 +889,7 @@ public class NarrativeStructureViewController extends BorderPane implements List
 			@Override
 			public void handle(ActionEvent e)
 			{
-				mainGraph.nPane.renderAll();
+				editedGraph.nPane.renderAll();
 
 
 				//uncomment to reset scale

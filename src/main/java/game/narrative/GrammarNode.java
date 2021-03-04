@@ -46,13 +46,19 @@ public class GrammarNode {
         return true;
     }
 
+    public void removeAllMyConnections()
+    {
+        connections = new HashMap<GrammarNode, Integer>();
+    }
+
     //TODO: This is not correct
     public void removeAllConnection()
     {
         //First remove all connections to this node
         for(GrammarNode connection : connections.keySet())
         {
-            connection.removeConnection(this);
+            connection.removeConnection(this, false);
+
         }
 
         //Then remove all connections from this node.
@@ -69,13 +75,13 @@ public class GrammarNode {
         List<GrammarNode> keysAsArray = new ArrayList<GrammarNode>(connections.keySet());
         GrammarNode connection = keysAsArray.get(Util.getNextInt(0, keysAsArray.size()));
 
-        connection.removeConnection(this);
+        connection.removeConnection(this, true);
         connections.remove(connection);
 
         return true;
     }
 
-    public int removeConnection(GrammarNode otherNode)
+    public int removeConnection(GrammarNode otherNode, boolean removeOtherDir)
     {
         int connectionType = -1; // -1 = no connection
 
@@ -85,8 +91,8 @@ public class GrammarNode {
             connections.remove(otherNode);
 
             //So bidirection or no direction
-            if(connectionType != 1)
-                otherNode.removeConnection(this);
+            if(removeOtherDir && connectionType != 1)
+                otherNode.removeConnection(this, true);
         }
 
         return connectionType;

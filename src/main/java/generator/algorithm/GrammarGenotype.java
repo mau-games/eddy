@@ -181,7 +181,8 @@ public class GrammarGenotype
             //Fixme: This still needs more testing!
             if(!first.checkConnectionExists(second))
             {
-                first.addConnection(second, 1);
+                first.addConnection(second, Util.getNextInt(0, 3));
+//                first.addConnection(second, 1);
 //                second.addConnection(first, 0);
             }
         }
@@ -263,7 +264,8 @@ public class GrammarGenotype
             //Fixme: This still needs more testing!
             if(!first.checkConnectionExists(second))
             {
-                first.addConnection(second, 1);
+                first.addConnection(second, Util.getNextInt(0, 3));
+//                first.addConnection(second, 1);
 //                second.addConnection(first, 0);
             }
         }
@@ -355,7 +357,8 @@ public class GrammarGenotype
             //Fixme: This still needs more testing!
             if(!first.checkConnectionExists(second))
             {
-                first.addConnection(second, 1);
+                first.addConnection(second, Util.getNextInt(0, 3));
+//                first.addConnection(second, 1);
 //                second.addConnection(first, 0);
             }
         }

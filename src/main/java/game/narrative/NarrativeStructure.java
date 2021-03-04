@@ -1,17 +1,10 @@
 package game.narrative;
 
-import com.sun.org.apache.xerces.internal.xni.grammars.Grammar;
-import finder.geometry.Bitmap;
-import game.Room;
 import generator.algorithm.Algorithm;
-import generator.algorithm.MAPElites.Dimensions.MAPEDimensionFXML;
 import generator.algorithm.MAPElites.GrammarMAPEliteAlgorithm;
-import generator.algorithm.MAPElites.MAPEliteAlgorithm;
 import generator.algorithm.MAPElites.grammarDimensions.GADimensionGrammar;
 import generator.algorithm.MAPElites.grammarDimensions.MAPEDimensionGrammarFXML;
-import util.Point;
 import util.Util;
-import util.algorithms.Node;
 
 import java.util.*;
 
@@ -49,7 +42,7 @@ public class NarrativeStructure {
         //Now i need to make it that you actually create the phenotype!
         RunMAPElites(new MAPEDimensionGrammarFXML[]{
                 new MAPEDimensionGrammarFXML(GADimensionGrammar.GrammarDimensionTypes.CONFLICT, 5),
-                new MAPEDimensionGrammarFXML(GADimensionGrammar.GrammarDimensionTypes.SIZE, 5)
+                new MAPEDimensionGrammarFXML(GADimensionGrammar.GrammarDimensionTypes.STEP, 5)
         }, graph_axiom);
     }
 

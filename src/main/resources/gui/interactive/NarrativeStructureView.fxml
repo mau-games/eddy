@@ -70,13 +70,13 @@
 
 	</center>
 	<right>
-		<VBox spacing="25" alignment="CENTER" prefWidth="600" fx:id="rightSidePane">
+		<VBox spacing="25" alignment="TOP_CENTER" prefWidth="600" fx:id="rightSidePane">
 			<padding>
 				<Insets top="0" right="15" bottom="0" left="15" />
 			</padding>
 			<AnchorPane>
 				<children>
-					<VBox spacing="15">
+					<VBox alignment="CENTER_RIGHT" spacing="15">
 						<MAPEGrammarVisualizationPane fx:id="MAPElitesPane"/>
 						<HBox spacing="20">
 							<NarrativeDimensionsTable fx:id="MainTable">
@@ -117,13 +117,13 @@
 					</VBox>
 				</children>
 			</AnchorPane>
-			<HBox spacing="10" prefHeight="100" minHeight="50" maxHeight="300" prefWidth="100" minWidth="50" maxWidth="600"
+			<VBox spacing="10" prefHeight="400" minHeight="50" maxHeight="500" prefWidth="100" minWidth="50" maxWidth="600"
 				  fx:id="elite_previews">
 				<NarrativePane fx:id="elite_preview_1"/>
 <!--					<Line startY="56.0" endY="100" />-->
 <!--					<Separator orientation="VERTICAL" valignment="CENTER" prefHeight="200" minHeight="200" maxHeight="200"/>-->
 				<NarrativePane fx:id="elite_preview_2"/>
-			</HBox>
+			</VBox>
 		</VBox>
 	</right>
 

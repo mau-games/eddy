@@ -14,13 +14,11 @@ import javafx.scene.control.TableRow;
 import javafx.scene.control.TableView;
 import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.scene.input.ClipboardContent;
-import javafx.scene.input.DataFormat;
 import javafx.scene.input.Dragboard;
 import javafx.scene.input.TransferMode;
 import javafx.util.Callback;
 import javafx.util.converter.IntegerStringConverter;
 import util.eventrouting.EventRouter;
-import util.eventrouting.events.MAPEGridUpdate;
 import util.eventrouting.events.MAPENarrativeGridUpdate;
 
 public class NarrativeDimensionsTable extends TableView<MAPEDimensionGrammarFXML>
@@ -100,7 +98,7 @@ public class NarrativeDimensionsTable extends TableView<MAPEDimensionGrammarFXML
         
         data.addAll(
                 new MAPEDimensionGrammarFXML(GADimensionGrammar.GrammarDimensionTypes.DIVERSITY, 5),
-                new MAPEDimensionGrammarFXML(GADimensionGrammar.GrammarDimensionTypes.SIZE, 5)
+                new MAPEDimensionGrammarFXML(GADimensionGrammar.GrammarDimensionTypes.STEP, 5)
         );
         
         this.setItems(data);

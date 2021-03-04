@@ -161,7 +161,9 @@ public class GrammarMAPEliteAlgorithm extends Algorithm implements Listener {
 		EventRouter.getInstance().registerListener(this, new UpdatePreferenceModel(null));
 		EventRouter.getInstance().registerListener(this, new SaveCurrentGeneration());
 		EventRouter.getInstance().registerListener(this, new RoomEdited(null));
-		
+		EventRouter.getInstance().registerListener(this, new NarrativeStructEdited(null));
+
+
 		this.dimensions = dimensions;
 		initCells(dimensions);
 
@@ -231,6 +233,7 @@ public class GrammarMAPEliteAlgorithm extends Algorithm implements Listener {
 		EventRouter.getInstance().registerListener(this, new UpdatePreferenceModel(null));
 		EventRouter.getInstance().registerListener(this, new SaveCurrentGeneration());
 		EventRouter.getInstance().registerListener(this, new RoomEdited(null));
+		EventRouter.getInstance().registerListener(this, new NarrativeStructEdited(null));
 
 		this.dimensions = dimensions;
 		initCells(dimensions);
@@ -341,6 +344,13 @@ public class GrammarMAPEliteAlgorithm extends Algorithm implements Listener {
 		//Assign everything
 		CheckAndAssignToCell(children, false);
 		CheckAndAssignToCell(nonFeasibleChildren, true);
+
+		//Sort the populations in the cell and Eliminate low performing cells individuals
+		for(GrammarGACell cell : cells)
+		{
+			cell.SortPopulations(false);
+			cell.ApplyElitism();
+		}
 	}
 	
 	
@@ -366,6 +376,11 @@ public class GrammarMAPEliteAlgorithm extends Algorithm implements Listener {
 		else if(e instanceof RoomEdited)
 		{
 			originalRoom = (Room) e.getPayload();
+		}
+		else if(e instanceof NarrativeStructEdited)
+		{
+			axiom = (GrammarGraph) e.getPayload();
+			dimensionsChanged = true;
 		}
 	}
 

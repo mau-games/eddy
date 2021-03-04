@@ -122,6 +122,7 @@ public class NarrativePane extends Pane
 
 			NarrativeShape narShape = current_node.getNarrativeShape();
 			Bounds connectionBounds = narShape.localToScreen(narShape.getBoundsInLocal());
+//			Bounds connectionBounds = narShape.getBoundsInLocal();
 
 			narShape = testedNode.getNarrativeShape();
 
@@ -184,10 +185,10 @@ public class NarrativePane extends Pane
 			//counter = 7 --> we place at the top-left (NW)
 			if(counter == 0)
 			{
-				local_translation_point = narShape.screenToLocal(connectionBounds.getMaxX() + margin,
+				local_translation_point = narShape.screenToLocal(connectionBounds.getMaxX(),
 						connectionBounds.getMinY());
 
-				narShape.setTranslateX(local_translation_point.getX() + localBoundsInParent.getMinX());
+				narShape.setTranslateX(local_translation_point.getX() + localBoundsInParent.getMinX() + margin);
 				narShape.setTranslateY(local_translation_point.getY() + localBoundsInParent.getMinY());
 
 				positions.get(counter).setX((int)(narShape.localToScreen(narShape.getBoundsInLocal()).getMinX() + narShape.getBoundsInLocal().getWidth()));
@@ -195,19 +196,21 @@ public class NarrativePane extends Pane
 			else if(counter == 1)
 			{
 				local_translation_point = narShape.screenToLocal(connectionBounds.getMinX(),
-						connectionBounds.getMinY() + narShape.getBoundsInLocal().getHeight() + margin);
+						connectionBounds.getMaxY());
+
+				System.out.println(narShape.screenToLocal(narShape.getBoundsInLocal()).getHeight());
 
 				narShape.setTranslateX(local_translation_point.getX() + localBoundsInParent.getMinX());
-				narShape.setTranslateY(local_translation_point.getY() + localBoundsInParent.getMinY());
+				narShape.setTranslateY(local_translation_point.getY() + localBoundsInParent.getMinY() + margin);
 
 				positions.get(counter).setY((int)(narShape.localToScreen(narShape.getBoundsInLocal()).getMinY() + narShape.getBoundsInLocal().getHeight()));
 			}
 			else if(counter == 2)
 			{
-				local_translation_point = narShape.screenToLocal(connectionBounds.getMinX() - connectionBounds.getWidth() - margin,
+				local_translation_point = narShape.screenToLocal(connectionBounds.getMinX(),
 						connectionBounds.getMinY());
 
-				narShape.setTranslateX(local_translation_point.getX() + localBoundsInParent.getMinX());
+				narShape.setTranslateX(local_translation_point.getX() + localBoundsInParent.getMinX() - narShape.getBoundsInLocal().getHeight() - margin);
 				narShape.setTranslateY(local_translation_point.getY() + localBoundsInParent.getMinY());
 
 				positions.get(counter).setX((int)(narShape.localToScreen(narShape.getBoundsInLocal()).getMinX() - narShape.getBoundsInLocal().getWidth()));
@@ -215,50 +218,50 @@ public class NarrativePane extends Pane
 			else if(counter == 3)
 			{
 				local_translation_point = narShape.screenToLocal(connectionBounds.getMinX(),
-						connectionBounds.getMinY()  - narShape.getBoundsInLocal().getHeight() - margin);
+						connectionBounds.getMinY());
 
 				narShape.setTranslateX(local_translation_point.getX() + localBoundsInParent.getMinX());
-				narShape.setTranslateY(local_translation_point.getY() + localBoundsInParent.getMinY());
+				narShape.setTranslateY(local_translation_point.getY() + localBoundsInParent.getMinY()  - narShape.getBoundsInLocal().getHeight() - margin);
 
 				positions.get(counter).setY((int)(narShape.localToScreen(narShape.getBoundsInLocal()).getMinY() - narShape.getBoundsInLocal().getHeight()));
 			}
 			if(counter == 4)
 			{
-				local_translation_point = narShape.screenToLocal(connectionBounds.getMaxX() + margin,
-						connectionBounds.getMinY()  - narShape.getBoundsInLocal().getHeight() - margin);
+				local_translation_point = narShape.screenToLocal(connectionBounds.getMaxX(),
+						connectionBounds.getMinY() );
 
-				narShape.setTranslateX(local_translation_point.getX() + localBoundsInParent.getMinX());
-				narShape.setTranslateY(local_translation_point.getY() + localBoundsInParent.getMinY());
+				narShape.setTranslateX(local_translation_point.getX() + localBoundsInParent.getMinX()  + margin);
+				narShape.setTranslateY(local_translation_point.getY() + localBoundsInParent.getMinY()  - narShape.getBoundsInLocal().getHeight() - margin);
 
 //				positions.get(counter).setX((int)(narShape.localToScreen(narShape.getBoundsInLocal()).getMinX() + narShape.getBoundsInLocal().getWidth()));
 			}
 			else if(counter == 5)
 			{
-				local_translation_point = narShape.screenToLocal(connectionBounds.getMaxX() + margin,
-						connectionBounds.getMinY() + narShape.getBoundsInLocal().getHeight() + margin);
+				local_translation_point = narShape.screenToLocal(connectionBounds.getMaxX(),
+						connectionBounds.getMaxY());
 
-				narShape.setTranslateX(local_translation_point.getX() + localBoundsInParent.getMinX());
-				narShape.setTranslateY(local_translation_point.getY() + localBoundsInParent.getMinY());
+				narShape.setTranslateX(local_translation_point.getX() + localBoundsInParent.getMinX()  + margin);
+				narShape.setTranslateY(local_translation_point.getY() + localBoundsInParent.getMinY()  + margin);
 
 //				positions.get(counter).setY((int)(narShape.localToScreen(narShape.getBoundsInLocal()).getMinY() + narShape.getBoundsInLocal().getHeight()));
 			}
 			else if(counter == 6)
 			{
-				local_translation_point = narShape.screenToLocal(connectionBounds.getMinX() - connectionBounds.getWidth() - margin,
-						connectionBounds.getMinY() + narShape.getBoundsInLocal().getHeight() + margin);
+				local_translation_point = narShape.screenToLocal(connectionBounds.getMinX() ,
+						connectionBounds.getMaxY());
 
-				narShape.setTranslateX(local_translation_point.getX() + localBoundsInParent.getMinX());
-				narShape.setTranslateY(local_translation_point.getY() + localBoundsInParent.getMinY());
+				narShape.setTranslateX(local_translation_point.getX() + localBoundsInParent.getMinX() - connectionBounds.getWidth() - margin);
+				narShape.setTranslateY(local_translation_point.getY() + localBoundsInParent.getMinY()  + margin);
 
 //				positions.get(counter).setX((int)(narShape.localToScreen(narShape.getBoundsInLocal()).getMinX() - narShape.getBoundsInLocal().getWidth()));
 			}
 			else if(counter == 7)
 			{
-				local_translation_point = narShape.screenToLocal(connectionBounds.getMinX() - connectionBounds.getWidth() - margin,
-						connectionBounds.getMinY()  - narShape.getBoundsInLocal().getHeight() - margin);
+				local_translation_point = narShape.screenToLocal(connectionBounds.getMinX(),
+						connectionBounds.getMinY());
 
-				narShape.setTranslateX(local_translation_point.getX() + localBoundsInParent.getMinX());
-				narShape.setTranslateY(local_translation_point.getY() + localBoundsInParent.getMinY());
+				narShape.setTranslateX(local_translation_point.getX() + localBoundsInParent.getMinX()  - connectionBounds.getWidth() - margin);
+				narShape.setTranslateY(local_translation_point.getY() + localBoundsInParent.getMinY()   - narShape.getBoundsInLocal().getHeight() - margin);
 
 //				positions.get(counter).setY((int)(narShape.localToScreen(narShape.getBoundsInLocal()).getMinY() - narShape.getBoundsInLocal().getHeight()));
 			}
@@ -361,7 +364,7 @@ public class NarrativePane extends Pane
 			//Iterate actual connections from current_node to others
 			counter = -1;
 			counter = iterateConnections(current_node, positions, new ArrayList<GrammarNode>(current_node.connections.keySet()), counter, visitedNodes,
-					toCheckNodes, grid, current, current_x, current_y, 20.0);
+					toCheckNodes, grid, current, current_x, current_y, 40.0);
 
 			//little hack to start in the right place
 			counter--;
@@ -369,7 +372,7 @@ public class NarrativePane extends Pane
 
 			//Iterate nodes that are connected to current_node!
 			counter = iterateConnections(current_node, positions, owner.getAllConnectionsToNode(current_node), counter, visitedNodes,
-					toCheckNodes, grid, current, current_x, current_y, 20.0);
+					toCheckNodes, grid, current, current_x, current_y, 40.0);
 		}
 
 		renderAll();

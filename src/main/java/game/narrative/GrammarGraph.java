@@ -96,6 +96,7 @@ public class GrammarGraph
             GrammarNode n_pos = nodes.remove(node_position);
             removeAllConnectionsToNode(n_pos);
             n_pos.removeAllConnection();
+            n_pos.removeAllMyConnections();
             int actual_id = n_pos.id;
             ID_counter--;
             return actual_id;
@@ -141,7 +142,7 @@ public class GrammarGraph
             if(other == toBeRemoved)
                 continue;
 
-            other.removeConnection(toBeRemoved);
+            other.removeConnection(toBeRemoved, true);
         }
     }
 
@@ -199,8 +200,8 @@ public class GrammarGraph
 
             for(Map.Entry<GrammarNode, Integer> nChild : nChildren.entrySet())
             {
-                n.removeConnection(nChild.getKey());
-                nChild.getKey().removeConnection(n); //if the connection exist it will be removed.
+                n.removeConnection(nChild.getKey(), true);
+                nChild.getKey().removeConnection(n, true); //if the connection exist it will be removed.
             }
         }
     }
@@ -224,10 +225,11 @@ public class GrammarGraph
                 }
             }
 
+            //TODO: Maybe this is not necessary (the double true)
             for(GrammarNode childToRemove : childrenToBeRemoved)
             {
-                n.removeConnection(childToRemove);
-                childToRemove.removeConnection(n);
+                n.removeConnection(childToRemove, true);
+                childToRemove.removeConnection(n, true);
             }
 
 
@@ -620,7 +622,7 @@ public class GrammarGraph
             {
                 if(baseNTypes.containsKey(TVTropeType.MODIFIER))
                 {
-                    baseNTypes.put(TVTropeType.MODIFIER, nTypes.get(TVTropeType.MODIFIER) + 1);
+                    baseNTypes.put(TVTropeType.MODIFIER, baseNTypes.get(TVTropeType.MODIFIER) + 1);
                 }
                 else
                     baseNTypes.put(TVTropeType.MODIFIER,1);
@@ -629,7 +631,7 @@ public class GrammarGraph
             {
                 if(baseNTypes.containsKey(TVTropeType.ENEMY))
                 {
-                    baseNTypes.put(TVTropeType.ENEMY, nTypes.get(TVTropeType.ENEMY) + 1);
+                    baseNTypes.put(TVTropeType.ENEMY, baseNTypes.get(TVTropeType.ENEMY) + 1);
                 }
                 else
                     baseNTypes.put(TVTropeType.ENEMY,1);
@@ -638,7 +640,7 @@ public class GrammarGraph
             {
                 if(baseNTypes.containsKey(TVTropeType.CONFLICT))
                 {
-                    baseNTypes.put(TVTropeType.CONFLICT, nTypes.get(TVTropeType.CONFLICT) + 1);
+                    baseNTypes.put(TVTropeType.CONFLICT, baseNTypes.get(TVTropeType.CONFLICT) + 1);
                 }
                 else
                     baseNTypes.put(TVTropeType.CONFLICT,1);
@@ -647,7 +649,7 @@ public class GrammarGraph
             {
                 if(baseNTypes.containsKey(TVTropeType.HERO))
                 {
-                    baseNTypes.put(TVTropeType.HERO, nTypes.get(TVTropeType.HERO) + 1);
+                    baseNTypes.put(TVTropeType.HERO, baseNTypes.get(TVTropeType.HERO) + 1);
                 }
                 else
                     baseNTypes.put(TVTropeType.HERO,1);
@@ -656,7 +658,7 @@ public class GrammarGraph
             {
                 if(baseNTypes.containsKey(TVTropeType.ANY))
                 {
-                    baseNTypes.put(TVTropeType.ANY, nTypes.get(TVTropeType.ANY) + 1);
+                    baseNTypes.put(TVTropeType.ANY, baseNTypes.get(TVTropeType.ANY) + 1);
                 }
                 else
                     baseNTypes.put(TVTropeType.ANY,1);
