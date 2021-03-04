@@ -14,7 +14,8 @@ public abstract class GADimensionGrammar
 	public enum GrammarDimensionTypes //Till example
 	{
 		CONFLICT,
-		SIZE
+		SIZE,
+		DIVERSITY
 	}
 
 	protected GrammarDimensionTypes dimension;
@@ -55,6 +56,8 @@ public abstract class GADimensionGrammar
 				return new ConflictGADimensionGrammar(granularity.floatValue());
 			case SIZE:
 				return new SizeGADimensionGrammar(granularity.floatValue());
+			case DIVERSITY:
+				return new DiversityGADimensionGrammar(granularity.floatValue());
 			default:
 				break;
 		
@@ -66,12 +69,15 @@ public abstract class GADimensionGrammar
 
 	public static double calculateIndividualValue(GrammarDimensionTypes dim, GrammarGraph individual_grammar)
 	{
+		System.out.println("PRROOOOOOOOOOBLEMS");
 		switch(dim)
 		{
 			case CONFLICT:
 				return ConflictGADimensionGrammar.getValue(individual_grammar);
 			case SIZE:
 				return SizeGADimensionGrammar.getValue(individual_grammar);
+			case DIVERSITY:
+				return DiversityGADimensionGrammar.getValue(individual_grammar);
 			default:
 				return -1.0;
 

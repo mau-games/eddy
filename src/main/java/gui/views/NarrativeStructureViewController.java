@@ -9,6 +9,9 @@ import game.narrative.GrammarGraph;
 import game.narrative.GrammarNode;
 import game.narrative.NarrativePane;
 import game.narrative.TVTropeType;
+import generator.algorithm.Algorithm;
+import generator.algorithm.MAPElites.GrammarGACell;
+import generator.algorithm.MAPElites.GrammarMAPEliteAlgorithm;
 import generator.algorithm.MAPElites.grammarDimensions.GADimensionGrammar;
 import generator.algorithm.MAPElites.grammarDimensions.MAPEDimensionGrammarFXML;
 import gui.controls.*;
@@ -16,6 +19,7 @@ import gui.utils.DungeonDrawer;
 import gui.utils.DungeonDrawer.DungeonBrushes;
 import gui.utils.InterRoomBrush;
 import gui.utils.MapRenderer;
+import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
@@ -97,7 +101,6 @@ public class NarrativeStructureViewController extends BorderPane implements List
 	//Suggestions
 //	@FXML private GridPane suggestionsPane;
 	@FXML private MAPEGrammarVisualizationPane MAPElitesPane;
-	private ArrayList<SuggestionRoom> roomDisplays;
 	private ArrayList<SuggestionNarrativeStructure> narrativeStructureDisplays;
 	private MAPEDimensionGrammarFXML[] currentDimensions = new MAPEDimensionGrammarFXML[] {};
 
@@ -107,6 +110,11 @@ public class NarrativeStructureViewController extends BorderPane implements List
 
 	GrammarGraph elp_1;
 	GrammarGraph elp_2;
+
+	SuggestionNarrativeStructure hovered_suggestion = null;
+	SuggestionNarrativeStructure selected_suggestion = null;
+
+	GrammarGraph core_graph;
 
 
 	public NarrativeStructureViewController() {
@@ -129,6 +137,8 @@ public class NarrativeStructureViewController extends BorderPane implements List
 
 		router.registerListener(this, new MapUpdate(null));
 		router.registerListener(this, new MAPENarrativeGridUpdate(null));
+		router.registerListener(this, new NarrativeStructMAPElitesDone());
+		router.registerListener(this, new SuggestedNarrativeHovered(null));
 
 		//Create the graphs!
 		Scale newScale = new Scale();
@@ -137,6 +147,8 @@ public class NarrativeStructureViewController extends BorderPane implements List
 		newScale.setX(0.6);
 		newScale.setY(0.6);
 
+
+		createAxiom();
 
 		elite_previews.getChildren().clear();
 		elp_1 = createGrammar();
@@ -166,13 +178,9 @@ public class NarrativeStructureViewController extends BorderPane implements List
 //				+ "-fx-border-radius: 5;" + "-fx-border-color: blue;");
 
 
-		roomDisplays = new ArrayList<SuggestionRoom>();
 		narrativeStructureDisplays = new ArrayList<SuggestionNarrativeStructure>();
 		for(int i = 0; i < 100; i++)
 		{
-			SuggestionRoom suggestion = new SuggestionRoom();
-			roomDisplays.add(suggestion);
-
 			SuggestionNarrativeStructure sug = new SuggestionNarrativeStructure();
 			narrativeStructureDisplays.add(sug);
 		}
@@ -206,6 +214,14 @@ public class NarrativeStructureViewController extends BorderPane implements List
 		initNarrativeView();
 	}
 
+	private void createAxiom()
+	{
+		core_graph = new GrammarGraph();
+		GrammarNode a1 = core_graph.addNode(TVTropeType.ANY);
+		GrammarNode b1 = core_graph.addNode(TVTropeType.ANY);
+		a1.addConnection(b1, 1);
+	}
+
 	private GrammarGraph createGrammar()
 	{
 		GrammarGraph graph = new GrammarGraph();
@@ -236,10 +252,6 @@ public class NarrativeStructureViewController extends BorderPane implements List
 
 	private void initNarrativeView()
 	{
-
-
-
-
 		//setup visual line
 		auxLine = new Line();
 		auxLine.setStrokeWidth(2.0f);
@@ -367,17 +379,20 @@ public class NarrativeStructureViewController extends BorderPane implements List
 		elite_preview_1.layoutGraph();
 		elite_preview_2.layoutGraph();
 
+		RunMAPElites(core_graph);
+
 //		worldPane.setLayoutX(0);
 //		worldPane.setPrefWidth(500);
 //		worldPane.setMinWidth(500);
 //		worldPane.setMaxWidth(500);
 
-		for(SuggestionRoom sr : roomDisplays)
-		{
-			sr.resizeCanvasForRoom(currentRoom);
-		}
-
-		resetSuggestedRooms();
+		//TODO: OLD
+//		for(SuggestionRoom sr : roomDisplays)
+//		{
+//			sr.resizeCanvasForRoom(currentRoom);
+//		}
+//
+//		resetSuggestedRooms();
 
 //		initMapView();
 //		initLegend();
@@ -398,12 +413,12 @@ public class NarrativeStructureViewController extends BorderPane implements List
 	{
 		router.postEvent(new Stop());
 
-		for(SuggestionRoom sr : roomDisplays)
-		{
-//			sr.getRoomCanvas().resizeRotatingThingie();
-			sr.getRoomCanvas().draw(null);
-			sr.getRoomCanvas().setText("Waiting for map...");
-		}
+//		for(SuggestionRoom sr : roomDisplays)
+//		{
+////			sr.getRoomCanvas().resizeRotatingThingie();
+//			sr.getRoomCanvas().draw(null);
+//			sr.getRoomCanvas().setText("Waiting for map...");
+//		}
 	}
 	
 	public class MouseEventWorldPane implements EventHandler<MouseEvent>
@@ -683,6 +698,45 @@ public class NarrativeStructureViewController extends BorderPane implements List
 		}
 	}
 
+	private void RunMAPElites(GrammarGraph ax)
+	{
+		Algorithm ga = new GrammarMAPEliteAlgorithm(ax);
+		((GrammarMAPEliteAlgorithm)ga).initPopulations(currentDimensions);
+		ga.start();
+	}
+
+	public void renderCell(List<GrammarGACell> filled_cells, int dimension, float [] dimensionSizes, int[] indices)
+	{
+		if(dimension < 0)
+		{
+//			MAPElitesPane.GetGridCell(, row);
+//			this.cells.add(new GACell(MAPElitesDimensions, indices));
+			int ind = (int) (indices[1] * dimensionSizes[0] + indices[0]);
+
+//			core_graph
+//			ind.getPhenotype().getGrammarGraphOutput(axiom, 1);
+
+			if(filled_cells.get(ind) != null)
+			{
+				narrativeStructureDisplays.get(ind).setElite(
+						filled_cells.get(ind).GetFeasiblePopulation().get(0).getPhenotype().getGrammarGraphOutput(core_graph, 1));
+				narrativeStructureDisplays.get(ind).setCellFitness(
+						filled_cells.get(ind).getEliteFitness());
+			}
+
+//			narrativeStructureDisplays.get((int) (indices[1] * dimensionSizes[0] + indices[0])).setElite(filled_cells.get((int) (indices[1] * dimensionSizes[0] + indices[0])));
+//			narrativeStructureDisplays.get((int) (indices[1] * dimensionSizes[0] + indices[0])).setOriginalRoom(getMapView().getMap());
+//			roomDisplays.get(nextRoom).setOriginalRoom(); //Maybe this does not make sense? Idk
+			return;
+		}
+
+		for(int i = 0; i < dimensionSizes[dimension]; i++)
+		{
+			indices[dimension] = i;
+			renderCell(filled_cells, dimension-1, dimensionSizes, indices);
+		}
+	}
+
 	@Override
 	public void ping(PCGEvent e) {
 		if(e instanceof MAPENarrativeGridUpdate)
@@ -691,6 +745,50 @@ public class NarrativeStructureViewController extends BorderPane implements List
 			MAPElitesPane.dimensionsUpdated(narrativeStructureDisplays, ((MAPENarrativeGridUpdate) e).getDimensions());
 			currentDimensions = ((MAPENarrativeGridUpdate) e).getDimensions();
 //			OnChangeTab();
+		}
+		else if(e instanceof NarrativeStructMAPElitesDone)
+		{
+			if (isActive) {
+				//THIS NEED TO BE IMPROVED!
+				List<GrammarGACell> filled_cells = ((NarrativeStructMAPElitesDone) e).getCells();
+//				Room room = (Room) ((MapUpdate) e).getPayload();
+//				UUID uuid = ((MapUpdate) e).getID();
+				LabeledCanvas canvas;
+				synchronized (narrativeStructureDisplays) {
+
+					renderCell(filled_cells, currentDimensions.length - 1,
+							new float [] {currentDimensions[0].getGranularity(), currentDimensions[1].getGranularity()}, new int[] {0,0});
+				}
+
+
+			}
+		}
+		else if(e instanceof SuggestedNarrativeHovered)
+		{
+			hovered_suggestion = (SuggestionNarrativeStructure) ((SuggestedNarrativeHovered) e).getPayload();
+			Scale newScale = new Scale();
+			newScale.setPivotX(0);
+			newScale.setPivotY(0);
+			newScale.setX(0.6);
+			newScale.setY(0.6);
+
+			elite_previews.getChildren().clear();
+
+
+			elite_previews.getChildren().remove(elite_preview_1);
+			elite_preview_1 = hovered_suggestion.getElite().nPane;
+			elite_preview_1.forceScale(newScale);
+
+
+			Separator elite_sep = new Separator();
+			elite_sep.setOrientation(Orientation.VERTICAL);
+//			elite_sep.setValignment(VPos.CENTER);
+			elite_sep.setHalignment(HPos.CENTER);
+//			elite_sep.setPrefHeight(50);
+
+			elite_previews.getChildren().addAll(elite_preview_1, elite_sep, elite_preview_2);
+
+			elite_preview_1.layoutGraph();
 		}
 
 	}

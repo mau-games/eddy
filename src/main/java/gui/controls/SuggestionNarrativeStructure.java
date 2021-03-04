@@ -1,5 +1,6 @@
 package gui.controls;
 
+import com.sun.org.apache.xerces.internal.xni.grammars.Grammar;
 import game.Room;
 import game.narrative.GrammarGraph;
 import javafx.event.EventHandler;
@@ -13,6 +14,7 @@ import javafx.scene.paint.Paint;
 import javafx.scene.shape.Rectangle;
 import util.eventrouting.EventRouter;
 import util.eventrouting.events.SuggestedMapSelected;
+import util.eventrouting.events.SuggestedNarrativeHovered;
 
 import java.util.Stack;
 
@@ -26,7 +28,7 @@ public class SuggestionNarrativeStructure
 {
 	private StackPane graphicNode;
 	private Rectangle shape;
-	private Paint cell_color;
+	private Color cell_color;
 	private GrammarGraph elite;
 	private GrammarGraph original;
 
@@ -39,7 +41,7 @@ public class SuggestionNarrativeStructure
 	public SuggestionNarrativeStructure()
 	{
 		graphicNode = new StackPane();
-		cell_color = Color.GREEN;
+		cell_color = Color.RED;
 		shape = new Rectangle();
 		shape.setFill(cell_color);
 		shape.setHeight(50);
@@ -67,8 +69,13 @@ public class SuggestionNarrativeStructure
 	            @Override
 	            public void handle(MouseEvent event) 
 	            {
-	            	highlight(true);
-	            	System.out.println("MOUSE ENTERED CANVAS");
+	            	if(elite != null)
+					{
+						highlight(true);
+						EventRouter.getInstance().postEvent(new SuggestedNarrativeHovered(self));
+						System.out.println("MOUSE ENTERED CANVAS");
+					}
+
 	            }
 
 	        });
@@ -154,6 +161,22 @@ public class SuggestionNarrativeStructure
 	{
 		return "THIS METHOD SHOULD NOT BE IN SUGGESTION ROOM";
 	}
+
+	public GrammarGraph getElite()
+	{
+		return elite;
+	}
+
+	public void setElite(GrammarGraph elite)
+	{
+		this.elite = elite;
+	}
+
+	public void setCellFitness(double cell_fitness)
+	{
+		shape.setFill(cell_color.interpolate(Color.GREEN, cell_fitness));
+	}
+
 //
 //	public Room getSuggestedRoom()
 //	{

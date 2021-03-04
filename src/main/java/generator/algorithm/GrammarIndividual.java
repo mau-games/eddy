@@ -93,14 +93,14 @@ public class GrammarIndividual
 //        genotype.ProduceGenotype(room);
 //    }
 
-    public void SetDimensionValues(ArrayList<GADimensionGrammar> dimensions, Room original)
+    public void SetDimensionValues(ArrayList<GADimensionGrammar> dimensions, GrammarGraph axiom)
     {
         dimensionValues = new HashMap<GADimensionGrammar.GrammarDimensionTypes, Double>();
 
         //FIXME: target graph
         for(GADimensionGrammar dimension : dimensions)
         {
-            dimensionValues.put(dimension.GetType(), dimension.CalculateValue(this, null));
+            dimensionValues.put(dimension.GetType(), dimension.CalculateValue(this, axiom));
         }
 //
 //        this.getPhenotype().getMap(-1, 1, null, null, null).SetDimensionValues(dimensionValues);

@@ -57,7 +57,7 @@ public class GrammarMAPEliteAlgorithm extends Algorithm implements Listener {
 	int cellAmounts = 1;
 	private ArrayList<GADimensionGrammar> MAPElitesDimensions;
 	private Random rnd = new Random();
-	private int iterationsToPublish = 50;
+	private int iterationsToPublish = 500;
 	private int breedingGenerations = 5; //this relates to how many generations will it breed
 	private int realCurrentGen = 0;
 	private int currentGen = 0;
@@ -191,7 +191,7 @@ public class GrammarMAPEliteAlgorithm extends Algorithm implements Listener {
 			if(checkGrammarIndividual(ind)){
 				if(i < feasibleAmount){
 					evaluateFeasibleGrammarIndividual(ind);
-					ind.SetDimensionValues(MAPElitesDimensions, room);
+					ind.SetDimensionValues(MAPElitesDimensions, axiom);
 					
 					for(GrammarGACell cell : cells)
 					{
@@ -205,7 +205,7 @@ public class GrammarMAPEliteAlgorithm extends Algorithm implements Listener {
 			else {
 				if(j < populationSize - feasibleAmount){
 					evaluateInfeasibleGrammarIndividual(ind);
-					ind.SetDimensionValues(MAPElitesDimensions, room);
+					ind.SetDimensionValues(MAPElitesDimensions, axiom);
 					
 					for(GrammarGACell cell : cells)
 					{
@@ -261,7 +261,7 @@ public class GrammarMAPEliteAlgorithm extends Algorithm implements Listener {
 			if(checkGrammarIndividual(ind)){
 				if(i < feasibleAmount){
 					evaluateFeasibleGrammarIndividual(ind);
-					ind.SetDimensionValues(MAPElitesDimensions, null);
+					ind.SetDimensionValues(MAPElitesDimensions, this.axiom);
 
 					for(GrammarGACell cell : cells)
 					{
@@ -275,7 +275,7 @@ public class GrammarMAPEliteAlgorithm extends Algorithm implements Listener {
 			else {
 				if(j < populationSize - feasibleAmount){
 					evaluateInfeasibleGrammarIndividual(ind);
-					ind.SetDimensionValues(MAPElitesDimensions, null);
+					ind.SetDimensionValues(MAPElitesDimensions, this.axiom);
 
 					for(GrammarGACell cell : cells)
 					{
@@ -441,7 +441,7 @@ public class GrammarMAPEliteAlgorithm extends Algorithm implements Listener {
 		else
 		{
 			//Get first how many ANY exist
-			float cumulative_any = 1.0f - nStructure.checkAmountNodes(TVTropeType.ANY);
+			float cumulative_any = 1.0f - nStructure.checkAmountNodes(TVTropeType.ANY, true);
 
 			//get the right size!! -- probably for elites
 			float targetSize = expected_size - nStructure.checkGraphSize();
@@ -499,7 +499,7 @@ public class GrammarMAPEliteAlgorithm extends Algorithm implements Listener {
 		else
 		{
 			//Get first how many ANY exist
-			float cumulative_any = 1.0f - nStructure.checkAmountNodes(TVTropeType.ANY);
+			float cumulative_any = 1.0f - nStructure.checkAmountNodes(TVTropeType.ANY, true);
 
 			//get the right size!! -- probably for elites
 			float targetSize = 6.0f - nStructure.checkGraphSize();
@@ -1009,7 +1009,7 @@ public class GrammarMAPEliteAlgorithm extends Algorithm implements Listener {
     
     private void publishGeneration()
     {
-//		broadcastResultedRooms();
+		broadcastResultedRooms();
 //		MAPECollector.getInstance().SaveGeneration(realCurrentGen, MAPElitesDimensions, cells, false); //store the cells in memory
 		
 		//This should be in a call when the ping happens! --> FIXME!!
@@ -1032,7 +1032,7 @@ public class GrammarMAPEliteAlgorithm extends Algorithm implements Listener {
 		//We add a untouched copy of the currently edited room into the population (with the hope that it will be incorporated as an elite)
 		//FixME: THIS does not happen yet
 		GrammarIndividual ind = new GrammarIndividual(mutationProbability);
-		ind.SetDimensionValues(MAPElitesDimensions, this.originalRoom);
+		ind.SetDimensionValues(MAPElitesDimensions, this.axiom);
 
 		 if(checkGrammarIndividual(ind))
 		 {
@@ -1056,6 +1056,7 @@ public class GrammarMAPEliteAlgorithm extends Algorithm implements Listener {
 
     	//"restart" current gen!
 		currentGen = 0;
+//		stop = true;
     }
 	
 	/**
@@ -1172,7 +1173,7 @@ public class GrammarMAPEliteAlgorithm extends Algorithm implements Listener {
 	public void broadcastResultedRooms()
 	{
 		//TODO: CHECK FOR THE OTHER THAT ARE ALREADY RENDERED
-		MAPElitesDone ev = new MAPElitesDone();
+		NarrativeStructMAPElitesDone ev = new NarrativeStructMAPElitesDone();
         ev.setID(id);
         int cellIndex = 0;
         for(GrammarGACell cell : cells)
@@ -1183,27 +1184,31 @@ public class GrammarMAPEliteAlgorithm extends Algorithm implements Listener {
 //        	cell.BroadcastCellInfo();
         	if(cell.GetFeasiblePopulation().isEmpty())
         	{
-        		ev.addRoom(null);
+        		ev.addCell(null);
 //        		System.out.println("NO FIT ROOM!");
         	}
         	else //This is more tricky!!
         	{
-        		if(currentRendered.get(cellIndex) != null)
-        		{
-        			double increasedAmount = currentRendered.get(cellIndex).getFitness() * 0.01; //1% different
-        			
-        			if(cell.GetFeasiblePopulation().get(0).getFitness() >= currentRendered.get(cellIndex).getFitness() + increasedAmount)
-        			{
-        				currentRendered.set(cellIndex, cell.GetFeasiblePopulation().get(0));
-        			}
-        		}
-        		else
-        		{
-        			currentRendered.set(cellIndex, cell.GetFeasiblePopulation().get(0));
-        		}
+				ev.addCell(cell);
+        		//TODO: This does not work as it should
+//        		if(currentRendered.get(cellIndex) != null)
+//        		{
+//        			double increasedAmount = currentRendered.get(cellIndex).getFitness() * 0.01; //1% different
+//
+//        			if(cell.GetFeasiblePopulation().get(0).getFitness() >= currentRendered.get(cellIndex).getFitness() + increasedAmount)
+//        			{
+//        				currentRendered.set(cellIndex, cell.GetFeasiblePopulation().get(0));
+//        			}
+//        		}
+//        		else
+//        		{
+//        			currentRendered.set(cellIndex, cell.GetFeasiblePopulation().get(0));
+//        		}
         		
 //        		ev.addRoom(currentRendered.get(cellIndex).getPhenotype().getMap(-1, -1, null, null, null));
 //        		ev.addRoom(cell.GetFeasiblePopulation().get(0).getPhenotype().getMap(-1, -1, null, null, null));
+
+
 
         		//Uncomment top to get previous result!
         		
@@ -1235,7 +1240,7 @@ public class GrammarMAPEliteAlgorithm extends Algorithm implements Listener {
 	            	if(infeasible)
 	            		infeasiblesMoved++;
 	            	               
-	                individual.SetDimensionValues(MAPElitesDimensions, this.originalRoom);
+	                individual.SetDimensionValues(MAPElitesDimensions, this.axiom);
 	                evaluateFeasibleGrammarIndividual(individual);
 	                
 					for(GrammarGACell cell : cells)
@@ -1246,7 +1251,7 @@ public class GrammarMAPEliteAlgorithm extends Algorithm implements Listener {
 	            }
 	            else
 	            {
-					individual.SetDimensionValues(MAPElitesDimensions, this.originalRoom);
+					individual.SetDimensionValues(MAPElitesDimensions, this.axiom);
 					evaluateInfeasibleGrammarIndividual(individual);
 					
 					for(GrammarGACell cell : cells)

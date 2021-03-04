@@ -131,6 +131,11 @@ public class GrammarGACell
 		feasiblePopulation = feasiblePopulation.stream().limit(sharedCapacity).collect(Collectors.toList());
 		infeasiblePopulation = infeasiblePopulation.stream().limit(sharedCapacity).collect(Collectors.toList());
 	}
+
+	public double getEliteFitness()
+	{
+		return feasiblePopulation.get(0).getFitness();
+	}
 	
 	public List<GrammarIndividual> GetFeasiblePopulation()
 	{

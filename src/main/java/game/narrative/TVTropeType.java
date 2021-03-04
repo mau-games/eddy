@@ -9,8 +9,8 @@ public enum TVTropeType {
     FIVE_MA(11),
     NEO(12),
     SH(13), //Superhero
-    COVS(21), //Conflict against another
-    COSE(22), //Conflict against self?
+//    COVS(21), //Conflict against another
+//    COSE(22), //Conflict against self?
     CONA(23), //Conflict against nature?
     COSO(24), //Conflict against society
     EMP(31), //The empire

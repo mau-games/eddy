@@ -3,6 +3,7 @@ package game.narrative;
 import com.sun.org.apache.xerces.internal.xni.grammars.Grammar;
 import game.DungeonPane;
 import generator.algorithm.MAPElites.GrammarMAPEliteAlgorithm;
+import machineLearning.neuralnetwork.Neuron;
 
 import java.lang.reflect.Array;
 import java.util.*;
@@ -44,6 +45,9 @@ public class GrammarGraph
                 nodes.get(i).addConnection(nodes.get(other.getNodeIndex(keyValue.getKey())), keyValue.getValue());
             }
         }
+
+        nPane = new NarrativePane(this);
+
     }
 
     public GrammarNode addNode(TVTropeType nodeType)
@@ -477,7 +481,7 @@ public class GrammarGraph
         return nodes.size();
     }
 
-    public float checkAmountNodes(TVTropeType specific)
+    public float checkAmountNodes(TVTropeType specific, boolean normalize)
     {
         float cumulative = 0.0f;
 
@@ -487,7 +491,10 @@ public class GrammarGraph
                 cumulative++;
         }
 
-        return cumulative/(float) nodes.size();
+        if(normalize)
+            return cumulative/(float) nodes.size();
+        else
+            return cumulative;
     }
 
     public int checkUnconnectedNodes()
@@ -581,6 +588,116 @@ public class GrammarGraph
         return nodes.size() == visitedNodes.size();
 
 //        return true;
+    }
+
+    /***
+     * This value when local is in effect, the diversity within the graph
+     * While passing a false will return global diversity based on the nodes that can be used!
+     * @param local True if you want local diversity
+     * @return
+     */
+    public float getNodeDiversityBase()
+    {
+        HashMap<TVTropeType, Integer> nTypes = new HashMap<>();
+        HashMap<TVTropeType, Integer> baseNTypes = new HashMap<>();
+        float output = 0.0f;
+
+        //Count nodes and repetition
+        for(GrammarNode node : nodes)
+        {
+            if(nTypes.containsKey(node.grammarNodeType))
+            {
+                nTypes.put(node.grammarNodeType, nTypes.get(node.grammarNodeType) + 1);
+            }
+            else
+                nTypes.put(node.grammarNodeType,1);
+        }
+
+        //If any node is repeated more than "min_freq", and is not part of the excluded nodes (special ones) we count it!
+        for(Map.Entry<TVTropeType, Integer> keyValue : nTypes.entrySet())
+        {
+            if(keyValue.getKey().getValue() >= 40)
+            {
+                if(baseNTypes.containsKey(TVTropeType.MODIFIER))
+                {
+                    baseNTypes.put(TVTropeType.MODIFIER, nTypes.get(TVTropeType.MODIFIER) + 1);
+                }
+                else
+                    baseNTypes.put(TVTropeType.MODIFIER,1);
+            }
+            else if(keyValue.getKey().getValue() >= 30)
+            {
+                if(baseNTypes.containsKey(TVTropeType.ENEMY))
+                {
+                    baseNTypes.put(TVTropeType.ENEMY, nTypes.get(TVTropeType.ENEMY) + 1);
+                }
+                else
+                    baseNTypes.put(TVTropeType.ENEMY,1);
+            }
+            else if(keyValue.getKey().getValue() >= 20)
+            {
+                if(baseNTypes.containsKey(TVTropeType.CONFLICT))
+                {
+                    baseNTypes.put(TVTropeType.CONFLICT, nTypes.get(TVTropeType.CONFLICT) + 1);
+                }
+                else
+                    baseNTypes.put(TVTropeType.CONFLICT,1);
+            }
+            else if(keyValue.getKey().getValue() >= 10)
+            {
+                if(baseNTypes.containsKey(TVTropeType.HERO))
+                {
+                    baseNTypes.put(TVTropeType.HERO, nTypes.get(TVTropeType.HERO) + 1);
+                }
+                else
+                    baseNTypes.put(TVTropeType.HERO,1);
+            }
+            else
+            {
+                if(baseNTypes.containsKey(TVTropeType.ANY))
+                {
+                    baseNTypes.put(TVTropeType.ANY, nTypes.get(TVTropeType.ANY) + 1);
+                }
+                else
+                    baseNTypes.put(TVTropeType.ANY,1);
+            }
+        }
+
+        output = baseNTypes.size();
+
+        return output/5.0f;
+    }
+
+
+
+    /***
+     * This value when local is in effect, the diversity within the graph
+     * While passing a false will return global diversity based on the nodes that can be used!
+     * @param local True if you want local diversity
+     * @return
+     */
+    public float getNodeDiversity(boolean local)
+    {
+        HashMap<TVTropeType, Integer> nTypes = new HashMap<>();
+        float output = 0.0f;
+
+        //Count nodes and repetition
+        for(GrammarNode node : nodes)
+        {
+            if(nTypes.containsKey(node.grammarNodeType))
+            {
+                nTypes.put(node.grammarNodeType, nTypes.get(node.grammarNodeType) + 1);
+            }
+            else
+                nTypes.put(node.grammarNodeType,1);
+        }
+
+        output = nTypes.size();
+
+        if(local)
+            return output/(float)nodes.size();
+
+        return output/(float)TVTropeType.values().length;
     }
 
     public float SameNodes(int min_freq, TVTropeType ... excluded_nodes)

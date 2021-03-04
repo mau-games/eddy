@@ -449,6 +449,7 @@ public class NarrativePane extends Pane
 //		auxScale += (value.getX() - 1.0);
 
 		currentScale = auxScale;
+		getTransforms().clear();
 		getTransforms().add(value);
 	}
 	

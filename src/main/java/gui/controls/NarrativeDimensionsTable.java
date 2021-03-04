@@ -99,7 +99,7 @@ public class NarrativeDimensionsTable extends TableView<MAPEDimensionGrammarFXML
          });
         
         data.addAll(
-                new MAPEDimensionGrammarFXML(GADimensionGrammar.GrammarDimensionTypes.CONFLICT, 5),
+                new MAPEDimensionGrammarFXML(GADimensionGrammar.GrammarDimensionTypes.DIVERSITY, 5),
                 new MAPEDimensionGrammarFXML(GADimensionGrammar.GrammarDimensionTypes.SIZE, 5)
         );
         

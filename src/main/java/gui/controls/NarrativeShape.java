@@ -187,6 +187,16 @@ public class NarrativeShape extends StackPane
         if(trope_type.getValue() == 0)
         {
             //ANY
+            ((Polygon)shape).getPoints().addAll(0.0, 0.0,
+                    0.0, half_size,
+                    max_size, half_size,
+                    max_size, 0.0);
+
+            border_positions.add(new Point(half_size, 0));      //N
+            border_positions.add(new Point(max_size, quarter_size));  //E
+            border_positions.add(new Point(half_size, half_size));  //S
+            border_positions.add(new Point(0, quarter_size));      //W
+
         }
         else if (trope_type.getValue() >= 40)
         {
