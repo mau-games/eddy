@@ -56,10 +56,18 @@
 	<center>
 		<BorderPane prefHeight="200.0" prefWidth="200.0" BorderPane.alignment="CENTER">
 			<bottom>
-				<HBox prefHeight="118.0" prefWidth="416.0" BorderPane.alignment="CENTER">
-					<GrammarGraphInfoPane alignment="CENTER" spacing="10.0"/>
-					<GrammarGraphInfoPane alignment="CENTER" spacing="10.0"/>
-					<GrammarGraphInfoPane alignment="CENTER" spacing="10.0"/>
+				<HBox spacing="20.0" prefHeight="300.0" prefWidth="800.0" alignment="CENTER">
+					<padding>
+						<Insets left="0.0" bottom="15.0" top="15.0" />
+					</padding>
+					<Separator orientation="VERTICAL" valignment="CENTER" prefHeight="200" minHeight="200" maxHeight="200"/>
+					<GrammarGraphInfoPane evaluation="Edited Narrative Structure" alignment="CENTER" spacing="5.0"/>
+					<Separator orientation="VERTICAL" valignment="CENTER" prefHeight="200" minHeight="200" maxHeight="200"/>
+					<GrammarGraphInfoPane evaluation="Hovered Suggestion" alignment="CENTER" spacing="5.0"/>
+					<Separator orientation="VERTICAL" valignment="CENTER" prefHeight="200" minHeight="200" maxHeight="200"/>
+					<GrammarGraphInfoPane evaluation="Selected Suggestion" alignment="CENTER" spacing="5.0"/>
+					<Separator orientation="VERTICAL" valignment="CENTER" prefHeight="200" minHeight="200" maxHeight="200"/>
+
 				</HBox>
 
 			</bottom>
@@ -72,7 +80,7 @@
 	<right>
 		<VBox spacing="25" alignment="TOP_CENTER" prefWidth="600" fx:id="rightSidePane">
 			<padding>
-				<Insets top="0" right="15" bottom="0" left="15" />
+				<Insets top="15" right="15" bottom="0" left="15" />
 			</padding>
 			<AnchorPane>
 				<children>

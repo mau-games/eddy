@@ -48,6 +48,11 @@ public class NarrativePane extends Pane
 //		setBorder(new Border(new BorderStroke(Color.WHITE, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderWidths.DEFAULT)));
 		currentScale = getScaleX();
 	}
+
+	public void setNewOwner(GrammarGraph owner)
+	{
+		this.owner = owner;
+	}
 	
 	public void addVisualNarrativeNode(GrammarNode grammarNode)
 	{
@@ -100,9 +105,72 @@ public class NarrativePane extends Pane
 			//Now get connections!
 //			getChildren().addAll(node.getNarrativeShapeConnections());
 			getChildren().addAll(node.recreateConnectionsBasedPosition());
-
-
 		}
+
+		this.testBounds();
+	}
+
+	public void rePositionGraph()
+	{
+		//First find the node that is most to the left
+		Point most_left_point = new Point(0,0);
+		NarrativeShape most_left_shape = null;
+
+		Point most_top_point = new Point(0,0);
+		NarrativeShape most_top_shape = null;
+
+
+		NarrativeShape current_shape = null;
+
+		for(GrammarNode gn : owner.nodes)
+		{
+			current_shape = gn.getNarrativeShape();
+			Point current =  current_shape.grid_placement;
+
+			if(current.getX() <= most_left_point.getX())
+			{
+				most_left_shape = current_shape;
+				most_left_point = current;
+			}
+
+			if(current.getY() < most_top_point.getY())
+			{
+				most_top_shape = current_shape;
+				most_top_point = current;
+			}
+		}
+
+		//We actually have to move everything!
+		if(most_left_shape != null || most_top_shape != null)
+		{
+			Bounds localBoundsInParentX = null;
+			Bounds localBoundsInParentY = null;
+
+			if(most_top_shape != null)
+				localBoundsInParentY = most_top_shape.getBoundsInParent();
+
+			if(most_left_shape != null)
+				localBoundsInParentX = most_left_shape.getBoundsInParent();
+
+			for(GrammarNode gn : owner.nodes)
+			{
+				current_shape = gn.getNarrativeShape();
+				current_shape.grid_placement = new Point(current_shape.grid_placement.getX() + Math.abs(most_left_point.getX()),
+												current_shape.grid_placement.getY() + Math.abs(most_top_point.getY()));
+
+				Bounds connectionBounds = current_shape.getBoundsInParent();
+				Point2D local_translation_point = new Point2D(connectionBounds.getMinX(),
+						connectionBounds.getMinY());
+
+				if(localBoundsInParentX != null)
+					current_shape.setTranslateX(local_translation_point.getX() + Math.abs(localBoundsInParentX.getMinX()));
+
+				if(localBoundsInParentY != null)
+					current_shape.setTranslateY(local_translation_point.getY() + Math.abs(localBoundsInParentY.getMinY()));
+			}
+		}
+
+		this.testBounds();
 	}
 
 	//Iterate through connections to and from current node to place it at the right position.

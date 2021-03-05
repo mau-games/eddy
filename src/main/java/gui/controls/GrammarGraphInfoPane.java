@@ -11,6 +11,7 @@ import java.io.IOException;
 
 public class GrammarGraphInfoPane extends VBox
 {
+    @FXML Text evaluation_title;
     @FXML
     public Text fitnessText;
     @FXML public Text NMesoText;
@@ -46,7 +47,8 @@ public class GrammarGraphInfoPane extends VBox
     }
 
     public GrammarGraphInfoPane(@NamedArg("alignment") Pos alignment,
-                                @NamedArg("spacing") double spacing)
+                                @NamedArg("spacing") double spacing,
+            @NamedArg("evaluation") String evaluation_text)
     {
         super();
         FXMLLoader loader = new FXMLLoader(getClass().getResource("/gui/controls/GrammarGraphInfo.fxml"));
@@ -61,6 +63,7 @@ public class GrammarGraphInfoPane extends VBox
 
         this.setAlignment(alignment);
         this.setSpacing(spacing);
+        this.evaluation_title.setText(evaluation_text);
     }
 }
 
