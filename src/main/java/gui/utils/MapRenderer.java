@@ -82,7 +82,7 @@ public class MapRenderer implements Listener {
 
 	private ArrayList<Image> tiles = new ArrayList<Image>();
 	private double patternOpacity = 0;
-	private int nbrOfTiles = 9;
+	private int nbrOfTiles = 11;
 	
 	private int finalMapWidth;
 	private int finalMapHeight;
@@ -100,6 +100,7 @@ public class MapRenderer implements Listener {
 
 		finalMapHeight = config.getMapRenderHeight();
 		finalMapWidth = config.getMapRenderWidth();
+		nbrOfTiles = TileTypes.values().length;
 		
 		// Set up the tile image list
 		for (int i = 0; i < nbrOfTiles; i++) {
@@ -911,8 +912,9 @@ public class MapRenderer implements Listener {
 		case ITEM:
 			image = new Image(this.getClass().getResourceAsStream("/" + config.getInternalConfig().getString("map.tiles.item")), width, height, false, true);
 			break;
-		case KNIGHT:
+        case WIZARD: //TODO: Change this and the JSON with the correct info.
 			image = new Image(this.getClass().getResourceAsStream("/" + config.getInternalConfig().getString("map.tiles.knight")), width, height, false, true);
+			break;
 			//TODO: add new tiles
 //		case DOORENTER:
 //			image = new Image("/" + config.getInternalConfig().getString("map.tiles.doorenter"), width, height, false, true);
@@ -962,8 +964,9 @@ public class MapRenderer implements Listener {
 			case ITEM:
 				image = new Image("/" + config.getInternalConfig().getString("map.tiles.item"));
 				break;
-			case KNIGHT:
+			case WIZARD:
 				image = new Image("/" + config.getInternalConfig().getString("map.tiles.knight"));
+				break;
 			//TODO: add new tiles
 //			case DOORENTER:
 //				image = new Image("/" + config.getInternalConfig().getString("map.tiles.doorenter"));

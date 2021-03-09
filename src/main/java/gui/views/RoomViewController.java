@@ -1533,9 +1533,9 @@ public class RoomViewController extends BorderPane implements Listener
 				mapView.updateTile(tile, myBrush);
 				mapView.getMap().forceReevaluation();
 				mapView.getMap().getRoomXML("room\\");
-				mapIsFeasible(mapView.getMap().isIntraFeasible());
-				redrawPatterns(mapView.getMap());
-				redrawLocks(mapView.getMap());
+//				mapIsFeasible(mapView.getMap().isIntraFeasible());
+//				redrawPatterns(mapView.getMap());
+//				redrawLocks(mapView.getMap());
 				
 				if (myBrush.GetMainComponent() == TileTypes.NPC) {
 					npcChoice.getChildren().stream().forEach(node -> {
@@ -1551,7 +1551,9 @@ public class RoomViewController extends BorderPane implements Listener
 						
 					});
 				}
-				
+
+				updateRoom(mapView.getMap());
+
 				//TODO: UNCOMMENT TO SAVE EACH STEP!!
 //				saveEditedRoomInfo();
 				
@@ -1635,6 +1637,7 @@ public class RoomViewController extends BorderPane implements Listener
 				}
 				System.out.println(((Button)event.getSource()).getId());
 				System.out.println(room.getTile(lastNpcTile.GetCenterPosition().getX(),lastNpcTile.GetCenterPosition().getY()).GetType());
+				updateRoom(mapView.getMap()); //TODO: Added so the room will redraw
 				npcChoice.getChildren().stream().forEach(node1 -> {
 					node1.setDisable(true);
 					
