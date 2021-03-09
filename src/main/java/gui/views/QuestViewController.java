@@ -12,6 +12,7 @@ import game.quest.Quest;
 import game.quest.actions.*;
 import game.tiles.EnemyTile;
 import game.tiles.ItemTile;
+import game.tiles.KnightTile;
 import generator.algorithm.grammar.QuestGrammar;
 import gui.controls.LabeledCanvas;
 import gui.utils.DungeonDrawer;
@@ -90,7 +91,9 @@ public class QuestViewController extends BorderPane implements Listener {
     @FXML
     private Button clearQuestButton;
     LabeledCanvas canvas;
-
+    
+    private TileTypes activeQuestHolder;
+    private TileTypes rememberedQuestHolder;
 
     public QuestViewController() {
         super();
@@ -133,9 +136,15 @@ public class QuestViewController extends BorderPane implements Listener {
                                                 Action action = addQuestAction(toggleButton, questCount);
                                                 addVisualQuestPaneAction(action, paneCount - 1);
                                                 toggleButton.setSelected(false);
+                                                if (action.getRoom().getTile(action.getPosition().getX(), action.getPosition().getY()) instanceof KnightTile) {
+                                                	System.out.println("sadfsddgfjgnfnddfnjf");
+													
+												}
                                                 Tile tile = action.getRoom().getTile(action.getPosition().getX(), action.getPosition().getY());
                                                 CheckUsedTile(tile, action);
-                                                dungeon.getQuest().checkForAvailableActions(action);
+                                                activeNpc(tile.GetType(), action);
+                                                rememberNpc(tile.GetType(), action );
+                                                dungeon.getQuest().checkForAvailableActions(action, tile.GetType(), activeQuestHolder, rememberedQuestHolder);
                                                 RefreshPanel();
                                                 added.set(true);
                                             }
@@ -289,11 +298,14 @@ public class QuestViewController extends BorderPane implements Listener {
         List<TileTypes> typesList = new LinkedList<TileTypes>();
         switch (selectedActionType) {
             case EXPLORE:
+            case ESCORT:
             case GO_TO:
                 typesList.add(TileTypes.FLOOR);
                 break;
-            case EXPERIMENT:
             case GATHER:
+            	typesList.add(TileTypes.TREASURE);
+            	break;
+            case EXPERIMENT:
             case READ:
             case REPAIR:
             case USE:
@@ -303,23 +315,34 @@ public class QuestViewController extends BorderPane implements Listener {
                 typesList.add(TileTypes.ITEM);
                 break;
             case LISTEN:
-            	typesList.add(TileTypes.VILLIAN);
-            	typesList.add(TileTypes.FRIEND);
+            	if (activeQuestHolder != TileTypes.NONE && activeQuestHolder != null) {
+					typesList.add(activeQuestHolder);
+            	}
+            	else {
+                	typesList.add(TileTypes.KNIGHT);
+                	typesList.add(TileTypes.WIZARD);
+                	typesList.add(TileTypes.DRUID);
+                	typesList.add(TileTypes.BOUNTYHUNTER);
+                	typesList.add(TileTypes.BLACKSMITH);
+                	typesList.add(TileTypes.MERCHANT);
+                	typesList.add(TileTypes.THIEF);
+            	}
             	break;
             case REPORT:
-            	if (dungeon.getQuest().checkIfLastActionWasFriendActions()) {
-
-                	typesList.add(TileTypes.FRIEND);
-                	break;
+            	if (activeQuestHolder != TileTypes.NONE) {
+					typesList.add(activeQuestHolder);
+					if (activeQuestHolder == rememberedQuestHolder) {
+						rememberedQuestHolder = TileTypes.NONE;
+					}
+					activeQuestHolder = TileTypes.NONE;
+					break;
 				}
-            	else if (dungeon.getQuest().checkIfLastActionWasVillianActions()) {
-
-                	typesList.add(TileTypes.VILLIAN);
-                	break;
+            	if (rememberedQuestHolder != TileTypes.NONE) {
+					typesList.add(rememberedQuestHolder);
+					rememberedQuestHolder = TileTypes.NONE;
+					break;
 				}
-            case ESCORT:
-                typesList.add(TileTypes.NPC);
-                break;
+            	
             case KILL:
                 typesList.add(TileTypes.ENEMY);
                 typesList.add(TileTypes.ENEMY_BOSS);
@@ -336,8 +359,9 @@ public class QuestViewController extends BorderPane implements Listener {
                 typesList.add(TileTypes.ENEMY_BOSS);
                 break;
             case DEFEND:
-                typesList.add(TileTypes.ITEM);
-                typesList.add(TileTypes.NPC);
+                typesList.add(TileTypes.MERCHANT);
+                typesList.add(TileTypes.BLACKSMITH);
+                typesList.add(TileTypes.THIEF);
                 break;
         }
         return typesList;
@@ -573,12 +597,16 @@ public class QuestViewController extends BorderPane implements Listener {
         questPane.getChildren().add(index, toAdd);
 
         //add arrow label
-        Label arrow = new Label("=>");
-        arrow.setTextFill(Color.WHITE);
-        arrow.setFont(Font.font(14.0));
-        arrow.setStyle("-fx-background-color: transparent;");
+        if (action.getType() == ActionType.REPORT && rememberedQuestHolder == TileTypes.NONE) {
 
-        questPane.getChildren().add(index + 1, arrow);
+		}
+        else {
+            Label arrow = new Label("=>");
+            arrow.setTextFill(Color.WHITE);
+            arrow.setFont(Font.font(14.0));
+            arrow.setStyle("-fx-background-color: transparent;");
+            questPane.getChildren().add(index + 1, arrow);
+		}
     }
 
     public void addVisualGeneratorPaneAction(Action action, int paneIndex) {
@@ -803,15 +831,93 @@ public class QuestViewController extends BorderPane implements Listener {
         else if (tile.GetType() == TileTypes.ITEM) {
 			dungeon.removeItem(tile, action.getRoom());
 		}
-        else if (tile.GetType() == TileTypes.VILLIAN && dungeon.getQuest().getActions().get(dungeon.getQuest().getActions().size() - 1).getType() == ActionType.REPORT) {
-        	dungeon.removeVillian(tile, action.getRoom());
+        else if (tile.GetType() == TileTypes.KNIGHT && dungeon.getQuest().getActions().get(dungeon.getQuest().getActions().size() - 1).getType() == ActionType.REPORT) {
+        	dungeon.removeKnight(tile, action.getRoom());
         }
-        else if (tile.GetType() == TileTypes.FRIEND && dungeon.getQuest().getActions().get(dungeon.getQuest().getActions().size() - 1).getType() == ActionType.REPORT) {
-        	dungeon.removeFriend(tile, action.getRoom());
+        else if (tile.GetType() == TileTypes.WIZARD && dungeon.getQuest().getActions().get(dungeon.getQuest().getActions().size() - 1).getType() == ActionType.REPORT) {
+        	dungeon.removeWizard(tile, action.getRoom());
+        }
+        else if (tile.GetType() == TileTypes.DRUID && dungeon.getQuest().getActions().get(dungeon.getQuest().getActions().size() - 1).getType() == ActionType.REPORT) {
+        	dungeon.removeDruid(tile, action.getRoom());
+        }
+        else if (tile.GetType() == TileTypes.BOUNTYHUNTER && dungeon.getQuest().getActions().get(dungeon.getQuest().getActions().size() - 1).getType() == ActionType.REPORT) {
+        	dungeon.removeBountyhunter(tile, action.getRoom());
+        }
+        else if (tile.GetType() == TileTypes.BLACKSMITH && dungeon.getQuest().getActions().get(dungeon.getQuest().getActions().size() - 1).getType() == ActionType.REPORT) {
+        	dungeon.removeBlacksmith(tile, action.getRoom());
+        }
+        else if (tile.GetType() == TileTypes.MERCHANT && dungeon.getQuest().getActions().get(dungeon.getQuest().getActions().size() - 1).getType() == ActionType.REPORT) {
+        	dungeon.removeMerchant(tile, action.getRoom());
+        }
+        else if (tile.GetType() == TileTypes.THIEF && dungeon.getQuest().getActions().get(dungeon.getQuest().getActions().size() - 1).getType() == ActionType.REPORT) {
+        	dungeon.removeThief(tile, action.getRoom());
         }
         else if (tile.GetType() == TileTypes.NPC && dungeon.getQuest().getActions().get(dungeon.getQuest().getActions().size() - 1).getType() == ActionType.REPORT) {
         	dungeon.removeNpc(tile, action.getRoom());
         }
+        else if (tile.GetType() == TileTypes.TREASURE) {
+        	dungeon.removeTreasure(tile, action.getRoom());
+        }
+    }
+    private void activeNpc(TileTypes tiletype, Action tempAction)
+    {
+    	TileTypes temp = TileTypes.NONE;
+    	if (tempAction.getType() != ActionType.REPORT) {
+    		switch (tiletype) {
+    		case KNIGHT:
+    			temp = TileTypes.KNIGHT;
+    			break;
+    		case WIZARD:
+    			temp = TileTypes.WIZARD;
+    			break;
+    		case DRUID:
+    			temp = TileTypes.DRUID;
+    			break;
+    		case BOUNTYHUNTER:
+    			temp = TileTypes.BOUNTYHUNTER;
+    			break;
+    		case BLACKSMITH:
+    			temp = TileTypes.BLACKSMITH;
+    			break;
+    		case MERCHANT:
+    			temp = TileTypes.MERCHANT;
+    			break;
+    		case THIEF:
+    			temp = TileTypes.THIEF;
+    			break;
+    		default:
+    			break;
+    		}
+		}
+    	if (temp != TileTypes.NONE) {
+			activeQuestHolder = temp;
+		}
+    	System.out.println(activeQuestHolder.getValue());
     }
     
+    private void rememberNpc(TileTypes tiletype, Action tempAction)
+    {
+    	TileTypes temp = TileTypes.NONE;
+    	if (tempAction.getType() != ActionType.REPORT) {
+	    	switch (tiletype) {
+			case KNIGHT:
+				temp = TileTypes.KNIGHT;
+				break;
+			case WIZARD:
+				temp = TileTypes.WIZARD;
+				break;
+			case DRUID:
+				temp = TileTypes.DRUID;
+				break;
+			case BOUNTYHUNTER:
+				temp = TileTypes.BOUNTYHUNTER;
+				break;
+			default:
+				break;
+			}
+    	}
+    	if (temp != TileTypes.NONE) {
+			rememberedQuestHolder = temp;
+		}
+    }
 }

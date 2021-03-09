@@ -153,16 +153,51 @@ public class WorldViewCanvas
 										.filter(point -> walkableTilesPoints.stream().anyMatch(point::equals))
 										.collect(Collectors.toList()));
 						break;
-					case VILLIAN:
+					case KNIGHT:
 						questBitmap
-								.AddAllPoints(owner.villianTiles.getPoints()
+								.AddAllPoints(owner.knightTiles.getPoints()
 										.stream()
 										.filter(point -> walkableTilesPoints.stream().anyMatch(point::equals))
 										.collect(Collectors.toList()));
 						break;
-					case FRIEND:
+					case WIZARD:
 						questBitmap
-								.AddAllPoints(owner.friendTiles.getPoints()
+								.AddAllPoints(owner.wizardTiles.getPoints()
+										.stream()
+										.filter(point -> walkableTilesPoints.stream().anyMatch(point::equals))
+										.collect(Collectors.toList()));
+						break;
+					case DRUID:
+						questBitmap
+								.AddAllPoints(owner.druidTiles.getPoints()
+										.stream()
+										.filter(point -> walkableTilesPoints.stream().anyMatch(point::equals))
+										.collect(Collectors.toList()));
+						break;
+					case BOUNTYHUNTER:
+						questBitmap
+								.AddAllPoints(owner.bountyhunterTiles.getPoints()
+										.stream()
+										.filter(point -> walkableTilesPoints.stream().anyMatch(point::equals))
+										.collect(Collectors.toList()));
+						break;
+					case BLACKSMITH:
+						questBitmap
+								.AddAllPoints(owner.blacksmithTiles.getPoints()
+										.stream()
+										.filter(point -> walkableTilesPoints.stream().anyMatch(point::equals))
+										.collect(Collectors.toList()));
+						break;
+					case MERCHANT:
+						questBitmap
+								.AddAllPoints(owner.merchantTiles.getPoints()
+										.stream()
+										.filter(point -> walkableTilesPoints.stream().anyMatch(point::equals))
+										.collect(Collectors.toList()));
+						break;
+					case THIEF:
+						questBitmap
+								.AddAllPoints(owner.thiefTiles.getPoints()
 										.stream()
 										.filter(point -> walkableTilesPoints.stream().anyMatch(point::equals))
 										.collect(Collectors.toList()));
@@ -197,9 +232,11 @@ public class WorldViewCanvas
 //			System.out.println("UnDisplayQuestTiles");
 			doublePos = (boolean) e.getPayload();
 			tileCanvas.setVisible(doublePos);
-			if (doublePos){
+			if (doublePos) {
 				questBitmap.clearAllPoints();
-				questBitmap.AddAllPoints(owner.npcTiles.getPoints());
+				questBitmap.AddAllPoints(owner.merchantTiles.getPoints());
+				questBitmap.AddAllPoints(owner.thiefTiles.getPoints());
+				questBitmap.AddAllPoints(owner.blacksmithTiles.getPoints());
 				drawTiles(Color.GREEN);
 			}
 		} else if (e instanceof RequestDisplayQuestTilePosition){

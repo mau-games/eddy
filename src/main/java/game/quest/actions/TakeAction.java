@@ -1,11 +1,15 @@
 package game.quest.actions;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import finder.geometry.Point;
 import game.Room;
 import game.Tile;
 import game.quest.Action;
 import game.quest.ActionType;
 import game.quest.ActionWithSecondPosition;
+import generator.algorithm.grammar.QuestGrammar.QuestMotives;
 
 /**
  * @author Eric Grevillius
@@ -51,6 +55,13 @@ public class TakeAction extends ActionWithSecondPosition {
         Tile secondTile = getSecondRoom().getTile(getSecondPosition().getX(),getSecondPosition().getY());
         setPrecondition(
                 tile.GetType().isItem() ||
-                        secondTile.GetType().isNPC());
+                        secondTile.GetType().isMerchant());
+    }
+    @Override
+    public List<QuestMotives> CheckMotives()
+    {
+    	List<QuestMotives> tempList = new ArrayList<QuestMotives>();
+    	tempList.add(QuestMotives.CONQUEST);
+    	return tempList;
     }
 }

@@ -909,9 +909,10 @@ public class MapRenderer implements Listener {
 			image = new Image(this.getClass().getResourceAsStream("/" + config.getInternalConfig().getString("map.tiles.npc")), width, height, false, true);
 			break;
 		case ITEM:
-
 			image = new Image(this.getClass().getResourceAsStream("/" + config.getInternalConfig().getString("map.tiles.item")), width, height, false, true);
 			break;
+		case KNIGHT:
+			image = new Image(this.getClass().getResourceAsStream("/" + config.getInternalConfig().getString("map.tiles.knight")), width, height, false, true);
 			//TODO: add new tiles
 //		case DOORENTER:
 //			image = new Image("/" + config.getInternalConfig().getString("map.tiles.doorenter"), width, height, false, true);
@@ -961,6 +962,8 @@ public class MapRenderer implements Listener {
 			case ITEM:
 				image = new Image("/" + config.getInternalConfig().getString("map.tiles.item"));
 				break;
+			case KNIGHT:
+				image = new Image("/" + config.getInternalConfig().getString("map.tiles.knight"));
 			//TODO: add new tiles
 //			case DOORENTER:
 //				image = new Image("/" + config.getInternalConfig().getString("map.tiles.doorenter"));

@@ -110,6 +110,7 @@ public class QuestGrammar {
                 action = new DamageAction();
                 tiles.addAll(owner.getItems());
                 tiles.addAll(owner.getNpcs());
+                tiles.addAll(owner.getEnemies());
                 if (tiles.size() > 1) {
                     QuestPositionUpdate position = tiles.get(random.nextInt(tiles.size()-1));
                     action.setPosition(position.getPoint());
@@ -123,8 +124,9 @@ public class QuestGrammar {
                 break;
             case DEFEND:
                 action = new DefendAction();
-                tiles.addAll(owner.getItems());
-                tiles.addAll(owner.getNpcs());
+                tiles.addAll(owner.getMerchants());
+                tiles.addAll(owner.getBlacksmiths());
+                tiles.addAll(owner.getThiefs());
                 if (tiles.size() > 1) {
                     QuestPositionUpdate position = tiles.get(random.nextInt(tiles.size()-1));
                     action.setPosition(position.getPoint());
@@ -138,7 +140,7 @@ public class QuestGrammar {
                 break;
             case ESCORT:
                 action = new EscortAction();
-                tiles.addAll(owner.getNpcs());
+                owner.getAllRooms().forEach(room -> tiles.addAll(room.getWalkablePositions()));
                 if (tiles.size() > 1) {
                     QuestPositionUpdate position = tiles.get(random.nextInt(tiles.size()-1));
                     action.setPosition(position.getPoint());
@@ -164,7 +166,9 @@ public class QuestGrammar {
                     action.setRoom(tiles.get(0).getRoom());
                 }
                 tiles.clear();
-                tiles.addAll(owner.getNpcs());
+                tiles.addAll(owner.getMerchants());
+                tiles.addAll(owner.getBlacksmiths());
+                tiles.addAll(owner.getThiefs());
                 if (tiles.size() > 1) {
                     QuestPositionUpdate position = tiles.get(random.nextInt(tiles.size()-1));
                     ((ActionWithSecondPosition)action).setSecondPosition(position.getPoint());
@@ -206,7 +210,7 @@ public class QuestGrammar {
                 break;
             case GATHER:
                 action = new GatherAction();
-                tiles.addAll(owner.getItems());
+                tiles.addAll(owner.getTreasures());
                 if (tiles.size() > 1) {
                     QuestPositionUpdate position = tiles.get(random.nextInt(tiles.size()-1));
                     action.setPosition(position.getPoint());
@@ -232,7 +236,9 @@ public class QuestGrammar {
                     action.setRoom(tiles.get(0).getRoom());
                 }
                 tiles.clear();
-                tiles.addAll(owner.getNpcs());
+                tiles.addAll(owner.getMerchants());
+                tiles.addAll(owner.getBlacksmiths());
+                tiles.addAll(owner.getThiefs());
                 if (tiles.size() > 1) {
                     QuestPositionUpdate position = tiles.get(random.nextInt(tiles.size()-1));
                     ((ActionWithSecondPosition)action).setSecondPosition(position.getPoint());
@@ -276,8 +282,13 @@ public class QuestGrammar {
             case LISTEN:
                 action = new ListenAction();
                 tiles.addAll(owner.getNpcs());
-                tiles.addAll(owner.getFriends());
-                tiles.addAll(owner.getVillians());
+                tiles.addAll(owner.getKnights());
+                tiles.addAll(owner.getWizards());
+                tiles.addAll(owner.getDruids());
+                tiles.addAll(owner.getBountyHunters());
+                tiles.addAll(owner.getBlacksmiths());
+                tiles.addAll(owner.getMerchants());
+                tiles.addAll(owner.getThiefs());
                 if (tiles.size() > 1) {
                     QuestPositionUpdate position = tiles.get(random.nextInt(tiles.size()-1));
                     action.setPosition(position.getPoint());
@@ -320,8 +331,13 @@ public class QuestGrammar {
             case REPORT:
                 action = new ReportAction();
                 tiles.addAll(owner.getNpcs());
-                tiles.addAll(owner.getVillians());
-                tiles.addAll(owner.getFriends());
+                tiles.addAll(owner.getKnights());
+                tiles.addAll(owner.getWizards());
+                tiles.addAll(owner.getDruids());
+                tiles.addAll(owner.getBountyHunters());
+                tiles.addAll(owner.getBlacksmiths());
+                tiles.addAll(owner.getMerchants());
+                tiles.addAll(owner.getThiefs());
                 if (tiles.size() > 1) {
                     QuestPositionUpdate position = tiles.get(random.nextInt(tiles.size()-1));
                     action.setPosition(position.getPoint());
@@ -379,7 +395,8 @@ public class QuestGrammar {
                     action.setRoom(tiles.get(0).getRoom());
                 }
                 tiles.clear();
-                tiles.addAll(owner.getNpcs());
+                //tiles.addAll(owner.getNpcs());
+                tiles.addAll(owner.getMerchants());
                 if (tiles.size() > 1) {
                     QuestPositionUpdate position = tiles.get(random.nextInt(tiles.size()-1));
                     ((ActionWithSecondPosition)action).setSecondPosition(position.getPoint());

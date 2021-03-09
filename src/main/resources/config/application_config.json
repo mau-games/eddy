@@ -11,7 +11,8 @@
             "lock": "graphics/tiles/lock.png",
             "hero": "graphics/tiles/heroTile.png",
             "npc": "graphics/tiles/npc.png",
-            "item": "graphics/tiles/item.png"
+            "item": "graphics/tiles/item.png",
+            "knight":  "graphics/tiles/read.png"
         },
         "mesopatterns": {
             "ambush": "graphics/mesopatterns/ambush.png",

@@ -197,7 +197,7 @@
                                 <Insets left="40.0" right="40.0" />
                             </FlowPane.margin>
                             <children>
-                                <Button fx:id="villianChoice" mnemonicParsing="false" text="Villian" disable="true"/>
+                                <Button fx:id="KnightChoice" mnemonicParsing="false" text="Knight" disable="true"/>
                             </children>
                             <padding>
                                 <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
@@ -206,7 +206,37 @@
                                 <Insets left="40.0" right="40.0" />
                             </FlowPane.margin>
                           	<children>
-                             <Button fx:id="friendChoice" mnemonicParsing="false" text="Friend" disable="true"/>
+                             <Button fx:id="WizardChoice" mnemonicParsing="false" text="Wizard" disable="true"/>
+                          	</children>
+                          	<FlowPane.margin>
+                                <Insets left="40.0" right="40.0" />
+                            </FlowPane.margin>
+                          	<children>
+                             <Button fx:id="DruidChoice" mnemonicParsing="false" text="Druid" disable="true"/>
+                          	</children>
+                          	<FlowPane.margin>
+                                <Insets left="40.0" right="40.0" />
+                            </FlowPane.margin>
+                          	<children>
+                             <Button fx:id="BountyhunterChoice" mnemonicParsing="false" text="Bounty Hunter" disable="true"/>
+                          	</children>
+                          	<FlowPane.margin>
+                                <Insets left="40.0" right="40.0" />
+                            </FlowPane.margin>
+                          	<children>
+                             <Button fx:id="BlacksmithChoice" mnemonicParsing="false" text="Blacksmith" disable="true"/>
+                          	</children>
+                          	<FlowPane.margin>
+                                <Insets left="40.0" right="40.0" />
+                            </FlowPane.margin>
+                          	<children>
+                             <Button fx:id="MerchantChoice" mnemonicParsing="false" text="Merchant" disable="true"/>
+                          	</children>
+                          	<FlowPane.margin>
+                                <Insets left="40.0" right="40.0" />
+                            </FlowPane.margin>
+                          	<children>
+                             <Button fx:id="ThiefChoice" mnemonicParsing="false" text="Thief" disable="true"/>
                           	</children>
                         </FlowPane>
                      </center>

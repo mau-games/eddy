@@ -5,41 +5,41 @@ import game.Tile;
 import game.TileTypes;
 import gui.controls.Brush;
 
-public class FriendTile extends Tile{
-	public FriendTile()
+public class WizardTile extends NpcTile{
+	public WizardTile()
     {
-        m_type = TileTypes.FRIEND;
+        m_type = TileTypes.WIZARD;
         setBrushUsage();
     }
 
-    public FriendTile(Point p, TileTypes type)
+    public WizardTile(Point p, TileTypes type)
     {
         super(p, type);
         setBrushUsage();
     }
 
-    public FriendTile(int x, int y, TileTypes type)
+    public WizardTile(int x, int y, TileTypes type)
     {
         super(x, y, type);
         setBrushUsage();
     }
 
-    public FriendTile(Point p, int typeValue)
+    public WizardTile(Point p, int typeValue)
     {
         super(p, typeValue);
         setBrushUsage();
     }
 
-    public FriendTile(int x, int y, int typeValue)
+    public WizardTile(int x, int y, int typeValue)
     {
         super(x, y, typeValue);
         setBrushUsage();
     }
 
-    public FriendTile(Tile copyTile)
+    public WizardTile(Tile copyTile)
     {
         super(copyTile);
-        m_type = TileTypes.FRIEND;
+        m_type = TileTypes.WIZARD;
         setBrushUsage();
     }
 

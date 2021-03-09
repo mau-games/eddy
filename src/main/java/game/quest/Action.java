@@ -2,7 +2,9 @@ package game.quest;
 
 import finder.geometry.Point;
 import game.Room;
+import generator.algorithm.grammar.QuestGrammar.QuestMotives;
 
+import java.util.List;
 import java.util.UUID;
 
 /**
@@ -100,4 +102,6 @@ public abstract class Action {
     }
 
     public abstract void checkConditions();
+    
+    public abstract List<QuestMotives> CheckMotives();
 }

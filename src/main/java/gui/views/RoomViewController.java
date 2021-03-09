@@ -14,6 +14,8 @@ import java.util.Map.Entry;
 import game.tiles.*;
 import org.apache.commons.io.FileUtils;
 
+import com.sun.org.glassfish.external.statistics.impl.BoundaryStatisticImpl;
+
 import collectors.ActionLogger;
 import collectors.ActionLogger.ActionType;
 import collectors.ActionLogger.TargetPane;
@@ -177,8 +179,13 @@ public class RoomViewController extends BorderPane implements Listener
 	@FXML private ToggleButton enemyBtn;
 	@FXML private ToggleButton bossEnemyBtn;
 	@FXML private FlowPane npcChoice;
-	@FXML private Button villianChoice;
-	@FXML private Button friendChoice;
+	@FXML private Button KnightChoice;
+	@FXML private Button WizardChoice;
+	@FXML private Button DruidChoice;
+	@FXML private Button BountyHunterChoice;
+	@FXML private Button BlacksmithChoice;
+	@FXML private Button MerchantChoice;
+	@FXML private Button ThiefChoice;
 	
 	//Brush Slider
 	@FXML private Slider brushSlider;
@@ -1567,23 +1574,71 @@ public class RoomViewController extends BorderPane implements Listener
 		npcChoice.getChildren().stream().forEach(node -> {
 			node.addEventHandler(MouseEvent.MOUSE_CLICKED, event -> {
 				switch (((Button)event.getSource()).getId()) {
-				case "friendChoice":
+				case "KnightChoice":
 					if (lastNpcTile.GetType() == TileTypes.NPC) {
-						EventRouter.getInstance().postEvent(new MapQuestUpdate(lastNpcTile, new FriendTile(lastNpcTile.GetCenterPosition(), TileTypes.FRIEND), room));
-						room.getTile(lastNpcTile.GetCenterPosition().getX(),lastNpcTile.GetCenterPosition().getY()).SetType(TileTypes.FRIEND);
+						//KnightTile temp = new KnightTile(lastNpcTile.GetCenterPosition(), TileTypes.KNIGHT);
+						EventRouter.getInstance().postEvent(new MapQuestUpdate(lastNpcTile, new KnightTile(lastNpcTile.GetCenterPosition(), TileTypes.KNIGHT), room));
+						room.getTile(lastNpcTile.GetCenterPosition().getX(),lastNpcTile.GetCenterPosition().getY()).SetType(TileTypes.KNIGHT);
+						//myBrush.SetMainComponent(TileTypes.KNIGHT);
 					}
 					break;
-				case "villianChoice":
+				case "WizardChoice":
 					if (lastNpcTile.GetType() == TileTypes.NPC) {
-						EventRouter.getInstance().postEvent(new MapQuestUpdate(lastNpcTile, new VillianTile(lastNpcTile.GetCenterPosition(), TileTypes.VILLIAN), room));
-						room.getTile(lastNpcTile.GetCenterPosition().getX(),lastNpcTile.GetCenterPosition().getY()).SetType(TileTypes.VILLIAN);
+						WizardTile temp = new WizardTile(lastNpcTile.GetCenterPosition(), TileTypes.WIZARD);
+						EventRouter.getInstance().postEvent(new MapQuestUpdate(lastNpcTile, temp, room));
+						room.setTile(lastNpcTile.GetCenterPosition().getX(),lastNpcTile.GetCenterPosition().getY(), temp);
+						//myBrush.SetMainComponent(TileTypes.WIZARD);
 					}
+					break;
+				case "DruidChoice":
+					if (lastNpcTile.GetType() == TileTypes.NPC) {
+						DruidTile temp = new DruidTile(lastNpcTile.GetCenterPosition(), TileTypes.DRUID);
+						EventRouter.getInstance().postEvent(new MapQuestUpdate(lastNpcTile, temp, room));
+						room.setTile(lastNpcTile.GetCenterPosition().getX(),lastNpcTile.GetCenterPosition().getY(), temp);
+						//myBrush.SetMainComponent(TileTypes.DRUID);
+					}
+					break;
+				case "BountyhunterChoice":
+					if (lastNpcTile.GetType() == TileTypes.NPC) {
+						BountyhunterTile temp = new BountyhunterTile(lastNpcTile.GetCenterPosition(), TileTypes.BOUNTYHUNTER);
+						EventRouter.getInstance().postEvent(new MapQuestUpdate(lastNpcTile, temp, room));
+						room.setTile(lastNpcTile.GetCenterPosition().getX(),lastNpcTile.GetCenterPosition().getY(), temp);
+						//myBrush.SetMainComponent(TileTypes.BOUNTYHUNTER);
+					}
+					break;
+				case "BlacksmithChoice":
+					if (lastNpcTile.GetType() == TileTypes.NPC) {
+						BlacksmithTile temp = new BlacksmithTile(lastNpcTile.GetCenterPosition(), TileTypes.BLACKSMITH);
+						EventRouter.getInstance().postEvent(new MapQuestUpdate(lastNpcTile, temp, room));
+						room.setTile(lastNpcTile.GetCenterPosition().getX(),lastNpcTile.GetCenterPosition().getY(), temp);
+						//myBrush.SetMainComponent(TileTypes.BLACKSMITH);
+					}
+					break;
+				case "MerchantChoice":
+					if (lastNpcTile.GetType() == TileTypes.NPC) {
+						MerchantTile temp = new MerchantTile(lastNpcTile.GetCenterPosition(), TileTypes.MERCHANT);
+						EventRouter.getInstance().postEvent(new MapQuestUpdate(lastNpcTile, temp, room));
+						room.setTile(lastNpcTile.GetCenterPosition().getX(),lastNpcTile.GetCenterPosition().getY(), temp);
+						//myBrush.SetMainComponent(TileTypes.MERCHANT);
+					}
+					break;
+				case "ThiefChoice":
+					if (lastNpcTile.GetType() == TileTypes.NPC) {
+						ThiefTile temp = new ThiefTile(lastNpcTile.GetCenterPosition(), TileTypes.THIEF);
+						EventRouter.getInstance().postEvent(new MapQuestUpdate(lastNpcTile, temp, room));
+						room.setTile(lastNpcTile.GetCenterPosition().getX(),lastNpcTile.GetCenterPosition().getY(), temp);
+						//myBrush.SetMainComponent(TileTypes.THIEF);
+					}
+					break;
 				default :
 					break;
 				}
 				System.out.println(((Button)event.getSource()).getId());
 				System.out.println(room.getTile(lastNpcTile.GetCenterPosition().getX(),lastNpcTile.GetCenterPosition().getY()).GetType());
-				node.setDisable(true);
+				npcChoice.getChildren().stream().forEach(node1 -> {
+					node1.setDisable(true);
+					
+				});
 			});
 		});
 	}

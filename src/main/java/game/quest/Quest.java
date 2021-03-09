@@ -23,29 +23,21 @@ public class Quest {
     private Dungeon owner;
     private boolean feasible = true;
     private List<ActionType> availableActions = new ArrayList<>();
-    private int usedFriend;
-    private int usedVillian;
 
     public Quest() {
         this.actions = new ArrayList<Action>();
-        usedVillian = 0;
-        usedFriend = 0;
 //        EventRouter.getInstance().registerListener(this::pings, new MapQuestUpdate());
     }
 
     public Quest(Dungeon owner) {
         this.actions = new ArrayList<Action>();
         this.owner = owner;
-        usedVillian = 0;
-        usedFriend = 0;
         EventRouter.getInstance().registerListener(this::pings, new MapQuestUpdate());
     }
 
     private Quest(Quest quest) {
         this.actions = quest.getActions();
         this.owner = quest.owner;
-        usedVillian = 0;
-        usedFriend = 0;
     }
 
     public List<Action> getActions() {
@@ -117,143 +109,88 @@ public class Quest {
         availableActions.clear();
         //final int hasItem = owner.getItems().size();
         final int hasNPC = owner.getNpcs().size();
-        final int hasVillian = owner.getVillians().size();
-        final int hasFriend = owner.getFriends().size();
+        final int hasKnight = owner.getKnights().size();
+        final int hasWizard = owner.getWizards().size();
+        final int hasDruid = owner.getDruids().size();
+        final int hasBountyHunter = owner.getBountyHunters().size();
+        final int hasBlacksmith = owner.getBlacksmiths().size();
+        final int hasMerchant = owner.getMerchants().size();
+        final int hasThief = owner.getThiefs().size();
         //final int hasEnemies = owner.getEnemies().size() + owner.getBossesPositions().size();
         
 		if (actions.size() == 0) {
-			if (hasVillian > 0) {
+			if (hasKnight > 0) {
 	        	availableActions.add(ActionType.LISTEN);
-	        	usedVillian += 1;
+	            return;
 			}
-	        if (hasFriend > 0) {
+	        if (hasWizard > 0) {
 	        	availableActions.add(ActionType.LISTEN);
-	        	usedFriend += 1;
+	            return;
 			}
+	        if (hasDruid > 0) {
+	        	availableActions.add(ActionType.LISTEN);
+	            return;
+			}
+	        if (hasBountyHunter > 0) {
+	        	availableActions.add(ActionType.LISTEN);
+	            return;
+			}
+	        if (hasBlacksmith > 0) {
+	        	availableActions.add(ActionType.LISTEN);
+	            return;
+			}
+	        if (hasMerchant > 0) {
+	        	availableActions.add(ActionType.LISTEN);
+	            return;
+			}
+	        if (hasThief > 0) {
+	        	availableActions.add(ActionType.LISTEN);
+	            return;
+			}
+	        
 	        if (hasNPC > 0){
 	            availableActions.add(ActionType.LISTEN);
 	            //availableActions.add(ActionType.REPORT);
 	            //availableActions.add(ActionType.ESCORT);
+	            return;
 	        }
-            return;
 		}
-        
-        /*if (hasItem > 0){
-            availableActions.add(ActionType.EXPERIMENT);
-            availableActions.add(ActionType.GATHER);
-            availableActions.add(ActionType.READ);
-            availableActions.add(ActionType.REPAIR);
-            availableActions.add(ActionType.USE);
-        }
-        if (hasEnemies > 0){
-            availableActions.add(ActionType.KILL);
-        }
-        if (hasNPC > 0 || hasEnemies > 0){
-            availableActions.add(ActionType.CAPTURE);
-            availableActions.add(ActionType.STEALTH);
-            availableActions.add(ActionType.SPY);
-        }
-        if (hasNPC > 0 || hasItem > 0){
-            availableActions.add(ActionType.DAMAGE);
-            availableActions.add(ActionType.DEFEND);
-        }
-        if (hasItem > 0 && hasNPC > 0){
-            availableActions.add(ActionType.EXCHANGE);
-            availableActions.add(ActionType.GIVE);
-            availableActions.add(ActionType.TAKE);
-        }
-        availableActions.add(ActionType.EXPLORE);
-        availableActions.add(ActionType.GO_TO);*/
     }
     
-    public void checkForAvailableActions(Action action){
+    public void checkForAvailableActions(Action action, TileTypes tempTileType, TileTypes activeNpc, TileTypes rememberedNpc){
         availableActions.clear();
-        final int hasItem = owner.getItems().size();
-        final int hasNPC = owner.getNpcs().size();
-        final int hasVillian = owner.getVillians().size();
-        final int hasFriend = owner.getFriends().size();
-        final int hasEnemies = owner.getEnemies().size() + owner.getBossesPositions().size();
-        
+        final int hasNpc = owner.getAllNpcs();
         if (checkIfLastActionWasReport()) {
-			if (hasVillian > 0) {
+        	if (rememberedNpc != TileTypes.NONE) {
+				availableActions.add(ActionType.REPORT);
+			}
+        	else if (hasNpc > 0) {
 	        	availableActions.add(ActionType.LISTEN);
-	        	usedVillian += 1;
 	            return;
 			}
-	        if (hasFriend > 0) {
-	        	availableActions.add(ActionType.LISTEN);
-	        	usedFriend += 1;
-	            return;
-			}
-	        if (hasNPC > 0){
-	            availableActions.add(ActionType.LISTEN);
-	            //availableActions.add(ActionType.REPORT);
-	            //availableActions.add(ActionType.ESCORT);
-	            return;
-	        }
         }
         
 		if (checkIfListenWasLastAction()) {
-			if (usedFriend > 0) {
-				if (hasItem > 0){
-		            availableActions.add(ActionType.EXPERIMENT);
-		            availableActions.add(ActionType.GATHER);
-		            availableActions.add(ActionType.READ);
-		            availableActions.add(ActionType.REPAIR);
-		            availableActions.add(ActionType.USE);
-		            usedFriend--;
-		        }
+			decideWhatActions(tempTileType);
+		}
+		else if (!checkIfLastActionWasReport()){
+			if (checkIfActionIsCivilian()) {
+				availableActions.add(ActionType.LISTEN);
+				availableActions.add(ActionType.REPORT);
 			}
-			else if (usedVillian > 0) {
-				if (hasEnemies > 0){
-		            availableActions.add(ActionType.KILL);
-		            usedVillian--;
-		        }
+			else {
+				availableActions.add(ActionType.REPORT);
+				decideWhatActions(activeNpc);
 			}
 		}
-		else if (checkIfLastActionWasFriendActions()) {
-			usedFriend = 0;
-			availableActions.add(ActionType.REPORT);
-			if (hasItem > 0){
-	            availableActions.add(ActionType.EXPERIMENT);
-	            availableActions.add(ActionType.GATHER);
-	            availableActions.add(ActionType.READ);
-	            availableActions.add(ActionType.REPAIR);
-	            availableActions.add(ActionType.USE);
-	        }
-		}
-		else if (checkIfLastActionWasVillianActions()) {
-			usedVillian = 0;
-			availableActions.add(ActionType.REPORT);
-			if (hasEnemies > 0){
-	            availableActions.add(ActionType.KILL);
-	        }
-			
-		}
-        
-        /*if (hasNPC > 0 || hasEnemies > 0){
-            availableActions.add(ActionType.CAPTURE);
-            availableActions.add(ActionType.STEALTH);
-            availableActions.add(ActionType.SPY);
-        }
-        if (hasNPC > 0 || hasItem > 0){
-            availableActions.add(ActionType.DAMAGE);
-            availableActions.add(ActionType.DEFEND);
-        }
-        if (hasItem > 0 && hasNPC > 0){
-            availableActions.add(ActionType.EXCHANGE);
-            availableActions.add(ActionType.GIVE);
-            availableActions.add(ActionType.TAKE);
-        }
-        availableActions.add(ActionType.EXPLORE);
-        availableActions.add(ActionType.GO_TO);*/
     }
-
     public Quest copy(){
         return new Quest(this);
     }
 
     public void pings(PCGEvent e) {
+
+    	
         //TODO: get any update from dungeon that might affect any quest artifact
         if (e instanceof MapQuestUpdate){
             System.out.println(this.getClass().getName() + " : " + e.getClass().getName());
@@ -270,6 +207,20 @@ public class Quest {
                     owner.removeTreasure(new TreasureTile(prev),update.getRoom());
                 } else if (prev.GetType().isEnemyBoss()) {
                     owner.removeBoss(new BossEnemyTile(prev), update.getRoom());
+                } else if (prev.GetType().isKnight()) {
+                    owner.removeKnight(new KnightTile(prev), update.getRoom());
+                } else if (prev.GetType().isWizard()) {
+                    owner.removeWizard(new WizardTile(prev), update.getRoom());
+                } else if (prev.GetType().isDruid()) {
+                    owner.removeDruid(new DruidTile(prev), update.getRoom());
+                } else if (prev.GetType().isBountyhunter()) {
+                    owner.removeBountyhunter(new BountyhunterTile(prev), update.getRoom());
+                } else if (prev.GetType().isBlacksmith()) {
+                    owner.removeBlacksmith(new BlacksmithTile(prev), update.getRoom());
+                } else if (prev.GetType().isMerchant()) {
+                    owner.removeMerchant(new MerchantTile(prev), update.getRoom());
+                } else if (prev.GetType().isThief()) {
+                    owner.removeThief(new ThiefTile(prev), update.getRoom());
                 }
 
                 Tile next = update.getNext();
@@ -284,15 +235,25 @@ public class Quest {
                     owner.addTreasure(new TreasureTile(next),update.getRoom());
                 } else if (next.GetType().isEnemyBoss()) {
                     owner.addBoss(new BossEnemyTile(prev), update.getRoom());
-                } else if (next.GetType().isVillian()) {
-                    owner.addVillian(new VillianTile(next), update.getRoom());
-                } else if (next.GetType().isFriend()) {
-                    owner.addFriend(new FriendTile(next), update.getRoom());
+                } else if (next.GetType().isKnight()) {
+                    owner.addKnight(new KnightTile(next), update.getRoom());
+				} else if (next.GetType().isWizard()) {
+                    owner.addWizard(new WizardTile(next), update.getRoom());
+				} else if (next.GetType().isDruid()) {
+                    owner.addDruid(new DruidTile(next), update.getRoom());
+				} else if (next.GetType().isBountyhunter()) {
+                    owner.addBountyhunter(new BountyhunterTile(next), update.getRoom());
+				} else if (next.GetType().isBlacksmith()) {
+                    owner.addBlacksmith(new BlacksmithTile(next), update.getRoom());
+				} else if (next.GetType().isMerchant()) {
+                    owner.addMerchant(new MerchantTile(next), update.getRoom());
+				} else if (next.GetType().isThief()) {
+                    owner.addThief(new ThiefTile(next), update.getRoom());
 				}
             }
+            checkCurrentActions();
+            checkForAvailableActions();
         }
-        checkCurrentActions();
-        checkForAvailableActions();
     }
 
     private void checkCurrentActions() {
@@ -336,35 +297,6 @@ public class Quest {
 		}
     	return false;
     }
-    public boolean checkIfLastActionWasFriendActions()
-    {
-    	int temp = 0;
-    	switch (actions.get(actions.size() - 1).getType()) {
-		case EXPERIMENT:
-		case GATHER:
-		case READ:
-		case REPAIR:
-		case USE:
-			temp = 1;
-			break;
-			
-
-		default:
-			break;
-		}
-    	if (temp == 1) {
-			return true;
-		}
-    	return false;
-    }
-    
-    public boolean checkIfLastActionWasVillianActions()
-    {
-    	if (actions.get(actions.size() - 1).getType() == ActionType.KILL) {
-			return true;
-		}
-    	return false;
-    }
     
     private boolean checkIfLastActionWasReport()
     {
@@ -372,5 +304,82 @@ public class Quest {
 			return true;
 		}
     	return false;
+    }
+    private boolean checkIfActionIsCivilian()
+    {
+    	if (actions.get(actions.size() - 1).getType() == ActionType.DEFEND) {
+			return true;
+		}
+    	return false;
+    }
+    
+    private void decideWhatActions(TileTypes tempTileType)
+    {
+        final int hasItem = owner.getItems().size();
+        final int hasEnemies = owner.getEnemies().size() + owner.getBossesPositions().size();
+        final int hasTreasures = owner.getTreasures().size();
+        final int hasCivilians = owner.getThiefs().size() + owner.getMerchants().size() + owner.getBlacksmiths().size();
+        
+    	if (tempTileType == TileTypes.KNIGHT) {
+			if (hasCivilians > 0){
+	            availableActions.add(ActionType.DEFEND);
+	        }
+			if (hasEnemies > 0) {
+	            availableActions.add(ActionType.DAMAGE);
+	            availableActions.add(ActionType.KILL);
+	            availableActions.add(ActionType.CAPTURE);
+			}
+		}
+		else if (tempTileType == TileTypes.WIZARD) {
+			if (hasItem > 0){
+	            availableActions.add(ActionType.EXPERIMENT);
+	            availableActions.add(ActionType.READ);
+	            availableActions.add(ActionType.USE);
+	        }
+		}
+		else if (tempTileType == TileTypes.DRUID) {
+			if (hasItem > 0){
+	            availableActions.add(ActionType.EXPERIMENT);
+	            availableActions.add(ActionType.USE);
+			}
+			if (hasTreasures > 0) {
+	            availableActions.add(ActionType.GATHER);
+			}
+				
+		}
+		else if (tempTileType == TileTypes.BOUNTYHUNTER) {
+			if (hasEnemies > 0 || hasCivilians > 0) {
+				availableActions.add(ActionType.SPY);
+				availableActions.add(ActionType.STEALTH);
+			}
+			if (hasItem > 0 && hasCivilians > 0) {
+				availableActions.add(ActionType.TAKE);
+			}
+			if (hasEnemies > 0) {
+				availableActions.add(ActionType.KILL);
+				availableActions.add(ActionType.CAPTURE);
+			}
+		}
+		else if (tempTileType == TileTypes.BLACKSMITH) {
+			if (hasItem > 0) {
+				availableActions.add(ActionType.REPAIR);
+			}
+			if (hasTreasures > 0) {
+				availableActions.add(ActionType.GATHER);
+			}
+			availableActions.add(ActionType.ESCORT);
+		}
+		else if (tempTileType == TileTypes.MERCHANT) {
+			if (hasItem > 0 && hasCivilians > 0) {
+				availableActions.add(ActionType.EXCHANGE);
+			}
+			availableActions.add(ActionType.ESCORT);
+		}
+		else if (tempTileType == TileTypes.THIEF) {
+			if (hasItem > 0 && hasCivilians > 0) {
+				availableActions.add(ActionType.TAKE);
+				availableActions.add(ActionType.GIVE);
+			}
+		}
     }
 }

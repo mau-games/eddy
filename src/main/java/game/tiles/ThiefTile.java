@@ -5,41 +5,41 @@ import game.Tile;
 import game.TileTypes;
 import gui.controls.Brush;
 
-public class VillianTile extends Tile{
-	public VillianTile()
+public class ThiefTile extends NpcTile{
+	public ThiefTile()
     {
-        m_type = TileTypes.VILLIAN;
+        m_type = TileTypes.THIEF;
         setBrushUsage();
     }
 
-    public VillianTile(Point p, TileTypes type)
+    public ThiefTile(Point p, TileTypes type)
     {
         super(p, type);
         setBrushUsage();
     }
 
-    public VillianTile(int x, int y, TileTypes type)
+    public ThiefTile(int x, int y, TileTypes type)
     {
         super(x, y, type);
         setBrushUsage();
     }
 
-    public VillianTile(Point p, int typeValue)
+    public ThiefTile(Point p, int typeValue)
     {
         super(p, typeValue);
         setBrushUsage();
     }
 
-    public VillianTile(int x, int y, int typeValue)
+    public ThiefTile(int x, int y, int typeValue)
     {
         super(x, y, typeValue);
         setBrushUsage();
     }
 
-    public VillianTile(Tile copyTile)
+    public ThiefTile(Tile copyTile)
     {
         super(copyTile);
-        m_type = TileTypes.VILLIAN;
+        m_type = TileTypes.THIEF;
         setBrushUsage();
     }
 
