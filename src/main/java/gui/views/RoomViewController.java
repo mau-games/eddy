@@ -1578,9 +1578,9 @@ public class RoomViewController extends BorderPane implements Listener
 				switch (((Button)event.getSource()).getId()) {
 				case "KnightChoice":
 					if (lastNpcTile.GetType() == TileTypes.NPC) {
-						//KnightTile temp = new KnightTile(lastNpcTile.GetCenterPosition(), TileTypes.KNIGHT);
-						EventRouter.getInstance().postEvent(new MapQuestUpdate(lastNpcTile, new KnightTile(lastNpcTile.GetCenterPosition(), TileTypes.KNIGHT), room));
-						room.getTile(lastNpcTile.GetCenterPosition().getX(),lastNpcTile.GetCenterPosition().getY()).SetType(TileTypes.KNIGHT);
+						KnightTile temp = new KnightTile(lastNpcTile.GetCenterPosition(), TileTypes.KNIGHT);
+						EventRouter.getInstance().postEvent(new MapQuestUpdate(lastNpcTile, temp, room));
+						room.setTile(lastNpcTile.GetCenterPosition().getX(),lastNpcTile.GetCenterPosition().getY(), temp);
 						//myBrush.SetMainComponent(TileTypes.KNIGHT);
 					}
 					break;

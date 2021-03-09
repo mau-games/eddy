@@ -912,10 +912,27 @@ public class MapRenderer implements Listener {
 		case ITEM:
 			image = new Image(this.getClass().getResourceAsStream("/" + config.getInternalConfig().getString("map.tiles.item")), width, height, false, true);
 			break;
-        case WIZARD: //TODO: Change this and the JSON with the correct info.
+        case KNIGHT:
 			image = new Image(this.getClass().getResourceAsStream("/" + config.getInternalConfig().getString("map.tiles.knight")), width, height, false, true);
 			break;
-			//TODO: add new tiles
+        case WIZARD:
+			image = new Image(this.getClass().getResourceAsStream("/" + config.getInternalConfig().getString("map.tiles.wizard")), width, height, false, true);
+			break;
+        case DRUID:
+			image = new Image(this.getClass().getResourceAsStream("/" + config.getInternalConfig().getString("map.tiles.druid")), width, height, false, true);
+			break;
+        case BOUNTYHUNTER:
+			image = new Image(this.getClass().getResourceAsStream("/" + config.getInternalConfig().getString("map.tiles.bountyhunter")), width, height, false, true);
+			break;
+        case BLACKSMITH:
+			image = new Image(this.getClass().getResourceAsStream("/" + config.getInternalConfig().getString("map.tiles.blacksmith")), width, height, false, true);
+			break;
+        case MERCHANT:
+			image = new Image(this.getClass().getResourceAsStream("/" + config.getInternalConfig().getString("map.tiles.merchant")), width, height, false, true);
+			break;
+        case THIEF:
+			image = new Image(this.getClass().getResourceAsStream("/" + config.getInternalConfig().getString("map.tiles.thief")), width, height, false, true);
+			break;
 //		case DOORENTER:
 //			image = new Image("/" + config.getInternalConfig().getString("map.tiles.doorenter"), width, height, false, true);
 //			break;
@@ -964,8 +981,26 @@ public class MapRenderer implements Listener {
 			case ITEM:
 				image = new Image("/" + config.getInternalConfig().getString("map.tiles.item"));
 				break;
-			case WIZARD:
+			case KNIGHT:
 				image = new Image("/" + config.getInternalConfig().getString("map.tiles.knight"));
+				break;
+			case WIZARD:
+				image = new Image("/" + config.getInternalConfig().getString("map.tiles.wizard"));
+				break;
+			case DRUID:
+				image = new Image("/" + config.getInternalConfig().getString("map.tiles.druid"));
+				break;
+			case BOUNTYHUNTER:
+				image = new Image("/" + config.getInternalConfig().getString("map.tiles.bountyhunter"));
+				break;
+			case BLACKSMITH:
+				image = new Image("/" + config.getInternalConfig().getString("map.tiles.blacksmith"));
+				break;
+			case MERCHANT:
+				image = new Image("/" + config.getInternalConfig().getString("map.tiles.merchant"));
+				break;
+			case THIEF:
+				image = new Image("/" + config.getInternalConfig().getString("map.tiles.thief"));
 				break;
 			//TODO: add new tiles
 //			case DOORENTER:
