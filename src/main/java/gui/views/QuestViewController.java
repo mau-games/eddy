@@ -136,10 +136,6 @@ public class QuestViewController extends BorderPane implements Listener {
                                                 Action action = addQuestAction(toggleButton, questCount);
                                                 addVisualQuestPaneAction(action, paneCount - 1);
                                                 toggleButton.setSelected(false);
-                                                if (action.getRoom().getTile(action.getPosition().getX(), action.getPosition().getY()) instanceof KnightTile) {
-                                                	System.out.println("sadfsddgfjgnfnddfnjf");
-													
-												}
                                                 Tile tile = action.getRoom().getTile(action.getPosition().getX(), action.getPosition().getY());
                                                 CheckUsedTile(tile, action);
                                                 activeNpc(tile.GetType(), action);
@@ -594,6 +590,7 @@ public class QuestViewController extends BorderPane implements Listener {
                 router.postEvent(new RequestDisplayQuestTilesUnselection(false));
             }
         });
+        
         questPane.getChildren().add(index, toAdd);
 
         //add arrow label

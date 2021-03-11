@@ -31,12 +31,5 @@ public class RepairAction extends Action {
         Tile tile = getRoom().getTile(getPosition().getX(),getPosition().getY());
         setPrecondition(tile.GetType().isItem());
     }
-    @Override
-    public List<QuestMotives> CheckMotives()
-    {
-    	List<QuestMotives> tempList = new ArrayList<QuestMotives>();
-    	tempList.add(QuestMotives.CONQUEST);
-    	return tempList;
-    }
 }
 

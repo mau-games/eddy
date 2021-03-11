@@ -1,15 +1,19 @@
 package game.tiles;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import finder.geometry.Point;
 import game.Room;
 import game.Tile;
 import game.TileTypes;
+import generator.algorithm.grammar.QuestGrammar.QuestMotives;
 import gui.controls.Brush;
 import gui.controls.Drawer;
 import gui.controls.InteractiveMap;
 
 public class NpcTile extends Tile {
-
+	
     public NpcTile()
     {
         m_type = TileTypes.NPC;
@@ -59,6 +63,18 @@ public class NpcTile extends Tile {
     {
         brush.setImmutable(true);
         return brush;
+    }
+
+    public List<QuestMotives> ReturnMotives()
+    {
+    	List<QuestMotives> tempList = new ArrayList<QuestMotives>();
+    	tempList.add(QuestMotives.ABILITY);
+    	return tempList;
+    }
+    
+    public boolean CheckMotives(QuestMotives temp)
+    {
+    	return true;
     }
 
 //    @Override

@@ -31,12 +31,5 @@ public class ListenAction extends Action {
         Tile tile = getRoom().getTile(getPosition().getX(),getPosition().getY());
         setPrecondition(tile.GetType().isNPC());
     }
-    @Override
-    public List<QuestMotives> CheckMotives()
-    {
-    	List<QuestMotives> tempList = new ArrayList<QuestMotives>();
-    	tempList.add(QuestMotives.CONQUEST);
-    	return tempList;
-    }
 }
 

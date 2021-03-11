@@ -6,10 +6,12 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 import java.util.Map.Entry;
+import java.util.Random;
 
 import game.tiles.*;
 import org.apache.commons.io.FileUtils;
@@ -31,6 +33,7 @@ import game.MapContainer;
 import game.TileTypes;
 import generator.algorithm.Algorithm.AlgorithmTypes;
 import generator.algorithm.MAPElites.Dimensions.GADimension.DimensionTypes;
+import generator.algorithm.grammar.QuestGrammar.QuestMotives;
 import generator.algorithm.MAPElites.GACell;
 import generator.algorithm.MAPElites.Dimensions.MAPEDimensionFXML;
 import game.Game.MapMutationType;
@@ -111,6 +114,7 @@ import javafx.scene.control.ScrollPane;
 import javafx.scene.control.ScrollPane.ScrollBarPolicy;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
+import javafx.scene.text.Text;
 import javafx.util.Callback;
 import javafx.util.converter.DoubleStringConverter;
 import javafx.util.converter.IntegerStringConverter;
@@ -222,7 +226,12 @@ public class RoomViewController extends BorderPane implements Listener
 	private Canvas brushCanvas;
 	private Canvas tileCanvas;
 
+	Text recommendedText;
+	
+	private List<NpcTile> npcTileList;
+
 	private MapContainer map;
+	private float[] perfectMotiveBalance;
 
 	private boolean isActive = false; //for having the same event listener in different views 
 	private boolean isFeasible = true; //How feasible the individual is
@@ -368,7 +377,20 @@ public class RoomViewController extends BorderPane implements Listener
 		mapHeight = 420;
 		initMapView();
 		initLegend();
+		initNpcPane();
 
+	}
+	
+	private void initNpcPane()
+	{
+		recommendedText = new Text();
+		recommendedText.setText("Recommended NPC is a: Knight");
+		recommendedText.setFont(Font.font(12));
+		recommendedText.setFill(Color.WHITE);
+		npcChoice.getChildren().add(recommendedText);
+		npcTileList = new ArrayList<NpcTile>();
+		perfectMotiveBalance = new float[9];
+		SetPerfectMotiveBalance();
 	}
 	
 	private void ProduceVerticalLabel()
@@ -1581,6 +1603,7 @@ public class RoomViewController extends BorderPane implements Listener
 						KnightTile temp = new KnightTile(lastNpcTile.GetCenterPosition(), TileTypes.KNIGHT);
 						EventRouter.getInstance().postEvent(new MapQuestUpdate(lastNpcTile, temp, room));
 						room.setTile(lastNpcTile.GetCenterPosition().getX(),lastNpcTile.GetCenterPosition().getY(), temp);
+						npcTileList.add(temp);
 						//myBrush.SetMainComponent(TileTypes.KNIGHT);
 					}
 					break;
@@ -1589,6 +1612,7 @@ public class RoomViewController extends BorderPane implements Listener
 						WizardTile temp = new WizardTile(lastNpcTile.GetCenterPosition(), TileTypes.WIZARD);
 						EventRouter.getInstance().postEvent(new MapQuestUpdate(lastNpcTile, temp, room));
 						room.setTile(lastNpcTile.GetCenterPosition().getX(),lastNpcTile.GetCenterPosition().getY(), temp);
+						npcTileList.add(temp);
 						//myBrush.SetMainComponent(TileTypes.WIZARD);
 					}
 					break;
@@ -1597,6 +1621,7 @@ public class RoomViewController extends BorderPane implements Listener
 						DruidTile temp = new DruidTile(lastNpcTile.GetCenterPosition(), TileTypes.DRUID);
 						EventRouter.getInstance().postEvent(new MapQuestUpdate(lastNpcTile, temp, room));
 						room.setTile(lastNpcTile.GetCenterPosition().getX(),lastNpcTile.GetCenterPosition().getY(), temp);
+						npcTileList.add(temp);
 						//myBrush.SetMainComponent(TileTypes.DRUID);
 					}
 					break;
@@ -1605,6 +1630,7 @@ public class RoomViewController extends BorderPane implements Listener
 						BountyhunterTile temp = new BountyhunterTile(lastNpcTile.GetCenterPosition(), TileTypes.BOUNTYHUNTER);
 						EventRouter.getInstance().postEvent(new MapQuestUpdate(lastNpcTile, temp, room));
 						room.setTile(lastNpcTile.GetCenterPosition().getX(),lastNpcTile.GetCenterPosition().getY(), temp);
+						npcTileList.add(temp);
 						//myBrush.SetMainComponent(TileTypes.BOUNTYHUNTER);
 					}
 					break;
@@ -1613,6 +1639,7 @@ public class RoomViewController extends BorderPane implements Listener
 						BlacksmithTile temp = new BlacksmithTile(lastNpcTile.GetCenterPosition(), TileTypes.BLACKSMITH);
 						EventRouter.getInstance().postEvent(new MapQuestUpdate(lastNpcTile, temp, room));
 						room.setTile(lastNpcTile.GetCenterPosition().getX(),lastNpcTile.GetCenterPosition().getY(), temp);
+						npcTileList.add(temp);
 						//myBrush.SetMainComponent(TileTypes.BLACKSMITH);
 					}
 					break;
@@ -1621,6 +1648,7 @@ public class RoomViewController extends BorderPane implements Listener
 						MerchantTile temp = new MerchantTile(lastNpcTile.GetCenterPosition(), TileTypes.MERCHANT);
 						EventRouter.getInstance().postEvent(new MapQuestUpdate(lastNpcTile, temp, room));
 						room.setTile(lastNpcTile.GetCenterPosition().getX(),lastNpcTile.GetCenterPosition().getY(), temp);
+						npcTileList.add(temp);
 						//myBrush.SetMainComponent(TileTypes.MERCHANT);
 					}
 					break;
@@ -1629,12 +1657,15 @@ public class RoomViewController extends BorderPane implements Listener
 						ThiefTile temp = new ThiefTile(lastNpcTile.GetCenterPosition(), TileTypes.THIEF);
 						EventRouter.getInstance().postEvent(new MapQuestUpdate(lastNpcTile, temp, room));
 						room.setTile(lastNpcTile.GetCenterPosition().getX(),lastNpcTile.GetCenterPosition().getY(), temp);
+						npcTileList.add(temp);
 						//myBrush.SetMainComponent(TileTypes.THIEF);
 					}
 					break;
 				default :
 					break;
 				}
+				QuestMotives temp = DecideRecommendedText();
+				ChooseWhatIsRecommended(temp);
 				System.out.println(((Button)event.getSource()).getId());
 				System.out.println(room.getTile(lastNpcTile.GetCenterPosition().getX(),lastNpcTile.GetCenterPosition().getY()).GetType());
 				updateRoom(mapView.getMap()); //TODO: Added so the room will redraw
@@ -1644,6 +1675,224 @@ public class RoomViewController extends BorderPane implements Listener
 				});
 			});
 		});
+	}
+	
+	private QuestMotives DecideRecommendedText()
+	{
+		float[] motiveArray = new float[9];
+		for (int i = 0; i < npcTileList.size(); i++) {
+			if (npcTileList.get(i).CheckMotives(QuestMotives.KNOWLEDGE)) {
+				motiveArray[0]++;
+			} if (npcTileList.get(i).CheckMotives(QuestMotives.COMFORT)) {
+				motiveArray[1]++;
+			} if (npcTileList.get(i).CheckMotives(QuestMotives.REPUTATION)) {
+				motiveArray[2]++;
+			} if (npcTileList.get(i).CheckMotives(QuestMotives.SERENITY)) {
+				motiveArray[3]++;
+			} if (npcTileList.get(i).CheckMotives(QuestMotives.PROTECTION)) {
+				motiveArray[4]++;
+			} if (npcTileList.get(i).CheckMotives(QuestMotives.CONQUEST)) {
+				motiveArray[5]++;
+			} if (npcTileList.get(i).CheckMotives(QuestMotives.WEALTH)) {
+				motiveArray[6]++;
+			} if (npcTileList.get(i).CheckMotives(QuestMotives.ABILITY)) {
+				motiveArray[7]++;
+			} if (npcTileList.get(i).CheckMotives(QuestMotives.EQUIPMENT)) {
+				motiveArray[8]++;
+			}
+		}
+		
+		float amountOfMotives = 0;
+		
+		float[] result = new float[9];
+		
+		for (int i = 0; i < motiveArray.length; i++) {
+			amountOfMotives += motiveArray[i];
+			result[i] = 0;
+		}
+		
+		for (int i = 0; i < motiveArray.length; i++) {
+			motiveArray[i] = motiveArray[i] / amountOfMotives;
+		}
+		
+		
+		/*for (int i = 0; i < motiveArray.length; i++) {
+			if (motiveArray[i] < perfectMotiveBalance[i]) {
+				result[i] = perfectMotiveBalance[i] - motiveArray[i];
+			}
+			else if (motiveArray[i] > perfectMotiveBalance[i])
+			{
+				result[i] = motiveArray[i] - perfectMotiveBalance[i];
+			}
+		}*/
+		
+		int idx = 0;
+		float myNumber = perfectMotiveBalance[0];
+		float distance = Math.abs(motiveArray[0] - myNumber);
+		for(int c = 1; c < result.length; c++){
+		    float cdistance = Math.abs(motiveArray[c] - perfectMotiveBalance[c]);
+		    if(cdistance > distance && perfectMotiveBalance[c] > motiveArray[c]){
+		        idx = c;
+		        distance = cdistance;
+		    }
+		}
+		float theNumber = motiveArray[idx];
+		
+		QuestMotives tempMotive;
+		switch (idx) {
+		case 0:
+			tempMotive = QuestMotives.KNOWLEDGE;
+			break;
+		case 1:
+			tempMotive = QuestMotives.COMFORT;
+			break;
+		case 2:
+			tempMotive = QuestMotives.REPUTATION;
+			break;
+		case 3:
+			tempMotive = QuestMotives.SERENITY;
+			break;
+		case 4:
+			tempMotive = QuestMotives.PROTECTION;
+			break;
+		case 5:
+			tempMotive = QuestMotives.CONQUEST;
+			break;
+		case 6:
+			tempMotive = QuestMotives.WEALTH;
+			break;
+		case 7:
+			tempMotive = QuestMotives.ABILITY;
+			break;
+		case 8:
+			tempMotive = QuestMotives.EQUIPMENT;
+			break;
+
+		default:
+			tempMotive = QuestMotives.KNOWLEDGE;
+			break;
+		}
+		
+		return tempMotive;
+		
+		/*List<Integer> percent = new ArrayList<Integer>();
+		for (int i = 0; i < 100; i++) {
+			percent.add(i);
+		}
+		Random rand = new Random();
+	    int randomElement = percent.get(rand.nextInt(percent.size()));
+	    return randomElement;*/
+	}
+	
+	private void ChooseWhatIsRecommended(QuestMotives temp)
+	{
+		/*QuestMotives temp;
+		if (number >= 0 && number <= 18) {
+			temp = QuestMotives.KNOWLEDGE;
+		} else if (number >= 19 && number <= 20) {
+			temp = QuestMotives.COMFORT;
+		} else if (number >= 21 && number <= 26) {
+			temp = QuestMotives.REPUTATION;
+		} else if (number >= 27 && number <= 40) {
+			temp = QuestMotives.SERENITY;
+		} else if (number >= 41 && number <= 58) {
+			temp = QuestMotives.PROTECTION;
+		} else if (number >= 59 && number <= 78) {
+			temp = QuestMotives.CONQUEST;
+		} else if (number >= 79 && number <= 81) {
+			temp = QuestMotives.WEALTH;
+		} else if (number >= 82 && number <= 83) {
+			temp = QuestMotives.ABILITY;
+		} else {
+			temp = QuestMotives.EQUIPMENT;
+		} */
+		List<NpcTile> tempTiles = new ArrayList<NpcTile>();
+		
+		KnightTile tempKnight = new KnightTile();
+		WizardTile tempWizard = new WizardTile();
+		DruidTile tempDruid = new DruidTile();
+		BountyhunterTile tempBountyhunter = new BountyhunterTile();
+		BlacksmithTile tempBlacksmith = new BlacksmithTile();
+		MerchantTile tempMerchant = new MerchantTile();
+		ThiefTile tempThief = new ThiefTile();
+		tempTiles.add(tempKnight);
+		tempTiles.add(tempWizard);
+		tempTiles.add(tempDruid);
+		tempTiles.add(tempBountyhunter);
+		tempTiles.add(tempBlacksmith);
+		tempTiles.add(tempMerchant);
+		tempTiles.add(tempThief);
+		String text = new String("");
+		for (int i = 0; i < tempTiles.size(); i++) {
+			if (tempTiles.get(i).CheckMotives(temp)) {
+				if (tempTiles.get(i) instanceof KnightTile) {
+					if ("".equals(text)) {
+						text += "Recommended NPCs: Knight";
+						
+					}
+					else {
+						text += ", Knight";
+					}
+				} else if (tempTiles.get(i) instanceof WizardTile) {
+					if ("".equals(text)) {
+						text += "Recommended NPCs: Wizard";
+					}
+					else {
+						text += ", Wizard";
+					}
+				} else if (tempTiles.get(i) instanceof DruidTile) {
+					if ("".equals(text)) {
+						text += "Recommended NPCs: Druid";
+					}
+					else {
+						text += ", Druid";
+					}
+				} else if (tempTiles.get(i) instanceof BountyhunterTile) {
+					if ("".equals(text)) {
+						text += "Recommended NPCs: Bountyhunter";
+					}
+					else {
+						text += ", Bountyhunter";
+					}
+				} else if (tempTiles.get(i) instanceof BlacksmithTile) {
+					if ("".equals(text)) {
+						text += "Recommended NPCs: Blacksmith";
+					}
+					else {
+						text += ", Blacksmith";
+					}
+				} else if (tempTiles.get(i) instanceof MerchantTile) {
+					if ("".equals(text)) {
+						text += "Recommended NPCs: Merchant";
+					}
+					else {
+						text += ", Merchant";
+					}
+				} else if (tempTiles.get(i) instanceof ThiefTile) {
+					if ("".equals(text)) {
+						text += "Recommended NPCs: Thief";
+					}
+					else {
+						text += ", Thief";
+					}
+				}
+			}
+		}
+		recommendedText.setText(text);
+	}
+	
+	private void SetPerfectMotiveBalance()
+	{
+		perfectMotiveBalance[0] = 0.183f;
+		perfectMotiveBalance[1] = 0.016f;
+		perfectMotiveBalance[2] = 0.065f;
+		perfectMotiveBalance[3] = 0.137f;
+		perfectMotiveBalance[4] = 0.182f;
+		perfectMotiveBalance[5] = 0.202f;
+		perfectMotiveBalance[6] = 0.02f;
+		perfectMotiveBalance[7] = 0.011f;
+		perfectMotiveBalance[8] = 0.185f;
+		
 	}
 	
 	/*

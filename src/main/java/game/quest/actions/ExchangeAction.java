@@ -58,12 +58,5 @@ public class ExchangeAction extends ActionWithSecondPosition {
                 tile.GetType().isItem() ||
                 secondTile.GetType().isNPC());
     }
-    @Override
-    public List<QuestMotives> CheckMotives()
-    {
-    	List<QuestMotives> tempList = new ArrayList<QuestMotives>();
-    	tempList.add(QuestMotives.CONQUEST);
-    	return tempList;
-    }
 }
 

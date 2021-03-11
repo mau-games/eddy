@@ -192,7 +192,7 @@
             <bottom>
                 <BorderPane style="-fx-border-color: lightgray transparent;">
                     <center>
-                        <FlowPane fx:id="npcChoice" hgap="5.0" maxHeight="100" maxWidth="400" prefHeight="100.0" vgap="5.0" BorderPane.alignment="CENTER_LEFT" orientation="HORIZONTAL">
+                        <FlowPane fx:id="npcChoice" hgap="20.0" maxHeight="100" maxWidth="800" prefHeight="100.0" vgap="5.0" BorderPane.alignment="CENTER_LEFT" orientation="HORIZONTAL">
                             <FlowPane.margin>
                                 <Insets left="40.0" right="40.0" />
                             </FlowPane.margin>

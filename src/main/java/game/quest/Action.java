@@ -102,6 +102,4 @@ public abstract class Action {
     }
 
     public abstract void checkConditions();
-    
-    public abstract List<QuestMotives> CheckMotives();
 }

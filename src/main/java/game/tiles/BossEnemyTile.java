@@ -1,9 +1,13 @@
 package game.tiles;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import finder.geometry.Point;
 import game.Room;
 import game.Tile;
 import game.TileTypes;
+import generator.algorithm.grammar.QuestGrammar.QuestMotives;
 import gui.controls.Brush;
 import gui.controls.Drawer;
 import gui.controls.InteractiveMap;

@@ -31,12 +31,5 @@ public class GotoAction extends Action {
                 walkablePosition.getPoint().getX() == getPosition().getX() &&
                         walkablePosition.getPoint().getY() == getPosition().getY()));
     }
-    @Override
-    public List<QuestMotives> CheckMotives()
-    {
-    	List<QuestMotives> tempList = new ArrayList<QuestMotives>();
-    	tempList.add(QuestMotives.CONQUEST);
-    	return tempList;
-    }
 }
 

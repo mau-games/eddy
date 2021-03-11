@@ -36,12 +36,5 @@ public class KillAction extends Action {
                         
         );
     }
-    @Override
-    public List<QuestMotives> CheckMotives()
-    {
-    	List<QuestMotives> tempList = new ArrayList<QuestMotives>();
-    	tempList.add(QuestMotives.CONQUEST);
-    	return tempList;
-    }
 }
 

@@ -57,11 +57,4 @@ public class TakeAction extends ActionWithSecondPosition {
                 tile.GetType().isItem() ||
                         secondTile.GetType().isMerchant());
     }
-    @Override
-    public List<QuestMotives> CheckMotives()
-    {
-    	List<QuestMotives> tempList = new ArrayList<QuestMotives>();
-    	tempList.add(QuestMotives.CONQUEST);
-    	return tempList;
-    }
 }
