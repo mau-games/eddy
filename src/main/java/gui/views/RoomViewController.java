@@ -1704,39 +1704,24 @@ public class RoomViewController extends BorderPane implements Listener
 		
 		float amountOfMotives = 0;
 		
-		float[] result = new float[9];
-		
 		for (int i = 0; i < motiveArray.length; i++) {
 			amountOfMotives += motiveArray[i];
-			result[i] = 0;
 		}
 		
 		for (int i = 0; i < motiveArray.length; i++) {
 			motiveArray[i] = motiveArray[i] / amountOfMotives;
 		}
 		
-		
-		/*for (int i = 0; i < motiveArray.length; i++) {
-			if (motiveArray[i] < perfectMotiveBalance[i]) {
-				result[i] = perfectMotiveBalance[i] - motiveArray[i];
-			}
-			else if (motiveArray[i] > perfectMotiveBalance[i])
-			{
-				result[i] = motiveArray[i] - perfectMotiveBalance[i];
-			}
-		}*/
-		
 		int idx = 0;
 		float myNumber = perfectMotiveBalance[0];
 		float distance = Math.abs(motiveArray[0] - myNumber);
-		for(int c = 1; c < result.length; c++){
+		for(int c = 1; c < motiveArray.length; c++){
 		    float cdistance = Math.abs(motiveArray[c] - perfectMotiveBalance[c]);
 		    if(cdistance > distance && perfectMotiveBalance[c] > motiveArray[c]){
 		        idx = c;
 		        distance = cdistance;
 		    }
 		}
-		float theNumber = motiveArray[idx];
 		
 		QuestMotives tempMotive;
 		switch (idx) {
