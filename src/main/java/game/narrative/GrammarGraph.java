@@ -2,6 +2,7 @@ package game.narrative;
 
 import com.sun.org.apache.xerces.internal.xni.grammars.Grammar;
 import game.DungeonPane;
+import game.narrative.NarrativeFinder.NarrativeStructPatternFinder;
 import generator.algorithm.MAPElites.GrammarMAPEliteAlgorithm;
 import machineLearning.neuralnetwork.Neuron;
 
@@ -18,11 +19,13 @@ public class GrammarGraph
 
     //TODO: WIP
     public NarrativePane nPane;
+    public NarrativeStructPatternFinder pattern_finder;
 
     public GrammarGraph()
     {
         nodes = new ArrayList<GrammarNode>();
         nPane = new NarrativePane(this);
+        pattern_finder = new NarrativeStructPatternFinder(this);
     }
 
     //Copy constructor.
@@ -47,7 +50,7 @@ public class GrammarGraph
         }
 
         nPane = new NarrativePane(this);
-
+        pattern_finder = new NarrativeStructPatternFinder(this);
     }
 
     public GrammarNode addNode(TVTropeType nodeType)
@@ -156,6 +159,26 @@ public class GrammarGraph
                 continue;
             else if(other.checkConnectionExists(nodeToCheck))
                 others.add(other);
+        }
+
+        return others;
+    }
+
+    public ArrayList<GrammarNode> getAllConnectionsToNode(GrammarNode nodeToCheck, boolean directional)
+    {
+        ArrayList<GrammarNode> others = new ArrayList<GrammarNode>();
+
+        for(GrammarNode other : nodes)
+        {
+            if(other == nodeToCheck)
+                continue;
+            else if(other.checkConnectionExists(nodeToCheck))
+            {
+                if(directional && other.connections.get(nodeToCheck) == 0)
+                    continue;
+
+                others.add(other);
+            }
         }
 
         return others;
@@ -731,6 +754,8 @@ public class GrammarGraph
         return output/(float)nodes.size();
 
     }
+
+//    public List<GrammarNode
 
 //    public boolean iterateGraph(List<GrammarNode> subgraphNodes, List<int[]> subgraphConnections, int step, GrammarNode startNode, int current_node)
 //    {

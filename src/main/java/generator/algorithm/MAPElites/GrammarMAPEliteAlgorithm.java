@@ -12,6 +12,8 @@ import game.AlgorithmSetup;
 import game.MapContainer;
 import game.Room;
 import game.narrative.GrammarGraph;
+import game.narrative.NarrativeFinder.CompoundConflictPattern;
+import game.narrative.NarrativeFinder.NarrativePattern;
 import game.narrative.TVTropeType;
 import generator.algorithm.Algorithm;
 import generator.algorithm.MAPElites.Dimensions.*;
@@ -462,6 +464,8 @@ public class GrammarMAPEliteAlgorithm extends Algorithm implements Listener {
 			float targetSize = expected_size - nStructure.checkGraphSize();
 			targetSize *= 0.1f;
 			targetSize = 1.0f - Math.abs(targetSize);
+
+
 //			fitness += targetSize;
 
 			//Penalize repeting nodes
@@ -470,6 +474,20 @@ public class GrammarMAPEliteAlgorithm extends Algorithm implements Listener {
 			fitness = (w_any * (cumulative_any)) + (w_tSize * targetSize) + (w_node_repetition * node_repetition);
 
 		}
+
+		nStructure.pattern_finder.findNarrativePatterns();
+		float structure_count = 0.0f;
+		for(NarrativePattern np : nStructure.pattern_finder.all_narrative_patterns)
+		{
+			if(np instanceof CompoundConflictPattern)
+				structure_count++;
+		}
+
+		float targetSize = expected_size - structure_count;
+		targetSize *= 0.1f;
+		fitness = 1.0f - Math.abs(targetSize);
+
+
 		ind.setFitness(fitness);
 //		ind.setFitness(1.0);
 		ind.setEvaluate(true);

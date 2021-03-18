@@ -9,4 +9,6 @@ public class NarrativeStructInterpreter
     List<String> plot_devices;
     LinkedList<String> narrative_structure;
 
+
+
 }

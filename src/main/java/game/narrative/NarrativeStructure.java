@@ -46,6 +46,25 @@ public class NarrativeStructure {
         }, graph_axiom);
     }
 
+    private void runPatternFinderExperiment()
+    {
+        GrammarGraph test_graph = new GrammarGraph();
+        GrammarNode a1 = test_graph.addNode(TVTropeType.MHQ);
+        GrammarNode b1 = test_graph.addNode(TVTropeType.CONFLICT);
+        GrammarNode c1 = test_graph.addNode(TVTropeType.ENEMY);
+        GrammarNode d1 = test_graph.addNode(TVTropeType.SH);
+        GrammarNode e1 = test_graph.addNode(TVTropeType.CONFLICT);
+
+        a1.addConnection(b1, 1);
+        b1.addConnection(c1, 1);
+        d1.addConnection(b1, 1);
+
+        c1.addConnection(e1, 1);
+        e1.addConnection(d1, 1);
+
+        test_graph.pattern_finder.findNarrativePatterns();
+    }
+
     public void runTestRemoveNode_Connections()
     {
         GrammarGraph graph_axiom = new GrammarGraph();
@@ -231,9 +250,11 @@ public class NarrativeStructure {
 
     public NarrativeStructure()
     {
+        runPatternFinderExperiment();
+
 //        runTestRemoveNode_Connections();
 //        runTestGhostConns_RepeatedID();
-        runExperiment();
+//        runExperiment();
 
         //CORE RULES
         productionRules.put("hero", new String[]{"5ma","neo","sh"});

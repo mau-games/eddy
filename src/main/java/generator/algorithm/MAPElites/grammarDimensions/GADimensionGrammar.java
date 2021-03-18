@@ -11,7 +11,11 @@ public abstract class GADimensionGrammar
 	{
 		CONFLICT,
 		STEP,
-		DIVERSITY
+		DIVERSITY,
+		TENSION,
+		STRUCTURE,
+		PLOTPOINTS,
+		PLOTDEVICES
 	}
 
 	protected GrammarDimensionTypes dimension;
@@ -54,6 +58,10 @@ public abstract class GADimensionGrammar
 				return new SizeGADimensionGrammar(granularity.floatValue());
 			case DIVERSITY:
 				return new DiversityGADimensionGrammar(granularity.floatValue());
+			case TENSION:
+				return new TensionGADimensionGrammar(granularity.floatValue());
+			case STRUCTURE:
+				return new StructureGADimensionGrammar(granularity.floatValue());
 			default:
 				break;
 		
@@ -65,7 +73,7 @@ public abstract class GADimensionGrammar
 
 	public static double calculateIndividualValue(GrammarDimensionTypes dim, GrammarGraph individual_grammar)
 	{
-		System.out.println("PRROOOOOOOOOOBLEMS");
+//		System.out.println("PRROOOOOOOOOOBLEMS");
 		switch(dim)
 		{
 			case CONFLICT:
@@ -74,6 +82,10 @@ public abstract class GADimensionGrammar
 				return SizeGADimensionGrammar.getValue(individual_grammar);
 			case DIVERSITY:
 				return DiversityGADimensionGrammar.getValue(individual_grammar);
+			case TENSION:
+				return TensionGADimensionGrammar.getValue(individual_grammar);
+			case STRUCTURE:
+				return StructureGADimensionGrammar.getValue(individual_grammar);
 			default:
 				return -1.0;
 

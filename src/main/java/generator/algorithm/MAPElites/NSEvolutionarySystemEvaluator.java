@@ -13,9 +13,11 @@ package generator.algorithm.MAPElites;
  *  But how will this be evaluateD? The idea  *  thus far is based on where the designer is focusing, where the MAP-Elites
  *  have focused thus far, and finally and possibly, manually   defined by the designer.
  *
- *  I feel and think that Focalization should be something like a direction vector to where to focus on the graph.
+ *  I feel and think that Focalization should be something like a direction vector to where to focus on the graph. It can also be
+ *  that in the engagement step is where it should be applied the focalization
  *
- *  - Engagement is the generation of narratives from the system (perhaps
+ *  - Engagement is the generation of narratives from the system applying the grammar rules and constraints (perhaps here is where
  */
 public class NSEvolutionarySystemEvaluator {
+
 }

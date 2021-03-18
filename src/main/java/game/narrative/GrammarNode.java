@@ -17,7 +17,7 @@ public class GrammarNode {
     //0 = no direction --> connection is on both
     //1 = unidirectional
     //2 = bidirectional
-    HashMap<GrammarNode, Integer> connections;
+    public HashMap<GrammarNode, Integer> connections;
     TVTropeType grammarNodeType;
 
     //Graphical stuff!
