@@ -298,7 +298,7 @@ public class Quest {
     	return false;
     }
     
-    private boolean checkIfLastActionWasReport()
+    public boolean checkIfLastActionWasReport()
     {
     	if (actions.get(actions.size() - 1).getType() == ActionType.REPORT) {
 			return true;

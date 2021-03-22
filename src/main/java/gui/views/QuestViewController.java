@@ -94,6 +94,8 @@ public class QuestViewController extends BorderPane implements Listener {
     
     private TileTypes activeQuestHolder;
     private TileTypes rememberedQuestHolder;
+    private boolean active;
+    private boolean remembered;
 
     public QuestViewController() {
         super();
@@ -132,6 +134,7 @@ public class QuestViewController extends BorderPane implements Listener {
                                         .forEach(selected -> {
                                             ToggleButton toggleButton = (ToggleButton) selected;
                                             int questCount = dungeon.getQuest().getActions().size();
+                                            changeActiveOrRememberedNpc();
                                             if (!doublePosition && updatedPosition != null) {
                                                 Action action = addQuestAction(toggleButton, questCount);
                                                 addVisualQuestPaneAction(action, paneCount - 1);
@@ -328,14 +331,14 @@ public class QuestViewController extends BorderPane implements Listener {
             	if (activeQuestHolder != TileTypes.NONE) {
 					typesList.add(activeQuestHolder);
 					if (activeQuestHolder == rememberedQuestHolder) {
-						rememberedQuestHolder = TileTypes.NONE;
+						remembered = true;
 					}
-					activeQuestHolder = TileTypes.NONE;
+					active = true;
 					break;
 				}
             	if (rememberedQuestHolder != TileTypes.NONE) {
 					typesList.add(rememberedQuestHolder);
-					rememberedQuestHolder = TileTypes.NONE;
+					remembered = true;
 					break;
 				}
             	
@@ -526,6 +529,13 @@ public class QuestViewController extends BorderPane implements Listener {
 
     public void addVisualQuestPaneAction(Action action, int index) {
         //add toggle button representation
+    	/*VBox vbox = new VBox();
+    	vbox.maxHeight(20);
+    	vbox.maxWidth(50000);
+    	if (dungeon.getQuest().checkIfLastActionWasReport() || questPane.getChildren().size() == 1) {
+        	questPane.getChildren().add(vbox);
+		}
+		*/
         ToggleButton toAdd = new ToggleButton();
         toAdd.setText(action.getName());
         toAdd.setId(action.getId().toString());
@@ -590,7 +600,6 @@ public class QuestViewController extends BorderPane implements Listener {
                 router.postEvent(new RequestDisplayQuestTilesUnselection(false));
             }
         });
-        
         questPane.getChildren().add(index, toAdd);
 
         //add arrow label
@@ -915,6 +924,18 @@ public class QuestViewController extends BorderPane implements Listener {
     	}
     	if (temp != TileTypes.NONE) {
 			rememberedQuestHolder = temp;
+		}
+    }
+    
+    private void changeActiveOrRememberedNpc()
+    {
+    	if (active) {
+			activeQuestHolder = TileTypes.NONE;
+			active = false;
+		}
+    	else if (remembered) {
+			rememberedQuestHolder = TileTypes.NONE;
+			remembered = false;
 		}
     }
 }
