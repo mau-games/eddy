@@ -390,6 +390,7 @@ public class RoomViewController extends BorderPane implements Listener
 		npcChoice.getChildren().add(recommendedText);
 		npcTileList = new ArrayList<NpcTile>();
 		perfectMotiveBalance = new float[9];
+		NpcChoice();
 		SetPerfectMotiveBalance();
 	}
 	
@@ -1565,7 +1566,6 @@ public class RoomViewController extends BorderPane implements Listener
 						
 					});
 					lastNpcTile = mapView.GetLastTile();
-					NpcChoice(mapView.getMap());
 				}
 				else {
 					npcChoice.getChildren().stream().forEach(node -> {
@@ -1593,7 +1593,7 @@ public class RoomViewController extends BorderPane implements Listener
 		
 	}
 	
-	private void NpcChoice(Room room)
+	private void NpcChoice()
 	{
 		npcChoice.getChildren().stream().forEach(node -> {
 			node.addEventHandler(MouseEvent.MOUSE_CLICKED, event -> {
@@ -1601,8 +1601,8 @@ public class RoomViewController extends BorderPane implements Listener
 				case "KnightChoice":
 					if (lastNpcTile.GetType() == TileTypes.NPC) {
 						KnightTile temp = new KnightTile(lastNpcTile.GetCenterPosition(), TileTypes.KNIGHT);
-						EventRouter.getInstance().postEvent(new MapQuestUpdate(lastNpcTile, temp, room));
-						room.setTile(lastNpcTile.GetCenterPosition().getX(),lastNpcTile.GetCenterPosition().getY(), temp);
+						EventRouter.getInstance().postEvent(new MapQuestUpdate(lastNpcTile, temp, mapView.getMap()));
+						mapView.getMap().setTile(lastNpcTile.GetCenterPosition().getX(),lastNpcTile.GetCenterPosition().getY(), temp);
 						npcTileList.add(temp);
 						//myBrush.SetMainComponent(TileTypes.KNIGHT);
 					}
@@ -1610,8 +1610,8 @@ public class RoomViewController extends BorderPane implements Listener
 				case "WizardChoice":
 					if (lastNpcTile.GetType() == TileTypes.NPC) {
 						WizardTile temp = new WizardTile(lastNpcTile.GetCenterPosition(), TileTypes.WIZARD);
-						EventRouter.getInstance().postEvent(new MapQuestUpdate(lastNpcTile, temp, room));
-						room.setTile(lastNpcTile.GetCenterPosition().getX(),lastNpcTile.GetCenterPosition().getY(), temp);
+						EventRouter.getInstance().postEvent(new MapQuestUpdate(lastNpcTile, temp, mapView.getMap()));
+						mapView.getMap().setTile(lastNpcTile.GetCenterPosition().getX(),lastNpcTile.GetCenterPosition().getY(), temp);
 						npcTileList.add(temp);
 						//myBrush.SetMainComponent(TileTypes.WIZARD);
 					}
@@ -1619,8 +1619,8 @@ public class RoomViewController extends BorderPane implements Listener
 				case "DruidChoice":
 					if (lastNpcTile.GetType() == TileTypes.NPC) {
 						DruidTile temp = new DruidTile(lastNpcTile.GetCenterPosition(), TileTypes.DRUID);
-						EventRouter.getInstance().postEvent(new MapQuestUpdate(lastNpcTile, temp, room));
-						room.setTile(lastNpcTile.GetCenterPosition().getX(),lastNpcTile.GetCenterPosition().getY(), temp);
+						EventRouter.getInstance().postEvent(new MapQuestUpdate(lastNpcTile, temp, mapView.getMap()));
+						mapView.getMap().setTile(lastNpcTile.GetCenterPosition().getX(),lastNpcTile.GetCenterPosition().getY(), temp);
 						npcTileList.add(temp);
 						//myBrush.SetMainComponent(TileTypes.DRUID);
 					}
@@ -1628,8 +1628,8 @@ public class RoomViewController extends BorderPane implements Listener
 				case "BountyhunterChoice":
 					if (lastNpcTile.GetType() == TileTypes.NPC) {
 						BountyhunterTile temp = new BountyhunterTile(lastNpcTile.GetCenterPosition(), TileTypes.BOUNTYHUNTER);
-						EventRouter.getInstance().postEvent(new MapQuestUpdate(lastNpcTile, temp, room));
-						room.setTile(lastNpcTile.GetCenterPosition().getX(),lastNpcTile.GetCenterPosition().getY(), temp);
+						EventRouter.getInstance().postEvent(new MapQuestUpdate(lastNpcTile, temp, mapView.getMap()));
+						mapView.getMap().setTile(lastNpcTile.GetCenterPosition().getX(),lastNpcTile.GetCenterPosition().getY(), temp);
 						npcTileList.add(temp);
 						//myBrush.SetMainComponent(TileTypes.BOUNTYHUNTER);
 					}
@@ -1637,8 +1637,8 @@ public class RoomViewController extends BorderPane implements Listener
 				case "BlacksmithChoice":
 					if (lastNpcTile.GetType() == TileTypes.NPC) {
 						BlacksmithTile temp = new BlacksmithTile(lastNpcTile.GetCenterPosition(), TileTypes.BLACKSMITH);
-						EventRouter.getInstance().postEvent(new MapQuestUpdate(lastNpcTile, temp, room));
-						room.setTile(lastNpcTile.GetCenterPosition().getX(),lastNpcTile.GetCenterPosition().getY(), temp);
+						EventRouter.getInstance().postEvent(new MapQuestUpdate(lastNpcTile, temp, mapView.getMap()));
+						mapView.getMap().setTile(lastNpcTile.GetCenterPosition().getX(),lastNpcTile.GetCenterPosition().getY(), temp);
 						npcTileList.add(temp);
 						//myBrush.SetMainComponent(TileTypes.BLACKSMITH);
 					}
@@ -1646,8 +1646,8 @@ public class RoomViewController extends BorderPane implements Listener
 				case "MerchantChoice":
 					if (lastNpcTile.GetType() == TileTypes.NPC) {
 						MerchantTile temp = new MerchantTile(lastNpcTile.GetCenterPosition(), TileTypes.MERCHANT);
-						EventRouter.getInstance().postEvent(new MapQuestUpdate(lastNpcTile, temp, room));
-						room.setTile(lastNpcTile.GetCenterPosition().getX(),lastNpcTile.GetCenterPosition().getY(), temp);
+						EventRouter.getInstance().postEvent(new MapQuestUpdate(lastNpcTile, temp, mapView.getMap()));
+						mapView.getMap().setTile(lastNpcTile.GetCenterPosition().getX(),lastNpcTile.GetCenterPosition().getY(), temp);
 						npcTileList.add(temp);
 						//myBrush.SetMainComponent(TileTypes.MERCHANT);
 					}
@@ -1655,8 +1655,8 @@ public class RoomViewController extends BorderPane implements Listener
 				case "ThiefChoice":
 					if (lastNpcTile.GetType() == TileTypes.NPC) {
 						ThiefTile temp = new ThiefTile(lastNpcTile.GetCenterPosition(), TileTypes.THIEF);
-						EventRouter.getInstance().postEvent(new MapQuestUpdate(lastNpcTile, temp, room));
-						room.setTile(lastNpcTile.GetCenterPosition().getX(),lastNpcTile.GetCenterPosition().getY(), temp);
+						EventRouter.getInstance().postEvent(new MapQuestUpdate(lastNpcTile, temp, mapView.getMap()));
+						mapView.getMap().setTile(lastNpcTile.GetCenterPosition().getX(),lastNpcTile.GetCenterPosition().getY(), temp);
 						npcTileList.add(temp);
 						//myBrush.SetMainComponent(TileTypes.THIEF);
 					}
@@ -1667,7 +1667,7 @@ public class RoomViewController extends BorderPane implements Listener
 				QuestMotives temp = DecideRecommendedText();
 				ChooseWhatIsRecommended(temp);
 				System.out.println(((Button)event.getSource()).getId());
-				System.out.println(room.getTile(lastNpcTile.GetCenterPosition().getX(),lastNpcTile.GetCenterPosition().getY()).GetType());
+				System.out.println(mapView.getMap().getTile(lastNpcTile.GetCenterPosition().getX(),lastNpcTile.GetCenterPosition().getY()).GetType());
 				updateRoom(mapView.getMap()); //TODO: Added so the room will redraw
 				npcChoice.getChildren().stream().forEach(node1 -> {
 					node1.setDisable(true);
