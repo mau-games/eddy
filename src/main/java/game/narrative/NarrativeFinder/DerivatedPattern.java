@@ -25,82 +25,84 @@ public class DerivatedPattern extends CompositeNarrativePattern
          *  3- a basic concli
          */
 
-        for(NarrativePattern np : currentPatterns)
-        {
-            if(np instanceof HeroNodePattern || np instanceof VillainNodePattern)
-            {
-                //Now we search for the connections
-                List<GrammarNode> non_dir = new ArrayList<GrammarNode>();
+        // TODO: WIP
 
-                //Need to limit the non_dir connections!!!!
-
-                //These are from me
-                for(Map.Entry<GrammarNode, Integer> keyValue : ((StructureNodePattern) np).connected_node.connections.entrySet()) //Get Target!
-                {
-                    NarrativePattern target_pat = finder.existNodeAsPattern(keyValue.getKey());
-                    //Limited to only add if it is hero or villain
-                    if(target_pat!= null && (target_pat instanceof HeroNodePattern || target_pat instanceof VillainNodePattern))
-                    {
-                        from_me.add(keyValue.getKey());
-                    }
-                }
-
-                //These are to me (only directional!)
-                for(GrammarNode node : narrative_graph.getAllConnectionsToNode(((StructureNodePattern) np).connected_node, true)) //Get Source
-                {
-                    NarrativePattern source_pat = finder.existNodeAsPattern(node);
-                    //Only add if it is hero or villain
-                    if(source_pat!= null && (source_pat instanceof HeroNodePattern || source_pat instanceof VillainNodePattern))
-                    {
-                        to_me.add(node);
-                    }
-//                    to_me.add(node);
-                }
-
-                //If there is no source or no targets we do not have
-                if(from_me.isEmpty() || to_me.isEmpty())
-                    continue;
-
-                //Start filling the compound conflict!
-                GrammarGraph combined_graph = new GrammarGraph();
-                combined_graph.addNode(((StructureNodePattern) np).connected_node, false);
-
-                //Now lets create a subgraph! and create the simple conflicts!
-                for(GrammarNode source_node : to_me)
-                {
-                    //Add source nodes to the compound graph!
-                    combined_graph.addNode(source_node, false);
-
-                    for(GrammarNode target_node : from_me)
-                    {
-                        GrammarGraph temp = new GrammarGraph();
-                        temp.addNode(source_node, false);
-                        temp.addNode(((StructureNodePattern) np).connected_node, false);
-                        temp.addNode(target_node, false);
-
-                        SimpleConflictPattern scp = new SimpleConflictPattern();
-                        scp.addSubgraph(temp);
-//                        scp.pattern_subgraphs.add(temp);
-//                        scp.relevant_nodes.add(source_node);
-
-                        results.add(scp);
-                    }
-                }
-
-                for(GrammarNode target_node : from_me)
-                {
-                    //Add target nodes to the compound graph!!
-                    combined_graph.addNode(target_node, false);
-                }
-
-                CompoundConflictPattern ccp = new CompoundConflictPattern();
-                ccp.addSubgraph(combined_graph);
-//                ccp.pattern_subgraphs.add(combined_graph);
-                results.add(ccp);
-
-
-            }
-        }
+//        for(NarrativePattern np : currentPatterns)
+//        {
+//            if(np instanceof HeroNodePattern || np instanceof VillainNodePattern)
+//            {
+//                //Now we search for the connections
+//                List<GrammarNode> non_dir = new ArrayList<GrammarNode>();
+//
+//                //Need to limit the non_dir connections!!!!
+//
+//                //These are from me
+//                for(Map.Entry<GrammarNode, Integer> keyValue : ((StructureNodePattern) np).connected_node.connections.entrySet()) //Get Target!
+//                {
+//                    NarrativePattern target_pat = finder.existNodeAsPattern(keyValue.getKey());
+//                    //Limited to only add if it is hero or villain
+//                    if(target_pat!= null && (target_pat instanceof HeroNodePattern || target_pat instanceof VillainNodePattern))
+//                    {
+//                        from_me.add(keyValue.getKey());
+//                    }
+//                }
+//
+//                //These are to me (only directional!)
+//                for(GrammarNode node : narrative_graph.getAllConnectionsToNode(((StructureNodePattern) np).connected_node, true)) //Get Source
+//                {
+//                    NarrativePattern source_pat = finder.existNodeAsPattern(node);
+//                    //Only add if it is hero or villain
+//                    if(source_pat!= null && (source_pat instanceof HeroNodePattern || source_pat instanceof VillainNodePattern))
+//                    {
+//                        to_me.add(node);
+//                    }
+////                    to_me.add(node);
+//                }
+//
+//                //If there is no source or no targets we do not have
+//                if(from_me.isEmpty() || to_me.isEmpty())
+//                    continue;
+//
+//                //Start filling the compound conflict!
+//                GrammarGraph combined_graph = new GrammarGraph();
+//                combined_graph.addNode(((StructureNodePattern) np).connected_node, false);
+//
+//                //Now lets create a subgraph! and create the simple conflicts!
+//                for(GrammarNode source_node : to_me)
+//                {
+//                    //Add source nodes to the compound graph!
+//                    combined_graph.addNode(source_node, false);
+//
+//                    for(GrammarNode target_node : from_me)
+//                    {
+//                        GrammarGraph temp = new GrammarGraph();
+//                        temp.addNode(source_node, false);
+//                        temp.addNode(((StructureNodePattern) np).connected_node, false);
+//                        temp.addNode(target_node, false);
+//
+//                        SimpleConflictPattern scp = new SimpleConflictPattern();
+//                        scp.addSubgraph(temp);
+////                        scp.pattern_subgraphs.add(temp);
+////                        scp.relevant_nodes.add(source_node);
+//
+//                        results.add(scp);
+//                    }
+//                }
+//
+//                for(GrammarNode target_node : from_me)
+//                {
+//                    //Add target nodes to the compound graph!!
+//                    combined_graph.addNode(target_node, false);
+//                }
+//
+//                CompoundConflictPattern ccp = new CompoundConflictPattern();
+//                ccp.addSubgraph(combined_graph);
+////                ccp.pattern_subgraphs.add(combined_graph);
+//                results.add(ccp);
+//
+//
+//            }
+//        }
 
 
         return results;
