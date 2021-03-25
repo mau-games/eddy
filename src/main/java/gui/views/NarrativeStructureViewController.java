@@ -442,7 +442,7 @@ public class NarrativeStructureViewController extends BorderPane implements List
 			if(filled_cells.get(ind) != null)
 			{
 				narrativeStructureDisplays.get(ind).setElite(
-						filled_cells.get(ind).GetFeasiblePopulation().get(0).getPhenotype().getGrammarGraphOutput(editedGraph, 1));
+						filled_cells.get(ind).GetFeasiblePopulation().get(0).getPhenotype().getGrammarGraphOutputBest(editedGraph, 1));
 				narrativeStructureDisplays.get(ind).setCellFitness(
 						filled_cells.get(ind).getEliteFitness());
 			}

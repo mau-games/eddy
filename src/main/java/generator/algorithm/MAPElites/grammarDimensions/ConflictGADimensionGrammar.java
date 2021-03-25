@@ -30,7 +30,7 @@ public class ConflictGADimensionGrammar extends GADimensionGrammar {
 	@Override
 	public double CalculateValue(GrammarIndividual individual, GrammarGraph target_graph)
 	{
-		GrammarGraph nStructure = individual.getPhenotype().getGrammarGraphOutput(target_graph, 1);
+		GrammarGraph nStructure = individual.getPhenotype().getGrammarGraphOutputBest(target_graph, 1);
 
 		float raw_conf = nStructure.checkAmountNodes(TVTropeType.CONFLICT, false);
 		raw_conf += nStructure.checkAmountNodes(TVTropeType.CONA, false);

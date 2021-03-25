@@ -4,11 +4,11 @@ import game.narrative.GrammarGraph;
 import generator.algorithm.GrammarIndividual;
 import util.Util;
 
-public class SizeGADimensionGrammar extends GADimensionGrammar {
+public class StepGADimensionGrammar extends GADimensionGrammar {
 
 	double patternMultiplier = 4.0;
 
-	public SizeGADimensionGrammar(float granularity)
+	public StepGADimensionGrammar(float granularity)
 	{
 		super();
 		dimension = GrammarDimensionTypes.STEP;
@@ -18,11 +18,11 @@ public class SizeGADimensionGrammar extends GADimensionGrammar {
 	@Override
 	public double CalculateValue(GrammarIndividual individual, GrammarGraph target_graph)
 	{
-		GrammarGraph nStructure = individual.getPhenotype().getGrammarGraphOutput(target_graph, 1);
+		GrammarGraph nStructure = individual.getPhenotype().getGrammarGraphOutputBest(target_graph, 1);
 
 		short dist = target_graph.distanceBetweenGraphs(nStructure);
 
-		return Math.min(1.0, ((double)dist)/10.0);
+		return Math.min(1.0, ((double)dist)/11.0);
 	}
 
 	@Override
@@ -31,7 +31,7 @@ public class SizeGADimensionGrammar extends GADimensionGrammar {
 
 		short dist = target_graph.distanceBetweenGraphs(individual_graph);
 
-		return Math.min(1.0, ((double)dist)/10.0);
+		return Math.min(1.0, ((double)dist)/11.0);
 	}
 
 	public static double getValue(GrammarGraph individual_graph)

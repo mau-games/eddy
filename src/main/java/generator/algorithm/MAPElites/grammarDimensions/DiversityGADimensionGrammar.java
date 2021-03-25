@@ -19,7 +19,7 @@ public class DiversityGADimensionGrammar extends GADimensionGrammar {
 	@Override
 	public double CalculateValue(GrammarIndividual individual, GrammarGraph target_graph)
 	{
-		GrammarGraph nStructure = individual.getPhenotype().getGrammarGraphOutput(target_graph, 1);
+		GrammarGraph nStructure = individual.getPhenotype().getGrammarGraphOutputBest(target_graph, 1);
 
 //		float diversity = nStructure.getNodeDiversity(true); //Local diversity (1 if all nodes are different)
 //		float diversity = nStructure.getNodeDiversity(false); //Global diversity (1 if the graph have as many nodes as types, and they are all different)

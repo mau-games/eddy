@@ -32,6 +32,17 @@ public class CompositeNarrativePattern extends NarrativePattern
     }
 
     /**
+     * Given that this is a Composite Pattern, we need to add the narrative patterns that compose this pattern
+     * e.g., for a SimpleConflictPattern, the patterns would be the Conflict Pattern, and Hero/Enemy Pattern
+     * for a CompoundConflictPattern, the patterns would be the set of SimpleConflictPatterns.
+     * @param np
+     */
+    public void addNarrativePattern(NarrativePattern np)
+    {
+        patterns.add(np);
+    }
+
+    /**
      * Returns a list of all pattern instances making up this pattern.
      *
      * @return A list of patterns.

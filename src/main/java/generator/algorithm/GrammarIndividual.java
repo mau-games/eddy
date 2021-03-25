@@ -23,6 +23,7 @@ public class GrammarIndividual
 //    private float
 
     private double fitness;
+    private double avg_fitness;
     protected HashMap<GADimensionGrammar.GrammarDimensionTypes, Double> dimensionValues; //This will change to specific dimensions!
 
     private GrammarGenotype genotype;
@@ -31,6 +32,9 @@ public class GrammarIndividual
     private float mutationProbability;
     private GeneratorConfig config;
 
+
+
+    private boolean is_feasible = true;
     private boolean childOfInfeasibles = false;
 
     public boolean isChildOfInfeasibles(){
@@ -54,6 +58,7 @@ public class GrammarIndividual
         this.phenotype = null;
         this.fitness = 0.0;
         this.evaluate = false;
+        this.is_feasible = true;
     }
 
     public GrammarIndividual(GeneratorConfig config, GrammarGenotype genotype, float mutationProbability)
@@ -64,6 +69,7 @@ public class GrammarIndividual
         this.fitness = 0.0;
         this.evaluate = false;
         this.mutationProbability = mutationProbability;
+        this.is_feasible = true;
     }
 
     public GrammarIndividual(GeneratorConfig config, List<GrammarPattern> chromosome, float mutationProbability)
@@ -74,6 +80,7 @@ public class GrammarIndividual
         this.fitness = 0.0;
         this.evaluate = false;
         this.mutationProbability = mutationProbability;
+        this.is_feasible = true;
     }
 
     /***
@@ -240,6 +247,25 @@ public class GrammarIndividual
     }
 
     /**
+     * Has the fitness of this Individual been evaluated yet?
+     *
+     * @return true if the fitness of this individual has already been evaluated
+     */
+    public boolean isFeasible() {
+        return is_feasible;
+    }
+
+    /**
+     * Set that this Individual has been evaluated.
+     *
+     * @param evaluate true if the fitness of this Individual has been evaluated
+     */
+    public void setFeasible(boolean feasibility){
+        this.is_feasible = feasibility;
+    }
+
+
+    /**
      * Get genotype
      *
      * @return Genotype
@@ -270,4 +296,7 @@ public class GrammarIndividual
         phenotype = null;
     }
 
+    public void setAvgFitness(double avg_fitness) {
+        this.avg_fitness = avg_fitness;
+    }
 }

@@ -36,7 +36,7 @@ public class NarrativePattern
      *
      * @return A number between 0.0 and 1.0 representing the quality of the pattern (where 1 is best)
      */
-    public double getQuality(){
+    public double getQuality(List<NarrativePattern> currentPatterns, NarrativeStructPatternFinder finder){
         return quality;
     }
 }

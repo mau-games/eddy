@@ -37,7 +37,7 @@ public class SimpleConflictPattern extends CompositeNarrativePattern
 
                 //Need to limit the non_dir connections!!!!
 
-                //These are from me
+                //These are from me  FIXME: Am I checking here for non-directional????
                 for(Map.Entry<GrammarNode, Integer> keyValue : ((StructureNodePattern) np).connected_node.connections.entrySet()) //Get Target!
                 {
                     NarrativePattern target_pat = finder.existNodeAsPattern(keyValue.getKey());
@@ -60,7 +60,7 @@ public class SimpleConflictPattern extends CompositeNarrativePattern
 //                    to_me.add(node);
                 }
 
-                //If there is no source or no targets we do not have
+                //If there is no source or no targets we do not have SimpleConflicts!
                 if(from_me.isEmpty() || to_me.isEmpty())
                     continue;
 
@@ -104,8 +104,15 @@ public class SimpleConflictPattern extends CompositeNarrativePattern
 
             }
         }
-
-
         return results;
+    }
+
+    /**
+     * Returns a measure of the quality of this pattern
+     *
+     * @return A number between 0.0 and 1.0 representing the quality of the pattern (where 1 is best)
+     */
+    public double getQuality(){
+        return quality;
     }
 }

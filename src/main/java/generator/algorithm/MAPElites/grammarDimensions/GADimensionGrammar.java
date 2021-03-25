@@ -55,7 +55,7 @@ public abstract class GADimensionGrammar
 			case CONFLICT:
 				return new ConflictGADimensionGrammar(granularity.floatValue());
 			case STEP:
-				return new SizeGADimensionGrammar(granularity.floatValue());
+				return new StepGADimensionGrammar(granularity.floatValue());
 			case DIVERSITY:
 				return new DiversityGADimensionGrammar(granularity.floatValue());
 			case TENSION:
@@ -79,7 +79,7 @@ public abstract class GADimensionGrammar
 			case CONFLICT:
 				return ConflictGADimensionGrammar.getValue(individual_grammar);
 			case STEP:
-				return SizeGADimensionGrammar.getValue(individual_grammar);
+				return StepGADimensionGrammar.getValue(individual_grammar);
 			case DIVERSITY:
 				return DiversityGADimensionGrammar.getValue(individual_grammar);
 			case TENSION:

@@ -21,10 +21,16 @@ public class GrammarPhenotype
     public LinkedHashMap<Integer, Integer> grammar_recipe;
     public LinkedHashMap<Integer, Integer> current_rnd_recipe;
 
+    public List<LinkedHashMap<Integer, Integer>> feasible_grammar_recipes;
+    public List<LinkedHashMap<Integer, Integer>> infeasible_grammar_recipes;
+
     public GrammarPhenotype(GrammarGenotype genotype)
     {
         this.config = null;
         this.genotype = genotype;
+        feasible_grammar_recipes = new ArrayList<>();
+        infeasible_grammar_recipes = new ArrayList<>();
+
     }
 //
 //    public GrammarPhenotype()
@@ -36,12 +42,88 @@ public class GrammarPhenotype
         return genotype;
     }
 
-    public void setRecipe()
+    public boolean addFeasibleRecipe()
+    {
+        LinkedHashMap<Integer, Integer> aux_recipe = new LinkedHashMap<Integer, Integer>();
+        boolean added = true;
+
+        for(LinkedHashMap<Integer, Integer> feasible : feasible_grammar_recipes)
+        {
+            added = false;
+
+            for(Map.Entry<Integer, Integer> keyValue : current_rnd_recipe.entrySet())
+            {
+                if(!feasible.containsKey(keyValue.getKey()) || !feasible.get(keyValue.getKey()).equals(keyValue.getValue()))
+                {
+                    added = true;
+                    break;
+                }
+            }
+
+            if(!added)
+                return false;
+
+        }
+
+        for(Map.Entry<Integer, Integer> keyValue : current_rnd_recipe.entrySet())
+        {
+            aux_recipe.put(keyValue.getKey(), keyValue.getValue());
+        }
+
+        feasible_grammar_recipes.add(aux_recipe);
+
+        return true;
+    }
+
+    public boolean addInfeasibleRecipe()
+    {
+        LinkedHashMap<Integer, Integer> aux_recipe = new LinkedHashMap<Integer, Integer>();
+        boolean added = true;
+
+        for(LinkedHashMap<Integer, Integer> infeasible : infeasible_grammar_recipes)
+        {
+            added = false;
+
+            for(Map.Entry<Integer, Integer> keyValue : current_rnd_recipe.entrySet())
+            {
+                // If this happens, it means we do not have that key or the key does not have that value!
+                if(!infeasible.containsKey(keyValue.getKey()) || !infeasible.get(keyValue.getKey()).equals(keyValue.getValue()))
+                {
+                    added = true;
+                    break;
+                }
+            }
+
+            if(!added)
+                return false;
+
+        }
+
+        for(Map.Entry<Integer, Integer> keyValue : current_rnd_recipe.entrySet())
+        {
+            aux_recipe.put(keyValue.getKey(), keyValue.getValue());
+        }
+
+        infeasible_grammar_recipes.add(aux_recipe);
+
+        return true;
+    }
+
+    public void setBestRecipe()
     {
         grammar_recipe = new LinkedHashMap<Integer, Integer>();
         for(Map.Entry<Integer, Integer> keyValue : current_rnd_recipe.entrySet())
         {
-            grammar_recipe.put(keyValue.getKey(), keyValue.getKey());
+            grammar_recipe.put(keyValue.getKey(), keyValue.getValue());
+        }
+    }
+
+    public void setBestRecipe(LinkedHashMap<Integer, Integer> recipe)
+    {
+        grammar_recipe = new LinkedHashMap<Integer, Integer>();
+        for(Map.Entry<Integer, Integer> keyValue : recipe.entrySet())
+        {
+            grammar_recipe.put(keyValue.getKey(), keyValue.getValue());
         }
     }
 
@@ -61,7 +143,7 @@ public class GrammarPhenotype
 
         for(Map.Entry<Integer, Integer> keyValue : current_rnd_recipe.entrySet())
         {
-            for(int i = 0; i < keyValue.getKey(); i++)
+            for(int i = 0; i < keyValue.getValue(); i++)
             {
                 patterns.get(keyValue.getKey()).match(output, 4);
             }
@@ -92,7 +174,7 @@ public class GrammarPhenotype
 
         for(Map.Entry<Integer, Integer> keyValue : grammar_recipe.entrySet())
         {
-            for(int i = 0; i < keyValue.getKey(); i++)
+            for(int i = 0; i < keyValue.getValue(); i++)
             {
                 patterns.get(keyValue.getKey()).match(output, 4);
             }
@@ -108,21 +190,44 @@ public class GrammarPhenotype
      * @param GrammarGraph the core graph!
      * @return The Map for this Genotype
      */
-    public GrammarGraph getGrammarGraphOutput(GrammarGraph coreGraph, int application)
+    public GrammarGraph getGrammarGraphOutput(GrammarGraph coreGraph, LinkedHashMap<Integer, Integer> recipe)
     {
         GrammarGraph output = new GrammarGraph(coreGraph);
         List<GrammarPattern> patterns = this.genotype.getChromosome();
 
-        for(int i = 0; i < application; i++)
+        for(Map.Entry<Integer, Integer> keyValue : recipe.entrySet())
         {
-            for(GrammarPattern pattern : patterns)
+            for(int i = 0; i < keyValue.getValue(); i++)
             {
-                pattern.match(output, 4);
+                patterns.get(keyValue.getKey()).match(output, 4);
             }
         }
 
         return output;
     }
+
+//    /**
+//     * Generates a grammar graph, applies all the rules X amount of time sequentially from the genotype!
+//     * Needs t
+//     * Therefore, algorithm should know size and doors
+//     * @param GrammarGraph the core graph!
+//     * @return The Map for this Genotype
+//     */
+//    public GrammarGraph getGrammarGraphOutput(GrammarGraph coreGraph, int application)
+//    {
+//        GrammarGraph output = new GrammarGraph(coreGraph);
+//        List<GrammarPattern> patterns = this.genotype.getChromosome();
+//
+//        for(int i = 0; i < application; i++)
+//        {
+//            for(GrammarPattern pattern : patterns)
+//            {
+//                pattern.match(output, 4);
+//            }
+//        }
+//
+//        return output;
+//    }
 
     /***
      *
@@ -165,7 +270,7 @@ public class GrammarPhenotype
         // We add randomly to the recipe.
         for(int i = 0; i < rnd_size; i++)
         {
-            int index = Util.getNextInt(min, max);
+            int index = Util.getNextInt(0, min);
             if(current_recipe.containsKey(index))
             {
                 current_recipe.put(index, current_recipe.get(index) + 1);

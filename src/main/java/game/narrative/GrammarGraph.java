@@ -184,6 +184,8 @@ public class GrammarGraph
         return others;
     }
 
+//    public List<GrammarNode> getNodesByType()
+
     /// <summary>
     /// get the index of the node in the node array in the graph
     /// </summary>

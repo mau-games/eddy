@@ -59,7 +59,7 @@ public class GrammarMAPEliteAlgorithm extends Algorithm implements Listener {
 	int cellAmounts = 1;
 	private ArrayList<GADimensionGrammar> MAPElitesDimensions;
 	private Random rnd = new Random();
-	private int iterationsToPublish = 500;
+	private int iterationsToPublish = 100;
 	private int breedingGenerations = 5; //this relates to how many generations will it breed
 	private int realCurrentGen = 0;
 	private int currentGen = 0;
@@ -86,6 +86,7 @@ public class GrammarMAPEliteAlgorithm extends Algorithm implements Listener {
 
 	GrammarGraph axiom;
 	GrammarGraph target;
+	private int recipe_iterations = 10;
 
 	public GrammarMAPEliteAlgorithm(GeneratorConfig config) {
 		super(config);
@@ -192,7 +193,7 @@ public class GrammarMAPEliteAlgorithm extends Algorithm implements Listener {
 			GrammarIndividual ind = new GrammarIndividual(mutationProbability);
 //			ind.mutateAll(0.7, roomWidth, roomHeight);
 			
-			if(checkGrammarIndividual(ind)){
+			if(evaluateGrammarIndividual(ind)){
 				if(i < feasibleAmount){
 					evaluateFeasibleGrammarIndividual(ind);
 					ind.SetDimensionValues(MAPElitesDimensions, axiom);
@@ -263,7 +264,7 @@ public class GrammarMAPEliteAlgorithm extends Algorithm implements Listener {
 			GrammarIndividual ind = new GrammarIndividual(mutationProbability);
 //			ind.mutateAll(0.7, roomWidth, roomHeight);
 
-			if(checkGrammarIndividual(ind)){
+			if(evaluateGrammarIndividual(ind)){
 				if(i < feasibleAmount){
 					evaluateFeasibleGrammarIndividual(ind);
 					ind.SetDimensionValues(MAPElitesDimensions, this.axiom);
@@ -400,10 +401,32 @@ public class GrammarMAPEliteAlgorithm extends Algorithm implements Listener {
 	protected boolean checkGrammarIndividual(GrammarIndividual ind){
 
 		//FIXME: IMPLEMENT!
+		return true;
 
-		GrammarGraph nStructure = ind.getPhenotype().getGrammarGraphOutput(axiom, 1);
+//		GrammarGraph nStructure = ind.getPhenotype().getGrammarGraphOutput(axiom, 1);
+//		int unconnectedNodes = nStructure.checkUnconnectedNodes();
+//
+//		short dist = axiom.distanceBetweenGraphs(nStructure);
+//
+//		//With this, the graph will be fully connected and always a step more than axiom!
+////		return nStructure.fullyConnectedGraph() && dist == 1;
+//
+//		return nStructure.fullyConnectedGraph();
+
+//		return unconnectedNodes <= 0;
+	}
+
+	/**
+	 *
+	 * @param ind The ZoneIndividual to check
+	 * @return Return true if ZoneIndividual is valid, otherwise return false
+	 */
+	protected boolean checkGrammarIndividual(GrammarGraph nStructure){
+
+		//FIXME: IMPLEMENT!
+
+//		GrammarGraph nStructure = ind.getPhenotype().getGrammarGraphOutput(axiom, 1);
 		int unconnectedNodes = nStructure.checkUnconnectedNodes();
-
 		short dist = axiom.distanceBetweenGraphs(nStructure);
 
 		//With this, the graph will be fully connected and always a step more than axiom!
@@ -412,8 +435,42 @@ public class GrammarMAPEliteAlgorithm extends Algorithm implements Listener {
 		return nStructure.fullyConnectedGraph();
 
 //		return unconnectedNodes <= 0;
+	}
 
+	/**
+	 * First, lets check if the random recipe is infeasible
+	 * if it is, we discard and move to the next iteration
+	 * if all the random_recipes generate infeasible individuals, we set the individual as infeasible.
+	 * if at least one recipe is feasible, we keep the individual as feasible. (this might change to a min_value).
+	 * We store all the recipes that are feasible and test for fitness.
+	 * At the same time we store all the infeasible recipes as well, to evaluate then. well actually... no it is fine! keep them.
+	 * @param ind
+	 */
+	public boolean evaluateGrammarIndividual(GrammarIndividual ind)
+	{
+		boolean feasible = false;
 
+		for(int i = 0; i < recipe_iterations; i++)
+		{
+			GrammarGraph nStructure = ind.getPhenotype().getGrammarGraphOutputRndRecipe(axiom, 1);
+			if(checkGrammarIndividual(nStructure))
+			{
+				ind.getPhenotype().addFeasibleRecipe();
+			}
+			else
+			{
+				ind.getPhenotype().addInfeasibleRecipe();
+			}
+		}
+
+		int actual_recipes = ind.getPhenotype().feasible_grammar_recipes.size() + ind.getPhenotype().infeasible_grammar_recipes.size();
+
+		// at least half of the recipes have to be feasible! (at least the ones we actually created!)
+		if(ind.getPhenotype().feasible_grammar_recipes.size() >= actual_recipes/2)
+			feasible = true; //This could change if we want to make something more based on how many!
+
+		ind.setFeasible(feasible);
+		return feasible;
 	}
 
 	/**
@@ -428,19 +485,26 @@ public class GrammarMAPEliteAlgorithm extends Algorithm implements Listener {
 	 */
 	public void evaluateFeasibleGrammarIndividual(GrammarIndividual ind)
 	{
-		GrammarGraph nStructure = ind.getPhenotype().getGrammarGraphOutput(axiom, 1);
-		double fitness = 0.0;
-		double w_any = 0.2; //Weight for the amount of "ANY" in the grammar (ANY is a wildcard)
-		double w_node_repetition = 0.3; //Weight for the node repetition count
-		int min_freq_nodes = 1; //Min freq for the node repetition
-		TVTropeType[] excluded_repeated_nodes = {TVTropeType.CONFLICT}; //Nodes to exclude from the count.
-		//TODO: Size is going to be done by the elites+
-		double w_tSize = 0.5; //Weight for the size of the resulting grammar
-		float expected_size = 4.0f; //Expected size (anything more or less than this decreases fitness)
+		List<LinkedHashMap<Integer, Integer>> feasible_grammar_recipes = ind.getPhenotype().feasible_grammar_recipes;
+		LinkedHashMap<Integer, Integer> best_recipe = null;
+		double best_fitness = Double.NEGATIVE_INFINITY;
+		double final_fitness = 0.0;
+
+		for(LinkedHashMap<Integer, Integer> feasible_recipe : feasible_grammar_recipes)
+		{
+			GrammarGraph nStructure = ind.getPhenotype().getGrammarGraphOutput(axiom, feasible_recipe);
+			double fitness = 0.0;
+			double w_any = 0.2; //Weight for the amount of "ANY" in the grammar (ANY is a wildcard)
+			double w_node_repetition = 0.3; //Weight for the node repetition count
+			int min_freq_nodes = 1; //Min freq for the node repetition
+			TVTropeType[] excluded_repeated_nodes = {TVTropeType.CONFLICT}; //Nodes to exclude from the count.
+			//TODO: Size is going to be done by the elites+
+			double w_tSize = 0.5; //Weight for the size of the resulting grammar
+			float expected_size = 4.0f; //Expected size (anything more or less than this decreases fitness)
 
 
-		//AND THEN WHAT?
-		//TESTING
+			//AND THEN WHAT?
+			//TESTING
 //		if(nStructure.nodes.get(0).getGrammarNodeType() == TVTropeType.ANY)
 //		{
 //			ind.setFitness(0.0);
@@ -449,46 +513,58 @@ public class GrammarMAPEliteAlgorithm extends Algorithm implements Listener {
 //			return;
 //		}
 
-		short dist = axiom.distanceBetweenGraphs(nStructure);
+			short dist = axiom.distanceBetweenGraphs(nStructure);
 
-		//A bit hardcore, perhaps we should scale based on how different
-		//then we could use as target one step more.
-		if(axiom.testGraphMatchPattern(nStructure))
-			fitness = 0.0;
-		else
-		{
-			//Get first how many ANY exist
-			float cumulative_any = 1.0f - nStructure.checkAmountNodes(TVTropeType.ANY, true);
+			//A bit hardcore, perhaps we should scale based on how different
+			//then we could use as target one step more.
+			if(axiom.testGraphMatchPattern(nStructure))
+				fitness = 0.0;
+			else
+			{
+				//Get first how many ANY exist
+				float cumulative_any = 1.0f - nStructure.checkAmountNodes(TVTropeType.ANY, true);
 
-			//get the right size!! -- probably for elites
-			float targetSize = expected_size - nStructure.checkGraphSize();
-			targetSize *= 0.1f;
-			targetSize = 1.0f - Math.abs(targetSize);
+				//get the right size!! -- probably for elites
+				float targetSize = expected_size - nStructure.checkGraphSize();
+				targetSize *= 0.1f;
+				targetSize = 1.0f - Math.abs(targetSize);
 
 
 //			fitness += targetSize;
 
-			//Penalize repeting nodes
-			float node_repetition = 1.0f - nStructure.SameNodes(min_freq_nodes, excluded_repeated_nodes);
+				//Penalize repeting nodes
+				float node_repetition = 1.0f - nStructure.SameNodes(min_freq_nodes, excluded_repeated_nodes);
 
-			fitness = (w_any * (cumulative_any)) + (w_tSize * targetSize) + (w_node_repetition * node_repetition);
+				fitness = (w_any * (cumulative_any)) + (w_tSize * targetSize) + (w_node_repetition * node_repetition);
+
+			}
+
+			nStructure.pattern_finder.findNarrativePatterns();
+			float structure_count = 0.0f;
+			for(NarrativePattern np : nStructure.pattern_finder.all_narrative_patterns)
+			{
+				if(np instanceof CompoundConflictPattern)
+					structure_count++;
+			}
+
+			float targetSize = expected_size - structure_count;
+			targetSize *= 0.1f;
+			fitness = 1.0f - Math.abs(targetSize);
+
+			if(fitness > best_fitness)
+			{
+				best_fitness = fitness;
+				best_recipe = feasible_recipe;
+			}
+
+			final_fitness += fitness;
 
 		}
-
-		nStructure.pattern_finder.findNarrativePatterns();
-		float structure_count = 0.0f;
-		for(NarrativePattern np : nStructure.pattern_finder.all_narrative_patterns)
-		{
-			if(np instanceof CompoundConflictPattern)
-				structure_count++;
-		}
-
-		float targetSize = expected_size - structure_count;
-		targetSize *= 0.1f;
-		fitness = 1.0f - Math.abs(targetSize);
-
-
-		ind.setFitness(fitness);
+		// We set not only the best fitness to the individual, but also the avg. of all the feasible recipes!
+		final_fitness = final_fitness/(double)feasible_grammar_recipes.size();
+		ind.setAvgFitness(final_fitness);
+		ind.setFitness(best_fitness);
+		ind.getPhenotype().setBestRecipe(best_recipe);
 //		ind.setFitness(1.0);
 		ind.setEvaluate(true);
 	}
@@ -505,48 +581,81 @@ public class GrammarMAPEliteAlgorithm extends Algorithm implements Listener {
 	 */
 	public void evaluateInfeasibleGrammarIndividual(GrammarIndividual ind)
 	{
-		GrammarGraph nStructure = ind.getPhenotype().getGrammarGraphOutput(axiom, 1);
-		double fitness = 0.0;
-		double w_any = 0.2;
-		double w_node_repetition = 0.3;
-		double w_tSize = 0.5; //Size is going to be done by the elites+
-		int min_freq_nodes = 1;
-		TVTropeType[] excluded_repeated_nodes = {TVTropeType.CONFLICT};
+		List<LinkedHashMap<Integer, Integer>> infeasible_grammar_recipes = ind.getPhenotype().infeasible_grammar_recipes;
+		LinkedHashMap<Integer, Integer> best_recipe = null;
+		double best_fitness = Double.NEGATIVE_INFINITY;
 
-		//AND THEN WHAT?
-
-		//FIXME: IT IS ALWAYS ANY!
-		if(nStructure.nodes.get(0).getGrammarNodeType() == TVTropeType.ANY)
+		for(LinkedHashMap<Integer, Integer> infeasible_recipe : infeasible_grammar_recipes)
 		{
-			ind.setFitness(0.0);
-//		ind.setFitness(1.0);
-			ind.setEvaluate(true);
-			return;
-		}
+			GrammarGraph nStructure = ind.getPhenotype().getGrammarGraphOutput(axiom, infeasible_recipe);
+			double fitness = 0.0;
+			double w_any = 0.2; //Weight for the amount of "ANY" in the grammar (ANY is a wildcard)
+			double w_node_repetition = 0.3; //Weight for the node repetition count
+			int min_freq_nodes = 1; //Min freq for the node repetition
+			TVTropeType[] excluded_repeated_nodes = {TVTropeType.CONFLICT}; //Nodes to exclude from the count.
+			//TODO: Size is going to be done by the elites+
+			double w_tSize = 0.5; //Weight for the size of the resulting grammar
+			float expected_size = 4.0f; //Expected size (anything more or less than this decreases fitness)
 
 
-		//A bit hardcore, perhaps we should scale based on how different
-		//then we could use as target one step more.
-		if(axiom.testGraphMatchPattern(nStructure))
-			fitness = 0.0;
-		else
-		{
-			//Get first how many ANY exist
-			float cumulative_any = 1.0f - nStructure.checkAmountNodes(TVTropeType.ANY, true);
+			//AND THEN WHAT?
+			//TESTING
+//		if(nStructure.nodes.get(0).getGrammarNodeType() == TVTropeType.ANY)
+//		{
+//			ind.setFitness(0.0);
+////		ind.setFitness(1.0);
+//			ind.setEvaluate(true);
+//			return;
+//		}
 
-			//get the right size!! -- probably for elites
-			float targetSize = 6.0f - nStructure.checkGraphSize();
-			targetSize *= 0.1f;
-			targetSize = 1.0f - Math.abs(targetSize);
+			short dist = axiom.distanceBetweenGraphs(nStructure);
+
+			//A bit hardcore, perhaps we should scale based on how different
+			//then we could use as target one step more.
+			if(axiom.testGraphMatchPattern(nStructure))
+				fitness = 0.0;
+			else
+			{
+				//Get first how many ANY exist
+				float cumulative_any = 1.0f - nStructure.checkAmountNodes(TVTropeType.ANY, true);
+
+				//get the right size!! -- probably for elites
+				float targetSize = expected_size - nStructure.checkGraphSize();
+				targetSize *= 0.1f;
+				targetSize = 1.0f - Math.abs(targetSize);
+
+
 //			fitness += targetSize;
 
-			//Penalize repeting nodes
-			float node_repetition = 1.0f - nStructure.SameNodes(min_freq_nodes, excluded_repeated_nodes);
+				//Penalize repeting nodes
+				float node_repetition = 1.0f - nStructure.SameNodes(min_freq_nodes, excluded_repeated_nodes);
 
-			fitness = (w_any * (cumulative_any)) + (w_tSize * targetSize) + (w_node_repetition * node_repetition);
+				fitness = (w_any * (cumulative_any)) + (w_tSize * targetSize) + (w_node_repetition * node_repetition);
+
+			}
+
+			nStructure.pattern_finder.findNarrativePatterns();
+			float structure_count = 0.0f;
+			for(NarrativePattern np : nStructure.pattern_finder.all_narrative_patterns)
+			{
+				if(np instanceof CompoundConflictPattern)
+					structure_count++;
+			}
+
+			float targetSize = expected_size - structure_count;
+			targetSize *= 0.1f;
+			fitness = 1.0f - Math.abs(targetSize);
+
+			if(fitness > best_fitness)
+			{
+				best_fitness = fitness;
+				best_recipe = infeasible_recipe;
+			}
 
 		}
-		ind.setFitness(fitness);
+
+		ind.setFitness(best_fitness);
+		ind.getPhenotype().setBestRecipe(best_recipe);
 //		ind.setFitness(1.0);
 		ind.setEvaluate(true);
 	}
@@ -1064,17 +1173,18 @@ public class GrammarMAPEliteAlgorithm extends Algorithm implements Listener {
 		
 		//We add a untouched copy of the currently edited room into the population (with the hope that it will be incorporated as an elite)
 		//FixME: THIS does not happen yet
-		GrammarIndividual ind = new GrammarIndividual(mutationProbability);
-		ind.SetDimensionValues(MAPElitesDimensions, this.axiom);
+//		GrammarIndividual ind = new GrammarIndividual(mutationProbability);
+//
+//		if(evaluateGrammarIndividual(ind))
+//		{
+//			feasibleChildren.add(ind);
+//		}
+//		else
+//		{
+//			nonFeasibleChildren.add(ind);
+//		}
 
-		 if(checkGrammarIndividual(ind))
-		 {
-			 feasibleChildren.add(ind);
-		 }
-		 else
-		 {
-			 nonFeasibleChildren.add(ind);
-		 }
+//		ind.SetDimensionValues(MAPElitesDimensions, this.axiom);
 
 		 //Check and assign the cells!
 		CheckAndAssignToCell(feasibleChildren, false);
@@ -1264,35 +1374,43 @@ public class GrammarMAPEliteAlgorithm extends Algorithm implements Listener {
 	{
 		 for (GrammarIndividual individual : individuals)
 	        {
-			 
 	        	if(infeasible)
 	        		individual.setChildOfInfeasibles(true);
-	        	
-	            if(checkGrammarIndividual(individual))
-	            {
-	            	if(infeasible)
-	            		infeasiblesMoved++;
-	            	               
-	                individual.SetDimensionValues(MAPElitesDimensions, this.axiom);
-	                evaluateFeasibleGrammarIndividual(individual);
-	                
-					for(GrammarGACell cell : cells)
-					{
-						if(cell.BelongToCell(individual, true))
-							break;
-					}
-	            }
-	            else
-	            {
+
+	        	if(individual.isEvaluated())
+				{
 					individual.SetDimensionValues(MAPElitesDimensions, this.axiom);
-					evaluateInfeasibleGrammarIndividual(individual);
-					
+
 					for(GrammarGACell cell : cells)
 					{
-						if(cell.BelongToCell(individual, false))
+						if(cell.BelongToCell(individual, individual.isFeasible()))
 							break;
 					}
-	            }
+				}
+	        	else {
+					evaluateGrammarIndividual(individual);
+
+					if(individual.isFeasible())
+					{
+						if(infeasible)
+							infeasiblesMoved++;
+
+						evaluateFeasibleGrammarIndividual(individual);
+					}
+					else
+					{
+						evaluateInfeasibleGrammarIndividual(individual);
+					}
+
+					individual.SetDimensionValues(MAPElitesDimensions, this.axiom);
+
+					for(GrammarGACell cell : cells)
+					{
+						if(cell.BelongToCell(individual, individual.isFeasible()))
+							break;
+					}
+
+				}
 	        }
 	}
 	

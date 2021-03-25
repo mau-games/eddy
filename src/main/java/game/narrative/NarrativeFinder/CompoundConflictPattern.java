@@ -14,6 +14,24 @@ import java.util.Map;
  */
 public class CompoundConflictPattern extends CompositeNarrativePattern
 {
+    /**
+     * Returns a measure of the quality of this pattern
+     *
+     * @return A number between 0.0 and 1.0 representing the quality of the pattern (where 1 is best)
+     */
+    public double getQuality(List<NarrativePattern> currentPatterns, NarrativeStructPatternFinder finder)
+    {
+        this.quality = -1.0;
+
+        //More than 1 bidirectional connection is bad! (return -1.0)
+        GrammarGraph sg = pattern_subgraphs.get(0);
+//        GrammarNode conflict_node = sg.getNodeDiversity()
+
+
+        return this.quality;
+    }
+
+
     public static List<CompositeNarrativePattern> matches(GrammarGraph narrative_graph, List<NarrativePattern> currentPatterns, NarrativeStructPatternFinder finder)
     {
         ArrayList<CompositeNarrativePattern> results = new ArrayList<CompositeNarrativePattern>();
@@ -26,13 +44,6 @@ public class CompoundConflictPattern extends CompositeNarrativePattern
         {
             if(np instanceof SimpleConflictPattern)
             {
-
-
-
-
-
-
-
 
                 //Now we search for the connections
                 List<GrammarNode> to_me = new ArrayList<GrammarNode>();
