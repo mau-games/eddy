@@ -19,13 +19,10 @@ public enum TileTypes {
 	NPC(7),
 	ITEM(8),
 	NONE(9),
-	KNIGHT(10),
-	WIZARD(11),
-	DRUID(12),
-	BOUNTYHUNTER(13),
-	BLACKSMITH(14),
-	MERCHANT(15),
-	THIEF(16);
+	SOLDIER(10),
+	MAGE(11),
+	BOUNTYHUNTER(12),
+	CIVILIAN(13);
 
 	private final int value;
 	
@@ -70,32 +67,20 @@ public enum TileTypes {
 		return value == NPC.getValue();
 	}
 	
-	public boolean isKnight() {
-		return value == KNIGHT.getValue();
+	public boolean isSoldier() {
+		return value == SOLDIER.getValue();
 	}
 	
-	public boolean isWizard() {
-		return value == WIZARD.getValue();
-	}
-	
-	public boolean isDruid() {
-		return value == DRUID.getValue();
+	public boolean isMage() {
+		return value == MAGE.getValue();
 	}
 	
 	public boolean isBountyhunter() {
 		return value == BOUNTYHUNTER.getValue();
 	}
 	
-	public boolean isBlacksmith() {
-		return value == BLACKSMITH.getValue();
-	}
-	
-	public boolean isMerchant() {
-		return value == MERCHANT.getValue();
-	}
-	
-	public boolean isThief() {
-		return value == THIEF.getValue();
+	public boolean isCivilian() {
+		return value == CIVILIAN.getValue();
 	}
 
 	/**
@@ -136,25 +121,16 @@ public enum TileTypes {
 			tile = TileTypes.ITEM;
 			break;
 		case 10:
-			tile = TileTypes.KNIGHT;
+			tile = TileTypes.SOLDIER;
 			break;
 		case 11:
-			tile = TileTypes.WIZARD;
+			tile = TileTypes.MAGE;
 			break;
 		case 12:
-			tile = TileTypes.DRUID;
-			break;
-		case 13:
 			tile = TileTypes.BOUNTYHUNTER;
 			break;
-		case 14:
-			tile = TileTypes.BLACKSMITH;
-			break;
-		case 15:
-			tile = TileTypes.MERCHANT;
-			break;
-		case 16:
-			tile = TileTypes.THIEF;
+		case 13:
+			tile = TileTypes.CIVILIAN;
 			break;
 		default:
 			tile = TileTypes.NONE;

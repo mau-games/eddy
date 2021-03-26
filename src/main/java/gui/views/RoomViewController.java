@@ -183,13 +183,10 @@ public class RoomViewController extends BorderPane implements Listener
 	@FXML private ToggleButton enemyBtn;
 	@FXML private ToggleButton bossEnemyBtn;
 	@FXML private FlowPane npcChoice;
-	@FXML private Button KnightChoice;
-	@FXML private Button WizardChoice;
-	@FXML private Button DruidChoice;
+	@FXML private Button SoldierChoice;
+	@FXML private Button MageChoice;
 	@FXML private Button BountyHunterChoice;
-	@FXML private Button BlacksmithChoice;
-	@FXML private Button MerchantChoice;
-	@FXML private Button ThiefChoice;
+	@FXML private Button CivilianChoice;
 	
 	//Brush Slider
 	@FXML private Slider brushSlider;
@@ -384,14 +381,15 @@ public class RoomViewController extends BorderPane implements Listener
 	private void initNpcPane()
 	{
 		recommendedText = new Text();
-		recommendedText.setText("Recommended NPC is a: Knight");
 		recommendedText.setFont(Font.font(12));
 		recommendedText.setFill(Color.WHITE);
-		npcChoice.getChildren().add(recommendedText);
 		npcTileList = new ArrayList<NpcTile>();
 		perfectMotiveBalance = new float[9];
-		NpcChoice();
 		SetPerfectMotiveBalance();
+		int temp = DecideRecommended();
+		RecommendNpc(temp);
+		npcChoice.getChildren().add(recommendedText);
+		NpcChoice();
 	}
 	
 	private void ProduceVerticalLabel()
@@ -1598,31 +1596,22 @@ public class RoomViewController extends BorderPane implements Listener
 		npcChoice.getChildren().stream().forEach(node -> {
 			node.addEventHandler(MouseEvent.MOUSE_CLICKED, event -> {
 				switch (((Button)event.getSource()).getId()) {
-				case "KnightChoice":
+				case "SoldierChoice":
 					if (lastNpcTile.GetType() == TileTypes.NPC) {
-						KnightTile temp = new KnightTile(lastNpcTile.GetCenterPosition(), TileTypes.KNIGHT);
+						SoldierTile temp = new SoldierTile(lastNpcTile.GetCenterPosition(), TileTypes.SOLDIER);
 						EventRouter.getInstance().postEvent(new MapQuestUpdate(lastNpcTile, temp, mapView.getMap()));
 						mapView.getMap().setTile(lastNpcTile.GetCenterPosition().getX(),lastNpcTile.GetCenterPosition().getY(), temp);
 						npcTileList.add(temp);
 						//myBrush.SetMainComponent(TileTypes.KNIGHT);
 					}
 					break;
-				case "WizardChoice":
+				case "MageChoice":
 					if (lastNpcTile.GetType() == TileTypes.NPC) {
-						WizardTile temp = new WizardTile(lastNpcTile.GetCenterPosition(), TileTypes.WIZARD);
+						MageTile temp = new MageTile(lastNpcTile.GetCenterPosition(), TileTypes.MAGE);
 						EventRouter.getInstance().postEvent(new MapQuestUpdate(lastNpcTile, temp, mapView.getMap()));
 						mapView.getMap().setTile(lastNpcTile.GetCenterPosition().getX(),lastNpcTile.GetCenterPosition().getY(), temp);
 						npcTileList.add(temp);
 						//myBrush.SetMainComponent(TileTypes.WIZARD);
-					}
-					break;
-				case "DruidChoice":
-					if (lastNpcTile.GetType() == TileTypes.NPC) {
-						DruidTile temp = new DruidTile(lastNpcTile.GetCenterPosition(), TileTypes.DRUID);
-						EventRouter.getInstance().postEvent(new MapQuestUpdate(lastNpcTile, temp, mapView.getMap()));
-						mapView.getMap().setTile(lastNpcTile.GetCenterPosition().getX(),lastNpcTile.GetCenterPosition().getY(), temp);
-						npcTileList.add(temp);
-						//myBrush.SetMainComponent(TileTypes.DRUID);
 					}
 					break;
 				case "BountyhunterChoice":
@@ -1634,38 +1623,20 @@ public class RoomViewController extends BorderPane implements Listener
 						//myBrush.SetMainComponent(TileTypes.BOUNTYHUNTER);
 					}
 					break;
-				case "BlacksmithChoice":
+				case "CivilianChoice":
 					if (lastNpcTile.GetType() == TileTypes.NPC) {
-						BlacksmithTile temp = new BlacksmithTile(lastNpcTile.GetCenterPosition(), TileTypes.BLACKSMITH);
-						EventRouter.getInstance().postEvent(new MapQuestUpdate(lastNpcTile, temp, mapView.getMap()));
-						mapView.getMap().setTile(lastNpcTile.GetCenterPosition().getX(),lastNpcTile.GetCenterPosition().getY(), temp);
-						npcTileList.add(temp);
-						//myBrush.SetMainComponent(TileTypes.BLACKSMITH);
-					}
-					break;
-				case "MerchantChoice":
-					if (lastNpcTile.GetType() == TileTypes.NPC) {
-						MerchantTile temp = new MerchantTile(lastNpcTile.GetCenterPosition(), TileTypes.MERCHANT);
+						CivilianTile temp = new CivilianTile(lastNpcTile.GetCenterPosition(), TileTypes.CIVILIAN);
 						EventRouter.getInstance().postEvent(new MapQuestUpdate(lastNpcTile, temp, mapView.getMap()));
 						mapView.getMap().setTile(lastNpcTile.GetCenterPosition().getX(),lastNpcTile.GetCenterPosition().getY(), temp);
 						npcTileList.add(temp);
 						//myBrush.SetMainComponent(TileTypes.MERCHANT);
 					}
 					break;
-				case "ThiefChoice":
-					if (lastNpcTile.GetType() == TileTypes.NPC) {
-						ThiefTile temp = new ThiefTile(lastNpcTile.GetCenterPosition(), TileTypes.THIEF);
-						EventRouter.getInstance().postEvent(new MapQuestUpdate(lastNpcTile, temp, mapView.getMap()));
-						mapView.getMap().setTile(lastNpcTile.GetCenterPosition().getX(),lastNpcTile.GetCenterPosition().getY(), temp);
-						npcTileList.add(temp);
-						//myBrush.SetMainComponent(TileTypes.THIEF);
-					}
-					break;
 				default :
 					break;
 				}
-				QuestMotives temp = DecideRecommendedText();
-				ChooseWhatIsRecommended(temp);
+				int temp = DecideRecommended();
+				RecommendNpc(temp);
 				System.out.println(((Button)event.getSource()).getId());
 				System.out.println(mapView.getMap().getTile(lastNpcTile.GetCenterPosition().getX(),lastNpcTile.GetCenterPosition().getY()).GetType());
 				updateRoom(mapView.getMap()); //TODO: Added so the room will redraw
@@ -1675,6 +1646,119 @@ public class RoomViewController extends BorderPane implements Listener
 				});
 			});
 		});
+	}
+	
+	private int DecideRecommended()
+	{
+		float[] motiveArray = new float[9];
+		for (int i = 0; i < npcTileList.size(); i++) {
+			if (npcTileList.get(i).CheckMotives(QuestMotives.KNOWLEDGE)) {
+				motiveArray[0]++;
+			} if (npcTileList.get(i).CheckMotives(QuestMotives.COMFORT)) {
+				motiveArray[1]++;
+			} if (npcTileList.get(i).CheckMotives(QuestMotives.REPUTATION)) {
+				motiveArray[2]++;
+			} if (npcTileList.get(i).CheckMotives(QuestMotives.SERENITY)) {
+				motiveArray[3]++;
+			} if (npcTileList.get(i).CheckMotives(QuestMotives.PROTECTION)) {
+				motiveArray[4]++;
+			} if (npcTileList.get(i).CheckMotives(QuestMotives.CONQUEST)) {
+				motiveArray[5]++;
+			} if (npcTileList.get(i).CheckMotives(QuestMotives.WEALTH)) {
+				motiveArray[6]++;
+			} if (npcTileList.get(i).CheckMotives(QuestMotives.ABILITY)) {
+				motiveArray[7]++;
+			} if (npcTileList.get(i).CheckMotives(QuestMotives.EQUIPMENT)) {
+				motiveArray[8]++;
+			}
+		}
+		
+		float amountOfMotives = 0;
+		
+		for (int i = 0; i < motiveArray.length; i++) {
+			amountOfMotives += motiveArray[i];
+		}
+		
+		for (int i = 0; i < motiveArray.length; i++) {
+			if (amountOfMotives != 0) {
+				motiveArray[i] = motiveArray[i] / amountOfMotives;
+			}
+		}
+		
+		List<NpcTile> tempTiles = new ArrayList<NpcTile>();
+		SoldierTile tempSoldier = new SoldierTile();
+		MageTile tempMage = new MageTile();
+		BountyhunterTile tempBountyhunter = new BountyhunterTile();
+		CivilianTile tempCivilian = new CivilianTile();
+		
+		tempTiles.add(tempSoldier);
+		tempTiles.add(tempMage);
+		tempTiles.add(tempBountyhunter);
+		tempTiles.add(tempCivilian);
+		
+		float[] NPCMotivesWeight = new float[5];
+		for (int i = 0; i < NPCMotivesWeight.length; i++) {
+			NPCMotivesWeight[i] = 0;
+		}
+		
+		for (int i = 0; i < tempTiles.size(); i++) {
+			List<QuestMotives> npcQuestMotives = new ArrayList<QuestMotives>();
+			npcQuestMotives = tempTiles.get(i).ReturnMotives();
+			
+			for (int j = 0; j < npcQuestMotives.size(); j++) {
+				float currentWeight = blast(npcQuestMotives.get(j), motiveArray);
+				
+				NPCMotivesWeight[i] += currentWeight;
+			}
+		}
+		
+		int recommendedNpcIndex = 0;
+		float currentChoice = NPCMotivesWeight[0];
+		for (int i = 1; i < NPCMotivesWeight.length; i++) {
+			if (NPCMotivesWeight[i] >= currentChoice) {
+				currentChoice = NPCMotivesWeight[i];
+				recommendedNpcIndex = i;
+			}
+		}
+		
+		return recommendedNpcIndex;
+	}
+	
+	private float blast(QuestMotives temp, float[] motiveArray)
+	{
+		float startValue = 0;
+		switch (temp) {
+		case KNOWLEDGE:
+			startValue = perfectMotiveBalance[0] - motiveArray[0];
+			break;
+		case COMFORT:
+			startValue = perfectMotiveBalance[1] - motiveArray[1];
+			break;
+		case REPUTATION:
+			startValue = perfectMotiveBalance[2] - motiveArray[2];
+			break;
+		case SERENITY:
+			startValue = perfectMotiveBalance[3] - motiveArray[3];
+			break;
+		case PROTECTION:
+			startValue = perfectMotiveBalance[4] - motiveArray[4];
+			break;
+		case CONQUEST:
+			startValue = perfectMotiveBalance[5] - motiveArray[5];
+			break;
+		case WEALTH:
+			startValue = perfectMotiveBalance[6] - motiveArray[6];
+			break;
+		case ABILITY:
+			startValue = perfectMotiveBalance[7] - motiveArray[7];
+			break;
+		case EQUIPMENT:
+			startValue = perfectMotiveBalance[8] - motiveArray[8];
+			break;
+		default:
+			break;
+		}
+		return startValue;
 	}
 	
 	private QuestMotives DecideRecommendedText()
@@ -1769,68 +1853,57 @@ public class RoomViewController extends BorderPane implements Listener
 	    return randomElement;*/
 	}
 	
+	private void RecommendNpc(int NPCindex)
+	{
+		String text = new String("");
+		
+		if (NPCindex == 0) {
+			text += "Recommended NPC: Soldier";
+		}
+		else if (NPCindex == 1) {
+			text += "Recommended NPC: Mage";
+		}
+		else if (NPCindex == 2) {
+			text += "Recommended NPC: Bountyhunter";
+		}
+		else if (NPCindex == 4) {
+			text += "Recommended NPC: Civilian";
+		}
+		recommendedText.setText(text);
+	}
+	
 	private void ChooseWhatIsRecommended(QuestMotives temp)
 	{
-		/*QuestMotives temp;
-		if (number >= 0 && number <= 18) {
-			temp = QuestMotives.KNOWLEDGE;
-		} else if (number >= 19 && number <= 20) {
-			temp = QuestMotives.COMFORT;
-		} else if (number >= 21 && number <= 26) {
-			temp = QuestMotives.REPUTATION;
-		} else if (number >= 27 && number <= 40) {
-			temp = QuestMotives.SERENITY;
-		} else if (number >= 41 && number <= 58) {
-			temp = QuestMotives.PROTECTION;
-		} else if (number >= 59 && number <= 78) {
-			temp = QuestMotives.CONQUEST;
-		} else if (number >= 79 && number <= 81) {
-			temp = QuestMotives.WEALTH;
-		} else if (number >= 82 && number <= 83) {
-			temp = QuestMotives.ABILITY;
-		} else {
-			temp = QuestMotives.EQUIPMENT;
-		} */
 		List<NpcTile> tempTiles = new ArrayList<NpcTile>();
 		
-		KnightTile tempKnight = new KnightTile();
-		WizardTile tempWizard = new WizardTile();
-		DruidTile tempDruid = new DruidTile();
+		SoldierTile tempKnight = new SoldierTile();
+		MageTile tempWizard = new MageTile();
 		BountyhunterTile tempBountyhunter = new BountyhunterTile();
-		BlacksmithTile tempBlacksmith = new BlacksmithTile();
-		MerchantTile tempMerchant = new MerchantTile();
-		ThiefTile tempThief = new ThiefTile();
+		CivilianTile tempMerchant = new CivilianTile();
+		
 		tempTiles.add(tempKnight);
 		tempTiles.add(tempWizard);
-		tempTiles.add(tempDruid);
 		tempTiles.add(tempBountyhunter);
-		tempTiles.add(tempBlacksmith);
 		tempTiles.add(tempMerchant);
-		tempTiles.add(tempThief);
+		
 		String text = new String("");
+		
 		for (int i = 0; i < tempTiles.size(); i++) {
 			if (tempTiles.get(i).CheckMotives(temp)) {
-				if (tempTiles.get(i) instanceof KnightTile) {
+				if (tempTiles.get(i) instanceof SoldierTile) {
 					if ("".equals(text)) {
-						text += "Recommended NPCs: Knight";
+						text += "Recommended NPCs: Soldier";
 						
 					}
 					else {
-						text += ", Knight";
+						text += ", Soldier";
 					}
-				} else if (tempTiles.get(i) instanceof WizardTile) {
+				} else if (tempTiles.get(i) instanceof MageTile) {
 					if ("".equals(text)) {
-						text += "Recommended NPCs: Wizard";
+						text += "Recommended NPCs: Mage";
 					}
 					else {
-						text += ", Wizard";
-					}
-				} else if (tempTiles.get(i) instanceof DruidTile) {
-					if ("".equals(text)) {
-						text += "Recommended NPCs: Druid";
-					}
-					else {
-						text += ", Druid";
+						text += ", Mage";
 					}
 				} else if (tempTiles.get(i) instanceof BountyhunterTile) {
 					if ("".equals(text)) {
@@ -1839,26 +1912,12 @@ public class RoomViewController extends BorderPane implements Listener
 					else {
 						text += ", Bountyhunter";
 					}
-				} else if (tempTiles.get(i) instanceof BlacksmithTile) {
+				} else if (tempTiles.get(i) instanceof CivilianTile) {
 					if ("".equals(text)) {
-						text += "Recommended NPCs: Blacksmith";
+						text += "Recommended NPCs: Civilian";
 					}
 					else {
-						text += ", Blacksmith";
-					}
-				} else if (tempTiles.get(i) instanceof MerchantTile) {
-					if ("".equals(text)) {
-						text += "Recommended NPCs: Merchant";
-					}
-					else {
-						text += ", Merchant";
-					}
-				} else if (tempTiles.get(i) instanceof ThiefTile) {
-					if ("".equals(text)) {
-						text += "Recommended NPCs: Thief";
-					}
-					else {
-						text += ", Thief";
+						text += ", Civilian";
 					}
 				}
 			}
@@ -1868,15 +1927,15 @@ public class RoomViewController extends BorderPane implements Listener
 	
 	private void SetPerfectMotiveBalance()
 	{
-		perfectMotiveBalance[0] = 0.183f;
-		perfectMotiveBalance[1] = 0.016f;
-		perfectMotiveBalance[2] = 0.065f;
-		perfectMotiveBalance[3] = 0.137f;
-		perfectMotiveBalance[4] = 0.182f;
-		perfectMotiveBalance[5] = 0.202f;
-		perfectMotiveBalance[6] = 0.02f;
-		perfectMotiveBalance[7] = 0.011f;
-		perfectMotiveBalance[8] = 0.185f;
+		perfectMotiveBalance[0] = 0.183f; //Knowledge
+		perfectMotiveBalance[1] = 0.016f; //Comfort
+		perfectMotiveBalance[2] = 0.065f; //Reputation
+		perfectMotiveBalance[3] = 0.137f; //Serenity
+		perfectMotiveBalance[4] = 0.182f; //Protection
+		perfectMotiveBalance[5] = 0.202f; //Conquest
+		perfectMotiveBalance[6] = 0.02f;  //Wealth
+		perfectMotiveBalance[7] = 0.011f; //Ability
+		perfectMotiveBalance[8] = 0.185f; //Equipment
 		
 	}
 	

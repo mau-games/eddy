@@ -12,7 +12,7 @@ import game.quest.Quest;
 import game.quest.actions.*;
 import game.tiles.EnemyTile;
 import game.tiles.ItemTile;
-import game.tiles.KnightTile;
+import game.tiles.SoldierTile;
 import generator.algorithm.grammar.QuestGrammar;
 import gui.controls.LabeledCanvas;
 import gui.utils.DungeonDrawer;
@@ -296,21 +296,17 @@ public class QuestViewController extends BorderPane implements Listener {
     private List<TileTypes> findTileTypeByAction() {
         List<TileTypes> typesList = new LinkedList<TileTypes>();
         switch (selectedActionType) {
-            case EXPLORE:
             case ESCORT:
-            case GO_TO:
-                typesList.add(TileTypes.FLOOR);
+                typesList.add(TileTypes.CIVILIAN);
                 break;
             case GATHER:
             	typesList.add(TileTypes.TREASURE);
+            	typesList.add(TileTypes.ITEM);
             	break;
             case EXPERIMENT:
             case READ:
             case REPAIR:
             case USE:
-            case EXCHANGE:
-            case GIVE:
-            case TAKE:
                 typesList.add(TileTypes.ITEM);
                 break;
             case LISTEN:
@@ -318,13 +314,10 @@ public class QuestViewController extends BorderPane implements Listener {
 					typesList.add(activeQuestHolder);
             	}
             	else {
-                	typesList.add(TileTypes.KNIGHT);
-                	typesList.add(TileTypes.WIZARD);
-                	typesList.add(TileTypes.DRUID);
+                	typesList.add(TileTypes.SOLDIER);
+                	typesList.add(TileTypes.MAGE);
                 	typesList.add(TileTypes.BOUNTYHUNTER);
-                	typesList.add(TileTypes.BLACKSMITH);
-                	typesList.add(TileTypes.MERCHANT);
-                	typesList.add(TileTypes.THIEF);
+                	typesList.add(TileTypes.CIVILIAN);
             	}
             	break;
             case REPORT:
@@ -343,24 +336,18 @@ public class QuestViewController extends BorderPane implements Listener {
 				}
             	
             case KILL:
-                typesList.add(TileTypes.ENEMY);
-                typesList.add(TileTypes.ENEMY_BOSS);
-                break;
             case CAPTURE:
-            case STEALTH:
             case SPY:
-                typesList.add(TileTypes.NPC);
                 typesList.add(TileTypes.ENEMY);
                 typesList.add(TileTypes.ENEMY_BOSS);
                 break;
             case DAMAGE:
                 typesList.add(TileTypes.ENEMY);
                 typesList.add(TileTypes.ENEMY_BOSS);
+                typesList.add(TileTypes.ITEM);
                 break;
             case DEFEND:
-                typesList.add(TileTypes.MERCHANT);
-                typesList.add(TileTypes.BLACKSMITH);
-                typesList.add(TileTypes.THIEF);
+                typesList.add(TileTypes.CIVILIAN);
                 break;
         }
         return typesList;
@@ -837,26 +824,17 @@ public class QuestViewController extends BorderPane implements Listener {
         else if (tile.GetType() == TileTypes.ITEM) {
 			dungeon.removeItem(tile, action.getRoom());
 		}
-        else if (tile.GetType() == TileTypes.KNIGHT && dungeon.getQuest().getActions().get(dungeon.getQuest().getActions().size() - 1).getType() == ActionType.REPORT) {
-        	dungeon.removeKnight(tile, action.getRoom());
+        else if (tile.GetType() == TileTypes.SOLDIER && dungeon.getQuest().getActions().get(dungeon.getQuest().getActions().size() - 1).getType() == ActionType.REPORT) {
+        	dungeon.removeSoldier(tile, action.getRoom());
         }
-        else if (tile.GetType() == TileTypes.WIZARD && dungeon.getQuest().getActions().get(dungeon.getQuest().getActions().size() - 1).getType() == ActionType.REPORT) {
-        	dungeon.removeWizard(tile, action.getRoom());
-        }
-        else if (tile.GetType() == TileTypes.DRUID && dungeon.getQuest().getActions().get(dungeon.getQuest().getActions().size() - 1).getType() == ActionType.REPORT) {
-        	dungeon.removeDruid(tile, action.getRoom());
+        else if (tile.GetType() == TileTypes.MAGE && dungeon.getQuest().getActions().get(dungeon.getQuest().getActions().size() - 1).getType() == ActionType.REPORT) {
+        	dungeon.removeMage(tile, action.getRoom());
         }
         else if (tile.GetType() == TileTypes.BOUNTYHUNTER && dungeon.getQuest().getActions().get(dungeon.getQuest().getActions().size() - 1).getType() == ActionType.REPORT) {
         	dungeon.removeBountyhunter(tile, action.getRoom());
         }
-        else if (tile.GetType() == TileTypes.BLACKSMITH && dungeon.getQuest().getActions().get(dungeon.getQuest().getActions().size() - 1).getType() == ActionType.REPORT) {
-        	dungeon.removeBlacksmith(tile, action.getRoom());
-        }
-        else if (tile.GetType() == TileTypes.MERCHANT && dungeon.getQuest().getActions().get(dungeon.getQuest().getActions().size() - 1).getType() == ActionType.REPORT) {
-        	dungeon.removeMerchant(tile, action.getRoom());
-        }
-        else if (tile.GetType() == TileTypes.THIEF && dungeon.getQuest().getActions().get(dungeon.getQuest().getActions().size() - 1).getType() == ActionType.REPORT) {
-        	dungeon.removeThief(tile, action.getRoom());
+        else if (tile.GetType() == TileTypes.CIVILIAN && dungeon.getQuest().getActions().get(dungeon.getQuest().getActions().size() - 1).getType() == ActionType.REPORT) {
+        	dungeon.removeCivilian(tile, action.getRoom());
         }
         else if (tile.GetType() == TileTypes.NPC && dungeon.getQuest().getActions().get(dungeon.getQuest().getActions().size() - 1).getType() == ActionType.REPORT) {
         	dungeon.removeNpc(tile, action.getRoom());
@@ -870,26 +848,17 @@ public class QuestViewController extends BorderPane implements Listener {
     	TileTypes temp = TileTypes.NONE;
     	if (tempAction.getType() != ActionType.REPORT) {
     		switch (tiletype) {
-    		case KNIGHT:
-    			temp = TileTypes.KNIGHT;
+    		case SOLDIER:
+    			temp = TileTypes.SOLDIER;
     			break;
-    		case WIZARD:
-    			temp = TileTypes.WIZARD;
-    			break;
-    		case DRUID:
-    			temp = TileTypes.DRUID;
+    		case MAGE:
+    			temp = TileTypes.MAGE;
     			break;
     		case BOUNTYHUNTER:
     			temp = TileTypes.BOUNTYHUNTER;
     			break;
-    		case BLACKSMITH:
-    			temp = TileTypes.BLACKSMITH;
-    			break;
-    		case MERCHANT:
-    			temp = TileTypes.MERCHANT;
-    			break;
-    		case THIEF:
-    			temp = TileTypes.THIEF;
+    		case CIVILIAN:
+    			temp = TileTypes.CIVILIAN;
     			break;
     		default:
     			break;
@@ -906,14 +875,11 @@ public class QuestViewController extends BorderPane implements Listener {
     	TileTypes temp = TileTypes.NONE;
     	if (tempAction.getType() != ActionType.REPORT) {
 	    	switch (tiletype) {
-			case KNIGHT:
-				temp = TileTypes.KNIGHT;
+			case SOLDIER:
+				temp = TileTypes.SOLDIER;
 				break;
-			case WIZARD:
-				temp = TileTypes.WIZARD;
-				break;
-			case DRUID:
-				temp = TileTypes.DRUID;
+			case MAGE:
+				temp = TileTypes.MAGE;
 				break;
 			case BOUNTYHUNTER:
 				temp = TileTypes.BOUNTYHUNTER;
@@ -933,7 +899,7 @@ public class QuestViewController extends BorderPane implements Listener {
 			activeQuestHolder = TileTypes.NONE;
 			active = false;
 		}
-    	else if (remembered) {
+        if (remembered) {
 			rememberedQuestHolder = TileTypes.NONE;
 			remembered = false;
 		}

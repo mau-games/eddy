@@ -75,9 +75,9 @@ public class BountyhunterTile extends NpcTile{
     private void AddQuestMotives()
     {
         questMotiveList = new ArrayList<QuestMotives>();
-        questMotiveList.add(QuestMotives.PROTECTION);
-        questMotiveList.add(QuestMotives.CONQUEST);
-        questMotiveList.add(QuestMotives.SERENITY);
+        questMotiveList.add(QuestMotives.WEALTH);
+        questMotiveList.add(QuestMotives.REPUTATION);
+        questMotiveList.add(QuestMotives.KNOWLEDGE);
     }
 
 //    @Override

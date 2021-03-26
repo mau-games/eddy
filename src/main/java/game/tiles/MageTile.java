@@ -9,47 +9,49 @@ import game.TileTypes;
 import generator.algorithm.grammar.QuestGrammar.QuestMotives;
 import gui.controls.Brush;
 
-public class KnightTile extends NpcTile{
-	List<QuestMotives> questMotiveList;
-	public KnightTile()
+public class MageTile extends NpcTile{
+	
+    List<QuestMotives> questMotiveList;
+	
+	public MageTile()
     {
-        m_type = TileTypes.KNIGHT;
+        m_type = TileTypes.MAGE;
         setBrushUsage();
         AddQuestMotives();
     }
 
-    public KnightTile(Point p, TileTypes type)
+    public MageTile(Point p, TileTypes type)
     {
         super(p, type);
         setBrushUsage();
         AddQuestMotives();
     }
 
-    public KnightTile(int x, int y, TileTypes type)
+    public MageTile(int x, int y, TileTypes type)
     {
         super(x, y, type);
         setBrushUsage();
         AddQuestMotives();
     }
 
-    public KnightTile(Point p, int typeValue)
+    public MageTile(Point p, int typeValue)
     {
         super(p, typeValue);
         setBrushUsage();
         AddQuestMotives();
     }
 
-    public KnightTile(int x, int y, int typeValue)
+    public MageTile(int x, int y, int typeValue)
     {
         super(x, y, typeValue);
         setBrushUsage();
         AddQuestMotives();
     }
 
-    public KnightTile(Tile copyTile)
+    public MageTile(Tile copyTile)
     {
         super(copyTile);
-        m_type = TileTypes.KNIGHT;
+        m_type = TileTypes.MAGE;
         setBrushUsage();
         AddQuestMotives();
     }
@@ -73,11 +75,11 @@ public class KnightTile extends NpcTile{
     private void AddQuestMotives()
     {
         questMotiveList = new ArrayList<QuestMotives>();
-        questMotiveList.add(QuestMotives.PROTECTION);
-        questMotiveList.add(QuestMotives.EQUIPMENT);
-        questMotiveList.add(QuestMotives.CONQUEST);
-        questMotiveList.add(QuestMotives.REPUTATION);
+        questMotiveList.add(QuestMotives.KNOWLEDGE);
         questMotiveList.add(QuestMotives.SERENITY);
+        questMotiveList.add(QuestMotives.COMFORT);
+        questMotiveList.add(QuestMotives.ABILITY);
+        questMotiveList.add(QuestMotives.CONQUEST);
     }
 
 //    @Override

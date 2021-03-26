@@ -153,23 +153,16 @@ public class WorldViewCanvas
 										.filter(point -> walkableTilesPoints.stream().anyMatch(point::equals))
 										.collect(Collectors.toList()));
 						break;
-					case KNIGHT:
+					case SOLDIER:
 						questBitmap
-								.AddAllPoints(owner.knightTiles.getPoints()
+								.AddAllPoints(owner.soldierTiles.getPoints()
 										.stream()
 										.filter(point -> walkableTilesPoints.stream().anyMatch(point::equals))
 										.collect(Collectors.toList()));
 						break;
-					case WIZARD:
+					case MAGE:
 						questBitmap
-								.AddAllPoints(owner.wizardTiles.getPoints()
-										.stream()
-										.filter(point -> walkableTilesPoints.stream().anyMatch(point::equals))
-										.collect(Collectors.toList()));
-						break;
-					case DRUID:
-						questBitmap
-								.AddAllPoints(owner.druidTiles.getPoints()
+								.AddAllPoints(owner.mageTiles.getPoints()
 										.stream()
 										.filter(point -> walkableTilesPoints.stream().anyMatch(point::equals))
 										.collect(Collectors.toList()));
@@ -181,23 +174,9 @@ public class WorldViewCanvas
 										.filter(point -> walkableTilesPoints.stream().anyMatch(point::equals))
 										.collect(Collectors.toList()));
 						break;
-					case BLACKSMITH:
+					case CIVILIAN:
 						questBitmap
-								.AddAllPoints(owner.blacksmithTiles.getPoints()
-										.stream()
-										.filter(point -> walkableTilesPoints.stream().anyMatch(point::equals))
-										.collect(Collectors.toList()));
-						break;
-					case MERCHANT:
-						questBitmap
-								.AddAllPoints(owner.merchantTiles.getPoints()
-										.stream()
-										.filter(point -> walkableTilesPoints.stream().anyMatch(point::equals))
-										.collect(Collectors.toList()));
-						break;
-					case THIEF:
-						questBitmap
-								.AddAllPoints(owner.thiefTiles.getPoints()
+								.AddAllPoints(owner.civilianTiles.getPoints()
 										.stream()
 										.filter(point -> walkableTilesPoints.stream().anyMatch(point::equals))
 										.collect(Collectors.toList()));
@@ -234,9 +213,7 @@ public class WorldViewCanvas
 			tileCanvas.setVisible(doublePos);
 			if (doublePos) {
 				questBitmap.clearAllPoints();
-				questBitmap.AddAllPoints(owner.merchantTiles.getPoints());
-				questBitmap.AddAllPoints(owner.thiefTiles.getPoints());
-				questBitmap.AddAllPoints(owner.blacksmithTiles.getPoints());
+				questBitmap.AddAllPoints(owner.civilianTiles.getPoints());
 				drawTiles(Color.GREEN);
 			}
 		} else if (e instanceof RequestDisplayQuestTilePosition){

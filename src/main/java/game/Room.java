@@ -99,13 +99,10 @@ public class Room {
 	public Bitmap borders = new Bitmap();
 	public Bitmap enemyTiles = new Bitmap();
 	public Bitmap npcTiles = new Bitmap();
-	public Bitmap knightTiles = new Bitmap();
-	public Bitmap wizardTiles = new Bitmap();
-	public Bitmap druidTiles = new Bitmap();
+	public Bitmap soldierTiles = new Bitmap();
+	public Bitmap mageTiles = new Bitmap();
 	public Bitmap bountyhunterTiles = new Bitmap();
-	public Bitmap blacksmithTiles = new Bitmap();
-	public Bitmap merchantTiles = new Bitmap();
-	public Bitmap thiefTiles = new Bitmap();
+	public Bitmap civilianTiles = new Bitmap();
 	public Bitmap itemTiles = new Bitmap();
 	public Bitmap treasureTiles = new Bitmap();
 	public Bitmap bossTiles = new Bitmap();

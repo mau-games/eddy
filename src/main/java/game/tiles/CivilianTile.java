@@ -9,49 +9,49 @@ import game.TileTypes;
 import generator.algorithm.grammar.QuestGrammar.QuestMotives;
 import gui.controls.Brush;
 
-public class DruidTile extends NpcTile{
+public class CivilianTile extends NpcTile{
 	
 	List<QuestMotives> questMotiveList;
 	
-	public DruidTile()
+	public CivilianTile()
     {
-        m_type = TileTypes.DRUID;
+        m_type = TileTypes.CIVILIAN;
         setBrushUsage();
         AddQuestMotives();
     }
 
-    public DruidTile(Point p, TileTypes type)
+    public CivilianTile(Point p, TileTypes type)
     {
         super(p, type);
         setBrushUsage();
         AddQuestMotives();
     }
 
-    public DruidTile(int x, int y, TileTypes type)
+    public CivilianTile(int x, int y, TileTypes type)
     {
         super(x, y, type);
         setBrushUsage();
         AddQuestMotives();
     }
 
-    public DruidTile(Point p, int typeValue)
+    public CivilianTile(Point p, int typeValue)
     {
         super(p, typeValue);
         setBrushUsage();
         AddQuestMotives();
     }
 
-    public DruidTile(int x, int y, int typeValue)
+    public CivilianTile(int x, int y, int typeValue)
     {
         super(x, y, typeValue);
         setBrushUsage();
         AddQuestMotives();
     }
 
-    public DruidTile(Tile copyTile)
+    public CivilianTile(Tile copyTile)
     {
         super(copyTile);
-        m_type = TileTypes.DRUID;
+        m_type = TileTypes.CIVILIAN;
         setBrushUsage();
         AddQuestMotives();
     }
@@ -75,9 +75,9 @@ public class DruidTile extends NpcTile{
     private void AddQuestMotives()
     {
         questMotiveList = new ArrayList<QuestMotives>();
-        questMotiveList.add(QuestMotives.PROTECTION);
-        questMotiveList.add(QuestMotives.KNOWLEDGE);
-        questMotiveList.add(QuestMotives.ABILITY);
+        questMotiveList.add(QuestMotives.EQUIPMENT);
+        questMotiveList.add(QuestMotives.WEALTH);
+        questMotiveList.add(QuestMotives.SERENITY);
     }
 
 //    @Override

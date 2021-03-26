@@ -55,6 +55,6 @@ public class TakeAction extends ActionWithSecondPosition {
         Tile secondTile = getSecondRoom().getTile(getSecondPosition().getX(),getSecondPosition().getY());
         setPrecondition(
                 tile.GetType().isItem() ||
-                        secondTile.GetType().isMerchant());
+                        secondTile.GetType().isCivilian());
     }
 }

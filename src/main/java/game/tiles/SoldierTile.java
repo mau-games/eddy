@@ -9,49 +9,47 @@ import game.TileTypes;
 import generator.algorithm.grammar.QuestGrammar.QuestMotives;
 import gui.controls.Brush;
 
-public class MerchantTile extends NpcTile{
-	
+public class SoldierTile extends NpcTile{
 	List<QuestMotives> questMotiveList;
-	
-	public MerchantTile()
+	public SoldierTile()
     {
-        m_type = TileTypes.MERCHANT;
+        m_type = TileTypes.SOLDIER;
         setBrushUsage();
         AddQuestMotives();
     }
 
-    public MerchantTile(Point p, TileTypes type)
+    public SoldierTile(Point p, TileTypes type)
     {
         super(p, type);
         setBrushUsage();
         AddQuestMotives();
     }
 
-    public MerchantTile(int x, int y, TileTypes type)
+    public SoldierTile(int x, int y, TileTypes type)
     {
         super(x, y, type);
         setBrushUsage();
         AddQuestMotives();
     }
 
-    public MerchantTile(Point p, int typeValue)
+    public SoldierTile(Point p, int typeValue)
     {
         super(p, typeValue);
         setBrushUsage();
         AddQuestMotives();
     }
 
-    public MerchantTile(int x, int y, int typeValue)
+    public SoldierTile(int x, int y, int typeValue)
     {
         super(x, y, typeValue);
         setBrushUsage();
         AddQuestMotives();
     }
 
-    public MerchantTile(Tile copyTile)
+    public SoldierTile(Tile copyTile)
     {
         super(copyTile);
-        m_type = TileTypes.MERCHANT;
+        m_type = TileTypes.SOLDIER;
         setBrushUsage();
         AddQuestMotives();
     }
@@ -75,9 +73,10 @@ public class MerchantTile extends NpcTile{
     private void AddQuestMotives()
     {
         questMotiveList = new ArrayList<QuestMotives>();
-        questMotiveList.add(QuestMotives.EQUIPMENT);
-        questMotiveList.add(QuestMotives.CONQUEST);
+        questMotiveList.add(QuestMotives.PROTECTION);
         questMotiveList.add(QuestMotives.COMFORT);
+        questMotiveList.add(QuestMotives.CONQUEST);
+        questMotiveList.add(QuestMotives.SERENITY);
     }
 
 //    @Override

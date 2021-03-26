@@ -79,13 +79,10 @@ public class Dungeon implements Listener
 	private ArrayList<QuestPositionUpdate> npcsPositions;
 	private ArrayList<QuestPositionUpdate> itemsPositions;
 	private ArrayList<QuestPositionUpdate> treasuresPositions;
-	private ArrayList<QuestPositionUpdate> knightPositions;
-	private ArrayList<QuestPositionUpdate> wizardPositions;
-	private ArrayList<QuestPositionUpdate> druidPositions;
+	private ArrayList<QuestPositionUpdate> soldierPositions;
+	private ArrayList<QuestPositionUpdate> magePositions;
 	private ArrayList<QuestPositionUpdate> bountyhunterPositions;
-	private ArrayList<QuestPositionUpdate> blacksmithPositions;
-	private ArrayList<QuestPositionUpdate> merchantPositions;
-	private ArrayList<QuestPositionUpdate> thiefPositions;
+	private ArrayList<QuestPositionUpdate> civilianPositions;
 
 	
 	//scale factor of the (canvas) view
@@ -102,13 +99,10 @@ public class Dungeon implements Listener
 		npcsPositions = new ArrayList<QuestPositionUpdate>();
 		itemsPositions = new ArrayList<QuestPositionUpdate>();
 		treasuresPositions = new ArrayList<QuestPositionUpdate>();
-		knightPositions = new ArrayList<QuestPositionUpdate>();
-		wizardPositions = new ArrayList<QuestPositionUpdate>();
-		druidPositions = new ArrayList<QuestPositionUpdate>();
+		soldierPositions = new ArrayList<QuestPositionUpdate>();
+		magePositions = new ArrayList<QuestPositionUpdate>();
 		bountyhunterPositions = new ArrayList<QuestPositionUpdate>();
-		blacksmithPositions = new ArrayList<QuestPositionUpdate>();
-		merchantPositions = new ArrayList<QuestPositionUpdate>();
-		thiefPositions = new ArrayList<QuestPositionUpdate>();
+		civilianPositions = new ArrayList<QuestPositionUpdate>();
 	}
 	
 	public Dungeon(GeneratorConfig defaultConfig, int size, int defaultWidth, int defaultHeight)
@@ -123,13 +117,10 @@ public class Dungeon implements Listener
 		npcsPositions = new ArrayList<QuestPositionUpdate>();
 		itemsPositions = new ArrayList<QuestPositionUpdate>();
 		treasuresPositions = new ArrayList<QuestPositionUpdate>();
-		knightPositions = new ArrayList<QuestPositionUpdate>();
-		wizardPositions = new ArrayList<QuestPositionUpdate>();
-		druidPositions = new ArrayList<QuestPositionUpdate>();
+		soldierPositions = new ArrayList<QuestPositionUpdate>();
+		magePositions = new ArrayList<QuestPositionUpdate>();
 		bountyhunterPositions = new ArrayList<QuestPositionUpdate>();
-		blacksmithPositions = new ArrayList<QuestPositionUpdate>();
-		merchantPositions = new ArrayList<QuestPositionUpdate>();
-		thiefPositions = new ArrayList<QuestPositionUpdate>();
+		civilianPositions = new ArrayList<QuestPositionUpdate>();
 
 		dPane = new DungeonPane(this);
 		pathfinding = new DungeonPathFinder(this);
@@ -550,70 +541,29 @@ public class Dungeon implements Listener
 				enemyTiles.getPoint().getY() == tile.GetCenterPosition().getY());
 	}
 
-
 	public ArrayList<QuestPositionUpdate> getEnemies()
 	{
 		return enemiesPositions;
 	}
 	
-	public void addThief(ThiefTile thiefTile, Room room)
+	public void addCivilian(CivilianTile civilianTile, Room room)
 	{
-		room.thiefTiles.addPoint(thiefTile.GetCenterPosition());
-		thiefPositions.add(new QuestPositionUpdate(thiefTile.GetCenterPosition(),room, false));
+		room.civilianTiles.addPoint(civilianTile.GetCenterPosition());
+		civilianPositions.add(new QuestPositionUpdate(civilianTile.GetCenterPosition(),room, false));
 	}
 	
-	public void removeThief(Tile tile, Room room)
+	public void removeCivilian(Tile tile, Room room)
 	{
 		System.out.println("npc removed");
-		room.thiefTiles.getPoints().removeIf(point -> point.getY() == tile.GetCenterPosition().getY() &&
+		room.civilianTiles.getPoints().removeIf(point -> point.getY() == tile.GetCenterPosition().getY() &&
 				point.getX() == tile.GetCenterPosition().getX());
-		thiefPositions.removeIf(npctile -> npctile.getPoint().getX() == tile.GetCenterPosition().getX() &&
+		civilianPositions.removeIf(npctile -> npctile.getPoint().getX() == tile.GetCenterPosition().getX() &&
 				npctile.getPoint().getY() == tile.GetCenterPosition().getY());
 	}
 	
-	public ArrayList<QuestPositionUpdate> getThiefs()
+	public ArrayList<QuestPositionUpdate> getCivilians()
 	{
-		return thiefPositions;
-	}
-	
-	public void addMerchant(MerchantTile merchantTile, Room room)
-	{
-		room.merchantTiles.addPoint(merchantTile.GetCenterPosition());
-		merchantPositions.add(new QuestPositionUpdate(merchantTile.GetCenterPosition(),room, false));
-	}
-	
-	public void removeMerchant(Tile tile, Room room)
-	{
-		System.out.println("npc removed");
-		room.merchantTiles.getPoints().removeIf(point -> point.getY() == tile.GetCenterPosition().getY() &&
-				point.getX() == tile.GetCenterPosition().getX());
-		merchantPositions.removeIf(npctile -> npctile.getPoint().getX() == tile.GetCenterPosition().getX() &&
-				npctile.getPoint().getY() == tile.GetCenterPosition().getY());
-	}
-	
-	public ArrayList<QuestPositionUpdate> getMerchants()
-	{
-		return merchantPositions;
-	}
-	
-	public void addBlacksmith(BlacksmithTile blacksmithTile, Room room)
-	{
-		room.blacksmithTiles.addPoint(blacksmithTile.GetCenterPosition());
-		blacksmithPositions.add(new QuestPositionUpdate(blacksmithTile.GetCenterPosition(),room, false));
-	}
-	
-	public void removeBlacksmith(Tile tile, Room room)
-	{
-		System.out.println("npc removed");
-		room.blacksmithTiles.getPoints().removeIf(point -> point.getY() == tile.GetCenterPosition().getY() &&
-				point.getX() == tile.GetCenterPosition().getX());
-		blacksmithPositions.removeIf(npctile -> npctile.getPoint().getX() == tile.GetCenterPosition().getX() &&
-				npctile.getPoint().getY() == tile.GetCenterPosition().getY());
-	}
-	
-	public ArrayList<QuestPositionUpdate> getBlacksmiths()
-	{
-		return blacksmithPositions;
+		return civilianPositions;
 	}
 	
 	public void addBountyhunter(BountyhunterTile bountyhunterTile, Room room)
@@ -636,64 +586,44 @@ public class Dungeon implements Listener
 		return bountyhunterPositions;
 	}
 	
-	public void addDruid(DruidTile druidTile, Room room)
+	public void addMage(MageTile mageTile, Room room)
 	{
-		room.druidTiles.addPoint(druidTile.GetCenterPosition());
-		druidPositions.add(new QuestPositionUpdate(druidTile.GetCenterPosition(),room, false));
+		room.mageTiles.addPoint(mageTile.GetCenterPosition());
+		magePositions.add(new QuestPositionUpdate(mageTile.GetCenterPosition(),room, false));
 	}
 	
-	public void removeDruid(Tile tile, Room room)
+	public void removeMage(Tile tile, Room room)
 	{
 		System.out.println("npc removed");
-		room.druidTiles.getPoints().removeIf(point -> point.getY() == tile.GetCenterPosition().getY() &&
+		room.mageTiles.getPoints().removeIf(point -> point.getY() == tile.GetCenterPosition().getY() &&
 				point.getX() == tile.GetCenterPosition().getX());
-		druidPositions.removeIf(npctile -> npctile.getPoint().getX() == tile.GetCenterPosition().getX() &&
+		magePositions.removeIf(npctile -> npctile.getPoint().getX() == tile.GetCenterPosition().getX() &&
 				npctile.getPoint().getY() == tile.GetCenterPosition().getY());
 	}
 	
-	public ArrayList<QuestPositionUpdate> getDruids()
+	public ArrayList<QuestPositionUpdate> getMages()
 	{
-		return druidPositions;
+		return magePositions;
 	}
 	
-	public void addWizard(WizardTile wizardTile, Room room)
+	public void addSoldier(SoldierTile soldierTile, Room room)
 	{
-		room.wizardTiles.addPoint(wizardTile.GetCenterPosition());
-		wizardPositions.add(new QuestPositionUpdate(wizardTile.GetCenterPosition(),room, false));
+		room.soldierTiles.addPoint(soldierTile.GetCenterPosition());
+		soldierPositions.add(new QuestPositionUpdate(soldierTile.GetCenterPosition(),room, false));
 	}
 	
-	public void removeWizard(Tile tile, Room room)
+	public void removeSoldier(Tile tile, Room room)
 	{
 		System.out.println("npc removed");
-		room.wizardTiles.getPoints().removeIf(point -> point.getY() == tile.GetCenterPosition().getY() &&
+		room.soldierTiles.getPoints().removeIf(point -> point.getY() == tile.GetCenterPosition().getY() &&
 				point.getX() == tile.GetCenterPosition().getX());
-		wizardPositions.removeIf(npctile -> npctile.getPoint().getX() == tile.GetCenterPosition().getX() &&
+		soldierPositions.removeIf(npctile -> npctile.getPoint().getX() == tile.GetCenterPosition().getX() &&
 				npctile.getPoint().getY() == tile.GetCenterPosition().getY());
 	}
 	
-	public ArrayList<QuestPositionUpdate> getWizards()
+	public ArrayList<QuestPositionUpdate> getSoldiers()
 	{
-		return wizardPositions;
-	}
-	
-	public void addKnight(KnightTile knightTile, Room room)
-	{
-		room.knightTiles.addPoint(knightTile.GetCenterPosition());
-		knightPositions.add(new QuestPositionUpdate(knightTile.GetCenterPosition(),room, false));
-	}
-	
-	public void removeKnight(Tile tile, Room room)
-	{
-		System.out.println("npc removed");
-		room.knightTiles.getPoints().removeIf(point -> point.getY() == tile.GetCenterPosition().getY() &&
-				point.getX() == tile.GetCenterPosition().getX());
-		knightPositions.removeIf(npctile -> npctile.getPoint().getX() == tile.GetCenterPosition().getX() &&
-				npctile.getPoint().getY() == tile.GetCenterPosition().getY());
-	}
-	
-	public ArrayList<QuestPositionUpdate> getKnights()
-	{
-		return knightPositions;
+		return soldierPositions;
 	}
 
 	public void addNpc(NpcTile npcTile, Room room)
@@ -757,7 +687,7 @@ public class Dungeon implements Listener
 	public int getAllNpcs()
 	{
 		int exactNumberOfNpcs;
-		exactNumberOfNpcs = getKnights().size() + getWizards().size() + getDruids().size() + getBountyHunters().size() + getBlacksmiths().size() + getMerchants().size() + getThiefs().size();
+		exactNumberOfNpcs = getSoldiers().size() + getMages().size() + getBountyHunters().size() + getCivilians().size();
 		return exactNumberOfNpcs;
 	}
 

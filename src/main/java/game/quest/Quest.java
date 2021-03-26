@@ -108,50 +108,12 @@ public class Quest {
     public void checkForAvailableActions(){
         availableActions.clear();
         //final int hasItem = owner.getItems().size();
-        final int hasNPC = owner.getNpcs().size();
-        final int hasKnight = owner.getKnights().size();
-        final int hasWizard = owner.getWizards().size();
-        final int hasDruid = owner.getDruids().size();
-        final int hasBountyHunter = owner.getBountyHunters().size();
-        final int hasBlacksmith = owner.getBlacksmiths().size();
-        final int hasMerchant = owner.getMerchants().size();
-        final int hasThief = owner.getThiefs().size();
+        final int hasNpc = owner.getAllNpcs();
         //final int hasEnemies = owner.getEnemies().size() + owner.getBossesPositions().size();
         
 		if (actions.size() == 0) {
-			if (hasKnight > 0) {
-	        	availableActions.add(ActionType.LISTEN);
-	            return;
-			}
-	        if (hasWizard > 0) {
-	        	availableActions.add(ActionType.LISTEN);
-	            return;
-			}
-	        if (hasDruid > 0) {
-	        	availableActions.add(ActionType.LISTEN);
-	            return;
-			}
-	        if (hasBountyHunter > 0) {
-	        	availableActions.add(ActionType.LISTEN);
-	            return;
-			}
-	        if (hasBlacksmith > 0) {
-	        	availableActions.add(ActionType.LISTEN);
-	            return;
-			}
-	        if (hasMerchant > 0) {
-	        	availableActions.add(ActionType.LISTEN);
-	            return;
-			}
-	        if (hasThief > 0) {
-	        	availableActions.add(ActionType.LISTEN);
-	            return;
-			}
-	        
-	        if (hasNPC > 0){
+	        if (hasNpc > 0){
 	            availableActions.add(ActionType.LISTEN);
-	            //availableActions.add(ActionType.REPORT);
-	            //availableActions.add(ActionType.ESCORT);
 	            return;
 	        }
 		}
@@ -207,20 +169,14 @@ public class Quest {
                     owner.removeTreasure(new TreasureTile(prev),update.getRoom());
                 } else if (prev.GetType().isEnemyBoss()) {
                     owner.removeBoss(new BossEnemyTile(prev), update.getRoom());
-                } else if (prev.GetType().isKnight()) {
-                    owner.removeKnight(new KnightTile(prev), update.getRoom());
-                } else if (prev.GetType().isWizard()) {
-                    owner.removeWizard(new WizardTile(prev), update.getRoom());
-                } else if (prev.GetType().isDruid()) {
-                    owner.removeDruid(new DruidTile(prev), update.getRoom());
+                } else if (prev.GetType().isSoldier()) {
+                    owner.removeSoldier(new SoldierTile(prev), update.getRoom());
+                } else if (prev.GetType().isMage()) {
+                    owner.removeMage(new MageTile(prev), update.getRoom());
                 } else if (prev.GetType().isBountyhunter()) {
                     owner.removeBountyhunter(new BountyhunterTile(prev), update.getRoom());
-                } else if (prev.GetType().isBlacksmith()) {
-                    owner.removeBlacksmith(new BlacksmithTile(prev), update.getRoom());
-                } else if (prev.GetType().isMerchant()) {
-                    owner.removeMerchant(new MerchantTile(prev), update.getRoom());
-                } else if (prev.GetType().isThief()) {
-                    owner.removeThief(new ThiefTile(prev), update.getRoom());
+                } else if (prev.GetType().isCivilian()) {
+                    owner.removeCivilian(new CivilianTile(prev), update.getRoom());
                 }
 
                 Tile next = update.getNext();
@@ -235,20 +191,14 @@ public class Quest {
                     owner.addTreasure(new TreasureTile(next),update.getRoom());
                 } else if (next.GetType().isEnemyBoss()) {
                     owner.addBoss(new BossEnemyTile(prev), update.getRoom());
-                } else if (next.GetType().isKnight()) {
-                    owner.addKnight(new KnightTile(next), update.getRoom());
-				} else if (next.GetType().isWizard()) {
-                    owner.addWizard(new WizardTile(next), update.getRoom());
-				} else if (next.GetType().isDruid()) {
-                    owner.addDruid(new DruidTile(next), update.getRoom());
+                } else if (next.GetType().isSoldier()) {
+                    owner.addSoldier(new SoldierTile(next), update.getRoom());
+				} else if (next.GetType().isMage()) {
+                    owner.addMage(new MageTile(next), update.getRoom());
 				} else if (next.GetType().isBountyhunter()) {
                     owner.addBountyhunter(new BountyhunterTile(next), update.getRoom());
-				} else if (next.GetType().isBlacksmith()) {
-                    owner.addBlacksmith(new BlacksmithTile(next), update.getRoom());
-				} else if (next.GetType().isMerchant()) {
-                    owner.addMerchant(new MerchantTile(next), update.getRoom());
-				} else if (next.GetType().isThief()) {
-                    owner.addThief(new ThiefTile(next), update.getRoom());
+				} else if (next.GetType().isCivilian()) {
+                    owner.addCivilian(new CivilianTile(next), update.getRoom());
 				}
             }
             checkCurrentActions();
@@ -318,68 +268,52 @@ public class Quest {
         final int hasItem = owner.getItems().size();
         final int hasEnemies = owner.getEnemies().size() + owner.getBossesPositions().size();
         final int hasTreasures = owner.getTreasures().size();
-        final int hasCivilians = owner.getThiefs().size() + owner.getMerchants().size() + owner.getBlacksmiths().size();
+        final int hasCivilians = owner.getCivilians().size();
         
-    	if (tempTileType == TileTypes.KNIGHT) {
+    	if (tempTileType == TileTypes.SOLDIER) {
 			if (hasCivilians > 0){
 	            availableActions.add(ActionType.DEFEND);
+	            availableActions.add(ActionType.ESCORT);
 	        }
 			if (hasEnemies > 0) {
 	            availableActions.add(ActionType.DAMAGE);
-	            availableActions.add(ActionType.KILL);
 	            availableActions.add(ActionType.CAPTURE);
 			}
 		}
-		else if (tempTileType == TileTypes.WIZARD) {
+		else if (tempTileType == TileTypes.MAGE) {
 			if (hasItem > 0){
 	            availableActions.add(ActionType.EXPERIMENT);
+	            availableActions.add(ActionType.USE);
 	            availableActions.add(ActionType.READ);
-	            availableActions.add(ActionType.USE);
-	        }
-		}
-		else if (tempTileType == TileTypes.DRUID) {
-			if (hasItem > 0){
-	            availableActions.add(ActionType.EXPERIMENT);
-	            availableActions.add(ActionType.USE);
+	            availableActions.add(ActionType.DAMAGE);
 			}
-			if (hasTreasures > 0) {
-	            availableActions.add(ActionType.GATHER);
+			if (hasCivilians > 0) {
+				availableActions.add(ActionType.DEFEND);
+			}
+			if (hasEnemies > 0) {
+	            availableActions.add(ActionType.DAMAGE);
 			}
 				
 		}
 		else if (tempTileType == TileTypes.BOUNTYHUNTER) {
-			if (hasEnemies > 0 || hasCivilians > 0) {
+			if (hasEnemies > 0) {
 				availableActions.add(ActionType.SPY);
-				availableActions.add(ActionType.STEALTH);
-			}
-			if (hasItem > 0 && hasCivilians > 0) {
-				availableActions.add(ActionType.TAKE);
 			}
 			if (hasEnemies > 0) {
 				availableActions.add(ActionType.KILL);
-				availableActions.add(ActionType.CAPTURE);
-			}
-		}
-		else if (tempTileType == TileTypes.BLACKSMITH) {
-			if (hasItem > 0) {
-				availableActions.add(ActionType.REPAIR);
 			}
 			if (hasTreasures > 0) {
 				availableActions.add(ActionType.GATHER);
 			}
-			availableActions.add(ActionType.ESCORT);
 		}
-		else if (tempTileType == TileTypes.MERCHANT) {
-			if (hasItem > 0 && hasCivilians > 0) {
-				availableActions.add(ActionType.EXCHANGE);
+		else if (tempTileType == TileTypes.CIVILIAN) {
+			if (hasTreasures > 0) {
+				availableActions.add(ActionType.GATHER);
+			}
+			if (hasItem > 0) {
+				availableActions.add(ActionType.REPAIR);
 			}
 			availableActions.add(ActionType.ESCORT);
-		}
-		else if (tempTileType == TileTypes.THIEF) {
-			if (hasItem > 0 && hasCivilians > 0) {
-				availableActions.add(ActionType.TAKE);
-				availableActions.add(ActionType.GIVE);
-			}
 		}
     }
 }
