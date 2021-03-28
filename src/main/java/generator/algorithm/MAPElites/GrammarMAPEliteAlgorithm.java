@@ -418,7 +418,7 @@ public class GrammarMAPEliteAlgorithm extends Algorithm implements Listener {
 
 	/**
 	 *
-	 * @param ind The ZoneIndividual to check
+	 * @param nStructure The Grammar to check!
 	 * @return Return true if ZoneIndividual is valid, otherwise return false
 	 */
 	protected boolean checkGrammarIndividual(GrammarGraph nStructure){
@@ -426,13 +426,31 @@ public class GrammarMAPEliteAlgorithm extends Algorithm implements Listener {
 		//FIXME: IMPLEMENT!
 
 //		GrammarGraph nStructure = ind.getPhenotype().getGrammarGraphOutput(axiom, 1);
+		ArrayList<NarrativePattern> patterns = nStructure.pattern_finder.findNarrativePatterns();
 		int unconnectedNodes = nStructure.checkUnconnectedNodes();
 		short dist = axiom.distanceBetweenGraphs(nStructure);
 
 		//With this, the graph will be fully connected and always a step more than axiom!
 //		return nStructure.fullyConnectedGraph() && dist == 1;
 
-		return nStructure.fullyConnectedGraph();
+//		return nStructure.fullyConnectedGraph();
+
+		//Calculate your things with the patterns!
+		boolean self_conflicts = false;
+
+		for(NarrativePattern np : patterns)
+		{
+			if(np instanceof CompoundConflictPattern)
+			{
+				self_conflicts = ((CompoundConflictPattern) np).getSelfConflictCount() > 1;
+				if(self_conflicts)
+					break;
+			}
+		}
+
+
+		return nStructure.fullyConnectedGraph() && !self_conflicts;
+
 
 //		return unconnectedNodes <= 0;
 	}

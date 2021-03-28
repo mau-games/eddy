@@ -31,7 +31,7 @@ import java.util.stream.Collectors;
 public class NarrativeStructPatternFinder {
 
 	private GrammarGraph narrative_graph;
-	public List<NarrativePattern> all_narrative_patterns;
+	public ArrayList<NarrativePattern> all_narrative_patterns;
 	private List<StructureNodePattern> structure_nodes;
 	private List<Structure> structures; //this is going to be a composite structure (a set of subgraphs)
 	private List<PlotPoint> plot_points;
@@ -47,7 +47,7 @@ public class NarrativeStructPatternFinder {
 	 */
 	public NarrativeStructPatternFinder(GrammarGraph narrative_graph) {
 		this.narrative_graph = narrative_graph;
-//		spacialPatternGrid = new SpacialPattern[room.getRowCount()][room.getColCount()];
+		this.all_narrative_patterns = new ArrayList<NarrativePattern>();
 	}
 
 	/**
@@ -108,7 +108,7 @@ public class NarrativeStructPatternFinder {
 		return list;
 	}
 
-	public void findNarrativePatterns()
+	public ArrayList<NarrativePattern>  findNarrativePatterns()
 	{
 		/***
 		 * We need to collect all the possible patterns within a graph.
@@ -123,14 +123,28 @@ public class NarrativeStructPatternFinder {
 		 * 		- Tasks
 		 * 		- Obstacles
 		 * 		- Side/main goals (better related as kernels and satelites) - although, this is more for quests
+		 * 			- Side goals I can only see it as when adding plot devices faktist.
 		 */
 
-		all_narrative_patterns = new ArrayList<NarrativePattern>();
+		if(!all_narrative_patterns.isEmpty())
+			return all_narrative_patterns;
 
+		all_narrative_patterns = new ArrayList<NarrativePattern>();
 		structure_nodes = new ArrayList<StructureNodePattern>();
+
+		//First, find all the Basic Narrative Patterns (i.e., micro-patterns)
 		all_narrative_patterns.addAll(StructureNodePattern.matches(narrative_graph));
 		all_narrative_patterns.addAll(HeroNodePattern.matches(narrative_graph));
 		all_narrative_patterns.addAll(VillainNodePattern.matches(narrative_graph));
+
+		//Now get all the connections of basic patterns!
+		for(NarrativePattern np : all_narrative_patterns)
+		{
+			if(np instanceof BasicNarrativePattern)
+				((BasicNarrativePattern) np).storeAllConnections(narrative_graph, this);
+		}
+
+		// Now lets start getting the composite ones! (i.e., meso-patterns)
 		all_narrative_patterns.addAll(SimpleConflictPattern.matches(narrative_graph, all_narrative_patterns, this));
 //		all_narrative_patterns.addAll(CompoundConflictPattern.matches(narrative_graph, all_narrative_patterns));
 //		all_narrative_patterns.addAll(PlotPoint.matches(narrative_graph));
@@ -144,6 +158,10 @@ public class NarrativeStructPatternFinder {
 
 		plot_devices = new ArrayList<PlotDevice>();
 //		all_narrative_patterns.addAll(PlotDevice.matches(narrative_graph));
+
+		for(NarrativePattern np : all_narrative_patterns)
+			np.calculateQuality(all_narrative_patterns, this);
+
 
 		/*
 		 * Do this:
@@ -165,6 +183,8 @@ public class NarrativeStructPatternFinder {
 //		micropatterns.addAll(Nothing.matches(room, null)); // This MUST come last
 //
 //		return micropatterns;
+
+		return all_narrative_patterns;
 	}
 //
 //	// TODO: Implement this

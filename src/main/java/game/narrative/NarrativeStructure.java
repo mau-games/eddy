@@ -49,17 +49,25 @@ public class NarrativeStructure {
     private void runPatternFinderExperiment()
     {
         GrammarGraph test_graph = new GrammarGraph();
-        GrammarNode a1 = test_graph.addNode(TVTropeType.MHQ);
+        GrammarNode a1 = test_graph.addNode(TVTropeType.HERO);
         GrammarNode b1 = test_graph.addNode(TVTropeType.CONFLICT);
         GrammarNode c1 = test_graph.addNode(TVTropeType.ENEMY);
         GrammarNode d1 = test_graph.addNode(TVTropeType.SH);
         GrammarNode e1 = test_graph.addNode(TVTropeType.CONFLICT);
 
-        a1.addConnection(b1, 1);
+        //Hero - Conflict
+        a1.addConnection(b1, 2);
+        a1.addConnection(d1, 1);
+        //Conflict - Enemy
         b1.addConnection(c1, 1);
+
+        //SH - Conflict
         d1.addConnection(b1, 1);
 
+        //ENEMY - Conflict_2
         c1.addConnection(e1, 1);
+
+        //Conflict_2 - SH
         e1.addConnection(d1, 1);
 
         test_graph.pattern_finder.findNarrativePatterns();
@@ -251,6 +259,8 @@ public class NarrativeStructure {
     public NarrativeStructure()
     {
         runPatternFinderExperiment();
+        if(true)
+            return;
 
 //        runTestRemoveNode_Connections();
 //        runTestGhostConns_RepeatedID();

@@ -19,16 +19,46 @@ public class CompoundConflictPattern extends CompositeNarrativePattern
      *
      * @return A number between 0.0 and 1.0 representing the quality of the pattern (where 1 is best)
      */
-    public double getQuality(List<NarrativePattern> currentPatterns, NarrativeStructPatternFinder finder)
+    public double calculateQuality(List<NarrativePattern> currentPatterns, NarrativeStructPatternFinder finder)
     {
         this.quality = -1.0;
 
+        //How many conflicts is this compound confict?
+//        System.out.println("#Conflicts: " + patterns.size());
+//
+//        //What is the best way to get bidirectional connections to conflict?
+//        // Probably you could check the connections within the subgraphs of the SimpleConflicts
+//        // but actually, you can just check the SimpleConflicts and Source and Target should be the same!
+//        for(NarrativePattern simple_conflict : patterns)
+//        {
+//            if(simple_conflict instanceof SimpleConflictPattern) //They are, but sanity check!
+//            {
+//                System.out.println("This Simple conflict is self conflict: " + ((SimpleConflictPattern) simple_conflict).isSelfConflict());
+//            }
+//        }
+
         //More than 1 bidirectional connection is bad! (return -1.0)
-        GrammarGraph sg = pattern_subgraphs.get(0);
+//        GrammarGraph sg = pattern_subgraphs.get(0);
 //        GrammarNode conflict_node = sg.getNodeDiversity()
 
 
         return this.quality;
+    }
+
+    public int getConflictCount() {return patterns.size();}
+    public int getSelfConflictCount()
+    {
+        int self_conflict = 0;
+
+        for(NarrativePattern simple_conflict : patterns)
+        {
+            if(simple_conflict instanceof SimpleConflictPattern && ((SimpleConflictPattern) simple_conflict).isSelfConflict()) //They are, but sanity check!
+            {
+                self_conflict++;
+            }
+        }
+
+        return self_conflict;
     }
 
 

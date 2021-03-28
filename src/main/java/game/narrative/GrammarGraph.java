@@ -184,6 +184,27 @@ public class GrammarGraph
         return others;
     }
 
+    public HashMap<GrammarNode, Integer> getAllConnectionsTypesToNode(GrammarNode nodeToCheck, boolean directional)
+    {
+        HashMap<GrammarNode, Integer> others = new HashMap<GrammarNode, Integer>();
+
+        for(GrammarNode other : nodes)
+        {
+            if(other == nodeToCheck)
+                continue;
+
+            else if(other.checkConnectionExists(nodeToCheck))
+            {
+                if(directional && other.connections.get(nodeToCheck) == 0)
+                    continue;
+
+                others.put(other, other.connections.get(nodeToCheck));
+            }
+        }
+
+        return others;
+    }
+
 //    public List<GrammarNode> getNodesByType()
 
     /// <summary>
