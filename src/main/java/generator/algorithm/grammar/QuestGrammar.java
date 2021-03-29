@@ -466,25 +466,7 @@ public class QuestGrammar {
 
         List<Map<String, Float>> maps = new LinkedList<>();
         List<ActionType> availableOptions = new LinkedList<>();
-        availableOptions.add(ActionType.CAPTURE);
-        availableOptions.add(ActionType.DAMAGE);
-        availableOptions.add(ActionType.DEFEND);
-        availableOptions.add(ActionType.ESCORT);
-        availableOptions.add(ActionType.EXCHANGE);
-        availableOptions.add(ActionType.EXPERIMENT);
-        availableOptions.add(ActionType.EXPLORE);
-        availableOptions.add(ActionType.GATHER);
-        availableOptions.add(ActionType.GIVE);
-        availableOptions.add(ActionType.GO_TO);
-        availableOptions.add(ActionType.KILL);
         availableOptions.add(ActionType.LISTEN);
-        availableOptions.add(ActionType.READ);
-        availableOptions.add(ActionType.REPAIR);
-        availableOptions.add(ActionType.REPORT);
-        availableOptions.add(ActionType.SPY);
-        availableOptions.add(ActionType.TAKE);
-        availableOptions.add(ActionType.STEALTH);
-        availableOptions.add(ActionType.USE);
 
         int limitLength = 146;//averageLimit: 146
         int questResolution = 60000000; //5000000
