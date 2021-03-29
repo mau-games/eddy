@@ -1,0 +1,9 @@
+{
+  "<QUEST>": [
+    [ "<knowledge>" ]
+  ],
+  "<knowledge>": [
+    [ "Listen", "use", "report" ],
+    [ "Listen", "read", "report" ]
+  ]
+}

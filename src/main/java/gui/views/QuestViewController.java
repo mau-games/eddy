@@ -158,6 +158,12 @@ public class QuestViewController extends BorderPane implements Listener {
                                                 Action action = addQuestAction(toggleButton, questCount);
                                                 addVisualQuestPaneAction(action, paneCount - 1);
                                                 toggleButton.setSelected(false);
+                                                Tile tile = action.getRoom().getTile(action.getPosition().getX(), action.getPosition().getY());
+                                                CheckUsedTile(tile, action);
+                                                activeNpc(tile.GetType(), action);
+                                                rememberNpc(tile.GetType(), action );
+                                                dungeon.getQuest().checkForAvailableActions(action, tile.GetType(), activeQuestHolder, rememberedQuestHolder);
+                                                RefreshPanel();
                                                 added.set(true);
                                             }
                                         });

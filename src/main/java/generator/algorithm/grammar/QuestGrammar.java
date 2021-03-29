@@ -2,6 +2,7 @@ package generator.algorithm.grammar;
 
 import com.google.gson.*;
 import game.Dungeon;
+import game.Tile;
 import game.quest.Action;
 import game.quest.ActionType;
 import game.quest.ActionWithSecondPosition;
@@ -30,11 +31,12 @@ public class QuestGrammar {
         EQUIPMENT
     }
 
-    private final static String defaultConfig = "config/quest_rules.json";
+    private final static String defaultConfig = "config/npc_rules.json";
     private static Map<String, List<List<String>>> rules = new LinkedHashMap<>();
     private Dungeon owner;
     public final static String START_VALUE = "<QUEST>";
-    public final static String[] Motives = {"<KNOWLEDGE>","<COMFORT>","<REPUTATION>","<SERENITY>","<PROTECTION>","<CONQUEST>","<WEALTH>","<ABILITY>","<EQUIPMENT>"};
+    //public final static String[] Motives = {"<KNOWLEDGE>","<COMFORT>","<REPUTATION>","<SERENITY>","<PROTECTION>","<CONQUEST>","<WEALTH>","<ABILITY>","<EQUIPMENT>"};
+    public final static String[] Motives = {"<KNOWLEDGE>"};
     private final Random random = new Random();
     public QuestGrammar(Dungeon dungeon) {
         this.owner = dungeon;
@@ -98,6 +100,7 @@ public class QuestGrammar {
                     QuestPositionUpdate position = tiles.get(random.nextInt(tiles.size()-1));
                     action.setPosition(position.getPoint());
                     action.setRoom(position.getRoom());
+                    Tile tile = position.getRoom().getTile(action.getPosition().getX(),action.getPosition().getY());
                     //needs room
                 } else {
                     //get only one
