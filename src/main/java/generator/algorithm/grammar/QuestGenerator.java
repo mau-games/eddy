@@ -142,15 +142,15 @@ public class QuestGenerator extends Thread {
     private void extractAndCompressActions(List<Quest> quests) {
         for (int i = 0; i < quests.size(); i++) {
                 int index = i;
-                if (globalQuestIndex < quests.get(i).getActions().size()) {
+                if (quests.get(i).getActions().size() == 1) {
                     //merge duplicates
                     boolean noneMatch = suggestedActions.stream()
                             .noneMatch(action ->
                                     action.getType().getValue() ==
-                                            quests.get(index).getAction(globalQuestIndex).getType().getValue());
+                                            quests.get(index).getAction(0).getType().getValue());
                     if (noneMatch){
                         //add generated suggested action
-                        suggestedActions.add(quests.get(index).getAction(globalQuestIndex));
+                        suggestedActions.add(quests.get(index).getAction(0));
                     }
                 }
             }

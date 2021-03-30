@@ -8,6 +8,7 @@ package util.eventrouting;
  */
 public abstract class PCGEvent {
 	private Object payload;
+	private Object payload2;
 	
 	/**
 	 * Sets the payload object.
@@ -17,7 +18,9 @@ public abstract class PCGEvent {
 	public void setPayload(Object payload) {
 		this.payload = payload;
 	}
-	
+	public void setPayload2(Object payload) {
+		this.payload2 = payload;
+	}
 	/**
 	 * Gets the payload from this event.
 	 * 
@@ -25,5 +28,8 @@ public abstract class PCGEvent {
 	 */
 	public Object getPayload() {
 		return payload;
+	}
+	public Object getPayload2() {
+		return payload2;
 	}
 }

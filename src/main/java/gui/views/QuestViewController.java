@@ -94,6 +94,8 @@ public class QuestViewController extends BorderPane implements Listener {
     
     private TileTypes activeQuestHolder;
     private TileTypes rememberedQuestHolder;
+    private finder.geometry.Point currentRememberedPosition;
+    private finder.geometry.Point currentActivePosition;
     private boolean active;
     private boolean remembered;
 
@@ -222,7 +224,15 @@ public class QuestViewController extends BorderPane implements Listener {
                             DungeonDrawer.getInstance().changeBrushTo(DungeonDrawer.DungeonBrushes.QUEST_POS);
                             selectedActionType = ActionType.valueOf(((ToggleButton) toolbarAction).getId());
                             List<TileTypes> types = findTileTypeByAction();
-                            router.postEvent(new RequestDisplayQuestTilesSelection(types));
+                            if (selectedActionType == ActionType.REPORT && remembered) {
+                            	router.postEvent(new RequestDisplayQuestTilesSelection2(types, currentRememberedPosition));
+							}
+                            else if (selectedActionType == ActionType.LISTEN && active) {
+                            	router.postEvent(new RequestDisplayQuestTilesSelection2(types, currentActivePosition));
+							}
+                            else {
+                                router.postEvent(new RequestDisplayQuestTilesSelection(types));
+							}
                             if (toggleHelp.isSelected()) {
                                 InformativePopupManager.getInstance().restartPopups();
                                 InformativePopupManager.getInstance()
@@ -330,16 +340,31 @@ public class QuestViewController extends BorderPane implements Listener {
             	if (activeQuestHolder != TileTypes.NONE) {
 					typesList.add(activeQuestHolder);
 					if (activeQuestHolder == rememberedQuestHolder) {
-						remembered = true;
+						active = false;
 					}
-					active = true;
+					remembered = false;
 					break;
 				}
             	if (rememberedQuestHolder != TileTypes.NONE) {
+            		typesList.add(rememberedQuestHolder);
+            		remembered = false;
+				}
+            	
+            	break;
+            	
+            	/*if (rememberedQuestHolder != TileTypes.NONE) {
 					typesList.add(rememberedQuestHolder);
 					remembered = true;
 					break;
 				}
+            	if (activeQuestHolder != TileTypes.NONE) {
+					typesList.add(activeQuestHolder);
+					if (activeQuestHolder == rememberedQuestHolder) {
+						remembered = true;
+					}
+					active = true;
+					break;
+				}*/
             	
             case KILL:
             case CAPTURE:
@@ -872,6 +897,7 @@ public class QuestViewController extends BorderPane implements Listener {
 		}
     	if (temp != TileTypes.NONE) {
 			activeQuestHolder = temp;
+			currentActivePosition = tempAction.getPosition();
 		}
     	System.out.println(activeQuestHolder.getValue());
     }
@@ -896,6 +922,7 @@ public class QuestViewController extends BorderPane implements Listener {
     	}
     	if (temp != TileTypes.NONE) {
 			rememberedQuestHolder = temp;
+			currentRememberedPosition = tempAction.getPosition();
 		}
     }
     

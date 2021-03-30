@@ -1866,7 +1866,7 @@ public class RoomViewController extends BorderPane implements Listener
 		else if (NPCindex == 2) {
 			text += "Recommended NPC: Bountyhunter";
 		}
-		else if (NPCindex == 4) {
+		else if (NPCindex == 3) {
 			text += "Recommended NPC: Civilian";
 		}
 		recommendedText.setText(text);
