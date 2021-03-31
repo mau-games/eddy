@@ -136,9 +136,9 @@ public class QuestViewController extends BorderPane implements Listener {
                                         .forEach(selected -> {
                                             ToggleButton toggleButton = (ToggleButton) selected;
                                             int questCount = dungeon.getQuest().getActions().size();
-                                            changeActiveOrRememberedNpc();
                                             if (!doublePosition && updatedPosition != null) {
                                                 Action action = addQuestAction(toggleButton, questCount);
+                                                changeActiveOrRememberedNpc(action);
                                                 addVisualQuestPaneAction(action, paneCount - 1);
                                                 toggleButton.setSelected(false);
                                                 Tile tile = action.getRoom().getTile(action.getPosition().getX(), action.getPosition().getY());
@@ -223,12 +223,29 @@ public class QuestViewController extends BorderPane implements Listener {
                         if (((ToggleButton) toolbarAction).isSelected()) {
                             DungeonDrawer.getInstance().changeBrushTo(DungeonDrawer.DungeonBrushes.QUEST_POS);
                             selectedActionType = ActionType.valueOf(((ToggleButton) toolbarAction).getId());
-                            List<TileTypes> types = findTileTypeByAction();
-                            if (selectedActionType == ActionType.REPORT && remembered) {
-                            	router.postEvent(new RequestDisplayQuestTilesSelection2(types, currentRememberedPosition));
+                            List<TileTypes> types;
+                            if (dungeon.getQuest().toIntArray().length != 0) {
+                            	types = findTileTypeByAction(dungeon.getQuest().checkIfActionIsCivilian());
 							}
-                            else if (selectedActionType == ActionType.LISTEN && active) {
-                            	router.postEvent(new RequestDisplayQuestTilesSelection2(types, currentActivePosition));
+                            else {
+                            	types = findTileTypeByAction();
+							}
+                            
+                            if (selectedActionType == ActionType.REPORT && remembered) {
+                            	if (dungeon.getQuest().checkIfActionIsCivilian() || dungeon.getQuest().checkIfLastActionWasReport()) {
+                            		router.postEvent(new RequestDisplayQuestTilesSelection2(types, currentRememberedPosition));
+								}
+                            	else {
+                            		router.postEvent(new RequestDisplayQuestTilesSelection2(types, currentActivePosition));
+								}
+							}
+                            else if (selectedActionType == ActionType.LISTEN && activeQuestHolder != null) {
+                            	if (activeQuestHolder != TileTypes.NONE) {
+                                	router.postEvent(new RequestDisplayQuestTilesSelection2(types, currentActivePosition));
+								}
+                            	else {
+                                    router.postEvent(new RequestDisplayQuestTilesSelection(types));
+    							}
 							}
                             else {
                                 router.postEvent(new RequestDisplayQuestTilesSelection(types));
@@ -309,7 +326,7 @@ public class QuestViewController extends BorderPane implements Listener {
         }
     }
 
-    private List<TileTypes> findTileTypeByAction() {
+    private List<TileTypes> findTileTypeByAction(boolean temp) {
         List<TileTypes> typesList = new LinkedList<TileTypes>();
         switch (selectedActionType) {
             case ESCORT:
@@ -337,35 +354,24 @@ public class QuestViewController extends BorderPane implements Listener {
             	}
             	break;
             case REPORT:
-            	if (activeQuestHolder != TileTypes.NONE) {
-					typesList.add(activeQuestHolder);
-					if (activeQuestHolder == rememberedQuestHolder) {
-						active = false;
+            	if (activeQuestHolder != null) {
+					if (rememberedQuestHolder != activeQuestHolder && !temp) {
+						if (activeQuestHolder != TileTypes.NONE) {
+							typesList.add(activeQuestHolder);
+							active = true;
+						}
+						else {
+							typesList.add(rememberedQuestHolder);
+							remembered = true;
+						}
 					}
-					remembered = false;
-					break;
-				}
-            	if (rememberedQuestHolder != TileTypes.NONE) {
-            		typesList.add(rememberedQuestHolder);
-            		remembered = false;
-				}
-            	
-            	break;
-            	
-            	/*if (rememberedQuestHolder != TileTypes.NONE) {
-					typesList.add(rememberedQuestHolder);
-					remembered = true;
-					break;
-				}
-            	if (activeQuestHolder != TileTypes.NONE) {
-					typesList.add(activeQuestHolder);
-					if (activeQuestHolder == rememberedQuestHolder) {
+					else {
+						typesList.add(rememberedQuestHolder);
+						active = true;
 						remembered = true;
 					}
-					active = true;
-					break;
-				}*/
-            	
+				}
+            	break;
             case KILL:
             case CAPTURE:
             case SPY:
@@ -380,6 +386,23 @@ public class QuestViewController extends BorderPane implements Listener {
             case DEFEND:
                 typesList.add(TileTypes.CIVILIAN);
                 break;
+        }
+        return typesList;
+    }
+    private List<TileTypes> findTileTypeByAction() {
+        List<TileTypes> typesList = new LinkedList<TileTypes>();
+        switch (selectedActionType) {
+            case LISTEN:
+            	if (activeQuestHolder != TileTypes.NONE && activeQuestHolder != null) {
+					typesList.add(activeQuestHolder);
+            	}
+            	else {
+                	typesList.add(TileTypes.SOLDIER);
+                	typesList.add(TileTypes.MAGE);
+                	typesList.add(TileTypes.BOUNTYHUNTER);
+                	typesList.add(TileTypes.CIVILIAN);
+            	}
+            	break;
         }
         return typesList;
     }
@@ -926,14 +949,20 @@ public class QuestViewController extends BorderPane implements Listener {
 		}
     }
     
-    private void changeActiveOrRememberedNpc()
+    private void changeActiveOrRememberedNpc(Action action)
     {
-    	if (active) {
+    	if (active && action.getType() == ActionType.REPORT) {
 			activeQuestHolder = TileTypes.NONE;
 			active = false;
 		}
-        if (remembered) {
+    	else {
+			active = false;
+		}
+        if (remembered && action.getType() == ActionType.REPORT) {
 			rememberedQuestHolder = TileTypes.NONE;
+			remembered = false;
+		}
+        else {
 			remembered = false;
 		}
     }

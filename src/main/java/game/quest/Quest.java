@@ -255,9 +255,9 @@ public class Quest {
 		}
     	return false;
     }
-    private boolean checkIfActionIsCivilian()
+    public boolean checkIfActionIsCivilian()
     {
-    	if (actions.get(actions.size() - 1).getType() == ActionType.DEFEND) {
+    	if (actions.get(actions.size() - 1).getType() == ActionType.DEFEND || actions.get(actions.size() - 1).getType() == ActionType.ESCORT) {
 			return true;
 		}
     	return false;
@@ -313,7 +313,7 @@ public class Quest {
 			if (hasItem > 0) {
 				availableActions.add(ActionType.REPAIR);
 			}
-			availableActions.add(ActionType.ESCORT);
+			//availableActions.add(ActionType.ESCORT);
 		}
     }
 }
