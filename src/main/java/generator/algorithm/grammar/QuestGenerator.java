@@ -100,9 +100,9 @@ public class QuestGenerator extends Thread {
                 //start generating new suggestions for each motive
                 for (int i = 0; i < QuestGrammar.Motives.length; i++) {
                     Quest quest = new Quest();
-                    while (quest.getActions().isEmpty()) {
+//                    while (quest.getActions().isEmpty()) {
                         grammar.expand(quest, QuestGrammar.Motives[i], availableActions, 0, limit);
-                    }
+//                    }
                     temporaryList.add(quest);
                 }
 
@@ -141,18 +141,19 @@ public class QuestGenerator extends Thread {
 
     private void extractAndCompressActions(List<Quest> quests) {
         for (int i = 0; i < quests.size(); i++) {
-                int index = i;
-                if (quests.get(i).getActions().size() == 1) {
-                    //merge duplicates
-                    boolean noneMatch = suggestedActions.stream()
-                            .noneMatch(action ->
-                                    action.getType().getValue() ==
-                                            quests.get(index).getAction(0).getType().getValue());
-                    if (noneMatch){
-                        //add generated suggested action
-                        suggestedActions.add(quests.get(index).getAction(0));
-                    }
+            int index = i;
+            //merge duplicates
+            for (int j = 0; j < quests.get(index).getActions().size(); j++) {
+            	int indexj = j;
+            	boolean noneMatch = suggestedActions.stream()
+                        .noneMatch(action ->
+                                action.getType().getValue() ==
+                                        quests.get(index).getAction(indexj).getType().getValue());
+            	if (noneMatch){
+                    //add generated suggested action
+                    suggestedActions.add(quests.get(index).getAction(indexj));
                 }
-            }
+			}
+        }
     }
 }

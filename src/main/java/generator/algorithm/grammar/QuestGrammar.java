@@ -35,8 +35,7 @@ public class QuestGrammar {
     private static Map<String, List<List<String>>> rules = new LinkedHashMap<>();
     private Dungeon owner;
     public final static String START_VALUE = "<QUEST>";
-    //public final static String[] Motives = {"<KNOWLEDGE>","<COMFORT>","<REPUTATION>","<SERENITY>","<PROTECTION>","<CONQUEST>","<WEALTH>","<ABILITY>","<EQUIPMENT>"};
-    public final static String[] Motives = {"<KNOWLEDGE>"};
+    public final static String[] Motives = {"<KNOWLEDGE>","<COMFORT>","<REPUTATION>","<SERENITY>","<PROTECTION>","<CONQUEST>","<WEALTH>","<ABILITY>","<EQUIPMENT>"};
     private final Random random = new Random();
     public QuestGrammar(Dungeon dungeon) {
         this.owner = dungeon;

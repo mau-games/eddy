@@ -1,9 +1,50 @@
 {
   "<QUEST>": [
-    [ "<knowledge>" ]
+    [ "<knowledge>" ],
+    [ "<comfort>" ],
+    [ "<reputation>" ],
+    [ "<serenity>" ],
+    [ "<protection>" ],
+    [ "<conquest>" ],
+    [ "<wealth>" ],
+    [ "<ability>" ],
+    [ "<equipment>" ]
   ],
   "<knowledge>": [
     [ "Listen", "use", "report" ],
-    [ "Listen", "read", "report" ]
+    [ "Listen", "read", "report" ],
+    [ "Listen", "spy", "report" ]
+  ],
+  "<comfort>": [
+    [ "Listen", "damage", "report"]
+  ],
+  "<reputation>": [
+    [ "Listen", "kill", "report" ]
+  ],
+  "<serenity>": [
+    [ "Listen", "damage", "report" ],
+    [ "Listen", "use", "report" ],
+    [ "Listen", "escort", "report" ],
+    [ "Listen", "capture", "report" ]
+  ],
+  "<protection>": [
+    [ "Listen", "damage", "report" ],
+    [ "Listen", "use", "report" ],
+    [ "Listen", "repair", "report" ],
+    [ "Listen", "defend", "report" ]
+  ],
+  "<conquest>": [
+    [ "Listen", "damage", "report" ]
+  ],
+  "<wealth>": [
+    [ "Listen", "gather", "report" ],
+    [ "Listen", "repair", "report" ]
+  ],
+  "<ability>": [
+    [ "Listen", "use", "report" ],
+    [ "Listen", "experiment", "report" ]
+  ],
+  "<equipment>": [
+    [ "Listen", "repair", "report" ]
   ]
 }
