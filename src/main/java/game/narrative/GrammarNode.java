@@ -117,6 +117,8 @@ public class GrammarNode {
         return false;
     }
 
+
+
     public HashMap<GrammarNode, Integer> getChildrenClone()
     {
         HashMap<GrammarNode, Integer> result = new HashMap<GrammarNode, Integer>();

@@ -282,6 +282,23 @@ public class GrammarGraph
         }
     }
 
+    /**
+     * Get all connections in the graph (size)
+     * @param filtered if filtered, we get only the connections that actually exist within the graph
+     *                 This is possible because of graph matching.
+     * @return
+     */
+    public int getAllConnections(boolean filtered)
+    {
+        int count = 0;
+        for(GrammarNode gn : nodes)
+        {
+            count += filtered ? gn.getFilteredChildrenNodes(this).size() : gn.connections.size();
+        }
+
+        return count;
+    }
+
     //TODO: NOW WE START HERE!
     public short distanceBetweenGraphs(GrammarGraph other)
     {
@@ -472,7 +489,24 @@ public class GrammarGraph
         return copy;
     }
 
-    public ArrayList<GrammarGraph> getPermutations(int size)
+    public ArrayList<GrammarGraph> getPermutationsSmart(int size, GrammarGraph pat)
+    {
+        ArrayList<GrammarGraph> nodePermutations = new ArrayList<GrammarGraph>();
+//        Stack<>
+//
+//        for(GrammarNode gn_self : this.nodes)
+//        {
+//
+//        }
+//
+//        for(GrammarNode gn_pat : pat.nodes)
+//        {
+//
+//        }
+        return nodePermutations;
+    }
+
+    public ArrayList<GrammarGraph> getPermutations(int size, GrammarGraph pattern_graph)
     {
         ArrayList<Integer> indices = new ArrayList<Integer>();
         for (int i = 0; i < this.nodes.size(); i++)
@@ -488,6 +522,10 @@ public class GrammarGraph
             for (int i = 0; i < integerPermutationsInd.size(); i++)
             {
 //                temp.nodes.add(nodes.get(integerPermutationsInd.get(i)));
+
+                if(!pattern_graph.nodes.get(i).checkNode(nodes.get(integerPermutationsInd.get(i))))
+                    break;
+
                 temp.addNode(nodes.get(integerPermutationsInd.get(i)), false);
             }
             nodePermutations.add(temp);

@@ -114,6 +114,11 @@ public class GrammarGenotype
     public void addNodeRndRule()
     {
         GrammarPattern rndRule = chromosome.get(Util.getNextInt(0, this.chromosome.size()));
+
+        // New addition, trying to limit the exploding permutations
+        if(rndRule.pattern.nodes.size() >= 3)
+            return;
+
         GrammarGraph pat = rndRule.pattern;
         pat.addNode(TVTropeType.ANY);
 

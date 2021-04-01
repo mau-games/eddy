@@ -59,7 +59,7 @@ public class GrammarMAPEliteAlgorithm extends Algorithm implements Listener {
 	int cellAmounts = 1;
 	private ArrayList<GADimensionGrammar> MAPElitesDimensions;
 	private Random rnd = new Random();
-	private int iterationsToPublish = 100;
+	private int iterationsToPublish = 50;
 	private int breedingGenerations = 5; //this relates to how many generations will it breed
 	private int realCurrentGen = 0;
 	private int currentGen = 0;
@@ -86,7 +86,7 @@ public class GrammarMAPEliteAlgorithm extends Algorithm implements Listener {
 
 	GrammarGraph axiom;
 	GrammarGraph target;
-	private int recipe_iterations = 10;
+	private int recipe_iterations = 20;
 
 	public GrammarMAPEliteAlgorithm(GeneratorConfig config) {
 		super(config);
@@ -343,16 +343,73 @@ public class GrammarMAPEliteAlgorithm extends Algorithm implements Listener {
 		
 		//now init cells again!
 		initCells(this.dimensions);
-		
+
 		//Assign everything
-		CheckAndAssignToCell(children, false);
-		CheckAndAssignToCell(nonFeasibleChildren, true);
+		AssignToCellWhenRecreate(children, false);
+		AssignToCellWhenRecreate(nonFeasibleChildren, true);
 
 		//Sort the populations in the cell and Eliminate low performing cells individuals
 		for(GrammarGACell cell : cells)
 		{
 			cell.SortPopulations(false);
 			cell.ApplyElitism();
+		}
+	}
+
+	protected void AssignToCellWhenRecreate(List<GrammarIndividual> individuals, boolean infeasible)
+	{
+		for (GrammarIndividual individual : individuals)
+		{
+			if(infeasible)
+				individual.setChildOfInfeasibles(true);
+
+			if(individual.isEvaluated())
+			{
+				individual.setEvaluate(false);
+				if(evaluatePreviousGrammarIndividual(individual))
+				{
+					if(infeasible)
+						infeasiblesMoved++;
+
+					evaluateFeasibleGrammarIndividual(individual);
+				}
+				else
+				{
+					evaluateInfeasibleGrammarIndividual(individual);
+				}
+
+				individual.SetDimensionValues(MAPElitesDimensions, this.axiom);
+
+				for(GrammarGACell cell : cells)
+				{
+					if(cell.BelongToCell(individual, individual.isFeasible()))
+						break;
+				}
+			}
+			else {
+				evaluateGrammarIndividual(individual);
+
+				if(individual.isFeasible())
+				{
+					if(infeasible)
+						infeasiblesMoved++;
+
+					evaluateFeasibleGrammarIndividual(individual);
+				}
+				else
+				{
+					evaluateInfeasibleGrammarIndividual(individual);
+				}
+
+				individual.SetDimensionValues(MAPElitesDimensions, this.axiom);
+
+				for(GrammarGACell cell : cells)
+				{
+					if(cell.BelongToCell(individual, individual.isFeasible()))
+						break;
+				}
+
+			}
 		}
 	}
 	
@@ -456,6 +513,47 @@ public class GrammarMAPEliteAlgorithm extends Algorithm implements Listener {
 	}
 
 	/**
+	 * We need to check if the previous feasible individuals are still feasible (when the axiom has changed!)
+	 * Is this really necessary? shouldn't we create just 10 random recipes again?
+	 * @return
+	 */
+	public boolean evaluatePreviousGrammarIndividual(GrammarIndividual ind)
+	{
+		boolean feasible = false;
+
+		//Evaluate all feasible and infeasible recipes
+		ArrayList<LinkedHashMap<Integer, Integer>> all_recipes = new ArrayList<>();
+		all_recipes.addAll(ind.getPhenotype().feasible_grammar_recipes);
+		all_recipes.addAll(ind.getPhenotype().infeasible_grammar_recipes);
+		ind.getPhenotype().feasible_grammar_recipes.clear();
+		ind.getPhenotype().infeasible_grammar_recipes.clear();
+
+		for(LinkedHashMap<Integer, Integer> recipe : all_recipes)
+		{
+			GrammarGraph nStructure = ind.getPhenotype().getGrammarGraphOutput(axiom, recipe);
+			if(checkGrammarIndividual(nStructure))
+			{
+				ind.getPhenotype().addFeasibleRecipe(recipe);
+			}
+			else
+			{
+				ind.getPhenotype().addInfeasibleRecipe(recipe);
+			}
+		}
+
+		int actual_recipes = ind.getPhenotype().feasible_grammar_recipes.size() + ind.getPhenotype().infeasible_grammar_recipes.size();
+
+		// at least half of the recipes have to be feasible! (at least the ones we actually created!)
+		if(ind.getPhenotype().feasible_grammar_recipes.size() >= actual_recipes/2)
+			feasible = true; //This could change if we want to make something more based on how many!
+
+		ind.setFeasible(feasible);
+		ind.setEvaluate(false);
+		return feasible;
+
+	}
+
+	/**
 	 * First, lets check if the random recipe is infeasible
 	 * if it is, we discard and move to the next iteration
 	 * if all the random_recipes generate infeasible individuals, we set the individual as infeasible.
@@ -473,11 +571,11 @@ public class GrammarMAPEliteAlgorithm extends Algorithm implements Listener {
 			GrammarGraph nStructure = ind.getPhenotype().getGrammarGraphOutputRndRecipe(axiom, 1);
 			if(checkGrammarIndividual(nStructure))
 			{
-				ind.getPhenotype().addFeasibleRecipe();
+				ind.getPhenotype().addFeasibleRecipe(null);
 			}
 			else
 			{
-				ind.getPhenotype().addInfeasibleRecipe();
+				ind.getPhenotype().addInfeasibleRecipe(null);
 			}
 		}
 

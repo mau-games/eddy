@@ -5,6 +5,7 @@ import org.checkerframework.checker.units.qual.A;
 import util.Util;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class GrammarPattern {
 
@@ -50,12 +51,25 @@ public class GrammarPattern {
 
     public void match(GrammarGraph currentGraph, int maxConnections)
     {
-        ArrayList<GrammarGraph> permutations = currentGraph.getPermutations(this.pattern.nodes.size());
+        ArrayList<GrammarGraph> permutations = currentGraph.getPermutations(this.pattern.nodes.size(), this.pattern);
 //        Collections.shuffle(permutations);
         GrammarGraph selectedSubgraph = new GrammarGraph();
+        int perm_size = permutations.size();
+
+        int pattern_graph_size = this.pattern.getAllConnections(true);
+        permutations = permutations.stream()
+                .filter(p -> p.getAllConnections(false) == pattern_graph_size)
+                .collect(Collectors.toCollection(ArrayList::new));
+
+//        if(perm_size > 1000)
+//        {
+//            System.out.println(perm_size + "; " + permutations.size());
+//        }
 
         for(GrammarGraph perm : permutations)
         {
+//            int dist = this.pattern.distanceBetweenGraphs(perm);
+
             if(this.pattern.nodes.size() > perm.nodes.size())
                 continue;
 

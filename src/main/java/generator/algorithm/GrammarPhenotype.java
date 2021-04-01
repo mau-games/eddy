@@ -42,16 +42,17 @@ public class GrammarPhenotype
         return genotype;
     }
 
-    public boolean addFeasibleRecipe()
+    public boolean addFeasibleRecipe(LinkedHashMap<Integer, Integer> checked_recipe)
     {
         LinkedHashMap<Integer, Integer> aux_recipe = new LinkedHashMap<Integer, Integer>();
         boolean added = true;
+        LinkedHashMap<Integer, Integer> test_recipe = checked_recipe != null ? checked_recipe : current_rnd_recipe;
 
         for(LinkedHashMap<Integer, Integer> feasible : feasible_grammar_recipes)
         {
             added = false;
 
-            for(Map.Entry<Integer, Integer> keyValue : current_rnd_recipe.entrySet())
+            for(Map.Entry<Integer, Integer> keyValue : test_recipe.entrySet())
             {
                 if(!feasible.containsKey(keyValue.getKey()) || !feasible.get(keyValue.getKey()).equals(keyValue.getValue()))
                 {
@@ -65,7 +66,7 @@ public class GrammarPhenotype
 
         }
 
-        for(Map.Entry<Integer, Integer> keyValue : current_rnd_recipe.entrySet())
+        for(Map.Entry<Integer, Integer> keyValue : test_recipe.entrySet())
         {
             aux_recipe.put(keyValue.getKey(), keyValue.getValue());
         }
@@ -75,16 +76,17 @@ public class GrammarPhenotype
         return true;
     }
 
-    public boolean addInfeasibleRecipe()
+    public boolean addInfeasibleRecipe(LinkedHashMap<Integer, Integer> checked_recipe)
     {
         LinkedHashMap<Integer, Integer> aux_recipe = new LinkedHashMap<Integer, Integer>();
         boolean added = true;
+        LinkedHashMap<Integer, Integer> test_recipe = checked_recipe != null ? checked_recipe : current_rnd_recipe;
 
         for(LinkedHashMap<Integer, Integer> infeasible : infeasible_grammar_recipes)
         {
             added = false;
 
-            for(Map.Entry<Integer, Integer> keyValue : current_rnd_recipe.entrySet())
+            for(Map.Entry<Integer, Integer> keyValue : test_recipe.entrySet())
             {
                 // If this happens, it means we do not have that key or the key does not have that value!
                 if(!infeasible.containsKey(keyValue.getKey()) || !infeasible.get(keyValue.getKey()).equals(keyValue.getValue()))
@@ -99,7 +101,7 @@ public class GrammarPhenotype
 
         }
 
-        for(Map.Entry<Integer, Integer> keyValue : current_rnd_recipe.entrySet())
+        for(Map.Entry<Integer, Integer> keyValue : test_recipe.entrySet())
         {
             aux_recipe.put(keyValue.getKey(), keyValue.getValue());
         }
