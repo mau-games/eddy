@@ -90,6 +90,9 @@ public class Quest {
             return true;
         }
         for (int i = 0; i < size; i++) {
+        	if (actions.get(i).getType() == ActionType.REPORT && actions.get(i).getPosition() != ((Quest) o).actions.get(i).getPosition()) {
+				return true;
+			}
             if (actions.get(i).getType().getValue() != ((Quest) o).actions.get(i).getType().getValue()){
                 return true;
             }
@@ -118,12 +121,11 @@ public class Quest {
 	        }
 		}
     }
-    
-    public void checkForAvailableActions(Action action, TileTypes tempTileType, TileTypes activeNpc, TileTypes rememberedNpc){
+    public void checkForAvailableActions(Action action, TileTypes tempTileType, Stack<TileTypes> stack){
         availableActions.clear();
         final int hasNpc = owner.getAllNpcs();
         if (checkIfLastActionWasReport()) {
-        	if (rememberedNpc != TileTypes.NONE) {
+        	if (stack.size() != 0) {
 				availableActions.add(ActionType.REPORT);
 			}
         	else if (hasNpc > 0) {
@@ -142,7 +144,7 @@ public class Quest {
 			}
 			else {
 				availableActions.add(ActionType.REPORT);
-				decideWhatActions(activeNpc);
+				decideWhatActions(stack.peek());
 			}
 		}
     }
@@ -313,7 +315,6 @@ public class Quest {
 			if (hasItem > 0) {
 				availableActions.add(ActionType.REPAIR);
 			}
-			//availableActions.add(ActionType.ESCORT);
 		}
     }
 }

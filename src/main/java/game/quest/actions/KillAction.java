@@ -13,17 +13,20 @@ import generator.algorithm.grammar.QuestGrammar.QuestMotives;
  * @author Elin Olsson
  */
 public class KillAction extends Action {
+	List<QuestMotives> questMotiveList;
     public KillAction() {
         this.setType(ActionType.KILL);
-
+        AddQuestMotives();
     }
 
     public KillAction(boolean precondition) {
         super(precondition);
+        AddQuestMotives();
     }
 
     public KillAction(ActionType type) {
         super(type);
+        AddQuestMotives();
     }
 
     @Override
@@ -35,6 +38,26 @@ public class KillAction extends Action {
                         tile.used == false
                         
         );
+    }
+    public List<QuestMotives> ReturnMotives()
+    {
+    	return questMotiveList;
+    }
+    @Override
+    public boolean CheckMotives(QuestMotives temp)
+    {
+    	for (int i = 0; i < questMotiveList.size(); i++) {
+			if (questMotiveList.get(i) == temp) {
+				return true;
+			}
+		}
+    	return false;
+    }
+    
+    private void AddQuestMotives()
+    {
+        questMotiveList = new ArrayList<QuestMotives>();
+        questMotiveList.add(QuestMotives.REPUTATION);
     }
 }
 

@@ -4,6 +4,7 @@ import finder.geometry.Point;
 import game.Room;
 import generator.algorithm.grammar.QuestGrammar.QuestMotives;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -102,4 +103,16 @@ public abstract class Action {
     }
 
     public abstract void checkConditions();
+    
+    public List<QuestMotives> ReturnMotives()
+    {
+    	List<QuestMotives> tempList = new ArrayList<QuestMotives>();
+    	tempList.add(QuestMotives.ABILITY);
+    	return tempList;
+    }
+    
+    public boolean CheckMotives(QuestMotives temp)
+    {
+    	return true;
+    }
 }

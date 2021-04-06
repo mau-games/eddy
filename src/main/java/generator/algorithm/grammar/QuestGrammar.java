@@ -2,7 +2,9 @@ package generator.algorithm.grammar;
 
 import com.google.gson.*;
 import game.Dungeon;
+import game.Room;
 import game.Tile;
+import game.TileTypes;
 import game.quest.Action;
 import game.quest.ActionType;
 import game.quest.ActionWithSecondPosition;
@@ -28,12 +30,17 @@ public class QuestGrammar {
         CONQUEST,
         WEALTH,
         ABILITY,
-        EQUIPMENT
+        EQUIPMENT,
+        NONE
     }
 
     private final static String defaultConfig = "config/npc_rules.json";
     private static Map<String, List<List<String>>> rules = new LinkedHashMap<>();
     private Dungeon owner;
+    
+    private Stack<QuestPositionUpdate> npcStack;
+    private Stack<QuestPositionUpdate> civilianStack;
+    
     public final static String START_VALUE = "<QUEST>";
     public final static String[] Motives = {"<KNOWLEDGE>","<COMFORT>","<REPUTATION>","<SERENITY>","<PROTECTION>","<CONQUEST>","<WEALTH>","<ABILITY>","<EQUIPMENT>"};
     private final Random random = new Random();
@@ -45,6 +52,9 @@ public class QuestGrammar {
     private void init() {
         String toParse = readFile(defaultConfig);
         parseJSONAndPopulateRules(toParse);
+        
+        npcStack = new Stack<QuestPositionUpdate>();
+        civilianStack = new Stack<QuestPositionUpdate>();
     }
 
     public Quest expand(Quest toExpand, String value){
@@ -147,6 +157,7 @@ public class QuestGrammar {
                     //needs room
                 } else {
                     //get only one
+                	QuestPositionUpdate position = tiles.get(0);
                     action.setPosition(tiles.get(0).getPoint());
                     action.setRoom(tiles.get(0).getRoom());
                 }
@@ -277,10 +288,15 @@ public class QuestGrammar {
                 break;
             case LISTEN:
                 action = new ListenAction();
-                tiles.addAll(owner.getSoldiers());
-                tiles.addAll(owner.getMages());
-                tiles.addAll(owner.getBountyHunters());
-                tiles.addAll(owner.getCivilians());
+                if (civilianStack.size() != 0) {
+					tiles.add(civilianStack.peek());
+				}
+                else {
+                    tiles.addAll(owner.getSoldiers());
+                    tiles.addAll(owner.getMages());
+                    tiles.addAll(owner.getBountyHunters());
+                    tiles.addAll(owner.getCivilians());
+				}
                 if (tiles.size() > 1) {
                     QuestPositionUpdate position = tiles.get(random.nextInt(tiles.size()-1));
                     action.setPosition(position.getPoint());
@@ -288,6 +304,7 @@ public class QuestGrammar {
                     //needs room
                 } else {
                     //get only one
+                	QuestPositionUpdate position = tiles.get(0);
                     action.setPosition(tiles.get(0).getPoint());
                     action.setRoom(tiles.get(0).getRoom());
                 }
@@ -322,20 +339,12 @@ public class QuestGrammar {
                 break;
             case REPORT:
                 action = new ReportAction();
-                tiles.addAll(owner.getSoldiers());
-                tiles.addAll(owner.getMages());
-                tiles.addAll(owner.getBountyHunters());
-                tiles.addAll(owner.getCivilians());
-                if (tiles.size() > 1) {
-                    QuestPositionUpdate position = tiles.get(random.nextInt(tiles.size()-1));
+                tiles.add(npcStack.peek());
+                if (tiles != null) {
+                    QuestPositionUpdate position = tiles.get(0);
                     action.setPosition(position.getPoint());
                     action.setRoom(position.getRoom());
-                    //needs room
-                } else {
-                    //get only one
-                    action.setPosition(tiles.get(0).getPoint());
-                    action.setRoom(tiles.get(0).getRoom());
-                }
+				}
                 break;
             case SPY:
                 action = new SpyAction();
@@ -457,6 +466,35 @@ public class QuestGrammar {
         List<List<String>> listOfList = new ArrayList<>();
         rules.values().forEach(listOfList::addAll);
         return listOfList;
+    }
+    
+    public void setStacks(Stack<TileTypes> npcStack, Stack<TileTypes> civilianStack, 
+    		Stack<finder.geometry.Point> npcPosition, Stack<finder.geometry.Point> civilianPosition, 
+    		Stack<Room> npcRooms, Stack<Room> civilianRooms)
+    {
+    	
+    	Stack<QuestPositionUpdate> tempNpc = new Stack<QuestPositionUpdate>();
+    	Stack<QuestPositionUpdate> tempCivilian = new Stack<QuestPositionUpdate>();
+    	
+    	for (int i = 0; i < npcPosition.size(); i++) {
+			int x = npcPosition.get(i).getX();
+			int y = npcPosition.get(i).getY();
+			
+			finder.geometry.Point point = new finder.geometry.Point(x,y);
+			
+			tempNpc.add(new QuestPositionUpdate(point, npcRooms.get(i), false));
+		}
+    	for (int i = 0; i < civilianPosition.size(); i++) {
+    		int x = civilianPosition.get(i).getX();
+			int y = civilianPosition.get(i).getY();
+			
+			finder.geometry.Point point = new finder.geometry.Point(x,y);
+			
+			tempCivilian.add(new QuestPositionUpdate(point, civilianRooms.get(i), false));
+		}
+    	
+    	this.npcStack = tempNpc;
+    	this.civilianStack = tempCivilian;
     }
 
     public static void main(String[] args) throws IOException {
