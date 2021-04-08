@@ -260,7 +260,7 @@ public class QuestGenerator extends Thread {
 				temp = tempActions.get(i);
 			}
 		}
-		if (temp.getType() == ActionType.DEFEND || temp.getType() == ActionType.LISTEN) {
+		if (temp.getType() == ActionType.LISTEN) {
 			return temp.getType();
 		}
 		

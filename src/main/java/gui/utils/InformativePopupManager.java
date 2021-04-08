@@ -29,6 +29,9 @@ public class InformativePopupManager
 		INVALID_QUEST_POSITION,
 		DELETE_REPLACE_ACTION,
 		ADDED_ACTION,
+		NPCS_NEED_ITEM,
+		CHOOSE_NPC,
+		OUT_OF_ACTIONS
     }
 	
 	private static InformativePopupManager instance = null;
@@ -154,6 +157,14 @@ public class InformativePopupManager
 		case ADDED_ACTION:
 			text = "Action was added";
 			break;
+		case NPCS_NEED_ITEM:
+			text = "Remember that some NPCs needs an item or/and an enemy inside the dungeon for their quests to be available";
+			break;
+		case CHOOSE_NPC:
+			text = "Select a role for your NPC quest giver in the window below";
+			break;
+		case OUT_OF_ACTIONS:
+			text = "To create addtional quests, return to the room and place more objects inside the dungeon.";
 		default:
 			break;
 		}

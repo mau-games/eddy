@@ -73,6 +73,12 @@ public class QuestGrammar {
 //        System.out.println(start);
 //        System.out.println(toExpand.size());
         if (start++ <= limit && toExpand.getActions().size() < limit) {
+        	if (value == null) {
+				System.out.println("null");
+			}
+        	if (availableOptions == null || availableOptions.size() == 0) {
+        		System.out.println("null");
+			}
             boolean available = availableOptions.stream()
                     .map(Enum::toString)
                     .anyMatch(s -> s.equals(value.toUpperCase())) ||
@@ -339,11 +345,15 @@ public class QuestGrammar {
                 break;
             case REPORT:
                 action = new ReportAction();
-                tiles.add(npcStack.peek());
+                if (npcStack.size() != 0) {
+                    tiles.add(npcStack.peek());
+				}
                 if (tiles != null) {
-                    QuestPositionUpdate position = tiles.get(0);
-                    action.setPosition(position.getPoint());
-                    action.setRoom(position.getRoom());
+                	if (tiles.size() != 0) {
+                		QuestPositionUpdate position = tiles.get(0);
+                        action.setPosition(position.getPoint());
+                        action.setRoom(position.getRoom());
+					}
 				}
                 break;
             case SPY:

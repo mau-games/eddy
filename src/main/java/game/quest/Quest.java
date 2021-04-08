@@ -5,6 +5,8 @@ import game.Dungeon;
 import game.Tile;
 import game.TileTypes;
 import game.tiles.*;
+import gui.utils.InformativePopupManager;
+import gui.utils.InformativePopupManager.PresentableInformation;
 import util.eventrouting.EventRouter;
 import util.eventrouting.Listener;
 import util.eventrouting.PCGEvent;
@@ -121,7 +123,7 @@ public class Quest {
 	        }
 		}
     }
-    public void checkForAvailableActions(Action action, TileTypes tempTileType, Stack<TileTypes> stack){
+    public void checkForAvailableActions(Action action, TileTypes tempTileType, Stack<TileTypes> stack, Dungeon dungeon){
         availableActions.clear();
         final int hasNpc = owner.getAllNpcs();
         if (checkIfLastActionWasReport()) {
@@ -147,6 +149,11 @@ public class Quest {
 				decideWhatActions(stack.peek());
 			}
 		}
+		if (availableActions.size() == 0) {
+			InformativePopupManager.getInstance().restartPopups();
+			InformativePopupManager.getInstance().requestPopup(dungeon.dPane, PresentableInformation.OUT_OF_ACTIONS, "");
+		}
+		
     }
     public Quest copy(){
         return new Quest(this);

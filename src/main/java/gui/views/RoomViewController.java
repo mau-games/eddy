@@ -73,7 +73,9 @@ import javafx.scene.Group;
 import javafx.scene.Node;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
+import javafx.scene.control.ButtonType;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
@@ -1561,6 +1563,7 @@ public class RoomViewController extends BorderPane implements Listener
 				if (myBrush.GetMainComponent() == TileTypes.NPC) {
 					npcChoice.getChildren().stream().forEach(node -> {
 						node.setDisable(false);
+						InformativePopupManager.getInstance().requestPopup(mapView, PresentableInformation.CHOOSE_NPC, "");
 						
 					});
 					lastNpcTile = mapView.GetLastTile();
@@ -1602,7 +1605,6 @@ public class RoomViewController extends BorderPane implements Listener
 						EventRouter.getInstance().postEvent(new MapQuestUpdate(lastNpcTile, temp, mapView.getMap()));
 						mapView.getMap().setTile(lastNpcTile.GetCenterPosition().getX(),lastNpcTile.GetCenterPosition().getY(), temp);
 						npcTileList.add(temp);
-						//myBrush.SetMainComponent(TileTypes.KNIGHT);
 					}
 					break;
 				case "MageChoice":
@@ -1611,7 +1613,6 @@ public class RoomViewController extends BorderPane implements Listener
 						EventRouter.getInstance().postEvent(new MapQuestUpdate(lastNpcTile, temp, mapView.getMap()));
 						mapView.getMap().setTile(lastNpcTile.GetCenterPosition().getX(),lastNpcTile.GetCenterPosition().getY(), temp);
 						npcTileList.add(temp);
-						//myBrush.SetMainComponent(TileTypes.WIZARD);
 					}
 					break;
 				case "BountyhunterChoice":
@@ -1620,7 +1621,6 @@ public class RoomViewController extends BorderPane implements Listener
 						EventRouter.getInstance().postEvent(new MapQuestUpdate(lastNpcTile, temp, mapView.getMap()));
 						mapView.getMap().setTile(lastNpcTile.GetCenterPosition().getX(),lastNpcTile.GetCenterPosition().getY(), temp);
 						npcTileList.add(temp);
-						//myBrush.SetMainComponent(TileTypes.BOUNTYHUNTER);
 					}
 					break;
 				case "CivilianChoice":
@@ -1629,12 +1629,12 @@ public class RoomViewController extends BorderPane implements Listener
 						EventRouter.getInstance().postEvent(new MapQuestUpdate(lastNpcTile, temp, mapView.getMap()));
 						mapView.getMap().setTile(lastNpcTile.GetCenterPosition().getX(),lastNpcTile.GetCenterPosition().getY(), temp);
 						npcTileList.add(temp);
-						//myBrush.SetMainComponent(TileTypes.MERCHANT);
 					}
 					break;
 				default :
 					break;
 				}
+				InformativePopupManager.getInstance().requestPopup(mapView, PresentableInformation.NPCS_NEED_ITEM, "");
 				int temp = DecideRecommended();
 				RecommendNpc(temp);
 				System.out.println(((Button)event.getSource()).getId());
