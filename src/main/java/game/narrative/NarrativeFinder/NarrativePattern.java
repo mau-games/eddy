@@ -17,6 +17,8 @@ public class NarrativePattern
     protected HashMap<Integer, List<NarrativePattern>> connected_patterns; // Mainly for the Basic Patterns
     protected HashMap<Integer, List<NarrativePattern>> connected_patterns_from_me; // Mainly for the Basic Patterns
 
+    protected boolean derivative = false;
+
     public NarrativePattern()
     {
         connected_patterns = new HashMap<Integer, List<NarrativePattern>>();

@@ -40,7 +40,11 @@ public class GrammarNode {
         connections.put(otherNode, connectionType);
 
         //So bidirection or no direction
-        if(connectionType != 1)
+//        if(connectionType != 1)
+//            otherNode.addConnection(this, connectionType);
+
+        //So bidirection
+        if(connectionType > 1)
             otherNode.addConnection(this, connectionType);
 
         return true;

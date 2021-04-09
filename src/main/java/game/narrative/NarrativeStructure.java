@@ -73,6 +73,38 @@ public class NarrativeStructure {
         test_graph.pattern_finder.findNarrativePatterns();
     }
 
+    private void runDerivativePatternExperiment()
+    {
+        GrammarGraph test_graph = new GrammarGraph();
+        GrammarNode a1 = test_graph.addNode(TVTropeType.HERO);
+        GrammarNode b1 = test_graph.addNode(TVTropeType.CONFLICT);
+        GrammarNode c1 = test_graph.addNode(TVTropeType.ENEMY);
+        GrammarNode d1 = test_graph.addNode(TVTropeType.DRA);
+        GrammarNode e1 = test_graph.addNode(TVTropeType.NEO);
+        GrammarNode f1 = test_graph.addNode(TVTropeType.BAD);
+
+        //Hero - Conflict
+        a1.addConnection(b1, 1);
+        //Conflict - Enemy
+        b1.addConnection(c1, 1);
+
+        c1.addConnection(d1, 0);
+        d1.addConnection(e1, 0);
+        e1.addConnection(f1, 0);
+//        c1.addConnection(d1, 0);
+
+//        //SH - Conflict
+//        d1.addConnection(b1, 1);
+//
+//        //ENEMY - Conflict_2
+//        c1.addConnection(e1, 1);
+//
+//        //Conflict_2 - SH
+//        e1.addConnection(d1, 1);
+
+        test_graph.pattern_finder.findNarrativePatterns();
+    }
+
     public void runTestRemoveNode_Connections()
     {
         GrammarGraph graph_axiom = new GrammarGraph();
@@ -258,7 +290,8 @@ public class NarrativeStructure {
 
     public NarrativeStructure()
     {
-        runPatternFinderExperiment();
+//        runPatternFinderExperiment();
+        runDerivativePatternExperiment();
         if(true)
             return;
 

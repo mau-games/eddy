@@ -285,7 +285,8 @@ public class GrammarGraph
     /**
      * Get all connections in the graph (size)
      * @param filtered if filtered, we get only the connections that actually exist within the graph
-     *                 This is possible because of graph matching.
+     *                 This is possible because of graph matching. This means that the node might have more connections
+     *                 since it is a subgraph of another graph, but filtering give us only connections within the specific subgraph
      * @return
      */
     public int getAllConnections(boolean filtered)

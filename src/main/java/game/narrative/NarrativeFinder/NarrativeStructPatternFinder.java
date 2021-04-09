@@ -146,6 +146,7 @@ public class NarrativeStructPatternFinder {
 
 		// Now lets start getting the composite ones! (i.e., meso-patterns)
 		all_narrative_patterns.addAll(SimpleConflictPattern.matches(narrative_graph, all_narrative_patterns, this));
+		all_narrative_patterns.addAll(DerivativePattern.matches(narrative_graph, all_narrative_patterns, this));
 //		all_narrative_patterns.addAll(CompoundConflictPattern.matches(narrative_graph, all_narrative_patterns));
 //		all_narrative_patterns.addAll(PlotPoint.matches(narrative_graph));
 //		all_narrative_patterns.addAll(PlotDevice.matches(narrative_graph));

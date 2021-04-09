@@ -58,7 +58,7 @@ public class GrammarPattern {
 
         int pattern_graph_size = this.pattern.getAllConnections(true);
         permutations = permutations.stream()
-                .filter(p -> p.getAllConnections(false) == pattern_graph_size)
+                .filter(p -> p.getAllConnections(true) == pattern_graph_size)
                 .collect(Collectors.toCollection(ArrayList::new));
 
 //        if(perm_size > 1000)
