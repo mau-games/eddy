@@ -152,7 +152,7 @@ public class QuestViewController extends BorderPane implements Listener {
                                                 StackNpc(tile.GetType(), action);
                                                 addVisualQuestPaneAction(action, paneCount - 1);
                                                 toggleButton.setSelected(false);
-                                                questGrammar.setStacks(stackNpc, stackCivilian, npcPosition, civilianPosition, roomsNpc, roomsCivilian);
+                                                questGrammar.setStacks(stackNpc, stackCivilian, npcPosition, civilianPosition, roomsNpc, roomsCivilian, dungeon.getQuest());
                                                 dungeon.getQuest().checkForAvailableActions(action, tile.GetType(), stackNpc,dungeon);
                                                 RefreshPanel();
                                                 added.set(true);
@@ -172,7 +172,7 @@ public class QuestViewController extends BorderPane implements Listener {
                                                 addVisualQuestPaneAction(action, paneCount - 1);
                                                 toggleButton.setSelected(false);
                                                 dungeon.getQuest().checkForAvailableActions(action, tile.GetType(), stackNpc, dungeon);
-                                                questGrammar.setStacks(stackNpc, stackCivilian, npcPosition, civilianPosition, roomsNpc, roomsCivilian);
+                                                questGrammar.setStacks(stackNpc, stackCivilian, npcPosition, civilianPosition, roomsNpc, roomsCivilian, dungeon.getQuest());
                                                 RefreshPanel();
                                                 added.set(true);
                                             }
@@ -292,7 +292,6 @@ public class QuestViewController extends BorderPane implements Listener {
             room.paintPath(false);
             room.clearPath();
         });
-
     }
 
     private void calculateAndPaintQuestPath() {
@@ -685,7 +684,6 @@ public class QuestViewController extends BorderPane implements Listener {
                                 "The action can be added!\n " +
                                         "Click the plus button below");
             }
-
         });
         toAdd.addEventHandler(MouseEvent.MOUSE_ENTERED, e -> {
             Action tileAction = suggestedActions.get(paneIndex); // TODO: keep an eye on this so it's right
@@ -871,24 +869,85 @@ public class QuestViewController extends BorderPane implements Listener {
         else if (tile.GetType() == TileTypes.ITEM) {
 			dungeon.removeItem(tile, action.getRoom());
 		}
-        else if (tile.GetType() == TileTypes.SOLDIER && dungeon.getQuest().getActions().get(dungeon.getQuest().getActions().size() - 1).getType() == ActionType.REPORT) {
-        	dungeon.removeSoldier(tile, action.getRoom());
-        }
-        else if (tile.GetType() == TileTypes.MAGE && dungeon.getQuest().getActions().get(dungeon.getQuest().getActions().size() - 1).getType() == ActionType.REPORT) {
-        	dungeon.removeMage(tile, action.getRoom());
-        }
-        else if (tile.GetType() == TileTypes.BOUNTYHUNTER && dungeon.getQuest().getActions().get(dungeon.getQuest().getActions().size() - 1).getType() == ActionType.REPORT) {
-        	dungeon.removeBountyhunter(tile, action.getRoom());
-        }
-        else if (tile.GetType() == TileTypes.CIVILIAN && dungeon.getQuest().getActions().get(dungeon.getQuest().getActions().size() - 1).getType() == ActionType.REPORT) {
-        	dungeon.removeCivilian(tile, action.getRoom());
-        }
-        else if (tile.GetType() == TileTypes.NPC && dungeon.getQuest().getActions().get(dungeon.getQuest().getActions().size() - 1).getType() == ActionType.REPORT) {
-        	dungeon.removeNpc(tile, action.getRoom());
-        }
+        else if (tile.GetType() == TileTypes.ENEMY_BOSS) {
+			dungeon.removeBoss(tile, action.getRoom());
+		}
         else if (tile.GetType() == TileTypes.TREASURE) {
         	dungeon.removeTreasure(tile, action.getRoom());
         }
+        if (dungeon.getCivilians().size() + dungeon.getEnemies().size() + dungeon.getItems().size() == 0) {
+        	if (stackNpc.size() != 0) {
+            	if (stackNpc.get(0) == TileTypes.SOLDIER) {
+            		if (action.getType() == ActionType.REPORT) {
+            			dungeon.removeSoldier(tile, action.getRoom());
+					}
+            		else {
+            			dungeon.removeSoldiers(npcPosition.get(0), action.getRoom());
+					}
+    			}
+            	else {
+            		dungeon.removeSoldiers(tile.GetCenterPosition(), action.getRoom());
+    			}
+			}
+        	else {
+        		dungeon.removeSoldiers(tile.GetCenterPosition(), action.getRoom());
+			}
+		}
+        if (dungeon.getEnemies().size() + dungeon.getItems().size() == 0) {
+        	if (stackNpc.size() != 0) {
+        		if (stackNpc.get(0) == TileTypes.MAGE) {
+        			if (action.getType() == ActionType.REPORT) {
+        				dungeon.removeMage(tile, action.getRoom());
+					}
+        			else {
+        				dungeon.removeMages(npcPosition.get(0), action.getRoom());
+					}
+    			}
+            	else {
+            		dungeon.removeMages(tile.GetCenterPosition(), action.getRoom());
+    			}
+			}
+        	else {
+        		dungeon.removeMages(tile.GetCenterPosition(), action.getRoom());
+			}
+    	}
+        if (dungeon.getEnemies().size() + dungeon.getTreasures().size() == 0) {
+        	if (stackNpc.size() != 0) {
+        		if (stackNpc.get(0) == TileTypes.BOUNTYHUNTER) {
+        			if (action.getType() == ActionType.REPORT) {
+        				dungeon.removeBountyhunter(tile, action.getRoom());
+					}
+        			else {
+        				dungeon.removeBountyHunters(npcPosition.get(0), action.getRoom());
+					}
+    			}
+        		else {
+            		dungeon.removeBountyHunters(tile.GetCenterPosition(), action.getRoom());
+    			}
+			}
+        	else {
+        		dungeon.removeBountyHunters(tile.GetCenterPosition(), action.getRoom());
+			}
+		}
+        if (dungeon.getTreasures().size() + dungeon.getItems().size() == 0) {
+        	if (stackCivilian.size() != 0) {
+        		if (stackCivilian.get(0) == TileTypes.CIVILIAN) {
+        			if (action.getType() == ActionType.REPORT) {
+        				dungeon.removeCivilian(tile, action.getRoom());
+					}
+        			else {
+        				dungeon.removeCivilians(civilianPosition.get(0), action.getRoom());
+					}
+    			}
+        		else {
+            		dungeon.removeCivilians(tile.GetCenterPosition(), action.getRoom());
+    			}
+			}
+        	else {
+        		dungeon.removeCivilians(tile.GetCenterPosition(), action.getRoom());
+			}
+		}
+        
     }
     
     private void StackNpc(TileTypes temptype, Action action)

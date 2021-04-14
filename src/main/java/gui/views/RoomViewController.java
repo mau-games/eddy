@@ -1754,7 +1754,7 @@ public class RoomViewController extends BorderPane implements Listener
 			break;
 		case EQUIPMENT:
 			startValue = perfectMotiveBalance[8] - motiveArray[8];
-			break;
+			break; 
 		default:
 			break;
 		}

@@ -10,6 +10,12 @@ import game.quest.ActionType;
 import game.quest.ActionWithSecondPosition;
 import game.quest.Quest;
 import game.quest.actions.*;
+import game.tiles.BountyhunterTile;
+import game.tiles.CivilianTile;
+import game.tiles.MageTile;
+import game.tiles.NpcTile;
+import game.tiles.SoldierTile;
+import generator.algorithm.grammar.QuestGrammar.QuestMotives;
 import util.eventrouting.events.QuestPositionUpdate;
 
 import java.io.*;
@@ -33,6 +39,12 @@ public class QuestGrammar {
         EQUIPMENT,
         NONE
     }
+    public enum NPCTypes{
+    	SOLDIER,
+    	MAGE,
+    	BOUNTYHUNTER,
+    	CIVILIAN
+    }
 
     private final static String defaultConfig = "config/npc_rules.json";
     private static Map<String, List<List<String>>> rules = new LinkedHashMap<>();
@@ -40,6 +52,9 @@ public class QuestGrammar {
     
     private Stack<QuestPositionUpdate> npcStack;
     private Stack<QuestPositionUpdate> civilianStack;
+    
+    private float[] perfectMotiveBalance;
+    private Quest quest;
     
     public final static String START_VALUE = "<QUEST>";
     public final static String[] Motives = {"<KNOWLEDGE>","<COMFORT>","<REPUTATION>","<SERENITY>","<PROTECTION>","<CONQUEST>","<WEALTH>","<ABILITY>","<EQUIPMENT>"};
@@ -52,6 +67,8 @@ public class QuestGrammar {
     private void init() {
         String toParse = readFile(defaultConfig);
         parseJSONAndPopulateRules(toParse);
+        perfectMotiveBalance = new float[9];
+        SetPerfectMotiveBalance();
         
         npcStack = new Stack<QuestPositionUpdate>();
         civilianStack = new Stack<QuestPositionUpdate>();
@@ -298,10 +315,25 @@ public class QuestGrammar {
 					tiles.add(civilianStack.peek());
 				}
                 else {
-                    tiles.addAll(owner.getSoldiers());
-                    tiles.addAll(owner.getMages());
-                    tiles.addAll(owner.getBountyHunters());
-                    tiles.addAll(owner.getCivilians());
+                	NPCTypes temp = DecideRecommended();
+                	
+                	switch (temp) {
+					case SOLDIER:
+						tiles.addAll(owner.getSoldiers());
+						break;
+					case MAGE:
+						tiles.addAll(owner.getMages());
+						break;
+					case BOUNTYHUNTER:
+						tiles.addAll(owner.getBountyHunters());
+						break;
+					case CIVILIAN:
+						tiles.addAll(owner.getCivilians());
+						break;
+					default:
+						break;
+					}
+                    
 				}
                 if (tiles.size() > 1) {
                     QuestPositionUpdate position = tiles.get(random.nextInt(tiles.size()-1));
@@ -480,7 +512,7 @@ public class QuestGrammar {
     
     public void setStacks(Stack<TileTypes> npcStack, Stack<TileTypes> civilianStack, 
     		Stack<finder.geometry.Point> npcPosition, Stack<finder.geometry.Point> civilianPosition, 
-    		Stack<Room> npcRooms, Stack<Room> civilianRooms)
+    		Stack<Room> npcRooms, Stack<Room> civilianRooms, Quest quest)
     {
     	
     	Stack<QuestPositionUpdate> tempNpc = new Stack<QuestPositionUpdate>();
@@ -505,7 +537,164 @@ public class QuestGrammar {
     	
     	this.npcStack = tempNpc;
     	this.civilianStack = tempCivilian;
+    	this.quest = quest;
     }
+    
+    private void SetPerfectMotiveBalance()
+	{
+		perfectMotiveBalance[0] = 0.183f; //Knowledge
+		perfectMotiveBalance[1] = 0.016f; //Comfort
+		perfectMotiveBalance[2] = 0.065f; //Reputation
+		perfectMotiveBalance[3] = 0.137f; //Serenity
+		perfectMotiveBalance[4] = 0.182f; //Protection
+		perfectMotiveBalance[5] = 0.202f; //Conquest
+		perfectMotiveBalance[6] = 0.02f;  //Wealth
+		perfectMotiveBalance[7] = 0.011f; //Ability
+		perfectMotiveBalance[8] = 0.185f; //Equipment
+		
+	}
+    
+    private NPCTypes DecideRecommended()
+	{
+		float[] motiveArray = new float[9];
+		if (quest != null) {
+			for (int i = 0; i < quest.getActions().size(); i++) {
+				if (quest.getActions().get(i).CheckMotives(QuestMotives.KNOWLEDGE)) {
+					motiveArray[0]++;
+				} if (quest.getActions().get(i).CheckMotives(QuestMotives.COMFORT)) {
+					motiveArray[1]++;
+				} if (quest.getActions().get(i).CheckMotives(QuestMotives.REPUTATION)) {
+					motiveArray[2]++;
+				} if (quest.getActions().get(i).CheckMotives(QuestMotives.SERENITY)) {
+					motiveArray[3]++;
+				} if (quest.getActions().get(i).CheckMotives(QuestMotives.PROTECTION)) {
+					motiveArray[4]++;
+				} if (quest.getActions().get(i).CheckMotives(QuestMotives.CONQUEST)) {
+					motiveArray[5]++;
+				} if (quest.getActions().get(i).CheckMotives(QuestMotives.WEALTH)) {
+					motiveArray[6]++;
+				} if (quest.getActions().get(i).CheckMotives(QuestMotives.ABILITY)) {
+					motiveArray[7]++;
+				} if (quest.getActions().get(i).CheckMotives(QuestMotives.EQUIPMENT)) {
+					motiveArray[8]++;
+				}
+			}
+		}
+		
+		float amountOfMotives = 0;
+		
+		for (int i = 0; i < motiveArray.length; i++) {
+			amountOfMotives += motiveArray[i];
+		}
+		
+		for (int i = 0; i < motiveArray.length; i++) {
+			if (amountOfMotives != 0) {
+				motiveArray[i] = motiveArray[i] / amountOfMotives;
+			}
+		}
+		
+		List<NpcTile> tempTiles = ExistingNpcs();
+		
+		float[] NPCMotivesWeight = new float[tempTiles.size()];
+		for (int i = 0; i < NPCMotivesWeight.length; i++) {
+			NPCMotivesWeight[i] = 0;
+		}
+		
+		for (int i = 0; i < tempTiles.size(); i++) {
+			List<QuestMotives> npcQuestMotives = new ArrayList<QuestMotives>();
+			npcQuestMotives = tempTiles.get(i).ReturnMotives();
+			
+			for (int j = 0; j < npcQuestMotives.size(); j++) {
+				float currentWeight = blast(npcQuestMotives.get(j), motiveArray);
+				
+				NPCMotivesWeight[i] += currentWeight;
+			}
+		}
+		
+		int recommendedNpcIndex = 0;
+		float currentChoice = NPCMotivesWeight[0];
+		for (int i = 1; i < NPCMotivesWeight.length; i++) {
+			if (NPCMotivesWeight[i] >= currentChoice) {
+				currentChoice = NPCMotivesWeight[i];
+				recommendedNpcIndex = i;
+			}
+		}
+		
+		NPCTypes temp = NPCTypes.SOLDIER;
+		
+		if ((tempTiles.get(recommendedNpcIndex)) instanceof SoldierTile) {
+			temp = NPCTypes.SOLDIER;
+		} else if ((tempTiles.get(recommendedNpcIndex)) instanceof MageTile) {
+			temp = NPCTypes.MAGE;
+		} else if ((tempTiles.get(recommendedNpcIndex)) instanceof BountyhunterTile) {
+			temp = NPCTypes.BOUNTYHUNTER;
+		} else if ((tempTiles.get(recommendedNpcIndex)) instanceof CivilianTile) {
+			temp = NPCTypes.CIVILIAN;
+		}
+		
+		return temp;
+	}
+    
+    private List<NpcTile> ExistingNpcs()
+    {
+    	List<NpcTile> tempTiles = new ArrayList<NpcTile>();
+    	
+    	if (owner.getSoldiers().size() != 0) {
+    		SoldierTile tempSoldier = new SoldierTile();
+    		tempTiles.add(tempSoldier);
+		}
+    	if (owner.getMages().size() != 0) {
+    		MageTile tempMage = new MageTile();
+    		tempTiles.add(tempMage);
+		}
+    	if (owner.getBountyHunters().size() != 0) {
+    		BountyhunterTile tempBountyhunter = new BountyhunterTile();
+    		tempTiles.add(tempBountyhunter);
+		}
+    	if (owner.getCivilians().size() != 0) {
+    		CivilianTile tempCivilian = new CivilianTile();
+    		tempTiles.add(tempCivilian);
+    	}
+		
+		return tempTiles;
+    }
+	
+	private float blast(QuestMotives temp, float[] motiveArray)
+	{
+		float startValue = 0;
+		switch (temp) {
+		case KNOWLEDGE:
+			startValue = perfectMotiveBalance[0] - motiveArray[0];
+			break;
+		case COMFORT:
+			startValue = perfectMotiveBalance[1] - motiveArray[1];
+			break;
+		case REPUTATION:
+			startValue = perfectMotiveBalance[2] - motiveArray[2];
+			break;
+		case SERENITY:
+			startValue = perfectMotiveBalance[3] - motiveArray[3];
+			break;
+		case PROTECTION:
+			startValue = perfectMotiveBalance[4] - motiveArray[4];
+			break;
+		case CONQUEST:
+			startValue = perfectMotiveBalance[5] - motiveArray[5];
+			break;
+		case WEALTH:
+			startValue = perfectMotiveBalance[6] - motiveArray[6];
+			break;
+		case ABILITY:
+			startValue = perfectMotiveBalance[7] - motiveArray[7];
+			break;
+		case EQUIPMENT:
+			startValue = perfectMotiveBalance[8] - motiveArray[8];
+			break;
+		default:
+			break;
+		}
+		return startValue;
+	}
 
     public static void main(String[] args) throws IOException {
         Dungeon dungeon = new Dungeon();

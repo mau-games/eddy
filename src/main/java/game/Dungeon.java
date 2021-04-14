@@ -509,7 +509,7 @@ public class Dungeon implements Listener
 		bossesPositions.add(new QuestPositionUpdate(bossTile.GetCenterPosition(), room, false));
 	}
 
-	public void removeBoss(BossEnemyTile tile, Room room)
+	public void removeBoss(Tile tile, Room room)
 	{
 		System.out.println("boss removed - new");
 		bossesPositions.removeIf(bossEnemyTile -> tile.GetCenterPosition().getY() == tile.GetCenterPosition().getY() &&
@@ -561,6 +561,15 @@ public class Dungeon implements Listener
 				npctile.getPoint().getY() == tile.GetCenterPosition().getY());
 	}
 	
+	public void removeCivilians(finder.geometry.Point tempPoint, Room room)
+	{
+		System.out.println("npc removed");
+		room.civilianTiles.getPoints().removeIf(point -> point.getY() != tempPoint.getY() &&
+				point.getX() != tempPoint.getX());
+		civilianPositions.removeIf(npctile -> npctile.getPoint().getX() != tempPoint.getX() &&
+				npctile.getPoint().getY() != tempPoint.getY());
+	}
+	
 	public ArrayList<QuestPositionUpdate> getCivilians()
 	{
 		return civilianPositions;
@@ -579,6 +588,15 @@ public class Dungeon implements Listener
 				point.getX() == tile.GetCenterPosition().getX());
 		bountyhunterPositions.removeIf(npctile -> npctile.getPoint().getX() == tile.GetCenterPosition().getX() &&
 				npctile.getPoint().getY() == tile.GetCenterPosition().getY());
+	}
+	
+	public void removeBountyHunters(finder.geometry.Point tempPoint, Room room)
+	{
+		System.out.println("npc removed");
+		room.bountyhunterTiles.getPoints().removeIf(point -> point.getY() != tempPoint.getY() &&
+				point.getX() != tempPoint.getX());
+		bountyhunterPositions.removeIf(npctile -> npctile.getPoint().getX() != tempPoint.getX() &&
+				npctile.getPoint().getY() != tempPoint.getY());
 	}
 	
 	public ArrayList<QuestPositionUpdate> getBountyHunters()
@@ -601,6 +619,15 @@ public class Dungeon implements Listener
 				npctile.getPoint().getY() == tile.GetCenterPosition().getY());
 	}
 	
+	public void removeMages(finder.geometry.Point tempPoint, Room room)
+	{
+		System.out.println("npc removed");
+		room.mageTiles.getPoints().removeIf(point -> point.getY() != tempPoint.getY() &&
+				point.getX() != tempPoint.getX());
+		magePositions.removeIf(npctile -> npctile.getPoint().getX() != tempPoint.getX() &&
+				npctile.getPoint().getY() != tempPoint.getY());
+	}
+	
 	public ArrayList<QuestPositionUpdate> getMages()
 	{
 		return magePositions;
@@ -619,6 +646,15 @@ public class Dungeon implements Listener
 				point.getX() == tile.GetCenterPosition().getX());
 		soldierPositions.removeIf(npctile -> npctile.getPoint().getX() == tile.GetCenterPosition().getX() &&
 				npctile.getPoint().getY() == tile.GetCenterPosition().getY());
+	}
+	
+	public void removeSoldiers(finder.geometry.Point tempPoint, Room room)
+	{
+		System.out.println("npc removed");
+		room.soldierTiles.getPoints().removeIf(point -> point.getY() != tempPoint.getY() &&
+				point.getX() != tempPoint.getX());
+		soldierPositions.removeIf(npctile -> npctile.getPoint().getX() != tempPoint.getX() &&
+				npctile.getPoint().getY() != tempPoint.getY());
 	}
 	
 	public ArrayList<QuestPositionUpdate> getSoldiers()

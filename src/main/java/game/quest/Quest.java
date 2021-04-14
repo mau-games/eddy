@@ -296,9 +296,6 @@ public class Quest {
 	            availableActions.add(ActionType.READ);
 	            availableActions.add(ActionType.DAMAGE);
 			}
-			if (hasCivilians > 0) {
-				availableActions.add(ActionType.DEFEND);
-			}
 			if (hasEnemies > 0) {
 	            availableActions.add(ActionType.DAMAGE);
 			}

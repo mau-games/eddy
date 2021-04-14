@@ -204,16 +204,19 @@ public class QuestGenerator extends Thread {
     private void trimSuggestedActions()
     {
     	ActionType recommendedType = DecideRecommended();
-    	List<Action> tempSuggestList = new ArrayList<Action>();
-    	for (int i = 0; i < suggestedActions.size(); i++) {
-			if (suggestedActions.get(i).getType() == recommendedType) {
-				tempSuggestList.add(suggestedActions.get(i));
-			}
+    	
+    	if (recommendedType != null) {
+    		List<Action> tempSuggestList = new ArrayList<Action>();
+        	for (int i = 0; i < suggestedActions.size(); i++) {
+    			if (suggestedActions.get(i).getType() == recommendedType) {
+    				tempSuggestList.add(suggestedActions.get(i));
+    			}
+    		}
+        	if (tempSuggestList.size() == 2 && tempSuggestList.get(0).getType() == ActionType.REPORT && tempSuggestList.get(1).getType() == ActionType.REPORT) {
+    			tempSuggestList.remove(0);
+    		}
+        	suggestedActions = tempSuggestList;
 		}
-    	if (tempSuggestList.size() == 2 && tempSuggestList.get(0).getType() == ActionType.REPORT && tempSuggestList.get(1).getType() == ActionType.REPORT) {
-			tempSuggestList.remove(0);
-		}
-    	suggestedActions = tempSuggestList;
     }
     private ActionType DecideRecommended()
 	{
@@ -253,48 +256,44 @@ public class QuestGenerator extends Thread {
 		}
 		
 		List<Action> tempActions = SuggestedActions();
-		Action temp = tempActions.get(0);
 		
-		for (int i = 0; i < tempActions.size(); i++) {
-			if (tempActions.get(i).getType() == ActionType.DEFEND) {
-				temp = tempActions.get(i);
+		if (tempActions.size() != 0) {
+			float[] actionMotivesWeight = new float[tempActions.size()];
+			for (int i = 0; i < actionMotivesWeight.length; i++) {
+				actionMotivesWeight[i] = 0;
 			}
-		}
-		if (temp.getType() == ActionType.LISTEN) {
-			return temp.getType();
-		}
-		
-		float[] actionMotivesWeight = new float[tempActions.size()];
-		for (int i = 0; i < actionMotivesWeight.length; i++) {
-			actionMotivesWeight[i] = 0;
-		}
-		
-		for (int i = 0; i < tempActions.size(); i++) {
-			List<QuestMotives> actionQuestMotives = new ArrayList<QuestMotives>();
-			actionQuestMotives = tempActions.get(i).ReturnMotives();
 			
-			for (int j = 0; j < actionQuestMotives.size(); j++) {
-				float currentWeight = blast(actionQuestMotives.get(j), motiveArray);
+			for (int i = 0; i < tempActions.size(); i++) {
+				List<QuestMotives> actionQuestMotives = new ArrayList<QuestMotives>();
+				actionQuestMotives = tempActions.get(i).ReturnMotives();
 				
-				actionMotivesWeight[i] += currentWeight;
+				for (int j = 0; j < actionQuestMotives.size(); j++) {
+					float currentWeight = blast(actionQuestMotives.get(j), motiveArray);
+					if (tempActions.get(i).getType() == ActionType.LISTEN) {
+						currentWeight += 0.00001;
+					}
+					
+					actionMotivesWeight[i] += currentWeight;
+				}
 			}
-		}
-		
-		
-		
-		int recommendedActionIndex = 0;
-		float currentChoice = 0;
-		if (actionMotivesWeight.length != 0) {
-			currentChoice = actionMotivesWeight[0];
-		}
-		for (int i = 1; i < actionMotivesWeight.length; i++) {
-			if (actionMotivesWeight[i] >= currentChoice) {
-				currentChoice = actionMotivesWeight[i];
-				recommendedActionIndex = i;
+			
+			
+			
+			int recommendedActionIndex = 0;
+			float currentChoice = 0;
+			if (actionMotivesWeight.length != 0) {
+				currentChoice = actionMotivesWeight[0];
 			}
+			for (int i = 1; i < actionMotivesWeight.length; i++) {
+				if (actionMotivesWeight[i] >= currentChoice) {
+					currentChoice = actionMotivesWeight[i];
+					recommendedActionIndex = i;
+				}
+			}
+			
+			return tempActions.get(recommendedActionIndex).getType();
 		}
-		
-		return tempActions.get(recommendedActionIndex).getType();
+		return null;
 	}
     private float blast(QuestMotives temp, float[] motiveArray)
 	{
@@ -327,6 +326,7 @@ public class QuestGenerator extends Thread {
 		case EQUIPMENT:
 			startValue = perfectMotiveBalance[8] - motiveArray[8];
 			break;
+		case NONE:
 		default:
 			break;
 		}
@@ -359,8 +359,19 @@ public class QuestGenerator extends Thread {
 				KillAction tempKill = new KillAction();
 				tempSuggestedActionList.add(tempKill);
 			} else if (suggestedActions.get(i).getType() == ActionType.LISTEN) {
-				ListenAction tempListen = new ListenAction();
-				tempSuggestedActionList.add(tempListen);
+				
+				int listen = 0;
+				
+				for (int j = 0; j < availableActions.size(); j++) {
+					if (availableActions.get(j) == ActionType.LISTEN) {
+						listen++;
+					}
+				}
+				
+				if (listen != 0) {
+					ListenAction tempListen = new ListenAction();
+					tempSuggestedActionList.add(tempListen);
+				}
 			}else if (suggestedActions.get(i).getType() == ActionType.READ) {
 				ReadAction tempRead = new ReadAction();
 				tempSuggestedActionList.add(tempRead);
