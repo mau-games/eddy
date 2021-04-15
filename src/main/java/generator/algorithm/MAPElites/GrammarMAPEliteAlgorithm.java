@@ -665,7 +665,9 @@ public class GrammarMAPEliteAlgorithm extends Algorithm implements Listener {
 
 			float targetSize = expected_size - structure_count;
 			targetSize *= 0.1f;
-			fitness = 1.0f - Math.abs(targetSize);
+//			fitness = 1.0f - Math.abs(targetSize);
+
+			fitness = structure_count <= expected_size ? structure_count/expected_size : 2.0 - structure_count/expected_size;
 
 			if(fitness > best_fitness)
 			{

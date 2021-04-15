@@ -184,6 +184,7 @@ public class GrammarGraph
         return others;
     }
 
+    //TODO: Check this method.
     public HashMap<GrammarNode, Integer> getAllConnectionsTypesToNode(GrammarNode nodeToCheck, boolean directional)
     {
         HashMap<GrammarNode, Integer> others = new HashMap<GrammarNode, Integer>();

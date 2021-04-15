@@ -17,6 +17,7 @@ public class SimpleConflictPattern extends CompositeNarrativePattern
 {
     protected NarrativePattern source_pattern;
     protected NarrativePattern target_pattern;
+    public boolean fake_conflict = false;
 
     public SimpleConflictPattern(){super();}
 

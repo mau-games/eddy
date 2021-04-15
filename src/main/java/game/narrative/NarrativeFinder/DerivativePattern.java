@@ -10,7 +10,7 @@ import java.util.*;
 
 /**
  * Derivated pattern is formally described as:
- * Dp = {E cnd Char} DP is the SUM (E) of all the non-directional connections (cnd) from a character pattern (hero/enemy)
+ * Dp = {E cnd Char} DP is the SUM (E) of all the non-directional connections (cnd) from a character pattern (hero/enemy) - shouldn't this also be plot devices?
  * Derivatives are by design temporally ordered (temporal relation) but only locally not globally.
  * They also have a causal relation to the source and to each other.
  *

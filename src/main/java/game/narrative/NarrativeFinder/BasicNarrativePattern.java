@@ -21,20 +21,20 @@ public class BasicNarrativePattern extends NarrativePattern
      */
     public void storeAllConnections(GrammarGraph narrative_graph, NarrativeStructPatternFinder finder)
     {
-        //These are from me
+        //These are from me - Why are we checking connected patterns here?
         for(Map.Entry<GrammarNode, Integer> keyValue : this.connected_node.connections.entrySet())
         {
             NarrativePattern pat = finder.existNodeAsPattern(keyValue.getKey());
 
             if(pat!= null)
             {
-                if(!connected_patterns.containsKey(keyValue.getValue()))
+                if(!connected_patterns_from_me.containsKey(keyValue.getValue()))
                 {
-                    connected_patterns.put(keyValue.getValue(), new ArrayList<NarrativePattern>());
+//                    connected_patterns.put(keyValue.getValue(), new ArrayList<NarrativePattern>());
                     connected_patterns_from_me.put(keyValue.getValue(), new ArrayList<NarrativePattern>());
                 }
 
-                connected_patterns.get(keyValue.getValue()).add(pat);
+//                connected_patterns.get(keyValue.getValue()).add(pat);
                 connected_patterns_from_me.get(keyValue.getValue()).add(pat);
             }
         }

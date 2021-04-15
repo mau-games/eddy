@@ -32,7 +32,7 @@ public class NothingNarrativePattern extends NarrativePattern
 
         for(NarrativePattern np : currentPatterns)
         {
-            if(np instanceof CompositeNarrativePattern)
+            if(np instanceof CompositeNarrativePattern) //I think implicit conflict shouldn't count!
             {
                 for(GrammarGraph pattern_gg : ((CompositeNarrativePattern) np).pattern_subgraphs)
                 {

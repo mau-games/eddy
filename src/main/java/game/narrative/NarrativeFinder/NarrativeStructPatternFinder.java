@@ -1,27 +1,10 @@
 package game.narrative.NarrativeFinder;
 
-import finder.Populator;
-import finder.geometry.Bitmap;
-import finder.geometry.Point;
-import finder.graph.Graph;
-import finder.graph.Node;
-import finder.patterns.CompositePattern;
-import finder.patterns.Pattern;
-import finder.patterns.SpacialPattern;
-import finder.patterns.macro.DefeatBoss;
-import finder.patterns.macro.DefeatEnemies;
-import finder.patterns.macro.FindTreasure;
-import finder.patterns.meso.*;
-import finder.patterns.micro.*;
-import game.Room;
 import game.narrative.GrammarGraph;
 import game.narrative.GrammarNode;
 
 import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.List;
-import java.util.Queue;
-import java.util.stream.Collectors;
 
 /**
  * PatternFinder is used to find patterns within a room.
@@ -35,7 +18,7 @@ public class NarrativeStructPatternFinder {
 	private List<StructureNodePattern> structure_nodes;
 	private List<Structure> structures; //this is going to be a composite structure (a set of subgraphs)
 	private List<PlotPoint> plot_points;
-	private List<PlotDevice> plot_devices;
+	private List<PlotDevicePattern> plot_devices;
 
 	//This pattern graph is basically the same as the graph itself.
 //	private Graph<Pattern> patternGraph = null;
@@ -136,6 +119,7 @@ public class NarrativeStructPatternFinder {
 		all_narrative_patterns.addAll(StructureNodePattern.matches(narrative_graph));
 		all_narrative_patterns.addAll(HeroNodePattern.matches(narrative_graph));
 		all_narrative_patterns.addAll(VillainNodePattern.matches(narrative_graph));
+		all_narrative_patterns.addAll(PlotDevicePattern.matches(narrative_graph));
 
 		//Now get all the connections of basic patterns!
 		for(NarrativePattern np : all_narrative_patterns)
@@ -148,14 +132,16 @@ public class NarrativeStructPatternFinder {
 		all_narrative_patterns.addAll(SimpleConflictPattern.matches(narrative_graph, all_narrative_patterns, this));
 		all_narrative_patterns.addAll(DerivativePattern.matches(narrative_graph, all_narrative_patterns, this));
 		all_narrative_patterns.addAll(RevealPattern.matches(narrative_graph, all_narrative_patterns, this));
+		all_narrative_patterns.addAll(ImplicitConflictPattern.matches(narrative_graph, all_narrative_patterns, this));
 
 		//Now lets go with the plot points (( TODO: NEXT the Plot Devices and Plot twist!))
+		all_narrative_patterns.addAll(ActivePlotDevice.matches(narrative_graph, all_narrative_patterns, this));
 		all_narrative_patterns.addAll(PlotPoint.matches(narrative_graph, all_narrative_patterns, this));
-//		all_narrative_patterns.addAll(PlotDevice.matches(narrative_graph, all_narrative_patterns, this));
-//		all_narrative_patterns.addAll(PlotTwist.matches(narrative_graph, all_narrative_patterns, this));
+		all_narrative_patterns.addAll(PlotTwist.matches(narrative_graph, all_narrative_patterns, this));
 
 		//Finally get the nothing!
 		all_narrative_patterns.addAll(NothingNarrativePattern.matches(narrative_graph, all_narrative_patterns, this));
+		all_narrative_patterns.addAll(BrokenLinkPattern.matches(narrative_graph, all_narrative_patterns, this));
 
 
 
@@ -169,7 +155,7 @@ public class NarrativeStructPatternFinder {
 		plot_points = new ArrayList<PlotPoint>();
 //		all_narrative_patterns.addAll(PlotPoint.matches(narrative_graph));
 
-		plot_devices = new ArrayList<PlotDevice>();
+		plot_devices = new ArrayList<PlotDevicePattern>();
 //		all_narrative_patterns.addAll(PlotDevice.matches(narrative_graph));
 
 		for(NarrativePattern np : all_narrative_patterns)

@@ -77,16 +77,24 @@ public class NarrativeStructure {
     private void runDerivativePatternExperiment()
     {
         GrammarGraph test_graph = new GrammarGraph();
+
+        GrammarNode suba1 = test_graph.addNode(TVTropeType.HERO);
         GrammarNode a1 = test_graph.addNode(TVTropeType.HERO);
 
         //There is something wrong here? Else the fitness function has to shine! Enemy is "revealed" "to be the hero
-        // But enemy do not participate in anything else, what does that mean??
+        // But enemy do not participate in anything else, what does that mean?? -- todo: I think it should mean not interesting! let the fitness work!
         GrammarNode aa1 = test_graph.addNode(TVTropeType.ENEMY);
         GrammarNode b1 = test_graph.addNode(TVTropeType.CONFLICT);
         GrammarNode c1 = test_graph.addNode(TVTropeType.EMP);
         GrammarNode d1 = test_graph.addNode(TVTropeType.DRA);
         GrammarNode e1 = test_graph.addNode(TVTropeType.NEO);
         GrammarNode f1 = test_graph.addNode(TVTropeType.BAD);
+
+        GrammarNode pd1 = test_graph.addNode(TVTropeType.MHQ);
+        a1.addConnection(pd1, 1);
+
+        suba1.addConnection(a1, 1);
+        suba1.addConnection(b1, 1);
 
         //Hero - Conflict
         a1.addConnection(b1, 1);
