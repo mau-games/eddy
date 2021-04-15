@@ -17,6 +17,13 @@ package generator.algorithm.MAPElites;
  *  that in the engagement step is where it should be applied the focalization
  *
  *  - Engagement is the generation of narratives from the system applying the grammar rules and constraints (perhaps here is where
+ *
+ *  - I am interested on also evaluating the three-four "C"s.
+ *      - Coherence: Everything makes sense
+ *      - Consistency: Similarity across the structuce
+ *      - Cohesion: Linking between words to hold together the text (how related the tropes are??)
+ *       --> Probably we can use something like, if a pattern is "nothing" there are cohesion problems?
+ *      - Causality (Might be more related specifically to the quests).
  */
 public class NSEvolutionarySystemEvaluator {
 

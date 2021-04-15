@@ -58,6 +58,7 @@ public class NarrativeStructure {
         //Hero - Conflict
         a1.addConnection(b1, 2);
         a1.addConnection(d1, 1);
+
         //Conflict - Enemy
         b1.addConnection(c1, 1);
 
@@ -77,14 +78,20 @@ public class NarrativeStructure {
     {
         GrammarGraph test_graph = new GrammarGraph();
         GrammarNode a1 = test_graph.addNode(TVTropeType.HERO);
+
+        //There is something wrong here? Else the fitness function has to shine! Enemy is "revealed" "to be the hero
+        // But enemy do not participate in anything else, what does that mean??
+        GrammarNode aa1 = test_graph.addNode(TVTropeType.ENEMY);
         GrammarNode b1 = test_graph.addNode(TVTropeType.CONFLICT);
-        GrammarNode c1 = test_graph.addNode(TVTropeType.ENEMY);
+        GrammarNode c1 = test_graph.addNode(TVTropeType.EMP);
         GrammarNode d1 = test_graph.addNode(TVTropeType.DRA);
         GrammarNode e1 = test_graph.addNode(TVTropeType.NEO);
         GrammarNode f1 = test_graph.addNode(TVTropeType.BAD);
 
         //Hero - Conflict
         a1.addConnection(b1, 1);
+        aa1.addConnection(a1, 1);
+
         //Conflict - Enemy
         b1.addConnection(c1, 1);
 

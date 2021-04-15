@@ -9,6 +9,7 @@ import game.narrative.GrammarNode;
 
 import java.lang.reflect.Array;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class CompositeNarrativePattern extends NarrativePattern
@@ -37,10 +38,15 @@ public class CompositeNarrativePattern extends NarrativePattern
      * for a CompoundConflictPattern, the patterns would be the set of SimpleConflictPatterns.
      * @param np
      */
-    public void addNarrativePattern(NarrativePattern np)
+    public void addNarrativePattern(NarrativePattern... np)
     {
-        patterns.add(np);
+        patterns.addAll(Arrays.asList(np));
     }
+//
+//    public void addNarrativePattern(NarrativePattern np...)
+//    {
+//        patterns.add(np);
+//    }
 
     /**
      * Returns a list of all pattern instances making up this pattern.
