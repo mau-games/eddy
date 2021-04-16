@@ -129,10 +129,14 @@ public class GrammarPattern {
                 //TODO: Remember to Check this! because of how the connection is added
 
                 selectedSubgraph.nodes.get(i).addConnection(selectedSubgraph.nodes.get(index), patternChild.getValue());
-                if(patternChild.getValue() == 0 || patternChild.getValue() == 2)
+                if(patternChild.getValue() == 2)
                 {
                     selectedSubgraph.nodes.get(index).addConnection(selectedSubgraph.nodes.get(i), patternChild.getValue());
                 }
+//                if(patternChild.getValue() == 0 || patternChild.getValue() == 2)
+//                {
+//                    selectedSubgraph.nodes.get(index).addConnection(selectedSubgraph.nodes.get(i), patternChild.getValue());
+//                }
             }
         }
 

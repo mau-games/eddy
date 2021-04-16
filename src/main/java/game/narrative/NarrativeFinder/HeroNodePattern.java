@@ -1,7 +1,11 @@
 package game.narrative.NarrativeFinder;
 
+import game.Room;
+import game.Tile;
 import game.narrative.GrammarGraph;
 import game.narrative.GrammarNode;
+import game.narrative.TVTropeType;
+import game.tiles.BossEnemyTile;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -35,6 +39,50 @@ public class HeroNodePattern extends BasicNarrativePattern
     }
 
 //    public
+
+    /**
+     * Rather than calculating a generic quality for the tropes, I would prefer a generic part and a specific one (based on the node trope!)
+     * @param room
+     * @return
+     */
+    public double calculateTropeQuality(Room room, GrammarGraph current, GrammarGraph core, List<NarrativePattern> currentPatterns, NarrativeStructPatternFinder finder)
+    {
+        double generic_quality = super.calculateTropeQuality(room, current, core, currentPatterns, finder);
+
+        ArrayList<HeroNodePattern> all_heroes = finder.getAllPatternsByType(HeroNodePattern.class);
+        ArrayList<SimpleConflictPattern> all_explicit_conflicts = finder.getAllPatternsByType(SimpleConflictPattern.class);
+        ArrayList<NarrativePattern> this_pattern_involvement = finder.getAllInstances(this.connected_node);
+
+        //if generic Hero, it already starts in disadvantage
+        double quantity_quality = this.connected_node.getGrammarNodeType() == TVTropeType.HERO ? 0.75 : 1.0;
+        double same_heroes = 0.0;
+
+        for(HeroNodePattern other_hero : all_heroes)
+        {
+            if(other_hero.connected_node.getGrammarNodeType() == this.connected_node.getGrammarNodeType())
+            {
+                same_heroes++;
+            }
+        }
+
+        if(same_heroes != 1)
+            quantity_quality = Math.max(0.0, quantity_quality - same_heroes/(double)all_heroes.size());
+
+        //Now we calculate involvement in conflicts! specifically, in explicit conflicts!!
+        double involves = 0.0;
+        for(NarrativePattern involvements : this_pattern_involvement)
+        {
+            if(involvements instanceof SimpleConflictPattern)
+                involves++;
+        }
+
+        double involvement_quality = involves/(double)all_explicit_conflicts.size();
+
+        //Now lets calcualte the final quality
+        this.quality = (generic_quality + quantity_quality + involvement_quality)/3.0;
+
+        return this.quality;
+    }
 
 
 

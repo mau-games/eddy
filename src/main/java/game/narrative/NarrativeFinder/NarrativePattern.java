@@ -17,6 +17,9 @@ public class NarrativePattern
     protected HashMap<Integer, List<NarrativePattern>> connected_patterns; // Mainly for the Basic Patterns
     protected HashMap<Integer, List<NarrativePattern>> connected_patterns_from_me; // Mainly for the Basic Patterns
 
+    protected int from_me_count = 0;
+    protected int to_me_count = 0;
+
     protected boolean derivative = false;
 
     public NarrativePattern()
@@ -29,8 +32,7 @@ public class NarrativePattern
      * Searches a map for instances of this pattern and returns a list of found
      * instances.
      *
-     * @param room The map to search for patterns in.
-     * @param boundary A boundary in which the pattern is searched for.
+     * @param narrative_graph the current graph we are finding
      * @return A list of found instances.
      */
     public static List<NarrativePattern> matches(GrammarGraph narrative_graph) {
@@ -52,6 +54,21 @@ public class NarrativePattern
      * @return A number between 0.0 and 1.0 representing the quality of the pattern (where 1 is best)
      */
     public double calculateQuality(List<NarrativePattern> currentPatterns, NarrativeStructPatternFinder finder){
+        return quality;
+    }
+
+    public double calculateTropeQuality(Room room, GrammarGraph current, GrammarGraph core, List<NarrativePattern> currentPatterns, NarrativeStructPatternFinder finder)
+    {
+        //This method is basically to knmow the generic quality based on what is the designer creating!
+
+        this.quality = 1.0;
+        if(core == null)
+            return quality;
+
+        float node_amount = core.checkGenericAmountNodes(this.connected_node.getGrammarNodeType().getGeneric(), false); //how many are the target
+        ArrayList<NarrativePattern> all_same_class = finder.getAllPatternsByType((Class<NarrativePattern>) this.getClass()); //how many we are
+        quality = all_same_class.size() <= node_amount ? all_same_class.size()/node_amount : 2.0 - all_same_class.size()/node_amount;
+
         return quality;
     }
 }

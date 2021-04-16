@@ -1,5 +1,6 @@
 package game.narrative.NarrativeFinder;
 
+import game.Room;
 import game.narrative.GrammarGraph;
 
 import java.util.ArrayList;
@@ -27,7 +28,7 @@ public class ActivePlotDevice extends CompositeNarrativePattern
          * 2- Get all the connections from and to
          * 3- Only get if max 1 non-directional, any amount of directional, and no bi-directional
          * 4- Should only have 1 output (and this should be connected to the incoming)
-         *      - if and incoming was non-directional then output can be non-directional (else no)
+         *      - if an incoming was non-directional then output can be non-directional (else no)
          *      - no bidirectional
          *      - In fact output connection is not necessary (but is restricted to 1 in this implementation)
          */
@@ -106,4 +107,46 @@ public class ActivePlotDevice extends CompositeNarrativePattern
 
         return results;
     }
+
+
+    /**
+     * Rather than calculating a generic quality for the tropes, I would prefer a generic part and a specific one (based on the node trope!)
+     * @param room
+     * @return
+     */
+    public double calculateTropeQuality(Room room, GrammarGraph current, GrammarGraph core, List<NarrativePattern> currentPatterns, NarrativeStructPatternFinder finder)
+    {
+        // ok ok, First the amount in axiom
+        double generic_quality = 1.0;
+
+        ArrayList<ActivePlotDevice> all_apd = finder.getAllPatternsByType(ActivePlotDevice.class);
+
+        //Generic bell curve
+        if(core != null) //I feel that in this case this one should be weighted down!
+        {
+            ArrayList<NarrativePattern> core_narrative_patterns = core.pattern_finder.findNarrativePatterns();
+            ArrayList<ActivePlotDevice> other_apds = core.pattern_finder.getAllPatternsByType(ActivePlotDevice.class);
+            generic_quality = all_apd.size() <= other_apds.size() ?
+                    (double)all_apd.size()/(double)other_apds.size() :
+                    2.0 - (double)all_apd.size()/(double)other_apds.size();
+        }
+
+        //Usability quality (am I connected, and how many are connected to me! - in comparison to the amount of nodes)
+        double quality_usability = device.to_me_count <= (current.nodes.size()/2) ?
+                (double)device.to_me_count/(double)current.nodes.size() :
+                2.0 - (double)device.to_me_count/(double)current.nodes.size();
+
+        if(device.connected_patterns_from_me.containsKey(0) || device.connected_patterns_from_me.containsKey(1))
+        {
+            quality_usability += 0.5; //Magic number!
+        }
+
+        quality_usability = Math.min(1.0, quality_usability);
+
+        //Now lets calculate the final quality
+        this.quality = (generic_quality + quality_usability)/2.0;
+
+        return this.quality;
+    }
+
 }

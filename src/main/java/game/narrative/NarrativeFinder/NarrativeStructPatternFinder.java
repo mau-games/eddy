@@ -33,6 +33,9 @@ public class NarrativeStructPatternFinder {
 		this.all_narrative_patterns = new ArrayList<NarrativePattern>();
 	}
 
+//	public List<NarrativePattern> getAllInstances(GrammarNode gn)
+//	{
+
 	/**
 	 * Helper method to check if a node has been categorized as a pattern
 	 * @param gn
@@ -54,7 +57,7 @@ public class NarrativeStructPatternFinder {
 	 * @param gn
 	 * @return
 	 */
-	public List<NarrativePattern> getAllInstances(GrammarNode gn)
+	public ArrayList<NarrativePattern> getAllInstances(GrammarNode gn)
 	{
 		ArrayList<NarrativePattern> nps = new ArrayList<NarrativePattern>();
 
@@ -81,8 +84,8 @@ public class NarrativeStructPatternFinder {
 	 * @param <T>
 	 * @return
 	 */
-	public <T extends NarrativePattern> List<T> getAllPatternsByType(Class<T> fType) {
-		List<T> list = new ArrayList<T>();
+	public <T extends NarrativePattern> ArrayList<T> getAllPatternsByType(Class<T> fType) {
+		ArrayList<T> list = new ArrayList<T>();
 		for (NarrativePattern np : all_narrative_patterns) {
 			if (np.getClass() ==  fType) {
 				list.add(fType.cast(np));
@@ -134,7 +137,7 @@ public class NarrativeStructPatternFinder {
 		all_narrative_patterns.addAll(RevealPattern.matches(narrative_graph, all_narrative_patterns, this));
 		all_narrative_patterns.addAll(ImplicitConflictPattern.matches(narrative_graph, all_narrative_patterns, this));
 
-		//Now lets go with the plot points (( TODO: NEXT the Plot Devices and Plot twist!))
+		//Now lets go with the plot points
 		all_narrative_patterns.addAll(ActivePlotDevice.matches(narrative_graph, all_narrative_patterns, this));
 		all_narrative_patterns.addAll(PlotPoint.matches(narrative_graph, all_narrative_patterns, this));
 		all_narrative_patterns.addAll(PlotTwist.matches(narrative_graph, all_narrative_patterns, this));
@@ -159,7 +162,15 @@ public class NarrativeStructPatternFinder {
 //		all_narrative_patterns.addAll(PlotDevice.matches(narrative_graph));
 
 		for(NarrativePattern np : all_narrative_patterns)
-			np.calculateQuality(all_narrative_patterns, this);
+		{
+//			np.calculateQuality(all_narrative_patterns, this);
+			np.calculateTropeQuality(null, narrative_graph, null, all_narrative_patterns, this);
+//			System.out.println("Pattern: " + np.getClass());
+//			if(np.connected_node != null)
+//				System.out.println("Type: " + np.connected_node.toString());
+//			System.out.println("Quality: " + np.quality);
+//			System.out.println();
+		}
 
 
 		/*

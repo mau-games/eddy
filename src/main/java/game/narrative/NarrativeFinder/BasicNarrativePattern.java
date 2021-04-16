@@ -36,6 +36,7 @@ public class BasicNarrativePattern extends NarrativePattern
 
 //                connected_patterns.get(keyValue.getValue()).add(pat);
                 connected_patterns_from_me.get(keyValue.getValue()).add(pat);
+                from_me_count++;
             }
         }
 
@@ -52,6 +53,7 @@ public class BasicNarrativePattern extends NarrativePattern
                 }
 
                 connected_patterns.get(keyValue.getValue()).add(pat);
+                to_me_count++;
             }
         }
     }

@@ -1,12 +1,7 @@
 package game.narrative;
 
-import com.sun.org.apache.xerces.internal.xni.grammars.Grammar;
-import game.DungeonPane;
 import game.narrative.NarrativeFinder.NarrativeStructPatternFinder;
-import generator.algorithm.MAPElites.GrammarMAPEliteAlgorithm;
-import machineLearning.neuralnetwork.Neuron;
 
-import java.lang.reflect.Array;
 import java.util.*;
 
 /***
@@ -585,6 +580,30 @@ public class GrammarGraph
             return cumulative;
     }
 
+    /**
+     * This method returns the amount of nodes generic to the type, e.g., Hero, Enemy, Plot Device, Conflicts, etc.
+     * If I ask for hero, the method will return all the nodes that are of type Hero and derivates (5ma, gunslinger, etc.)
+     * @param generic_type I should check this, but please don't pass anything than the generics!
+     * @param normalize
+     * @return
+     */
+    public float checkGenericAmountNodes(TVTropeType generic_type, boolean normalize)
+    {
+        float cumulative = 0.0f;
+
+        for(GrammarNode node : nodes)
+        {
+            if(node.getGrammarNodeType().getValue() >= generic_type.getValue()
+            && node.getGrammarNodeType().getValue() < generic_type.getValue() + 10)
+                cumulative++;
+        }
+
+        if(normalize)
+            return cumulative/(float) nodes.size();
+        else
+            return cumulative;
+    }
+
     public int checkUnconnectedNodes()
     {
         int unconnected = 0;
@@ -706,12 +725,12 @@ public class GrammarGraph
         {
             if(keyValue.getKey().getValue() >= 40)
             {
-                if(baseNTypes.containsKey(TVTropeType.MODIFIER))
+                if(baseNTypes.containsKey(TVTropeType.PLOT_DEVICE))
                 {
-                    baseNTypes.put(TVTropeType.MODIFIER, baseNTypes.get(TVTropeType.MODIFIER) + 1);
+                    baseNTypes.put(TVTropeType.PLOT_DEVICE, baseNTypes.get(TVTropeType.PLOT_DEVICE) + 1);
                 }
                 else
-                    baseNTypes.put(TVTropeType.MODIFIER,1);
+                    baseNTypes.put(TVTropeType.PLOT_DEVICE,1);
             }
             else if(keyValue.getKey().getValue() >= 30)
             {

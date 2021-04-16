@@ -3,6 +3,7 @@ package game.narrative.NarrativeFinder;
 import finder.graph.Node;
 import finder.patterns.Pattern;
 import finder.patterns.meso.DeadEnd;
+import game.Room;
 import game.narrative.GrammarGraph;
 import game.narrative.GrammarNode;
 
@@ -82,6 +83,8 @@ public class DerivativePattern extends CompositeNarrativePattern
         DerivativePattern dp = null;
         GrammarGraph temp = new GrammarGraph();
 
+        //fixme: is getting stuck here!
+
         // Iterate to find the whole derivative pattern (from the root to the end)!
         // We need to do this recursively. (in case more than one derivative from the same
         while(!patternQueue.isEmpty())
@@ -137,5 +140,60 @@ public class DerivativePattern extends CompositeNarrativePattern
         }
 
         return results;
+    }
+
+    /**
+     * Rather than calculating a generic quality for the tropes, I would prefer a generic part and a specific one (based on the node trope!)
+     * @param room
+     * @return
+     */
+    public double calculateTropeQuality(Room room, GrammarGraph current, GrammarGraph core, List<NarrativePattern> currentPatterns, NarrativeStructPatternFinder finder)
+    {
+//        double generic_quality = super.calculateTropeQuality(room, current, core, currentPatterns, finder);
+
+        double generic_quality = 1.0;
+
+        ArrayList<DerivativePattern> all_derivatives = finder.getAllPatternsByType(DerivativePattern.class);
+
+        //Then we want to know the distribution of derivative patterns (not matter the size of the derivation)
+        if(core != null) //I feel that in this case this one should be weighted down!
+        {
+            ArrayList<NarrativePattern> core_narrative_patterns = core.pattern_finder.findNarrativePatterns();
+            ArrayList<DerivativePattern> other_derivatives = core.pattern_finder.getAllPatternsByType(DerivativePattern.class);
+            generic_quality = all_derivatives.size() <= other_derivatives.size() ?
+                    (double)all_derivatives.size()/(double)other_derivatives.size() :
+                    2.0 - (double)all_derivatives.size()/(double)other_derivatives.size();
+        }
+
+        //NOW WE WANT THE Amount of derivates this one has (we can balance with the sum of derivates that exist in the whole thingy)
+        double derivates_counter = 0.0;
+
+        for(DerivativePattern derivate : all_derivatives)
+        {
+            derivates_counter += derivate.derivatives.size();
+        }
+
+        derivates_counter = derivates_counter/all_derivatives.size();
+
+        double balance_quality = this.derivatives.size() <= derivates_counter ?
+                (double)this.derivatives.size()/(double)derivates_counter :
+                2.0 - (double)this.derivatives.size()/(double)derivates_counter;
+
+
+        //THEN we are interested in the diversity of the derivate (this one specifically)
+        double diversity_quality = 1.0;
+        ArrayList<Integer> generics = new ArrayList<Integer>();
+        for(NarrativePattern d : this.derivatives)
+        {
+            if(!generics.contains(d.connected_node.getGrammarNodeType().getGeneric().getValue()))
+                generics.add(d.connected_node.getGrammarNodeType().getGeneric().getValue());
+        }
+
+        diversity_quality = (double)generics.size() / (double)this.derivatives.size();
+
+        //Now lets calculate the final quality
+        this.quality = (generic_quality + balance_quality + diversity_quality)/3.0;
+
+        return this.quality;
     }
 }

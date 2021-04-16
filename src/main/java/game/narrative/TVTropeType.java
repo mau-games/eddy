@@ -5,7 +5,7 @@ public enum TVTropeType {
     HERO(10),
     CONFLICT(20),
     ENEMY(30),
-    MODIFIER(40),
+    PLOT_DEVICE(40),
     FIVE_MA(11),
     NEO(12),
     SH(13), //Superhero
@@ -28,6 +28,22 @@ public enum TVTropeType {
 
     public int getValue() {
         return value;
+    }
+
+    public TVTropeType getGeneric()
+    {
+        if(this.getValue() == 0)
+            return TVTropeType.ANY;
+        else if (this.getValue() >= 40)
+            return TVTropeType.PLOT_DEVICE;
+        else if (this.getValue() >= 30)
+            return TVTropeType.ENEMY;
+        else if (this.getValue() >= 20)
+            return TVTropeType.CONFLICT;
+        else if (this.getValue() >= 10)
+            return TVTropeType.HERO;
+
+        return TVTropeType.ANY;
     }
 
 }

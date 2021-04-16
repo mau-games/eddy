@@ -40,6 +40,7 @@ public class CompositeNarrativePattern extends NarrativePattern
      */
     public void addNarrativePattern(NarrativePattern... np)
     {
+//        System.out.println(np.length);
         patterns.addAll(Arrays.asList(np));
     }
 //

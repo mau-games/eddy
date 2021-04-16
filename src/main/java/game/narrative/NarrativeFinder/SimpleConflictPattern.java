@@ -1,7 +1,9 @@
 package game.narrative.NarrativeFinder;
 
+import game.Room;
 import game.narrative.GrammarGraph;
 import game.narrative.GrammarNode;
+import game.narrative.TVTropeType;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -151,4 +153,57 @@ public class SimpleConflictPattern extends CompositeNarrativePattern
     public double getQuality(){
         return quality;
     }
+
+    /**
+     * Rather than calculating a generic quality for the tropes, I would prefer a generic part and a specific one (based on the node trope!)
+     * @param room
+     * @return
+     */
+    public double calculateTropeQuality(Room room, GrammarGraph current, GrammarGraph core, List<NarrativePattern> currentPatterns, NarrativeStructPatternFinder finder)
+    {
+//        double generic_quality = super.calculateTropeQuality(room, current, core, currentPatterns, finder);
+
+        double generic_quality = 1.0;
+
+        ArrayList<SimpleConflictPattern> all_explicit_conflicts = finder.getAllPatternsByType(SimpleConflictPattern.class);
+
+        //Then we want to know the distribution of the explicit conflicts!
+        if(core != null)
+        {
+            ArrayList<NarrativePattern> core_narrative_patterns = core.pattern_finder.findNarrativePatterns();
+            ArrayList<SimpleConflictPattern> other_explicit_conflicts = core.pattern_finder.getAllPatternsByType(SimpleConflictPattern.class);
+            generic_quality = all_explicit_conflicts.size() <= other_explicit_conflicts.size() ?
+                    (double)all_explicit_conflicts.size()/(double)other_explicit_conflicts.size() :
+                    2.0 - (double)all_explicit_conflicts.size()/(double)other_explicit_conflicts.size();
+        }
+
+        double conflict_repetition = 0.0;
+
+        // Conflict repetition does not need to have this explicit conflict "conflict" node as the conflict
+        for(SimpleConflictPattern explicit_conflict : all_explicit_conflicts)
+        {
+            if(explicit_conflict.getSource() == this.getSource() &&
+            explicit_conflict.getTarget() == this.getTarget())
+            {
+                conflict_repetition++;
+            }
+            else if(explicit_conflict.getSource().connected_node.getGrammarNodeType() == this.getSource().connected_node.getGrammarNodeType() &&
+                    explicit_conflict.getTarget().connected_node.getGrammarNodeType() == this.getTarget().connected_node.getGrammarNodeType())
+            {
+                //Might also be that not the same nodes, but worse, the same nodes in other places! /This might change!
+                conflict_repetition++;
+            }
+        }
+        double repetition_quality = 1.0;
+
+        //If it is only one, is good! (no repetition) TODO: to test this!
+        if(conflict_repetition != 1)
+            repetition_quality = Math.max(0.0, repetition_quality - conflict_repetition/(double)all_explicit_conflicts.size());
+
+        //Now lets calculate the final quality
+        this.quality = (generic_quality + repetition_quality)/2.0;
+
+        return this.quality;
+    }
+
 }
