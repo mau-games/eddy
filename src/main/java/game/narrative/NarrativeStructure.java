@@ -71,7 +71,7 @@ public class NarrativeStructure {
         //Conflict_2 - SH
         e1.addConnection(d1, 1);
 
-        test_graph.pattern_finder.findNarrativePatterns();
+        test_graph.pattern_finder.findNarrativePatterns(test_graph);
     }
 
     private void runQualityExperiment()
@@ -111,7 +111,7 @@ public class NarrativeStructure {
 //        //Conflict_2 - SH
 //        e1.addConnection(d1, 1);
 
-        test_graph.pattern_finder.findNarrativePatterns();
+        test_graph.pattern_finder.findNarrativePatterns(test_graph);
     }
 
 
@@ -160,7 +160,7 @@ public class NarrativeStructure {
 //        //Conflict_2 - SH
 //        e1.addConnection(d1, 1);
 
-        test_graph.pattern_finder.findNarrativePatterns();
+        test_graph.pattern_finder.findNarrativePatterns(test_graph);
     }
 
     public void runTestRemoveNode_Connections()

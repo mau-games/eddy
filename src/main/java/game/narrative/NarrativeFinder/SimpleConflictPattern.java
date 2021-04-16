@@ -122,7 +122,7 @@ public class SimpleConflictPattern extends CompositeNarrativePattern
 
 //                        scp.pattern_subgraphs.add(temp);
 //                        scp.relevant_nodes.add(source_node);
-
+                        scp.connected_node = ((StructureNodePattern) np).connected_node;
                         results.add(scp);
                         ccp.addNarrativePattern(scp); // Fill the compound conflict pattern with the simple ones!
                     }
@@ -137,6 +137,7 @@ public class SimpleConflictPattern extends CompositeNarrativePattern
 
                 ccp.addSubgraph(combined_graph);
 //                ccp.pattern_subgraphs.add(combined_graph);
+                ccp.connected_node = ((StructureNodePattern) np).connected_node;
                 results.add(ccp);
 
 
@@ -170,7 +171,7 @@ public class SimpleConflictPattern extends CompositeNarrativePattern
         //Then we want to know the distribution of the explicit conflicts!
         if(core != null)
         {
-            ArrayList<NarrativePattern> core_narrative_patterns = core.pattern_finder.findNarrativePatterns();
+            ArrayList<NarrativePattern> core_narrative_patterns = core.pattern_finder.findNarrativePatterns(null);
             ArrayList<SimpleConflictPattern> other_explicit_conflicts = core.pattern_finder.getAllPatternsByType(SimpleConflictPattern.class);
             generic_quality = all_explicit_conflicts.size() <= other_explicit_conflicts.size() ?
                     (double)all_explicit_conflicts.size()/(double)other_explicit_conflicts.size() :

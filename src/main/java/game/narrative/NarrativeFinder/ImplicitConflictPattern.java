@@ -22,13 +22,16 @@ public class ImplicitConflictPattern extends CompositeNarrativePattern
 
     public ImplicitConflictPattern(){super();}
 
-    public ImplicitConflictPattern(NarrativePattern source, NarrativePattern target)
+    public ImplicitConflictPattern(NarrativePattern source, NarrativePattern target, GrammarNode conflict_node)
     {
         super();
         setSource(source);
         setTarget(target);
         addNarrativePattern(source);
+//        addNarrativePattern(conflict_node);
         addNarrativePattern(target);
+
+        this.connected_node = conflict_node;
     }
 
     public void setSource(NarrativePattern sp) {source_pattern = sp;}
@@ -129,12 +132,12 @@ public class ImplicitConflictPattern extends CompositeNarrativePattern
 
                         if(!already_exist[0])
                         {
-                            resultsImplicit.add(new ImplicitConflictPattern(sdp, tdp));
+                            resultsImplicit.add(new ImplicitConflictPattern(sdp, tdp, np.connected_node));
                         }
 
                         if(!already_exist[1])
                         {
-                            resultsImplicit.add(new ImplicitConflictPattern(tdp, sdp));
+                            resultsImplicit.add(new ImplicitConflictPattern(tdp, sdp, np.connected_node));
                         }
 
                     }

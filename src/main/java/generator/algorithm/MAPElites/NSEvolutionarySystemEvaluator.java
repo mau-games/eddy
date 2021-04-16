@@ -126,7 +126,7 @@ public class NSEvolutionarySystemEvaluator
 
             }
 
-            nStructure.pattern_finder.findNarrativePatterns();
+            nStructure.pattern_finder.findNarrativePatterns(axiom);
             float structure_count = 0.0f;
             for(NarrativePattern np : nStructure.pattern_finder.all_narrative_patterns)
             {
@@ -227,5 +227,7 @@ public class NSEvolutionarySystemEvaluator
         //Information about conflicts should be clear after this!
         return results;
     }
+
+
 
 }

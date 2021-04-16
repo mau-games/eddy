@@ -96,10 +96,10 @@ public class DerivativePattern extends CompositeNarrativePattern
                 dp = new DerivativePattern();
                 temp = new GrammarGraph();
 
-
                 dp.addNarrativePattern(current);
                 temp.addNode(current.connected_node, false);
                 dp.source = current;
+                dp.connected_node = current.connected_node;
             }
             else
             {
@@ -158,7 +158,7 @@ public class DerivativePattern extends CompositeNarrativePattern
         //Then we want to know the distribution of derivative patterns (not matter the size of the derivation)
         if(core != null) //I feel that in this case this one should be weighted down!
         {
-            ArrayList<NarrativePattern> core_narrative_patterns = core.pattern_finder.findNarrativePatterns();
+            ArrayList<NarrativePattern> core_narrative_patterns = core.pattern_finder.findNarrativePatterns(null);
             ArrayList<DerivativePattern> other_derivatives = core.pattern_finder.getAllPatternsByType(DerivativePattern.class);
             generic_quality = all_derivatives.size() <= other_derivatives.size() ?
                     (double)all_derivatives.size()/(double)other_derivatives.size() :

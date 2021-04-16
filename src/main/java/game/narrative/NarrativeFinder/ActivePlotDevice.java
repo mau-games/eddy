@@ -124,7 +124,7 @@ public class ActivePlotDevice extends CompositeNarrativePattern
         //Generic bell curve
         if(core != null) //I feel that in this case this one should be weighted down!
         {
-            ArrayList<NarrativePattern> core_narrative_patterns = core.pattern_finder.findNarrativePatterns();
+            ArrayList<NarrativePattern> core_narrative_patterns = core.pattern_finder.findNarrativePatterns(null);
             ArrayList<ActivePlotDevice> other_apds = core.pattern_finder.getAllPatternsByType(ActivePlotDevice.class);
             generic_quality = all_apd.size() <= other_apds.size() ?
                     (double)all_apd.size()/(double)other_apds.size() :

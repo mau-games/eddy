@@ -14,7 +14,7 @@ import java.util.List;
  */
 public class BrokenLinkPattern extends CompositeNarrativePattern
 {
-    public BrokenLinkPattern(NarrativePattern source, NarrativePattern target)
+    public BrokenLinkPattern(NarrativePattern source, NarrativePattern target, NarrativePattern main)
     {
         super();
         GrammarGraph temp = new GrammarGraph();
@@ -25,6 +25,8 @@ public class BrokenLinkPattern extends CompositeNarrativePattern
         addNarrativePattern(source);
         addNarrativePattern(target);
         addSubgraph(temp);
+
+        connected_node = main.connected_node;
 
     }
 
@@ -51,7 +53,7 @@ public class BrokenLinkPattern extends CompositeNarrativePattern
                     {
                         if(from_me instanceof VillainNodePattern) //BROKEN LINK!
                         {
-                            BrokenLinkPattern blp = new BrokenLinkPattern(np, from_me);
+                            BrokenLinkPattern blp = new BrokenLinkPattern(np, from_me, np);
                             results.add(blp);
                         }
                     }
@@ -63,7 +65,7 @@ public class BrokenLinkPattern extends CompositeNarrativePattern
                     {
                         if(from_me instanceof VillainNodePattern) //BROKEN LINK!
                         {
-                            BrokenLinkPattern blp = new BrokenLinkPattern(np, from_me);
+                            BrokenLinkPattern blp = new BrokenLinkPattern(np, from_me, np);
                             results.add(blp);
                         }
                     }
@@ -77,7 +79,7 @@ public class BrokenLinkPattern extends CompositeNarrativePattern
                     {
                         if(from_me instanceof HeroNodePattern) //BROKEN LINK!
                         {
-                            BrokenLinkPattern blp = new BrokenLinkPattern(np, from_me);
+                            BrokenLinkPattern blp = new BrokenLinkPattern(np, from_me, np);
                             results.add(blp);
                         }
                     }
@@ -89,7 +91,7 @@ public class BrokenLinkPattern extends CompositeNarrativePattern
                     {
                         if(from_me instanceof HeroNodePattern) //BROKEN LINK!
                         {
-                            BrokenLinkPattern blp = new BrokenLinkPattern(np, from_me);
+                            BrokenLinkPattern blp = new BrokenLinkPattern(np, from_me, np);
                             results.add(blp);
                         }
                     }
@@ -103,7 +105,7 @@ public class BrokenLinkPattern extends CompositeNarrativePattern
                     {
                         if(from_me instanceof StructureNodePattern) //BROKEN LINK!
                         {
-                            BrokenLinkPattern blp = new BrokenLinkPattern(np, from_me);
+                            BrokenLinkPattern blp = new BrokenLinkPattern(np, from_me, np);
                             results.add(blp);
                         }
                     }
@@ -115,7 +117,7 @@ public class BrokenLinkPattern extends CompositeNarrativePattern
                     {
                         if(from_me instanceof StructureNodePattern) //BROKEN LINK!
                         {
-                            BrokenLinkPattern blp = new BrokenLinkPattern(np, from_me);
+                            BrokenLinkPattern blp = new BrokenLinkPattern(np, from_me, np);
                             results.add(blp);
                         }
                     }
@@ -127,7 +129,7 @@ public class BrokenLinkPattern extends CompositeNarrativePattern
                     {
                         if(from_me instanceof StructureNodePattern) //BROKEN LINK!
                         {
-                            BrokenLinkPattern blp = new BrokenLinkPattern(np, from_me);
+                            BrokenLinkPattern blp = new BrokenLinkPattern(np, from_me, np);
                             results.add(blp);
                         }
                     }

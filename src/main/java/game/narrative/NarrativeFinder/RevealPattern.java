@@ -46,7 +46,7 @@ public class RevealPattern extends CompositeNarrativePattern
                         rp.addSubgraph(temp);
                         rp.source = np;
                         rp.target = non_directed_pat;
-
+                        rp.connected_node = np.connected_node;
                         results.add(rp);
 
 
@@ -70,6 +70,7 @@ public class RevealPattern extends CompositeNarrativePattern
                         rp.addSubgraph(temp);
                         rp.source = np;
                         rp.target = non_directed_pat;
+                        rp.connected_node = np.connected_node;
 
                         results.add(rp);
                     }
@@ -95,7 +96,7 @@ public class RevealPattern extends CompositeNarrativePattern
         //Generic bell curve
         if(core != null) //I feel that in this case this one should be weighted down!
         {
-            ArrayList<NarrativePattern> core_narrative_patterns = core.pattern_finder.findNarrativePatterns();
+            ArrayList<NarrativePattern> core_narrative_patterns = core.pattern_finder.findNarrativePatterns(null);
             ArrayList<RevealPattern> other_reveals = core.pattern_finder.getAllPatternsByType(RevealPattern.class);
             generic_quality = all_reveal.size() <= other_reveals.size() ?
                     (double)all_reveal.size()/(double)other_reveals.size() :

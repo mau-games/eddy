@@ -94,7 +94,7 @@ public class NarrativeStructPatternFinder {
 		return list;
 	}
 
-	public ArrayList<NarrativePattern>  findNarrativePatterns()
+	public ArrayList<NarrativePattern> findNarrativePatterns(GrammarGraph axiom)
 	{
 		/***
 		 * We need to collect all the possible patterns within a graph.
@@ -164,7 +164,7 @@ public class NarrativeStructPatternFinder {
 		for(NarrativePattern np : all_narrative_patterns)
 		{
 //			np.calculateQuality(all_narrative_patterns, this);
-			np.calculateTropeQuality(null, narrative_graph, null, all_narrative_patterns, this);
+			np.calculateTropeQuality(null, narrative_graph, axiom, all_narrative_patterns, this);
 //			System.out.println("Pattern: " + np.getClass());
 //			if(np.connected_node != null)
 //				System.out.println("Type: " + np.connected_node.toString());

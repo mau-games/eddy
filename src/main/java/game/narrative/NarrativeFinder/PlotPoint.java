@@ -67,6 +67,7 @@ public class PlotPoint extends CompositeNarrativePattern
 //                    pps[i] = new PlotPoint();
                     pps[i].addSubgraph(temp);
                     pps[i].addNarrativePattern(pps);
+                    pps[i].connected_node = np.connected_node;
                     results.add(pps[i]);
                 }
             }
@@ -80,6 +81,7 @@ public class PlotPoint extends CompositeNarrativePattern
                 pp.addNarrativePattern(((RevealPattern) np).source);
                 pp.addNarrativePattern(((RevealPattern) np).target);
 
+                pp.connected_node = np.connected_node;
                 results.add(pp);
             }
             //TODO: Missing Plot Devices

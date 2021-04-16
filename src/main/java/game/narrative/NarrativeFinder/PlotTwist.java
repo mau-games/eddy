@@ -131,7 +131,7 @@ public class PlotTwist extends CompositeNarrativePattern
         //Generic bell curve
         if(core != null) //I feel that in this case this one should be weighted down!
         {
-            ArrayList<NarrativePattern> core_narrative_patterns = core.pattern_finder.findNarrativePatterns();
+            ArrayList<NarrativePattern> core_narrative_patterns = core.pattern_finder.findNarrativePatterns(null);
             ArrayList<PlotTwist> other_pt = core.pattern_finder.getAllPatternsByType(PlotTwist.class);
             generic_quality = all_pt.size() <= other_pt.size() ?
                     (double)all_pt.size()/(double)other_pt.size() :

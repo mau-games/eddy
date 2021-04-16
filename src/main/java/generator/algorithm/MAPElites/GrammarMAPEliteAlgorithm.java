@@ -483,7 +483,7 @@ public class GrammarMAPEliteAlgorithm extends Algorithm implements Listener {
 		//FIXME: IMPLEMENT!
 
 //		GrammarGraph nStructure = ind.getPhenotype().getGrammarGraphOutput(axiom, 1);
-		ArrayList<NarrativePattern> patterns = nStructure.pattern_finder.findNarrativePatterns();
+		ArrayList<NarrativePattern> patterns = nStructure.pattern_finder.findNarrativePatterns(axiom);
 		int unconnectedNodes = nStructure.checkUnconnectedNodes();
 		short dist = axiom.distanceBetweenGraphs(nStructure);
 
@@ -655,7 +655,7 @@ public class GrammarMAPEliteAlgorithm extends Algorithm implements Listener {
 
 			}
 
-			nStructure.pattern_finder.findNarrativePatterns();
+			nStructure.pattern_finder.findNarrativePatterns(axiom);
 			float structure_count = 0.0f;
 			for(NarrativePattern np : nStructure.pattern_finder.all_narrative_patterns)
 			{
@@ -752,7 +752,7 @@ public class GrammarMAPEliteAlgorithm extends Algorithm implements Listener {
 
 			}
 
-			nStructure.pattern_finder.findNarrativePatterns();
+			nStructure.pattern_finder.findNarrativePatterns(axiom);
 			float structure_count = 0.0f;
 			for(NarrativePattern np : nStructure.pattern_finder.all_narrative_patterns)
 			{

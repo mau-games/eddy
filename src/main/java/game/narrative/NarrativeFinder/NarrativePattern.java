@@ -65,6 +65,11 @@ public class NarrativePattern
         if(core == null)
             return quality;
 
+        if(this.connected_node == null)
+        {
+            System.out.println("STOP RIGHT HERE!");
+        }
+
         float node_amount = core.checkGenericAmountNodes(this.connected_node.getGrammarNodeType().getGeneric(), false); //how many are the target
         ArrayList<NarrativePattern> all_same_class = finder.getAllPatternsByType((Class<NarrativePattern>) this.getClass()); //how many we are
         quality = all_same_class.size() <= node_amount ? all_same_class.size()/node_amount : 2.0 - all_same_class.size()/node_amount;
