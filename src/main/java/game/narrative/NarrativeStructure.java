@@ -435,14 +435,15 @@ public class NarrativeStructure {
         GrammarNode tg_a1 = test_graph.addNode(TVTropeType.HERO);
         GrammarNode tg_b1 = test_graph.addNode(TVTropeType.CONFLICT);
         GrammarNode tg_c1 = test_graph.addNode(TVTropeType.ENEMY);
-        GrammarNode tg_d1 = test_graph.addNode(TVTropeType.CHK);
-        GrammarNode tg_e1 = test_graph.addNode(TVTropeType.CHK);
+//        GrammarNode tg_d1 = test_graph.addNode(TVTropeType.CHK);
+//        GrammarNode tg_e1 = test_graph.addNode(TVTropeType.CHK);
 
         tg_a1.addConnection(tg_b1, 2);
-        tg_b1.addConnection(tg_e1, 0);
-        tg_c1.addConnection(tg_d1, 0);
-        tg_d1.addConnection(tg_a1, 1);
-        tg_d1.addConnection(tg_a1, 1);
+        tg_c1.addConnection(tg_a1, 0);
+//        tg_b1.addConnection(tg_e1, 0);
+//        tg_c1.addConnection(tg_d1, 0);
+//        tg_d1.addConnection(tg_a1, 1);
+//        tg_d1.addConnection(tg_a1, 1);
 
         NSEvolutionarySystemEvaluator evaluator = new NSEvolutionarySystemEvaluator();
         evaluator.testEvaluation(test_graph, axiom_graph);
@@ -486,8 +487,8 @@ public class NarrativeStructure {
 //        runQualityExperiment();
 //        runFitnessTest();
 //        runCoherenceTest();
-//        runSamples();
-        runSameTestSameAxiom();
+        runSamples();
+//        runSameTestSameAxiom();
         if(true)
             return;
 

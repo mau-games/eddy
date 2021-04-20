@@ -134,8 +134,10 @@ public class GrammarNode {
             connections.remove(otherNode);
 
             //So bidirection or no direction
-            if(removeOtherDir && connectionType != 1) //todo: problem here!
+            if(removeOtherDir && connectionType == 2)
                 otherNode.removeConnection(this, true);
+//            if(removeOtherDir && connectionType != 1) //todo: problem here!
+//                otherNode.removeConnection(this, true);
         }
 
         return connectionType;

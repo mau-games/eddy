@@ -112,7 +112,8 @@ public class NarrativeShape extends StackPane
         MenuItem removeNode = new MenuItem("Remove Node");
 
         Menu addConnection = new Menu("Add Connection");
-        MenuItem child_addConnection1 = new MenuItem("Undirected");
+//        MenuItem child_addConnection1 = new MenuItem("Undirected");
+        MenuItem child_addConnection1 = new MenuItem("Entails");
         MenuItem child_addConnection2 = new MenuItem("Unidirectional");
         MenuItem child_addConnection3 = new MenuItem("Bidirectional");
         addConnection.getItems().addAll(child_addConnection1, child_addConnection2, child_addConnection3);

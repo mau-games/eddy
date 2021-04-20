@@ -61,11 +61,11 @@
 						<Insets left="0.0" bottom="15.0" top="15.0" />
 					</padding>
 					<Separator orientation="VERTICAL" valignment="CENTER" prefHeight="200" minHeight="200" maxHeight="200"/>
-					<GrammarGraphInfoPane evaluation="Edited Narrative Structure" alignment="CENTER" spacing="5.0"/>
+					<GrammarGraphInfoPane fx:id="current_graph_info" evaluation="Edited Narrative Structure" alignment="CENTER" spacing="5.0"/>
 					<Separator orientation="VERTICAL" valignment="CENTER" prefHeight="200" minHeight="200" maxHeight="200"/>
-					<GrammarGraphInfoPane evaluation="Hovered Suggestion" alignment="CENTER" spacing="5.0"/>
+					<GrammarGraphInfoPane fx:id="hovered_graph_info" evaluation="Hovered Suggestion" alignment="CENTER" spacing="5.0"/>
 					<Separator orientation="VERTICAL" valignment="CENTER" prefHeight="200" minHeight="200" maxHeight="200"/>
-					<GrammarGraphInfoPane evaluation="Selected Suggestion" alignment="CENTER" spacing="5.0"/>
+					<GrammarGraphInfoPane fx:id="selected_graph_info" evaluation="Selected Suggestion" alignment="CENTER" spacing="5.0"/>
 					<Separator orientation="VERTICAL" valignment="CENTER" prefHeight="200" minHeight="200" maxHeight="200"/>
 
 				</HBox>

@@ -28,7 +28,7 @@
 			<Text fx:id="evaluation_title" fill="WHITE" strokeType="OUTSIDE" strokeWidth="0.0" text="Evaluation" />
 			<HBox alignment="CENTER" prefHeight="100.0" prefWidth="200.0" spacing="5.0">
 				<children>
-					<Text fill="WHITE" strokeType="OUTSIDE" strokeWidth="0.0" text="Fitness" />
+					<Text fill="WHITE" strokeType="OUTSIDE" strokeWidth="0.0" text="Fitness:" />
 					<Text fx:id="fitnessText" fill="#5cbf51" strokeType="OUTSIDE" strokeWidth="0.0" text="Fitness" />
 				</children>
 				<padding>
@@ -40,8 +40,8 @@
 			</HBox>
 			<HBox alignment="CENTER" prefHeight="100.0" prefWidth="200.0" spacing="5.0">
 				<children>
-					<Text fill="WHITE" strokeType="OUTSIDE" strokeWidth="0.0" text="Factions" />
-					<Text fx:id="NMesoText" fill="#5cbf51" strokeType="OUTSIDE" strokeWidth="0.0" text="Text" />
+					<Text fill="WHITE" strokeType="OUTSIDE" strokeWidth="0.0" text="Interesting Fitness:" />
+					<Text fx:id="intFitnessText" fill="#5cbf51" strokeType="OUTSIDE" strokeWidth="0.0" text="Text" />
 				</children>
 				<padding>
 					<Insets left="3.0" right="3.0" top="3.0" />
@@ -49,8 +49,8 @@
 			</HBox>
 			<HBox alignment="CENTER" prefHeight="100.0" prefWidth="200.0" spacing="5.0">
 				<children>
-					<Text fill="WHITE" strokeType="OUTSIDE" strokeWidth="0.0" text="Roles" />
-					<Text fx:id="NMicroText" fill="#5cbf51" strokeType="OUTSIDE" strokeWidth="0.0" text="Text" />
+					<Text fill="WHITE" strokeType="OUTSIDE" strokeWidth="0.0" text="Coherence Fitness:" />
+					<Text fx:id="cohFitnessText" fill="#5cbf51" strokeType="OUTSIDE" strokeWidth="0.0" text="Text" />
 				</children>
 				<padding>
 					<Insets left="3.0" right="3.0" top="3.0" />
@@ -59,7 +59,7 @@
 			<HBox alignment="CENTER" prefHeight="100.0" prefWidth="200.0" spacing="5.0">
 				<children>
 					<Text fill="WHITE" strokeType="OUTSIDE" strokeWidth="0.0" text="Bosses" />
-					<Text fx:id="lenText" fill="#5cbf51" strokeType="OUTSIDE" strokeWidth="0.0" text="Text" />
+					<Text fx:id="bossesText" fill="#5cbf51" strokeType="OUTSIDE" strokeWidth="0.0" text="Text" />
 				</children>
 				<padding>
 					<Insets left="3.0" right="3.0" top="3.0" />
@@ -77,7 +77,7 @@
 			<HBox alignment="CENTER" prefHeight="100.0" prefWidth="200.0" spacing="5.0">
 				<children>
 					<Text fill="WHITE" strokeType="OUTSIDE" strokeWidth="0.0" text="Main Story Arc" />
-					<Text fx:id="symText" fill="#5cbf51" strokeType="OUTSIDE" strokeWidth="0.0" text="Text" />
+					<Text fx:id="storyText" fill="#5cbf51" strokeType="OUTSIDE" strokeWidth="0.0" text="Text" />
 				</children>
 				<padding>
 					<Insets left="3.0" right="3.0" top="3.0" />

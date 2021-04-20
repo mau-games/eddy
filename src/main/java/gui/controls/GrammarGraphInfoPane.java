@@ -12,13 +12,12 @@ import java.io.IOException;
 public class GrammarGraphInfoPane extends VBox
 {
     @FXML Text evaluation_title;
-    @FXML
-    public Text fitnessText;
-    @FXML public Text NMesoText;
-    @FXML public Text NMicroText;
-    @FXML public Text lenText;
+    @FXML public Text fitnessText;
+    @FXML public Text intFitnessText;
+    @FXML public Text cohFitnessText;
+    @FXML public Text bossesText;
     @FXML public Text linText;
-    @FXML public Text symText;
+    @FXML public Text storyText;
 
     public GrammarGraphInfoPane(@NamedArg("alignment") Pos alignment,
                                 @NamedArg("prefWidth") double prefWidth, @NamedArg("minWidth") double minWidth,  @NamedArg("maxWidth") double maxWidth,

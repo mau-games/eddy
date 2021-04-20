@@ -16,6 +16,9 @@ import util.Util;
 
 import java.util.List;
 
+/***
+ * FIXME: THIS NEEDS TO CHANGE
+ */
 public class ConflictGADimensionGrammar extends GADimensionGrammar {
 
 	double patternMultiplier = 4.0;
@@ -33,8 +36,8 @@ public class ConflictGADimensionGrammar extends GADimensionGrammar {
 		GrammarGraph nStructure = individual.getPhenotype().getGrammarGraphOutputBest(target_graph, 1);
 
 		float raw_conf = nStructure.checkAmountNodes(TVTropeType.CONFLICT, false);
-		raw_conf += nStructure.checkAmountNodes(TVTropeType.CONA, false);
-		raw_conf +=  nStructure.checkAmountNodes(TVTropeType.COSO, false);
+//		raw_conf += nStructure.checkAmountNodes(TVTropeType.CONA, false);
+//		raw_conf +=  nStructure.checkAmountNodes(TVTropeType.COSO, false);
 
 //		short dist = target_graph.distanceBetweenGraphs(nStructure);
 
@@ -49,8 +52,8 @@ public class ConflictGADimensionGrammar extends GADimensionGrammar {
 //		GrammarGraph nStructure = individual.getPhenotype().getGrammarGraphOutput(target_graph, 1);
 
 		float raw_conf = individual_graph.checkAmountNodes(TVTropeType.CONFLICT, false);
-		raw_conf += individual_graph.checkAmountNodes(TVTropeType.CONA, false);
-		raw_conf +=  individual_graph.checkAmountNodes(TVTropeType.COSO, false);
+//		raw_conf += individual_graph.checkAmountNodes(TVTropeType.CONA, false);
+//		raw_conf +=  individual_graph.checkAmountNodes(TVTropeType.COSO, false);
 
 //		short dist = target_graph.distanceBetweenGraphs(nStructure);
 

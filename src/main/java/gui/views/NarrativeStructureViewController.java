@@ -8,6 +8,7 @@ import game.narrative.TVTropeType;
 import generator.algorithm.Algorithm;
 import generator.algorithm.MAPElites.GrammarGACell;
 import generator.algorithm.MAPElites.GrammarMAPEliteAlgorithm;
+import generator.algorithm.MAPElites.NSEvolutionarySystemEvaluator;
 import generator.algorithm.MAPElites.grammarDimensions.GADimensionGrammar;
 import generator.algorithm.MAPElites.grammarDimensions.MAPEDimensionGrammarFXML;
 import gui.controls.*;
@@ -37,6 +38,7 @@ import util.eventrouting.PCGEvent;
 import util.eventrouting.events.*;
 
 import java.io.IOException;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -82,6 +84,14 @@ public class NarrativeStructureViewController extends BorderPane implements List
 
 	SuggestionNarrativeStructure hovered_suggestion = null;
 	SuggestionNarrativeStructure selected_suggestion = null;
+
+	//INFO STRUCTURES
+	@FXML GrammarGraphInfoPane current_graph_info;
+	@FXML GrammarGraphInfoPane hovered_graph_info;
+	@FXML GrammarGraphInfoPane selected_graph_info;
+
+	NSEvolutionarySystemEvaluator evaluator = new NSEvolutionarySystemEvaluator();
+	DecimalFormat df = new DecimalFormat("#.##");
 
 	public NarrativeStructureViewController() {
 		super();
@@ -217,9 +227,10 @@ public class NarrativeStructureViewController extends BorderPane implements List
 
 		Menu conflictMenu = new Menu("Conflict");
 		TVTropeMenuItem conflictChild1 = new TVTropeMenuItem("Conflict", TVTropeType.CONFLICT);
-		TVTropeMenuItem conflictChild2 = new TVTropeMenuItem("CONA", TVTropeType.CONA);
-		TVTropeMenuItem conflictChild3 = new TVTropeMenuItem("COSO", TVTropeType.COSO);
-		conflictMenu.getItems().addAll(conflictChild1, conflictChild2, conflictChild3);
+//		TVTropeMenuItem conflictChild2 = new TVTropeMenuItem("CONA", TVTropeType.CONA);
+//		TVTropeMenuItem conflictChild3 = new TVTropeMenuItem("COSO", TVTropeType.COSO);
+//		conflictMenu.getItems().addAll(conflictChild1, conflictChild2, conflictChild3);
+		conflictMenu.getItems().addAll(conflictChild1);
 
 		Menu enemyMenu = new Menu("Enemy");
 		TVTropeMenuItem EnemyChild1 = new TVTropeMenuItem("Enemy", TVTropeType.ENEMY);
@@ -229,7 +240,7 @@ public class NarrativeStructureViewController extends BorderPane implements List
 		enemyMenu.getItems().addAll(EnemyChild1, EnemyChild2, EnemyChild3, EnemyChild4);
 
 		Menu modifierMenu = new Menu("Modifier");
-		TVTropeMenuItem modifierChild1 = new TVTropeMenuItem("Modifier", TVTropeType.PLOT_DEVICE);
+		TVTropeMenuItem modifierChild1 = new TVTropeMenuItem("PlotDevice", TVTropeType.PLOT_DEVICE);
 		TVTropeMenuItem modifierChild2 = new TVTropeMenuItem("CHK", TVTropeType.CHK);
 		TVTropeMenuItem modifierChild3 = new TVTropeMenuItem("MCG", TVTropeType.MCG);
 		TVTropeMenuItem modifierChild4 = new TVTropeMenuItem("MHQ", TVTropeType.MHQ);
@@ -287,6 +298,12 @@ public class NarrativeStructureViewController extends BorderPane implements List
 		//important distinction so you can use the graph for MAP-Elites and edit at the same time
 		this.editedGraph = new GrammarGraph(grammar);
 		this.renderedGraph = grammar;
+
+		double[] fitness_values = evaluator.testEvaluation(editedGraph, editedGraph);
+
+		current_graph_info.intFitnessText.setText(df.format(fitness_values[0]));
+		current_graph_info.cohFitnessText.setText(df.format(fitness_values[1]));
+		current_graph_info.fitnessText.setText(df.format(fitness_values[2]));
 
 		worldPane.getChildren().clear();
 
@@ -492,6 +509,12 @@ public class NarrativeStructureViewController extends BorderPane implements List
 //			elite_preview_1.setMaxHeight(300);
 //			elite_preview_1.setPrefHeight(300);
 
+			double[] fitness_values = evaluator.testEvaluation(hovered_suggestion.getElite(), editedGraph);
+
+			hovered_graph_info.intFitnessText.setText(df.format(fitness_values[0]));
+			hovered_graph_info.cohFitnessText.setText(df.format(fitness_values[1]));
+			hovered_graph_info.fitnessText.setText(df.format(fitness_values[2]));
+
 		}
 		else if(e instanceof SuggestedNarrativeSelected)
 		{
@@ -517,10 +540,41 @@ public class NarrativeStructureViewController extends BorderPane implements List
 //			elite_preview_2.setMaxHeight(300);
 //			elite_preview_1.setPrefHeight(300);
 
+			double[] fitness_values = evaluator.testEvaluation(selected_suggestion.getSelectedElite(), editedGraph);
+
+			selected_graph_info.intFitnessText.setText(df.format(fitness_values[0]));
+			selected_graph_info.cohFitnessText.setText(df.format(fitness_values[1]));
+			selected_graph_info.fitnessText.setText(df.format(fitness_values[2]));
+
 		}
 		else if(e instanceof NarrativeStructEdited)
 		{
 			editedGraph = new GrammarGraph((GrammarGraph) e.getPayload());
+
+			double[] fitness_values = evaluator.testEvaluation(editedGraph, editedGraph);
+
+			current_graph_info.intFitnessText.setText(df.format(fitness_values[0]));
+			current_graph_info.cohFitnessText.setText(df.format(fitness_values[1]));
+			current_graph_info.fitnessText.setText(df.format(fitness_values[2]));
+
+			if(hovered_suggestion.getElite() != null)
+			{
+				fitness_values = evaluator.testEvaluation(hovered_suggestion.getElite(), editedGraph);
+
+				hovered_graph_info.intFitnessText.setText(df.format(fitness_values[0]));
+				hovered_graph_info.cohFitnessText.setText(df.format(fitness_values[1]));
+				hovered_graph_info.fitnessText.setText(df.format(fitness_values[2]));
+			}
+
+			if(selected_suggestion.getSelectedElite() != null)
+			{
+				fitness_values = evaluator.testEvaluation(selected_suggestion.getSelectedElite(), editedGraph);
+
+				selected_graph_info.intFitnessText.setText(df.format(fitness_values[0]));
+				selected_graph_info.cohFitnessText.setText(df.format(fitness_values[1]));
+				selected_graph_info.fitnessText.setText(df.format(fitness_values[2]));
+			}
+
 		}
 	}
 

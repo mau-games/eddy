@@ -11,8 +11,8 @@ public enum TVTropeType {
     SH(13), //Superhero
 //    COVS(21), //Conflict against another
 //    COSE(22), //Conflict against self?
-    CONA(23), //Conflict against nature?
-    COSO(24), //Conflict against society
+//    CONA(23), //Conflict against nature?
+//    COSO(24), //Conflict against society
     EMP(31), //The empire
     BAD(32), //BAD
     DRA(33), //Drake

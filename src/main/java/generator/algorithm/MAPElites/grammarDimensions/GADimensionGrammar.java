@@ -15,7 +15,8 @@ public abstract class GADimensionGrammar
 		TENSION,
 		STRUCTURE,
 		PLOTPOINTS,
-		PLOTDEVICES
+		PLOTDEVICES,
+		INTERESTING
 	}
 
 	protected GrammarDimensionTypes dimension;
@@ -62,6 +63,8 @@ public abstract class GADimensionGrammar
 				return new TensionGADimensionGrammar(granularity.floatValue());
 			case STRUCTURE:
 				return new StructureGADimensionGrammar(granularity.floatValue());
+			case INTERESTING:
+				return new InterestingGADimensionGrammar(granularity.floatValue());
 			default:
 				break;
 		

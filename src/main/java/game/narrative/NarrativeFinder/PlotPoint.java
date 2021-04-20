@@ -1,6 +1,7 @@
 package game.narrative.NarrativeFinder;
 
 import com.sun.org.apache.xerces.internal.xni.grammars.Grammar;
+import game.Room;
 import game.narrative.GrammarGraph;
 
 import java.util.ArrayList;
@@ -99,5 +100,43 @@ public class PlotPoint extends CompositeNarrativePattern
         }
 
         return results;
+    }
+
+    /**
+     * Rather than calculating a generic quality for the tropes, I would prefer a generic part and a specific one (based on the node trope!)
+     * @param room
+     * @return
+     */
+    public double calculateTropeQuality(Room room, GrammarGraph current, GrammarGraph core, List<NarrativePattern> currentPatterns, NarrativeStructPatternFinder finder)
+    {
+//        double generic_quality = super.calculateTropeQuality(room, current, core, currentPatterns, finder);
+
+        double generic_quality = 1.0;
+
+        ArrayList<PlotPoint> all_plotpoints = finder.getAllPatternsByType(PlotPoint.class);
+
+        //Then we want to know the distribution of the explicit conflicts!
+        if(core != null) {
+            ArrayList<NarrativePattern> core_narrative_patterns = core.pattern_finder.findNarrativePatterns(null);
+            ArrayList<PlotPoint> other_plotpoints = core.pattern_finder.getAllPatternsByType(PlotPoint.class);
+
+            //I don't know if 0.0 should be the right one
+            if (other_plotpoints.isEmpty()) {
+                generic_quality = 0.0;
+            } else {
+
+                generic_quality = all_plotpoints.size() <= other_plotpoints.size() ?
+                        (double) all_plotpoints.size() / (double) other_plotpoints.size() :
+                        2.0 - (double) all_plotpoints.size() / (double) other_plotpoints.size();
+            }
+        }
+
+        //Calculate the quality of the plot points based on how many there are in relation with how many node exist!
+        double quantity_quality = (double)all_plotpoints.size()/currentPatterns.size();
+
+        //Now lets calculate the final quality
+        this.quality = (generic_quality + quantity_quality)/2.0;
+
+        return this.quality;
     }
 }

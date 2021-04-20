@@ -55,7 +55,7 @@ public class NSEvolutionarySystemEvaluator
 
     public void generationStep(int generation){this.generation = generation;}
 
-    public double testEvaluation(GrammarGraph test_graph, GrammarGraph axiom)
+    public double[] testEvaluation(GrammarGraph test_graph, GrammarGraph axiom)
     {
         LinkedHashMap<Integer, Integer> best_recipe = null;
         double best_fitness = Double.NEGATIVE_INFINITY;
@@ -70,8 +70,7 @@ public class NSEvolutionarySystemEvaluator
 
         fitness = (weights[0] * interest_fitness) + (weights[1] * coherence_fitness);
 
-
-        return fitness;
+        return new double[]{interest_fitness, coherence_fitness, fitness};
     }
 
     // Add the necessary methods
