@@ -16,6 +16,7 @@ import game.tiles.EnemyTile;
 import game.tiles.ItemTile;
 import game.tiles.SoldierTile;
 import generator.algorithm.grammar.QuestGrammar;
+import generator.algorithm.grammar.QuestGrammar.QuestMotives;
 import gui.controls.LabeledCanvas;
 import gui.utils.DungeonDrawer;
 import javafx.application.Platform;
@@ -44,6 +45,8 @@ import gui.utils.InformativePopupManager;
 import gui.utils.InformativePopupManager.PresentableInformation;
 
 import java.io.IOException;
+import java.math.RoundingMode;
+import java.text.DecimalFormat;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -62,6 +65,7 @@ public class QuestViewController extends BorderPane implements Listener {
     private QuestPositionUpdate secondUpdatedPosition = null;
     private boolean doublePosition = false;
     private boolean firstTime = true;
+    float[] motiveArray;
     
     private Stack<TileTypes> stackNpc;
     private Stack<finder.geometry.Point> npcPosition;
@@ -69,6 +73,9 @@ public class QuestViewController extends BorderPane implements Listener {
     private Stack<finder.geometry.Point> civilianPosition;
     private Stack<Room> roomsNpc;
     private Stack<Room> roomsCivilian;
+    private int rows;
+    private int columns;
+    
 
     private QuestGrammar questGrammar;
     //    private List<Quest> suggestedQuests;
@@ -79,8 +86,12 @@ public class QuestViewController extends BorderPane implements Listener {
     private StackPane mapPane;
     @FXML
     private BorderPane buttonPane;
+    //@FXML
+    //private FlowPane questPane;
     @FXML
-    private FlowPane questPane;
+    private VBox questPaneV;
+    @FXML
+    private HBox questPaneH;
     @FXML
     private FlowPane generatorPane;
     @FXML
@@ -99,6 +110,30 @@ public class QuestViewController extends BorderPane implements Listener {
     private Button regenerateButton;
     @FXML
     private Button clearQuestButton;
+    @FXML
+    private Button questPlaceholder;
+    @FXML
+    private FlowPane motivePane;
+    @FXML
+    private Label knowledgeText;
+    @FXML
+    private Label comfortText;
+    @FXML
+    private Label reputationText;
+    @FXML
+    private Label serenityText;
+    @FXML
+    private Label protectionText;
+    @FXML
+    private Label conquestText;
+    @FXML
+    private Label wealthText;
+    @FXML
+    private Label abilityText;
+    @FXML
+    private Label equipmentText;
+    
+    
     LabeledCanvas canvas;
 
     public QuestViewController() {
@@ -129,22 +164,27 @@ public class QuestViewController extends BorderPane implements Listener {
         civilianPosition = new Stack<finder.geometry.Point>();
         roomsNpc = new Stack<Room>();
         roomsCivilian = new Stack<Room>();
+        
+        //rows = 1;
+        columns = 0;
+        //temp = null;
 
     }
     //trycker på plus + ändring av JA
     private void initQuestView() {
-        questPane.getChildren().stream()
+        questPaneH.getChildren().stream()
                 .filter(node -> node.getId().equals("questPlaceholder"))
                 .forEach(node -> {
                     node.addEventHandler(MouseEvent.MOUSE_CLICKED,
                             event -> {
                                 AtomicBoolean added = new AtomicBoolean(false);
-                                int paneCount = questPane.getChildren().size();
+                                int paneCount = questPaneH.getChildren().size();
                                 tbQuestTools.getItems().stream()
                                         .filter(action -> ((ToggleButton) action).isSelected())
                                         .forEach(selected -> {
                                             ToggleButton toggleButton = (ToggleButton) selected;
                                             int questCount = dungeon.getQuest().getActions().size();
+                                            
                                             if (!doublePosition && updatedPosition != null) {
                                                 Action action = addQuestAction(toggleButton, questCount);
                                                 Tile tile = action.getRoom().getTile(action.getPosition().getX(), action.getPosition().getY());
@@ -155,6 +195,8 @@ public class QuestViewController extends BorderPane implements Listener {
                                                 questGrammar.setStacks(stackNpc, stackCivilian, npcPosition, civilianPosition, roomsNpc, roomsCivilian, dungeon.getQuest());
                                                 dungeon.getQuest().checkForAvailableActions(action, tile.GetType(), stackNpc,dungeon);
                                                 RefreshPanel();
+                                                GetMotiveBalance();
+                                                UpdateMotives();
                                                 added.set(true);
                                             }
                                         });
@@ -174,6 +216,8 @@ public class QuestViewController extends BorderPane implements Listener {
                                                 dungeon.getQuest().checkForAvailableActions(action, tile.GetType(), stackNpc, dungeon);
                                                 questGrammar.setStacks(stackNpc, stackCivilian, npcPosition, civilianPosition, roomsNpc, roomsCivilian, dungeon.getQuest());
                                                 RefreshPanel();
+                                                GetMotiveBalance();
+                                                UpdateMotives();
                                                 added.set(true);
                                             }
                                         });
@@ -193,7 +237,7 @@ public class QuestViewController extends BorderPane implements Listener {
 
         this.addEventHandler(KeyEvent.KEY_PRESSED, event -> {
             if (event.getCode().equals(KeyCode.DELETE)) {
-                questPane.getChildren().stream()
+                questPaneH.getChildren().stream()
                         .filter(questAction -> questAction instanceof ToggleButton)
                         .filter(questAction -> ((ToggleButton) questAction).isSelected())
                         .forEach(questAction -> {
@@ -215,8 +259,8 @@ public class QuestViewController extends BorderPane implements Listener {
 
         clearQuestButton.addEventHandler(MouseEvent.MOUSE_CLICKED, event -> {
             dungeon.getQuest().clearAction();
-            int end = questPane.getChildren().size() - 1;
-            questPane.getChildren().remove(0, end);
+            int end = questPaneH.getChildren().size() - 1;
+            questPaneH.getChildren().remove(0, end);
             updateQuestAndIndexToGenerator();
             if (togglePath.isSelected()){
                 calculateAndPaintQuestPath();
@@ -339,6 +383,8 @@ public class QuestViewController extends BorderPane implements Listener {
             	typesList.add(TileTypes.TREASURE);
             	typesList.add(TileTypes.ITEM);
             	break;
+            case STEAL:
+            	typesList.add(TileTypes.TREASURE);
             case EXPERIMENT:
             case READ:
             case REPAIR:
@@ -464,7 +510,7 @@ public class QuestViewController extends BorderPane implements Listener {
             DungeonDrawer.getInstance().changeBrushTo(DungeonDrawer.DungeonBrushes.NONE);
             RefreshPanel();
             //check the validity of each action
-            questPane.getChildren().filtered(node -> node instanceof ToggleButton).forEach(node -> {
+            questPaneH.getChildren().filtered(node -> node instanceof ToggleButton).forEach(node -> {
                 if (dungeon.getQuest().getAction(UUID.fromString(node.getId())).isPreconditionMet()){
                     node.getStyleClass().remove("danger");
                 } else {
@@ -480,7 +526,7 @@ public class QuestViewController extends BorderPane implements Listener {
             AtomicBoolean replace = new AtomicBoolean(false);
             if (doublePosition) {
                 secondUpdatedPosition = (QuestPositionUpdate) e;
-                questPane.getChildren()
+                questPaneH.getChildren()
                         .filtered(questAction -> questAction instanceof ToggleButton)
                         .filtered(questAction -> ((ToggleButton) questAction).isSelected())
                         .forEach(questAction -> {
@@ -497,7 +543,7 @@ public class QuestViewController extends BorderPane implements Listener {
             }
             if (!doublePosition) {
                 DungeonDrawer.getInstance().changeBrushTo(DungeonDrawer.DungeonBrushes.NONE);
-                questPane.getChildren()
+                questPaneH.getChildren()
                         .filtered(questAction -> questAction instanceof ToggleButton)
                         .filtered(questAction -> ((ToggleButton) questAction).isSelected())
                         .forEach(questAction -> {
@@ -562,13 +608,7 @@ public class QuestViewController extends BorderPane implements Listener {
 
     public void addVisualQuestPaneAction(Action action, int index) {
         //add toggle button representation
-    	/*VBox vbox = new VBox();
-    	vbox.maxHeight(20);
-    	vbox.maxWidth(50000);
-    	if (dungeon.getQuest().checkIfLastActionWasReport() || questPane.getChildren().size() == 1) {
-        	questPane.getChildren().add(vbox);
-		}
-		*/
+    	
         ToggleButton toAdd = new ToggleButton();
         toAdd.setText(action.getName());
         toAdd.setId(action.getId().toString());
@@ -633,19 +673,43 @@ public class QuestViewController extends BorderPane implements Listener {
                 router.postEvent(new RequestDisplayQuestTilesUnselection(false));
             }
         });
-        questPane.getChildren().add(index, toAdd);
+
+        questPaneH.getChildren().add(columns, toAdd);
 
         //add arrow label
         if (action.getType() == ActionType.REPORT && stackNpc.size() == 0) {
-
+        	questPaneH = new HBox(2);
+        	questPaneV.getChildren().add(questPaneH);
+        	columns = 0;
 		}
         else {
             Label arrow = new Label("=>");
             arrow.setTextFill(Color.WHITE);
             arrow.setFont(Font.font(14.0));
             arrow.setStyle("-fx-background-color: transparent;");
-            questPane.getChildren().add(index + 1, arrow);
+            questPaneH.getChildren().add(columns + 1, arrow);
+            columns++;
 		}
+        
+        /*if (temp != null) {
+        	temp.getChildren().add(columns, toAdd);
+			columns++;
+		}
+
+        //add arrow label
+        if (action.getType() == ActionType.REPORT && stackNpc.size() == 0) {
+        	temp = new HBox(1);
+        	questPaneV.getChildren().add(temp);
+        	temp.getChildren().add(columns, questPlaceholder);
+        	columns++;
+		}
+        else {
+            Label arrow = new Label("=>");
+            arrow.setTextFill(Color.WHITE);
+            arrow.setFont(Font.font(14.0));
+            arrow.setStyle("-fx-background-color: transparent;");
+            questPaneH.getChildren().add(index + 1, arrow);
+		}*/
     }
 
     public void addVisualGeneratorPaneAction(Action action, int paneIndex) {
@@ -668,7 +732,7 @@ public class QuestViewController extends BorderPane implements Listener {
             }
             AtomicBoolean replace = new AtomicBoolean(false);
             if (!doublePosition && updatedPosition != null) {
-                questPane.getChildren()
+                questPaneH.getChildren()
                         .filtered(questAction -> questAction instanceof ToggleButton)
                         .filtered(a -> ((ToggleButton) a).isSelected())
                         .forEach(s -> {
@@ -772,6 +836,8 @@ public class QuestViewController extends BorderPane implements Listener {
             case USE:
                 action = new UseAction();
                 break;
+            case STEAL:
+            	action = new StealAction();
         }
         if (action != null) {
             action.setId(UUID.randomUUID());
@@ -796,15 +862,15 @@ public class QuestViewController extends BorderPane implements Listener {
         //remove the QuestAction from Quest
         dungeon.getQuest().removeAction(dungeon.getQuest().getAction(UUID.fromString(questActionToggleButton.getId())));
         //remove the arrow label after QuestActionToggleButton
-        questPane.getChildren().remove(questPane.getChildren().indexOf(questActionToggleButton) + 1);
+        questPaneH.getChildren().remove(questPaneH.getChildren().indexOf(questActionToggleButton) + 1);
         //remove the QuestActionToggleButton
-        questPane.getChildren().remove(questActionToggleButton);
+        questPaneH.getChildren().remove(questActionToggleButton);
     }
 
     private void replaceQuestAction(ToggleButton questActionToggleButton, ToggleButton toolbarActionToggleButton) {
         int questIndex = dungeon.getQuest().indexOf(dungeon.getQuest()
                 .getAction(UUID.fromString(questActionToggleButton.getId())));
-        int paneIndex = questPane.getChildren().indexOf(questActionToggleButton);
+        int paneIndex = questPaneH.getChildren().indexOf(questActionToggleButton);
 
         removeQuestAction(questActionToggleButton);
         Action action = addQuestAction(toolbarActionToggleButton, questIndex);
@@ -861,6 +927,81 @@ public class QuestViewController extends BorderPane implements Listener {
                     //.requestPopup(dungeon.dPane, PresentableInformation.ACTION_NOT_AVAILABLE, "");
         }
     }
+    
+    private void UpdateMotives()
+    {
+    	String[] tempText = new String[9];
+    	
+    	float[] tempFloat = new float[9];
+    	for (int i = 0; i < tempFloat.length; i++) {
+			tempFloat[i] = (float)Math.round(motiveArray[i] * 10f) /10f;
+		}
+    	
+    	tempText[0] = "Knowledge = " + Float.toString(tempFloat[0]) + "/18.3%";
+    	tempText[1] = "Comfort = " + Float.toString(tempFloat[1]) + "/1.6%";
+    	tempText[2] = "Reputation = " + Float.toString(tempFloat[2]) + "/6.5%";
+		tempText[3] = "Serenity = " + Float.toString(tempFloat[3]) + "/13.7%";
+		tempText[4] = "Protection = " + Float.toString(tempFloat[4]) + "/18.2%";
+		tempText[5] = "Conquest = " + Float.toString(tempFloat[5]) + "/20.2%";
+		tempText[6] = "Wealth = " + Float.toString(tempFloat[6]) + "/2.0%";
+		tempText[7] = "Ability = " + Float.toString(tempFloat[7]) + "/1.1%";
+		tempText[8] = "Equipment = " + Float.toString(tempFloat[8]) + "/18.5%";
+
+    	
+    	knowledgeText.setText(tempText[0]);
+    	comfortText.setText(tempText[1]);
+    	reputationText.setText(tempText[2]);
+    	serenityText.setText(tempText[3]);
+    	protectionText.setText(tempText[4]);
+    	conquestText.setText(tempText[5]);
+    	wealthText.setText(tempText[6]);
+    	abilityText.setText(tempText[7]);
+    	equipmentText.setText(tempText[8]);
+    	
+    }
+    
+    private void GetMotiveBalance()
+    {
+    	motiveArray = new float[9];
+		if (dungeon.getQuest() != null) {
+			for (int i = 0; i < dungeon.getQuest().getActions().size(); i++) {
+				if (dungeon.getQuest().getActions().get(i).CheckMotives(QuestMotives.KNOWLEDGE)) {
+					motiveArray[0]++;
+				} if (dungeon.getQuest().getActions().get(i).CheckMotives(QuestMotives.COMFORT)) {
+					motiveArray[1]++;
+				} if (dungeon.getQuest().getActions().get(i).CheckMotives(QuestMotives.REPUTATION)) {
+					motiveArray[2]++;
+				} if (dungeon.getQuest().getActions().get(i).CheckMotives(QuestMotives.SERENITY)) {
+					motiveArray[3]++;
+				} if (dungeon.getQuest().getActions().get(i).CheckMotives(QuestMotives.PROTECTION)) {
+					motiveArray[4]++;
+				} if (dungeon.getQuest().getActions().get(i).CheckMotives(QuestMotives.CONQUEST)) {
+					motiveArray[5]++;
+				} if (dungeon.getQuest().getActions().get(i).CheckMotives(QuestMotives.WEALTH)) {
+					motiveArray[6]++;
+				} if (dungeon.getQuest().getActions().get(i).CheckMotives(QuestMotives.ABILITY)) {
+					motiveArray[7]++;
+				} if (dungeon.getQuest().getActions().get(i).CheckMotives(QuestMotives.EQUIPMENT)) {
+					motiveArray[8]++;
+				}
+			}
+		}
+		
+		float amountOfMotives = 0;
+		
+		for (int i = 0; i < motiveArray.length; i++) {
+			amountOfMotives += motiveArray[i];
+		}
+		
+		for (int i = 0; i < motiveArray.length; i++) {
+			if (amountOfMotives != 0) {
+				motiveArray[i] = motiveArray[i] / amountOfMotives;
+				motiveArray[i] *= 100;
+			}
+		}
+    }
+    
+    
     private void CheckUsedTile(Tile tile, Action action)
     {
         if (tile.GetType() == TileTypes.ENEMY) {

@@ -34,7 +34,8 @@
     [ "Listen", "defend", "report" ]
   ],
   "<conquest>": [
-    [ "Listen", "damage", "report" ]
+    [ "Listen", "damage", "report" ],
+    [ "Listen", "steal", "report" ]
   ],
   "<wealth>": [
     [ "Listen", "gather", "report" ],

@@ -24,6 +24,8 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import javax.sql.rowset.spi.SyncResolver;
+
 import org.apache.commons.io.IOUtils;
 
 public class QuestGrammar {
@@ -89,30 +91,43 @@ public class QuestGrammar {
 //        System.out.println(value);
 //        System.out.println(start);
 //        System.out.println(toExpand.size());
+    	
         if (start++ <= limit && toExpand.getActions().size() < limit) {
-        	if (value == null) {
-				System.out.println("null");
+        	synchronized (availableOptions) {
+                boolean available = Available(availableOptions, value);
+                if (rules.containsKey(value.toUpperCase())
+                        && available){
+                    List<String> nextValues = pickRandom(rules.get(value));
+                    int finalStart = start;
+                    synchronized (availableOptions) {
+                        nextValues.forEach(s -> expand(toExpand, s, availableOptions, finalStart, limit));
+    				}
+                } else if (available){
+                    Action action = createActionOnType(value);
+                    toExpand.addActions(action);
+                }
 			}
-        	if (availableOptions == null || availableOptions.size() == 0) {
-        		System.out.println("null");
-			}
-            boolean available = availableOptions.stream()
-                    .map(Enum::toString)
-                    .anyMatch(s -> s.equals(value.toUpperCase())) ||
-                    value.startsWith("<");
-            if (rules.containsKey(value.toUpperCase())
-                    && available){
-                List<String> nextValues = pickRandom(rules.get(value));
-                int finalStart = start;
-                nextValues.forEach(s -> expand(toExpand, s, availableOptions, finalStart, limit));
-            } else if (available){
-                Action action = createActionOnType(value);
-                toExpand.addActions(action);
-            }
+            
         }
         //check limit and save or scrap
 
         //check
+    }
+    
+    private boolean Available(final List<ActionType> availableOptions, final String value)
+    {
+    	synchronized (availableOptions) {
+    		if (availableOptions.isEmpty()) {
+				System.out.println("availableOptions was null");
+			}
+    		else {
+    			return availableOptions.stream()
+    		            .map(Enum::toString)
+    		            .anyMatch(s -> s.equals(value.toUpperCase())) ||
+    		            value.startsWith("<");
+			}
+    		return false;
+		}
     }
 
     /**
@@ -419,6 +434,20 @@ public class QuestGrammar {
                     action.setRoom(tiles.get(0).getRoom());
                 }
                 break;
+            case STEAL:
+                action = new StealAction();
+                tiles.addAll(owner.getTreasures());
+                if (tiles.size() > 1) {
+                    QuestPositionUpdate position = tiles.get(random.nextInt(tiles.size()-1));
+                    action.setPosition(position.getPoint());
+                    action.setRoom(position.getRoom());
+                    //needs room
+                } else {
+                    //get only one
+                    action.setPosition(tiles.get(0).getPoint());
+                    action.setRoom(tiles.get(0).getRoom());
+                }
+                break;
             case TAKE:
                 action = new TakeAction();
                 tiles.addAll(owner.getItems());
@@ -713,7 +742,9 @@ public class QuestGrammar {
         while (maps.size() < questResolution) {
             try{
                 quest = new Quest();
-                grammar.expand(quest, QuestGrammar.START_VALUE, availableOptions, 0 , limitLength);
+                synchronized (availableOptions) {
+                    grammar.expand(quest, QuestGrammar.START_VALUE, availableOptions, 0 , limitLength);
+				}
                 maps.add(QuestAnalyser.mapQuestActions(quest));
             } catch (StackOverflowError e){
                 System.out.println("StackOverFlow");

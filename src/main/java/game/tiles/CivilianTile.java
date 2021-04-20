@@ -77,7 +77,6 @@ public class CivilianTile extends NpcTile{
         questMotiveList = new ArrayList<QuestMotives>();
         questMotiveList.add(QuestMotives.EQUIPMENT);
         questMotiveList.add(QuestMotives.WEALTH);
-        questMotiveList.add(QuestMotives.SERENITY);
     }
 
 //    @Override

@@ -111,49 +111,52 @@ public class Quest {
     }
 
     public void checkForAvailableActions(){
-        availableActions.clear();
-        //final int hasItem = owner.getItems().size();
-        final int hasNpc = owner.getAllNpcs();
-        //final int hasEnemies = owner.getEnemies().size() + owner.getBossesPositions().size();
-        
-		if (actions.size() == 0) {
-	        if (hasNpc > 0){
-	            availableActions.add(ActionType.LISTEN);
-	            return;
-	        }
+    	synchronized (availableActions) {
+    		availableActions.clear();
+            //final int hasItem = owner.getItems().size();
+            final int hasNpc = owner.getAllNpcs();
+            //final int hasEnemies = owner.getEnemies().size() + owner.getBossesPositions().size();
+            
+    		if (actions.size() == 0) {
+    	        if (hasNpc > 0){
+    	            availableActions.add(ActionType.LISTEN);
+    	            return;
+    	        }
+    		}
 		}
     }
     public void checkForAvailableActions(Action action, TileTypes tempTileType, Stack<TileTypes> stack, Dungeon dungeon){
-        availableActions.clear();
-        final int hasNpc = owner.getAllNpcs();
-        if (checkIfLastActionWasReport()) {
-        	if (stack.size() != 0) {
-				availableActions.add(ActionType.REPORT);
-			}
-        	else if (hasNpc > 0) {
-	        	availableActions.add(ActionType.LISTEN);
-	            return;
-			}
-        }
-        
-		if (checkIfListenWasLastAction()) {
-			decideWhatActions(tempTileType);
+    	synchronized (availableActions) {
+    		availableActions.clear();
+            final int hasNpc = owner.getAllNpcs();
+            if (checkIfLastActionWasReport()) {
+            	if (stack.size() != 0) {
+    				availableActions.add(ActionType.REPORT);
+    			}
+            	else if (hasNpc > 0) {
+    	        	availableActions.add(ActionType.LISTEN);
+    	            return;
+    			}
+            }
+            
+    		if (checkIfListenWasLastAction()) {
+    			decideWhatActions(tempTileType);
+    		}
+    		else if (!checkIfLastActionWasReport()){
+    			if (checkIfActionIsCivilian()) {
+    				availableActions.add(ActionType.LISTEN);
+    				availableActions.add(ActionType.REPORT);
+    			}
+    			else {
+    				availableActions.add(ActionType.REPORT);
+    				decideWhatActions(stack.peek());
+    			}
+    		}
+    		if (availableActions.size() == 0) {
+    			InformativePopupManager.getInstance().restartPopups();
+    			InformativePopupManager.getInstance().requestPopup(dungeon.dPane, PresentableInformation.OUT_OF_ACTIONS, "");
+    		}
 		}
-		else if (!checkIfLastActionWasReport()){
-			if (checkIfActionIsCivilian()) {
-				availableActions.add(ActionType.LISTEN);
-				availableActions.add(ActionType.REPORT);
-			}
-			else {
-				availableActions.add(ActionType.REPORT);
-				decideWhatActions(stack.peek());
-			}
-		}
-		if (availableActions.size() == 0) {
-			InformativePopupManager.getInstance().restartPopups();
-			InformativePopupManager.getInstance().requestPopup(dungeon.dPane, PresentableInformation.OUT_OF_ACTIONS, "");
-		}
-		
     }
     public Quest copy(){
         return new Quest(this);

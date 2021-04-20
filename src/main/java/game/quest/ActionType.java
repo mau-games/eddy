@@ -24,6 +24,7 @@ public enum ActionType {
     STEALTH(16),
     TAKE(17),
     USE(18),
+    STEAL(19),
     NONE(19);
 
     private final int value;
@@ -96,6 +97,8 @@ public enum ActionType {
             case 18:
                 type = USE;
                 break;
+            case 19:
+            	type = STEAL;
             default:
                 type = NONE;
         }

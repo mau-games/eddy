@@ -15,6 +15,7 @@ import game.quest.actions.ReadAction;
 import game.quest.actions.RepairAction;
 import game.quest.actions.ReportAction;
 import game.quest.actions.SpyAction;
+import game.quest.actions.StealAction;
 import game.quest.actions.UseAction;
 import game.tiles.BountyhunterTile;
 import game.tiles.CivilianTile;
@@ -138,7 +139,9 @@ public class QuestGenerator extends Thread {
                 for (int i = 0; i < QuestGrammar.Motives.length; i++) {
                     Quest quest = new Quest();
 //                    while (quest.getActions().isEmpty()) {
+                    synchronized (availableActions) {
                         grammar.expand(quest, QuestGrammar.Motives[i], availableActions, 0, limit);
+					}
 //                    }
                     temporaryList.add(quest);
                 }
@@ -384,6 +387,9 @@ public class QuestGenerator extends Thread {
 			} else if (suggestedActions.get(i).getType() == ActionType.SPY) {
 				SpyAction tempSpy = new SpyAction();
 				tempSuggestedActionList.add(tempSpy);
+			} else if (suggestedActions.get(i).getType() == ActionType.STEAL) {
+				StealAction tempSteal = new StealAction();
+				tempSuggestedActionList.add(tempSteal);
 			} else if (suggestedActions.get(i).getType() == ActionType.USE) {
 				UseAction tempUse = new UseAction();
 				tempSuggestedActionList.add(tempUse);

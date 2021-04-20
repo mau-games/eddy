@@ -53,6 +53,7 @@ public class GatherAction extends Action {
     {
         questMotiveList = new ArrayList<QuestMotives>();
         questMotiveList.add(QuestMotives.WEALTH);
+        questMotiveList.add(QuestMotives.COMFORT);
     }
 }
 

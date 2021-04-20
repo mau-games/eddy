@@ -80,6 +80,7 @@ public class MageTile extends NpcTile{
         questMotiveList.add(QuestMotives.COMFORT);
         questMotiveList.add(QuestMotives.ABILITY);
         questMotiveList.add(QuestMotives.CONQUEST);
+        questMotiveList.add(QuestMotives.PROTECTION);
     }
 
 //    @Override

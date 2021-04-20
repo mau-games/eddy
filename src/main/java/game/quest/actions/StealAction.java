@@ -8,24 +8,20 @@ import game.quest.Action;
 import game.quest.ActionType;
 import generator.algorithm.grammar.QuestGrammar.QuestMotives;
 
-/**
- * @author Eric Grevillius
- * @author Elin Olsson
- */
-public class DamageAction extends Action {
-	private List<QuestMotives> questMotiveList;
-    public DamageAction() {
-        this.setType(ActionType.DAMAGE);
-        AddQuestMotives();
+public class StealAction extends Action {
 
+	List<QuestMotives> questMotiveList;
+    public StealAction() {
+        this.setType(ActionType.STEAL);
+        AddQuestMotives();
     }
 
-    public DamageAction(boolean precondition) {
+    public StealAction(boolean precondition) {
         super(precondition);
         AddQuestMotives();
     }
 
-    public DamageAction(ActionType type) {
+    public StealAction(ActionType type) {
         super(type);
         AddQuestMotives();
     }
@@ -34,10 +30,12 @@ public class DamageAction extends Action {
     public void checkConditions() {
         Tile tile = getRoom().getTile(getPosition().getX(),getPosition().getY());
         setPrecondition(
-                tile.GetType().isItem() ||
-                tile.GetType().isNPC()
+                tile.GetType().isEnemyBoss() ||
+                        tile.GetType().isEnemy() ||
+                        tile.GetType().isNPC()
         );
     }
+
     public List<QuestMotives> ReturnMotives()
     {
     	return questMotiveList;
@@ -56,10 +54,8 @@ public class DamageAction extends Action {
     private void AddQuestMotives()
     {
         questMotiveList = new ArrayList<QuestMotives>();
-        questMotiveList.add(QuestMotives.SERENITY);
-        questMotiveList.add(QuestMotives.PROTECTION);
         questMotiveList.add(QuestMotives.CONQUEST);
-        
+        questMotiveList.add(QuestMotives.EQUIPMENT);
     }
-}
 
+}

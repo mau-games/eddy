@@ -1696,7 +1696,7 @@ public class RoomViewController extends BorderPane implements Listener
 		tempTiles.add(tempBountyhunter);
 		tempTiles.add(tempCivilian);
 		
-		float[] NPCMotivesWeight = new float[5];
+		float[] NPCMotivesWeight = new float[4];
 		for (int i = 0; i < NPCMotivesWeight.length; i++) {
 			NPCMotivesWeight[i] = 0;
 		}
