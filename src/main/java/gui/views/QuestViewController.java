@@ -23,6 +23,7 @@ import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
+import javafx.geometry.Insets;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -674,21 +675,24 @@ public class QuestViewController extends BorderPane implements Listener {
             }
         });
 
-        questPaneH.getChildren().add(columns, toAdd);
+        questPaneH.getChildren().add(index, toAdd);
 
         //add arrow label
         if (action.getType() == ActionType.REPORT && stackNpc.size() == 0) {
         	questPaneH = new HBox(2);
+            questPaneH.setPadding(new Insets(10, 10, 10, 10));
+
+            questPaneH.getChildren().add(questPlaceholder);
         	questPaneV.getChildren().add(questPaneH);
-        	columns = 0;
+//        	columns = 0;
 		}
         else {
             Label arrow = new Label("=>");
             arrow.setTextFill(Color.WHITE);
             arrow.setFont(Font.font(14.0));
             arrow.setStyle("-fx-background-color: transparent;");
-            questPaneH.getChildren().add(columns + 1, arrow);
-            columns++;
+            questPaneH.getChildren().add(index + 1, arrow);
+//            columns++;
 		}
         
         /*if (temp != null) {
