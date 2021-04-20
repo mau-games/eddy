@@ -811,11 +811,11 @@ public class Algorithm extends Thread implements Listener {
     		counter += 1;
     		double mesoContribution = 0.0;
     		for(DeadEnd de : deadEnds){
-    			if(de.getPatterns().contains(p)){
-    				mesoContribution +=de.getQuality();
-    				onlyMesoPatterns += de.getQuality();
+						if(de.getPatterns().contains(p)){
+							mesoContribution +=de.getQuality();
+							onlyMesoPatterns += de.getQuality();
 //    				counter += 1;
-    			}	
+						}
     		}
     		
     		for(TreasureRoom t : treasureRooms){

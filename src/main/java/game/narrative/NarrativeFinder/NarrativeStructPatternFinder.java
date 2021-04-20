@@ -77,6 +77,26 @@ public class NarrativeStructPatternFinder {
 
 		return nps;
 	}
+	/**
+	 * Helper method to get all micro-patterns in the graph
+	 * @return all micro-patterns in the graph
+	 */
+	public ArrayList<NarrativePattern> getAllMicros()
+	{
+		ArrayList<NarrativePattern> nps = new ArrayList<NarrativePattern>();
+
+		for(NarrativePattern np : all_narrative_patterns)
+		{
+			if(np instanceof HeroNodePattern || np instanceof VillainNodePattern ||
+					np instanceof StructureNodePattern || np instanceof PlotDevicePattern)
+			{
+				nps.add(np);
+			}
+		}
+
+		return nps;
+	}
+
 
 	/**
 	 * Feels a bit incorrect to get everything like this.

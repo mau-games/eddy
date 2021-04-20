@@ -61,7 +61,7 @@ public class StructureNodePattern extends BasicNarrativePattern
                 involves++;
         }
 
-        double involvement_quality = involves/(double)all_explicit_conflicts.size();
+        double involvement_quality = all_explicit_conflicts.isEmpty() ? 0.0 : involves/(double)all_explicit_conflicts.size();
 
         if(involvement_quality == 0)
         {

@@ -37,9 +37,11 @@ public class BrokenLinkPattern extends CompositeNarrativePattern
         /***
          * We simply want to go through the heroes, villains, and conflicts to see their connections and which ones are incorrect or "broken"
          *  - Heroes and villains simply check for directional connections (or bi) and if they are connected with another of the same type
-         *  we have a broken link
+         *  we have a broken link.
+         *   ------ Actually, also if we have direct or indirect connections to others and that does not generate any PATTERN
+         *   ------ Actually, If we have a double connection is bad!
          *  - Struct does the same but uses all the 3 type of connections (Conflicts shouldn't be connected to other conflicts!!!)
-         *  at least not directly :)
+         *  at least not directly :) (neither being connected with non-directional to anything (except to Plot Device)
          */
 
         for(NarrativePattern np : currentPatterns)
@@ -103,7 +105,7 @@ public class BrokenLinkPattern extends CompositeNarrativePattern
                 {
                     for(NarrativePattern from_me : np.connected_patterns_from_me.get(0))
                     {
-                        if(from_me instanceof StructureNodePattern) //BROKEN LINK!
+                        if(from_me instanceof StructureNodePattern || from_me instanceof HeroNodePattern || from_me instanceof VillainNodePattern) //BROKEN LINK!
                         {
                             BrokenLinkPattern blp = new BrokenLinkPattern(np, from_me, np);
                             results.add(blp);

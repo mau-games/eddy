@@ -87,6 +87,7 @@ public class GrammarMAPEliteAlgorithm extends Algorithm implements Listener {
 	GrammarGraph axiom;
 	GrammarGraph target;
 	private int recipe_iterations = 20;
+	private NSEvolutionarySystemEvaluator evaluator = new NSEvolutionarySystemEvaluator();
 
 	public GrammarMAPEliteAlgorithm(GeneratorConfig config) {
 		super(config);
@@ -601,90 +602,91 @@ public class GrammarMAPEliteAlgorithm extends Algorithm implements Listener {
 	 */
 	public void evaluateFeasibleGrammarIndividual(GrammarIndividual ind)
 	{
-		List<LinkedHashMap<Integer, Integer>> feasible_grammar_recipes = ind.getPhenotype().feasible_grammar_recipes;
-		LinkedHashMap<Integer, Integer> best_recipe = null;
-		double best_fitness = Double.NEGATIVE_INFINITY;
-		double final_fitness = 0.0;
-
-		for(LinkedHashMap<Integer, Integer> feasible_recipe : feasible_grammar_recipes)
-		{
-			GrammarGraph nStructure = ind.getPhenotype().getGrammarGraphOutput(axiom, feasible_recipe);
-			double fitness = 0.0;
-			double w_any = 0.2; //Weight for the amount of "ANY" in the grammar (ANY is a wildcard)
-			double w_node_repetition = 0.3; //Weight for the node repetition count
-			int min_freq_nodes = 1; //Min freq for the node repetition
-			TVTropeType[] excluded_repeated_nodes = {TVTropeType.CONFLICT}; //Nodes to exclude from the count.
-			//TODO: Size is going to be done by the elites+
-			double w_tSize = 0.5; //Weight for the size of the resulting grammar
-			float expected_size = 4.0f; //Expected size (anything more or less than this decreases fitness)
-
-
-			//AND THEN WHAT?
-			//TESTING
-//		if(nStructure.nodes.get(0).getGrammarNodeType() == TVTropeType.ANY)
+		evaluator.evaluateFeasibleIndividual(ind, axiom);
+//		List<LinkedHashMap<Integer, Integer>> feasible_grammar_recipes = ind.getPhenotype().feasible_grammar_recipes;
+//		LinkedHashMap<Integer, Integer> best_recipe = null;
+//		double best_fitness = Double.NEGATIVE_INFINITY;
+//		double final_fitness = 0.0;
+//
+//		for(LinkedHashMap<Integer, Integer> feasible_recipe : feasible_grammar_recipes)
 //		{
-//			ind.setFitness(0.0);
-////		ind.setFitness(1.0);
-//			ind.setEvaluate(true);
-//			return;
+//			GrammarGraph nStructure = ind.getPhenotype().getGrammarGraphOutput(axiom, feasible_recipe);
+//			double fitness = 0.0;
+//			double w_any = 0.2; //Weight for the amount of "ANY" in the grammar (ANY is a wildcard)
+//			double w_node_repetition = 0.3; //Weight for the node repetition count
+//			int min_freq_nodes = 1; //Min freq for the node repetition
+//			TVTropeType[] excluded_repeated_nodes = {TVTropeType.CONFLICT}; //Nodes to exclude from the count.
+//			//TODO: Size is going to be done by the elites+
+//			double w_tSize = 0.5; //Weight for the size of the resulting grammar
+//			float expected_size = 4.0f; //Expected size (anything more or less than this decreases fitness)
+//
+//
+//			//AND THEN WHAT?
+//			//TESTING
+////		if(nStructure.nodes.get(0).getGrammarNodeType() == TVTropeType.ANY)
+////		{
+////			ind.setFitness(0.0);
+//////		ind.setFitness(1.0);
+////			ind.setEvaluate(true);
+////			return;
+////		}
+//
+//			short dist = axiom.distanceBetweenGraphs(nStructure);
+//
+//			//A bit hardcore, perhaps we should scale based on how different
+//			//then we could use as target one step more.
+//			if(axiom.testGraphMatchPattern(nStructure))
+//				fitness = 0.0;
+//			else
+//			{
+//				//Get first how many ANY exist
+//				float cumulative_any = 1.0f - nStructure.checkAmountNodes(TVTropeType.ANY, true);
+//
+//				//get the right size!! -- probably for elites
+//				float targetSize = expected_size - nStructure.checkGraphSize();
+//				targetSize *= 0.1f;
+//				targetSize = 1.0f - Math.abs(targetSize);
+//
+//
+////			fitness += targetSize;
+//
+//				//Penalize repeting nodes
+//				float node_repetition = 1.0f - nStructure.SameNodes(min_freq_nodes, excluded_repeated_nodes);
+//
+//				fitness = (w_any * (cumulative_any)) + (w_tSize * targetSize) + (w_node_repetition * node_repetition);
+//
+//			}
+//
+//			nStructure.pattern_finder.findNarrativePatterns(axiom);
+//			float structure_count = 0.0f;
+//			for(NarrativePattern np : nStructure.pattern_finder.all_narrative_patterns)
+//			{
+//				if(np instanceof CompoundConflictPattern)
+//					structure_count++;
+//			}
+//
+//			float targetSize = expected_size - structure_count;
+//			targetSize *= 0.1f;
+////			fitness = 1.0f - Math.abs(targetSize);
+//
+//			fitness = structure_count <= expected_size ? structure_count/expected_size : 2.0 - structure_count/expected_size;
+//
+//			if(fitness > best_fitness)
+//			{
+//				best_fitness = fitness;
+//				best_recipe = feasible_recipe;
+//			}
+//
+//			final_fitness += fitness;
+//
 //		}
-
-			short dist = axiom.distanceBetweenGraphs(nStructure);
-
-			//A bit hardcore, perhaps we should scale based on how different
-			//then we could use as target one step more.
-			if(axiom.testGraphMatchPattern(nStructure))
-				fitness = 0.0;
-			else
-			{
-				//Get first how many ANY exist
-				float cumulative_any = 1.0f - nStructure.checkAmountNodes(TVTropeType.ANY, true);
-
-				//get the right size!! -- probably for elites
-				float targetSize = expected_size - nStructure.checkGraphSize();
-				targetSize *= 0.1f;
-				targetSize = 1.0f - Math.abs(targetSize);
-
-
-//			fitness += targetSize;
-
-				//Penalize repeting nodes
-				float node_repetition = 1.0f - nStructure.SameNodes(min_freq_nodes, excluded_repeated_nodes);
-
-				fitness = (w_any * (cumulative_any)) + (w_tSize * targetSize) + (w_node_repetition * node_repetition);
-
-			}
-
-			nStructure.pattern_finder.findNarrativePatterns(axiom);
-			float structure_count = 0.0f;
-			for(NarrativePattern np : nStructure.pattern_finder.all_narrative_patterns)
-			{
-				if(np instanceof CompoundConflictPattern)
-					structure_count++;
-			}
-
-			float targetSize = expected_size - structure_count;
-			targetSize *= 0.1f;
-//			fitness = 1.0f - Math.abs(targetSize);
-
-			fitness = structure_count <= expected_size ? structure_count/expected_size : 2.0 - structure_count/expected_size;
-
-			if(fitness > best_fitness)
-			{
-				best_fitness = fitness;
-				best_recipe = feasible_recipe;
-			}
-
-			final_fitness += fitness;
-
-		}
-		// We set not only the best fitness to the individual, but also the avg. of all the feasible recipes!
-		final_fitness = final_fitness/(double)feasible_grammar_recipes.size();
-		ind.setAvgFitness(final_fitness);
-		ind.setFitness(best_fitness);
-		ind.getPhenotype().setBestRecipe(best_recipe);
-//		ind.setFitness(1.0);
-		ind.setEvaluate(true);
+//		// We set not only the best fitness to the individual, but also the avg. of all the feasible recipes!
+//		final_fitness = final_fitness/(double)feasible_grammar_recipes.size();
+//		ind.setAvgFitness(final_fitness);
+//		ind.setFitness(best_fitness);
+//		ind.getPhenotype().setBestRecipe(best_recipe);
+////		ind.setFitness(1.0);
+//		ind.setEvaluate(true);
 	}
 
 	/**

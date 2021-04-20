@@ -85,6 +85,17 @@ public class PlotPoint extends CompositeNarrativePattern
                 results.add(pp);
             }
             //TODO: Missing Plot Devices
+            else if(np instanceof ActivePlotDevice)
+            {
+                GrammarGraph temp = new GrammarGraph();
+                PlotPoint pp = new PlotPoint();
+
+                pp.core_pattern = np;
+                pp.addSubgraph(((ActivePlotDevice) np).pattern_subgraphs.get(0));
+
+                pp.connected_node = np.connected_node;
+                results.add(pp);
+            }
         }
 
         return results;

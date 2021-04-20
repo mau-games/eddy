@@ -2,6 +2,7 @@ package game.narrative;
 
 import generator.algorithm.Algorithm;
 import generator.algorithm.MAPElites.GrammarMAPEliteAlgorithm;
+import generator.algorithm.MAPElites.NSEvolutionarySystemEvaluator;
 import generator.algorithm.MAPElites.grammarDimensions.GADimensionGrammar;
 import generator.algorithm.MAPElites.grammarDimensions.MAPEDimensionGrammarFXML;
 import util.Util;
@@ -346,11 +347,147 @@ public class NarrativeStructure {
 //        System.out.println(grammarGraph.toString());
     }
 
+    private void runFitnessTest()
+    {
+        GrammarGraph axiom_graph = new GrammarGraph();
+        GrammarNode a1 = axiom_graph.addNode(TVTropeType.HERO);
+
+        //There is something wrong here? Else the fitness function has to shine! Enemy is "revealed" "to be the hero
+        // But enemy do not participate in anything else, what does that mean?? -- todo: I think it should mean not interesting! let the fitness work!
+        GrammarNode b1 = axiom_graph.addNode(TVTropeType.CONFLICT);
+        GrammarNode c1 = axiom_graph.addNode(TVTropeType.EMP);
+
+        //Hero - Conflict
+        a1.addConnection(b1, 1);
+
+        //Conflict - Enemy
+        b1.addConnection(c1, 1);
+
+        GrammarGraph test_graph = new GrammarGraph();
+        GrammarNode tg_a1 = test_graph.addNode(TVTropeType.HERO);
+        GrammarNode tg_b1 = test_graph.addNode(TVTropeType.ENEMY);
+        GrammarNode tg_c1 = test_graph.addNode(TVTropeType.CONFLICT);
+        tg_a1.addConnection(tg_b1, 1);
+        tg_c1.addConnection(tg_b1, 1);
+
+        NSEvolutionarySystemEvaluator evaluator = new NSEvolutionarySystemEvaluator();
+        evaluator.testEvaluation(test_graph, axiom_graph);
+
+//        test_graph.pattern_finder.findNarrativePatterns(test_graph);
+    }
+
+    private void runCoherenceTest()
+    {
+        GrammarGraph axiom_graph = new GrammarGraph();
+        GrammarNode a1 = axiom_graph.addNode(TVTropeType.HERO);
+
+        //There is something wrong here? Else the fitness function has to shine! Enemy is "revealed" "to be the hero
+        // But enemy do not participate in anything else, what does that mean?? -- todo: I think it should mean not interesting! let the fitness work!
+        GrammarNode b1 = axiom_graph.addNode(TVTropeType.CONFLICT);
+        GrammarNode c1 = axiom_graph.addNode(TVTropeType.EMP);
+
+        //Hero - Conflict
+        a1.addConnection(b1, 1);
+
+        //Conflict - Enemy
+        b1.addConnection(c1, 1);
+
+        GrammarGraph test_graph = new GrammarGraph();
+        GrammarNode tg_a1 = test_graph.addNode(TVTropeType.HERO);
+        GrammarNode tg_b1 = test_graph.addNode(TVTropeType.ENEMY);
+        GrammarNode tg_c1 = test_graph.addNode(TVTropeType.CONFLICT);
+
+        //Connection problem test!
+//        tg_a1.addConnection(tg_b1, 0);
+//        tg_b1.addConnection(tg_a1, 2);
+//        tg_a1.addConnection(tg_b1, 2);
+
+        tg_a1.addConnection(tg_b1, 0);
+        tg_a1.addConnection(tg_c1, 0);
+//        tg_c1.addConnection(tg_a1, 0);
+
+        tg_c1.addConnection(tg_b1, 2);
+        tg_b1.addConnection(tg_a1, 1);
+
+        NSEvolutionarySystemEvaluator evaluator = new NSEvolutionarySystemEvaluator();
+        evaluator.testEvaluation(test_graph, axiom_graph);
+
+//        test_graph.pattern_finder.findNarrativePatterns(test_graph);
+    }
+
+    private void runSamples()
+    {
+        GrammarGraph axiom_graph = new GrammarGraph();
+        GrammarNode a1 = axiom_graph.addNode(TVTropeType.HERO);
+
+        //There is something wrong here? Else the fitness function has to shine! Enemy is "revealed" "to be the hero
+        // But enemy do not participate in anything else, what does that mean?? -- todo: I think it should mean not interesting! let the fitness work!
+        GrammarNode b1 = axiom_graph.addNode(TVTropeType.CONFLICT);
+        GrammarNode c1 = axiom_graph.addNode(TVTropeType.EMP);
+
+        //Hero - Conflict
+        a1.addConnection(b1, 1);
+
+        //Conflict - Enemy
+        b1.addConnection(c1, 1);
+
+        GrammarGraph test_graph = new GrammarGraph();
+        GrammarNode tg_a1 = test_graph.addNode(TVTropeType.HERO);
+        GrammarNode tg_b1 = test_graph.addNode(TVTropeType.CONFLICT);
+        GrammarNode tg_c1 = test_graph.addNode(TVTropeType.ENEMY);
+        GrammarNode tg_d1 = test_graph.addNode(TVTropeType.CHK);
+        GrammarNode tg_e1 = test_graph.addNode(TVTropeType.CHK);
+
+        tg_a1.addConnection(tg_b1, 2);
+        tg_b1.addConnection(tg_e1, 0);
+        tg_c1.addConnection(tg_d1, 0);
+        tg_d1.addConnection(tg_a1, 1);
+        tg_d1.addConnection(tg_a1, 1);
+
+        NSEvolutionarySystemEvaluator evaluator = new NSEvolutionarySystemEvaluator();
+        evaluator.testEvaluation(test_graph, axiom_graph);
+
+//        test_graph.pattern_finder.findNarrativePatterns(test_graph);
+    }
+
+    public void runSameTestSameAxiom()
+    {
+        GrammarGraph axiom_graph = new GrammarGraph();
+        GrammarNode a1 = axiom_graph.addNode(TVTropeType.HERO);
+
+        //There is something wrong here? Else the fitness function has to shine! Enemy is "revealed" "to be the hero
+        // But enemy do not participate in anything else, what does that mean?? -- todo: I think it should mean not interesting! let the fitness work!
+        GrammarNode b1 = axiom_graph.addNode(TVTropeType.CONFLICT);
+        GrammarNode c1 = axiom_graph.addNode(TVTropeType.ENEMY);
+
+        //Hero - Conflict
+        a1.addConnection(b1, 1);
+
+        //Conflict - Enemy
+        b1.addConnection(c1, 1);
+
+        GrammarGraph test_graph = new GrammarGraph();
+        GrammarNode tg_a1 = test_graph.addNode(TVTropeType.HERO);
+        GrammarNode tg_b1 = test_graph.addNode(TVTropeType.CONFLICT);
+        GrammarNode tg_c1 = test_graph.addNode(TVTropeType.ENEMY);
+
+        tg_a1.addConnection(tg_b1, 1);
+        tg_b1.addConnection(tg_c1, 1);
+
+        NSEvolutionarySystemEvaluator evaluator = new NSEvolutionarySystemEvaluator();
+        evaluator.testEvaluation(test_graph, axiom_graph);
+    }
+
+
     public NarrativeStructure()
     {
 //        runPatternFinderExperiment();
 //        runDerivativePatternExperiment();
-        runQualityExperiment();
+//        runQualityExperiment();
+//        runFitnessTest();
+//        runCoherenceTest();
+//        runSamples();
+        runSameTestSameAxiom();
         if(true)
             return;
 

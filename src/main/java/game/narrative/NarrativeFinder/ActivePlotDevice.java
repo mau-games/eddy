@@ -17,6 +17,7 @@ public class ActivePlotDevice extends CompositeNarrativePattern
     {
         super();
         device = pdp;
+        this.connected_node = pdp.connected_node;
     }
 
     public static List<CompositeNarrativePattern> matches(GrammarGraph narrative_graph, List<NarrativePattern> currentPatterns, NarrativeStructPatternFinder finder)
@@ -126,9 +127,17 @@ public class ActivePlotDevice extends CompositeNarrativePattern
         {
             ArrayList<NarrativePattern> core_narrative_patterns = core.pattern_finder.findNarrativePatterns(null);
             ArrayList<ActivePlotDevice> other_apds = core.pattern_finder.getAllPatternsByType(ActivePlotDevice.class);
-            generic_quality = all_apd.size() <= other_apds.size() ?
-                    (double)all_apd.size()/(double)other_apds.size() :
-                    2.0 - (double)all_apd.size()/(double)other_apds.size();
+
+            //I don't know if 0.0 should be the right one
+            if(other_apds.isEmpty())
+            {
+                generic_quality = 0.0;
+            }
+            else {
+                generic_quality = all_apd.size() <= other_apds.size() ?
+                        (double) all_apd.size() / (double) other_apds.size() :
+                        2.0 - (double) all_apd.size() / (double) other_apds.size();
+            }
         }
 
         //Usability quality (am I connected, and how many are connected to me! - in comparison to the amount of nodes)

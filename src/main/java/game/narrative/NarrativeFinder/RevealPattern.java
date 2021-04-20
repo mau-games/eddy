@@ -34,7 +34,8 @@ public class RevealPattern extends CompositeNarrativePattern
                 //Now lets check for directional connections from me (Entitles!)
                 for(NarrativePattern non_directed_pat : np.connected_patterns_from_me.get(1))
                 {
-                    if(non_directed_pat instanceof VillainNodePattern && !non_directed_pat.connected_patterns_from_me.containsKey(0))
+//                    if(non_directed_pat instanceof VillainNodePattern && !non_directed_pat.connected_patterns_from_me.containsKey(0))
+                    if(non_directed_pat instanceof VillainNodePattern)
                     {
                         RevealPattern rp = new RevealPattern();
                         GrammarGraph temp = new GrammarGraph();
@@ -58,7 +59,8 @@ public class RevealPattern extends CompositeNarrativePattern
                 //Now lets check for directional connections from me (Entitles!)
                 for(NarrativePattern non_directed_pat : np.connected_patterns_from_me.get(1))
                 {
-                    if(non_directed_pat instanceof HeroNodePattern && !non_directed_pat.connected_patterns_from_me.containsKey(0))
+//                    if(non_directed_pat instanceof HeroNodePattern && !non_directed_pat.connected_patterns_from_me.containsKey(0))
+                    if(non_directed_pat instanceof HeroNodePattern)
                     {
                         RevealPattern rp = new RevealPattern();
                         GrammarGraph temp = new GrammarGraph();
@@ -98,9 +100,18 @@ public class RevealPattern extends CompositeNarrativePattern
         {
             ArrayList<NarrativePattern> core_narrative_patterns = core.pattern_finder.findNarrativePatterns(null);
             ArrayList<RevealPattern> other_reveals = core.pattern_finder.getAllPatternsByType(RevealPattern.class);
-            generic_quality = all_reveal.size() <= other_reveals.size() ?
-                    (double)all_reveal.size()/(double)other_reveals.size() :
-                    2.0 - (double)all_reveal.size()/(double)other_reveals.size();
+
+            //I don't know if 0.0 should be the right one
+            if(other_reveals.isEmpty())
+            {
+                generic_quality = 0.0;
+            }
+            else {
+
+                generic_quality = all_reveal.size() <= other_reveals.size() ?
+                        (double) all_reveal.size() / (double) other_reveals.size() :
+                        2.0 - (double) all_reveal.size() / (double) other_reveals.size();
+            }
         }
 
         //Now we should calculate the relation to effective characters (Still at a general level)
@@ -146,7 +157,11 @@ public class RevealPattern extends CompositeNarrativePattern
             }
         }
 
-        double quality_reveal_struct = 1.0 - fake_conf_participation/all_explicit_conflicts.size();
+        //TODO: Check this quality. As it is right now, it is better the less fake conflicts (might be true for interest but not for coherence)
+        double quality_reveal_struct = all_explicit_conflicts.isEmpty() ? 0.0 :
+                1.0 - fake_conf_participation/all_explicit_conflicts.size();
+
+//        double quality_reveal_struct = 1.0 - fake_conf_participation/all_explicit_conflicts.size();
 
 //
 //

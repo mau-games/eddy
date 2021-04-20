@@ -44,7 +44,7 @@ public class NarrativePattern
      *
      * @return A number between 0.0 and 1.0 representing the quality of the pattern (where 1 is best)
      */
-    public double getQuality(List<NarrativePattern> currentPatterns, NarrativeStructPatternFinder finder){
+    public double getQuality(){
         return quality;
     }
 
@@ -72,7 +72,15 @@ public class NarrativePattern
 
         float node_amount = core.checkGenericAmountNodes(this.connected_node.getGrammarNodeType().getGeneric(), false); //how many are the target
         ArrayList<NarrativePattern> all_same_class = finder.getAllPatternsByType((Class<NarrativePattern>) this.getClass()); //how many we are
-        quality = all_same_class.size() <= node_amount ? all_same_class.size()/node_amount : 2.0 - all_same_class.size()/node_amount;
+
+        if(node_amount == 0)
+        {
+            quality = 0.0;
+        }
+        else
+        {
+            quality = all_same_class.size() <= node_amount ? all_same_class.size()/node_amount : 2.0 - all_same_class.size()/node_amount;
+        }
 
         return quality;
     }

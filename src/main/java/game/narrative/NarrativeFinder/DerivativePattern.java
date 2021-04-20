@@ -160,9 +160,20 @@ public class DerivativePattern extends CompositeNarrativePattern
         {
             ArrayList<NarrativePattern> core_narrative_patterns = core.pattern_finder.findNarrativePatterns(null);
             ArrayList<DerivativePattern> other_derivatives = core.pattern_finder.getAllPatternsByType(DerivativePattern.class);
-            generic_quality = all_derivatives.size() <= other_derivatives.size() ?
-                    (double)all_derivatives.size()/(double)other_derivatives.size() :
-                    2.0 - (double)all_derivatives.size()/(double)other_derivatives.size();
+
+            //I don't know if 0.0 should be the right one
+            if(other_derivatives.isEmpty())
+            {
+                generic_quality = 0.0;
+            }
+            else
+            {
+                generic_quality = all_derivatives.size() <= other_derivatives.size() ?
+                        (double)all_derivatives.size()/(double)other_derivatives.size() :
+                        2.0 - (double)all_derivatives.size()/(double)other_derivatives.size();
+
+            }
+
         }
 
         //NOW WE WANT THE Amount of derivates this one has (we can balance with the sum of derivates that exist in the whole thingy)

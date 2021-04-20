@@ -62,6 +62,9 @@ public class SimpleConflictPattern extends CompositeNarrativePattern
                 //These are from me  FIXME: Am I checking here for non-directional???? I DONT THINK SO!
                 for(Map.Entry<GrammarNode, Integer> keyValue : ((StructureNodePattern) np).connected_node.connections.entrySet()) //Get Target!
                 {
+                    if(keyValue.getValue() == 0)
+                        continue;
+
                     NarrativePattern target_pat = finder.existNodeAsPattern(keyValue.getKey());
                     //Limited to only add if it is hero or villain
                     if(target_pat!= null && (target_pat instanceof HeroNodePattern || target_pat instanceof VillainNodePattern))
@@ -173,9 +176,18 @@ public class SimpleConflictPattern extends CompositeNarrativePattern
         {
             ArrayList<NarrativePattern> core_narrative_patterns = core.pattern_finder.findNarrativePatterns(null);
             ArrayList<SimpleConflictPattern> other_explicit_conflicts = core.pattern_finder.getAllPatternsByType(SimpleConflictPattern.class);
-            generic_quality = all_explicit_conflicts.size() <= other_explicit_conflicts.size() ?
-                    (double)all_explicit_conflicts.size()/(double)other_explicit_conflicts.size() :
-                    2.0 - (double)all_explicit_conflicts.size()/(double)other_explicit_conflicts.size();
+
+            //I don't know if 0.0 should be the right one
+            if(other_explicit_conflicts.isEmpty())
+            {
+                generic_quality = 0.0;
+            }
+            else {
+
+                generic_quality = all_explicit_conflicts.size() <= other_explicit_conflicts.size() ?
+                        (double) all_explicit_conflicts.size() / (double) other_explicit_conflicts.size() :
+                        2.0 - (double) all_explicit_conflicts.size() / (double) other_explicit_conflicts.size();
+            }
         }
 
         double conflict_repetition = 0.0;

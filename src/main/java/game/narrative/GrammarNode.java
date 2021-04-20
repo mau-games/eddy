@@ -32,12 +32,23 @@ public class GrammarNode {
         this.grammarNodeType = nodeType;
     }
 
+    /**
+     * For now, we are not allowing more than 1 connection between nodes!
+     * Maybe if the connection is bidir but you cannot have bidir it should change to directional??
+     * @param otherNode
+     * @param connectionType
+     * @return
+     */
     public boolean addConnection(GrammarNode otherNode, int connectionType)
     {
         if(connections.containsKey(otherNode)) //perhaps no if we are interested in having this type of connection
             return false;
 
-        connections.put(otherNode, connectionType);
+        //NOT ALLOWING MORE THAN ONE CONNECTION (FOR NOW!)
+        if(otherNode.connections.containsKey(this))
+            return false;
+
+
 
         //So bidirection or no direction
 //        if(connectionType != 1)
@@ -45,7 +56,35 @@ public class GrammarNode {
 
         //So bidirection
         if(connectionType > 1)
-            otherNode.addConnection(this, connectionType);
+        {
+            if(otherNode.addConnection_bidir(this, connectionType))
+            {
+                connections.put(otherNode, connectionType);
+            }
+            else {
+                connections.put(otherNode, 1); //We do a unidir connection!"
+            }
+        }
+        else
+        {
+            connections.put(otherNode, connectionType);
+        }
+
+        return true;
+    }
+
+    /**
+     * If it is bidir
+     * @param otherNode
+     * @param connectionType
+     * @return
+     */
+    protected boolean addConnection_bidir(GrammarNode otherNode, int connectionType)
+    {
+        if(connections.containsKey(otherNode)) //perhaps no if we are interested in having this type of connection
+            return false;
+
+        connections.put(otherNode, connectionType);
 
         return true;
     }

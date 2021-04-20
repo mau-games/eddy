@@ -133,9 +133,17 @@ public class PlotTwist extends CompositeNarrativePattern
         {
             ArrayList<NarrativePattern> core_narrative_patterns = core.pattern_finder.findNarrativePatterns(null);
             ArrayList<PlotTwist> other_pt = core.pattern_finder.getAllPatternsByType(PlotTwist.class);
-            generic_quality = all_pt.size() <= other_pt.size() ?
-                    (double)all_pt.size()/(double)other_pt.size() :
-                    2.0 - (double)all_pt.size()/(double)other_pt.size();
+
+            //I don't know if 0.0 should be the right one
+            if(other_pt.isEmpty())
+            {
+                generic_quality = 0.0;
+            }
+            else {
+                generic_quality = all_pt.size() <= other_pt.size() ?
+                        (double) all_pt.size() / (double) other_pt.size() :
+                        2.0 - (double) all_pt.size() / (double) other_pt.size();
+            }
         }
 
         /**
@@ -165,7 +173,7 @@ public class PlotTwist extends CompositeNarrativePattern
                 }
             }
             //The moar, da betta
-            interesting_quality = fake_conf_participation/all_explicit_conflicts.size();
+            interesting_quality = all_explicit_conflicts.isEmpty() ? 0.0 : fake_conf_participation/all_explicit_conflicts.size();
         }
         else if(core_pattern instanceof DerivativePattern)
         {

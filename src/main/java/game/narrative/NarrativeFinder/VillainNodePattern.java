@@ -71,7 +71,7 @@ public class VillainNodePattern extends BasicNarrativePattern
                 involves++;
         }
 
-        double involvement_quality = involves/(double)all_explicit_conflicts.size();
+        double involvement_quality = all_explicit_conflicts.isEmpty() ? 0.0 : involves/(double)all_explicit_conflicts.size();
 
         //Now lets calcualte the final quality
         this.quality = (generic_quality + quantity_quality + involvement_quality)/3.0;

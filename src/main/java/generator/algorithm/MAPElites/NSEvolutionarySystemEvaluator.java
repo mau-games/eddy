@@ -2,10 +2,8 @@ package generator.algorithm.MAPElites;
 
 import com.sun.org.apache.xerces.internal.xni.grammars.Grammar;
 import game.narrative.GrammarGraph;
-import game.narrative.NarrativeFinder.CompoundConflictPattern;
-import game.narrative.NarrativeFinder.ImplicitConflictPattern;
-import game.narrative.NarrativeFinder.NarrativePattern;
-import game.narrative.NarrativeFinder.SimpleConflictPattern;
+import game.narrative.GrammarNode;
+import game.narrative.NarrativeFinder.*;
 import game.narrative.TVTropeType;
 import generator.algorithm.GrammarIndividual;
 import sun.java2d.pipe.SpanShapeRenderer;
@@ -53,16 +51,83 @@ public class NSEvolutionarySystemEvaluator
         best_intragenerational_fitness = new double[2];
         Fbest_fitness = new ArrayList<Double>();
         IFbest_fitness = new ArrayList<Double>();
+    }
 
+    public void generationStep(int generation){this.generation = generation;}
+
+    public double testEvaluation(GrammarGraph test_graph, GrammarGraph axiom)
+    {
+        LinkedHashMap<Integer, Integer> best_recipe = null;
+        double best_fitness = Double.NEGATIVE_INFINITY;
+        double final_fitness = 0.0;
+        double[] weights = new double[]{0.5, 0.5};
+        double fitness = 0.0;
+        GrammarGraph nStructure = null;
+
+        test_graph.pattern_finder.findNarrativePatterns(axiom);
+        double interest_fitness = getInterestFitness(test_graph);
+        double coherence_fitness = getCoherenceFitness(test_graph);
+
+        fitness = (weights[0] * interest_fitness) + (weights[1] * coherence_fitness);
+
+
+        return fitness;
     }
 
     // Add the necessary methods
-    public double evaluateFeasibleIndividual(Method... methods)
+    public double evaluateFeasibleIndividual(GrammarIndividual ind, GrammarGraph axiom)
     {
-//        for(/)
-//        nStructure.pattern_finder.findNarrativePatterns();
-        return 0.0f;
+        List<LinkedHashMap<Integer, Integer>> feasible_grammar_recipes = ind.getPhenotype().feasible_grammar_recipes;
+        LinkedHashMap<Integer, Integer> best_recipe = null;
+        double best_fitness = Double.NEGATIVE_INFINITY;
+        double final_fitness = 0.0;
+        double[] weights = new double[]{0.5, 0.5};
+        double fitness = 0.0;
+        GrammarGraph nStructure = null;
+
+        //Iterate through all the feasible recipes
+        for(LinkedHashMap<Integer, Integer> feasible_recipe : feasible_grammar_recipes)
+        {
+            nStructure = ind.getPhenotype().getGrammarGraphOutput(axiom, feasible_recipe);
+            nStructure.pattern_finder.findNarrativePatterns(axiom);
+
+            /**
+             *  So now lets try to calculate the basic fitness I wanted (interest and coherence)
+             */
+
+            double interest_fitness = getInterestFitness(nStructure);
+            double coherence_fitness = getCoherenceFitness(nStructure);
+
+            fitness = (weights[0] * interest_fitness) + (weights[1] * coherence_fitness);
+
+            if(fitness > best_fitness)
+            {
+                best_fitness = fitness;
+                best_recipe = feasible_recipe;
+            }
+
+            final_fitness += fitness;
+
+        }
+        // We set not only the best fitness to the individual, but also the avg. of all the feasible recipes!
+        final_fitness = final_fitness/(double)feasible_grammar_recipes.size();
+        ind.setAvgFitness(final_fitness);
+        ind.setFitness(best_fitness);
+        if(best_recipe == null)
+            return 0.0;
+        ind.getPhenotype().setBestRecipe(best_recipe);
+//		ind.setFitness(1.0);
+        ind.setEvaluate(true);
+
+        return best_fitness;
     }
+
+//    public double evaluateFeasibleIndividual(Method... methods)
+//    {
+////        for(/)
+////        nStructure.pattern_finder.findNarrativePatterns();
+//        return 0.0f;
+//    }
 
     public double evaluateINFeasibleIndividual()
     {
@@ -157,6 +222,8 @@ public class NSEvolutionarySystemEvaluator
     }
 
     ///////////////// Now we define the methods we want to use!!! ///////////////////
+    ////////////////////////// These are helper methods! ////////////////////////////
+
 
     //Penalize having a big amount of a specific node
     public float getCumulativeNodeFitness(float weight, GrammarGraph nStructure, TVTropeType node_type)
@@ -187,11 +254,11 @@ public class NSEvolutionarySystemEvaluator
     /**
      * No weight here.
      * We are interested in calculating:
-     *  Compound conflict amount
-     *  Explicit conflicts (Simple conflict pattern)
-     *  Implicit conflicts (Implicit conflict pattern)
-     *  Fake conflicts - (due to reveal)
-     *  Real conflicts - The rest!
+     *  [0] Compound conflict amount
+     *  [1] Explicit conflicts (Simple conflict pattern)
+     *  [2] Implicit conflicts (Implicit conflict pattern)
+     *  [3] Fake conflicts - (due to reveal)
+     *  [4] Real conflicts - The rest!
      */
     public int[] getConflictPatternMeasurements(GrammarGraph nStructure)
     {
@@ -228,6 +295,167 @@ public class NSEvolutionarySystemEvaluator
         return results;
     }
 
+    /**
+     *     I am missing calculation for interest, coherence, and consistency:
+     *     Interest: (The more fake conflicts, reveals, etc. the better interest the opposite is true for coherence - pareto
+     *     - Plot Devices quality
+     *     - Plot points quality
+     *     - Plot twists quality
+     *     - Possibly Derivate and Reveal´quality -(We need derivate because of the specific way we calculate that?)
+     *     - Relation to current axiom - This can be: size, difference in steps, etc.
+     *
+     *     Coherence:
+     *     - Cohesion: Broken links and Nothing patterns
+     *     - Consistency: Repetition of specific elements
+     *      -  (we can check for quality of explicit conflicts
+     *      -   Also, the quality of micro patterns
+     *      -   Balance between Real and Fake conflicts
+     *     - Plot devices
+     *     - Effective conflicts
+     *
+     */
 
+    public double getInterestFitness(GrammarGraph nStructure)
+    {
+        //Can be improved! (TODO: Probably needs to)
+        double pd_quality = 0.0;
+        int pd_counter = 0;
+        double pp_quality = 0.0;
+        int pp_counter = 0;
+        double pt_quality = 0.0;
+        int pt_counter = 0;
+        double[] weights = new double[]{0.4, 0.2, 0.4};
+
+        for(NarrativePattern np : nStructure.pattern_finder.all_narrative_patterns)
+        {
+            if(np instanceof ActivePlotDevice)
+            {
+                pd_quality += np.getQuality();
+                pd_counter++;
+            }
+            else if(np instanceof PlotPoint) //Plot points do not have quality!
+            {
+                pp_quality += np.getQuality();
+                pp_counter++;
+            }
+            else if(np instanceof PlotTwist)
+            {
+                pt_quality += np.getQuality();
+                pt_counter++;
+            }
+        }
+
+        double interest_fitness = 0.0;
+
+        interest_fitness += pd_counter != 0 ? pd_quality/pd_counter * weights[0] : 0.0;
+        interest_fitness += pp_counter != 0 ? pp_quality/pp_counter * weights[1] : 0.0;
+        interest_fitness += pt_counter != 0 ? pt_quality/pt_counter * weights[2] : 0.0;
+
+//        double interest_fitness = (pd_quality/pd_counter * weights[0]) +
+//                (pp_quality/pp_counter * weights[1]) +
+//                (pt_quality/pt_counter * weights[2]);
+
+        return interest_fitness;
+    }
+
+    // Actually, we want cohesion to be "minimized" in our implementation
+    public double getCohesionFitness(GrammarGraph nStructure)
+    {
+        /**
+         * Cohesion is the ratio between broken links and nothing patterns, and micro-patterns, and nodes
+         */
+        double[] weights = new double[]{0.6, 0.4};
+
+        // Actually might be important to know which node or pattern it is (the more "important" the worst the cohesion?)
+        ArrayList<BrokenLinkPattern> blPat = nStructure.pattern_finder.getAllPatternsByType(BrokenLinkPattern.class);
+        ArrayList<NothingNarrativePattern> nothingPat = nStructure.pattern_finder.getAllPatternsByType(NothingNarrativePattern.class);
+        ArrayList<NarrativePattern> all_micros = nStructure.pattern_finder.getAllMicros();
+
+        double nothing_node_ratio = (double)nothingPat.size() / nStructure.nodes.size();
+        double brokenL_node_ratio = (double)blPat.size() / nStructure.nodes.size();
+
+        double nothing_pattern_ratio = all_micros.isEmpty() ? 0.0 : (double)nothingPat.size() / all_micros.size();
+        double brokenL_pattern_ratio = all_micros.isEmpty() ? 0.0 : (double)blPat.size() / all_micros.size();
+
+//        double nothing_pattern_ratio = (double)nothingPat.size() / nStructure.pattern_finder.getAllMicros().size();
+//        double brokenL_pattern_ratio = (double)blPat.size() / nStructure.pattern_finder.getAllMicros().size();
+
+        double cohesion_fitness = ((nothing_node_ratio + brokenL_node_ratio)) * weights[0];
+        cohesion_fitness += ((nothing_pattern_ratio + brokenL_pattern_ratio)) * weights[1];
+
+        return 1.0 - cohesion_fitness;
+
+//        return cohesion_fitness/4.0;
+    }
+
+    public double getConsistencyFitness(GrammarGraph nStructure)
+    {
+        /**
+         * Cohesion is the ratio between broken links and nothing patterns, and micro-patterns, and nodes
+         */
+        double[] weights = new double[]{0.7, 0.3};
+        double hero_quality = 0.0;
+        double villain_quality = 0.0;
+        double struct_quality = 0.0;
+        double plot_device_quality = 0.0;
+
+        ArrayList<NarrativePattern> micros =nStructure.pattern_finder.getAllMicros();
+//        ArrayList<SimpleConflictPattern> simple_conflicts =nStructure.pattern_finder.getAllPatternsByType(SimpleConflictPattern.class);
+
+        for(NarrativePattern micro : micros)
+        {
+            if(micro instanceof HeroNodePattern)
+            {
+                hero_quality += micro.getQuality();
+            }
+            else if(micro instanceof VillainNodePattern)
+            {
+                villain_quality += micro.getQuality();
+            }
+            else if(micro instanceof StructureNodePattern)
+            {
+                struct_quality += micro.getQuality();
+            }
+            else if(micro instanceof PlotDevicePattern)
+            {
+                plot_device_quality += micro.getQuality();
+            }
+        }
+
+        int[] conflict_info = this.getConflictPatternMeasurements(nStructure);
+//        double conflict_balance = conflict_info[3] > conflict_info[4] ? (double)conflict_info[4] / conflict_info[3] :
+//                (double)conflict_info[3] / conflict_info[4];
+
+        double conflict_balance = conflict_info[1] + conflict_info[2] == 0 ? 0.0 :
+                conflict_info[3]/ (double)(conflict_info[1] + conflict_info[2]);
+
+        double micropat_quality = micros.isEmpty() ?  0.0 :
+                weights[0] * ((hero_quality + villain_quality + struct_quality + plot_device_quality)/micros.size());
+
+        double consistency_fitness = micropat_quality;
+        consistency_fitness -= (weights[1] * conflict_balance); //The more fake the worst!
+
+        return consistency_fitness;
+    }
+
+    /**
+     *     Coherence:
+     *     - Cohesion: Broken links and Nothing patterns
+     *     - Consistency: Repetition of specific elements
+     *      -  (we can check for quality of explicit conflicts
+     *      -   Also, the quality of micro patterns
+     *      -   Balance between Real and Fake conflicts
+     *     - Plot devices
+     *     - Effective conflicts
+     *
+     *          */
+    public double getCoherenceFitness(GrammarGraph nStructure)
+    {
+        double[] weights = new double[]{0.5, 0.5};
+        double cohesion_fitness = getCohesionFitness(nStructure);
+        double consistency_fitness = getConsistencyFitness(nStructure);
+
+        return (weights[0] * cohesion_fitness) + (weights[1] *consistency_fitness);
+    }
 
 }
