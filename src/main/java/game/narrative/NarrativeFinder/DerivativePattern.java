@@ -90,6 +90,7 @@ public class DerivativePattern extends CompositeNarrativePattern
         while(!patternQueue.isEmpty())
         {
             NarrativePattern current = patternQueue.pop();
+//            System.out.println(patternQueue.size());
 
             if(dp == null)
             {
@@ -101,12 +102,34 @@ public class DerivativePattern extends CompositeNarrativePattern
                 dp.source = current;
                 dp.connected_node = current.connected_node;
             }
-            else
+            else if(!temp.nodes.contains(current.connected_node))
             {
 //                NarrativePattern current = patternQueue.pop();
-                dp.addNarrativePattern(current);
+                try
+                {
+                    dp.addNarrativePattern(current);
+                }
+                catch(Exception e)
+                {
+                    System.out.println("Something wrong!");
+                }
+                catch (OutOfMemoryError e){
+                    System.out.println("OUT OF MEMORY!");
+                }
+
                 temp.addNode(current.connected_node, false);
                 dp.derivatives.add(current);
+            }
+            else
+            {
+                //We have reached the cycle!
+                if(dp.getPatterns().size() > 1) //This node was root, and something derivated!
+                {
+                    dp.addSubgraph(temp);
+                    results.add(dp);
+                }
+                dp = null;
+                continue;
             }
 
 //            NarrativePattern current = patternQueue.pop();
@@ -132,6 +155,7 @@ public class DerivativePattern extends CompositeNarrativePattern
                 dp = null;
             }
         }
+//        System.out.println("I AM OUT!");
 
         //reset all the derivative flags!
         for(NarrativePattern np : currentPatterns)

@@ -479,6 +479,43 @@ public class NarrativeStructure {
         evaluator.testEvaluation(test_graph, axiom_graph);
     }
 
+    public void runSpecialDerivativeIssue()
+    {
+        GrammarGraph axiom_graph = new GrammarGraph();
+        GrammarNode a1 = axiom_graph.addNode(TVTropeType.HERO);
+
+        //There is something wrong here? Else the fitness function has to shine! Enemy is "revealed" "to be the hero
+        // But enemy do not participate in anything else, what does that mean?? -- todo: I think it should mean not interesting! let the fitness work!
+        GrammarNode b1 = axiom_graph.addNode(TVTropeType.CONFLICT);
+        GrammarNode c1 = axiom_graph.addNode(TVTropeType.ENEMY);
+
+        //Hero - Conflict
+        a1.addConnection(b1, 1);
+
+        //Conflict - Enemy
+        b1.addConnection(c1, 1);
+
+        GrammarGraph test_graph = new GrammarGraph();
+        GrammarNode tg_a1 = test_graph.addNode(TVTropeType.HERO);
+        GrammarNode tg_b1 = test_graph.addNode(TVTropeType.MCG);
+        GrammarNode tg_c1 = test_graph.addNode(TVTropeType.CHK);
+        GrammarNode tg_d1 = test_graph.addNode(TVTropeType.MCG);
+        GrammarNode tg_e1 = test_graph.addNode(TVTropeType.CHK);
+        GrammarNode tg_f1 = test_graph.addNode(TVTropeType.MCG);
+        GrammarNode tg_g1 = test_graph.addNode(TVTropeType.CHK);
+
+        tg_a1.addConnection(tg_g1, 0);
+        tg_b1.addConnection(tg_a1, 0);
+        tg_c1.addConnection(tg_b1, 0);
+        tg_d1.addConnection(tg_a1, 0);
+        tg_e1.addConnection(tg_d1, 0);
+        tg_f1.addConnection(tg_a1, 0);
+        tg_g1.addConnection(tg_f1, 0);
+
+        NSEvolutionarySystemEvaluator evaluator = new NSEvolutionarySystemEvaluator();
+        evaluator.testEvaluation(test_graph, axiom_graph);
+    }
+
 
     public NarrativeStructure()
     {
@@ -487,8 +524,9 @@ public class NarrativeStructure {
 //        runQualityExperiment();
 //        runFitnessTest();
 //        runCoherenceTest();
-        runSamples();
+//        runSamples();
 //        runSameTestSameAxiom();
+        runSpecialDerivativeIssue();
         if(true)
             return;
 

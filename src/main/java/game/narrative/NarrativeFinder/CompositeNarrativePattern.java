@@ -41,7 +41,17 @@ public class CompositeNarrativePattern extends NarrativePattern
     public void addNarrativePattern(NarrativePattern... np)
     {
 //        System.out.println(np.length);
-        patterns.addAll(Arrays.asList(np));
+        try
+        {
+            patterns.addAll(Arrays.asList(np));
+        }
+        catch(Exception e)
+        {
+            System.out.println("Something wrong!");
+        }
+        catch (OutOfMemoryError e){
+            System.out.println("OUT OF MEMORY!");
+        }
     }
 //
 //    public void addNarrativePattern(NarrativePattern np...)

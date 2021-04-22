@@ -60,7 +60,7 @@ public class NSEvolutionarySystemEvaluator
         LinkedHashMap<Integer, Integer> best_recipe = null;
         double best_fitness = Double.NEGATIVE_INFINITY;
         double final_fitness = 0.0;
-        double[] weights = new double[]{0.5, 0.5};
+        double[] weights = new double[]{0.0, 1.0};
         double fitness = 0.0;
         GrammarGraph nStructure = null;
 
@@ -80,7 +80,7 @@ public class NSEvolutionarySystemEvaluator
         LinkedHashMap<Integer, Integer> best_recipe = null;
         double best_fitness = Double.NEGATIVE_INFINITY;
         double final_fitness = 0.0;
-        double[] weights = new double[]{0.5, 0.5};
+        double[] weights = new double[]{0.0, 1.0};
         double fitness = 0.0;
         GrammarGraph nStructure = null;
 

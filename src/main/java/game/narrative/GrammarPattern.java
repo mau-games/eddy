@@ -51,6 +51,9 @@ public class GrammarPattern {
 
     public void match(GrammarGraph currentGraph, int maxConnections)
     {
+        if(this.pattern == null)
+            System.out.println("SOMETHING WENT HORRIBLE WRONG WITH THIS PATTERN!");
+
         ArrayList<GrammarGraph> permutations = currentGraph.getPermutations(this.pattern.nodes.size(), this.pattern);
 //        Collections.shuffle(permutations);
         GrammarGraph selectedSubgraph = new GrammarGraph();

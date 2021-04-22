@@ -1,13 +1,9 @@
 package generator.algorithm;
 
-import game.Room;
-import game.TileTypes;
 import game.narrative.GrammarGraph;
-import game.narrative.GrammarNode;
 import game.narrative.GrammarPattern;
 import game.narrative.NarrativeStructure;
 import generator.config.GeneratorConfig;
-import sun.awt.image.ImageWatched;
 import util.Util;
 
 import java.util.*;
@@ -18,7 +14,7 @@ public class GrammarPhenotype
     public NarrativeStructure narrative;
     private GeneratorConfig config;
 
-    public LinkedHashMap<Integer, Integer> grammar_recipe;
+    public LinkedHashMap<Integer, Integer> best_grammar_recipe;
     public LinkedHashMap<Integer, Integer> current_rnd_recipe;
 
     public List<LinkedHashMap<Integer, Integer>> feasible_grammar_recipes;
@@ -113,19 +109,19 @@ public class GrammarPhenotype
 
     public void setBestRecipe()
     {
-        grammar_recipe = new LinkedHashMap<Integer, Integer>();
+        best_grammar_recipe = new LinkedHashMap<Integer, Integer>();
         for(Map.Entry<Integer, Integer> keyValue : current_rnd_recipe.entrySet())
         {
-            grammar_recipe.put(keyValue.getKey(), keyValue.getValue());
+            best_grammar_recipe.put(keyValue.getKey(), keyValue.getValue());
         }
     }
 
     public void setBestRecipe(LinkedHashMap<Integer, Integer> recipe)
     {
-        grammar_recipe = new LinkedHashMap<Integer, Integer>();
+        best_grammar_recipe = new LinkedHashMap<Integer, Integer>();
         for(Map.Entry<Integer, Integer> keyValue : recipe.entrySet())
         {
-            grammar_recipe.put(keyValue.getKey(), keyValue.getValue());
+            best_grammar_recipe.put(keyValue.getKey(), keyValue.getValue());
         }
     }
 
@@ -174,7 +170,7 @@ public class GrammarPhenotype
         GrammarGraph output = new GrammarGraph(coreGraph);
         List<GrammarPattern> patterns = this.genotype.getChromosome();
 
-        for(Map.Entry<Integer, Integer> keyValue : grammar_recipe.entrySet())
+        for(Map.Entry<Integer, Integer> keyValue : best_grammar_recipe.entrySet())
         {
             for(int i = 0; i < keyValue.getValue(); i++)
             {

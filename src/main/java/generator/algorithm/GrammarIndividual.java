@@ -207,7 +207,46 @@ public class GrammarIndividual
 
     public GrammarIndividual[] crossover(GrammarIndividual other)
     {
-        return null;
+        GrammarIndividual ind_this = new GrammarIndividual(null, this.getGenotype().getChromosome(), this.mutationProbability);
+        GrammarIndividual ind_other = new GrammarIndividual(null, other.getGenotype().getChromosome(), other.mutationProbability);
+
+        int this_chromosome_size = ind_this.getGenotype().getChromosomeSize();
+        int other_chromosome_size = ind_other.getGenotype().getChromosomeSize();
+        int min_size = Math.min(this_chromosome_size, other_chromosome_size);
+        int rnd_cut = Util.getNextInt(1, min_size + 1);
+        //Ok with this we know where we could start
+        int this_chromosome_maxcut = this_chromosome_size - rnd_cut;
+        int other_chromosome_maxcut = other_chromosome_size - rnd_cut;
+        //And now we know where to start!
+        int this_chromosome_startpos = Util.getNextInt(0, this_chromosome_maxcut + 1);
+        int other_chromosome_startpos = Util.getNextInt(0, other_chromosome_maxcut + 1);
+
+        //Now lets get the necessary blocks and exchange
+        GrammarGraph[] this_chromosome_graphs = ind_this.getGenotype().getGraphsToExchange(this_chromosome_startpos, rnd_cut);
+        GrammarGraph[] other_chromosome_graphs = ind_other.getGenotype().getGraphsToExchange(other_chromosome_startpos, rnd_cut);
+
+        if(this_chromosome_graphs.length != other_chromosome_graphs.length)
+            System.out.println("AGAIN SOMETHING BAD WITH THE EXCHANGE!");
+
+        //Now SWAP!
+        ind_this.getGenotype().exchangeGraphs(this_chromosome_startpos, rnd_cut, other_chromosome_graphs);
+        ind_other.getGenotype().exchangeGraphs(other_chromosome_startpos, rnd_cut, this_chromosome_graphs);
+
+        for(GrammarPattern pat : ind_this.getGenotype().getChromosome())
+        {
+            if(pat.pattern == null)
+                System.out.println("AGAIN SOMETHING BAD WITH THE EXCHANGE!");
+
+        }
+
+        for(GrammarPattern pat : ind_other.getGenotype().getChromosome())
+        {
+            if(pat.pattern == null)
+                System.out.println("AGAIN SOMETHING BAD WITH THE EXCHANGE!");
+
+        }
+
+        return new GrammarIndividual[]{ind_this, ind_other};
     }
 
     /**

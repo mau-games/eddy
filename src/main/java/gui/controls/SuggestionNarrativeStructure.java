@@ -176,6 +176,13 @@ public class SuggestionNarrativeStructure
 
 	public void setElite(GrammarGraph elite)
 	{
+		if(elite == null)
+		{
+			this.elite = null;
+			this.selected_elite = null;
+			return;
+		}
+
 		this.elite = elite;
 		this.selected_elite = new GrammarGraph(elite);
 	}

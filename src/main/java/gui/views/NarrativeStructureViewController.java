@@ -444,6 +444,14 @@ public class NarrativeStructureViewController extends BorderPane implements List
 			//Actually we have the cells and they have the "ind" so it shouldn't be a problem to simply iterate fixme:
 			int ind = (int) (indices[1] * dimensionSizes[0] + indices[0]);
 
+//			if(filled_cells.get(0) != null && filled_cells.get(0).GetFeasiblePopulation().size() >= ind)
+//			{
+//				narrativeStructureDisplays.get(ind).setElite(
+//						filled_cells.get(0).GetFeasiblePopulation().get(ind).getPhenotype().getGrammarGraphOutputBest(editedGraph, 1));
+//				narrativeStructureDisplays.get(ind).setCellFitness(
+//						filled_cells.get(0).getEliteFitness());
+//			}
+
 			if(filled_cells.get(ind) != null)
 			{
 				narrativeStructureDisplays.get(ind).setElite(
@@ -451,6 +459,12 @@ public class NarrativeStructureViewController extends BorderPane implements List
 				narrativeStructureDisplays.get(ind).setCellFitness(
 						filled_cells.get(ind).getEliteFitness());
 			}
+			else
+			{
+				narrativeStructureDisplays.get(ind).setElite(null);
+				narrativeStructureDisplays.get(ind).setCellFitness(0.0);
+			}
+
 			return;
 		}
 
@@ -557,7 +571,7 @@ public class NarrativeStructureViewController extends BorderPane implements List
 			current_graph_info.cohFitnessText.setText(df.format(fitness_values[1]));
 			current_graph_info.fitnessText.setText(df.format(fitness_values[2]));
 
-			if(hovered_suggestion.getElite() != null)
+			if(hovered_suggestion != null && hovered_suggestion.getElite() != null)
 			{
 				fitness_values = evaluator.testEvaluation(hovered_suggestion.getElite(), editedGraph);
 
@@ -566,7 +580,7 @@ public class NarrativeStructureViewController extends BorderPane implements List
 				hovered_graph_info.fitnessText.setText(df.format(fitness_values[2]));
 			}
 
-			if(selected_suggestion.getSelectedElite() != null)
+			if(selected_suggestion != null && selected_suggestion.getSelectedElite() != null)
 			{
 				fitness_values = evaluator.testEvaluation(selected_suggestion.getSelectedElite(), editedGraph);
 

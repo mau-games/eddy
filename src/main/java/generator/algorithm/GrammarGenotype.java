@@ -66,6 +66,61 @@ public class GrammarGenotype
         }
     }
 
+    //////// HELPER METHODS FOR THE CROSSOVER STEP!!! ///////////
+    public int getChromosomeSize()
+    {
+        //This is using the fact that I know that every rule will have maximum 1 production rule (if that changes, everything changes!)
+        return chromosome.size() * 2;
+    }
+
+    public GrammarGraph[] getGraphsToExchange(int starting_pos, int amount)
+    {
+        GrammarGraph[] exchange_graphs = new GrammarGraph[amount];
+        int ind = 0;
+        for(int i = starting_pos; i < starting_pos + amount; i++, ind++)
+        {
+            if(i % 2 == 0) // We know this is the PATTERN ITSELF, not the production rule
+            {
+                exchange_graphs[ind] = this.chromosome.get(i/2).pattern;
+            }
+            else // We know this is the Production rule, not the pattern
+            {
+                exchange_graphs[ind] = this.chromosome.get(i/2).productionRules.get(0);
+            }
+        }
+
+        return  exchange_graphs;
+    }
+
+    public void exchangeGraphs(int starting_pos, int amount, GrammarGraph[] other_graphs)
+    {
+        int ind = 0;
+        for(int i = starting_pos; i < starting_pos + amount ; i++, ind++)
+        {
+            if(i % 2 == 0) // We know this is the PATTERN ITSELF, not the production rule
+            {
+                try {
+                    this.chromosome.get(i / 2).setPattern(other_graphs[ind]);
+                }
+                catch(Exception e)
+                {
+                    System.out.println("INDEX OUT OF BOUNDS!");
+                }
+            }
+            else // We know this is the Production rule, not the pattern
+            {
+                this.chromosome.get(i/2).productionRules.clear();
+                this.chromosome.get(i/2).addProductionRule(other_graphs[ind]);
+            }
+        }
+    }
+
+    private TVTropeType getRandomType()
+    {
+//        return TVTropeType.ANY;
+        return TVTropeType.values()[Util.getNextInt(0, TVTropeType.values().length)];
+    }
+
     private void produceRndChromosome()
     {
         int rule_count = Util.getNextInt(1, 4);
@@ -81,7 +136,8 @@ public class GrammarGenotype
             for(int i = 0; i < node_amount; i++)
             {
                 //I add any but maybe i shouldn't; lets try!
-                pattern.addNode(TVTropeType.ANY);
+//                pattern.addNode(TVTropeType.ANY);
+                pattern.addNode(getRandomType());
             }
 
             //Add random connections
@@ -97,7 +153,10 @@ public class GrammarGenotype
             for(int i = 0; i < node_amount; i++)
             {
                 //I add any but maybe i shouldn't; lets try!
-                production1.addNode(TVTropeType.ANY);
+//                production1.addNode(TVTropeType.ANY);
+//                pattern.addNode(TVTropeType.values()[Util.getNextInt(0, TVTropeType.values().length)]);
+                production1.addNode(getRandomType());
+
             }
 
             //Add random connections
@@ -120,7 +179,11 @@ public class GrammarGenotype
             return;
 
         GrammarGraph pat = rndRule.pattern;
-        pat.addNode(TVTropeType.ANY);
+//        pat.addNode(TVTropeType.ANY);
+//        pat.addNode(TVTropeType.values()[Util.getNextInt(0, TVTropeType.values().length)]);
+        pat.addNode(getRandomType());
+
+
 
         rndRule.setPattern(pat);
 
@@ -140,7 +203,7 @@ public class GrammarGenotype
         rndRule.setPattern(pat);
     }
 
-    //TODO: Not clear the reasoning behind this.
+    //TODO: Not clear the reasoning behind this. Not in use!
     //It can be to exchange the type of node or to exchange the connections.
     public void exchangeNodeRndRule()
     {
@@ -222,7 +285,12 @@ public class GrammarGenotype
     public void addNodeRndOutput()
     {
         GrammarPattern rndRule = chromosome.get(Util.getNextInt(0, this.chromosome.size()));
-        rndRule.productionRules.get(Util.getNextInt(0, rndRule.productionRules.size())).addNode(TVTropeType.ANY);
+//        rndRule.productionRules.get(Util.getNextInt(0, rndRule.productionRules.size())).addNode(TVTropeType.ANY);
+        rndRule.productionRules.get(Util.getNextInt(0, rndRule.productionRules.size())).addNode(getRandomType());
+
+
+
+
 //        GrammarGraph rndOutput = rndRule.productionRules.remove(Util.getNextInt(0, this.chromosome.size()));
     }
 
@@ -318,7 +386,9 @@ public class GrammarGenotype
         for(int i = 0; i < node_amount; i++)
         {
             //I add any but maybe i shouldn't; lets try!
-            pattern.addNode(TVTropeType.ANY);
+//            pattern.addNode(TVTropeType.ANY);
+            pattern.addNode(getRandomType());
+
         }
 
         //Add random connections
@@ -334,7 +404,9 @@ public class GrammarGenotype
         for(int i = 0; i < node_amount; i++)
         {
             //I add any but maybe i shouldn't; lets try!
-            production1.addNode(TVTropeType.ANY);
+//            production1.addNode(TVTropeType.ANY);
+            production1.addNode(getRandomType());
+
         }
 
         //Add random connections

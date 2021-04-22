@@ -86,7 +86,9 @@ public class GrammarMAPEliteAlgorithm extends Algorithm implements Listener {
 
 	GrammarGraph axiom;
 	GrammarGraph target;
-	private int recipe_iterations = 20;
+//	private int recipe_iterations = 20;
+	private int recipe_iterations = 10;
+
 	private NSEvolutionarySystemEvaluator evaluator = new NSEvolutionarySystemEvaluator();
 
 	public GrammarMAPEliteAlgorithm(GeneratorConfig config) {
@@ -161,11 +163,12 @@ public class GrammarMAPEliteAlgorithm extends Algorithm implements Listener {
 	
 	public void initPopulations(Room room, MAPEDimensionGrammarFXML[] dimensions){
 		broadcastStatusUpdate("Initialising...");
-		EventRouter.getInstance().registerListener(this, new MAPEGridUpdate(null));
+//		EventRouter.getInstance().registerListener(this, new MAPEGridUpdate(null));
 		EventRouter.getInstance().registerListener(this, new UpdatePreferenceModel(null));
 		EventRouter.getInstance().registerListener(this, new SaveCurrentGeneration());
 		EventRouter.getInstance().registerListener(this, new RoomEdited(null));
 		EventRouter.getInstance().registerListener(this, new NarrativeStructEdited(null));
+		EventRouter.getInstance().registerListener(this, new MAPENarrativeGridUpdate(null));
 
 
 		this.dimensions = dimensions;
@@ -233,11 +236,12 @@ public class GrammarMAPEliteAlgorithm extends Algorithm implements Listener {
 	public void initPopulations(MAPEDimensionGrammarFXML[] dimensions){
 
 		broadcastStatusUpdate("Initialising...");
-		EventRouter.getInstance().registerListener(this, new MAPEGridUpdate(null));
+//		EventRouter.getInstance().registerListener(this, new MAPEGridUpdate(null));
 		EventRouter.getInstance().registerListener(this, new UpdatePreferenceModel(null));
 		EventRouter.getInstance().registerListener(this, new SaveCurrentGeneration());
 		EventRouter.getInstance().registerListener(this, new RoomEdited(null));
 		EventRouter.getInstance().registerListener(this, new NarrativeStructEdited(null));
+		EventRouter.getInstance().registerListener(this, new MAPENarrativeGridUpdate(null));
 
 		this.dimensions = dimensions;
 		initCells(dimensions);
@@ -418,9 +422,14 @@ public class GrammarMAPEliteAlgorithm extends Algorithm implements Listener {
 	public void ping(PCGEvent e) //TODO: I SHOULD ALSO ADD THE INFO WHEN A MAP IS UPDATED --> For all the extra calculations
 	{
 		// TODO Auto-generated method stub
-		if(e instanceof MAPEGridUpdate)
+//		if(e instanceof MAPEGridUpdate)
+//		{
+////			this.dimensions = ((MAPEGridUpdate) e).getDimensions();
+//			dimensionsChanged = true;
+//		}
+		if(e instanceof MAPENarrativeGridUpdate)
 		{
-//			this.dimensions = ((MAPEGridUpdate) e).getDimensions();
+			this.dimensions = ((MAPENarrativeGridUpdate) e).getDimensions();
 			dimensionsChanged = true;
 		}
 		else if(e instanceof UpdatePreferenceModel) 
@@ -440,7 +449,8 @@ public class GrammarMAPEliteAlgorithm extends Algorithm implements Listener {
 		}
 		else if(e instanceof NarrativeStructEdited)
 		{
-			axiom = (GrammarGraph) e.getPayload();
+			axiom = new GrammarGraph((GrammarGraph) e.getPayload());
+			axiom.pattern_finder.findNarrativePatterns(null);
 			dimensionsChanged = true;
 		}
 	}
@@ -528,6 +538,7 @@ public class GrammarMAPEliteAlgorithm extends Algorithm implements Listener {
 		all_recipes.addAll(ind.getPhenotype().infeasible_grammar_recipes);
 		ind.getPhenotype().feasible_grammar_recipes.clear();
 		ind.getPhenotype().infeasible_grammar_recipes.clear();
+		ind.getPhenotype().best_grammar_recipe.clear();
 
 		for(LinkedHashMap<Integer, Integer> recipe : all_recipes)
 		{
@@ -580,7 +591,7 @@ public class GrammarMAPEliteAlgorithm extends Algorithm implements Listener {
 			}
 		}
 
-		int actual_recipes = ind.getPhenotype().feasible_grammar_recipes.size() + ind.getPhenotype().infeasible_grammar_recipes.size();
+		double actual_recipes = ind.getPhenotype().feasible_grammar_recipes.size() + ind.getPhenotype().infeasible_grammar_recipes.size();
 
 		// at least half of the recipes have to be feasible! (at least the ones we actually created!)
 		if(ind.getPhenotype().feasible_grammar_recipes.size() >= actual_recipes/2)
@@ -884,21 +895,26 @@ public class GrammarMAPEliteAlgorithm extends Algorithm implements Listener {
 	 */
 	protected List<GrammarIndividual> mutateParents(List<GrammarIndividual> progenitors)
 	{
-		List<GrammarIndividual> sons = new ArrayList<GrammarIndividual>();
+		List<GrammarIndividual> children = new ArrayList<GrammarIndividual>();
 		int sizeProgenitors = progenitors.size();
-		int countSons = 0;
-		int sonSize = sizeProgenitors * 2;
+		int countChildren = 0;
+		int childrenSize = sizeProgenitors * 2;
 
-		while (countSons < sonSize)
+		while (countChildren < childrenSize)
 		{
 			int parent_index = Util.getNextInt(0, sizeProgenitors);
-			sons.add(progenitors.get(parent_index).mutate(false));
-			sons.add(progenitors.get(parent_index).mutate(false));
+			GrammarIndividual child_0 = progenitors.get(parent_index).mutate(true);
+			GrammarIndividual child_1 = progenitors.get(parent_index).mutate(true);
 
-			countSons += 2;
+			if(child_0 != null) children.add(child_0);
+			if(child_1 != null) children.add(child_1);
+//			children.add(progenitors.get(parent_index).mutate(false));
+//			children.add(progenitors.get(parent_index).mutate(false));
+
+			countChildren += 2;
 		}
 
-		return sons;
+		return children;
 	}
     
     private void runInterbreedingApplElites()
@@ -1004,8 +1020,8 @@ public class GrammarMAPEliteAlgorithm extends Algorithm implements Listener {
     	}
     	
 		//Breed!
-//		feasibleChildren.addAll(crossOverBetweenGrammarProgenitors(feasibleParents));
-//		infeasibleChildren.addAll(crossOverBetweenGrammarProgenitors(infeasibleParents));
+		feasibleChildren.addAll(crossOverBetweenGrammarProgenitors(feasibleParents));
+		infeasibleChildren.addAll(crossOverBetweenGrammarProgenitors(infeasibleParents));
 
 		//FIRST ONLY MUTATE
 		feasibleChildren.addAll(mutateParents(feasibleParents));
@@ -1492,8 +1508,10 @@ public class GrammarMAPEliteAlgorithm extends Algorithm implements Listener {
 	
 	protected void CheckAndAssignToCell(List<GrammarIndividual> individuals, boolean infeasible)
 	{
+		int ind = -1;
 		 for (GrammarIndividual individual : individuals)
 	        {
+	        	ind++;
 	        	if(infeasible)
 	        		individual.setChildOfInfeasibles(true);
 
