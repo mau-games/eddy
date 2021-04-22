@@ -74,9 +74,6 @@ public class QuestViewController extends BorderPane implements Listener {
     private Stack<finder.geometry.Point> civilianPosition;
     private Stack<Room> roomsNpc;
     private Stack<Room> roomsCivilian;
-    private int rows;
-    private int columns;
-    
 
     private QuestGrammar questGrammar;
     //    private List<Quest> suggestedQuests;
@@ -87,8 +84,6 @@ public class QuestViewController extends BorderPane implements Listener {
     private StackPane mapPane;
     @FXML
     private BorderPane buttonPane;
-    //@FXML
-    //private FlowPane questPane;
     @FXML
     private VBox questPaneV;
     @FXML
@@ -165,10 +160,6 @@ public class QuestViewController extends BorderPane implements Listener {
         civilianPosition = new Stack<finder.geometry.Point>();
         roomsNpc = new Stack<Room>();
         roomsCivilian = new Stack<Room>();
-        
-        //rows = 1;
-        columns = 0;
-        //temp = null;
 
     }
     //trycker på plus + ändring av JA
@@ -210,8 +201,8 @@ public class QuestViewController extends BorderPane implements Listener {
                                             if (!doublePosition && updatedPosition != null) {
                                                 Action action = addQuestAction(toggleButton, questCount);
                                                 Tile tile = action.getRoom().getTile(action.getPosition().getX(), action.getPosition().getY());
-                                                StackNpc(tile.GetType(), action);
                                                 CheckUsedTile(tile, action);
+                                                StackNpc(tile.GetType(), action);
                                                 addVisualQuestPaneAction(action, paneCount - 1);
                                                 toggleButton.setSelected(false);
                                                 dungeon.getQuest().checkForAvailableActions(action, tile.GetType(), stackNpc, dungeon);
@@ -684,7 +675,6 @@ public class QuestViewController extends BorderPane implements Listener {
 
             questPaneH.getChildren().add(questPlaceholder);
         	questPaneV.getChildren().add(questPaneH);
-//        	columns = 0;
 		}
         else {
             Label arrow = new Label("=>");
@@ -692,28 +682,7 @@ public class QuestViewController extends BorderPane implements Listener {
             arrow.setFont(Font.font(14.0));
             arrow.setStyle("-fx-background-color: transparent;");
             questPaneH.getChildren().add(index + 1, arrow);
-//            columns++;
 		}
-        
-        /*if (temp != null) {
-        	temp.getChildren().add(columns, toAdd);
-			columns++;
-		}
-
-        //add arrow label
-        if (action.getType() == ActionType.REPORT && stackNpc.size() == 0) {
-        	temp = new HBox(1);
-        	questPaneV.getChildren().add(temp);
-        	temp.getChildren().add(columns, questPlaceholder);
-        	columns++;
-		}
-        else {
-            Label arrow = new Label("=>");
-            arrow.setTextFill(Color.WHITE);
-            arrow.setFont(Font.font(14.0));
-            arrow.setStyle("-fx-background-color: transparent;");
-            questPaneH.getChildren().add(index + 1, arrow);
-		}*/
     }
 
     public void addVisualGeneratorPaneAction(Action action, int paneIndex) {

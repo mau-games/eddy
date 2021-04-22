@@ -538,7 +538,7 @@ public class Dungeon implements Listener
 		room.enemyTiles.getPoints().removeIf(point -> point.getY() == tile.GetCenterPosition().getY() &&
 				point.getX() == tile.GetCenterPosition().getX());
 		enemiesPositions.removeIf(enemyTiles -> enemyTiles.getPoint().getX() == tile.GetCenterPosition().getX() &&
-				enemyTiles.getPoint().getY() == tile.GetCenterPosition().getY());
+				enemyTiles.getPoint().getY() == tile.GetCenterPosition().getY() && enemyTiles.getRoom() == room);
 	}
 
 	public ArrayList<QuestPositionUpdate> getEnemies()
@@ -564,10 +564,10 @@ public class Dungeon implements Listener
 	public void removeCivilians(finder.geometry.Point tempPoint, Room room)
 	{
 		System.out.println("npc removed");
-		room.civilianTiles.getPoints().removeIf(point -> point.getY() != tempPoint.getY() &&
+		room.civilianTiles.getPoints().removeIf(point -> point.getY() != tempPoint.getY() ||
 				point.getX() != tempPoint.getX());
-		civilianPositions.removeIf(npctile -> npctile.getPoint().getX() != tempPoint.getX() &&
-				npctile.getPoint().getY() != tempPoint.getY());
+		civilianPositions.removeIf(civilianTile -> civilianTile.getPoint().getX() != tempPoint.getX() ||
+				civilianTile.getPoint().getY() != tempPoint.getY() && civilianTile.getRoom() == room);
 	}
 	
 	public ArrayList<QuestPositionUpdate> getCivilians()
@@ -593,10 +593,10 @@ public class Dungeon implements Listener
 	public void removeBountyHunters(finder.geometry.Point tempPoint, Room room)
 	{
 		System.out.println("npc removed");
-		room.bountyhunterTiles.getPoints().removeIf(point -> point.getY() != tempPoint.getY() &&
+		room.bountyhunterTiles.getPoints().removeIf(point -> point.getY() != tempPoint.getY() ||
 				point.getX() != tempPoint.getX());
-		bountyhunterPositions.removeIf(npctile -> npctile.getPoint().getX() != tempPoint.getX() &&
-				npctile.getPoint().getY() != tempPoint.getY());
+		bountyhunterPositions.removeIf(bountyhunterTile -> bountyhunterTile.getPoint().getX() != tempPoint.getX() ||
+				bountyhunterTile.getPoint().getY() != tempPoint.getY() && bountyhunterTile.getRoom() == room);
 	}
 	
 	public ArrayList<QuestPositionUpdate> getBountyHunters()
@@ -622,10 +622,10 @@ public class Dungeon implements Listener
 	public void removeMages(finder.geometry.Point tempPoint, Room room)
 	{
 		System.out.println("npc removed");
-		room.mageTiles.getPoints().removeIf(point -> point.getY() != tempPoint.getY() &&
+		room.mageTiles.getPoints().removeIf(point -> point.getY() != tempPoint.getY() ||
 				point.getX() != tempPoint.getX());
-		magePositions.removeIf(npctile -> npctile.getPoint().getX() != tempPoint.getX() &&
-				npctile.getPoint().getY() != tempPoint.getY());
+		magePositions.removeIf(mageTile -> mageTile.getPoint().getX() != tempPoint.getX() ||
+				mageTile.getPoint().getY() != tempPoint.getY() && mageTile.getRoom() == room);
 	}
 	
 	public ArrayList<QuestPositionUpdate> getMages()
@@ -651,10 +651,10 @@ public class Dungeon implements Listener
 	public void removeSoldiers(finder.geometry.Point tempPoint, Room room)
 	{
 		System.out.println("npc removed");
-		room.soldierTiles.getPoints().removeIf(point -> point.getY() != tempPoint.getY() &&
+		room.soldierTiles.getPoints().removeIf(point -> point.getY() != tempPoint.getY() ||
 				point.getX() != tempPoint.getX());
-		soldierPositions.removeIf(npctile -> npctile.getPoint().getX() != tempPoint.getX() &&
-				npctile.getPoint().getY() != tempPoint.getY());
+		soldierPositions.removeIf(soldierTile -> soldierTile.getPoint().getX() != tempPoint.getX() ||
+				soldierTile.getPoint().getY() != tempPoint.getY() && soldierTile.getRoom() == room);
 	}
 	
 	public ArrayList<QuestPositionUpdate> getSoldiers()
@@ -674,7 +674,7 @@ public class Dungeon implements Listener
 		room.npcTiles.getPoints().removeIf(point -> point.getY() == tile.GetCenterPosition().getY() &&
 				point.getX() == tile.GetCenterPosition().getX());
 		npcsPositions.removeIf(npctile -> npctile.getPoint().getX() == tile.GetCenterPosition().getX() &&
-				npctile.getPoint().getY() == tile.GetCenterPosition().getY());
+				npctile.getPoint().getY() == tile.GetCenterPosition().getY() && npctile.getRoom() == room);
 	}
 
 	public ArrayList<QuestPositionUpdate> getNpcs()
@@ -694,7 +694,7 @@ public class Dungeon implements Listener
 		room.itemTiles.getPoints().removeIf(point -> point.getY() == tile.GetCenterPosition().getY() &&
 				point.getX() == tile.GetCenterPosition().getX());
 		itemsPositions.removeIf(itemTile -> itemTile.getPoint().getX() == tile.GetCenterPosition().getX() &&
-				itemTile.getPoint().getY() == tile.GetCenterPosition().getY());
+				itemTile.getPoint().getY() == tile.GetCenterPosition().getY() && itemTile.getRoom() == room);
 	}
 
 	public ArrayList<QuestPositionUpdate> getItems() {
@@ -713,7 +713,7 @@ public class Dungeon implements Listener
 		room.treasureTiles.getPoints().removeIf(point -> point.getY() == tile.GetCenterPosition().getY() &&
 				point.getX() == tile.GetCenterPosition().getX());
 		treasuresPositions.removeIf(treasureTile -> treasureTile.getPoint().getX() == tile.GetCenterPosition().getX() &&
-				treasureTile.getPoint().getY() == tile.GetCenterPosition().getY());
+				treasureTile.getPoint().getY() == tile.GetCenterPosition().getY() && treasureTile.getRoom() == room);
 	}
 
 	public ArrayList<QuestPositionUpdate> getTreasures() {
