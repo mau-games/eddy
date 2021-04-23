@@ -10,6 +10,7 @@ import game.Game;
 import game.Room;
 import game.Tile;
 import game.TileTypes;
+import game.tiles.MageTile;
 import game.tiles.NpcTile;
 import gui.utils.MapRenderer;
 import javafx.application.Platform;
@@ -372,9 +373,6 @@ public class InteractiveMap extends GridPane implements Listener {
 	}
 	
 	public Tile GetLastTile() {
-		if (lastTile.GetType() == TileTypes.NPC) {
-			return lastTile;
-		}
-		return null;
+		return room.getTile(lastTile.GetCenterPosition().getX(), lastTile.GetCenterPosition().getY());
 	}
 }

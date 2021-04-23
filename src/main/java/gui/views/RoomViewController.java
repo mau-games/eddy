@@ -1602,6 +1602,7 @@ public class RoomViewController extends BorderPane implements Listener
 				case "SoldierChoice":
 					if (lastNpcTile.GetType() == TileTypes.NPC) {
 						SoldierTile temp = new SoldierTile(lastNpcTile.GetCenterPosition(), TileTypes.SOLDIER);
+						temp.SetType(TileTypes.SOLDIER);
 						EventRouter.getInstance().postEvent(new MapQuestUpdate(lastNpcTile, temp, mapView.getMap()));
 						mapView.getMap().setTile(lastNpcTile.GetCenterPosition().getX(),lastNpcTile.GetCenterPosition().getY(), temp);
 						npcTileList.add(temp);
@@ -1610,6 +1611,7 @@ public class RoomViewController extends BorderPane implements Listener
 				case "MageChoice":
 					if (lastNpcTile.GetType() == TileTypes.NPC) {
 						MageTile temp = new MageTile(lastNpcTile.GetCenterPosition(), TileTypes.MAGE);
+						temp.SetType(TileTypes.MAGE);
 						EventRouter.getInstance().postEvent(new MapQuestUpdate(lastNpcTile, temp, mapView.getMap()));
 						mapView.getMap().setTile(lastNpcTile.GetCenterPosition().getX(),lastNpcTile.GetCenterPosition().getY(), temp);
 						npcTileList.add(temp);
@@ -1618,6 +1620,7 @@ public class RoomViewController extends BorderPane implements Listener
 				case "BountyhunterChoice":
 					if (lastNpcTile.GetType() == TileTypes.NPC) {
 						BountyhunterTile temp = new BountyhunterTile(lastNpcTile.GetCenterPosition(), TileTypes.BOUNTYHUNTER);
+						temp.SetType(TileTypes.BOUNTYHUNTER);
 						EventRouter.getInstance().postEvent(new MapQuestUpdate(lastNpcTile, temp, mapView.getMap()));
 						mapView.getMap().setTile(lastNpcTile.GetCenterPosition().getX(),lastNpcTile.GetCenterPosition().getY(), temp);
 						npcTileList.add(temp);
@@ -1626,6 +1629,7 @@ public class RoomViewController extends BorderPane implements Listener
 				case "CivilianChoice":
 					if (lastNpcTile.GetType() == TileTypes.NPC) {
 						CivilianTile temp = new CivilianTile(lastNpcTile.GetCenterPosition(), TileTypes.CIVILIAN);
+						temp.SetType(TileTypes.CIVILIAN);
 						EventRouter.getInstance().postEvent(new MapQuestUpdate(lastNpcTile, temp, mapView.getMap()));
 						mapView.getMap().setTile(lastNpcTile.GetCenterPosition().getX(),lastNpcTile.GetCenterPosition().getY(), temp);
 						npcTileList.add(temp);

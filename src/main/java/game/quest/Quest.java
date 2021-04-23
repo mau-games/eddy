@@ -5,6 +5,7 @@ import game.Dungeon;
 import game.Tile;
 import game.TileTypes;
 import game.tiles.*;
+import generator.algorithm.grammar.QuestGrammar.NPCTypes;
 import gui.utils.InformativePopupManager;
 import gui.utils.InformativePopupManager.PresentableInformation;
 import util.eventrouting.EventRouter;
@@ -171,23 +172,21 @@ public class Quest {
             MapQuestUpdate update = (MapQuestUpdate)e;
             if (update.hasPayload()){
                 Tile prev = update.getPrev();
-                if(prev.GetType().isEnemy()){
+                if(prev instanceof EnemyTile){
                     owner.removeEnemy(new EnemyTile(prev),update.getRoom());
-                } else if (prev.GetType().isNPC()){
-                    owner.removeNpc(new NpcTile(prev),update.getRoom());
-                } else if (prev.GetType().isItem()){
+                } else if (prev instanceof ItemTile){
                     owner.removeItem(new ItemTile(prev),update.getRoom());
-                } else if (prev.GetType().isTreasure()){
+                } else if (prev instanceof TreasureTile){
                     owner.removeTreasure(new TreasureTile(prev),update.getRoom());
-                } else if (prev.GetType().isEnemyBoss()) {
+                } else if (prev instanceof BossEnemyTile) {
                     owner.removeBoss(new BossEnemyTile(prev), update.getRoom());
-                } else if (prev.GetType().isSoldier()) {
+                } else if (prev instanceof SoldierTile) {
                     owner.removeSoldier(new SoldierTile(prev), update.getRoom());
-                } else if (prev.GetType().isMage()) {
+                } else if (prev instanceof MageTile) {
                     owner.removeMage(new MageTile(prev), update.getRoom());
-                } else if (prev.GetType().isBountyhunter()) {
+                } else if (prev instanceof BountyhunterTile) {
                     owner.removeBountyhunter(new BountyhunterTile(prev), update.getRoom());
-                } else if (prev.GetType().isCivilian()) {
+                } else if (prev instanceof CivilianTile) {
                     owner.removeCivilian(new CivilianTile(prev), update.getRoom());
                 }
 

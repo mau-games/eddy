@@ -43,6 +43,10 @@ public enum TileTypes {
 		return value == TREASURE.getValue();
 	}
 	
+	public boolean isFloor() {
+		return value == FLOOR.getValue();
+	}
+	
 	public boolean isEnemy(){
 		return value == ENEMY.getValue();
 	}
