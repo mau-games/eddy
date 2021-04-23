@@ -18,7 +18,9 @@ import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
+import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
+import javafx.geometry.Pos;
 import javafx.geometry.VPos;
 import javafx.scene.Node;
 import javafx.scene.control.*;
@@ -78,6 +80,11 @@ public class NarrativeStructureViewController extends BorderPane implements List
 	@FXML NarrativePane elite_preview_1;
 	@FXML NarrativePane elite_preview_2;
 	Separator elite_sep;
+	Label  hovered_label;
+	Separator hovered_sep;
+	Label  selected_label;
+	Button apply_suggestion;
+	Separator selected_sep;
 
 	GrammarGraph elp_1;
 	GrammarGraph elp_2;
@@ -139,7 +146,33 @@ public class NarrativeStructureViewController extends BorderPane implements List
 		elite_sep= new Separator();
 		elite_sep.setOrientation(Orientation.HORIZONTAL);
 		elite_sep.setValignment(VPos.CENTER);
-		elite_previews.getChildren().addAll(elite_preview_1, elite_sep, elite_preview_2);
+
+		hovered_label = new Label("Hovered Suggestion");
+		hovered_label.setTextFill(Color.WHITE);
+		hovered_sep= new Separator();
+		hovered_sep.setOrientation(Orientation.HORIZONTAL);
+		hovered_sep.setValignment(VPos.CENTER);
+
+
+		HBox selected_box = new HBox(10);
+		selected_box.setAlignment(Pos.CENTER_LEFT);
+		selected_box.setPadding(new Insets(5, 5, 5, 0));
+		selected_label = new Label("Selected Suggestion");
+		selected_label.setTextFill(Color.WHITE);
+		selected_box.getChildren().add(selected_label);
+		apply_suggestion = new Button("Apply Suggestion");
+		apply_suggestion.setOnAction(event -> router.postEvent(new NarrativeSuggestionApplied(selected_suggestion.getSelectedElite())));
+		apply_suggestion.setDisable(true);
+		selected_box.getChildren().add(apply_suggestion);
+
+
+		selected_sep= new Separator();
+		selected_sep.setOrientation(Orientation.HORIZONTAL);
+		selected_sep.setValignment(VPos.CENTER);
+
+
+//		elite_previews.getChildren().addAll(elite_preview_1, elite_sep, elite_preview_2);
+		elite_previews.getChildren().addAll(hovered_label, hovered_sep, elite_preview_1, selected_box, selected_sep, elite_preview_2);
 
 
 
@@ -560,10 +593,23 @@ public class NarrativeStructureViewController extends BorderPane implements List
 			selected_graph_info.cohFitnessText.setText(df.format(fitness_values[1]));
 			selected_graph_info.fitnessText.setText(df.format(fitness_values[2]));
 
+			apply_suggestion.setDisable(false);
+
 		}
 		else if(e instanceof NarrativeStructEdited)
 		{
 			editedGraph = new GrammarGraph((GrammarGraph) e.getPayload());
+
+			//I should do something like this to add it in the same place, but I need to eat first :)
+//			renderedGraph.nPane.getposition
+
+			renderedGraph = (GrammarGraph) e.getPayload();
+
+			worldPane.getChildren().clear();
+
+			renderedGraph.nPane.renderAll();
+			worldPane.getChildren().add(renderedGraph.nPane);
+			renderedGraph.nPane.layoutGraph();
 
 			double[] fitness_values = evaluator.testEvaluation(editedGraph, editedGraph);
 

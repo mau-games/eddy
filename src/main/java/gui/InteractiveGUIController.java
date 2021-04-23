@@ -150,6 +150,8 @@ public class InteractiveGUIController implements Initializable, Listener {
 		router.registerListener(this, new RequestGrammarStructureNodeRemoval(null));
 		router.registerListener(this, new RequestConnectionGrammarStructureGraph(null, null, 0));
 		router.registerListener(this, new RequestGrammarNodeConnectionRemoval(null));
+		router.registerListener(this, new NarrativeSuggestionApplied(null));
+
 
 		suggestionsView = new SuggestionsViewController();
 		roomView = new RoomViewController();
@@ -352,7 +354,16 @@ public class InteractiveGUIController implements Initializable, Listener {
 				router.postEvent(new NarrativeStructEdited(graph));
 
 		}
+		else if(e instanceof NarrativeSuggestionApplied)
+		{
+			//Replace the graph entirely!
+			graph = new GrammarGraph((GrammarGraph) e.getPayload());
+			graph.pattern_finder.findNarrativePatterns(null);
+			graph.nPane.renderAll();
 
+			if(graph.fullyConnectedGraph())
+				router.postEvent(new NarrativeStructEdited(graph));
+		}
 	}
 
 	/*
