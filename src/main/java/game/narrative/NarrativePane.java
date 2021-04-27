@@ -52,6 +52,7 @@ public class NarrativePane extends Pane
 	public void setNewOwner(GrammarGraph owner)
 	{
 		this.owner = owner;
+		this.owner.cleanGraphics();
 	}
 	
 	public void addVisualNarrativeNode(GrammarNode grammarNode)
@@ -170,7 +171,7 @@ public class NarrativePane extends Pane
 			}
 		}
 
-		this.testBounds();
+//		this.testBounds();
 	}
 
 	//Iterate through connections to and from current node to place it at the right position.

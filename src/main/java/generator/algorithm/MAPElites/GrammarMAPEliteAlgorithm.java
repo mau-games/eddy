@@ -86,6 +86,7 @@ public class GrammarMAPEliteAlgorithm extends Algorithm implements Listener {
 
 	GrammarGraph axiom;
 	GrammarGraph target;
+
 //	private int recipe_iterations = 20;
 	private int recipe_iterations = 10;
 
@@ -167,7 +168,7 @@ public class GrammarMAPEliteAlgorithm extends Algorithm implements Listener {
 		EventRouter.getInstance().registerListener(this, new UpdatePreferenceModel(null));
 		EventRouter.getInstance().registerListener(this, new SaveCurrentGeneration());
 		EventRouter.getInstance().registerListener(this, new RoomEdited(null));
-		EventRouter.getInstance().registerListener(this, new NarrativeStructEdited(null));
+		EventRouter.getInstance().registerListener(this, new NarrativeStructEdited(null, false));
 		EventRouter.getInstance().registerListener(this, new MAPENarrativeGridUpdate(null));
 
 
@@ -240,7 +241,7 @@ public class GrammarMAPEliteAlgorithm extends Algorithm implements Listener {
 		EventRouter.getInstance().registerListener(this, new UpdatePreferenceModel(null));
 		EventRouter.getInstance().registerListener(this, new SaveCurrentGeneration());
 		EventRouter.getInstance().registerListener(this, new RoomEdited(null));
-		EventRouter.getInstance().registerListener(this, new NarrativeStructEdited(null));
+		EventRouter.getInstance().registerListener(this, new NarrativeStructEdited(null, false));
 		EventRouter.getInstance().registerListener(this, new MAPENarrativeGridUpdate(null));
 
 		this.dimensions = dimensions;

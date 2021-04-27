@@ -18,10 +18,7 @@ import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
-import javafx.geometry.Insets;
-import javafx.geometry.Orientation;
-import javafx.geometry.Pos;
-import javafx.geometry.VPos;
+import javafx.geometry.*;
 import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.input.ContextMenuEvent;
@@ -121,7 +118,7 @@ public class NarrativeStructureViewController extends BorderPane implements List
 		router.registerListener(this, new NarrativeStructMAPElitesDone());
 		router.registerListener(this, new SuggestedNarrativeHovered(null));
 		router.registerListener(this, new SuggestedNarrativeSelected(null));
-		router.registerListener(this, new NarrativeStructEdited(null));
+		router.registerListener(this, new NarrativeStructEdited(null, false));
 
 		//Create the graphs!
 		Scale newScale = new Scale();
@@ -545,6 +542,7 @@ public class NarrativeStructureViewController extends BorderPane implements List
 
 //			elite_previews.getChildren().clear();
 			elite_preview_1.setNewOwner(hovered_suggestion.getElite());
+			elite_preview_1.forceScale(newScale);
 //			elite_preview_1 = hovered_suggestion.getElite().nPane;
 //			elite_preview_1.forceScale(newScale);
 
@@ -601,15 +599,47 @@ public class NarrativeStructureViewController extends BorderPane implements List
 			editedGraph = new GrammarGraph((GrammarGraph) e.getPayload());
 
 			//I should do something like this to add it in the same place, but I need to eat first :)
-//			renderedGraph.nPane.getposition
+			System.out.println(renderedGraph.nPane.getBoundsInParent());
+			Bounds old_bounds = renderedGraph.nPane.getBoundsInParent();
 
-			renderedGraph = (GrammarGraph) e.getPayload();
+			//TODO: This actually needs to be checked
+			if(((NarrativeStructEdited)e).replaced_graph)
+			{
+				renderedGraph = (GrammarGraph) e.getPayload();
 
-			worldPane.getChildren().clear();
+				worldPane.getChildren().clear();
 
-			renderedGraph.nPane.renderAll();
-			worldPane.getChildren().add(renderedGraph.nPane);
-			renderedGraph.nPane.layoutGraph();
+				renderedGraph.nPane.renderAll();
+				worldPane.getChildren().add(renderedGraph.nPane);
+				renderedGraph.nPane.layoutGraph();
+//
+//			renderedGraph.nPane.setLayoutX(0.0);
+//			renderedGraph.nPane.setLayoutY(0.0);
+
+//			renderedGraph.nPane.setTranslateX(Math.abs(renderedGraph.nPane.getBoundsInParent().getMinX()));
+//			renderedGraph.nPane.setTranslateY(Math.abs(renderedGraph.nPane.getBoundsInParent().getMinY()));
+
+//			System.out.println(renderedGraph.nPane.getBoundsInParent());
+//			System.out.println(renderedGraph.nPane.getBoundsInLocal());
+//			System.out.println(old_bounds.getMinX());
+//			System.out.println(old_bounds.getMinY());
+////			System.out.println(renderedGraph.nPane.screenToLocal(old_bounds.getMinX(), old_bounds.getMinY()));
+//			System.out.println(renderedGraph.nPane.localToParent(old_bounds.getMinX(), old_bounds.getMinY()));
+//			System.out.println(renderedGraph.nPane.localToScene(old_bounds.getMinX(), old_bounds.getMinY()));
+//			System.out.println(renderedGraph.nPane.localToScreen(old_bounds.getMinX(), old_bounds.getMinY()));
+//			System.out.println(renderedGraph.nPane.parentToLocal(old_bounds.getMinX(), old_bounds.getMinY()));
+//			System.out.println(renderedGraph.nPane.sceneToLocal(old_bounds.getMinX(), old_bounds.getMinY()));
+//			System.out.println(renderedGraph.nPane.screenToLocal(old_bounds.getMinX(), old_bounds.getMinY()));
+
+//			System.out.println(Math.abs(renderedGraph.nPane.getBoundsInLocal().getMinX()) + old_bounds.getMinX());
+//			System.out.println(Math.abs(renderedGraph.nPane.getBoundsInLocal().getMinY())  + old_bounds.getMinY());
+
+				renderedGraph.nPane.setTranslateX(Math.abs(renderedGraph.nPane.getBoundsInLocal().getMinX()) + old_bounds.getMinX());
+				renderedGraph.nPane.setTranslateY(Math.abs(renderedGraph.nPane.getBoundsInLocal().getMinY()) + old_bounds.getMinY());
+			}
+
+
+//			System.out.println(renderedGraph.nPane.getBoundsInParent());
 
 			double[] fitness_values = evaluator.testEvaluation(editedGraph, editedGraph);
 

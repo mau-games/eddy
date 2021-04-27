@@ -948,6 +948,14 @@ public class GrammarGraph
         return subgraph;
     }
 
+    public void cleanGraphics()
+    {
+        for(GrammarNode node : nodes)
+        {
+            node.clearGraphics();
+        }
+    }
+
     @Override
     public String toString()
     {

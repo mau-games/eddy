@@ -256,6 +256,16 @@ public class GrammarNode {
     public TVTropeType getGrammarNodeType() {return grammarNodeType;}
     public void setGrammarNodeType(TVTropeType type){grammarNodeType = type;}
 
+    /***
+     * This will only be required when wanting to paint the graph.
+     * But until then we try to avoid doing anything with graphics!
+     * @return the graphics shape of this node!
+     */
+    public void clearGraphics()
+    {
+        graphic_element = null;
+        graphic_connection = null;
+    }
 
     /***
      * This will only be required when wanting to paint the graph.

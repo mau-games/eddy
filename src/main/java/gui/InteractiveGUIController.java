@@ -321,7 +321,7 @@ public class InteractiveGUIController implements Initializable, Listener {
 			created_node.getNarrativeShape().setTranslateY(local_translation_point.getY());
 
 			if(graph.fullyConnectedGraph())
-				router.postEvent(new NarrativeStructEdited(graph));
+				router.postEvent(new NarrativeStructEdited(graph, false));
 		}
 		 else if(e instanceof RequestGrammarStructureNodeRemoval)
 		{
@@ -329,7 +329,7 @@ public class InteractiveGUIController implements Initializable, Listener {
 			graph.nPane.renderAll();
 
 			if(graph.fullyConnectedGraph())
-				router.postEvent(new NarrativeStructEdited(graph));
+				router.postEvent(new NarrativeStructEdited(graph, false));
 		}
 		 else if(e instanceof RequestConnectionGrammarStructureGraph)
 		{
@@ -342,7 +342,7 @@ public class InteractiveGUIController implements Initializable, Listener {
 			NarrativeStructDrawer.getInstance().done();
 
 			if(graph.fullyConnectedGraph())
-				router.postEvent(new NarrativeStructEdited(graph));
+				router.postEvent(new NarrativeStructEdited(graph, false));
 		}
 		else if(e instanceof RequestGrammarNodeConnectionRemoval)
 		{
@@ -351,7 +351,7 @@ public class InteractiveGUIController implements Initializable, Listener {
 			graph.nPane.renderAll();
 
 			if(graph.fullyConnectedGraph())
-				router.postEvent(new NarrativeStructEdited(graph));
+				router.postEvent(new NarrativeStructEdited(graph, false));
 
 		}
 		else if(e instanceof NarrativeSuggestionApplied)
@@ -362,7 +362,7 @@ public class InteractiveGUIController implements Initializable, Listener {
 			graph.nPane.renderAll();
 
 			if(graph.fullyConnectedGraph())
-				router.postEvent(new NarrativeStructEdited(graph));
+				router.postEvent(new NarrativeStructEdited(graph, true));
 		}
 	}
 
