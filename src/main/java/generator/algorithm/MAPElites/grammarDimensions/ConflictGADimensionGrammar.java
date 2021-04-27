@@ -7,6 +7,9 @@ import finder.patterns.meso.DeadEnd;
 import finder.patterns.meso.GuardedTreasure;
 import game.Room;
 import game.narrative.GrammarGraph;
+import game.narrative.NarrativeFinder.CompoundConflictPattern;
+import game.narrative.NarrativeFinder.ImplicitConflictPattern;
+import game.narrative.NarrativeFinder.SimpleConflictPattern;
 import game.narrative.TVTropeType;
 import game.tiles.NullTile;
 import generator.algorithm.GrammarIndividual;
@@ -34,14 +37,22 @@ public class ConflictGADimensionGrammar extends GADimensionGrammar {
 	public double CalculateValue(GrammarIndividual individual, GrammarGraph target_graph)
 	{
 		GrammarGraph nStructure = individual.getPhenotype().getGrammarGraphOutputBest(target_graph, 1);
+		nStructure.pattern_finder.findNarrativePatterns(target_graph);
 
-		float raw_conf = nStructure.checkAmountNodes(TVTropeType.CONFLICT, false);
-//		raw_conf += nStructure.checkAmountNodes(TVTropeType.CONA, false);
-//		raw_conf +=  nStructure.checkAmountNodes(TVTropeType.COSO, false);
+		float explicit_conflicts = nStructure.pattern_finder.getAllPatternsByType(SimpleConflictPattern.class).size();
+		float implicit_conflicts = nStructure.pattern_finder.getAllPatternsByType(ImplicitConflictPattern.class).size();
+		float compound_conflicts = nStructure.pattern_finder.getAllPatternsByType(CompoundConflictPattern.class).size();
 
-//		short dist = target_graph.distanceBetweenGraphs(nStructure);
+		float conflicts_together = explicit_conflicts + implicit_conflicts;
 
-		return Math.min(1.0, raw_conf/5.0);
+		return Math.min(1.0, explicit_conflicts/5.0);
+//		return Math.min(1.0, implicit_conflicts/5.0);
+//		return Math.min(1.0, compound_conflicts/5.0);
+//		return Math.min(1.0, conflicts_together/5.0);
+
+
+//		float raw_conf = nStructure.checkAmountNodes(TVTropeType.CONFLICT, false);
+//		return Math.min(1.0, raw_conf/5.0);
 
 
 //		return Util.getNextFloat(0.0f, 1.0f);
@@ -51,13 +62,21 @@ public class ConflictGADimensionGrammar extends GADimensionGrammar {
 	public double CalculateValue(GrammarGraph individual_graph, GrammarGraph target_graph) {
 //		GrammarGraph nStructure = individual.getPhenotype().getGrammarGraphOutput(target_graph, 1);
 
-		float raw_conf = individual_graph.checkAmountNodes(TVTropeType.CONFLICT, false);
-//		raw_conf += individual_graph.checkAmountNodes(TVTropeType.CONA, false);
-//		raw_conf +=  individual_graph.checkAmountNodes(TVTropeType.COSO, false);
+		individual_graph.pattern_finder.findNarrativePatterns(target_graph);
 
-//		short dist = target_graph.distanceBetweenGraphs(nStructure);
+		float explicit_conflicts = individual_graph.pattern_finder.getAllPatternsByType(SimpleConflictPattern.class).size();
+		float implicit_conflicts = individual_graph.pattern_finder.getAllPatternsByType(ImplicitConflictPattern.class).size();
+		float compound_conflicts = individual_graph.pattern_finder.getAllPatternsByType(CompoundConflictPattern.class).size();
 
-		return Math.min(1.0, raw_conf/5.0);
+		float conflicts_together = explicit_conflicts + implicit_conflicts;
+
+		return Math.min(1.0, explicit_conflicts/5.0);
+//		return Math.min(1.0, implicit_conflicts/5.0);
+//		return Math.min(1.0, compound_conflicts/5.0);
+//		return Math.min(1.0, conflicts_together/5.0);
+
+//		float raw_conf = individual_graph.checkAmountNodes(TVTropeType.CONFLICT, false);
+//		return Math.min(1.0, raw_conf/5.0);
 	}
 
 	public static double getValue(GrammarGraph individual_graph)

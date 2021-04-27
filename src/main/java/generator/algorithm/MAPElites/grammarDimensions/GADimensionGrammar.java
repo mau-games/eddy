@@ -14,8 +14,9 @@ public abstract class GADimensionGrammar
 		DIVERSITY,
 		TENSION,
 		STRUCTURE,
-		PLOTPOINTS,
-		PLOTDEVICES,
+		PLOT_POINTS,
+		PLOT_DEVICES,
+		PLOT_TWISTS,
 		INTERESTING
 	}
 
@@ -63,6 +64,12 @@ public abstract class GADimensionGrammar
 				return new TensionGADimensionGrammar(granularity.floatValue());
 			case STRUCTURE:
 				return new StructureGADimensionGrammar(granularity.floatValue());
+			case PLOT_POINTS:
+				return new PlotPointGADimensionGrammar(granularity.floatValue());
+			case PLOT_DEVICES:
+				return new PlotDevicesGADimensionGrammar(granularity.floatValue());
+			case PLOT_TWISTS:
+				return new PlotTwistsGADimensionGrammar(granularity.floatValue());
 			case INTERESTING:
 				return new InterestingGADimensionGrammar(granularity.floatValue());
 			default:
@@ -89,6 +96,14 @@ public abstract class GADimensionGrammar
 				return TensionGADimensionGrammar.getValue(individual_grammar);
 			case STRUCTURE:
 				return StructureGADimensionGrammar.getValue(individual_grammar);
+			case PLOT_POINTS:
+				return PlotPointGADimensionGrammar.getValue(individual_grammar);
+			case PLOT_DEVICES:
+				return PlotDevicesGADimensionGrammar.getValue(individual_grammar);
+			case PLOT_TWISTS:
+				return PlotTwistsGADimensionGrammar.getValue(individual_grammar);
+			case INTERESTING:
+				return InterestingGADimensionGrammar.getValue(individual_grammar);
 			default:
 				return -1.0;
 
