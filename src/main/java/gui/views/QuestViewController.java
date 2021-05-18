@@ -68,6 +68,9 @@ public class QuestViewController extends BorderPane implements Listener {
     private boolean firstTime = true;
     float[] motiveArray;
     
+    private Tile tempTile;
+    private Action tempAction;
+    
     private Stack<TileTypes> stackNpc;
     private Stack<finder.geometry.Point> npcPosition;
     private Stack<TileTypes> stackCivilian;
@@ -181,6 +184,8 @@ public class QuestViewController extends BorderPane implements Listener {
                                                 Action action = addQuestAction(toggleButton, questCount);
                                                 Tile tile = action.getRoom().getTile(action.getPosition().getX(), action.getPosition().getY());
                                                 CheckUsedTile(tile, action);
+                                                tempTile = tile;
+                                                tempAction = action;
                                                 StackNpc(tile.GetType(), action);
                                                 addVisualQuestPaneAction(action, paneCount - 1);
                                                 toggleButton.setSelected(false);
@@ -202,6 +207,8 @@ public class QuestViewController extends BorderPane implements Listener {
                                                 Action action = addQuestAction(toggleButton, questCount);
                                                 Tile tile = action.getRoom().getTile(action.getPosition().getX(), action.getPosition().getY());
                                                 CheckUsedTile(tile, action);
+                                                tempTile = tile;
+                                                tempAction = action;
                                                 StackNpc(tile.GetType(), action);
                                                 addVisualQuestPaneAction(action, paneCount - 1);
                                                 toggleButton.setSelected(false);
@@ -500,6 +507,9 @@ public class QuestViewController extends BorderPane implements Listener {
             }
             firstTime = false;
             DungeonDrawer.getInstance().changeBrushTo(DungeonDrawer.DungeonBrushes.NONE);
+            if (tempTile != null) {
+            	dungeon.getQuest().checkForAvailableActions(tempAction, tempTile.GetType(), stackNpc, dungeon);
+			}
             RefreshPanel();
             //check the validity of each action
             questPaneH.getChildren().filtered(node -> node instanceof ToggleButton).forEach(node -> {

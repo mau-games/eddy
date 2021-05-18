@@ -108,11 +108,14 @@ public class Quest {
     }
 
     public List<ActionType> getAvailableActions() {
-        return availableActions;
+    	synchronized (availableActions) {
+            return availableActions;
+		}
     }
 
     public void checkForAvailableActions(){
     	synchronized (availableActions) {
+
     		availableActions.clear();
             //final int hasItem = owner.getItems().size();
             final int hasNpc = owner.getAllNpcs();
@@ -124,8 +127,15 @@ public class Quest {
     	            return;
     	        }
     		}
+    	}
+    }
+    
+    public void checkForAvailableActions(TileTypes temp){
+    	synchronized (availableActions) {
+    		decideWhatActions(temp);
 		}
     }
+    
     public void checkForAvailableActions(Action action, TileTypes tempTileType, Stack<TileTypes> stack, Dungeon dungeon){
     	synchronized (availableActions) {
     		availableActions.clear();
@@ -213,7 +223,9 @@ public class Quest {
 				}
             }
             checkCurrentActions();
-            checkForAvailableActions();
+            synchronized (availableActions) {
+                checkForAvailableActions();
+			}
         }
     }
 
@@ -281,46 +293,55 @@ public class Quest {
         final int hasTreasures = owner.getTreasures().size();
         final int hasCivilians = owner.getCivilians().size();
         
-    	if (tempTileType == TileTypes.SOLDIER) {
-			if (hasCivilians > 0){
-	            availableActions.add(ActionType.DEFEND);
-	            availableActions.add(ActionType.ESCORT);
-	        }
-			if (hasEnemies > 0) {
-	            availableActions.add(ActionType.DAMAGE);
-	            availableActions.add(ActionType.CAPTURE);
-			}
+        synchronized (availableActions) {
+        	if (tempTileType == TileTypes.SOLDIER) {
+    			if (hasCivilians > 0){
+    	            availableActions.add(ActionType.DEFEND);
+    	            availableActions.add(ActionType.ESCORT);
+    	        }
+    			if (hasEnemies > 0) {
+    	            availableActions.add(ActionType.DAMAGE);
+    	            availableActions.add(ActionType.CAPTURE);
+    			}
+    			if (hasItem > 0) {
+    				availableActions.add(ActionType.DAMAGE);
+				}
+    		}
+    		else if (tempTileType == TileTypes.MAGE) {
+    			if (hasItem > 0){
+    	            availableActions.add(ActionType.EXPERIMENT);
+    	            availableActions.add(ActionType.USE);
+    	            availableActions.add(ActionType.READ);
+    	            availableActions.add(ActionType.DAMAGE);
+    			}
+    			if (hasEnemies > 0) {
+    	            availableActions.add(ActionType.DAMAGE);
+    			}
+    				
+    		}
+    		else if (tempTileType == TileTypes.BOUNTYHUNTER) {
+    			if (hasEnemies > 0) {
+    				availableActions.add(ActionType.SPY);
+    				availableActions.add(ActionType.KILL);
+    			}
+    			if (hasItem > 0) {
+    				availableActions.add(ActionType.GATHER);
+    			}
+    			if (hasTreasures > 0) {
+    				availableActions.add(ActionType.GATHER);
+    			}
+    		}
+    		else if (tempTileType == TileTypes.CIVILIAN) {
+    			if (hasTreasures > 0) {
+    				availableActions.add(ActionType.GATHER);
+    			}
+    			if (hasItem > 0) {
+    				availableActions.add(ActionType.REPAIR);
+    				availableActions.add(ActionType.GATHER);
+    			}
+    		}
 		}
-		else if (tempTileType == TileTypes.MAGE) {
-			if (hasItem > 0){
-	            availableActions.add(ActionType.EXPERIMENT);
-	            availableActions.add(ActionType.USE);
-	            availableActions.add(ActionType.READ);
-	            availableActions.add(ActionType.DAMAGE);
-			}
-			if (hasEnemies > 0) {
-	            availableActions.add(ActionType.DAMAGE);
-			}
-				
-		}
-		else if (tempTileType == TileTypes.BOUNTYHUNTER) {
-			if (hasEnemies > 0) {
-				availableActions.add(ActionType.SPY);
-			}
-			if (hasEnemies > 0) {
-				availableActions.add(ActionType.KILL);
-			}
-			if (hasTreasures > 0) {
-				availableActions.add(ActionType.GATHER);
-			}
-		}
-		else if (tempTileType == TileTypes.CIVILIAN) {
-			if (hasTreasures > 0) {
-				availableActions.add(ActionType.GATHER);
-			}
-			if (hasItem > 0) {
-				availableActions.add(ActionType.REPAIR);
-			}
-		}
+        
+    	
     }
 }
