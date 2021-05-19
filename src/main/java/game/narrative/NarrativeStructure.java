@@ -1,15 +1,21 @@
 package game.narrative;
 
+import game.AlgorithmSetup;
 import generator.algorithm.Algorithm;
+import generator.algorithm.MAPElites.Dimensions.MAPEDimensionFXML;
 import generator.algorithm.MAPElites.GrammarMAPEliteAlgorithm;
 import generator.algorithm.MAPElites.NSEvolutionarySystemEvaluator;
 import generator.algorithm.MAPElites.grammarDimensions.GADimensionGrammar;
 import generator.algorithm.MAPElites.grammarDimensions.MAPEDimensionGrammarFXML;
 import util.Util;
+import util.eventrouting.EventRouter;
+import util.eventrouting.Listener;
+import util.eventrouting.PCGEvent;
+import util.eventrouting.events.AlgorithmDone;
 
 import java.util.*;
 
-public class NarrativeStructure {
+public class NarrativeStructure implements Listener {
 
     //Basic test
     HashMap<String, String[]> productionRules = new HashMap<String, String[]>();
@@ -18,19 +24,31 @@ public class NarrativeStructure {
 
     GrammarGraph grammarGraph;
 
-    private void RunMAPElites(MAPEDimensionGrammarFXML[] dimensions, GrammarGraph ax)
+    GrammarGraph axiom_1;
+    GrammarGraph target_graph;
+    int counter = 0;
+
+    private ArrayList<MAPEDimensionGrammarFXML[]> possibleCombinations = new ArrayList<MAPEDimensionGrammarFXML[]>();
+
+    private void RunMAPElites(MAPEDimensionGrammarFXML[] dimensions, GrammarGraph target, GrammarGraph ax)
     {
-        Algorithm ga = new GrammarMAPEliteAlgorithm(ax);
+        counter++;
+        Algorithm ga = new GrammarMAPEliteAlgorithm(target, ax);
         ((GrammarMAPEliteAlgorithm)ga).initPopulations(dimensions);
         ga.start();
     }
 
+    private void nextElite()
+    {
+        RunMAPElites(possibleCombinations.get(counter), target_graph, target_graph);
+    }
+
     private void runExperiment()
     {
-        GrammarGraph graph_axiom = new GrammarGraph();
-        GrammarNode a1 = graph_axiom.addNode(TVTropeType.ANY);
-        GrammarNode b1 = graph_axiom.addNode(TVTropeType.ANY);
-        a1.addConnection(b1, 1);
+        axiom_1 = new GrammarGraph();
+        GrammarNode axiom_a = axiom_1.addNode(TVTropeType.ANY);
+//        GrammarNode b1 = graph_axiom.addNode(TVTropeType.ANY);
+//        a1.addConnection(b1, 1);
 
 //        GrammarNode hero = new GrammarNode(0, TVTropeType.HERO);
 //        GrammarNode conflict = new GrammarNode(1, TVTropeType.CONFLICT);
@@ -39,12 +57,27 @@ public class NarrativeStructure {
 //        hero.addConnection(conflict, 1);
 //        conflict.addConnection(enemy, 1);
 
+        target_graph = new GrammarGraph();
+        GrammarNode a1 = target_graph.addNode(TVTropeType.HERO);
+        GrammarNode b1 = target_graph.addNode(TVTropeType.CONFLICT);
+        GrammarNode c1 = target_graph.addNode(TVTropeType.ENEMY);
+
+        //Hero - Conflict
+        a1.addConnection(b1, 1);
+
+        //Conflict - Enemy
+        b1.addConnection(c1, 1);
+
+        AlgorithmSetup.getInstance().setSaveData(true);
+
+        nextElite();
+
         //now it looks like it works.
         //Now i need to make it that you actually create the phenotype!
-        RunMAPElites(new MAPEDimensionGrammarFXML[]{
-                new MAPEDimensionGrammarFXML(GADimensionGrammar.GrammarDimensionTypes.CONFLICT, 5),
-                new MAPEDimensionGrammarFXML(GADimensionGrammar.GrammarDimensionTypes.STEP, 5)
-        }, graph_axiom);
+//        RunMAPElites(new MAPEDimensionGrammarFXML[]{
+//                new MAPEDimensionGrammarFXML(GADimensionGrammar.GrammarDimensionTypes.DIVERSITY, 5),
+//                new MAPEDimensionGrammarFXML(GADimensionGrammar.GrammarDimensionTypes.STEP, 5)
+//        }, target_graph, target_graph);
     }
 
     private void runPatternFinderExperiment()
@@ -451,6 +484,103 @@ public class NarrativeStructure {
 //        test_graph.pattern_finder.findNarrativePatterns(test_graph);
     }
 
+    private void sampleTest()
+    {
+        GrammarGraph axiom_graph = new GrammarGraph();
+        GrammarNode a1 = axiom_graph.addNode(TVTropeType.HERO);
+
+        //There is something wrong here? Else the fitness function has to shine! Enemy is "revealed" "to be the hero
+        // But enemy do not participate in anything else, what does that mean?? -- todo: I think it should mean not interesting! let the fitness work!
+        GrammarNode b1 = axiom_graph.addNode(TVTropeType.CONFLICT);
+        GrammarNode c1 = axiom_graph.addNode(TVTropeType.EMP);
+        GrammarNode d1 = axiom_graph.addNode(TVTropeType.CHK);
+
+        //Hero - Conflict
+        a1.addConnection(b1, 1);
+        a1.addConnection(d1, 1);
+
+        //Conflict - Enemy
+        b1.addConnection(c1, 1);
+        c1.addConnection(d1, 0);
+
+
+        // NOW ALL THE TESTS!
+
+        // Kind of made sense after thinking about it!
+//        GrammarGraph test_graph = new GrammarGraph();
+//        GrammarNode tg_a1 = test_graph.addNode(TVTropeType.HERO);
+//        GrammarNode tg_b1 = test_graph.addNode(TVTropeType.CONFLICT);
+//        GrammarNode tg_c1 = test_graph.addNode(TVTropeType.ENEMY);
+////        GrammarNode tg_d1 = test_graph.addNode(TVTropeType.CHK);
+////        GrammarNode tg_e1 = test_graph.addNode(TVTropeType.CHK);
+//
+//        tg_a1.addConnection(tg_c1, 0);
+//        tg_a1.addConnection(tg_b1, 1);
+//        tg_b1.addConnection(tg_c1, 2);
+
+        //SHOWED AN IMPORTANT PROBLEM!
+
+//        GrammarGraph test_graph = new GrammarGraph();
+//        GrammarNode tg_a1 = test_graph.addNode(TVTropeType.HERO);
+//        GrammarNode tg_b1 = test_graph.addNode(TVTropeType.CONFLICT);
+//        GrammarNode tg_c1 = test_graph.addNode(TVTropeType.ENEMY);
+//        GrammarNode tg_d1 = test_graph.addNode(TVTropeType.PLOT_DEVICE);
+//        GrammarNode tg_e1 = test_graph.addNode(TVTropeType.PLOT_DEVICE);
+//        GrammarNode tg_f1 = test_graph.addNode(TVTropeType.PLOT_DEVICE);
+////        GrammarNode tg_d1 = test_graph.addNode(TVTropeType.CHK);
+////        GrammarNode tg_e1 = test_graph.addNode(TVTropeType.CHK);
+//
+//        tg_b1.addConnection(tg_a1, 0);
+//        tg_c1.addConnection(tg_a1, 0);
+//        tg_d1.addConnection(tg_b1, 0);
+//        tg_e1.addConnection(tg_a1, 0);
+//        tg_f1.addConnection(tg_e1, 0);
+
+        //Fixed
+//        GrammarGraph test_graph = new GrammarGraph();
+//        GrammarNode tg_a1 = test_graph.addNode(TVTropeType.HERO);
+//        GrammarNode tg_b1 = test_graph.addNode(TVTropeType.CONFLICT);
+//        GrammarNode tg_c1 = test_graph.addNode(TVTropeType.ENEMY);
+//        GrammarNode tg_d1 = test_graph.addNode(TVTropeType.CHK);
+//        GrammarNode tg_e1 = test_graph.addNode(TVTropeType.MCG);
+//        GrammarNode tg_f1 = test_graph.addNode(TVTropeType.ANY);
+////        GrammarNode tg_d1 = test_graph.addNode(TVTropeType.CHK);
+////        GrammarNode tg_e1 = test_graph.addNode(TVTropeType.CHK);
+//
+//        tg_a1.addConnection(tg_b1, 1);
+//        tg_b1.addConnection(tg_c1, 1);
+//        tg_d1.addConnection(tg_c1, 0);
+//        tg_e1.addConnection(tg_c1, 0);
+//        tg_f1.addConnection(tg_c1, 0);
+//        tg_f1.addConnection(tg_e1, 2);
+
+        //Interesting PROBLEM!
+
+//        GrammarGraph test_graph = new GrammarGraph();
+//        GrammarNode tg_a1 = test_graph.addNode(TVTropeType.CONFLICT);
+//        GrammarNode tg_b1 = test_graph.addNode(TVTropeType.MCG);
+//        GrammarNode tg_c1 = test_graph.addNode(TVTropeType.ENEMY);
+////        GrammarNode tg_d1 = test_graph.addNode(TVTropeType.MCG);
+//
+//        tg_a1.addConnection(tg_b1, 1);
+//        tg_c1.addConnection(tg_b1, 0);
+////        tg_b1.addConnection(tg_d1, 0);
+
+        GrammarGraph test_graph = new GrammarGraph();
+        GrammarNode tg_a1 = test_graph.addNode(TVTropeType.HERO);
+        GrammarNode tg_b1 = test_graph.addNode(TVTropeType.CONFLICT);
+//        GrammarNode tg_d1 = test_graph.addNode(TVTropeType.MCG);
+
+        tg_b1.addConnection(tg_a1, 1);
+
+
+
+        NSEvolutionarySystemEvaluator evaluator = new NSEvolutionarySystemEvaluator();
+        evaluator.testEvaluation(test_graph, axiom_graph);
+
+//        test_graph.pattern_finder.findNarrativePatterns(test_graph);
+    }
+
     public void runSameTestSameAxiom()
     {
         GrammarGraph axiom_graph = new GrammarGraph();
@@ -519,6 +649,56 @@ public class NarrativeStructure {
 
     public NarrativeStructure()
     {
+        possibleCombinations.add(new MAPEDimensionGrammarFXML[]{new MAPEDimensionGrammarFXML(GADimensionGrammar.GrammarDimensionTypes.CONFLICT, 5),
+                new MAPEDimensionGrammarFXML(GADimensionGrammar.GrammarDimensionTypes.STEP, 5)});
+        possibleCombinations.add(new MAPEDimensionGrammarFXML[]{new MAPEDimensionGrammarFXML(GADimensionGrammar.GrammarDimensionTypes.CONFLICT, 5),
+                new MAPEDimensionGrammarFXML(GADimensionGrammar.GrammarDimensionTypes.PLOT_POINTS, 5)});
+        possibleCombinations.add(new MAPEDimensionGrammarFXML[]{new MAPEDimensionGrammarFXML(GADimensionGrammar.GrammarDimensionTypes.CONFLICT, 5),
+                new MAPEDimensionGrammarFXML(GADimensionGrammar.GrammarDimensionTypes.PLOT_DEVICES, 5)});
+        possibleCombinations.add(new MAPEDimensionGrammarFXML[]{new MAPEDimensionGrammarFXML(GADimensionGrammar.GrammarDimensionTypes.CONFLICT, 5),
+                new MAPEDimensionGrammarFXML(GADimensionGrammar.GrammarDimensionTypes.PLOT_TWISTS, 5)});
+        possibleCombinations.add(new MAPEDimensionGrammarFXML[]{new MAPEDimensionGrammarFXML(GADimensionGrammar.GrammarDimensionTypes.CONFLICT, 5),
+                new MAPEDimensionGrammarFXML(GADimensionGrammar.GrammarDimensionTypes.INTERESTING, 5)});
+        possibleCombinations.add(new MAPEDimensionGrammarFXML[]{new MAPEDimensionGrammarFXML(GADimensionGrammar.GrammarDimensionTypes.CONFLICT, 5),
+                new MAPEDimensionGrammarFXML(GADimensionGrammar.GrammarDimensionTypes.DIVERSITY, 5)});
+//        possibleCombinations.add(new MAPEDimensionGrammarFXML[]{new MAPEDimensionGrammarFXML(GADimensionGrammar.GrammarDimensionTypes.DIVERSITY, 5),
+//				new MAPEDimensionGrammarFXML(GADimensionGrammar.GrammarDimensionTypes.STEP, 5)});
+//		possibleCombinations.add(new MAPEDimensionGrammarFXML[]{new MAPEDimensionGrammarFXML(GADimensionGrammar.GrammarDimensionTypes.DIVERSITY, 5),
+//				new MAPEDimensionGrammarFXML(GADimensionGrammar.GrammarDimensionTypes.PLOT_POINTS, 5)});
+//		possibleCombinations.add(new MAPEDimensionGrammarFXML[]{new MAPEDimensionGrammarFXML(GADimensionGrammar.GrammarDimensionTypes.DIVERSITY, 5),
+//				new MAPEDimensionGrammarFXML(GADimensionGrammar.GrammarDimensionTypes.PLOT_DEVICES, 5)});
+//		possibleCombinations.add(new MAPEDimensionGrammarFXML[]{new MAPEDimensionGrammarFXML(GADimensionGrammar.GrammarDimensionTypes.DIVERSITY, 5),
+//				new MAPEDimensionGrammarFXML(GADimensionGrammar.GrammarDimensionTypes.PLOT_TWISTS, 5)});
+//		possibleCombinations.add(new MAPEDimensionGrammarFXML[]{new MAPEDimensionGrammarFXML(GADimensionGrammar.GrammarDimensionTypes.DIVERSITY, 5),
+//				new MAPEDimensionGrammarFXML(GADimensionGrammar.GrammarDimensionTypes.INTERESTING, 5)});
+//		possibleCombinations.add(new MAPEDimensionGrammarFXML[]{new MAPEDimensionGrammarFXML(GADimensionGrammar.GrammarDimensionTypes.STEP, 5),
+//				new MAPEDimensionGrammarFXML(GADimensionGrammar.GrammarDimensionTypes.PLOT_POINTS, 5)});
+//		possibleCombinations.add(new MAPEDimensionGrammarFXML[]{new MAPEDimensionGrammarFXML(GADimensionGrammar.GrammarDimensionTypes.STEP, 5),
+//				new MAPEDimensionGrammarFXML(GADimensionGrammar.GrammarDimensionTypes.PLOT_DEVICES, 5)});
+//		possibleCombinations.add(new MAPEDimensionGrammarFXML[]{new MAPEDimensionGrammarFXML(GADimensionGrammar.GrammarDimensionTypes.STEP, 5),
+//				new MAPEDimensionGrammarFXML(GADimensionGrammar.GrammarDimensionTypes.PLOT_TWISTS, 5)});
+//		possibleCombinations.add(new MAPEDimensionGrammarFXML[]{new MAPEDimensionGrammarFXML(GADimensionGrammar.GrammarDimensionTypes.STEP, 5),
+//				new MAPEDimensionGrammarFXML(GADimensionGrammar.GrammarDimensionTypes.INTERESTING, 5)});
+//		possibleCombinations.add(new MAPEDimensionGrammarFXML[]{new MAPEDimensionGrammarFXML(GADimensionGrammar.GrammarDimensionTypes.PLOT_POINTS, 5),
+//				new MAPEDimensionGrammarFXML(GADimensionGrammar.GrammarDimensionTypes.PLOT_DEVICES, 5)});
+//		possibleCombinations.add(new MAPEDimensionGrammarFXML[]{new MAPEDimensionGrammarFXML(GADimensionGrammar.GrammarDimensionTypes.PLOT_POINTS, 5),
+//				new MAPEDimensionGrammarFXML(GADimensionGrammar.GrammarDimensionTypes.PLOT_TWISTS, 5)});
+//		possibleCombinations.add(new MAPEDimensionGrammarFXML[]{new MAPEDimensionGrammarFXML(GADimensionGrammar.GrammarDimensionTypes.PLOT_POINTS, 5),
+//				new MAPEDimensionGrammarFXML(GADimensionGrammar.GrammarDimensionTypes.INTERESTING, 5)});
+//		possibleCombinations.add(new MAPEDimensionGrammarFXML[]{new MAPEDimensionGrammarFXML(GADimensionGrammar.GrammarDimensionTypes.PLOT_DEVICES, 5),
+//				new MAPEDimensionGrammarFXML(GADimensionGrammar.GrammarDimensionTypes.PLOT_TWISTS, 5)});
+//		possibleCombinations.add(new MAPEDimensionGrammarFXML[]{new MAPEDimensionGrammarFXML(GADimensionGrammar.GrammarDimensionTypes.PLOT_DEVICES, 5),
+//				new MAPEDimensionGrammarFXML(GADimensionGrammar.GrammarDimensionTypes.INTERESTING, 5)});
+//		possibleCombinations.add(new MAPEDimensionGrammarFXML[]{new MAPEDimensionGrammarFXML(GADimensionGrammar.GrammarDimensionTypes.PLOT_TWISTS, 5),
+//				new MAPEDimensionGrammarFXML(GADimensionGrammar.GrammarDimensionTypes.INTERESTING, 5)});
+
+
+
+        EventRouter.getInstance().registerListener(this, new AlgorithmDone(null, null, ""));
+        runExperiment();
+
+//        sampleTest();
+
 //        runPatternFinderExperiment();
 //        runDerivativePatternExperiment();
 //        runQualityExperiment();
@@ -526,7 +706,7 @@ public class NarrativeStructure {
 //        runCoherenceTest();
 //        runSamples();
 //        runSameTestSameAxiom();
-        runSpecialDerivativeIssue();
+//        runSpecialDerivativeIssue();
         if(true)
             return;
 
@@ -780,10 +960,18 @@ public class NarrativeStructure {
 
     public static void main(String args[])
     {
+
         NarrativeStructure ns = new NarrativeStructure();
 //        ns.expand(0, ns.axiom);
 
 
     }
 
+    @Override
+    public void ping(PCGEvent e) {
+        if(e instanceof AlgorithmDone)
+        {
+            nextElite();
+        }
+    }
 }

@@ -43,7 +43,7 @@ public class SuggestionNarrativeStructure
 	public SuggestionNarrativeStructure()
 	{
 		graphicNode = new StackPane();
-		cell_color = Color.RED;
+		cell_color = Color.rgb(246, 168, 166);
 		shape = new Rectangle();
 		shape.setFill(cell_color);
 		shape.setHeight(50);
@@ -189,7 +189,7 @@ public class SuggestionNarrativeStructure
 
 	public void setCellFitness(double cell_fitness)
 	{
-		shape.setFill(cell_color.interpolate(Color.GREEN, cell_fitness));
+		shape.setFill(cell_color.interpolate(Color.web("55C671FF"), cell_fitness));
 	}
 
 //

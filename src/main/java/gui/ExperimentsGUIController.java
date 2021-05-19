@@ -764,7 +764,8 @@ public class ExperimentsGUIController implements Initializable, Listener {
 			initRoomInteractiveView();
 			evaluateRoom();
 			
-			saveExperimentRoom();
+			saveExperimentRoom(0);
+//			saveEvaluation();
 			
 			router.postEvent(new RoomEditionStarted(currentEditRoom));
 	//		fillRoomSequence();
@@ -1335,6 +1336,66 @@ public class ExperimentsGUIController implements Initializable, Listener {
 	}
 	
 	/////////////// END BUTTONS /////////////
+
+	private void saveExperimentRoom(int ident)
+	{
+		String DIRECTORY= System.getProperty("user.dir") + "\\my-data\\" + experimentFilename.getText();
+//		String DIRECTORY= experimentFilename.getText();
+		File file = new File(DIRECTORY);
+		StringBuilder data = new StringBuilder();
+
+//		if(!file.exists())
+//		{
+//			data.append("filename;Leniency;Linearity;Similarity;NMesoPatterns;NSpatialPatterns;Symmetry;Inner Similarity;Fitness;"
+//					+ "Type" + System.lineSeparator());
+//		}
+//
+		if(!file.exists())
+		{
+			data.append("identifier;filename;Leniency;Linearity;Similarity;NMesoPatterns;NSpatialPatterns;Symmetry;Inner Similarity;Fitness;"
+					+ "Wall Count;Wall Density;Wall Sparsity;"
+					+ "Enemy Count;Enemy Density;Enemy Sparsity;"
+					+ "Treasure Count;Treasure Density;Treasure Sparsity;"
+					+ "Floor Count;Floor Density;Floor Sparsity;Type" + System.lineSeparator());
+		}
+
+		data.append(ident + ";");
+		data.append(currentEditRoom.specificID.toString() + ";");
+		data.append(lenText.getText() + ";");
+		data.append(linText.getText() + ";");
+		data.append(1.0 + ";");
+		data.append(NMesoText.getText() + ";");
+		data.append(NMicroText.getText() + ";");
+		data.append(symText.getText() + ";");
+		data.append(1.0 + ";");
+		data.append(fitnessText.getText() + ";");
+
+		data.append(df2.format(currentEditRoom.getWallCount()) + ";");
+		data.append(df2.format(currentEditRoom.calculateWallDensity()) + ";");
+		data.append(df2.format(currentEditRoom.calculateWallSparsity()) + ";");
+
+		data.append(df2.format(currentEditRoom.getEnemyCount()) + ";");
+		data.append(df2.format(currentEditRoom.calculateEnemyDensity())+ ";");
+		data.append(df2.format(currentEditRoom.calculateEnemySparsity()) + ";");
+
+		data.append(df2.format(currentEditRoom.getTreasureCount()) + ";");
+		data.append(df2.format(currentEditRoom.calculateTreasureDensity()) + ";");
+		data.append(df2.format(currentEditRoom.calculateTreasureSparsity()) + ";");
+
+		data.append(df2.format(currentEditRoom.floorCount()) + ";");
+		data.append(df2.format(currentEditRoom.calculateFloorDensity()) + ";");
+		data.append(df2.format(currentEditRoom.calculateFloorSparsity()) + ";");
+
+		data.append("ER" + System.lineSeparator());
+
+
+		try {
+			FileUtils.write(file, data, true);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
 
 	private void saveExperimentRoom()
 	{

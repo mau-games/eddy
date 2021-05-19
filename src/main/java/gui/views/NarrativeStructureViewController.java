@@ -51,6 +51,7 @@ public class NarrativeStructureViewController extends BorderPane implements List
 
 	private Node source;
 
+	private GrammarGraph axiom_graph;
 	private GrammarGraph editedGraph;
 	private GrammarGraph renderedGraph;
 
@@ -247,7 +248,7 @@ public class NarrativeStructureViewController extends BorderPane implements List
 
 		//Added all context menu for fast interaction
 		ContextMenu contextMenu = new ContextMenu();
-		MenuItem anyMenu = new MenuItem("Any");
+		MenuItem anyMenu = new TVTropeMenuItem("Any", TVTropeType.ANY);
 
 		Menu heroMenu = new Menu("Hero");
 		TVTropeMenuItem heroChild1 = new TVTropeMenuItem("Hero", TVTropeType.HERO);
@@ -347,9 +348,18 @@ public class NarrativeStructureViewController extends BorderPane implements List
 		elite_preview_1.layoutGraph();
 		elite_preview_2.layoutGraph();
 
+		//Now we make the difference between target_graph and axiom
+		axiom_graph = new GrammarGraph();
+		axiom_graph.addNode(TVTropeType.ANY);
+//		axiom_graph.addNode(TVTropeType.ANY);
+//		axiom_graph.nodes.get(0).addConnection(axiom_graph.nodes.get(1), 1);
+
+		axiom_graph = editedGraph;
+
 //		RunMAPElites(core_graph);
 		//Fixme: This should happen as an event to be received by the class Game
-		RunMAPElites(editedGraph);
+		RunMAPElites(editedGraph, axiom_graph);
+//		RunMAPElites(editedGraph, axiom_graph);
 	}
 	
 	public class MouseEventWorldPane implements EventHandler<MouseEvent>
@@ -461,9 +471,9 @@ public class NarrativeStructureViewController extends BorderPane implements List
 	    });
 	}
 
-	private void RunMAPElites(GrammarGraph ax)
+	private void RunMAPElites(GrammarGraph target_graph, GrammarGraph ax)
 	{
-		Algorithm ga = new GrammarMAPEliteAlgorithm(ax);
+		Algorithm ga = new GrammarMAPEliteAlgorithm(target_graph, ax);
 		((GrammarMAPEliteAlgorithm)ga).initPopulations(currentDimensions);
 		ga.start();
 	}
@@ -486,7 +496,7 @@ public class NarrativeStructureViewController extends BorderPane implements List
 			if(filled_cells.get(ind) != null)
 			{
 				narrativeStructureDisplays.get(ind).setElite(
-						filled_cells.get(ind).GetFeasiblePopulation().get(0).getPhenotype().getGrammarGraphOutputBest(editedGraph, 1));
+						filled_cells.get(ind).GetFeasiblePopulation().get(0).getPhenotype().getGrammarGraphOutputBest(axiom_graph, 1));
 				narrativeStructureDisplays.get(ind).setCellFitness(
 						filled_cells.get(ind).getEliteFitness());
 			}
@@ -598,6 +608,8 @@ public class NarrativeStructureViewController extends BorderPane implements List
 		else if(e instanceof NarrativeStructEdited)
 		{
 			editedGraph = new GrammarGraph((GrammarGraph) e.getPayload());
+			//TODO: Here axiom should also change if we want to revert all the changes!!!
+			axiom_graph = new GrammarGraph((GrammarGraph) e.getPayload());
 
 			//I should do something like this to add it in the same place, but I need to eat first :)
 			System.out.println(renderedGraph.nPane.getBoundsInParent());

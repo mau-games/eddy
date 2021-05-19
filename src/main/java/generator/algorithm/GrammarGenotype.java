@@ -123,7 +123,7 @@ public class GrammarGenotype
 
     private void produceRndChromosome()
     {
-        int rule_count = Util.getNextInt(1, 4);
+        int rule_count = Util.getNextInt(2, 5);
 
         for(int j = 0; j < rule_count; j++)
         {
@@ -364,7 +364,16 @@ public class GrammarGenotype
 
     }
 
-    // THESE TWO ARE MORE HARDCORE
+    // THESE THREE ARE MORE HARDCORE
+    public void removeRule() //Actually, this one is big
+    {
+        if(this.chromosome.size() < 2)
+            return;
+
+        GrammarPattern rndRule = chromosome.get(Util.getNextInt(0, this.chromosome.size()));
+        this.chromosome.remove(rndRule); //Done deal
+    }
+
     public void createRule()
     {
         GrammarPattern rndRule = new GrammarPattern();

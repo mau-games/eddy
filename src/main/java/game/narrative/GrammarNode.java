@@ -13,8 +13,9 @@ public class GrammarNode {
 
     int id;
 
-    //int is connection type! -- I don't know if all of this will be necessary
-    //0 = no direction --> connection is on both
+    //int is connection type! -- I don't know if all of this will be necessary.
+    //It is necessary, but better to have an ENUM lazy person! :)
+    //0 = entails --> connection is still directed
     //1 = unidirectional
     //2 = bidirectional
     public HashMap<GrammarNode, Integer> connections;

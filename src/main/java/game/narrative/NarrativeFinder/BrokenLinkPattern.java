@@ -33,6 +33,24 @@ public class BrokenLinkPattern extends CompositeNarrativePattern
     public static List<CompositeNarrativePattern> matches(GrammarGraph narrative_graph, List<NarrativePattern> currentPatterns, NarrativeStructPatternFinder finder)
     {
         ArrayList<CompositeNarrativePattern> results = new ArrayList<CompositeNarrativePattern>();
+        ArrayList<ActivePlotDevice> active_plot_devices = finder.getAllPatternsByType(ActivePlotDevice.class);
+//        ArrayList<StructureNodePattern> cs = finder.getAllPatternsByType(StructureNodePattern.class);
+//
+//        for(SimpleConflictPattern scp : conflicts)
+//        {
+//            StructureNodePattern _remove = null;
+//            for(StructureNodePattern c : cs)
+//            {
+//                if(scp.connected_node == c.connected_node)
+//                {
+//                    _remove = c;
+//                    break;
+//                }
+//            }
+//
+//            if(_remove != null)
+//                cs.remove(_remove);
+//        }
 
         /***
          * We simply want to go through the heroes, villains, and conflicts to see their connections and which ones are incorrect or "broken"
@@ -110,6 +128,24 @@ public class BrokenLinkPattern extends CompositeNarrativePattern
                             BrokenLinkPattern blp = new BrokenLinkPattern(np, from_me, np);
                             results.add(blp);
                         }
+                        else if(from_me instanceof PlotDevicePattern)
+                        {
+                            boolean valid_con = false;
+                            for(ActivePlotDevice apd : active_plot_devices)
+                            {
+                                if(apd.device.equals(from_me) && apd.pattern_subgraphs.get(0).nodes.contains(np.connected_node))
+                                {
+                                    valid_con = true;
+                                    break;
+                                }
+                            }
+
+                            if(!valid_con)
+                            {
+                                BrokenLinkPattern blp = new BrokenLinkPattern(np, from_me, np);
+                                results.add(blp);
+                            }
+                        }
                     }
                 }
 
@@ -122,6 +158,24 @@ public class BrokenLinkPattern extends CompositeNarrativePattern
                             BrokenLinkPattern blp = new BrokenLinkPattern(np, from_me, np);
                             results.add(blp);
                         }
+                        else if(from_me instanceof PlotDevicePattern)
+                        {
+                            boolean valid_con = false;
+                            for(ActivePlotDevice apd : active_plot_devices)
+                            {
+                                if(apd.device.equals(from_me) && apd.pattern_subgraphs.get(0).nodes.contains(np.connected_node))
+                                {
+                                    valid_con = true;
+                                    break;
+                                }
+                            }
+
+                            if(!valid_con)
+                            {
+                                BrokenLinkPattern blp = new BrokenLinkPattern(np, from_me, np);
+                                results.add(blp);
+                            }
+                        }
                     }
                 }
 
@@ -133,6 +187,24 @@ public class BrokenLinkPattern extends CompositeNarrativePattern
                         {
                             BrokenLinkPattern blp = new BrokenLinkPattern(np, from_me, np);
                             results.add(blp);
+                        }
+                        else if(from_me instanceof PlotDevicePattern)
+                        {
+                            boolean valid_con = false;
+                            for(ActivePlotDevice apd : active_plot_devices)
+                            {
+                                if(apd.device.equals(from_me) && apd.pattern_subgraphs.get(0).nodes.contains(np.connected_node))
+                                {
+                                    valid_con = true;
+                                    break;
+                                }
+                            }
+
+                            if(!valid_con)
+                            {
+                                BrokenLinkPattern blp = new BrokenLinkPattern(np, from_me, np);
+                                results.add(blp);
+                            }
                         }
                     }
                 }

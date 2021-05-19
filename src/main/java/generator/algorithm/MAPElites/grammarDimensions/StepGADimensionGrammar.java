@@ -16,9 +16,9 @@ public class StepGADimensionGrammar extends GADimensionGrammar {
 	}
 
 	@Override
-	public double CalculateValue(GrammarIndividual individual, GrammarGraph target_graph)
+	public double CalculateValue(GrammarIndividual individual, GrammarGraph target_graph, GrammarGraph axiom)
 	{
-		GrammarGraph nStructure = individual.getPhenotype().getGrammarGraphOutputBest(target_graph, 1);
+		GrammarGraph nStructure = individual.getPhenotype().getGrammarGraphOutputBest(axiom, 1);
 
 		short dist = target_graph.distanceBetweenGraphs(nStructure);
 
@@ -26,7 +26,7 @@ public class StepGADimensionGrammar extends GADimensionGrammar {
 	}
 
 	@Override
-	public double CalculateValue(GrammarGraph individual_graph, GrammarGraph target_graph) {
+	public double CalculateValue(GrammarGraph individual_graph, GrammarGraph target_graph, GrammarGraph axiom) {
 //		GrammarGraph nStructure = individual.getPhenotype().getGrammarGraphOutput(target_graph, 1);
 
 		short dist = target_graph.distanceBetweenGraphs(individual_graph);
@@ -34,8 +34,10 @@ public class StepGADimensionGrammar extends GADimensionGrammar {
 		return Math.min(1.0, ((double)dist)/11.0);
 	}
 
-	public static double getValue(GrammarGraph individual_graph)
+	public static double getValue(GrammarGraph individual_graph, GrammarGraph target_graph)
 	{
-		return Util.getNextFloat(0.0f, 1.0f);
+		short dist = target_graph.distanceBetweenGraphs(individual_graph);
+
+		return Math.min(1.0, ((double)dist)/11.0);
 	}
 }

@@ -132,9 +132,9 @@ public class GrammarPhenotype
      * @param GrammarGraph the core graph!
      * @return The Map for this Genotype
      */
-    public GrammarGraph getGrammarGraphOutputRndRecipe(GrammarGraph coreGraph, int application)
+    public GrammarGraph getGrammarGraphOutputRndRecipe(GrammarGraph axiom, int application)
     {
-        GrammarGraph output = new GrammarGraph(coreGraph);
+        GrammarGraph output = new GrammarGraph(axiom);
         List<GrammarPattern> patterns = this.genotype.getChromosome();
         int min_size = patterns.size() * application;
         current_rnd_recipe = generateRNDRecipe(min_size, min_size + 5, patterns.size() - 1, false, false);
@@ -165,9 +165,42 @@ public class GrammarPhenotype
      * @param GrammarGraph the core graph!
      * @return The Map for this Genotype
      */
-    public GrammarGraph getGrammarGraphOutputBest(GrammarGraph coreGraph, int application)
+    public GrammarGraph getGrammarGraphOutputSequentialRecipe(GrammarGraph axiom, int application)
     {
-        GrammarGraph output = new GrammarGraph(coreGraph);
+        GrammarGraph output = new GrammarGraph(axiom);
+        List<GrammarPattern> patterns = this.genotype.getChromosome();
+        int min_size = patterns.size() * application;
+        current_rnd_recipe = generateRNDRecipe(min_size, min_size + 1, patterns.size() - 1, true, true);
+
+        for(Map.Entry<Integer, Integer> keyValue : current_rnd_recipe.entrySet())
+        {
+            for(int i = 0; i < keyValue.getValue(); i++)
+            {
+                patterns.get(keyValue.getKey()).match(output, 4);
+            }
+        }
+//
+//        for(int i = 0; i < application; i++)
+//        {
+//            for(GrammarPattern pattern : patterns)
+//            {
+//                pattern.match(output, 4);
+//            }
+//        }
+
+        return output;
+    }
+
+    /**
+     * Generates a grammar graph, applies all the rules X amount of time sequentially from the genotype!
+     * Needs t
+     * Therefore, algorithm should know size and doors
+     * @param GrammarGraph the core graph!
+     * @return The Map for this Genotype
+     */
+    public GrammarGraph getGrammarGraphOutputBest(GrammarGraph axiom, int application)
+    {
+        GrammarGraph output = new GrammarGraph(axiom);
         List<GrammarPattern> patterns = this.genotype.getChromosome();
 
         for(Map.Entry<Integer, Integer> keyValue : best_grammar_recipe.entrySet())
@@ -188,9 +221,9 @@ public class GrammarPhenotype
      * @param GrammarGraph the core graph!
      * @return The Map for this Genotype
      */
-    public GrammarGraph getGrammarGraphOutput(GrammarGraph coreGraph, LinkedHashMap<Integer, Integer> recipe)
+    public GrammarGraph getGrammarGraphOutput(GrammarGraph axiom, LinkedHashMap<Integer, Integer> recipe)
     {
-        GrammarGraph output = new GrammarGraph(coreGraph);
+        GrammarGraph output = new GrammarGraph(axiom);
         List<GrammarPattern> patterns = this.genotype.getChromosome();
 
         for(Map.Entry<Integer, Integer> keyValue : recipe.entrySet())

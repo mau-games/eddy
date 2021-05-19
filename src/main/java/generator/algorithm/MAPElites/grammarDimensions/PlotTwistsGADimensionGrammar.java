@@ -20,9 +20,9 @@ public class PlotTwistsGADimensionGrammar extends GADimensionGrammar {
 	}
 
 	@Override
-	public double CalculateValue(GrammarIndividual individual, GrammarGraph target_graph)
+	public double CalculateValue(GrammarIndividual individual, GrammarGraph target_graph, GrammarGraph axiom)
 	{
-		GrammarGraph nStructure = individual.getPhenotype().getGrammarGraphOutputBest(target_graph, 1);
+		GrammarGraph nStructure = individual.getPhenotype().getGrammarGraphOutputBest(axiom, 1);
 		nStructure.pattern_finder.findNarrativePatterns(target_graph);
 
 		float plot_twists = nStructure.pattern_finder.getAllPatternsByType(PlotTwist.class).size();
@@ -30,7 +30,7 @@ public class PlotTwistsGADimensionGrammar extends GADimensionGrammar {
 	}
 
 	@Override
-	public double CalculateValue(GrammarGraph individual_graph, GrammarGraph target_graph) {
+	public double CalculateValue(GrammarGraph individual_graph, GrammarGraph target_graph, GrammarGraph axiom) {
 //		GrammarGraph nStructure = individual.getPhenotype().getGrammarGraphOutput(target_graph, 1);
 
 		individual_graph.pattern_finder.findNarrativePatterns(target_graph);
@@ -39,8 +39,11 @@ public class PlotTwistsGADimensionGrammar extends GADimensionGrammar {
 		return Math.min(1.0, plot_twists/5.0);
 	}
 
-	public static double getValue(GrammarGraph individual_graph)
+	public static double getValue(GrammarGraph individual_graph, GrammarGraph target_graph)
 	{
-		return Util.getNextFloat(0.0f, 1.0f);
+		individual_graph.pattern_finder.findNarrativePatterns(target_graph);
+
+		float plot_twists = individual_graph.pattern_finder.getAllPatternsByType(PlotTwist.class).size();
+		return Math.min(1.0, plot_twists/5.0);
 	}
 }

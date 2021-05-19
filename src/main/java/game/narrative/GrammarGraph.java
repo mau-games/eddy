@@ -1,6 +1,9 @@
 package game.narrative;
 
+import com.sun.org.apache.xerces.internal.xni.grammars.Grammar;
 import game.narrative.NarrativeFinder.NarrativeStructPatternFinder;
+import generator.algorithm.MAPElites.Dimensions.GADimension;
+import generator.algorithm.MAPElites.grammarDimensions.GADimensionGrammar;
 
 import java.util.*;
 
@@ -15,6 +18,9 @@ public class GrammarGraph
     //TODO: WIP
     public NarrativePane nPane;
     public NarrativeStructPatternFinder pattern_finder;
+
+    //Might be interesting to know the dimension of the room?
+    protected HashMap<GADimensionGrammar.GrammarDimensionTypes, Double> dimensionValues;
 
     public GrammarGraph()
     {
@@ -641,7 +647,7 @@ public class GrammarGraph
         return unconnected;
     }
 
-    public boolean fullyConnectedGraph()
+    public int fullyConnectedGraph()
     {
         ArrayList<String> visitedConnections = new ArrayList<String>();
         ArrayList<GrammarNode> visitedNodes = new ArrayList<GrammarNode>();
@@ -692,7 +698,8 @@ public class GrammarGraph
         }
 
         //if we haven't visited all nodes we know this is not fully connected
-        return nodes.size() == visitedNodes.size();
+//        return nodes.size() == visitedNodes.size();
+        return nodes.size() - visitedNodes.size();
 
 //        return true;
     }
@@ -954,6 +961,25 @@ public class GrammarGraph
         {
             node.clearGraphics();
         }
+    }
+
+    public void calculateAllDimensionalValues(GrammarGraph target_graph) //TODO:
+    {
+        dimensionValues = new HashMap<GADimensionGrammar.GrammarDimensionTypes, Double>();
+
+        for(GADimensionGrammar.GrammarDimensionTypes dimension : GADimensionGrammar.GrammarDimensionTypes.values())
+        {
+            if(dimension != GADimensionGrammar.GrammarDimensionTypes.STRUCTURE && dimension != GADimensionGrammar.GrammarDimensionTypes.TENSION)
+            {
+                dimensionValues.put(dimension, GADimensionGrammar.calculateIndividualValue(dimension, this, target_graph));
+            }
+        }
+    }
+
+    public double getDimensionValue(GADimensionGrammar.GrammarDimensionTypes currentDimension)
+    {
+        if(dimensionValues == null || !dimensionValues.containsKey(currentDimension)) return -1.0;
+        return dimensionValues.get(currentDimension);
     }
 
     @Override

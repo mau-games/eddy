@@ -1,7 +1,5 @@
 package generator.algorithm;
 
-import com.sun.org.apache.xerces.internal.xni.grammars.Grammar;
-import game.Room;
 import game.narrative.GrammarGraph;
 import game.narrative.GrammarPattern;
 import generator.algorithm.MAPElites.grammarDimensions.GADimensionGrammar;
@@ -15,7 +13,7 @@ import java.util.stream.IntStream;
 
 public class GrammarIndividual
 {
-    private int[] w_mutate = {5, 50, 50};
+    private int[] w_mutate = {5, 5, 45, 45};
     private int[] w_mutate_options = {5, 5, 10, 20, 60};
     private int[] w_mutate_optionsRule = {5, 10, 15, 20, 20};
 //    private float w_rule = 0.3f;
@@ -100,14 +98,14 @@ public class GrammarIndividual
 //        genotype.ProduceGenotype(room);
 //    }
 
-    public void SetDimensionValues(ArrayList<GADimensionGrammar> dimensions, GrammarGraph axiom)
+    public void SetDimensionValues(ArrayList<GADimensionGrammar> dimensions, GrammarGraph target_graph, GrammarGraph axiom)
     {
         dimensionValues = new HashMap<GADimensionGrammar.GrammarDimensionTypes, Double>();
 
         //FIXME: target graph
         for(GADimensionGrammar dimension : dimensions)
         {
-            dimensionValues.put(dimension.GetType(), dimension.CalculateValue(this, axiom));
+            dimensionValues.put(dimension.GetType(), dimension.CalculateValue(this, target_graph, axiom));
         }
 //
 //        this.getPhenotype().getMap(-1, 1, null, null, null).SetDimensionValues(dimensionValues);
@@ -148,6 +146,9 @@ public class GrammarIndividual
                     mutated_version.genotype.createRule();
                     break;
                 case 1:
+                    mutated_version.genotype.removeRule();
+                    break;
+                case 2:
                     switch(get_mutation_by_prob(w_mutate_optionsRule))
                     {
                         case 0: mutated_version.genotype.removeNodeRndRule(); break;
@@ -157,7 +158,7 @@ public class GrammarIndividual
                         case 4: mutated_version.genotype.changeNodeTypeRndRule(); break;
                     }
                     break;
-                case 2:
+                case 3:
                     switch(get_mutation_by_prob(w_mutate_options))
                     {
                         case 0: mutated_version.genotype.addNodeRndOutput(); break;
@@ -256,6 +257,15 @@ public class GrammarIndividual
      */
     public double getFitness(){
         return fitness;
+    }
+
+    /**
+     * Get this individual's calculated fitness
+     *
+     * @return Fitness
+     */
+    public double getAvgFitness(){
+        return avg_fitness;
     }
 
     /**

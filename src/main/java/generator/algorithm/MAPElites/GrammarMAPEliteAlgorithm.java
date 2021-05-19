@@ -1,13 +1,8 @@
 package generator.algorithm.MAPElites;
 
-import collectors.DataSaverLoader;
 import collectors.MAPECollector;
+import com.sun.org.apache.xerces.internal.xni.grammars.Grammar;
 import finder.PatternFinder;
-import finder.geometry.Polygon;
-import finder.patterns.CompositePattern;
-import finder.patterns.Pattern;
-import finder.patterns.meso.*;
-import finder.patterns.micro.*;
 import game.AlgorithmSetup;
 import game.MapContainer;
 import game.Room;
@@ -16,35 +11,19 @@ import game.narrative.NarrativeFinder.CompoundConflictPattern;
 import game.narrative.NarrativeFinder.NarrativePattern;
 import game.narrative.TVTropeType;
 import generator.algorithm.Algorithm;
-import generator.algorithm.MAPElites.Dimensions.*;
 import generator.algorithm.MAPElites.Dimensions.GADimension.DimensionTypes;
 import generator.algorithm.MAPElites.grammarDimensions.GADimensionGrammar;
 import generator.algorithm.MAPElites.grammarDimensions.MAPEDimensionGrammarFXML;
-import generator.algorithm.ZoneGenotype;
 import generator.algorithm.GrammarIndividual;
-import generator.algorithm.ZoneIndividual;
 import generator.config.GeneratorConfig;
-import gui.InteractiveGUIController;
 import org.apache.commons.io.FileUtils;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
 import util.Util;
 import util.eventrouting.EventRouter;
 import util.eventrouting.Listener;
 import util.eventrouting.PCGEvent;
 import util.eventrouting.events.*;
 
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.transform.OutputKeys;
-import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerException;
-import javax.xml.transform.TransformerFactory;
-import javax.xml.transform.dom.DOMSource;
-import javax.xml.transform.stream.StreamResult;
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.*;
 import java.util.Map.Entry;
@@ -70,12 +49,12 @@ public class GrammarMAPEliteAlgorithm extends Algorithm implements Listener {
 
 	//For the Expressive range test
 //	ArrayList<Room> uniqueGeneratedRooms = new ArrayList<Room>();
-	HashMap<Room, Double[]> uniqueGeneratedRooms = new HashMap<Room, Double[]>();
-	HashMap<Room, Double[]> uniqueGeneratedRoomsFlush= new HashMap<Room, Double[]>();
-	HashMap<Room, Double[]> uniqueGeneratedRoomsSince = new HashMap<Room, Double[]>();
+	HashMap<GrammarGraph, Double[]> uniqueGeneratedNarratives = new HashMap<GrammarGraph, Double[]>();
+	HashMap<GrammarGraph, Double[]> uniqueGeneratedNarrativesFlush = new HashMap<GrammarGraph, Double[]>();
+	HashMap<GrammarGraph, Double[]> uniqueGeneratedNarrativesSince = new HashMap<GrammarGraph, Double[]>();
 
-	StringBuilder uniqueRoomsData = new StringBuilder();
-	StringBuilder uniqueRoomsSinceData = new StringBuilder();
+	StringBuilder uniqueNarrativesData = new StringBuilder();
+	StringBuilder uniqueNarrativesSinceData = new StringBuilder();
 
 	private int saveIterations = 2;
 	private int currentSaveStep = 0;
@@ -85,7 +64,7 @@ public class GrammarMAPEliteAlgorithm extends Algorithm implements Listener {
 
 
 	GrammarGraph axiom;
-	GrammarGraph target;
+	GrammarGraph target_graph;
 
 //	private int recipe_iterations = 20;
 	private int recipe_iterations = 10;
@@ -116,9 +95,11 @@ public class GrammarMAPEliteAlgorithm extends Algorithm implements Listener {
 		super(room, algorithmTypes);
 	}
 
-	public GrammarMAPEliteAlgorithm(GrammarGraph axiom)
+	public GrammarMAPEliteAlgorithm(GrammarGraph target, GrammarGraph axiom)
 	{
 		this.axiom = axiom;
+		this.target_graph = target;
+
 		id = UUID.randomUUID();
 //		populationSize = config.getPopulationSize();
 		populationSize = 1250; //Setting same as experiments
@@ -185,10 +166,10 @@ public class GrammarMAPEliteAlgorithm extends Algorithm implements Listener {
 		feasibleAmount = 750;
 		
 		//initialize the data storage variables
-		uniqueRoomsData = new StringBuilder();
-		uniqueRoomsSinceData = new StringBuilder();
-		uniqueRoomsData.append("Leniency;Linearity;Similarity;NMesoPatterns;NSpatialPatterns;Symmetry;Inner Similarity;Fitness;Score;DIM X;DIM Y;STEP;Gen;Type" + System.lineSeparator());
-		uniqueRoomsSinceData.append("Leniency;Linearity;Similarity;NMesoPatterns;NSpatialPatterns;Symmetry;Inner Similarity;Fitness;Score;DIM X;DIM Y;STEP;Gen;Type" + System.lineSeparator());
+		uniqueNarrativesData = new StringBuilder();
+		uniqueNarrativesSinceData = new StringBuilder();
+		uniqueNarrativesData.append("Step;Diversity;Conflict;Interesting;PlotDevices;PlotPoints;PlotTwists;Fitness;AvgFitness;FeasibleRec;InfeasibleRec;Recipes;Score;DIM X;DIM Y;STEP;Gen;Type" + System.lineSeparator());
+		uniqueNarrativesSinceData.append("Step;Diversity;Conflict;Interesting;PlotDevices;PlotPoints;PlotTwists;Fitness;AvgFitness;FeasibleRec;InfeasibleRec;Recipes;Score;DIM X;DIM Y;STEP;Gen;Type" + System.lineSeparator());
 
 		//TODO: THIS IS CREISI!mutate
 //		System.out.println(mutationProbability);
@@ -201,7 +182,7 @@ public class GrammarMAPEliteAlgorithm extends Algorithm implements Listener {
 			if(evaluateGrammarIndividual(ind)){
 				if(i < feasibleAmount){
 					evaluateFeasibleGrammarIndividual(ind);
-					ind.SetDimensionValues(MAPElitesDimensions, axiom);
+					ind.SetDimensionValues(MAPElitesDimensions, target_graph, axiom);
 					
 					for(GrammarGACell cell : cells)
 					{
@@ -215,7 +196,7 @@ public class GrammarMAPEliteAlgorithm extends Algorithm implements Listener {
 			else {
 				if(j < populationSize - feasibleAmount){
 					evaluateInfeasibleGrammarIndividual(ind);
-					ind.SetDimensionValues(MAPElitesDimensions, axiom);
+					ind.SetDimensionValues(MAPElitesDimensions, target_graph, axiom);
 					
 					for(GrammarGACell cell : cells)
 					{
@@ -257,11 +238,10 @@ public class GrammarMAPEliteAlgorithm extends Algorithm implements Listener {
 		feasibleAmount = 750;
 
 		//initialize the data storage variables
-		uniqueRoomsData = new StringBuilder();
-		uniqueRoomsSinceData = new StringBuilder();
-		uniqueRoomsData.append("Leniency;Linearity;Similarity;NMesoPatterns;NSpatialPatterns;Symmetry;Inner Similarity;Fitness;Score;DIM X;DIM Y;STEP;Gen;Type" + System.lineSeparator());
-		uniqueRoomsSinceData.append("Leniency;Linearity;Similarity;NMesoPatterns;NSpatialPatterns;Symmetry;Inner Similarity;Fitness;Score;DIM X;DIM Y;STEP;Gen;Type" + System.lineSeparator());
-
+		uniqueNarrativesData = new StringBuilder();
+		uniqueNarrativesSinceData = new StringBuilder();
+		uniqueNarrativesData.append("Step;Diversity;Conflict;Interesting;PlotDevices;PlotPoints;PlotTwists;Fitness;AvgFitness;FeasibleRec;InfeasibleRec;Recipes;Score;DIM X;DIM Y;STEP;Gen;Type" + System.lineSeparator());
+		uniqueNarrativesSinceData.append("Step;Diversity;Conflict;Interesting;PlotDevices;PlotPoints;PlotTwists;Fitness;AvgFitness;FeasibleRec;InfeasibleRec;Recipes;Score;DIM X;DIM Y;STEP;Gen;Type" + System.lineSeparator());
 		//TODO: THIS IS CREISI!mutate
 //		System.out.println(mutationProbability);
 //		mutationProbability = 0.3f;
@@ -273,7 +253,7 @@ public class GrammarMAPEliteAlgorithm extends Algorithm implements Listener {
 			if(evaluateGrammarIndividual(ind)){
 				if(i < feasibleAmount){
 					evaluateFeasibleGrammarIndividual(ind);
-					ind.SetDimensionValues(MAPElitesDimensions, this.axiom);
+					ind.SetDimensionValues(MAPElitesDimensions, this.target_graph, this.axiom);
 
 					for(GrammarGACell cell : cells)
 					{
@@ -287,7 +267,7 @@ public class GrammarMAPEliteAlgorithm extends Algorithm implements Listener {
 			else {
 				if(j < populationSize - feasibleAmount){
 					evaluateInfeasibleGrammarIndividual(ind);
-					ind.SetDimensionValues(MAPElitesDimensions, this.axiom);
+					ind.SetDimensionValues(MAPElitesDimensions, this.target_graph, this.axiom);
 
 					for(GrammarGACell cell : cells)
 					{
@@ -384,7 +364,7 @@ public class GrammarMAPEliteAlgorithm extends Algorithm implements Listener {
 					evaluateInfeasibleGrammarIndividual(individual);
 				}
 
-				individual.SetDimensionValues(MAPElitesDimensions, this.axiom);
+				individual.SetDimensionValues(MAPElitesDimensions, this.target_graph, this.axiom);
 
 				for(GrammarGACell cell : cells)
 				{
@@ -407,7 +387,7 @@ public class GrammarMAPEliteAlgorithm extends Algorithm implements Listener {
 					evaluateInfeasibleGrammarIndividual(individual);
 				}
 
-				individual.SetDimensionValues(MAPElitesDimensions, this.axiom);
+				individual.SetDimensionValues(MAPElitesDimensions, this.target_graph, this.axiom);
 
 				for(GrammarGACell cell : cells)
 				{
@@ -450,8 +430,13 @@ public class GrammarMAPEliteAlgorithm extends Algorithm implements Listener {
 		}
 		else if(e instanceof NarrativeStructEdited)
 		{
+			target_graph = new GrammarGraph((GrammarGraph) e.getPayload());
+			target_graph.pattern_finder.findNarrativePatterns(null);
+
+			//This if we want the axiom to always be target_graph as well!
 			axiom = new GrammarGraph((GrammarGraph) e.getPayload());
 			axiom.pattern_finder.findNarrativePatterns(null);
+
 			dimensionsChanged = true;
 		}
 	}
@@ -495,9 +480,14 @@ public class GrammarMAPEliteAlgorithm extends Algorithm implements Listener {
 		//FIXME: IMPLEMENT!
 
 //		GrammarGraph nStructure = ind.getPhenotype().getGrammarGraphOutput(axiom, 1);
-		ArrayList<NarrativePattern> patterns = nStructure.pattern_finder.findNarrativePatterns(axiom);
-		int unconnectedNodes = nStructure.checkUnconnectedNodes();
-		short dist = axiom.distanceBetweenGraphs(nStructure);
+		ArrayList<NarrativePattern> patterns = nStructure.pattern_finder.findNarrativePatterns(this.target_graph);
+//
+//		float cumulative_any = nStructure.checkAmountNodes(TVTropeType.ANY, false);
+////		if(cumulative_any > 0)
+////			return false;
+//
+//		int unconnectedNodes = nStructure.checkUnconnectedNodes();
+//		short dist = this.target_graph.distanceBetweenGraphs(nStructure);
 
 		//With this, the graph will be fully connected and always a step more than axiom!
 //		return nStructure.fullyConnectedGraph() && dist == 1;
@@ -518,7 +508,7 @@ public class GrammarMAPEliteAlgorithm extends Algorithm implements Listener {
 		}
 
 
-		return nStructure.fullyConnectedGraph() && !self_conflicts;
+		return nStructure.fullyConnectedGraph() == 0 && !self_conflicts;
 
 
 //		return unconnectedNodes <= 0;
@@ -579,9 +569,20 @@ public class GrammarMAPEliteAlgorithm extends Algorithm implements Listener {
 	{
 		boolean feasible = false;
 
+		// The first "rnd" recipe is actually just rules step by step
+		GrammarGraph nStructure = ind.getPhenotype().getGrammarGraphOutputSequentialRecipe(this.axiom, 1);
+		if(checkGrammarIndividual(nStructure))
+		{
+			ind.getPhenotype().addFeasibleRecipe(null);
+		}
+		else
+		{
+			ind.getPhenotype().addInfeasibleRecipe(null);
+		}
+
 		for(int i = 0; i < recipe_iterations; i++)
 		{
-			GrammarGraph nStructure = ind.getPhenotype().getGrammarGraphOutputRndRecipe(axiom, 1);
+			nStructure = ind.getPhenotype().getGrammarGraphOutputRndRecipe(this.axiom, 1);
 			if(checkGrammarIndividual(nStructure))
 			{
 				ind.getPhenotype().addFeasibleRecipe(null);
@@ -593,6 +594,10 @@ public class GrammarMAPEliteAlgorithm extends Algorithm implements Listener {
 		}
 
 		double actual_recipes = ind.getPhenotype().feasible_grammar_recipes.size() + ind.getPhenotype().infeasible_grammar_recipes.size();
+		double feasible_recipes = ind.getPhenotype().feasible_grammar_recipes.size();
+
+//		if(feasible_recipes != 0)
+//			feasible = true;
 
 		// at least half of the recipes have to be feasible! (at least the ones we actually created!)
 		if(ind.getPhenotype().feasible_grammar_recipes.size() >= actual_recipes/2)
@@ -614,7 +619,7 @@ public class GrammarMAPEliteAlgorithm extends Algorithm implements Listener {
 	 */
 	public void evaluateFeasibleGrammarIndividual(GrammarIndividual ind)
 	{
-		evaluator.evaluateFeasibleIndividual(ind, axiom);
+		evaluator.evaluateFeasibleIndividual(ind, this.target_graph, this.axiom);
 //		List<LinkedHashMap<Integer, Integer>> feasible_grammar_recipes = ind.getPhenotype().feasible_grammar_recipes;
 //		LinkedHashMap<Integer, Integer> best_recipe = null;
 //		double best_fitness = Double.NEGATIVE_INFINITY;
@@ -713,83 +718,85 @@ public class GrammarMAPEliteAlgorithm extends Algorithm implements Listener {
 	 */
 	public void evaluateInfeasibleGrammarIndividual(GrammarIndividual ind)
 	{
-		List<LinkedHashMap<Integer, Integer>> infeasible_grammar_recipes = ind.getPhenotype().infeasible_grammar_recipes;
-		LinkedHashMap<Integer, Integer> best_recipe = null;
-		double best_fitness = Double.NEGATIVE_INFINITY;
+		evaluator.evaluateINFeasibleIndividual(ind, this.target_graph, this.axiom);
 
-		for(LinkedHashMap<Integer, Integer> infeasible_recipe : infeasible_grammar_recipes)
-		{
-			GrammarGraph nStructure = ind.getPhenotype().getGrammarGraphOutput(axiom, infeasible_recipe);
-			double fitness = 0.0;
-			double w_any = 0.2; //Weight for the amount of "ANY" in the grammar (ANY is a wildcard)
-			double w_node_repetition = 0.3; //Weight for the node repetition count
-			int min_freq_nodes = 1; //Min freq for the node repetition
-			TVTropeType[] excluded_repeated_nodes = {TVTropeType.CONFLICT}; //Nodes to exclude from the count.
-			//TODO: Size is going to be done by the elites+
-			double w_tSize = 0.5; //Weight for the size of the resulting grammar
-			float expected_size = 4.0f; //Expected size (anything more or less than this decreases fitness)
-
-
-			//AND THEN WHAT?
-			//TESTING
-//		if(nStructure.nodes.get(0).getGrammarNodeType() == TVTropeType.ANY)
+//		List<LinkedHashMap<Integer, Integer>> infeasible_grammar_recipes = ind.getPhenotype().infeasible_grammar_recipes;
+//		LinkedHashMap<Integer, Integer> best_recipe = null;
+//		double best_fitness = Double.NEGATIVE_INFINITY;
+//
+//		for(LinkedHashMap<Integer, Integer> infeasible_recipe : infeasible_grammar_recipes)
 //		{
-//			ind.setFitness(0.0);
-////		ind.setFitness(1.0);
-//			ind.setEvaluate(true);
-//			return;
+//			GrammarGraph nStructure = ind.getPhenotype().getGrammarGraphOutput(axiom, infeasible_recipe);
+//			double fitness = 0.0;
+//			double w_any = 0.2; //Weight for the amount of "ANY" in the grammar (ANY is a wildcard)
+//			double w_node_repetition = 0.3; //Weight for the node repetition count
+//			int min_freq_nodes = 1; //Min freq for the node repetition
+//			TVTropeType[] excluded_repeated_nodes = {TVTropeType.CONFLICT}; //Nodes to exclude from the count.
+//			//TODO: Size is going to be done by the elites+
+//			double w_tSize = 0.5; //Weight for the size of the resulting grammar
+//			float expected_size = 4.0f; //Expected size (anything more or less than this decreases fitness)
+//
+//
+//			//AND THEN WHAT?
+//			//TESTING
+////		if(nStructure.nodes.get(0).getGrammarNodeType() == TVTropeType.ANY)
+////		{
+////			ind.setFitness(0.0);
+//////		ind.setFitness(1.0);
+////			ind.setEvaluate(true);
+////			return;
+////		}
+//
+//			short dist = this.target_graph.distanceBetweenGraphs(nStructure);
+//
+//			//A bit hardcore, perhaps we should scale based on how different
+//			//then we could use as target one step more.
+//			if(target_graph.testGraphMatchPattern(nStructure))
+//				fitness = 0.0;
+//			else
+//			{
+//				//Get first how many ANY exist
+//				float cumulative_any = 1.0f - nStructure.checkAmountNodes(TVTropeType.ANY, true);
+//
+//				//get the right size!! -- probably for elites
+//				float targetSize = expected_size - nStructure.checkGraphSize();
+//				targetSize *= 0.1f;
+//				targetSize = 1.0f - Math.abs(targetSize);
+//
+//
+////			fitness += targetSize;
+//
+//				//Penalize repeting nodes
+//				float node_repetition = 1.0f - nStructure.SameNodes(min_freq_nodes, excluded_repeated_nodes);
+//
+//				fitness = (w_any * (cumulative_any)) + (w_tSize * targetSize) + (w_node_repetition * node_repetition);
+//
+//			}
+//
+//			nStructure.pattern_finder.findNarrativePatterns(this.target_graph);
+//			float structure_count = 0.0f;
+//			for(NarrativePattern np : nStructure.pattern_finder.all_narrative_patterns)
+//			{
+//				if(np instanceof CompoundConflictPattern)
+//					structure_count++;
+//			}
+//
+//			float targetSize = expected_size - structure_count;
+//			targetSize *= 0.1f;
+//			fitness = 1.0f - Math.abs(targetSize);
+//
+//			if(fitness > best_fitness)
+//			{
+//				best_fitness = fitness;
+//				best_recipe = infeasible_recipe;
+//			}
+//
 //		}
-
-			short dist = axiom.distanceBetweenGraphs(nStructure);
-
-			//A bit hardcore, perhaps we should scale based on how different
-			//then we could use as target one step more.
-			if(axiom.testGraphMatchPattern(nStructure))
-				fitness = 0.0;
-			else
-			{
-				//Get first how many ANY exist
-				float cumulative_any = 1.0f - nStructure.checkAmountNodes(TVTropeType.ANY, true);
-
-				//get the right size!! -- probably for elites
-				float targetSize = expected_size - nStructure.checkGraphSize();
-				targetSize *= 0.1f;
-				targetSize = 1.0f - Math.abs(targetSize);
-
-
-//			fitness += targetSize;
-
-				//Penalize repeting nodes
-				float node_repetition = 1.0f - nStructure.SameNodes(min_freq_nodes, excluded_repeated_nodes);
-
-				fitness = (w_any * (cumulative_any)) + (w_tSize * targetSize) + (w_node_repetition * node_repetition);
-
-			}
-
-			nStructure.pattern_finder.findNarrativePatterns(axiom);
-			float structure_count = 0.0f;
-			for(NarrativePattern np : nStructure.pattern_finder.all_narrative_patterns)
-			{
-				if(np instanceof CompoundConflictPattern)
-					structure_count++;
-			}
-
-			float targetSize = expected_size - structure_count;
-			targetSize *= 0.1f;
-			fitness = 1.0f - Math.abs(targetSize);
-
-			if(fitness > best_fitness)
-			{
-				best_fitness = fitness;
-				best_recipe = infeasible_recipe;
-			}
-
-		}
-
-		ind.setFitness(best_fitness);
-		ind.getPhenotype().setBestRecipe(best_recipe);
-//		ind.setFitness(1.0);
-		ind.setEvaluate(true);
+//
+//		ind.setFitness(best_fitness);
+//		ind.getPhenotype().setBestRecipe(best_recipe);
+////		ind.setFitness(1.0);
+//		ind.setEvaluate(true);
 	}
 	
 	
@@ -1057,7 +1064,7 @@ public class GrammarMAPEliteAlgorithm extends Algorithm implements Listener {
     private void saveRunNoInterbreedingApplElites()
     {
     	//Comment or uncomment to store unique rooms every generation (based on what is generated before)
-    	storeUniqueRooms();
+    	storeUniqueNarratives();
     	
     	//If we have receive the event that the dimensions changed, please modify the dimensions and recalculate the cells!
     	if(dimensionsChanged)
@@ -1093,15 +1100,15 @@ public class GrammarMAPEliteAlgorithm extends Algorithm implements Listener {
     			infeasibleParents.addAll(tournamentSelection(current.GetInfeasiblePopulation(), 5));
     		}
     	}
-    	
+
 		//Breed!
-//		feasibleChildren.addAll(crossOverBetweenGrammarProgenitors(feasibleParents));
-//		infeasibleChildren.addAll(crossOverBetweenGrammarProgenitors(infeasibleParents));
+		feasibleChildren.addAll(crossOverBetweenGrammarProgenitors(feasibleParents));
+		infeasibleChildren.addAll(crossOverBetweenGrammarProgenitors(infeasibleParents));
 
 		//FIRST ONLY MUTATE
 		feasibleChildren.addAll(mutateParents(feasibleParents));
 		infeasibleChildren.addAll(mutateParents(infeasibleParents));
-		
+
 		CheckAndAssignToCell(feasibleChildren, false);
 		CheckAndAssignToCell(infeasibleChildren, true);
 
@@ -1123,7 +1130,7 @@ public class GrammarMAPEliteAlgorithm extends Algorithm implements Listener {
     		{
 //    			System.out.println("NEXT");
     			saveIterations=2;
-    			saveUniqueRoomsToFileAndFlush();
+    			saveUniqueNarrativesToFileAndFlush();
     			currentSaveStep++;
     			EventRouter.getInstance().postEvent(new NextStepSequenceExperiment());
 
@@ -1159,7 +1166,7 @@ public class GrammarMAPEliteAlgorithm extends Algorithm implements Listener {
 //    	}
 
 
-    	
+		System.out.println(realCurrentGen);
     	realCurrentGen++;
     }
     
@@ -1382,6 +1389,9 @@ public class GrammarMAPEliteAlgorithm extends Algorithm implements Listener {
         	{
         		noSaveRunNoInterbreedingApplElites();
         	}
+
+        	if(realCurrentGen > 570) //Close to 500
+        		stop=true;
         	
 //        	runNoInterbreedingApplElites(); //This is actually the good one!! 2019-04-23
 //        	runInterbreedingApplElites();
@@ -1413,13 +1423,13 @@ public class GrammarMAPEliteAlgorithm extends Algorithm implements Listener {
 //		}
 //
         
-        PatternFinder finder = room.getPatternFinder();
-		MapContainer result = new MapContainer();
-		result.setMap(room);
-		result.setMicroPatterns(finder.findMicroPatterns());
-		result.setMesoPatterns(finder.findMesoPatterns());
-		result.setMacroPatterns(finder.findMacroPatterns());
-        AlgorithmDone ev = new AlgorithmDone(result, this, config.fileName);
+//        PatternFinder finder = room.getPatternFinder();
+//		MapContainer result = new MapContainer();
+//		result.setMap(room);
+//		result.setMicroPatterns(finder.findMicroPatterns());
+//		result.setMesoPatterns(finder.findMesoPatterns());
+//		result.setMacroPatterns(finder.findMacroPatterns());
+        AlgorithmDone ev = new AlgorithmDone(null, this, null);
         ev.setID(id);
         EventRouter.getInstance().postEvent(ev);
         destructor();
@@ -1518,7 +1528,7 @@ public class GrammarMAPEliteAlgorithm extends Algorithm implements Listener {
 
 	        	if(individual.isEvaluated())
 				{
-					individual.SetDimensionValues(MAPElitesDimensions, this.axiom);
+					individual.SetDimensionValues(MAPElitesDimensions, this.target_graph, this.axiom);
 
 					for(GrammarGACell cell : cells)
 					{
@@ -1541,7 +1551,7 @@ public class GrammarMAPEliteAlgorithm extends Algorithm implements Listener {
 						evaluateInfeasibleGrammarIndividual(individual);
 					}
 
-					individual.SetDimensionValues(MAPElitesDimensions, this.axiom);
+					individual.SetDimensionValues(MAPElitesDimensions, this.target_graph, this.axiom);
 
 					for(GrammarGACell cell : cells)
 					{
@@ -1618,110 +1628,130 @@ public class GrammarMAPEliteAlgorithm extends Algorithm implements Listener {
 	
 	protected void saveUniqueRoomsToFile()
 	{
-		String DIRECTORY= System.getProperty("user.dir") + "\\my-data\\expressive-range\\";
-		StringBuilder data = new StringBuilder();
-		
-		data.append("Leniency;Linearity;Similarity;NMesoPatterns;NSpatialPatterns;Symmetry;Inner Similarity;Fitness;GEN;Score" + System.lineSeparator());
-		
-		//Create the data:
-		for (Entry<Room, Double[]> entry : uniqueGeneratedRooms.entrySet()) 
-		{
-		    Room currentRoom = entry.getKey();
-		    data.append(currentRoom.getDimensionValue(DimensionTypes.LENIENCY) + ";");
-		    data.append(currentRoom.getDimensionValue(DimensionTypes.LINEARITY) + ";");
-		    data.append(currentRoom.getDimensionValue(DimensionTypes.SIMILARITY) + ";");
-		    data.append(currentRoom.getDimensionValue(DimensionTypes.NUMBER_MESO_PATTERN) + ";");
-		    data.append(currentRoom.getDimensionValue(DimensionTypes.NUMBER_PATTERNS) + ";");
-		    data.append(currentRoom.getDimensionValue(DimensionTypes.SYMMETRY) + ";");
-		    data.append(currentRoom.getDimensionValue(DimensionTypes.INNER_SIMILARITY) + ";");
-		    data.append(entry.getValue()[0] + ";");
-		    data.append(entry.getValue()[1] + ";");
-		    data.append("1.0" + System.lineSeparator());
-		}
-		
-
-		File file = new File(DIRECTORY + "expressive_range-" + dimensions[0].getDimension() + "_" + dimensions[1].getDimension() + ".csv");
-		try {
-			FileUtils.write(file, data, true);
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+//		String DIRECTORY= System.getProperty("user.dir") + "\\my-data\\expressive-range\\";
+//		StringBuilder data = new StringBuilder();
+//
+//		data.append("Leniency;Linearity;Similarity;NMesoPatterns;NSpatialPatterns;Symmetry;Inner Similarity;Fitness;GEN;Score" + System.lineSeparator());
+//
+//		//Create the data:
+//		for (Entry<GrammarGraph, Double[]> entry : uniqueGeneratedNarratives.entrySet())
+//		{
+//			GrammarGraph currentRoom = entry.getKey();
+//		    data.append(currentRoom.getDimensionValue(DimensionTypes.LENIENCY) + ";");
+//		    data.append(currentRoom.getDimensionValue(DimensionTypes.LINEARITY) + ";");
+//		    data.append(currentRoom.getDimensionValue(DimensionTypes.SIMILARITY) + ";");
+//		    data.append(currentRoom.getDimensionValue(DimensionTypes.NUMBER_MESO_PATTERN) + ";");
+//		    data.append(currentRoom.getDimensionValue(DimensionTypes.NUMBER_PATTERNS) + ";");
+//		    data.append(currentRoom.getDimensionValue(DimensionTypes.SYMMETRY) + ";");
+//		    data.append(currentRoom.getDimensionValue(DimensionTypes.INNER_SIMILARITY) + ";");
+//		    data.append(entry.getValue()[0] + ";");
+//		    data.append(entry.getValue()[1] + ";");
+//		    data.append("1.0" + System.lineSeparator());
+//		}
+//
+//
+//		File file = new File(DIRECTORY + "expressive_range-" + dimensions[0].getDimension() + "_" + dimensions[1].getDimension() + ".csv");
+//		try {
+//			FileUtils.write(file, data, true);
+//		} catch (IOException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
 	}
 	
-	protected void saveUniqueRoomsToFileAndFlush()
+	protected void saveUniqueNarrativesToFileAndFlush()
 	{
 //		String DIRECTORY= System.getProperty("user.dir") + "\\my-data\\expressive-range\\";
 		String DIRECTORY= System.getProperty("user.dir") + "\\my-data\\custom-save\\";
+
 		//Create the data:
-		for (Entry<Room, Double[]> entry : uniqueGeneratedRoomsFlush.entrySet()) 
+		for (Entry<GrammarGraph, Double[]> entry : uniqueGeneratedNarrativesFlush.entrySet())
 		{
-		    Room currentRoom = entry.getKey();
-		    uniqueRoomsData.append(currentRoom.getDimensionValue(DimensionTypes.LENIENCY) + ";");
-		    uniqueRoomsData.append(currentRoom.getDimensionValue(DimensionTypes.LINEARITY) + ";");
-		    uniqueRoomsData.append(currentRoom.getDimensionValue(DimensionTypes.SIMILARITY) + ";");
-		    uniqueRoomsData.append(currentRoom.getDimensionValue(DimensionTypes.NUMBER_MESO_PATTERN) + ";");
-		    uniqueRoomsData.append(currentRoom.getDimensionValue(DimensionTypes.NUMBER_PATTERNS) + ";");
-		    uniqueRoomsData.append(currentRoom.getDimensionValue(DimensionTypes.SYMMETRY) + ";");
-		    uniqueRoomsData.append(currentRoom.getDimensionValue(DimensionTypes.INNER_SIMILARITY) + ";");
-		    uniqueRoomsData.append(entry.getValue()[0] + ";");
-		    uniqueRoomsData.append("1.0;");
-		    uniqueRoomsData.append(dimensions[0].getDimension() + ";");
-		    uniqueRoomsData.append(dimensions[1].getDimension() + ";");
-		    uniqueRoomsData.append(currentSaveStep + ";");
-		    uniqueRoomsData.append(entry.getValue()[1] + ";");
-		    uniqueRoomsData.append("GR" + System.lineSeparator()); //TYPE	    
+			GrammarGraph currentNarrative = entry.getKey();
+		    uniqueNarrativesData.append(currentNarrative.getDimensionValue(GADimensionGrammar.GrammarDimensionTypes.STEP)).append(";");
+			uniqueNarrativesData.append(currentNarrative.getDimensionValue(GADimensionGrammar.GrammarDimensionTypes.DIVERSITY)).append(";");
+			uniqueNarrativesData.append(currentNarrative.getDimensionValue(GADimensionGrammar.GrammarDimensionTypes.CONFLICT)).append(";");
+			uniqueNarrativesData.append(currentNarrative.getDimensionValue(GADimensionGrammar.GrammarDimensionTypes.INTERESTING)).append(";");
+			uniqueNarrativesData.append(currentNarrative.getDimensionValue(GADimensionGrammar.GrammarDimensionTypes.PLOT_DEVICES)).append(";");
+			uniqueNarrativesData.append(currentNarrative.getDimensionValue(GADimensionGrammar.GrammarDimensionTypes.PLOT_POINTS)).append(";");
+			uniqueNarrativesData.append(currentNarrative.getDimensionValue(GADimensionGrammar.GrammarDimensionTypes.PLOT_TWISTS)).append(";");
+		    uniqueNarrativesData.append(entry.getValue()[0]).append(";"); //Fitness
+			uniqueNarrativesData.append(entry.getValue()[1]).append(";"); //Avg Fitness
+			uniqueNarrativesData.append(entry.getValue()[2]).append(";"); //FeasibleRec
+			uniqueNarrativesData.append(entry.getValue()[3]).append(";"); //InfeasibleREC
+			uniqueNarrativesData.append(entry.getValue()[4]).append(";"); // RECIPES
+		    uniqueNarrativesData.append("1.0;"); //Score
+		    uniqueNarrativesData.append(dimensions[0].getDimension()).append(";"); //DIM X
+		    uniqueNarrativesData.append(dimensions[1].getDimension()).append(";"); //DIM Y
+		    uniqueNarrativesData.append(currentSaveStep).append(";"); //STEP
+		    uniqueNarrativesData.append(entry.getValue()[5]).append(";"); //Generation
+		    uniqueNarrativesData.append("GR").append(System.lineSeparator()); //TYPE
 		}
 		
 
-//		File file = new File(DIRECTORY + "expressive_range-" + dimensions[0].getDimension() + "_" + dimensions[1].getDimension() + ".csv");
-		File file = new File(DIRECTORY + "custom-unique-overtime_" + id + ".csv");
+		File file = new File(DIRECTORY + "expressive_range-" + dimensions[0].getDimension() + "_" + dimensions[1].getDimension() + id + ".csv");
+//		File file = new File(DIRECTORY + "custom-unique-overtime_" + id + ".csv");
 		try {
-			FileUtils.write(file, uniqueRoomsData, true);
+			FileUtils.write(file, uniqueNarrativesData, true);
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		
-		uniqueGeneratedRoomsFlush.clear();
-		uniqueRoomsData = new StringBuilder();
+		uniqueGeneratedNarrativesFlush.clear();
+		uniqueNarrativesData = new StringBuilder();
 //		IO.saveFile(FileName, data.getSaveString(), true);
 	}
 
 	
-	protected void storeUniqueRooms() //Only feasible
+	protected void storeUniqueNarratives() //Only feasible
 	{
-//		for(GrammarGACell cell : cells)
-//		{
-//			for(GrammarIndividual ind : cell.GetFeasiblePopulation())
-//			{
-//				boolean unique = true;
-//				Room individualRoom = ind.getPhenotype().getMap(roomWidth, roomHeight, roomDoorPositions, roomCustomTiles, roomOwner);
-//				for (Room key : uniqueGeneratedRooms.keySet())
-//				{
-//				    if(SimilarityGADimension.sameRooms(key, individualRoom))
-//				    {
-//				    	unique = false;
-//				    	break;
-//				    }
-//				}
-//
-//				if(unique)
-//				{
-//					Room copy = new Room(individualRoom);
-//					copy.calculateAllDimensionalValues();
+		for(GrammarGACell cell : cells)
+		{
+			for(GrammarIndividual ind : cell.GetFeasiblePopulation())
+			{
+				boolean unique = true;
+				GrammarGraph individual_graph = ind.getPhenotype().getGrammarGraphOutputBest(this.axiom, 1);
+
+				for (GrammarGraph key : uniqueGeneratedNarratives.keySet())
+				{
+					if(individual_graph.distanceBetweenGraphs(key) == 0) //The distance between both is 0, meaning done deal!
+					{
+						unique = false;
+						break;
+					}
+//					else {
+//						System.out.println("Come here boi!");
+//					}
+				}
+
+				if(unique)
+				{
+					GrammarGraph copy = new GrammarGraph(individual_graph);
+					copy.calculateAllDimensionalValues(this.target_graph);
 //					copy.setSpeficidDimensionValue(DimensionTypes.SIMILARITY,
 //							SimilarityGADimension.calculateValueIndependently(copy, originalRoom));
 //					copy.setSpeficidDimensionValue(DimensionTypes.INNER_SIMILARITY,
 //							CharacteristicSimilarityGADimension.calculateValueIndependently(copy, originalRoom));
-//					uniqueGeneratedRooms.put(copy, new Double[] {ind.getFitness(), Double.valueOf(realCurrentGen)});
-//					uniqueGeneratedRoomsFlush.put(copy, new Double[] {ind.getFitness(), Double.valueOf(realCurrentGen)});
-////					uniqueGeneratedRoomsFlush.put(copy, ind.getFitness());
-//
-//				}
-//
-//			}
-//		}
+
+					uniqueGeneratedNarratives.put(copy, new Double[] {ind.getFitness(),
+							ind.getAvgFitness(),
+							(double) ind.getPhenotype().feasible_grammar_recipes.size(),
+							(double) ind.getPhenotype().infeasible_grammar_recipes.size(),
+							(double) ind.getPhenotype().infeasible_grammar_recipes.size() + ind.getPhenotype().feasible_grammar_recipes.size(),
+							(double) realCurrentGen});
+					uniqueGeneratedNarrativesFlush.put(copy, new Double[] {ind.getFitness(),
+							ind.getAvgFitness(),
+							(double) ind.getPhenotype().feasible_grammar_recipes.size(),
+							(double) ind.getPhenotype().infeasible_grammar_recipes.size(),
+							(double) ind.getPhenotype().infeasible_grammar_recipes.size() + ind.getPhenotype().feasible_grammar_recipes.size(),
+							(double) realCurrentGen});
+//					uniqueGeneratedRoomsFlush.put(copy, ind.getFitness());
+
+				}
+
+			}
+		}
 	}
 	
 	protected void storeRoom(GrammarIndividual ind ) //Only feasible

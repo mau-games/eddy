@@ -215,8 +215,8 @@ public class PlotTwist extends CompositeNarrativePattern
 
             //Usability quality (am I connected, and how many are connected to me! - in comparison to the amount of nodes)
             interesting_quality = pdp.to_me_count <= (current.nodes.size()/2) ?
-                    (double)pdp.to_me_count/(double)current.nodes.size() :
-                    2.0 - (double)pdp.to_me_count/(double)current.nodes.size();
+                    (double)pdp.to_me_count/((double)current.nodes.size()/2) :
+                    2.0 - (double)pdp.to_me_count/((double)current.nodes.size()/2);
 
             if(pdp.connected_patterns_from_me.containsKey(0))
             {
@@ -256,8 +256,8 @@ public class PlotTwist extends CompositeNarrativePattern
         ArrayList<PlotPoint> all_pp = finder.getAllPatternsByType(PlotPoint.class);
 
         double coherence_quality = all_pt.size() <= (all_pp.size()/2) ?
-                (double)all_pt.size()/(double)all_pp.size() :
-                2.0 - (double)all_pt.size()/(double)all_pp.size();
+                (double)all_pt.size()/((double)all_pp.size()/2) :
+                2.0 - (double)all_pt.size()/((double)all_pp.size()/2);
 
 //        double coherence_quality = all_pt.size() <= current.nodes.size() ?
 //                (double)pdp.to_me_count/(double)current.nodes.size() :

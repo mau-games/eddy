@@ -55,18 +55,18 @@ public class NSEvolutionarySystemEvaluator
 
     public void generationStep(int generation){this.generation = generation;}
 
-    public double[] testEvaluation(GrammarGraph test_graph, GrammarGraph axiom)
+    public double[] testEvaluation(GrammarGraph current_graph, GrammarGraph target_graph)
     {
         LinkedHashMap<Integer, Integer> best_recipe = null;
         double best_fitness = Double.NEGATIVE_INFINITY;
         double final_fitness = 0.0;
-        double[] weights = new double[]{0.0, 1.0};
+        double[] weights = new double[]{0, 1.0};
         double fitness = 0.0;
         GrammarGraph nStructure = null;
 
-        test_graph.pattern_finder.findNarrativePatterns(axiom);
-        double interest_fitness = getInterestFitness(test_graph);
-        double coherence_fitness = getCoherenceFitness(test_graph);
+        current_graph.pattern_finder.findNarrativePatterns(target_graph);
+        double interest_fitness = getInterestFitness(current_graph);
+        double coherence_fitness = getCoherenceFitness(current_graph);
 
         fitness = (weights[0] * interest_fitness) + (weights[1] * coherence_fitness);
 
@@ -74,7 +74,7 @@ public class NSEvolutionarySystemEvaluator
     }
 
     // Add the necessary methods
-    public double evaluateFeasibleIndividual(GrammarIndividual ind, GrammarGraph axiom)
+    public double evaluateFeasibleIndividual(GrammarIndividual ind, GrammarGraph target_graph, GrammarGraph axiom)
     {
         List<LinkedHashMap<Integer, Integer>> feasible_grammar_recipes = ind.getPhenotype().feasible_grammar_recipes;
         LinkedHashMap<Integer, Integer> best_recipe = null;
@@ -88,7 +88,7 @@ public class NSEvolutionarySystemEvaluator
         for(LinkedHashMap<Integer, Integer> feasible_recipe : feasible_grammar_recipes)
         {
             nStructure = ind.getPhenotype().getGrammarGraphOutput(axiom, feasible_recipe);
-            nStructure.pattern_finder.findNarrativePatterns(axiom);
+            nStructure.pattern_finder.findNarrativePatterns(target_graph);
 
             /**
              *  So now lets try to calculate the basic fitness I wanted (interest and coherence)
@@ -128,13 +128,84 @@ public class NSEvolutionarySystemEvaluator
 //        return 0.0f;
 //    }
 
-    public double evaluateINFeasibleIndividual()
+    /**
+     * I think that we should calculate infeasibility by increasing Cohesion
+     * + how close it is to don't be separated
+     * + minimizing amount of selfconflicts ratio based on amount of conflicts!
+     * @return
+     */
+    public double evaluateINFeasibleIndividual(GrammarIndividual ind, GrammarGraph target_graph, GrammarGraph axiom)
     {
-//        nStructure.pattern_finder.findNarrativePatterns();
-        return 0.0;
+        List<LinkedHashMap<Integer, Integer>> infeasible_grammar_recipes = ind.getPhenotype().infeasible_grammar_recipes;
+        LinkedHashMap<Integer, Integer> best_recipe = null;
+        double best_fitness = Double.NEGATIVE_INFINITY;
+        double final_fitness = 0.0;
+        double[] weights = new double[]{0.6, 0.2, 0.2};
+        double fitness = 0.0;
+        GrammarGraph nStructure = null;
+
+        double unconnected_nodes_fit;
+        double self_conflict_fit = 1.0;
+        double cohesion_fit = 0.0;
+
+        for(LinkedHashMap<Integer, Integer> infeasible_recipe : infeasible_grammar_recipes)
+        {
+            nStructure = ind.getPhenotype().getGrammarGraphOutput(axiom, infeasible_recipe);
+            ArrayList<NarrativePattern> patterns = nStructure.pattern_finder.findNarrativePatterns(target_graph);
+            unconnected_nodes_fit = 1.0 - (nStructure.fullyConnectedGraph()/(double)nStructure.nodes.size());
+            self_conflict_fit = 1.0;
+            int self_conflicts = 0;
+            int conflict_amount = 0;
+
+            for(NarrativePattern np : patterns)
+            {
+                if(np instanceof CompoundConflictPattern)
+                {
+                    self_conflicts += ((CompoundConflictPattern) np).getSelfConflictCount();
+                }
+                else if(np instanceof SimpleConflictPattern)
+                {
+                    conflict_amount++;
+                }
+            }
+
+            if(conflict_amount != 0)
+                self_conflict_fit -= self_conflicts/(double)conflict_amount;
+            else
+                self_conflict_fit = 0.0;
+
+            cohesion_fit = getCohesionFitness(nStructure);
+            if(cohesion_fit < 0) cohesion_fit = 0;
+
+            fitness = (weights[0] * cohesion_fit) + (weights[1] * self_conflict_fit) + (weights[2] * unconnected_nodes_fit);
+
+            if(fitness > best_fitness)
+            {
+                best_fitness = fitness;
+                best_recipe = infeasible_recipe;
+            }
+
+            final_fitness += fitness;
+
+            float cumulative_any = nStructure.checkAmountNodes(TVTropeType.ANY, false);
+//		if(cumulative_any > 0)
+//			return false;
+        }
+
+        // We set not only the best fitness to the individual, but also the avg. of all the feasible recipes!
+        final_fitness = final_fitness/(double)infeasible_grammar_recipes.size();
+        ind.setAvgFitness(final_fitness);
+        ind.setFitness(best_fitness);
+        if(best_recipe == null)
+            return 0.0;
+        ind.getPhenotype().setBestRecipe(best_recipe);
+//		ind.setFitness(1.0);
+        ind.setEvaluate(true);
+
+        return best_fitness;
     }
 
-    public void evaluateFeasibleGrammarIndividual(GrammarIndividual ind, GrammarGraph axiom)
+    public void evaluateFeasibleGrammarIndividual(GrammarIndividual ind, GrammarGraph target_graph, GrammarGraph axiom)
     {
         List<LinkedHashMap<Integer, Integer>> feasible_grammar_recipes = ind.getPhenotype().feasible_grammar_recipes;
         LinkedHashMap<Integer, Integer> best_recipe = null;
@@ -164,11 +235,11 @@ public class NSEvolutionarySystemEvaluator
 //			return;
 //		}
 
-            short dist = axiom.distanceBetweenGraphs(nStructure);
+            short dist = target_graph.distanceBetweenGraphs(nStructure);
 
             //A bit hardcore, perhaps we should scale based on how different
             //then we could use as target one step more.
-            if(axiom.testGraphMatchPattern(nStructure))
+            if(target_graph.testGraphMatchPattern(nStructure))
                 fitness = 0.0;
             else
             {
@@ -190,7 +261,7 @@ public class NSEvolutionarySystemEvaluator
 
             }
 
-            nStructure.pattern_finder.findNarrativePatterns(axiom);
+            nStructure.pattern_finder.findNarrativePatterns(target_graph);
             float structure_count = 0.0f;
             for(NarrativePattern np : nStructure.pattern_finder.all_narrative_patterns)
             {
@@ -332,10 +403,11 @@ public class NSEvolutionarySystemEvaluator
                 pd_quality += np.getQuality();
                 pd_counter++;
             }
-            else if(np instanceof PlotPoint) //Plot points do not have quality!
+            else if(np instanceof PlotPoint) //Plot points do not have quality! I will simply divide by the full amount!
             {
                 pp_quality += np.getQuality();
                 pp_counter++;
+                pp_counter = nStructure.pattern_finder.all_narrative_patterns.size();
             }
             else if(np instanceof PlotTwist)
             {
@@ -381,6 +453,9 @@ public class NSEvolutionarySystemEvaluator
 
         double cohesion_fitness = ((nothing_node_ratio + brokenL_node_ratio)) * weights[0];
         cohesion_fitness += ((nothing_pattern_ratio + brokenL_pattern_ratio)) * weights[1];
+
+        if(nothing_node_ratio + brokenL_node_ratio > 0.5)
+            return 0.0;
 
         return 1.0 - cohesion_fitness;
 
@@ -452,6 +527,10 @@ public class NSEvolutionarySystemEvaluator
     {
         double[] weights = new double[]{0.5, 0.5};
         double cohesion_fitness = getCohesionFitness(nStructure);
+
+        if(cohesion_fitness < 0) //Strong breaker! if this is not good we do not want this! maybe a bit more mild xD
+            cohesion_fitness = 0.0;
+
         double consistency_fitness = getConsistencyFitness(nStructure);
 
         return (weights[0] * cohesion_fitness) + (weights[1] *consistency_fitness);

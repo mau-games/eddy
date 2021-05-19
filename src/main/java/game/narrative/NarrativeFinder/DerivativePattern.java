@@ -71,9 +71,13 @@ public class DerivativePattern extends CompositeNarrativePattern
         for(NarrativePattern np : currentPatterns)
         {
             // We are not interested in getting conflict nodes or similar (3AS, HJ?, Cmx, ACT)
-            if(!(np instanceof StructureNodePattern))
+            if(!(np instanceof StructureNodePattern) && !(np instanceof PlotDevicePattern) && !np.derivative)
             {
-                if(!np.derivative)
+                if(np instanceof ActivePlotDevice && !((ActivePlotDevice) np).device.derivative)
+                {
+                    patternQueue.add(((ActivePlotDevice) np).device);
+                }
+                else
                 {
                     patternQueue.add(np);
                 }
@@ -82,6 +86,7 @@ public class DerivativePattern extends CompositeNarrativePattern
 
         DerivativePattern dp = null;
         GrammarGraph temp = new GrammarGraph();
+        int previous_size = -1;
 
         //fixme: is getting stuck here!
 
@@ -91,6 +96,8 @@ public class DerivativePattern extends CompositeNarrativePattern
         {
             NarrativePattern current = patternQueue.pop();
 //            System.out.println(patternQueue.size());
+
+            previous_size = patternQueue.size();
 
             if(dp == null)
             {
@@ -141,7 +148,7 @@ public class DerivativePattern extends CompositeNarrativePattern
             {
                 for(NarrativePattern non_directed_pat : current.connected_patterns_from_me.get(0))
                 {
-                    if(non_directed_pat.derivative && (!(non_directed_pat instanceof  StructureNodePattern)))
+                    if(non_directed_pat.derivative && (!(non_directed_pat instanceof StructureNodePattern)))
                         patternQueue.add(non_directed_pat);
                 }
             }
@@ -154,6 +161,20 @@ public class DerivativePattern extends CompositeNarrativePattern
                 }
                 dp = null;
             }
+
+            // We have not added something
+            if(previous_size == patternQueue.size())
+            {
+                if(dp != null && dp.getPatterns().size() > 1) //This node was root, and something derivated!
+                {
+                    dp.addSubgraph(temp);
+                    results.add(dp);
+                }
+                dp = null;
+            }
+
+
+
         }
 //        System.out.println("I AM OUT!");
 

@@ -46,9 +46,10 @@ public class NarrativeShape extends StackPane
     Label other_text;
     TVTropeType trope_type;
 
-    private double max_size = 100.0;
+    private double max_size = 80.0;
     private double half_size = max_size/2.0;
     private double quarter_size = max_size/4.0;
+    private double sext_size = max_size/6.0;
     private ArrayList<Point> border_positions = new ArrayList<Point>();
 
     private NarrativeShape self;
@@ -81,14 +82,16 @@ public class NarrativeShape extends StackPane
         self = this;
         this.trope_type = trope_type;
         recreateShape(trope_type);
-        other_text.setStyle("-fx-text-fill: white;");
+//        other_text.setStyle("-fx-text-fill: white;");
         other_text.setFont(new Font("Arial", 16));
 
         this.getChildren().add(shape);
 //        this.getChildren().add(narrative_text);
         this.getChildren().add(other_text);
         shape.setStroke(Color.BLACK);
-        shape.setFill(Color.TRANSPARENT);
+
+//        shape.setFill(Color.TRANSPARENT);
+
         shape.setStrokeWidth(3.0);
 //        this.setBorder(new Border(new BorderStroke(Color.GREEN,
 //                BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderWidths.DEFAULT)));
@@ -109,6 +112,8 @@ public class NarrativeShape extends StackPane
 
         //PROBABLY PUT ALL OF THIS IN A METHOD!
         ContextMenu contextMenu = new ContextMenu();
+        Menu replaceNode = new Menu("Replace Node");
+        addReplacementMenuItem(replaceNode);
         MenuItem removeNode = new MenuItem("Remove Node");
 
         Menu addConnection = new Menu("Add Connection");
@@ -118,7 +123,7 @@ public class NarrativeShape extends StackPane
         MenuItem child_addConnection3 = new MenuItem("Bidirectional");
         addConnection.getItems().addAll(child_addConnection1, child_addConnection2, child_addConnection3);
 
-        contextMenu.getItems().addAll(removeNode, addConnection);
+        contextMenu.getItems().addAll(replaceNode, removeNode, addConnection);
 
         removeNode.setOnAction(new EventHandler<ActionEvent>() {
             @Override
@@ -179,6 +184,42 @@ public class NarrativeShape extends StackPane
 
     }
 
+    public void addReplacementMenuItem(Menu root_menu)
+    {
+        MenuItem anyMenu = new TVTropeMenuItem("Any", TVTropeType.ANY, this.owner);
+
+        Menu heroMenu = new Menu("Hero");
+        TVTropeMenuItem heroChild1 = new TVTropeMenuItem("Hero", TVTropeType.HERO, this.owner);
+        TVTropeMenuItem heroChild2 = new TVTropeMenuItem("5MA", TVTropeType.FIVE_MA, this.owner);
+        TVTropeMenuItem heroChild3 = new TVTropeMenuItem("NEO", TVTropeType.NEO, this.owner);
+        TVTropeMenuItem heroChild4 = new TVTropeMenuItem("SH", TVTropeType.SH, this.owner);
+        heroMenu.getItems().addAll(heroChild1, heroChild2, heroChild3, heroChild4);
+
+        Menu conflictMenu = new Menu("Conflict");
+        TVTropeMenuItem conflictChild1 = new TVTropeMenuItem("Conflict", TVTropeType.CONFLICT, this.owner);
+//		TVTropeMenuItem conflictChild2 = new TVTropeMenuItem("CONA", TVTropeType.CONA);
+//		TVTropeMenuItem conflictChild3 = new TVTropeMenuItem("COSO", TVTropeType.COSO);
+//		conflictMenu.getItems().addAll(conflictChild1, conflictChild2, conflictChild3);
+        conflictMenu.getItems().addAll(conflictChild1);
+
+        Menu enemyMenu = new Menu("Enemy");
+        TVTropeMenuItem EnemyChild1 = new TVTropeMenuItem("Enemy", TVTropeType.ENEMY, this.owner);
+        TVTropeMenuItem EnemyChild2 = new TVTropeMenuItem("EMP", TVTropeType.EMP, this.owner);
+        TVTropeMenuItem EnemyChild3 = new TVTropeMenuItem("BAD", TVTropeType.BAD, this.owner);
+        TVTropeMenuItem EnemyChild4 = new TVTropeMenuItem("DRAKE", TVTropeType.DRA, this.owner);
+        enemyMenu.getItems().addAll(EnemyChild1, EnemyChild2, EnemyChild3, EnemyChild4);
+
+        Menu modifierMenu = new Menu("Modifier");
+        TVTropeMenuItem modifierChild1 = new TVTropeMenuItem("PlotDevice", TVTropeType.PLOT_DEVICE, this.owner);
+        TVTropeMenuItem modifierChild2 = new TVTropeMenuItem("CHK", TVTropeType.CHK, this.owner);
+        TVTropeMenuItem modifierChild3 = new TVTropeMenuItem("MCG", TVTropeType.MCG, this.owner);
+        TVTropeMenuItem modifierChild4 = new TVTropeMenuItem("MHQ", TVTropeType.MHQ, this.owner);
+        modifierMenu.getItems().addAll(modifierChild1, modifierChild2, modifierChild3, modifierChild4);
+
+        root_menu.getItems().addAll(anyMenu, heroMenu, //
+                conflictMenu, enemyMenu, modifierMenu);
+    }
+
     public void recreateShape(TVTropeType trope_type)
     {
         border_positions = new ArrayList<Point>();
@@ -192,6 +233,9 @@ public class NarrativeShape extends StackPane
                     0.0, half_size,
                     max_size, half_size,
                     max_size, 0.0);
+
+            shape.setFill(Color.TRANSPARENT);
+            other_text.setStyle("-fx-text-fill: white;");
 
             border_positions.add(new Point(half_size, 0));      //N
             border_positions.add(new Point(max_size, quarter_size));  //E
@@ -212,18 +256,30 @@ public class NarrativeShape extends StackPane
             border_positions.add(new Point(half_size, max_size));  //S
             border_positions.add(new Point(0, half_size));      //W
 
+            // blue
+            shape.setFill(Color.rgb(165, 200, 228));
+
+            if(trope_type == TVTropeType.PLOT_DEVICE)
+                other_text = new Label("PD");
+
+            other_text.setStyle("-fx-text-fill: black;");
+
         }
         else if (trope_type.getValue() >= 30)
         {
             //ENEMIES - HEXAGON
             ((Polygon)shape).getPoints().addAll(0.0, half_size,
-                    quarter_size, max_size,
-                    max_size - quarter_size, max_size,
+                    quarter_size, max_size - sext_size,
+                    max_size - quarter_size, max_size - sext_size,
                     max_size, half_size,
-                    max_size - quarter_size, 0.0,
-                    quarter_size, 0.0);
+                    max_size - quarter_size, 0.0 + sext_size,
+                    quarter_size, 0.0 + sext_size);
 
-            border_positions.add(new Point(half_size, 0));      //N
+            // Red
+            shape.setFill(Color.rgb(246, 168, 166));
+            other_text.setStyle("-fx-text-fill: black;");
+
+            border_positions.add(new Point(half_size, 0 + sext_size));      //N
             border_positions.add(new Point(max_size, half_size));  //E
             border_positions.add(new Point(half_size, max_size));  //S
             border_positions.add(new Point(0, half_size));      //W
@@ -241,6 +297,10 @@ public class NarrativeShape extends StackPane
                     max_size, half_size,
                     half_size, 0.0);
 
+            //Yellow
+            shape.setFill(Color.rgb(249, 240, 193));
+            other_text.setStyle("-fx-text-fill: black;");
+
             border_positions.add(new Point(half_size, 0));      //N
             border_positions.add(new Point(max_size, half_size));  //E
             border_positions.add(new Point(half_size, max_size));  //S
@@ -254,6 +314,11 @@ public class NarrativeShape extends StackPane
                     max_size, half_size,
                     max_size, 0.0);
 
+            // BLUE
+            shape.setFill(Color.rgb(192, 236, 204));
+
+//            shape.setFill(Color.WHITE);
+
             border_positions.add(new Point(half_size, 0));      //N
             border_positions.add(new Point(max_size, quarter_size));  //E
             border_positions.add(new Point(half_size, half_size));  //S
@@ -262,6 +327,8 @@ public class NarrativeShape extends StackPane
             //Heroes
             if(trope_type == TVTropeType.FIVE_MA)
                 other_text = new Label("5MA");
+
+            other_text.setStyle("-fx-text-fill: black;");
         }
     }
 

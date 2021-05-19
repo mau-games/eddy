@@ -23,6 +23,24 @@ public class ActivePlotDevice extends CompositeNarrativePattern
     public static List<CompositeNarrativePattern> matches(GrammarGraph narrative_graph, List<NarrativePattern> currentPatterns, NarrativeStructPatternFinder finder)
     {
         ArrayList<CompositeNarrativePattern> results = new ArrayList<CompositeNarrativePattern>();
+        ArrayList<SimpleConflictPattern> conflicts = finder.getAllPatternsByType(SimpleConflictPattern.class);
+        ArrayList<StructureNodePattern> cs = finder.getAllPatternsByType(StructureNodePattern.class);
+
+        for(SimpleConflictPattern scp : conflicts)
+        {
+            StructureNodePattern _remove = null;
+            for(StructureNodePattern c : cs)
+            {
+                if(scp.connected_node == c.connected_node)
+                {
+                    _remove = c;
+                    break;
+                }
+            }
+
+            if(_remove != null)
+                cs.remove(_remove);
+        }
 
         /**
          * 1- Find The plot devices (specific micro-pattern)
@@ -64,6 +82,10 @@ public class ActivePlotDevice extends CompositeNarrativePattern
                 {
                     for(NarrativePattern to_me : np.connected_patterns.get(0))
                     {
+                        if(to_me instanceof StructureNodePattern && cs.contains(to_me))
+                        {
+                            continue;
+                        }
                         temp_graph.addNode(to_me.connected_node, false);
                         apd.addNarrativePattern(to_me);
                     }
@@ -73,6 +95,10 @@ public class ActivePlotDevice extends CompositeNarrativePattern
                 {
                     for(NarrativePattern to_me : np.connected_patterns.get(1))
                     {
+                        if(to_me instanceof StructureNodePattern && cs.contains(to_me))
+                        {
+                            continue;
+                        }
                         temp_graph.addNode(to_me.connected_node, false);
                         apd.addNarrativePattern(to_me);
                     }
@@ -87,6 +113,10 @@ public class ActivePlotDevice extends CompositeNarrativePattern
                 {
                     for(NarrativePattern from_me : np.connected_patterns_from_me.get(0))
                     {
+                        if(from_me instanceof StructureNodePattern && cs.contains(from_me))
+                        {
+                            continue;
+                        }
                         temp_graph.addNode(from_me.connected_node, false);
                         apd.addNarrativePattern(from_me);
                     }
@@ -96,6 +126,10 @@ public class ActivePlotDevice extends CompositeNarrativePattern
                 {
                     for(NarrativePattern from_me : np.connected_patterns_from_me.get(1))
                     {
+                        if(from_me instanceof StructureNodePattern && cs.contains(from_me))
+                        {
+                            continue;
+                        }
                         temp_graph.addNode(from_me.connected_node, false);
                         apd.addNarrativePattern(from_me);
                     }
@@ -142,8 +176,10 @@ public class ActivePlotDevice extends CompositeNarrativePattern
 
         //Usability quality (am I connected, and how many are connected to me! - in comparison to the amount of nodes)
         double quality_usability = device.to_me_count <= (current.nodes.size()/2) ?
-                (double)device.to_me_count/(double)current.nodes.size() :
-                2.0 - (double)device.to_me_count/(double)current.nodes.size();
+                (double)device.to_me_count/((double)current.nodes.size()/2) :
+                2.0 - (double)device.to_me_count/((double)current.nodes.size()/2);
+
+        quality_usability *= 0.7;
 
         if(device.connected_patterns_from_me.containsKey(0) || device.connected_patterns_from_me.containsKey(1))
         {

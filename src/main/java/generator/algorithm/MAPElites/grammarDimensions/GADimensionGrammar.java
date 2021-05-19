@@ -42,8 +42,8 @@ public abstract class GADimensionGrammar
 	
 //	public abstract boolean CorrectDimensionLevel(ZoneIndividual individual, DimensionType type);
 	
-	public abstract double CalculateValue(GrammarIndividual individual, GrammarGraph target_graph);
-	public abstract double CalculateValue(GrammarGraph individual_graph, GrammarGraph target_graph);
+	public abstract double CalculateValue(GrammarIndividual individual, GrammarGraph target_graph, GrammarGraph axiom);
+	public abstract double CalculateValue(GrammarGraph individual_graph, GrammarGraph target_graph, GrammarGraph axiom);
 	
 	public double GetGranularity()
 	{
@@ -81,29 +81,29 @@ public abstract class GADimensionGrammar
 	}
 
 
-	public static double calculateIndividualValue(GrammarDimensionTypes dim, GrammarGraph individual_grammar)
+	public static double calculateIndividualValue(GrammarDimensionTypes dim, GrammarGraph individual_grammar, GrammarGraph target_graph)
 	{
 //		System.out.println("PRROOOOOOOOOOBLEMS");
 		switch(dim)
 		{
 			case CONFLICT:
-				return ConflictGADimensionGrammar.getValue(individual_grammar);
+				return ConflictGADimensionGrammar.getValue(individual_grammar, target_graph);
 			case STEP:
-				return StepGADimensionGrammar.getValue(individual_grammar);
+				return StepGADimensionGrammar.getValue(individual_grammar, target_graph);
 			case DIVERSITY:
-				return DiversityGADimensionGrammar.getValue(individual_grammar);
+				return DiversityGADimensionGrammar.getValue(individual_grammar, target_graph);
 			case TENSION:
-				return TensionGADimensionGrammar.getValue(individual_grammar);
+				return TensionGADimensionGrammar.getValue(individual_grammar, target_graph);
 			case STRUCTURE:
-				return StructureGADimensionGrammar.getValue(individual_grammar);
+				return StructureGADimensionGrammar.getValue(individual_grammar, target_graph);
 			case PLOT_POINTS:
-				return PlotPointGADimensionGrammar.getValue(individual_grammar);
+				return PlotPointGADimensionGrammar.getValue(individual_grammar, target_graph);
 			case PLOT_DEVICES:
-				return PlotDevicesGADimensionGrammar.getValue(individual_grammar);
+				return PlotDevicesGADimensionGrammar.getValue(individual_grammar, target_graph);
 			case PLOT_TWISTS:
-				return PlotTwistsGADimensionGrammar.getValue(individual_grammar);
+				return PlotTwistsGADimensionGrammar.getValue(individual_grammar, target_graph);
 			case INTERESTING:
-				return InterestingGADimensionGrammar.getValue(individual_grammar);
+				return InterestingGADimensionGrammar.getValue(individual_grammar, target_graph);
 			default:
 				return -1.0;
 

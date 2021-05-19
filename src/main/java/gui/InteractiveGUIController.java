@@ -151,6 +151,7 @@ public class InteractiveGUIController implements Initializable, Listener {
 		router.registerListener(this, new RequestConnectionGrammarStructureGraph(null, null, 0));
 		router.registerListener(this, new RequestGrammarNodeConnectionRemoval(null));
 		router.registerListener(this, new NarrativeSuggestionApplied(null));
+		router.registerListener(this, new RequestReplacementGrammarStructureNode(null, null));
 
 
 		suggestionsView = new SuggestionsViewController();
@@ -191,18 +192,43 @@ public class InteractiveGUIController implements Initializable, Listener {
 
 	private void initializeGraphGrammar()
 	{
+//		graph = new GrammarGraph();
+//
+//		GrammarNode hero = new GrammarNode(0, TVTropeType.HERO);
+//		GrammarNode conflict = new GrammarNode(1, TVTropeType.CONFLICT);
+//		GrammarNode enemy = new GrammarNode(2, TVTropeType.ENEMY);
+//
+//		hero.addConnection(conflict, 1);
+//		conflict.addConnection(enemy, 1);
+//
+//		graph.nodes.add(hero);
+//		graph.nodes.add(conflict);
+//		graph.nodes.add(enemy);
+
+		//ZELDA OCARINA OF TIME
 		graph = new GrammarGraph();
 
-		GrammarNode hero = new GrammarNode(0, TVTropeType.HERO);
-		GrammarNode conflict = new GrammarNode(1, TVTropeType.CONFLICT);
-		GrammarNode enemy = new GrammarNode(2, TVTropeType.ENEMY);
+		GrammarNode y_link = graph.addNode(TVTropeType.HERO);
+		GrammarNode triforce = graph.addNode(TVTropeType.MCG);
+		GrammarNode a_link = graph.addNode(TVTropeType.NEO);
+		GrammarNode gannon = graph.addNode(TVTropeType.BAD);
+		GrammarNode bad_conf = graph.addNode(TVTropeType.CONFLICT);
+		GrammarNode zelda = graph.addNode(TVTropeType.HERO);
+		GrammarNode sheik = graph.addNode(TVTropeType.SH);
+		GrammarNode good_conf = graph.addNode(TVTropeType.CONFLICT);
 
-		hero.addConnection(conflict, 1);
-		conflict.addConnection(enemy, 1);
+		y_link.addConnection(triforce, 1);
+		triforce.addConnection(a_link, 1);
 
-		graph.nodes.add(hero);
-		graph.nodes.add(conflict);
-		graph.nodes.add(enemy);
+		gannon.addConnection(bad_conf, 1);
+		bad_conf.addConnection(a_link, 1);
+		bad_conf.addConnection(zelda, 1);
+
+		zelda.addConnection(sheik, 0);
+
+		a_link.addConnection(good_conf, 1);
+		sheik.addConnection(good_conf, 1);
+		good_conf.addConnection(gannon, 1);
 
 	}
 
@@ -320,7 +346,7 @@ public class InteractiveGUIController implements Initializable, Listener {
 			created_node.getNarrativeShape().setTranslateX(local_translation_point.getX());
 			created_node.getNarrativeShape().setTranslateY(local_translation_point.getY());
 
-			if(graph.fullyConnectedGraph())
+			if(graph.fullyConnectedGraph() == 0)
 				router.postEvent(new NarrativeStructEdited(graph, false));
 		}
 		 else if(e instanceof RequestGrammarStructureNodeRemoval)
@@ -328,7 +354,7 @@ public class InteractiveGUIController implements Initializable, Listener {
 			graph.removeNode((GrammarNode) e.getPayload());
 			graph.nPane.renderAll();
 
-			if(graph.fullyConnectedGraph())
+			if(graph.fullyConnectedGraph() == 0)
 				router.postEvent(new NarrativeStructEdited(graph, false));
 		}
 		 else if(e instanceof RequestConnectionGrammarStructureGraph)
@@ -341,7 +367,7 @@ public class InteractiveGUIController implements Initializable, Listener {
 
 			NarrativeStructDrawer.getInstance().done();
 
-			if(graph.fullyConnectedGraph())
+			if(graph.fullyConnectedGraph() == 0)
 				router.postEvent(new NarrativeStructEdited(graph, false));
 		}
 		else if(e instanceof RequestGrammarNodeConnectionRemoval)
@@ -350,7 +376,7 @@ public class InteractiveGUIController implements Initializable, Listener {
 			((NarrativeShapeEdge) e.getPayload()).from.owner.removeConnection(((NarrativeShapeEdge) e.getPayload()).to.owner, true);
 			graph.nPane.renderAll();
 
-			if(graph.fullyConnectedGraph())
+			if(graph.fullyConnectedGraph() == 0)
 				router.postEvent(new NarrativeStructEdited(graph, false));
 
 		}
@@ -361,8 +387,18 @@ public class InteractiveGUIController implements Initializable, Listener {
 			graph.pattern_finder.findNarrativePatterns(null);
 			graph.nPane.renderAll();
 
-			if(graph.fullyConnectedGraph())
+			if(graph.fullyConnectedGraph() == 0)
 				router.postEvent(new NarrativeStructEdited(graph, true));
+		}
+		else if(e instanceof RequestReplacementGrammarStructureNode)
+		{
+			int node_index = graph.getNodeIndex(((RequestReplacementGrammarStructureNode) e).to_replace);
+			graph.nodes.get(node_index).setGrammarNodeType(((RequestReplacementGrammarStructureNode) e).trope_type);
+			graph.nodes.get(node_index).clearGraphics();
+			graph.nPane.renderAll();
+
+			if(graph.fullyConnectedGraph() == 0)
+				router.postEvent(new NarrativeStructEdited(graph, false));
 		}
 	}
 

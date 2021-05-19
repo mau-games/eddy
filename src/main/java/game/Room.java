@@ -154,6 +154,8 @@ public class Room {
 	private double treasureSparsity = -1.0f;
 	private double enemyDensity 	= -1.0f;
 	private double enemySparsity 	= -1.0f;
+	private double floorDensity 	= -1.0f;
+	private double floorSparsity 	= -1.0f;
 	
 	//NEW THINGS
 	public ZoneNode root;
@@ -1057,6 +1059,152 @@ public class Room {
 	public List<Point> getDoors() {
 		return doors;
 	}
+
+	public int floorCount()
+	{
+		int floors = 0;
+		for (int j = 0; j < height; j++)
+		{
+			for (int i = 0; i < width; i++)
+			{
+				if(tileMap[j * width + i].GetType() == TileTypes.FLOOR)
+					floors++;
+			}
+		}
+
+		return floors;
+	}
+
+	public double calculateFloorSparsity()
+	{
+		calculateFloorDensitySparsity();
+		return floorSparsity;
+
+
+//		if(floorSparsity > -1.0)
+//			return floorSparsity;
+//		else
+//		{
+//			calculateFloorDensitySparsity();
+//			return floorSparsity;
+//		}
+	}
+
+	public double calculateFloorDensity() {
+//		System.out.println("TRABERSE: " + countTraversables());
+//		System.out.println("TREASUREEEES: " + treasures.size());
+
+		return calculateFloorDensitySparsity();
+
+//		if(floorDensity > -1.0)
+//			return floorDensity;
+//		else
+//			return calculateFloorDensitySparsity();
+
+		//treasureDensity = (double)treasures.size() / (double)countTraversables();
+		//return treasureDensity;
+	}
+
+	/**
+	 * Calculates the enemy density by comparing the number of traversable
+	 * tiles to the number of enemies.
+	 *
+	 * @return The enemy density.
+	 */
+	public double calculateFloorDensitySparsity()
+	{
+		if(floorDensity > -1.0)
+			return floorDensity;
+
+		double denseThreshold = 6.0;
+
+		Queue<Node> queue = new LinkedList<Node>();
+		ArrayList<Bitmap> floorChunks = new ArrayList<Bitmap>();
+		ArrayList<Point> floorPoints = new ArrayList<Point>();
+
+		for (int j = 0; j < height; j++)
+		{
+			for (int i = 0; i < width; i++)
+			{
+				if(tileMap[j * width + i].GetType() == TileTypes.FLOOR)
+					floorPoints.add(new Point(i,j));
+			}
+		}
+
+		if(floorPoints.isEmpty())
+		{
+			floorSparsity = 0.0;
+			floorDensity = 0.0;
+			return 0.0;
+		}
+
+		Node root = new Node(0.0f, floorPoints.get(0), null);
+		queue.add(root);
+
+		while(!floorPoints.isEmpty())
+		{
+			Bitmap floorChunk = new Bitmap();
+
+			while(!queue.isEmpty()){
+				Node current = queue.remove();
+				Tile currentTile = getTile(current.position);
+
+				//We need to remove the door!
+				floorPoints.remove(current.position);
+				floorChunk.addPoint(Point.castToGeometry(current.position));
+
+
+				List<Point> children = getAvailableCoords(current.position);
+				for(Point child : children)
+				{
+
+					if(!floorPoints.contains(child))
+						continue;
+
+					//Create child node
+					Node n = new Node(0.0f, child, current);
+					queue.add(n);
+				}
+			}
+
+			floorChunk.CalculateMedoid();
+			floorChunks.add(floorChunk);
+
+			if(!floorPoints.isEmpty())
+				queue.add(new Node(0.0f, floorPoints.get(0), null));
+		}
+
+		double dens = 0.0;
+		double sparse = 0.0;
+		double distances = 0.0;
+
+		boolean calculateSparsity = floorChunks.size() > 1;
+
+		//CLusters are done, now calculate density
+		for(Bitmap floorChunk : floorChunks)
+		{
+			dens += Math.min(1.0, (double)floorChunk.getPoints().size()/denseThreshold);
+
+			if(calculateSparsity)
+			{
+				//CLusters are done, now calculate density
+				for(Bitmap otherChunk : floorChunks)
+				{
+					if(otherChunk.equals(floorChunk))
+						continue;
+
+					sparse += (double)otherChunk.distManhattan(otherChunk.medoid, floorChunk.medoid)/(width + height);
+					distances++;
+				}
+			}
+		}
+
+		floorDensity = dens/(double)floorChunks.size();
+		floorSparsity = calculateSparsity == true ? sparse/distances : 0.0;
+
+		return floorDensity;
+	}
+
 
 	/**
 	 * Gets the number of enemies on a map.
