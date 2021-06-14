@@ -205,30 +205,77 @@ public class InteractiveGUIController implements Initializable, Listener {
 //		graph.nodes.add(conflict);
 //		graph.nodes.add(enemy);
 
-		//ZELDA OCARINA OF TIME
+		//Mario
 		graph = new GrammarGraph();
 
-		GrammarNode y_link = graph.addNode(TVTropeType.HERO);
-		GrammarNode triforce = graph.addNode(TVTropeType.MCG);
-		GrammarNode a_link = graph.addNode(TVTropeType.NEO);
-		GrammarNode gannon = graph.addNode(TVTropeType.BAD);
-		GrammarNode bad_conf = graph.addNode(TVTropeType.CONFLICT);
-		GrammarNode zelda = graph.addNode(TVTropeType.HERO);
-		GrammarNode sheik = graph.addNode(TVTropeType.SH);
-		GrammarNode good_conf = graph.addNode(TVTropeType.CONFLICT);
+		GrammarNode mario = graph.addNode(TVTropeType.HERO);
+		GrammarNode conf = graph.addNode(TVTropeType.CONFLICT);
+		GrammarNode empire = graph.addNode(TVTropeType.EMP);
+		GrammarNode fake_bowser = graph.addNode(TVTropeType.DRA);
+		GrammarNode bowser = graph.addNode(TVTropeType.BAD);
+		GrammarNode quest_item = graph.addNode(TVTropeType.MCG);
+		GrammarNode peach = graph.addNode(TVTropeType.HERO);
 
-		y_link.addConnection(triforce, 1);
-		triforce.addConnection(a_link, 1);
+		mario.addConnection(conf, 1);
+		mario.addConnection(quest_item, 1);
+		conf.addConnection(empire, 1);
 
-		gannon.addConnection(bad_conf, 1);
-		bad_conf.addConnection(a_link, 1);
-		bad_conf.addConnection(zelda, 1);
+		empire.addConnection(fake_bowser, 0);
+		fake_bowser.addConnection(bowser, 0);
+		bowser.addConnection(quest_item, 0);
 
-		zelda.addConnection(sheik, 0);
+		quest_item.addConnection(peach, 1);
 
-		a_link.addConnection(good_conf, 1);
-		sheik.addConnection(good_conf, 1);
-		good_conf.addConnection(gannon, 1);
+		//ZELDA temple
+//		graph = new GrammarGraph();
+//
+//		GrammarNode link = graph.addNode(TVTropeType.HERO);
+//		GrammarNode conf = graph.addNode(TVTropeType.CONFLICT);
+//		GrammarNode generic_en = graph.addNode(TVTropeType.ENEMY);
+//		GrammarNode drake = graph.addNode(TVTropeType.DRA);
+//		GrammarNode bow = graph.addNode(TVTropeType.MHQ);
+//		GrammarNode boss = graph.addNode(TVTropeType.BAD);
+//		GrammarNode quest_item = graph.addNode(TVTropeType.MCG);
+//		GrammarNode elder = graph.addNode(TVTropeType.HERO);
+//		GrammarNode extra_item = graph.addNode(TVTropeType.MHQ);
+//
+//		link.addConnection(conf, 1);
+//		link.addConnection(quest_item, 1);
+//		conf.addConnection(generic_en, 1);
+//
+//		generic_en.addConnection(drake, 0);
+//		drake.addConnection(bow, 0);
+//		bow.addConnection(boss, 0);
+//		boss.addConnection(quest_item, 0);
+//		quest_item.addConnection(elder, 0);
+//		elder.addConnection(extra_item, 0);
+//
+//		extra_item.addConnection(link, 1);
+
+		//ZELDA OCARINA OF TIME
+//		graph = new GrammarGraph();
+//
+//		GrammarNode y_link = graph.addNode(TVTropeType.HERO);
+//		GrammarNode triforce = graph.addNode(TVTropeType.MCG);
+//		GrammarNode a_link = graph.addNode(TVTropeType.NEO);
+//		GrammarNode gannon = graph.addNode(TVTropeType.BAD);
+//		GrammarNode bad_conf = graph.addNode(TVTropeType.CONFLICT);
+//		GrammarNode zelda = graph.addNode(TVTropeType.HERO);
+//		GrammarNode sheik = graph.addNode(TVTropeType.SH);
+//		GrammarNode good_conf = graph.addNode(TVTropeType.CONFLICT);
+//
+//		y_link.addConnection(triforce, 1);
+//		triforce.addConnection(a_link, 1);
+//
+//		gannon.addConnection(bad_conf, 1);
+//		bad_conf.addConnection(a_link, 1);
+//		bad_conf.addConnection(zelda, 1);
+//
+//		zelda.addConnection(sheik, 0);
+//
+//		a_link.addConnection(good_conf, 1);
+//		sheik.addConnection(good_conf, 1);
+//		good_conf.addConnection(gannon, 1);
 
 	}
 
