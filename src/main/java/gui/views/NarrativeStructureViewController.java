@@ -198,7 +198,7 @@ public class NarrativeStructureViewController extends BorderPane implements List
 
 		for(GADimensionGrammar.GrammarDimensionTypes dimension : GADimensionGrammar.GrammarDimensionTypes.values())
 		{
-			if(dimension != GADimensionGrammar.GrammarDimensionTypes.STEP && dimension != GADimensionGrammar.GrammarDimensionTypes.DIVERSITY &&
+			if(dimension != GADimensionGrammar.GrammarDimensionTypes.STEP && dimension != GADimensionGrammar.GrammarDimensionTypes.INTERESTING &&
 			dimension != GADimensionGrammar.GrammarDimensionTypes.TENSION && dimension != GADimensionGrammar.GrammarDimensionTypes.STRUCTURE)
 			{
 				secondaryTable.getItems().add(new MAPEDimensionGrammarFXML(dimension, 5));
@@ -358,6 +358,7 @@ public class NarrativeStructureViewController extends BorderPane implements List
 
 //		RunMAPElites(core_graph);
 		//Fixme: This should happen as an event to be received by the class Game
+		AlgorithmSetup.getInstance().setSaveData(true);
 		RunMAPElites(editedGraph, axiom_graph);
 //		RunMAPElites(editedGraph, axiom_graph);
 	}

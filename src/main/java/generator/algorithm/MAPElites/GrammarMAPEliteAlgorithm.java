@@ -151,7 +151,7 @@ public class GrammarMAPEliteAlgorithm extends Algorithm implements Listener {
 		EventRouter.getInstance().registerListener(this, new RoomEdited(null));
 		EventRouter.getInstance().registerListener(this, new NarrativeStructEdited(null, false));
 		EventRouter.getInstance().registerListener(this, new MAPENarrativeGridUpdate(null));
-
+		this.save_data = AlgorithmSetup.getInstance().getSaveData();
 
 		this.dimensions = dimensions;
 		initCells(dimensions);
@@ -224,6 +224,7 @@ public class GrammarMAPEliteAlgorithm extends Algorithm implements Listener {
 		EventRouter.getInstance().registerListener(this, new RoomEdited(null));
 		EventRouter.getInstance().registerListener(this, new NarrativeStructEdited(null, false));
 		EventRouter.getInstance().registerListener(this, new MAPENarrativeGridUpdate(null));
+		this.save_data = AlgorithmSetup.getInstance().getSaveData();
 
 		this.dimensions = dimensions;
 		initCells(dimensions);

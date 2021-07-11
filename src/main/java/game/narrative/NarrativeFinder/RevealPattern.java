@@ -35,7 +35,8 @@ public class RevealPattern extends CompositeNarrativePattern
                 for(NarrativePattern non_directed_pat : np.connected_patterns_from_me.get(1))
                 {
 //                    if(non_directed_pat instanceof VillainNodePattern && !non_directed_pat.connected_patterns_from_me.containsKey(0))
-                    if(non_directed_pat instanceof VillainNodePattern)
+                    if(non_directed_pat instanceof VillainNodePattern ||
+                            non_directed_pat instanceof HeroNodePattern)
                     {
                         RevealPattern rp = new RevealPattern();
                         GrammarGraph temp = new GrammarGraph();
@@ -60,7 +61,8 @@ public class RevealPattern extends CompositeNarrativePattern
                 for(NarrativePattern non_directed_pat : np.connected_patterns_from_me.get(1))
                 {
 //                    if(non_directed_pat instanceof HeroNodePattern && !non_directed_pat.connected_patterns_from_me.containsKey(0))
-                    if(non_directed_pat instanceof HeroNodePattern)
+                    if(non_directed_pat instanceof HeroNodePattern ||
+                            non_directed_pat instanceof VillainNodePattern )
                     {
                         RevealPattern rp = new RevealPattern();
                         GrammarGraph temp = new GrammarGraph();

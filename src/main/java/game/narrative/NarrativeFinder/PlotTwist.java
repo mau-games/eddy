@@ -59,7 +59,8 @@ public class PlotTwist extends CompositeNarrativePattern
             {
                 for(NarrativePattern derivative : ((DerivativePattern) np).derivatives)
                 {
-                    if(derivative.getClass() != ((DerivativePattern) np).source.getClass())
+                    if(derivative.getClass() != ((DerivativePattern) np).source.getClass() &&
+                            derivative.getClass() != PlotDevicePattern.class)
                     {
                         //So now we have a derivative object that is not the same class (take it?)
                         PlotTwist pt = new PlotTwist();

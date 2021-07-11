@@ -64,60 +64,60 @@ public class BrokenLinkPattern extends CompositeNarrativePattern
 
         for(NarrativePattern np : currentPatterns)
         {
-            //Check only basic patterns
-            if(np instanceof VillainNodePattern)
-            {
-                if(np.connected_patterns_from_me.containsKey(1))
-                {
-                    for(NarrativePattern from_me : np.connected_patterns_from_me.get(1))
-                    {
-                        if(from_me instanceof VillainNodePattern) //BROKEN LINK!
-                        {
-                            BrokenLinkPattern blp = new BrokenLinkPattern(np, from_me, np);
-                            results.add(blp);
-                        }
-                    }
-                }
-
-                if(np.connected_patterns_from_me.containsKey(2))
-                {
-                    for(NarrativePattern from_me : np.connected_patterns_from_me.get(2))
-                    {
-                        if(from_me instanceof VillainNodePattern) //BROKEN LINK!
-                        {
-                            BrokenLinkPattern blp = new BrokenLinkPattern(np, from_me, np);
-                            results.add(blp);
-                        }
-                    }
-                }
-            }
-            else if(np instanceof HeroNodePattern)
-            {
-                if(np.connected_patterns_from_me.containsKey(1))
-                {
-                    for(NarrativePattern from_me : np.connected_patterns_from_me.get(1))
-                    {
-                        if(from_me instanceof HeroNodePattern) //BROKEN LINK!
-                        {
-                            BrokenLinkPattern blp = new BrokenLinkPattern(np, from_me, np);
-                            results.add(blp);
-                        }
-                    }
-                }
-
-                if(np.connected_patterns_from_me.containsKey(2))
-                {
-                    for(NarrativePattern from_me : np.connected_patterns_from_me.get(2))
-                    {
-                        if(from_me instanceof HeroNodePattern) //BROKEN LINK!
-                        {
-                            BrokenLinkPattern blp = new BrokenLinkPattern(np, from_me, np);
-                            results.add(blp);
-                        }
-                    }
-                }
-            }
-            else if(np instanceof StructureNodePattern)
+//            //Check only basic patterns
+//            if(np instanceof VillainNodePattern)
+//            {
+//                if(np.connected_patterns_from_me.containsKey(1))
+//                {
+//                    for(NarrativePattern from_me : np.connected_patterns_from_me.get(1))
+//                    {
+//                        if(from_me instanceof VillainNodePattern) //BROKEN LINK!
+//                        {
+//                            BrokenLinkPattern blp = new BrokenLinkPattern(np, from_me, np);
+//                            results.add(blp);
+//                        }
+//                    }
+//                }
+//
+//                if(np.connected_patterns_from_me.containsKey(2))
+//                {
+//                    for(NarrativePattern from_me : np.connected_patterns_from_me.get(2))
+//                    {
+//                        if(from_me instanceof VillainNodePattern) //BROKEN LINK!
+//                        {
+//                            BrokenLinkPattern blp = new BrokenLinkPattern(np, from_me, np);
+//                            results.add(blp);
+//                        }
+//                    }
+//                }
+//            }
+//            else if(np instanceof HeroNodePattern)
+//            {
+//                if(np.connected_patterns_from_me.containsKey(1))
+//                {
+//                    for(NarrativePattern from_me : np.connected_patterns_from_me.get(1))
+//                    {
+//                        if(from_me instanceof HeroNodePattern) //BROKEN LINK!
+//                        {
+//                            BrokenLinkPattern blp = new BrokenLinkPattern(np, from_me, np);
+//                            results.add(blp);
+//                        }
+//                    }
+//                }
+//
+//                if(np.connected_patterns_from_me.containsKey(2))
+//                {
+//                    for(NarrativePattern from_me : np.connected_patterns_from_me.get(2))
+//                    {
+//                        if(from_me instanceof HeroNodePattern) //BROKEN LINK!
+//                        {
+//                            BrokenLinkPattern blp = new BrokenLinkPattern(np, from_me, np);
+//                            results.add(blp);
+//                        }
+//                    }
+//                }
+//            }
+            if(np instanceof StructureNodePattern)
             {
                 if(np.connected_patterns_from_me.containsKey(0))
                 {
