@@ -23,6 +23,7 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
+import game.AlgorithmSetup;
 import org.apache.commons.io.FileUtils;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -72,7 +73,7 @@ public class MAPEliteAlgorithm extends Algorithm implements Listener {
 	int cellAmounts = 1;
 	private ArrayList<GADimension> MAPElitesDimensions;
 	private Random rnd = new Random();
-	private int iterationsToPublish = 50;
+	private int iterationsToPublish = 50; //CHANGED FOR TESTING
 	private int breedingGenerations = 5; //this relates to how many generations will it breed 
 	private int realCurrentGen = 0;
 	private int currentGen = 0;
@@ -167,12 +168,13 @@ public class MAPEliteAlgorithm extends Algorithm implements Listener {
 		
 		populationSize = 1000;
 		feasibleAmount = 750;
+		this.config = room.getCalculatedConfig();
 		
 		//initialize the data storage variables
 		uniqueRoomsData = new StringBuilder();
 		uniqueRoomsSinceData = new StringBuilder();
-		uniqueRoomsData.append("Leniency;Linearity;Similarity;NMesoPatterns;NSpatialPatterns;Symmetry;Inner Similarity;Fitness;Score;DIM X;DIM Y;STEP;Gen;Type" + System.lineSeparator());
-		uniqueRoomsSinceData.append("Leniency;Linearity;Similarity;NMesoPatterns;NSpatialPatterns;Symmetry;Inner Similarity;Fitness;Score;DIM X;DIM Y;STEP;Gen;Type" + System.lineSeparator());
+		uniqueRoomsData.append("Leniency;Linearity;Similarity;NMesoPatterns;NSpatialPatterns;Symmetry;Inner Similarity;Fitness;Score;DIM X;DIM Y;STEP;Gen;Type;Room" + System.lineSeparator());
+		uniqueRoomsSinceData.append("Leniency;Linearity;Similarity;NMesoPatterns;NSpatialPatterns;Symmetry;Inner Similarity;Fitness;Score;DIM X;DIM Y;STEP;Gen;Type;Room" + System.lineSeparator());
 
 		//TODO: THIS IS CREISI!mutate
 //		System.out.println(mutationProbability);
@@ -359,24 +361,53 @@ public class MAPEliteAlgorithm extends Algorithm implements Listener {
 		else if(e instanceof RoomEdited)
 		{
 			originalRoom = (Room) e.getPayload();
+			this.roomWidth = originalRoom.getColCount();
+			this.roomHeight = originalRoom.getRowCount();
+			this.roomDoorPositions = originalRoom.getDoors();
+			this.roomOwner = originalRoom.owner;
+
+			//TODO: CHECK TO ENABLE ADAPTATION AGAIN!
+			if(AlgorithmSetup.getInstance().isAdaptive())
+			{
+				//Only if we are adapting!
+				this.relativeRoom = new Room(originalRoom);
+
+				this.config = relativeRoom.getCalculatedConfig();
+				roomTarget = config.getRoomProportion();
+				corridorTarget = config.getCorridorProportion();
+				this.roomCustomTiles = relativeRoom.customTiles;
+				room_changed = true;
+				UpdateConfigFile();
+			}
+
+//
+//
+//
+//			if(AlgorithmSetup.getInstance().isAdaptive())
+//			{
+//				originalRoom = (Room) e.getPayload();
+//				UpdateConfigFile();
+//			}
 		}
 	}
-	
-	
-	
 	
 	//FIXME: this is called in the loop when X amount of generations have pass. It should be called by event!
 	//FIXME: The problem is that because the original map is by reference, it gets "updated" as the reference have changed
 	public void UpdateConfigFile()
 	{
-		this.config = originalRoom.getCalculatedConfig();
+		this.config = relativeRoom.getCalculatedConfig();
 		populationSize = config.getPopulationSize();
 		mutationProbability = (float)config.getMutationProbability();
 		offspringSize = (float)config.getOffspringSize();
 		feasibleAmount = (int)((double)populationSize * config.getFeasibleProportion());
+
+		//Check these three - maybe they shouldn't change!
 		roomTarget = config.getRoomProportion();
 		corridorTarget = config.getCorridorProportion();
+
+		//This one is fine!
 		originalRoom.SetDimensionValues(MAPElitesDimensions);
+		relativeRoom.SetDimensionValues(MAPElitesDimensions);
 		
 		//Extra
 		for(GACell cell : cells)
@@ -568,7 +599,8 @@ public class MAPEliteAlgorithm extends Algorithm implements Listener {
     private void saveRunNoInterbreedingApplElites()
     {
     	//Comment or uncomment to store unique rooms every generation (based on what is generated before)
-    	storeUniqueRooms();
+//    	storeUniqueRooms();
+    	storeAnyRooms();
     	
     	//If we have receive the event that the dimensions changed, please modify the dimensions and recalculate the cells!
     	if(dimensionsChanged)
@@ -611,7 +643,7 @@ public class MAPEliteAlgorithm extends Algorithm implements Listener {
 		
 		CheckAndAssignToCell(feasibleChildren, false);
 		CheckAndAssignToCell(infeasibleChildren, true);
-		
+
     	//Now we sort both populations in a given cell and cut through capacity!!!
     	for(GACell cell : cells)
 		{
@@ -799,7 +831,7 @@ public class MAPEliteAlgorithm extends Algorithm implements Listener {
 		MAPECollector.getInstance().SaveGeneration(realCurrentGen, MAPElitesDimensions, cells, false); //store the cells in memory
 		
 		//This should be in a call when the ping happens! --> FIXME!!
-		UpdateConfigFile();
+//		UpdateConfigFile();
 
 		List<ZoneIndividual> feasibleChildren = new ArrayList<ZoneIndividual>();
 		List<ZoneIndividual> nonFeasibleChildren = new ArrayList<ZoneIndividual>();
@@ -816,16 +848,21 @@ public class MAPEliteAlgorithm extends Algorithm implements Listener {
 		}
 		
 		//We add a untouched copy of the currently edited room into the population (with the hope that it will be incorporated as an elite)
-		ZoneIndividual ind = new ZoneIndividual(originalRoom, mutationProbability);
-		ind.SetDimensionValues(MAPElitesDimensions, this.originalRoom);
-		 if(checkZoneIndividual(ind))
-		 {
-			 feasibleChildren.add(ind);
-		 }
-		 else
-		 {
-			 nonFeasibleChildren.add(ind);
-		 }
+		//This is only relevant if we have adaptability
+		if(AlgorithmSetup.getInstance().isAdaptive())
+		{
+			ZoneIndividual ind = new ZoneIndividual(this.relativeRoom, mutationProbability);
+			ind.SetDimensionValues(MAPElitesDimensions, this.relativeRoom);
+			if(checkZoneIndividual(ind))
+			{
+				feasibleChildren.add(ind);
+			}
+			else
+			{
+				nonFeasibleChildren.add(ind);
+			}
+		}
+
 
 		 //Check and assign the cells!
 		CheckAndAssignToCell(feasibleChildren, false);
@@ -998,44 +1035,44 @@ public class MAPEliteAlgorithm extends Algorithm implements Listener {
         	
         	cellIndex++;
 		}
-        
+
+//        TEMPORARILY REMOVED FOR TESTING
 		EventRouter.getInstance().postEvent(ev);
 	}
 	
 	protected void CheckAndAssignToCell(List<ZoneIndividual> individuals, boolean infeasible)
 	{
 		 for (ZoneIndividual individual : individuals)
-	        {
-			 
-	        	if(infeasible)
-	        		individual.setChildOfInfeasibles(true);
-	        	
-	            if(checkZoneIndividual(individual))
-	            {
-	            	if(infeasible)
-	            		infeasiblesMoved++;
-	            	               
-	                individual.SetDimensionValues(MAPElitesDimensions, this.originalRoom);
-	                evaluateFeasibleZoneIndividual(individual);
-	                
-					for(GACell cell : cells)
-					{
-						if(cell.BelongToCell(individual, true))
-							break;
-					}
-	            }
-	            else
-	            {
-					individual.SetDimensionValues(MAPElitesDimensions, this.originalRoom);
-					evaluateInfeasibleZoneIndividual(individual);
-					
-					for(GACell cell : cells)
-					{
-						if(cell.BelongToCell(individual, false))
-							break;
-					}
-	            }
-	        }
+		{
+			if(infeasible)
+				individual.setChildOfInfeasibles(true);
+
+			if(checkZoneIndividual(individual))
+			{
+				if(infeasible)
+					infeasiblesMoved++;
+
+				individual.SetDimensionValues(MAPElitesDimensions, this.relativeRoom);
+				evaluateFeasibleZoneIndividual(individual);
+
+				for(GACell cell : cells)
+				{
+					if(cell.BelongToCell(individual, true))
+						break;
+				}
+			}
+			else
+			{
+				individual.SetDimensionValues(MAPElitesDimensions, this.relativeRoom);
+				evaluateInfeasibleZoneIndividual(individual);
+
+				for(GACell cell : cells)
+				{
+					if(cell.BelongToCell(individual, false))
+						break;
+				}
+			}
+		}
 	}
 	
 	//Selects which cell to pick parents (Rnd)
@@ -1154,7 +1191,9 @@ public class MAPEliteAlgorithm extends Algorithm implements Listener {
 		    uniqueRoomsData.append(dimensions[1].getDimension() + ";");
 		    uniqueRoomsData.append(currentSaveStep + ";");
 		    uniqueRoomsData.append(entry.getValue()[1] + ";");
-		    uniqueRoomsData.append("GR" + System.lineSeparator()); //TYPE	    
+//		    uniqueRoomsData.append("GR" + System.lineSeparator()); //TYPE
+			uniqueRoomsData.append("GR" + ";"); //TYPE
+			uniqueRoomsData.append(currentRoom.matrixToStringContinuous(false) + System.lineSeparator()); //ROOM
 		}
 		
 
@@ -1170,6 +1209,24 @@ public class MAPEliteAlgorithm extends Algorithm implements Listener {
 		uniqueGeneratedRoomsFlush.clear();
 		uniqueRoomsData = new StringBuilder();
 //		IO.saveFile(FileName, data.getSaveString(), true);
+	}
+
+	protected void storeAnyRooms() //Only feasible
+	{
+		for(GACell cell : cells) {
+			for (ZoneIndividual ind : cell.GetFeasiblePopulation()) {
+				Room individualRoom = ind.getPhenotype().getMap(roomWidth, roomHeight, roomDoorPositions, roomCustomTiles, roomOwner);
+				Room copy = individualRoom;
+				copy.calculateAllDimensionalValues();
+				copy.setSpeficidDimensionValue(DimensionTypes.SIMILARITY,
+						SimilarityGADimension.calculateValueIndependently(copy, originalRoom));
+				copy.setSpeficidDimensionValue(DimensionTypes.INNER_SIMILARITY,
+						CharacteristicSimilarityGADimension.calculateValueIndependently(copy, originalRoom));
+//			uniqueGeneratedRooms.put(copy, new Double[] {ind.getFitness(), Double.valueOf(realCurrentGen)});
+				uniqueGeneratedRoomsFlush.put(copy, new Double[]{ind.getFitness(), Double.valueOf(realCurrentGen)});
+//				uniqueGeneratedRoomsFlush.put(copy, ind.getFitness());
+			}
+		}
 	}
 
 	

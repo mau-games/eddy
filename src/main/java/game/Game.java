@@ -9,6 +9,7 @@ import generator.algorithm.Algorithm.AlgorithmTypes;
 import generator.algorithm.MAPElites.MAPEliteAlgorithm;
 import generator.algorithm.MAPElites.Dimensions.MAPEDimensionFXML;
 import generator.config.GeneratorConfig;
+import javafx.scene.input.DataFormat;
 import util.Point;
 import util.Util;
 import util.config.ConfigurationUtility;
@@ -42,19 +43,14 @@ public class Game implements Listener{
 	public static int defaultWidth = 13;
 	public static int defaultHeight = 7;
 //	public static int defaultMaxDoors = 4;
-	
 
-    public enum MapMutationType {
+	public static final DataFormat SERIALIZED_MIME_TYPE = new DataFormat("application/x-java-serialized-object");
+
+
+	public enum MapMutationType {
     	Preserving,
     	OriginalConfig,
     	ComputedConfig
-    }
-    
-    public enum PossibleGAs
-    {
-    	FI_2POP,
-    	MAP_ELITES,
-    	CVT_MAP_ELITES
     }
 
 	public Game() {

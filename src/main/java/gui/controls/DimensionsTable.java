@@ -1,5 +1,6 @@
 package gui.controls;
 
+import game.Game;
 import generator.algorithm.MAPElites.Dimensions.MAPEDimensionFXML;
 import generator.algorithm.MAPElites.Dimensions.GADimension.DimensionTypes;
 import javafx.beans.Observable;
@@ -25,7 +26,6 @@ import util.eventrouting.events.SuggestedMapsLoading;
 public class DimensionsTable extends TableView<MAPEDimensionFXML>
 {
 	public int maxSize = 0;
-	private static final DataFormat SERIALIZED_MIME_TYPE = new DataFormat("application/x-java-serialized-object");
 	
 	public DimensionsTable()
 	{
@@ -110,7 +110,7 @@ public class DimensionsTable extends TableView<MAPEDimensionFXML>
 	{
 		this.setOnDragOver(event -> {
             Dragboard db = event.getDragboard();
-            if (db.hasContent(SERIALIZED_MIME_TYPE)) 
+            if (db.hasContent(Game.SERIALIZED_MIME_TYPE))
             {
             	event.acceptTransferModes(TransferMode.COPY_OR_MOVE);
                 event.consume();
@@ -119,8 +119,8 @@ public class DimensionsTable extends TableView<MAPEDimensionFXML>
 
 		this.setOnDragDropped(event -> {
             Dragboard db = event.getDragboard();
-            if (db.hasContent(SERIALIZED_MIME_TYPE)) {
-                int draggedIndex = (Integer) db.getContent(SERIALIZED_MIME_TYPE);
+            if (db.hasContent(Game.SERIALIZED_MIME_TYPE)) {
+                int draggedIndex = (Integer) db.getContent(Game.SERIALIZED_MIME_TYPE);
 
                 TableRow<MAPEDimensionFXML> tr = (TableRow<MAPEDimensionFXML>)event.getGestureSource();
                
@@ -159,7 +159,7 @@ public class DimensionsTable extends TableView<MAPEDimensionFXML>
                     Dragboard db = row.startDragAndDrop(TransferMode.MOVE);
                     db.setDragView(row.snapshot(null, null));
                     ClipboardContent cc = new ClipboardContent();
-                    cc.put(SERIALIZED_MIME_TYPE, index);
+                    cc.put(Game.SERIALIZED_MIME_TYPE, index);
                     db.setContent(cc);
                     event.consume();
                 }
@@ -167,8 +167,8 @@ public class DimensionsTable extends TableView<MAPEDimensionFXML>
 
             row.setOnDragOver(event -> {
                 Dragboard db = event.getDragboard();
-                if (db.hasContent(SERIALIZED_MIME_TYPE)) {
-                    if (row.getIndex() != ((Integer)db.getContent(SERIALIZED_MIME_TYPE)).intValue()) {
+                if (db.hasContent(Game.SERIALIZED_MIME_TYPE)) {
+                    if (row.getIndex() != ((Integer)db.getContent(Game.SERIALIZED_MIME_TYPE)).intValue()) {
                         event.acceptTransferModes(TransferMode.COPY_OR_MOVE);
                         event.consume();
                     }
@@ -177,8 +177,8 @@ public class DimensionsTable extends TableView<MAPEDimensionFXML>
 
             row.setOnDragDropped(event -> {
                 Dragboard db = event.getDragboard();
-                if (db.hasContent(SERIALIZED_MIME_TYPE)) {
-                    int draggedIndex = (Integer) db.getContent(SERIALIZED_MIME_TYPE);
+                if (db.hasContent(Game.SERIALIZED_MIME_TYPE)) {
+                    int draggedIndex = (Integer) db.getContent(Game.SERIALIZED_MIME_TYPE);
                     TableRow<MAPEDimensionFXML> tr = (TableRow<MAPEDimensionFXML>)event.getGestureSource();
                     MAPEDimensionFXML draggedDimension = (MAPEDimensionFXML) tr.tableViewProperty().get().getItems().remove(draggedIndex);
 

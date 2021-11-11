@@ -26,19 +26,23 @@ import game.Room;
 import game.RoomEdge;
 import game.MapContainer;
 import game.TileTypes;
+import game.narrative.GrammarGraph;
+import game.narrative.GrammarNode;
+import game.narrative.NarrativeShapeEdge;
+import game.narrative.TVTropeType;
 import generator.config.GeneratorConfig;
 import gui.utils.InformativePopupManager;
 import gui.utils.MapRenderer;
-import gui.views.LaunchViewController;
-import gui.views.RoomViewController;
-import gui.views.SuggestionsViewController;
-import gui.views.WorldViewController;
+import gui.utils.narrativeeditor.NarrativeStructDrawer;
+import gui.views.*;
 import javafx.application.Platform;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.geometry.Bounds;
+import javafx.geometry.Point2D;
 import javafx.scene.ImageCursor;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
@@ -58,34 +62,9 @@ import util.config.MissingConfigurationException;
 import util.eventrouting.EventRouter;
 import util.eventrouting.Listener;
 import util.eventrouting.PCGEvent;
-import util.eventrouting.events.AlgorithmDone;
-import util.eventrouting.events.ApplySuggestion;
-import util.eventrouting.events.ChangeCursor;
-import util.eventrouting.events.InitialRoom;
-import util.eventrouting.events.MapLoaded;
-import util.eventrouting.events.RequestAppliedMap;
-import util.eventrouting.events.RequestConnection;
-import util.eventrouting.events.RequestConnectionRemoval;
-import util.eventrouting.events.RequestEmptyRoom;
-import util.eventrouting.events.RequestNewRoom;
-import util.eventrouting.events.RequestPathFinding;
-import util.eventrouting.events.RequestRoomRemoval;
-import util.eventrouting.events.RequestRedraw;
-import util.eventrouting.events.RequestRoomView;
-import util.eventrouting.events.RequestSuggestionsView;
-import util.eventrouting.events.RequestWorldView;
-import util.eventrouting.events.Start;
-import util.eventrouting.events.StartWorld;
-import util.eventrouting.events.StatusMessage;
-import util.eventrouting.events.Stop;
-import util.eventrouting.events.SuggestedMapsDone;
-import util.eventrouting.events.SuggestedMapsLoading;
-import util.eventrouting.events.UpdateMiniMap;
+import util.eventrouting.events.*;
 
-/*
- * @author Chelsi Nolasco, Malmö University
- * @author Axel Österman, Malmö University
- */
+
 
 //Definetely I agree that this class can be the one "controlling" all the views and have in any moment the most updated version of
 //the dungeon. But it is simply doing too much at the moment, It should "create" the dungeon but if another room wants to be incorporated
@@ -111,6 +90,7 @@ public class InteractiveGUIController implements Initializable, Listener {
 	RoomViewController roomView = null;
 	WorldViewController worldView = null;
 	LaunchViewController launchView = null;
+	NarrativeStructureViewController narrativeView = null;
 	EventHandler<MouseEvent> mouseEventHandler = null;
 
 //	final static Logger logger = LoggerFactory.getLogger(InteractiveGUIController.class);
@@ -134,6 +114,8 @@ public class InteractiveGUIController implements Initializable, Listener {
 	
 	//NEW
 	private Dungeon dungeonMap = new Dungeon();
+
+	private GrammarGraph graph;
 	
 	public static UUID runID;
 	
@@ -163,17 +145,26 @@ public class InteractiveGUIController implements Initializable, Listener {
 		router.registerListener(this, new RequestRoomRemoval(null, null, 0));
 		router.registerListener(this, new RequestConnectionRemoval(null, null, 0));
 		router.registerListener(this, new StartWorld(0));
+		router.registerListener(this, new RequestNarrativeView());
+		router.registerListener(this, new RequestNewGrammarStructureNode(null, -1, -1));
+		router.registerListener(this, new RequestGrammarStructureNodeRemoval(null));
+		router.registerListener(this, new RequestConnectionGrammarStructureGraph(null, null, 0));
+		router.registerListener(this, new RequestGrammarNodeConnectionRemoval(null));
+		router.registerListener(this, new NarrativeSuggestionApplied(null));
+		router.registerListener(this, new RequestReplacementGrammarStructureNode(null, null));
+
 
 		suggestionsView = new SuggestionsViewController();
 		roomView = new RoomViewController();
 		worldView = new WorldViewController();
 		launchView = new LaunchViewController();
+		narrativeView = new NarrativeStructureViewController();
+		initializeGraphGrammar();
 
 		mainPane.sceneProperty().addListener((observableScene, oldScene, newScene) -> {
 			if (newScene != null) {
 				stage = (Stage) newScene.getWindow();
 			}
-
 		});
 
 		runID = UUID.randomUUID();
@@ -196,6 +187,99 @@ public class InteractiveGUIController implements Initializable, Listener {
 		InformativePopupManager.getInstance().setMainPane(mainPane);
 //		mainPane.getChildren().add(new Popup(200,200));
 		initLaunchView();
+
+	}
+
+	private void initializeGraphGrammar()
+	{
+		graph = new GrammarGraph();
+
+		GrammarNode hero = new GrammarNode(0, TVTropeType.HERO);
+		GrammarNode conflict = new GrammarNode(1, TVTropeType.CONFLICT);
+		GrammarNode enemy = new GrammarNode(2, TVTropeType.ENEMY);
+
+		hero.addConnection(conflict, 1);
+		conflict.addConnection(enemy, 1);
+
+		graph.nodes.add(hero);
+		graph.nodes.add(conflict);
+		graph.nodes.add(enemy);
+
+		//Mario
+//		graph = new GrammarGraph();
+//
+//		GrammarNode mario = graph.addNode(TVTropeType.HERO);
+//		GrammarNode conf = graph.addNode(TVTropeType.CONFLICT);
+//		GrammarNode empire = graph.addNode(TVTropeType.EMP);
+//		GrammarNode fake_bowser = graph.addNode(TVTropeType.DRA);
+//		GrammarNode bowser = graph.addNode(TVTropeType.BAD);
+//		GrammarNode quest_item = graph.addNode(TVTropeType.MCG);
+//		GrammarNode peach = graph.addNode(TVTropeType.HERO);
+//
+//		mario.addConnection(conf, 1);
+//		mario.addConnection(quest_item, 1);
+//		conf.addConnection(empire, 1);
+//
+//		empire.addConnection(fake_bowser, 0);
+//		fake_bowser.addConnection(bowser, 0);
+//		bowser.addConnection(quest_item, 0);
+//
+//		quest_item.addConnection(peach, 1);
+
+		//ZELDA temple
+//		graph = new GrammarGraph();
+//
+//		GrammarNode link = graph.addNode(TVTropeType.HERO);
+//		GrammarNode conf = graph.addNode(TVTropeType.CONFLICT);
+//		GrammarNode generic_en = graph.addNode(TVTropeType.ENEMY);
+////		GrammarNode drake = graph.addNode(TVTropeType.DRA);
+//		GrammarNode bow = graph.addNode(TVTropeType.MHQ);
+//		GrammarNode boss = graph.addNode(TVTropeType.BAD);
+//		GrammarNode quest_item = graph.addNode(TVTropeType.MCG);
+//		GrammarNode elder = graph.addNode(TVTropeType.HERO);
+//		GrammarNode extra_item = graph.addNode(TVTropeType.MHQ);
+//
+//		link.addConnection(conf, 1);
+//		link.addConnection(quest_item, 1);
+//		conf.addConnection(generic_en, 1);
+//
+//		generic_en.addConnection(bow, 0);
+////		drake.addConnection(bow, 0);
+//		bow.addConnection(boss, 0);
+//		boss.addConnection(quest_item, 0);
+//		quest_item.addConnection(elder, 1);
+//		elder.addConnection(extra_item, 0);
+//
+//		extra_item.addConnection(link, 1);
+//
+//		graph.pattern_finder.findNarrativePatterns(null);
+
+		//ZELDA OCARINA OF TIME
+//		graph = new GrammarGraph();
+//
+//		GrammarNode y_link = graph.addNode(TVTropeType.HERO);
+//		GrammarNode triforce = graph.addNode(TVTropeType.MCG);
+//		GrammarNode a_link = graph.addNode(TVTropeType.NEO);
+//		GrammarNode gannon = graph.addNode(TVTropeType.BAD);
+//		GrammarNode bad_conf = graph.addNode(TVTropeType.CONFLICT);
+//		GrammarNode zelda = graph.addNode(TVTropeType.HERO);
+//		GrammarNode sheik = graph.addNode(TVTropeType.SH);
+//		GrammarNode good_conf = graph.addNode(TVTropeType.CONFLICT);
+//
+//		y_link.addConnection(triforce, 1);
+//		triforce.addConnection(a_link, 1);
+//
+//		gannon.addConnection(bad_conf, 1);
+//		bad_conf.addConnection(a_link, 1);
+//		bad_conf.addConnection(zelda, 1);
+//
+//		zelda.addConnection(sheik, 1);
+//
+//		a_link.addConnection(good_conf, 1);
+//		sheik.addConnection(good_conf, 1);
+//		good_conf.addConnection(gannon, 1);
+
+		graph.pattern_finder.findNarrativePatterns(null);
 
 	}
 
@@ -287,8 +371,86 @@ public class InteractiveGUIController implements Initializable, Listener {
 				//TODO: Here you should check for which dungeon
 				dungeonMap.removeEdge(edge);
 				backToWorldView();
-		 }
+		 } //FOR NARRATIVE STUFF!
+		 else if(e instanceof RequestNarrativeView)
+		{
+			if(narrativeView == null)
+			{
+				narrativeView = new NarrativeStructureViewController();
+//				initNarrativeView();
+			}
 
+			initNarrativeView();
+		}
+		 else if(e instanceof RequestNewGrammarStructureNode)
+		{
+			GrammarNode created_node = graph.addNode((TVTropeType) e.getPayload());
+
+//			created_node.getNarrativeShape().relocate(
+//					((RequestNewGrammarStructureNode) e).x_pos,
+//					((RequestNewGrammarStructureNode) e).y_pos);
+
+			graph.nPane.renderAll();
+
+			//Transform the positions to the local coordinates of the node!!! Fan, cannot believe I spent 2 hours on this...
+			Point2D local_translation_point = created_node.getNarrativeShape().screenToLocal(((RequestNewGrammarStructureNode) e).x_pos, ((RequestNewGrammarStructureNode) e).y_pos);
+			created_node.getNarrativeShape().setTranslateX(local_translation_point.getX());
+			created_node.getNarrativeShape().setTranslateY(local_translation_point.getY());
+
+			if(graph.fullyConnectedGraph() == 0)
+				router.postEvent(new NarrativeStructEdited(graph, false));
+		}
+		 else if(e instanceof RequestGrammarStructureNodeRemoval)
+		{
+			graph.removeNode((GrammarNode) e.getPayload());
+			graph.nPane.renderAll();
+
+			if(graph.fullyConnectedGraph() == 0)
+				router.postEvent(new NarrativeStructEdited(graph, false));
+		}
+		 else if(e instanceof RequestConnectionGrammarStructureGraph)
+		{
+			((RequestConnectionGrammarStructureGraph) e).from.addConnection(
+					((RequestConnectionGrammarStructureGraph) e).to,
+					((RequestConnectionGrammarStructureGraph) e).connection_type);
+
+			graph.nPane.renderAll();
+
+			NarrativeStructDrawer.getInstance().done();
+
+			if(graph.fullyConnectedGraph() == 0)
+				router.postEvent(new NarrativeStructEdited(graph, false));
+		}
+		else if(e instanceof RequestGrammarNodeConnectionRemoval)
+		{
+			//I Think that this one will actually remove everything
+			((NarrativeShapeEdge) e.getPayload()).from.owner.removeConnection(((NarrativeShapeEdge) e.getPayload()).to.owner, true);
+			graph.nPane.renderAll();
+
+			if(graph.fullyConnectedGraph() == 0)
+				router.postEvent(new NarrativeStructEdited(graph, false));
+
+		}
+		else if(e instanceof NarrativeSuggestionApplied)
+		{
+			//Replace the graph entirely!
+			graph = new GrammarGraph((GrammarGraph) e.getPayload());
+			graph.pattern_finder.findNarrativePatterns(null);
+			graph.nPane.renderAll();
+
+			if(graph.fullyConnectedGraph() == 0)
+				router.postEvent(new NarrativeStructEdited(graph, true));
+		}
+		else if(e instanceof RequestReplacementGrammarStructureNode)
+		{
+			int node_index = graph.getNodeIndex(((RequestReplacementGrammarStructureNode) e).to_replace);
+			graph.nodes.get(node_index).setGrammarNodeType(((RequestReplacementGrammarStructureNode) e).trope_type);
+			graph.nodes.get(node_index).clearGraphics();
+			graph.nPane.renderAll();
+
+			if(graph.fullyConnectedGraph() == 0)
+				router.postEvent(new NarrativeStructEdited(graph, false));
+		}
 	}
 
 	/*
@@ -448,6 +610,8 @@ public class InteractiveGUIController implements Initializable, Listener {
 		roomView.setActive(false);
 		worldView.setActive(false);
 		launchView.setActive(false);
+		narrativeView.setActive(false);
+
 
 
 		suggestionsView.initialise(room);
@@ -475,6 +639,8 @@ public class InteractiveGUIController implements Initializable, Listener {
 		roomView.setActive(false);
 		worldView.setActive(true);
 		launchView.setActive(false);
+		narrativeView.setActive(false);
+
 
 	}
 
@@ -491,7 +657,33 @@ public class InteractiveGUIController implements Initializable, Listener {
 		roomView.setActive(false);
 		worldView.setActive(false);
 		launchView.setActive(true);
+		narrativeView.setActive(false);
 
+	}
+
+	/**
+	 * Initialises the world view.
+	 */
+
+	private void initNarrativeView() {
+		mainPane.getChildren().clear();
+		AnchorPane.setTopAnchor(narrativeView, 0.0);
+		AnchorPane.setRightAnchor(narrativeView, 0.0);
+		AnchorPane.setBottomAnchor(narrativeView, 0.0);
+		AnchorPane.setLeftAnchor(narrativeView, 0.0);
+		mainPane.getChildren().add(narrativeView);
+
+		narrativeView.initNarrative(graph, dungeonMap.getSelectedRoom());
+
+//		saveItem.setDisable(false);
+//		saveAsItem.setDisable(false);
+//		exportItem.setDisable(false);
+
+		suggestionsView.setActive(false);
+		roomView.setActive(false);
+		worldView.setActive(false);
+		launchView.setActive(false);
+		narrativeView.setActive(true);
 	}
 
 
@@ -513,6 +705,7 @@ public class InteractiveGUIController implements Initializable, Listener {
 		roomView.setActive(false);
 		worldView.setActive(true);
 		launchView.setActive(false);
+		narrativeView.setActive(false);
 
 	}
 
@@ -551,6 +744,7 @@ public class InteractiveGUIController implements Initializable, Listener {
 		roomView.setActive(true);		
 		launchView.setActive(false);
 		suggestionsView.setActive(false);
+		narrativeView.setActive(false);
 
 
 	}

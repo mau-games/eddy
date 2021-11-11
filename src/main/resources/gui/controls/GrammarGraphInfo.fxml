@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import gui.controls.LabeledCanvas?>
+
+<?import java.util.ArrayList?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.canvas.Canvas?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.control.ChoiceBox?>
+<?import javafx.scene.control.ComboBox?>
+
+
+<?import javafx.scene.text.Text?>
+<fx:root type="javafx.scene.layout.VBox"
+		 stylesheets="@../styling.css" fx:id="graphInfo"
+		 xmlns:fx="http://javafx.com/fxml/1">
+
+		<children>
+			<Text fx:id="evaluation_title" fill="WHITE" strokeType="OUTSIDE" strokeWidth="0.0" text="Evaluation" />
+			<HBox alignment="CENTER" prefHeight="100.0" prefWidth="200.0" spacing="5.0">
+				<children>
+					<Text fill="WHITE" strokeType="OUTSIDE" strokeWidth="0.0" text="Fitness:" />
+					<Text fx:id="fitnessText" fill="#5cbf51" strokeType="OUTSIDE" strokeWidth="0.0" text="Fitness" />
+				</children>
+				<padding>
+					<Insets left="3.0" right="3.0" top="3.0" />
+				</padding>
+				<VBox.margin>
+					<Insets />
+				</VBox.margin>
+			</HBox>
+			<HBox alignment="CENTER" prefHeight="100.0" prefWidth="200.0" spacing="5.0">
+				<children>
+					<Text fill="WHITE" strokeType="OUTSIDE" strokeWidth="0.0" text="Interesting Fitness:" />
+					<Text fx:id="intFitnessText" fill="#5cbf51" strokeType="OUTSIDE" strokeWidth="0.0" text="Text" />
+				</children>
+				<padding>
+					<Insets left="3.0" right="3.0" top="3.0" />
+				</padding>
+			</HBox>
+			<HBox alignment="CENTER" prefHeight="100.0" prefWidth="200.0" spacing="5.0">
+				<children>
+					<Text fill="WHITE" strokeType="OUTSIDE" strokeWidth="0.0" text="Coherence Fitness:" />
+					<Text fx:id="cohFitnessText" fill="#5cbf51" strokeType="OUTSIDE" strokeWidth="0.0" text="Text" />
+				</children>
+				<padding>
+					<Insets left="3.0" right="3.0" top="3.0" />
+				</padding>
+			</HBox>
+			<HBox alignment="CENTER" prefHeight="100.0" prefWidth="200.0" spacing="5.0">
+				<children>
+					<Text fill="WHITE" strokeType="OUTSIDE" strokeWidth="0.0" text="Bosses" />
+					<Text fx:id="bossesText" fill="#5cbf51" strokeType="OUTSIDE" strokeWidth="0.0" text="Text" />
+				</children>
+				<padding>
+					<Insets left="3.0" right="3.0" top="3.0" />
+				</padding>
+			</HBox>
+			<HBox alignment="CENTER" prefHeight="100.0" prefWidth="200.0" spacing="5.0">
+				<children>
+					<Text fill="WHITE" strokeType="OUTSIDE" strokeWidth="0.0" text="Lin" />
+					<Text fx:id="linText" fill="#5cbf51" strokeType="OUTSIDE" strokeWidth="0.0" text="Text" />
+				</children>
+				<padding>
+					<Insets left="3.0" right="3.0" top="3.0" />
+				</padding>
+			</HBox>
+			<HBox alignment="CENTER" prefHeight="100.0" prefWidth="200.0" spacing="5.0">
+				<children>
+					<Text fill="WHITE" strokeType="OUTSIDE" strokeWidth="0.0" text="Main Story Arc" />
+					<Text fx:id="storyText" fill="#5cbf51" strokeType="OUTSIDE" strokeWidth="0.0" text="Text" />
+				</children>
+				<padding>
+					<Insets left="3.0" right="3.0" top="3.0" />
+				</padding>
+			</HBox>
+		</children>
+		<padding>
+			<Insets top="10.0" />
+		</padding>
+</fx:root>

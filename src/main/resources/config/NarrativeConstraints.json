@@ -1,0 +1,96 @@
+{
+    "constraints": {
+        "patterns": {
+			"pattern_0":{
+				"counter":">="
+				"pat":{
+					"nodes":{
+						"Node_0": "CONFLICT",
+						"Node_1": "ANY",
+						"Node_2": "ANY"
+					},
+					"connections":{
+						"connection_0":{
+							"from": "0_1",
+							"type": "bidirectional"
+						},
+						"connection_1":{
+							"from": "0_2",
+							"type": "bidirectional"
+						}
+					}
+				},
+				"production_rule":{
+				}
+			},
+			"pattern_1":{
+				"counter":">="
+				"pat":{
+					"nodes":{
+						"Node_0": "HERO",
+						"Node_1": "HERO"
+					},
+					"connections":{
+						"connection_0":{
+							"from": "0_1",
+							"type": "bidirectional"
+						},
+					}
+				},
+				"production_rule":{
+				}
+			},
+			"pattern_2":{
+				"counter":">="
+				"pat":{
+					"nodes":{
+						"Node_0": "HERO",
+						"Node_1": "HERO"
+					},
+					"connections":{
+						"connection_0":{
+							"from": "0_1",
+							"type": "unidirectional"
+						},
+					}
+				},
+				"production_rule":{
+				}
+			},
+			"pattern_3":{
+				"counter":">="
+				"pat":{
+					"nodes":{
+						"Node_0": "ENEMY",
+						"Node_1": "ENEMY"
+					},
+					"connections":{
+						"connection_0":{
+							"from": "0_1",
+							"type": "unidirectional"
+						},
+					}
+				},
+				"production_rule":{
+				}
+			},
+			"pattern_4":{
+				"counter":">="
+				"pat":{
+					"nodes":{
+						"Node_0": "ENEMY",
+						"Node_1": "ENEMY"
+					},
+					"connections":{
+						"connection_0":{
+							"from": "0_1",
+							"type": "bidirectional"
+						},
+					}
+				},
+				"production_rule":{
+				}
+			},
+		}
+    }
+}

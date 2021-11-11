@@ -21,11 +21,12 @@ import util.Util;
  * Represents a member of Eddy's dungeon level population
  * TODO: Not so sold on how mutationProbability is passed around here
  * 
- * @author Alexander Baldwin, Malmö Högskola
+ * @author Alberto Alvarez, Malmö University
  *
  */
 public class ZoneIndividual {
 	private double fitness;
+	private double novelty;
 	
 	protected HashMap<DimensionTypes, Double> dimensionValues;
 	
@@ -53,7 +54,7 @@ public class ZoneIndividual {
 	public void setCorridorFitness(double corridorFitness){
 		this.corridorFitness = corridorFitness;
 	}
-	
+
 	/**
 	 * Room area NOT weighted by quality
 	 * @param roomArea
@@ -432,6 +433,15 @@ public class ZoneIndividual {
 	 */
 	public void setFitness(double fitness){
 		this.fitness = fitness;
+	}
+
+
+	public double getNovelty() {
+		return novelty;
+	}
+
+	public void setNovelty(double novelty) {
+		this.novelty = novelty;
 	}
 	
 	/**
