@@ -358,7 +358,8 @@ public class NarrativeStructureViewController extends BorderPane implements List
 
 //		RunMAPElites(core_graph);
 		//Fixme: This should happen as an event to be received by the class Game
-		AlgorithmSetup.getInstance().setSaveData(true);
+		AlgorithmSetup.getInstance().setSaveData(false);
+//		AlgorithmSetup.getInstance().setSaveData(true);
 		RunMAPElites(editedGraph, axiom_graph);
 //		RunMAPElites(editedGraph, axiom_graph);
 	}

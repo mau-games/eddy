@@ -119,7 +119,7 @@ public class GACell
 		infeasiblePopulation.forEach(ind -> {ind.setEvaluate(false); ind.ResetPhenotype(config);});
 	}
 	
-	public void SortPopulations(boolean ascending)
+	public void SortPopulations(boolean ascending) //TODO: Perhaps here we could add the novelty search part!
 	{
 		 feasiblePopulation.sort((x, y) -> (ascending ? 1 : -1) * Double.compare(x.getFitness(),y.getFitness()));
 		 infeasiblePopulation.sort((x, y) -> (ascending ? 1 : -1) * Double.compare(x.getFitness(),y.getFitness()));

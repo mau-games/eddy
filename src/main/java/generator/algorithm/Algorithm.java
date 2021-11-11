@@ -1,15 +1,15 @@
 package generator.algorithm;
 
+import java.awt.*;
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
+import java.util.*;
 import java.util.List;
-import java.util.UUID;
 import java.util.Map.Entry;
 import java.util.stream.Collectors;
 
+import collectors.MAPECollector;
+import generator.algorithm.MAPElites.GACell;
 import org.apache.commons.io.FileUtils;
 
 import finder.PatternFinder;
@@ -36,6 +36,7 @@ import generator.algorithm.MAPElites.Dimensions.SimilarityGADimension;
 import generator.algorithm.MAPElites.Dimensions.GADimension.DimensionTypes;
 import generator.config.GeneratorConfig;
 import machineLearning.PreferenceModel;
+import org.checkerframework.checker.units.qual.A;
 import util.Point;
 import util.Util;
 import util.eventrouting.EventRouter;
@@ -81,6 +82,7 @@ public class Algorithm extends Thread implements Listener {
 	protected double corridorTarget;
 
 	protected Room originalRoom = null;
+	protected Room relativeRoom = null;
 	
 	protected int infeasiblesMoved = 0;
 	protected int movedInfeasiblesKept = 0;
@@ -100,6 +102,8 @@ public class Algorithm extends Thread implements Listener {
 	private int realCurrentGen = 0;
 	private int currentGen = 0;
 	protected int iter_generations = 5000;
+
+	public boolean room_changed = false;
 	
 	
 //	ArrayList<Room> uniqueGeneratedRooms = new ArrayList<Room>();
@@ -117,6 +121,13 @@ public class Algorithm extends Thread implements Listener {
 	protected PreferenceModel userPreferences; //TODO: PROBABLY THIS WILL BE REPLACED for a class to calculate fitness in different manners!
 	
 	protected boolean save_data = false;
+
+
+	//For novelty search:
+	ArrayList<ZoneIndividual> novelty_archive = new ArrayList<ZoneIndividual>();
+	private int l = 5;
+
+
 
 	public enum AlgorithmTypes //TODO: This needs to change
 	{
@@ -141,20 +152,31 @@ public class Algorithm extends Thread implements Listener {
 		
 		//Set info of the original room
 		this.originalRoom = room;
-		this.roomWidth = originalRoom.getColCount();
-		this.roomHeight = originalRoom.getRowCount();
-		this.roomDoorPositions = originalRoom.getDoors();
-		this.roomCustomTiles = originalRoom.customTiles;
+		this.relativeRoom = new Room(room);
+
+		this.roomWidth = relativeRoom.getColCount();
+		this.roomHeight = relativeRoom.getRowCount();
+		this.roomDoorPositions = relativeRoom.getDoors();
 		this.roomOwner = originalRoom.owner;
-		
+
+
 		this.config = config;
 		id = UUID.randomUUID();
 		populationSize = config.getPopulationSize();
 		mutationProbability = (float)config.getMutationProbability();
 		offspringSize = (float)config.getOffspringSize();
 		feasibleAmount = (int)((double)populationSize * config.getFeasibleProportion());
-		roomTarget = config.getRoomProportion();
-		corridorTarget = config.getCorridorProportion();
+
+		if(AlgorithmSetup.getInstance().isAdaptive()) {
+			roomTarget = config.getRoomProportion();
+			corridorTarget = config.getCorridorProportion();
+			this.roomCustomTiles = relativeRoom.customTiles;
+		}
+		else
+		{
+			roomTarget = 0.5;
+			corridorTarget = 0.5;
+		}
 
 		this.save_data = AlgorithmSetup.getInstance().getSaveData();
 		this.iter_generations = AlgorithmSetup.getInstance().getITER_GENERATIONS();
@@ -168,10 +190,11 @@ public class Algorithm extends Thread implements Listener {
 	{
 		//Set info of the original room
 		this.originalRoom = room;
-		this.roomWidth = originalRoom.getColCount();
-		this.roomHeight = originalRoom.getRowCount();
-		this.roomDoorPositions = originalRoom.getDoors();
-		this.roomCustomTiles = originalRoom.customTiles;
+		this.relativeRoom = new Room(room);
+
+		this.roomWidth = relativeRoom.getColCount();
+		this.roomHeight = relativeRoom.getRowCount();
+		this.roomDoorPositions = relativeRoom.getDoors();
 		this.roomOwner = originalRoom.owner;
 		
 		this.config = config;
@@ -187,8 +210,17 @@ public class Algorithm extends Thread implements Listener {
 		mutationProbability = (float)config.getMutationProbability();
 		offspringSize = (float)config.getOffspringSize();
 		feasibleAmount = (int)((double)populationSize * config.getFeasibleProportion());
-		roomTarget = config.getRoomProportion();
-		corridorTarget = config.getCorridorProportion();
+
+		if(AlgorithmSetup.getInstance().isAdaptive()) {
+			roomTarget = config.getRoomProportion();
+			corridorTarget = config.getCorridorProportion();
+			this.roomCustomTiles = relativeRoom.customTiles;
+		}
+		else
+		{
+			roomTarget = 0.5;
+			corridorTarget = 0.5;
+		}
 
 		this.save_data = AlgorithmSetup.getInstance().getSaveData();
 		this.iter_generations = AlgorithmSetup.getInstance().getITER_GENERATIONS();
@@ -205,14 +237,16 @@ public class Algorithm extends Thread implements Listener {
 	 */
 	public Algorithm(Room room, AlgorithmTypes algorithmTypes) //THIS IS CALLED WHEN WE WANT TO PRESERVE THE ROOM 
 	{
+		//Set info of the original room
 		this.originalRoom = room;
-		this.roomWidth = originalRoom.getColCount();
-		this.roomHeight = originalRoom.getRowCount();
-		this.roomDoorPositions = originalRoom.getDoors();
-		this.roomCustomTiles = originalRoom.customTiles;
+		this.relativeRoom = new Room(room);
+
+		this.roomWidth = relativeRoom.getColCount();
+		this.roomHeight = relativeRoom.getRowCount();
+		this.roomDoorPositions = relativeRoom.getDoors();
 		this.roomOwner = originalRoom.owner;
-		
-		this.config = room.getCalculatedConfig();
+		this.config = relativeRoom.getCalculatedConfig();
+
 		this.algorithmTypes = algorithmTypes;
 		room.setConfig(this.config);
 		id = UUID.randomUUID();
@@ -222,8 +256,17 @@ public class Algorithm extends Thread implements Listener {
 		offspringSize = (float)config.getOffspringSize();
 //		feasibleAmount = (int)((double)populationSize * config.getFeasibleProportion());
 		feasibleAmount = 625; //Setting same as experiments
-		roomTarget = config.getRoomProportion();
-		corridorTarget = config.getCorridorProportion();
+
+		if(AlgorithmSetup.getInstance().isAdaptive()) {
+			roomTarget = config.getRoomProportion();
+			corridorTarget = config.getCorridorProportion();
+			this.roomCustomTiles = relativeRoom.customTiles;
+		}
+		else
+		{
+			roomTarget = 0.5;
+			corridorTarget = 0.5;
+		}
 		
 		this.save_data = AlgorithmSetup.getInstance().getSaveData();
 		this.iter_generations = AlgorithmSetup.getInstance().getITER_GENERATIONS();
@@ -258,7 +301,17 @@ public class Algorithm extends Thread implements Listener {
         ev.setID(id);
 		EventRouter.getInstance().postEvent(ev);
 	}
-	
+
+	private void publishGeneration()
+	{
+		this.sortPopulation(feasiblePopulation, false, false);
+//		feasiblePopulation.sort((x, y) -> (-1) * Double.compare(x.getFitness(),y.getFitness()));
+		broadcastMapUpdate(feasiblePopulation.get(0).getPhenotype().getMap(
+				roomWidth, roomHeight, roomDoorPositions, roomCustomTiles, roomOwner));
+
+		//"restart" current gen!
+		currentGen = 0;
+	}
 	
 
 	public void initPopulations(Room room){
@@ -278,8 +331,8 @@ public class Algorithm extends Thread implements Listener {
 		//initialize the data storage variables
 		uniqueRoomsData = new StringBuilder();
 		uniqueRoomsSinceData = new StringBuilder();
-		uniqueRoomsData.append("Leniency;Linearity;Similarity;NMesoPatterns;NSpatialPatterns;Symmetry;Inner Similarity;Fitness;Score;DIM X;DIM Y;STEP;Gen;Type" + System.lineSeparator());
-		uniqueRoomsSinceData.append("Leniency;Linearity;Similarity;NMesoPatterns;NSpatialPatterns;Symmetry;Inner Similarity;Fitness;Score;DIM X;DIM Y;STEP;Gen;Type" + System.lineSeparator());
+		uniqueRoomsData.append("Leniency;Linearity;Similarity;NMesoPatterns;NSpatialPatterns;Symmetry;Inner Similarity;Fitness;Score;DIM X;DIM Y;STEP;Gen;Type;Room" + System.lineSeparator());
+		uniqueRoomsSinceData.append("Leniency;Linearity;Similarity;NMesoPatterns;NSpatialPatterns;Symmetry;Inner Similarity;Fitness;Score;DIM X;DIM Y;STEP;Gen;Type;Room" + System.lineSeparator());
 
 		int i = 0;
 		int j = 0;
@@ -361,6 +414,23 @@ public class Algorithm extends Thread implements Listener {
 		else if(e instanceof RoomEdited)
 		{
 			originalRoom = (Room) e.getPayload();
+			this.roomWidth = originalRoom.getColCount();
+			this.roomHeight = originalRoom.getRowCount();
+			this.roomDoorPositions = originalRoom.getDoors();
+			this.roomOwner = originalRoom.owner;
+
+			//TODO: CHECK TO ENABLE ADAPTATION AGAIN!
+			if(AlgorithmSetup.getInstance().isAdaptive())
+			{
+				//Only if we are adapting!
+				this.relativeRoom = new Room(originalRoom);
+
+				this.config = relativeRoom.getCalculatedConfig();
+				roomTarget = config.getRoomProportion();
+				corridorTarget = config.getCorridorProportion();
+				this.roomCustomTiles = relativeRoom.customTiles;
+				room_changed = true;
+			}
 		}
 	}
 	
@@ -420,13 +490,15 @@ public class Algorithm extends Thread implements Listener {
 		    uniqueRoomsData.append("no;");
 		    uniqueRoomsData.append(currentSaveStep + ";");
 		    uniqueRoomsData.append(entry.getValue()[1] + ";");
-		    uniqueRoomsData.append("GR" + System.lineSeparator()); //TYPE	    
+//		    uniqueRoomsData.append("GR" + System.lineSeparator()); //TYPE
+			uniqueRoomsData.append("GR" + ";"); //TYPE
+			uniqueRoomsData.append(currentRoom.matrixToStringContinuous(false) + System.lineSeparator()); //ROOM
 		}
-		
+
 
 //		File file = new File(DIRECTORY + "expressive_range-" + dimensions[0].getDimension() + "_" + dimensions[1].getDimension() + ".csv");
 //		File file = new File(DIRECTORY + "custom-unique-overtime_" + id + ".csv");
-		File file = new File(DIRECTORY + "expressive_range-singleobj_" + id + ".csv");
+		File file = new File(DIRECTORY + "expressive_range-noveltysearch_" + id + ".csv");
 		try {
 			FileUtils.write(file, uniqueRoomsData, true);
 		} catch (IOException e) {
@@ -438,7 +510,6 @@ public class Algorithm extends Thread implements Listener {
 		uniqueRoomsData = new StringBuilder();
 //		IO.saveFile(FileName, data.getSaveString(), true);
 	}
-
 	
 	protected void storeUniqueRooms() //Only feasible
 	{
@@ -469,6 +540,25 @@ public class Algorithm extends Thread implements Listener {
 //				uniqueGeneratedRoomsFlush.put(copy, ind.getFitness());
 				
 			}
+		}
+	}
+
+	protected void storeAnyRooms() //Only feasible
+	{
+
+		for(ZoneIndividual ind: feasiblePopulation)
+		{
+			Room individualRoom = ind.getPhenotype().getMap(roomWidth, roomHeight, roomDoorPositions, roomCustomTiles, roomOwner);
+//			Room copy = new Room(individualRoom);
+			Room copy = individualRoom;
+			copy.calculateAllDimensionalValues();
+			copy.setSpeficidDimensionValue(DimensionTypes.SIMILARITY,
+					SimilarityGADimension.calculateValueIndependently(copy, originalRoom));
+			copy.setSpeficidDimensionValue(DimensionTypes.INNER_SIMILARITY,
+					CharacteristicSimilarityGADimension.calculateValueIndependently(copy, originalRoom));
+//			uniqueGeneratedRooms.put(copy, new Double[] {ind.getFitness(), Double.valueOf(realCurrentGen)});
+			uniqueGeneratedRoomsFlush.put(copy, new Double[] {ind.getFitness(), Double.valueOf(realCurrentGen)});
+//				uniqueGeneratedRoomsFlush.put(copy, ind.getFitness());
 		}
 	}
 	
@@ -508,6 +598,27 @@ public class Algorithm extends Thread implements Listener {
 		for(int generationCount = 1; generationCount <= iter_generations; generationCount++) {
         	if(stop)
         		return bestRoom;
+
+			if(room_changed)
+			{
+				ZoneIndividual ind = new ZoneIndividual(this.relativeRoom, mutationProbability);
+
+				if(checkZoneIndividual(ind)){
+					feasiblePool.add(ind);
+				}
+				else {
+					infeasiblePool.add(ind);
+				}
+
+				//Now we need to add everything faktist to the pools so they all get evaluated again! (adaptive change!)
+				feasiblePopulation.forEach(ZoneIndividual -> feasiblePool.add(ZoneIndividual));
+				feasiblePopulation.clear();
+
+				infeasiblePopulation.forEach(ZoneIndividual -> infeasiblePool.add(ZoneIndividual));
+				infeasiblePopulation.clear();
+
+				room_changed = false;
+			}
         	
 //        	broadcastStatusUpdate("Generation " + generationCount);
 
@@ -516,8 +627,7 @@ public class Algorithm extends Thread implements Listener {
         	copyPoolsToPopulations();
 
             double[] dataValid = infoGenerational(feasiblePopulation, true);
-            
-            
+
             bestRoom = best.getPhenotype().getMap(roomWidth, roomHeight, roomDoorPositions, roomCustomTiles, roomOwner);
 //        	
         	breedFeasibleZoneIndividuals();
@@ -528,6 +638,7 @@ public class Algorithm extends Thread implements Listener {
         	{
         		//PUBLISH THE BEST!	
         		currentGen = 0;
+				publishGeneration();
         	}
         	else 
         	{
@@ -540,7 +651,8 @@ public class Algorithm extends Thread implements Listener {
         	
         	return bestRoom;
 	}
-	
+
+	//FIXME: THIS IS MISSING THE PUBLISH `GENERATION!
 	public Room SaveRun()
 	{
 		
@@ -551,23 +663,46 @@ public class Algorithm extends Thread implements Listener {
         		return bestRoom;
         	
 //        	broadcastStatusUpdate("Generation " + generationCount);
+
+			if(room_changed)
+			{
+				ZoneIndividual ind = new ZoneIndividual(this.relativeRoom, mutationProbability);
+
+				if(checkZoneIndividual(ind)){
+					feasiblePool.add(ind);
+				}
+				else {
+					infeasiblePool.add(ind);
+				}
+
+				//Now we need to add everything faktist to the pools so they all get evaluated again! (adaptive change!)
+				feasiblePopulation.forEach(ZoneIndividual -> feasiblePool.add(ZoneIndividual));
+				feasiblePopulation.clear();
+
+				infeasiblePopulation.forEach(ZoneIndividual -> infeasiblePool.add(ZoneIndividual));
+				infeasiblePopulation.clear();
+
+				room_changed = false;
+			}
         	
-            storeUniqueRooms();
+//            storeUniqueRooms();
+			//save data
+			storeAnyRooms();
 
         	movedInfeasiblesKept = 0;
         	evaluateAndTrimPools();
         	copyPoolsToPopulations();
 
             double[] dataValid = infoGenerational(feasiblePopulation, true);
-            
-            
+
             bestRoom = best.getPhenotype().getMap(roomWidth, roomHeight, roomDoorPositions, roomCustomTiles, roomOwner);
 //        	
         	breedFeasibleZoneIndividuals();
         	breedInfeasibleZoneIndividuals();
+//			saveUniqueRoomsToFileAndFlush();
+//			currentSaveStep++;
 
-        	
-        	//This is only when we want to update the current Generation
+			//This is only when we want to update the current Generation
         	if(currentGen >= iterationsToPublish) 
         	{
         		//TODO: For next evaluation
@@ -583,7 +718,7 @@ public class Algorithm extends Thread implements Listener {
         			EventRouter.getInstance().postEvent(new NextStepSequenceExperiment());
         			System.out.println(realCurrentGen);
         		}
-
+				publishGeneration();
         		currentGen = 0;
         	}
         	else 
@@ -644,20 +779,30 @@ public class Algorithm extends Thread implements Listener {
         //Evaluate valid ZoneIndividuals
         for(ZoneIndividual ind : feasiblePool)
         {
-            if (!ind.isEvaluated())
+//            if (!ind.isEvaluated())
                 evaluateFeasibleZoneIndividual(ind);
+                noveltyMetric(ind); //TODO: IMPORTANT CHECK HERE (ADAPTATION)
         }
-        this.sortPopulation(feasiblePool, false);
+        this.sortPopulation(feasiblePool, false, false);
+
+        for(int i = 0; i < l; i++)
+		{
+//			if(feasiblePool.get(i).getNovelty() > 0.3)
+				novelty_archive.add(feasiblePool.get(i));
+		}
+
+		this.sortPopulation(novelty_archive, false, false);
+		novelty_archive = (ArrayList<ZoneIndividual>) novelty_archive.stream().limit(100).collect(Collectors.toList());
         feasiblePool = feasiblePool.stream().limit(feasibleAmount).collect(Collectors.toList());
         feasiblePool.forEach(ZoneIndividual -> {if(((ZoneIndividual)ZoneIndividual).isChildOfInfeasibles()) movedInfeasiblesKept++; ZoneIndividual.setChildOfInfeasibles(false);});
 
         //Evaluate invalid ZoneIndividuals
         for(ZoneIndividual ind : infeasiblePool)
         {
-            if (!ind.isEvaluated())
+//            if (!ind.isEvaluated())
                 evaluateInfeasibleZoneIndividual(ind);
         }
-        this.sortPopulation(infeasiblePool, false);
+        this.sortPopulation(infeasiblePool, false, true);
         infeasiblePool = infeasiblePool.stream().limit(populationSize - feasibleAmount).collect(Collectors.toList());
 	}
 	
@@ -665,11 +810,20 @@ public class Algorithm extends Thread implements Listener {
 	 * Copy ZoneIndividuals from pools to populations for breeding etc.
 	 */
 	protected void copyPoolsToPopulations(){
+
+
 		feasiblePopulation.clear();
 		feasiblePool.forEach(ZoneIndividual -> feasiblePopulation.add(ZoneIndividual));
+		this.sortPopulation(feasiblePopulation, false, false);
+		feasiblePopulation = feasiblePopulation.stream().limit(feasibleAmount).collect(Collectors.toList());
+//		feasiblePool.clear();
+//		feasiblePopulation.forEach(ZoneIndividual -> feasiblePool.add(ZoneIndividual));
 		
 		infeasiblePopulation.clear();
 		infeasiblePool.forEach(ZoneIndividual -> infeasiblePopulation.add(ZoneIndividual));
+		this.sortPopulation(infeasiblePopulation, false, true);
+		infeasiblePopulation = infeasiblePopulation.stream().limit(populationSize - feasibleAmount).collect(Collectors.toList());
+//		infeasiblePool.clear();
 	}
 	
 	/**
@@ -687,6 +841,90 @@ public class Algorithm extends Thread implements Listener {
 		Room room = ind.getPhenotype().getMap(roomWidth, roomHeight, roomDoorPositions, roomCustomTiles, roomOwner);
 //		return room.isFeasible();
 		return room.isIntraFeasible();
+	}
+
+	/**
+	 * Calculate the distance between individuals on the provided dimensions
+	 * @param individual_0
+	 * @param individual_1
+	 * @param dimensions
+	 * @return
+	 */
+	private double distanceBetweenIndividuals(ZoneIndividual individual_0, ZoneIndividual individual_1, DimensionTypes... dimensions)
+	{
+		double distance = 0.0;
+		Room to_check = individual_0.getPhenotype().getMap(roomWidth, roomHeight, roomDoorPositions, roomCustomTiles, roomOwner);
+		Room in_archive = individual_1.getPhenotype().getMap(roomWidth, roomHeight, roomDoorPositions, roomCustomTiles, roomOwner);
+		in_archive.calculateAllDimensionalValues();
+
+//		for(DimensionTypes dimension : dimensions)
+//		{
+//			distance += Math.pow(to_check.getDimensionValue(dimension) - in_archive.getDimensionValue(dimension), 2);
+//		}
+//
+//		distance = Math.sqrt(distance);
+
+		for(DimensionTypes dimension : dimensions)
+		{
+			distance += Math.abs(to_check.getDimensionValue(dimension) - in_archive.getDimensionValue(dimension));
+		}
+
+		return distance;
+	}
+
+	/**
+	 * Note: This is only for feasible individual at the moment. If we want to have FI2NS, we need to correct a bit the code so it checks infeasible populations.
+	 * @param ind
+	 */
+	public void noveltyMetric(ZoneIndividual ind)
+	{
+		double novelty_metric = 0.0;
+		int k_novel_neighbors = 20;
+
+		ArrayList<Double> neighbors = new ArrayList<Double>();
+//		DimensionTypes[] dimensions_to_check = new DimensionTypes[] {DimensionTypes.SYMMETRY, DimensionTypes.LENIENCY};
+//		DimensionTypes[] dimensions_to_check = new DimensionTypes[] {DimensionTypes.NUMBER_MESO_PATTERN, DimensionTypes.LENIENCY};
+		DimensionTypes[] dimensions_to_check = new DimensionTypes[] {DimensionTypes.NUMBER_MESO_PATTERN, DimensionTypes.SYMMETRY};
+//		DimensionTypes[] dimensions_to_check = new DimensionTypes[] {DimensionTypes.SYMMETRY, DimensionTypes.LENIENCY, DimensionTypes.LINEARITY,
+//																	DimensionTypes.NUMBER_MESO_PATTERN, DimensionTypes.NUMBER_PATTERNS,
+//																	DimensionTypes.SIMILARITY, DimensionTypes.INNER_SIMILARITY};
+
+		Room room = ind.getPhenotype().getMap(roomWidth, roomHeight, roomDoorPositions, roomCustomTiles, roomOwner);
+		PatternFinder finder = room.getPatternFinder();
+
+		//Calculate first the behavior
+		room.calculateAllDimensionalValues();
+
+//		double novelty_score_0 = room.getDimensionValue(DimensionTypes.SYMMETRY);
+//		double novelty_score_1 = room.getDimensionValue(DimensionTypes.LENIENCY);
+
+		//Now we need to know the distance to the archive individuals and population
+		for(ZoneIndividual in_archive : novelty_archive)
+		{
+			neighbors.add(distanceBetweenIndividuals(ind, in_archive, dimensions_to_check));
+		}
+
+		//Now we need to know the distance to the archive individuals and population
+		for(ZoneIndividual in_archive : feasiblePopulation)
+		{
+			neighbors.add(distanceBetweenIndividuals(ind, in_archive, dimensions_to_check));
+		}
+
+		//Sort based on value
+		Collections.sort(neighbors);
+
+		if(k_novel_neighbors >= neighbors.size())
+			k_novel_neighbors = neighbors.size() - 1;
+
+		for(int k = 0; k < k_novel_neighbors; k++)
+		{
+			novelty_metric += neighbors.get(k);
+		}
+
+		novelty_metric /= k_novel_neighbors;
+
+		ind.setNovelty(novelty_metric);
+
 	}
 	
 	/**
@@ -709,7 +947,11 @@ public class Algorithm extends Thread implements Listener {
         List<Corridor> corridors = new ArrayList<Corridor>();
         List<Connector> connectors = new ArrayList<Connector>();
         List<Chamber> chambers = new ArrayList<Chamber>();
-        
+
+		//TODO: Temporarily changed for testing without adaptation
+//		corridorTarget = 0.5;
+//		roomTarget = 0.5;
+//
         for (Pattern p : finder.findMicroPatterns()) {
         	if (p instanceof Enemy) {
         		enemies.add((Enemy) p);
@@ -857,26 +1099,7 @@ public class Algorithm extends Thread implements Listener {
     	roomFitness = 1 - Math.abs(roomFitness - roomTarget)/Math.max(roomTarget, 1.0 - roomTarget);
 
 
-    	// Similarity Fitness 
-    	double similarityFitness = 1.0;
-    	if(algorithmTypes == AlgorithmTypes.Similarity ||
-    			algorithmTypes == AlgorithmTypes.SymmetryAndSimilarity)
-    	{
-        	similarityFitness = evaluateSimilarityFitnessValue(originalRoom, room, 0.95);    		
-    	}
-    	// Symmetry Fitness
-    	double symmetricFitnessValue = 1.0;
-    	if(algorithmTypes == AlgorithmTypes.Symmetry ||
-    			algorithmTypes == AlgorithmTypes.SymmetryAndSimilarity)
-    	{
-    		symmetricFitnessValue = evaluateSymmetryFitnessValue(room);
-    	}
-    	
-    	//Total fitness
-//    	double fitness = ((0.35 * treasureAndEnemyFitness
-//    			+  0.35 * (0.3 * roomFitness + 0.7 * corridorFitness) + (0.3 * symmetricFitnessValue))
-//    			* similarityFitness);  	
-    	
+    	//Now that we have everything, calculate the fitness!
     	double fitness = (0.5 * treasureAndEnemyFitness)
     			+  0.5 * (0.3 * roomFitness + 0.7 * corridorFitness); 
     	
@@ -897,151 +1120,6 @@ public class Algorithm extends Thread implements Listener {
     	ind.setRoomArea(rawRoomArea);
     	ind.setCorridorArea(rawCorridorArea);
         ind.setEvaluate(true);
-    }
-    
-    /**
-     * Evaluates the percent similarity between the old map with the new ZoneIndividual map and calculates with the ideal percent to give the fitness function
-     * 
-     * double procentSimilar = similarTiles / totalTiles;
-     * 
-     * double similarityFitness = procentSimilar / idealProcentSimilarity;
-     * 
-     * OR (depends on if the procentSimilar is over or under idealProcentSimilarity)
-     * 
-     * double similarityFitness = (1 - procentSimilar) / (1 - idealProcentSimilarity);   
-     * 
-     * @param oldMap the map that the new generations take their values from
-     * @param newMap the newly created ZoneIndividual map
-     * @param idealProcentSimilarity determines how much similar the two maps should be to be ideal.
-     */
-	protected double evaluateSimilarityFitnessValue(Room oldMap, Room newMap, double idealProcentSimilarity)
-    {
-    	int[][] oldMatrix = oldMap.toMatrix();
-    	int[][] newMatrix = newMap.toMatrix();
-    	double totalTiles = oldMap.getColCount() * oldMap.getRowCount();
-    	double similarTiles = totalTiles;
-    	
-    	// Calculates how many tiles that are similar between the two maps
-    	for(int i = 0; i < oldMap.getColCount(); ++i)
-    	{
-    		for(int j = 0; j < oldMap.getRowCount(); ++j)
-    		{
-    			switch (oldMatrix[i][j])
-    			{
-	    			case 1: // Just walls. Checking if both maps have a wall in the same place.
-	        			if(newMatrix[i][j] != 1)
-	        			{
-	        				similarTiles--;
-	        			}
-	        			break;
-        			default: // Every other floor tile. Checking if that there is no wall.
-        				if(newMatrix[i][j] == 1)
-	        			{
-	        				similarTiles--;
-	        			}
-        				break;
-    			}
-    		}
-    	}
-    	double procentSimilar = similarTiles / totalTiles;
-    	
-    	// Calculates the simularityFitness with the idealProcentSimilarity to be able to control how much they change
-    	double similarityFitness = 1.0;
-    	similarityFitness = 1.0 - Math.abs(idealProcentSimilarity - procentSimilar);
-//    	if(procentSimilar < idealProcentSimilarity)
-//		{
-//    		similarityFitness = procentSimilar / idealProcentSimilarity;
-//		}
-//    	else
-//    	{
-//    		similarityFitness = (1 - procentSimilar) / (1 - idealProcentSimilarity);    	
-//    	}
-    	return similarityFitness;
-    }
-	
-	/**
-     * Evaluates the how much symmetry in the map. It is done four times, Horizontal, Vertical, Frontslash Diagonal and Backslash Diagonal. All passing through the middle of the map
-     *
-     * @param Room the map that is evaluated
-     */
-    protected double evaluateSymmetryFitnessValue(Room room)
-    {
-    	int rowCounter = room.getRowCount();
-    	int colCounter = room.getColCount();
-    	int totalWalls = room.getWallCount();
-    	int[][] mapMatrix = room.toMatrix();
-    	
-    	
-    	// Vertical Symmetry Check
-    	int middlePoint = rowCounter / 2;
-    	int identicalVerticalSplit = 0;
-    	for(int i = 0; i < middlePoint; ++i)
-    	{
-    		for(int j = 0; j < colCounter; ++j)
-    		{
-    			if(mapMatrix[i][j] == 1 && mapMatrix[rowCounter - 1 - i][j] == 1)
-    			{
-    				identicalVerticalSplit += 2;
-    			}
-    		}
-    	}
-    	
-    	// Horizontal Symmetry Check
-    	middlePoint = colCounter / 2;
-    	int identicalHorizontalSplit = 0;
-    	for(int i = 0; i < rowCounter; ++i)
-    	{
-    		for(int j = 0; j < middlePoint; ++j)
-    		{
-    			if(mapMatrix[i][j] == 1 && mapMatrix[i][colCounter - 1 - j] == 1)
-    			{
-    				identicalHorizontalSplit += 2;
-    			}
-    		}
-    	}
-
-    	// Frontslash Diagonal Symmetry Check
-    	int identicalFrontslashDiagonalSplit = 0;
-    	double k = colCounter / rowCounter;
-    	for(int i = 0; i < rowCounter; ++i)
-    	{
-    		middlePoint = (int)(k * i);
-    		for(int j = 0; j < middlePoint; ++j)
-    		{
-    			if(mapMatrix[i][j] == 1 && mapMatrix[colCounter - 1 - i][rowCounter - 1 - j] == 1)
-    			{
-    				identicalFrontslashDiagonalSplit += 2;
-    			}
-    		}
-    	}
-    	
-    	// Backslash Diagonal Symmetry Check
-    	int identicalBackslashDiagonalSplit = 0;
-    	k = colCounter / rowCounter;
-    	for(int i = 0; i < rowCounter; ++i)
-    	{
-    		middlePoint = (int)(k * i);
-    		for(int j = 0; j < middlePoint; ++j)
-    		{
-    			if(mapMatrix[i][j] == 1 && mapMatrix[colCounter - 1 - i][rowCounter - 1 - j] == 1)
-    			{
-    				identicalBackslashDiagonalSplit += 2;
-    			}
-    		}
-    	}
-    	
-    	// Find the highest symmetry
-    	int highestSymmetric = 0;
-    	highestSymmetric = highestSymmetric < identicalVerticalSplit ? identicalVerticalSplit : highestSymmetric;
-    	highestSymmetric = highestSymmetric < identicalHorizontalSplit ? identicalHorizontalSplit : highestSymmetric;
-    	highestSymmetric = highestSymmetric < identicalFrontslashDiagonalSplit ? identicalFrontslashDiagonalSplit : highestSymmetric;
-    	highestSymmetric = highestSymmetric < identicalBackslashDiagonalSplit ? identicalBackslashDiagonalSplit : highestSymmetric;
-    	
-    	double symmetricFitness = (double)highestSymmetric / (double)totalWalls;
-    	
-		//logger.info("rowCounter " + rowCounter + " colCounter " + colCounter + " middlePoint " + middlePoint + " highestSymmetric " + highestSymmetric + " totalWalls " + totalWalls + " symmetricFitness " + symmetricFitness);
-    	
-		return symmetricFitness;
     }
 
     /**
@@ -1088,14 +1166,14 @@ public class Algorithm extends Thread implements Listener {
         //Evaluate valid ZoneIndividuals
         for(ZoneIndividual ind : feasiblePopulation)
         {
-            if (!ind.isEvaluated())
+//            if (!ind.isEvaluated())
                 evaluateFeasibleZoneIndividual(ind);
         }
 
         //Evaluate invalid ZoneIndividuals
         for(ZoneIndividual ind : infeasiblePopulation)
         {
-            if (!ind.isEvaluated())
+//            if (!ind.isEvaluated())
                 evaluateInfeasibleZoneIndividual(ind);
         }
     }
@@ -1109,7 +1187,7 @@ public class Algorithm extends Thread implements Listener {
     protected void breedFeasibleZoneIndividuals()
     {
         //Select parents for crossover
-        List<ZoneIndividual> parents = tournamentSelection(feasiblePopulation);
+        List<ZoneIndividual> parents = tournamentSelection(feasiblePopulation, false);
         //Crossover parents
         List<ZoneIndividual> children = crossOverBetweenProgenitors(parents);
         //Assign to a pool based on feasibility
@@ -1125,7 +1203,7 @@ public class Algorithm extends Thread implements Listener {
     protected void breedInfeasibleZoneIndividuals()
     {
         //Select parents for crossover
-        List<ZoneIndividual> parents = tournamentSelection(infeasiblePopulation);
+        List<ZoneIndividual> parents = tournamentSelection(infeasiblePopulation, true);
         //Crossover parents
         List<ZoneIndividual> children = crossOverBetweenProgenitors(parents);
         //Assign to a pool based on feasibility
@@ -1168,7 +1246,7 @@ public class Algorithm extends Thread implements Listener {
      * @param population A whole population of ZoneIndividuals
      * @return A list of chosen progenitors
      */
-    protected List<ZoneIndividual> tournamentSelection(List<ZoneIndividual> population)
+    protected List<ZoneIndividual> tournamentSelection(List<ZoneIndividual> population, boolean infeasible_population)
     { 
         List<ZoneIndividual> parents = new ArrayList<ZoneIndividual>();
         int numberOfParents = (int)(offspringSize * population.size()) / 2;
@@ -1185,10 +1263,20 @@ public class Algorithm extends Thread implements Listener {
                 ZoneIndividual ZoneIndividual = population.get(progenitorIndex);
 
                 //select the ZoneIndividual with the highest fitness
-                if(winner == null || (winner.getFitness() < ZoneIndividual.getFitness()))
-                {
-                	winner = ZoneIndividual;
-                }
+				if(infeasible_population || AlgorithmSetup.getInstance().algorithm_type == AlgorithmSetup.AlgorithmType.OBJECTIVE)
+				{
+					if(winner == null || (winner.getFitness() < ZoneIndividual.getFitness()))
+					{
+						winner = ZoneIndividual;
+					}
+				}
+				else {
+					if(winner == null || (winner.getNovelty() < ZoneIndividual.getNovelty()))
+					{
+						winner = ZoneIndividual;
+					}
+				}
+
             }
 
             parents.add(winner);
@@ -1205,8 +1293,8 @@ public class Algorithm extends Thread implements Listener {
      * @param population
      * @return
      */
-    protected List<ZoneIndividual> fitnessProportionateRouletteWheelSelection(List<ZoneIndividual> population){
-    	sortPopulation(population, false);
+    protected List<ZoneIndividual> fitnessProportionateRouletteWheelSelection(List<ZoneIndividual> population, boolean infeasible_population){
+    	sortPopulation(population, false, infeasible_population); //FIXME: Not correct because we are not checking if it is infeasible or not!
     	
     	List<ZoneIndividual> parents = new ArrayList<ZoneIndividual>();
     	int numberOfParents = (int)(offspringSize * population.size()) / 2;
@@ -1265,9 +1353,12 @@ public class Algorithm extends Thread implements Listener {
      * @param population A List of ZoneIndividuals to sort
      * @param ascending true for ascending order, false for descending
      */
-    protected void sortPopulation(List<ZoneIndividual> population, boolean ascending)
+    protected void sortPopulation(List<ZoneIndividual> population, boolean ascending, boolean infeasible)
     {
-        population.sort((x, y) -> (ascending ? 1 : -1) * Double.compare(x.getFitness(),y.getFitness()));
+    	if(infeasible || AlgorithmSetup.getInstance().algorithm_type == AlgorithmSetup.AlgorithmType.OBJECTIVE)
+        	population.sort((x, y) -> (ascending ? 1 : -1) * Double.compare(x.getFitness(),y.getFitness()));
+    	else
+			population.sort((x, y) -> (ascending ? 1 : -1) * Double.compare(x.getNovelty(),y.getNovelty()));
     }
  	
     /**

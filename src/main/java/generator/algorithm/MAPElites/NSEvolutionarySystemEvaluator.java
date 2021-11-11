@@ -68,6 +68,9 @@ public class NSEvolutionarySystemEvaluator
         double interest_fitness = getInterestFitness(current_graph);
         double coherence_fitness = getCoherenceFitness(current_graph);
 
+//        System.out.println("coherence_fitness: " + coherence_fitness);
+//        System.out.println("interest_fitness: " + interest_fitness);
+
         fitness = (weights[0] * interest_fitness) + (weights[1] * coherence_fitness);
 
         return new double[]{interest_fitness, coherence_fitness, fitness};
@@ -140,7 +143,8 @@ public class NSEvolutionarySystemEvaluator
         LinkedHashMap<Integer, Integer> best_recipe = null;
         double best_fitness = Double.NEGATIVE_INFINITY;
         double final_fitness = 0.0;
-        double[] weights = new double[]{0.6, 0.2, 0.2};
+//        double[] weights = new double[]{0.6, 0.2, 0.2};
+        double[] weights = new double[]{0.5, 0.5};
         double fitness = 0.0;
         GrammarGraph nStructure = null;
 
@@ -177,7 +181,8 @@ public class NSEvolutionarySystemEvaluator
             cohesion_fit = getCohesionFitness(nStructure);
             if(cohesion_fit < 0) cohesion_fit = 0;
 
-            fitness = (weights[0] * cohesion_fit) + (weights[1] * self_conflict_fit) + (weights[2] * unconnected_nodes_fit);
+//            fitness = (weights[0] * cohesion_fit) + (weights[1] * self_conflict_fit) + (weights[2] * unconnected_nodes_fit);
+            fitness = (weights[0] * self_conflict_fit) + (weights[1] * unconnected_nodes_fit);
 
             if(fitness > best_fitness)
             {
@@ -528,10 +533,15 @@ public class NSEvolutionarySystemEvaluator
         double[] weights = new double[]{0.5, 0.5};
         double cohesion_fitness = getCohesionFitness(nStructure);
 
+//        System.out.println("Cohesion pre: " + cohesion_fitness);
+
         if(cohesion_fitness < 0) //Strong breaker! if this is not good we do not want this! maybe a bit more mild xD
             cohesion_fitness = 0.0;
 
         double consistency_fitness = getConsistencyFitness(nStructure);
+
+//        System.out.println("Cohesion post: " + cohesion_fitness);
+//        System.out.println("consistency_fitness: " + consistency_fitness);
 
         return (weights[0] * cohesion_fitness) + (weights[1] *consistency_fitness);
     }

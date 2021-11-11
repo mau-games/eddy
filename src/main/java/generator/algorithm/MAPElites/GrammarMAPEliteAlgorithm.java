@@ -38,7 +38,7 @@ public class GrammarMAPEliteAlgorithm extends Algorithm implements Listener {
 	int cellAmounts = 1;
 	private ArrayList<GADimensionGrammar> MAPElitesDimensions;
 	private Random rnd = new Random();
-	private int iterationsToPublish = 50;
+	private int iterationsToPublish = 20;
 	private int breedingGenerations = 5; //this relates to how many generations will it breed
 	private int realCurrentGen = 0;
 	private int currentGen = 0;
@@ -67,7 +67,7 @@ public class GrammarMAPEliteAlgorithm extends Algorithm implements Listener {
 	GrammarGraph target_graph;
 
 //	private int recipe_iterations = 20;
-	private int recipe_iterations = 10;
+	private int recipe_iterations = 5;
 
 	private NSEvolutionarySystemEvaluator evaluator = new NSEvolutionarySystemEvaluator();
 
@@ -1728,20 +1728,22 @@ public class GrammarMAPEliteAlgorithm extends Algorithm implements Listener {
 
 				if(unique)
 				{
-					GrammarGraph copy = new GrammarGraph(individual_graph);
-					copy.calculateAllDimensionalValues(this.target_graph);
+//					GrammarGraph copy = new GrammarGraph(individual_graph);
+//					copy.calculateAllDimensionalValues(this.target_graph);
+
+					individual_graph.calculateAllDimensionalValues(this.target_graph);
 //					copy.setSpeficidDimensionValue(DimensionTypes.SIMILARITY,
 //							SimilarityGADimension.calculateValueIndependently(copy, originalRoom));
 //					copy.setSpeficidDimensionValue(DimensionTypes.INNER_SIMILARITY,
 //							CharacteristicSimilarityGADimension.calculateValueIndependently(copy, originalRoom));
 
-					uniqueGeneratedNarratives.put(copy, new Double[] {ind.getFitness(),
+					uniqueGeneratedNarratives.put(individual_graph, new Double[] {ind.getFitness(),
 							ind.getAvgFitness(),
 							(double) ind.getPhenotype().feasible_grammar_recipes.size(),
 							(double) ind.getPhenotype().infeasible_grammar_recipes.size(),
 							(double) ind.getPhenotype().infeasible_grammar_recipes.size() + ind.getPhenotype().feasible_grammar_recipes.size(),
 							(double) realCurrentGen});
-					uniqueGeneratedNarrativesFlush.put(copy, new Double[] {ind.getFitness(),
+					uniqueGeneratedNarrativesFlush.put(individual_graph, new Double[] {ind.getFitness(),
 							ind.getAvgFitness(),
 							(double) ind.getPhenotype().feasible_grammar_recipes.size(),
 							(double) ind.getPhenotype().infeasible_grammar_recipes.size(),

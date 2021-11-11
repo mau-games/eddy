@@ -208,9 +208,9 @@ public class MAPEVisualizationPane extends BorderPane implements Listener
 		// TODO Auto-generated method stub
 		if(e instanceof SaveDisplayedCells)
 		{
-			Platform.runLater(() -> {
-				MapRenderer.getInstance().saveMAPE(sp);
-			});
+//			Platform.runLater(() -> {
+//				MapRenderer.getInstance().saveMAPE(sp);
+//			});
 //			SaveDimensionalGrid();
 		}
 	}

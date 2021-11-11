@@ -52,13 +52,6 @@ public class Game implements Listener{
     	OriginalConfig,
     	ComputedConfig
     }
-    
-    public enum PossibleGAs
-    {
-    	FI_2POP,
-    	MAP_ELITES,
-    	CVT_MAP_ELITES
-    }
 
 	public Game() {
 		

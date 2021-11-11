@@ -9,7 +9,6 @@ import java.util.List;
 import game.ApplicationConfig;
 import game.Room;
 import game.TileTypes;
-import game.Game.PossibleGAs;
 import generator.algorithm.MAPElites.Dimensions.MAPEDimensionFXML;
 import generator.algorithm.MAPElites.Dimensions.GADimension.DimensionTypes;
 import generator.config.GeneratorConfig;

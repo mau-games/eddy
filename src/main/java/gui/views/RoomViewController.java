@@ -11,6 +11,7 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.Map.Entry;
 
+import game.*;
 import org.apache.commons.io.FileUtils;
 
 import collectors.ActionLogger;
@@ -21,11 +22,6 @@ import finder.patterns.Pattern;
 import finder.patterns.micro.Connector;
 import finder.patterns.micro.Corridor;
 import finder.patterns.micro.Chamber;
-import game.ApplicationConfig;
-import game.Room;
-import game.Tile;
-import game.MapContainer;
-import game.TileTypes;
 import game.tiles.BossEnemyTile;
 import game.tiles.EnemyTile;
 import game.tiles.FloorTile;
@@ -36,7 +32,6 @@ import generator.algorithm.MAPElites.Dimensions.GADimension.DimensionTypes;
 import generator.algorithm.MAPElites.GACell;
 import generator.algorithm.MAPElites.Dimensions.MAPEDimensionFXML;
 import game.Game.MapMutationType;
-import game.Game.PossibleGAs;
 import gui.controls.DimensionsTable;
 import gui.controls.Drawer;
 import gui.controls.InteractiveMap;
@@ -119,23 +114,7 @@ import util.config.MissingConfigurationException;
 import util.eventrouting.EventRouter;
 import util.eventrouting.Listener;
 import util.eventrouting.PCGEvent;
-import util.eventrouting.events.ApplySuggestion;
-import util.eventrouting.events.MAPEGridUpdate;
-import util.eventrouting.events.MAPElitesDone;
-import util.eventrouting.events.MapUpdate;
-import util.eventrouting.events.RequestAppliedMap;
-import util.eventrouting.events.RequestRoomView;
-import util.eventrouting.events.RequestWorldView;
-import util.eventrouting.events.SaveCurrentGeneration;
-import util.eventrouting.events.SaveDisplayedCells;
-import util.eventrouting.events.StartGA_MAPE;
-import util.eventrouting.events.StartMapMutate;
-import util.eventrouting.events.Stop;
-import util.eventrouting.events.SuggestedMapSelected;
-import util.eventrouting.events.SuggestedMapsDone;
-import util.eventrouting.events.SuggestedMapsLoading;
-import util.eventrouting.events.UpdateMiniMap;
-import game.DungeonPane;
+import util.eventrouting.events.*;
 
 /**
  * This class controls the interactive application's edit view.
@@ -238,7 +217,6 @@ public class RoomViewController extends BorderPane implements Listener
 	int mapHeight;
 	private int suggestionAmount = 101; //TODO: Probably this value should be from the application config!!
 
-	private PossibleGAs selectedGA;
 	private MAPEDimensionFXML[] currentDimensions = new MAPEDimensionFXML[] {};
 	
 	
@@ -327,7 +305,8 @@ public class RoomViewController extends BorderPane implements Listener
 		secondaryTable.setEventListeners();
 		
 		currentState = EvoState.RUNNING;
-		selectedGA = PossibleGAs.MAP_ELITES;
+
+
 		saveGenBtn.setDisable(false);
 		
 
@@ -634,7 +613,7 @@ public class RoomViewController extends BorderPane implements Listener
 		else if(e instanceof MAPElitesDone)
 		{
 			if (isActive) {
-				//THIS NEED TO BE IMPROVED!
+				//THIS NEEDS TO BE IMPROVED!
 				List<Room> generatedRooms = ((MAPElitesDone) e).GetRooms();
 //				Room room = (Room) ((MapUpdate) e).getPayload();
 //				UUID uuid = ((MapUpdate) e).getID();
@@ -694,26 +673,47 @@ public class RoomViewController extends BorderPane implements Listener
 				Room room = (Room) ((MapUpdate) e).getPayload();
 				UUID uuid = ((MapUpdate) e).getID();
 				LabeledCanvas canvas;
-				nextRoom = 0;
+//				nextRoom = 0;
 				synchronized (roomDisplays) {
+					roomDisplays.get(0).setSuggestedRoom(room);
+					roomDisplays.get(0).setOriginalRoom(getMapView().getMap());
+
 //					suggestionsBox.getChildren().add(suggestion.getRoomCanvas());
 					
 //					SuggestionRoom current = (SuggestionRoom)suggestionsBox.getChildren().get(nextRoom);
 					
-					roomDisplays.get(nextRoom).setSuggestedRoom(room);
-					roomDisplays.get(nextRoom).setOriginalRoom(getMapView().getMap()); //Maybe this does not make sense? Idk
-					
-					canvas = roomDisplays.get(nextRoom).getRoomCanvas();
-					canvas.setText("");
-					
-					suggestedRooms.put(nextRoom, room);
-					nextRoom++;
+//					roomDisplays.get(nextRoom).setSuggestedRoom(room);
+//					roomDisplays.get(nextRoom).setOriginalRoom(getMapView().getMap()); //Maybe this does not make sense? Idk
+//
+//					canvas = roomDisplays.get(nextRoom).getRoomCanvas();
+//					canvas.setText("");
+//
+//					suggestedRooms.put(nextRoom, room);
+//					nextRoom++;
 				}
 
 				Platform.runLater(() -> {
-					canvas.draw(renderer.renderMiniSuggestedRoom(room, nextRoom - 1));
+					int i = 0;
+					for(SuggestionRoom sugRoom : roomDisplays)
+					{
+						if(sugRoom.getSuggestedRoom() != null)
+						{
+							sugRoom.getRoomCanvas().draw(renderer.renderMiniSuggestedRoom(sugRoom.getSuggestedRoom(), i));
+						}
+						else
+						{
+							sugRoom.getRoomCanvas().draw(null);
+						}
+						i++;
+					}
+
 //					System.out.println("CANVAS WIDTH: " + canvas.getWidth() + ", CANVAS HEIGHT: " + canvas.getHeight());
 				});
+
+//				Platform.runLater(() -> {
+//					canvas.draw(renderer.renderMiniSuggestedRoom(room, nextRoom - 1));
+////					System.out.println("CANVAS WIDTH: " + canvas.getWidth() + ", CANVAS HEIGHT: " + canvas.getHeight());
+//				});
 			}
 		} 
 		else if (e instanceof ApplySuggestion ) 
@@ -798,6 +798,7 @@ public class RoomViewController extends BorderPane implements Listener
 		redrawPatterns(room);
 		redrawLocks(room);
 		mapIsFeasible(room.isIntraFeasible());
+		router.postEvent(new RoomEdited(mapView.getMap()));
 		
 		//FIXME: Added for presentation
 //		room.calculateAllDimensionalValues();
@@ -1086,36 +1087,41 @@ public class RoomViewController extends BorderPane implements Listener
 	public void generateNewMaps(Room room) {
 		// TODO: If we want more diversity in the generated maps, then send more StartMapMutate events.
 		
-		switch(selectedGA)
+		switch(AlgorithmSetup.getInstance().algorithm_type)
 		{
-		case FI_2POP:
-			int firstAmount = suggestionAmount/2;
-			int secondAmount = suggestionAmount - firstAmount;
-			
-			router.postEvent(new StartMapMutate(room, MapMutationType.Preserving, AlgorithmTypes.Native, firstAmount, true)); //TODO: Move some of this hard coding to ApplicationConfig
-			router.postEvent(new StartMapMutate(room, MapMutationType.ComputedConfig, AlgorithmTypes.Native, secondAmount, true)); //TODO: Move some of this hard coding to ApplicationConfig
+			case OBJECTIVE:
+			case NOVELTY_SEARCH:
 
-			break;
-		case MAP_ELITES:
-			if(currentDimensions.length > 1)
-			{
-				router.postEvent(new StartGA_MAPE(room, currentDimensions)); 
-				
-				//Start the evolution using all the dimensions!
-//				MAPEDimensionFXML[] rndDims = new MAPEDimensionFXML[7];
-//				rndDims[0] = new MAPEDimensionFXML(DimensionTypes.SIMILARITY, 5);
-//				rndDims[1] = new MAPEDimensionFXML(DimensionTypes.SYMMETRY, 5);
-//				rndDims[2] = new MAPEDimensionFXML(DimensionTypes.INNER_SIMILARITY, 5);
-//				rndDims[3] = new MAPEDimensionFXML(DimensionTypes.LENIENCY, 5);
-//				rndDims[4] = new MAPEDimensionFXML(DimensionTypes.LINEARITY, 5);
-//				rndDims[5] = new MAPEDimensionFXML(DimensionTypes.NUMBER_PATTERNS, 5);
-//				rndDims[6] = new MAPEDimensionFXML(DimensionTypes.NUMBER_MESO_PATTERN, 5);
-//				router.postEvent(new StartGA_MAPE(room, rndDims));
-			}
-			
-			break;
-		case CVT_MAP_ELITES:
-			break;
+				router.postEvent(new StartMapMutate(room, MapMutationType.Preserving, AlgorithmTypes.Native, 1, true));
+
+
+	//			int firstAmount = suggestionAmount/2;
+	//			int secondAmount = suggestionAmount - firstAmount;
+	//
+	//			router.postEvent(new StartMapMutate(room, MapMutationType.Preserving, AlgorithmTypes.Native, firstAmount, true)); //TODO: Move some of this hard coding to ApplicationConfig
+	//			router.postEvent(new StartMapMutate(room, MapMutationType.ComputedConfig, AlgorithmTypes.Native, secondAmount, true)); //TODO: Move some of this hard coding to ApplicationConfig
+
+				break;
+			case MAP_ELITES:
+				if(currentDimensions.length > 1)
+				{
+					router.postEvent(new StartGA_MAPE(room, currentDimensions));
+
+					//Start the evolution using all the dimensions!
+	//				MAPEDimensionFXML[] rndDims = new MAPEDimensionFXML[7];
+	//				rndDims[0] = new MAPEDimensionFXML(DimensionTypes.SIMILARITY, 5);
+	//				rndDims[1] = new MAPEDimensionFXML(DimensionTypes.SYMMETRY, 5);
+	//				rndDims[2] = new MAPEDimensionFXML(DimensionTypes.INNER_SIMILARITY, 5);
+	//				rndDims[3] = new MAPEDimensionFXML(DimensionTypes.LENIENCY, 5);
+	//				rndDims[4] = new MAPEDimensionFXML(DimensionTypes.LINEARITY, 5);
+	//				rndDims[5] = new MAPEDimensionFXML(DimensionTypes.NUMBER_PATTERNS, 5);
+	//				rndDims[6] = new MAPEDimensionFXML(DimensionTypes.NUMBER_MESO_PATTERN, 5);
+	//				router.postEvent(new StartGA_MAPE(room, rndDims));
+				}
+
+				break;
+//		case CVT_MAP_ELITES:
+//			break;
 		default:
 			break;
 		
@@ -1521,6 +1527,7 @@ public class RoomViewController extends BorderPane implements Listener
 				mapIsFeasible(mapView.getMap().isIntraFeasible());
 				redrawPatterns(mapView.getMap());
 				redrawLocks(mapView.getMap());
+				router.postEvent(new RoomEdited(mapView.getMap()));
 //				mapView.getMap().calculateAllDimensionalValues();
 				
 				//TODO: UNCOMMENT TO SAVE EACH STEP!!

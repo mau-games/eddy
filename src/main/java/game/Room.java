@@ -3126,6 +3126,29 @@ public class Room {
 
 		return room;
 	}
+
+	public String matrixToStringContinuous(boolean ignoreSpecials)
+	{
+		StringBuilder map = new StringBuilder();
+
+		for (int j = 0; j < height; j++)
+		{
+			for (int i = 0; i < width; i++)
+			{
+				if(ignoreSpecials && matrix[j][i] > 3)
+				{
+					map.append(Integer.toHexString(0));
+				}
+				else
+				{
+					map.append(Integer.toHexString(matrix[j][i]));
+				}
+
+			}
+		}
+
+		return map.toString();
+	}
 	
 	public String matrixToString(boolean ignoreSpecials) 
 	{

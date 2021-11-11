@@ -365,9 +365,9 @@ public class InteractiveMap extends GridPane implements Listener {
 		// TODO Auto-generated method stub
 		if(e instanceof SaveDisplayedCells)
 		{
-			Platform.runLater(() -> {
-				renderer.saveCurrentEditedRoom(this);
-			});
+//			Platform.runLater(() -> {
+//				renderer.saveCurrentEditedRoom(this);
+//			});
 		}
 		
 	}

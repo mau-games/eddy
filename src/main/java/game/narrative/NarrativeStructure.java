@@ -43,6 +43,103 @@ public class NarrativeStructure implements Listener {
         RunMAPElites(possibleCombinations.get(counter), target_graph, target_graph);
     }
 
+    private void runZOOTExperiment()
+    {
+        target_graph = new GrammarGraph();
+
+        GrammarNode y_link = target_graph.addNode(TVTropeType.HERO);
+        GrammarNode triforce = target_graph.addNode(TVTropeType.MCG);
+        GrammarNode a_link = target_graph.addNode(TVTropeType.NEO);
+        GrammarNode gannon = target_graph.addNode(TVTropeType.BAD);
+        GrammarNode bad_conf = target_graph.addNode(TVTropeType.CONFLICT);
+        GrammarNode zelda = target_graph.addNode(TVTropeType.HERO);
+        GrammarNode sheik = target_graph.addNode(TVTropeType.SH);
+        GrammarNode good_conf = target_graph.addNode(TVTropeType.CONFLICT);
+
+        y_link.addConnection(triforce, 1);
+        triforce.addConnection(a_link, 1);
+
+        gannon.addConnection(bad_conf, 1);
+        bad_conf.addConnection(a_link, 1);
+        bad_conf.addConnection(zelda, 1);
+
+        zelda.addConnection(sheik, 1);
+
+        a_link.addConnection(good_conf, 1);
+        sheik.addConnection(good_conf, 1);
+        good_conf.addConnection(gannon, 1);
+
+        target_graph.pattern_finder.findNarrativePatterns(null);
+
+        AlgorithmSetup.getInstance().setSaveData(true);
+//        System.out.println(target_graph.toString());
+        nextElite();
+    }
+
+    private void runMarioExperiment()
+    {
+        target_graph = new GrammarGraph();
+
+		GrammarNode mario = target_graph.addNode(TVTropeType.HERO);
+		GrammarNode conf = target_graph.addNode(TVTropeType.CONFLICT);
+		GrammarNode empire = target_graph.addNode(TVTropeType.EMP);
+		GrammarNode fake_bowser = target_graph.addNode(TVTropeType.DRA);
+		GrammarNode bowser = target_graph.addNode(TVTropeType.BAD);
+		GrammarNode quest_item = target_graph.addNode(TVTropeType.MCG);
+		GrammarNode peach = target_graph.addNode(TVTropeType.HERO);
+
+		mario.addConnection(conf, 1);
+		mario.addConnection(quest_item, 1);
+		conf.addConnection(empire, 1);
+
+		empire.addConnection(fake_bowser, 0);
+		fake_bowser.addConnection(bowser, 0);
+		bowser.addConnection(quest_item, 0);
+
+		quest_item.addConnection(peach, 1);
+
+        target_graph.pattern_finder.findNarrativePatterns(null);
+
+        AlgorithmSetup.getInstance().setSaveData(true);
+//        System.out.println(target_graph.toString());
+        nextElite();
+    }
+
+    private void runZTempleExperiment()
+    {
+        //ZELDA temple
+        target_graph = new GrammarGraph();
+
+		GrammarNode link = target_graph.addNode(TVTropeType.HERO);
+		GrammarNode conf = target_graph.addNode(TVTropeType.CONFLICT);
+		GrammarNode generic_en = target_graph.addNode(TVTropeType.ENEMY);
+//		GrammarNode drake = graph.addNode(TVTropeType.DRA);
+		GrammarNode bow = target_graph.addNode(TVTropeType.MHQ);
+		GrammarNode boss = target_graph.addNode(TVTropeType.BAD);
+		GrammarNode quest_item = target_graph.addNode(TVTropeType.MCG);
+		GrammarNode elder = target_graph.addNode(TVTropeType.HERO);
+		GrammarNode extra_item = target_graph.addNode(TVTropeType.MHQ);
+
+		link.addConnection(conf, 1);
+		link.addConnection(quest_item, 1);
+		conf.addConnection(generic_en, 1);
+
+		generic_en.addConnection(bow, 0);
+//		drake.addConnection(bow, 0);
+		bow.addConnection(boss, 0);
+		boss.addConnection(quest_item, 0);
+		quest_item.addConnection(elder, 1);
+		elder.addConnection(extra_item, 0);
+
+		extra_item.addConnection(link, 1);
+
+        target_graph.pattern_finder.findNarrativePatterns(null);
+
+        AlgorithmSetup.getInstance().setSaveData(true);
+//        System.out.println(target_graph.toString());
+        nextElite();
+    }
+
     private void runExperiment()
     {
         axiom_1 = new GrammarGraph();
@@ -646,21 +743,211 @@ public class NarrativeStructure implements Listener {
         evaluator.testEvaluation(test_graph, axiom_graph);
     }
 
+    private void analyzeZOOTElite()
+    {
+        target_graph = new GrammarGraph();
+
+        GrammarNode y_link = target_graph.addNode(TVTropeType.HERO);
+        GrammarNode triforce = target_graph.addNode(TVTropeType.MCG);
+        GrammarNode a_link = target_graph.addNode(TVTropeType.NEO);
+        GrammarNode gannon = target_graph.addNode(TVTropeType.BAD);
+        GrammarNode bad_conf = target_graph.addNode(TVTropeType.CONFLICT);
+        GrammarNode zelda = target_graph.addNode(TVTropeType.HERO);
+        GrammarNode sheik = target_graph.addNode(TVTropeType.SH);
+        GrammarNode good_conf = target_graph.addNode(TVTropeType.CONFLICT);
+
+        y_link.addConnection(triforce, 1);
+        triforce.addConnection(a_link, 1);
+
+        gannon.addConnection(bad_conf, 1);
+        bad_conf.addConnection(a_link, 1);
+        bad_conf.addConnection(zelda, 1);
+
+        zelda.addConnection(sheik, 1);
+
+        a_link.addConnection(good_conf, 1);
+        sheik.addConnection(good_conf, 1);
+        good_conf.addConnection(gannon, 1);
+
+        target_graph.pattern_finder.findNarrativePatterns(null);
+
+        //NOW WE BUILD THE ELITE!
+
+        GrammarGraph narrative_graph = new GrammarGraph();
+
+        GrammarNode a = narrative_graph.addNode(TVTropeType.HERO);
+        GrammarNode b = narrative_graph.addNode(TVTropeType.MCG);
+        GrammarNode c = narrative_graph.addNode(TVTropeType.SH);
+        GrammarNode d = narrative_graph.addNode(TVTropeType.NEO);
+        GrammarNode e = narrative_graph.addNode(TVTropeType.CONFLICT);
+        GrammarNode f = narrative_graph.addNode(TVTropeType.BAD);
+        GrammarNode g = narrative_graph.addNode(TVTropeType.HERO);
+
+        a.addConnection(b, 1);
+        c.addConnection(b, 1);
+        b.addConnection(d, 0);
+        f.addConnection(e, 1);
+        e.addConnection(d, 1);
+        e.addConnection(g, 1);
+
+        narrative_graph.pattern_finder.findNarrativePatterns(target_graph);
+
+        NSEvolutionarySystemEvaluator evaluator = new NSEvolutionarySystemEvaluator();
+
+        System.out.println("ORIGINAL");
+        evaluator.testEvaluation(target_graph, target_graph);
+        System.out.println();
+        System.out.println("ELITE");
+        evaluator.testEvaluation(narrative_graph, target_graph);
+
+        System.out.println("");
+
+        double step = target_graph.distanceBetweenGraphs(narrative_graph);
+
+        System.out.println("STEP: " + step);
+    }
+
+    public void analyzeZTempleElite()
+    {
+        //ZELDA temple
+        target_graph = new GrammarGraph();
+
+        GrammarNode link = target_graph.addNode(TVTropeType.HERO);
+        GrammarNode conf = target_graph.addNode(TVTropeType.CONFLICT);
+        GrammarNode generic_en = target_graph.addNode(TVTropeType.ENEMY);
+//		GrammarNode drake = graph.addNode(TVTropeType.DRA);
+        GrammarNode bow = target_graph.addNode(TVTropeType.MHQ);
+        GrammarNode boss = target_graph.addNode(TVTropeType.BAD);
+        GrammarNode quest_item = target_graph.addNode(TVTropeType.MCG);
+        GrammarNode elder = target_graph.addNode(TVTropeType.HERO);
+        GrammarNode extra_item = target_graph.addNode(TVTropeType.MHQ);
+
+        link.addConnection(conf, 1);
+        link.addConnection(quest_item, 1);
+        conf.addConnection(generic_en, 1);
+
+        generic_en.addConnection(bow, 0);
+//		drake.addConnection(bow, 0);
+        bow.addConnection(boss, 0);
+        boss.addConnection(quest_item, 0);
+        quest_item.addConnection(elder, 1);
+        elder.addConnection(extra_item, 0);
+
+        extra_item.addConnection(link, 1);
+
+        target_graph.pattern_finder.findNarrativePatterns(null);
+
+        //NOW WE BUILD THE ELITE!
+
+        GrammarGraph narrative_graph = new GrammarGraph();
+
+        GrammarNode a = narrative_graph.addNode(TVTropeType.HERO);
+        GrammarNode b = narrative_graph.addNode(TVTropeType.CONFLICT);
+        GrammarNode c = narrative_graph.addNode(TVTropeType.ENEMY);
+        GrammarNode d = narrative_graph.addNode(TVTropeType.MHQ);
+        GrammarNode e = narrative_graph.addNode(TVTropeType.CHK);
+        GrammarNode f = narrative_graph.addNode(TVTropeType.BAD);
+        GrammarNode g = narrative_graph.addNode(TVTropeType.MCG);
+
+        a.addConnection(b, 1);
+        b.addConnection(c, 1);
+        c.addConnection(d, 0);
+        d.addConnection(e, 0);
+        e.addConnection(f, 0);
+        f.addConnection(d, 1);
+        a.addConnection(g, 1);
+        g.addConnection(f, 1);
+
+        narrative_graph.pattern_finder.findNarrativePatterns(target_graph);
+
+        NSEvolutionarySystemEvaluator evaluator = new NSEvolutionarySystemEvaluator();
+        System.out.println("TEMPLE _ ZELDA!");
+        System.out.println("ORIGINAL");
+        evaluator.testEvaluation(target_graph, target_graph);
+        System.out.println();
+        System.out.println("ELITE");
+        evaluator.testEvaluation(narrative_graph, target_graph);
+
+        System.out.println("");
+
+        double step = target_graph.distanceBetweenGraphs(narrative_graph);
+
+        System.out.println("STEP: " + step);
+    }
+
+    public void analyzeMarioElite()
+    {
+        target_graph = new GrammarGraph();
+
+        GrammarNode mario = target_graph.addNode(TVTropeType.HERO);
+        GrammarNode conf = target_graph.addNode(TVTropeType.CONFLICT);
+        GrammarNode empire = target_graph.addNode(TVTropeType.EMP);
+        GrammarNode fake_bowser = target_graph.addNode(TVTropeType.DRA);
+        GrammarNode bowser = target_graph.addNode(TVTropeType.BAD);
+        GrammarNode quest_item = target_graph.addNode(TVTropeType.MCG);
+        GrammarNode peach = target_graph.addNode(TVTropeType.HERO);
+
+        mario.addConnection(conf, 1);
+        mario.addConnection(quest_item, 1);
+        conf.addConnection(empire, 1);
+
+        empire.addConnection(fake_bowser, 0);
+        fake_bowser.addConnection(bowser, 0);
+        bowser.addConnection(quest_item, 0);
+
+        quest_item.addConnection(peach, 1);
+
+        target_graph.pattern_finder.findNarrativePatterns(null);
+
+        //NOW WE BUILD THE ELITE!
+
+        GrammarGraph narrative_graph = new GrammarGraph();
+
+        GrammarNode a = narrative_graph.addNode(TVTropeType.HERO);
+        GrammarNode b = narrative_graph.addNode(TVTropeType.CONFLICT);
+        GrammarNode c = narrative_graph.addNode(TVTropeType.EMP);
+        GrammarNode d = narrative_graph.addNode(TVTropeType.DRA);
+        GrammarNode e = narrative_graph.addNode(TVTropeType.MCG);
+        GrammarNode f = narrative_graph.addNode(TVTropeType.BAD);
+
+        a.addConnection(b, 1);
+        b.addConnection(c, 1);
+        c.addConnection(d, 0);
+
+        a.addConnection(e, 1);
+        e.addConnection(f, 0);
+
+        narrative_graph.pattern_finder.findNarrativePatterns(target_graph);
+
+        NSEvolutionarySystemEvaluator evaluator = new NSEvolutionarySystemEvaluator();
+        System.out.println("It's me MARIO!");
+        System.out.println("ORIGINAL");
+        evaluator.testEvaluation(target_graph, target_graph);
+        System.out.println();
+        System.out.println("ELITE");
+        evaluator.testEvaluation(narrative_graph, target_graph);
+
+        System.out.println("");
+
+        double step = narrative_graph.distanceBetweenGraphs(target_graph);
+
+        System.out.println("STEP: " + step);
+    }
 
     public NarrativeStructure()
     {
-        possibleCombinations.add(new MAPEDimensionGrammarFXML[]{new MAPEDimensionGrammarFXML(GADimensionGrammar.GrammarDimensionTypes.CONFLICT, 5),
-                new MAPEDimensionGrammarFXML(GADimensionGrammar.GrammarDimensionTypes.STEP, 5)});
-        possibleCombinations.add(new MAPEDimensionGrammarFXML[]{new MAPEDimensionGrammarFXML(GADimensionGrammar.GrammarDimensionTypes.CONFLICT, 5),
-                new MAPEDimensionGrammarFXML(GADimensionGrammar.GrammarDimensionTypes.PLOT_POINTS, 5)});
-        possibleCombinations.add(new MAPEDimensionGrammarFXML[]{new MAPEDimensionGrammarFXML(GADimensionGrammar.GrammarDimensionTypes.CONFLICT, 5),
-                new MAPEDimensionGrammarFXML(GADimensionGrammar.GrammarDimensionTypes.PLOT_DEVICES, 5)});
-        possibleCombinations.add(new MAPEDimensionGrammarFXML[]{new MAPEDimensionGrammarFXML(GADimensionGrammar.GrammarDimensionTypes.CONFLICT, 5),
-                new MAPEDimensionGrammarFXML(GADimensionGrammar.GrammarDimensionTypes.PLOT_TWISTS, 5)});
-        possibleCombinations.add(new MAPEDimensionGrammarFXML[]{new MAPEDimensionGrammarFXML(GADimensionGrammar.GrammarDimensionTypes.CONFLICT, 5),
-                new MAPEDimensionGrammarFXML(GADimensionGrammar.GrammarDimensionTypes.INTERESTING, 5)});
-        possibleCombinations.add(new MAPEDimensionGrammarFXML[]{new MAPEDimensionGrammarFXML(GADimensionGrammar.GrammarDimensionTypes.CONFLICT, 5),
-                new MAPEDimensionGrammarFXML(GADimensionGrammar.GrammarDimensionTypes.DIVERSITY, 5)});
+//        possibleCombinations.add(new MAPEDimensionGrammarFXML[]{new MAPEDimensionGrammarFXML(GADimensionGrammar.GrammarDimensionTypes.CONFLICT, 5),
+//                new MAPEDimensionGrammarFXML(GADimensionGrammar.GrammarDimensionTypes.STEP, 5)});
+//        possibleCombinations.add(new MAPEDimensionGrammarFXML[]{new MAPEDimensionGrammarFXML(GADimensionGrammar.GrammarDimensionTypes.CONFLICT, 5),
+//                new MAPEDimensionGrammarFXML(GADimensionGrammar.GrammarDimensionTypes.PLOT_POINTS, 5)});
+//        possibleCombinations.add(new MAPEDimensionGrammarFXML[]{new MAPEDimensionGrammarFXML(GADimensionGrammar.GrammarDimensionTypes.CONFLICT, 5),
+//                new MAPEDimensionGrammarFXML(GADimensionGrammar.GrammarDimensionTypes.PLOT_DEVICES, 5)});
+//        possibleCombinations.add(new MAPEDimensionGrammarFXML[]{new MAPEDimensionGrammarFXML(GADimensionGrammar.GrammarDimensionTypes.CONFLICT, 5),
+//                new MAPEDimensionGrammarFXML(GADimensionGrammar.GrammarDimensionTypes.PLOT_TWISTS, 5)});
+//        possibleCombinations.add(new MAPEDimensionGrammarFXML[]{new MAPEDimensionGrammarFXML(GADimensionGrammar.GrammarDimensionTypes.CONFLICT, 5),
+//                new MAPEDimensionGrammarFXML(GADimensionGrammar.GrammarDimensionTypes.INTERESTING, 5)});
+//        possibleCombinations.add(new MAPEDimensionGrammarFXML[]{new MAPEDimensionGrammarFXML(GADimensionGrammar.GrammarDimensionTypes.CONFLICT, 5),
+//                new MAPEDimensionGrammarFXML(GADimensionGrammar.GrammarDimensionTypes.DIVERSITY, 5)});
 //        possibleCombinations.add(new MAPEDimensionGrammarFXML[]{new MAPEDimensionGrammarFXML(GADimensionGrammar.GrammarDimensionTypes.DIVERSITY, 5),
 //				new MAPEDimensionGrammarFXML(GADimensionGrammar.GrammarDimensionTypes.STEP, 5)});
 //		possibleCombinations.add(new MAPEDimensionGrammarFXML[]{new MAPEDimensionGrammarFXML(GADimensionGrammar.GrammarDimensionTypes.DIVERSITY, 5),
@@ -692,10 +979,26 @@ public class NarrativeStructure implements Listener {
 //		possibleCombinations.add(new MAPEDimensionGrammarFXML[]{new MAPEDimensionGrammarFXML(GADimensionGrammar.GrammarDimensionTypes.PLOT_TWISTS, 5),
 //				new MAPEDimensionGrammarFXML(GADimensionGrammar.GrammarDimensionTypes.INTERESTING, 5)});
 
-
+        possibleCombinations.add(new MAPEDimensionGrammarFXML[]{new MAPEDimensionGrammarFXML(GADimensionGrammar.GrammarDimensionTypes.INTERESTING, 5),
+                new MAPEDimensionGrammarFXML(GADimensionGrammar.GrammarDimensionTypes.STEP, 5)});
+        possibleCombinations.add(new MAPEDimensionGrammarFXML[]{new MAPEDimensionGrammarFXML(GADimensionGrammar.GrammarDimensionTypes.INTERESTING, 5),
+                new MAPEDimensionGrammarFXML(GADimensionGrammar.GrammarDimensionTypes.STEP, 5)});
+        possibleCombinations.add(new MAPEDimensionGrammarFXML[]{new MAPEDimensionGrammarFXML(GADimensionGrammar.GrammarDimensionTypes.INTERESTING, 5),
+                new MAPEDimensionGrammarFXML(GADimensionGrammar.GrammarDimensionTypes.STEP, 5)});
+        possibleCombinations.add(new MAPEDimensionGrammarFXML[]{new MAPEDimensionGrammarFXML(GADimensionGrammar.GrammarDimensionTypes.INTERESTING, 5),
+                new MAPEDimensionGrammarFXML(GADimensionGrammar.GrammarDimensionTypes.STEP, 5)});
+        possibleCombinations.add(new MAPEDimensionGrammarFXML[]{new MAPEDimensionGrammarFXML(GADimensionGrammar.GrammarDimensionTypes.INTERESTING, 5),
+                new MAPEDimensionGrammarFXML(GADimensionGrammar.GrammarDimensionTypes.STEP, 5)});
 
         EventRouter.getInstance().registerListener(this, new AlgorithmDone(null, null, ""));
-        runExperiment();
+//        runExperiment();
+//        runZOOTExperiment();
+//        runMarioExperiment();
+//        runZTempleExperiment();
+
+        analyzeZOOTElite();
+//        analyzeZTempleElite();
+//        analyzeMarioElite();
 
 //        sampleTest();
 
