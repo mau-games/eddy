@@ -87,7 +87,9 @@ public class InteractiveGUIController implements Initializable, Listener {
 	Stage stage = null;
 
 	SuggestionsViewController suggestionsView = null;
-	RoomViewController roomView = null;
+//	RoomViewController roomView = null;
+	DimDiscoveryViewController roomView = null;
+
 	WorldViewController worldView = null;
 	LaunchViewController launchView = null;
 	NarrativeStructureViewController narrativeView = null;
@@ -155,7 +157,8 @@ public class InteractiveGUIController implements Initializable, Listener {
 
 
 		suggestionsView = new SuggestionsViewController();
-		roomView = new RoomViewController();
+//		roomView = new RoomViewController();
+		roomView = new DimDiscoveryViewController();
 		worldView = new WorldViewController();
 		launchView = new LaunchViewController();
 		narrativeView = new NarrativeStructureViewController();
@@ -464,7 +467,7 @@ public class InteractiveGUIController implements Initializable, Listener {
 		InformativePopupManager.getInstance().restartPopups();
 		
 		suggestionsView = new SuggestionsViewController();
-		roomView = new RoomViewController();
+		roomView = new DimDiscoveryViewController();
 		worldView = new WorldViewController();
 		launchView = new LaunchViewController();
 		dungeonMap = null;

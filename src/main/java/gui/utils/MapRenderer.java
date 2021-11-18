@@ -1,13 +1,7 @@
 package gui.utils;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.Dictionary;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Queue;
-import java.util.UUID;
+import java.util.*;
 import java.util.Map.Entry;
 import java.util.stream.Collectors;
 
@@ -1076,4 +1070,28 @@ public class MapRenderer implements Listener {
 		ctx.setLineWidth(width);
 		ctx.strokeLine(a.getX(), a.getY(), b.getX(), b.getY());
 	}
+
+	/**
+	 * Composes a list of micro patterns with their respective colours for the
+	 * map renderer to use.
+	 *
+	 * @param patterns The patterns to analyse.
+	 * @return A map that maps each pattern instance to a colour.
+	 */
+	public HashMap<Pattern, Color> colourPatterns(List<Pattern> patterns) {
+		HashMap<Pattern, Color> patternMap = new HashMap<Pattern, Color>();
+
+		patterns.forEach((pattern) -> {
+			if (pattern instanceof Chamber) {
+				patternMap.put(pattern, Color.BLUE);
+			} else if (pattern instanceof Corridor) {
+				patternMap.put(pattern, Color.RED);
+			} else if (pattern instanceof Connector) {
+				patternMap.put(pattern, Color.YELLOW);
+			}
+		});
+
+		return patternMap;
+	}
+
 }
