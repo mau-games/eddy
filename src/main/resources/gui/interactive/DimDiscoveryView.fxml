@@ -173,6 +173,7 @@
 								<Label text="New Dim:" textAlignment="CENTER" />
 								<TextField fx:id="dimension_name" />
 								<CheckBox mnemonicParsing="false" text="Relative?" />
+								<Button fx:id="runDimDiscovery" mnemonicParsing="false" onAction="#onRunDimDiscovery" text="Run" />
 							</children>
 						</HBox>
 						<HBox prefHeight="100.0" prefWidth="200.0" spacing="15.0">

@@ -10,6 +10,9 @@ import game.tiles.*;
 import generator.algorithm.Algorithm.AlgorithmTypes;
 import generator.algorithm.MAPElites.Dimensions.GADimension.DimensionTypes;
 import generator.algorithm.MAPElites.Dimensions.MAPEDimensionFXML;
+import generator.algorithm.MAPElites.GADimensionsGranularity;
+import generator.algorithm.MetricAlgorithm;
+import generator.algorithm.MetricExampleRooms;
 import gui.controls.*;
 import gui.utils.MapRenderer;
 import javafx.application.Platform;
@@ -34,10 +37,10 @@ import util.eventrouting.events.intraview.*;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 /**
  * This class controls the interactive application's edit view.
@@ -108,6 +111,7 @@ public class DimDiscoveryViewController extends BorderPane implements Listener
 	@FXML private Button flowControlBtn; //bra
 	@FXML private Button stopEABtn; //bra
 	@FXML private Button saveGenBtn;
+	@FXML private Button runDimDiscovery;
 
 	private SuggestionRoom selectedSuggestion;
 
@@ -776,6 +780,38 @@ public class DimDiscoveryViewController extends BorderPane implements Listener
 			break;
 		}
 
+	}
+
+	@FXML
+	private void onRunDimDiscovery(ActionEvent event) throws IOException, InterruptedException {
+		System.out.println("DISCOVER DIMS!");
+		ArrayList<MetricExampleRooms> example_rooms  = new ArrayList<MetricExampleRooms>();
+		MetricExampleRooms very_low = new MetricExampleRooms(verylow_example_pane.editedPane.getMap(), new GADimensionsGranularity(0.2, 5.0, 1));
+		MetricExampleRooms very_high = new MetricExampleRooms(veryhigh_example_pane.editedPane.getMap(), new GADimensionsGranularity(1.0, 5.0, 4));
+		example_rooms.add(very_low);
+		example_rooms.add(very_high);
+
+		MetricAlgorithm dim_discovery = new MetricAlgorithm(example_rooms, editedRoomPane.editedPane.getMap());
+		dim_discovery.initPopulations(editedRoomPane.editedPane.getMap());
+		dim_discovery.start();
+
+//		dim_discovery.join();
+
+//		ExecutorService es = Executors.newCachedThreadPool();
+//		for(int i=0;i<1;i++)
+//			es.execute(dim_discovery);
+//		es.shutdown();
+//
+//		try {
+//			if (!es.awaitTermination(60, TimeUnit.SECONDS)) {
+//				es.shutdownNow();
+//			}
+//		} catch (InterruptedException ex) {
+//			es.shutdownNow();
+//			Thread.currentThread().interrupt();
+//		}
+
+//		boolean finished = es.awaitTermination(1, TimeUnit.MINUTES);
 	}
 
 	/**

@@ -10,7 +10,6 @@
 <?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
 
-
 <BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1">
    <left>
       <ToolBar orientation="VERTICAL" prefHeight="400.0" prefWidth="113.0" BorderPane.alignment="CENTER">
@@ -39,6 +38,7 @@
                         <Label text="New Dim:" textAlignment="CENTER" />
                         <TextField fx:id="dimension_name" />
                         <CheckBox mnemonicParsing="false" text="Relative?" />
+                        <Button fx:id="runDimDiscovery" mnemonicParsing="false" onAction="#onRunDimDiscovery" text="Run" />
                      </children>
                   </HBox>
                   <HBox prefHeight="100.0" prefWidth="200.0" spacing="15.0">

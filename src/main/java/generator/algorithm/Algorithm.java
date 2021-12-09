@@ -591,8 +591,7 @@ public class Algorithm extends Thread implements Listener {
 
 	}
 	
-	public Room NoSaveRun()
-	{
+	public Room NoSaveRun() throws InterruptedException {
 		Room bestRoom = null;
 		
 		for(int generationCount = 1; generationCount <= iter_generations; generationCount++) {
@@ -754,8 +753,12 @@ public class Algorithm extends Thread implements Listener {
         }
         else
         {
-        	room = NoSaveRun();
-        }
+			try {
+				room = NoSaveRun();
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+		}
 
         
         System.out.println("FINISHED");

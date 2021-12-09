@@ -1,6 +1,7 @@
 package generator.algorithm.MAPElites.Dimensions;
 
 import generator.algorithm.MAPElites.Dimensions.GADimension.DimensionTypes;
+import generator.algorithm.MetricInterpreter;
 import javafx.beans.InvalidationListener;
 import javafx.beans.NamedArg;
 import javafx.beans.property.ObjectProperty;
@@ -17,7 +18,9 @@ public class MAPEDimensionFXML
 	
 	public final SimpleObjectProperty<DimensionTypes> dimension = new SimpleObjectProperty<DimensionTypes>();
 	public SimpleIntegerProperty granularity = new SimpleIntegerProperty();
-	
+	public MetricInterpreter metric_interpreter;
+
+
 	public MAPEDimensionFXML()
 	{
 		this(DimensionTypes.SIMILARITY, 0);
@@ -27,6 +30,14 @@ public class MAPEDimensionFXML
 	{
 		setDimension(dimension);
 		setGranularity(granularity);
+	}
+
+	public MAPEDimensionFXML(@NamedArg("dimension") DimensionTypes dimension,  @NamedArg("granularity")int granularity,
+							 @NamedArg("metric")MetricInterpreter custom_metric)
+	{
+		setDimension(dimension);
+		setGranularity(granularity);
+		this.metric_interpreter = custom_metric;
 	}
 	
 	public void setDimension(DimensionTypes type)
@@ -48,5 +59,7 @@ public class MAPEDimensionFXML
 	{
 		return granularity.get();
 	}
+
+	public MetricInterpreter getMetricInterpreter() {return this.metric_interpreter;}
 	
 }
