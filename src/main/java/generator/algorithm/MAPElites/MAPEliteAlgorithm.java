@@ -920,7 +920,7 @@ public class MAPEliteAlgorithm extends Algorithm implements Listener {
         		noSaveRunNoInterbreedingApplElites();
         	}
 
-			if(metric_map_elites && realCurrentGen > 50)
+			if(metric_map_elites && realCurrentGen > 200)
 			{
 				stop = true;
 			}

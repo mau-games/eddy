@@ -115,6 +115,17 @@ public class MetricIndividual
      * @return An array of offspring resulting from the crossover.
      */
     public MetricIndividual[] twoPointCrossover(MetricIndividual other){ //This is one way of doing crossover (Icould do others)
+
+        if(this.getGenotype().equals(other.getGenotype()))
+        {
+            MetricIndividual[] children = new MetricIndividual[2];
+            children[0] = mutate(true);
+            children[1] = other.mutate(true);
+
+            return children;
+//            return null;
+        }
+
         MetricIndividual[] children = new MetricIndividual[2]; //FIXME: Here needs some fix1
         children[0] = new MetricIndividual(this.editedRoom, new MetricGenotype(this.genotype.getChromosomes()), mutationProbability);
         children[1] = new MetricIndividual(other.editedRoom, new MetricGenotype(other.genotype.getChromosomes()), mutationProbability);
@@ -150,6 +161,11 @@ public class MetricIndividual
         children[0].getGenotype().exchangeMetrics(this_chromosome_startpos, rnd_cut, other_metric_chromosomes);
         children[1].getGenotype().exchangeMetrics(other_chromosome_startpos, rnd_cut, this_metric_chromosomes);
 
+
+        //Now test if we want to mutate these children!
+        children[0] = children[0].mutate(false);
+        children[1] = children[1].mutate(false);
+
 //        int rnd_lower_bound = Util.getNextInt(0, children[0].getGenotype().getSizeChromosome());
 //        int rnd_upper_bound = Util.getNextInt(rnd_lower_bound, children[0].getGenotype().getSizeChromosome());
 //
@@ -183,7 +199,7 @@ public class MetricIndividual
         if(!test_mutation_prob || Util.getNextFloat(0.0f, 1.0f) > mutationProbability)
         {
             //For now just a random
-            int select=Util.getNextInt(0, 6);
+//            int select=Util.getNextInt(0, 6);
 //            GrammarIndividual mutated_version = new GrammarIndividual(config, new ZoneGenotype(config, genotype.getChromosome().clone(), genotype.GetRootChromosome()), mutationProbability);
             MetricIndividual mutated_version = new MetricIndividual(this.editedRoom, new MetricGenotype(this.genotype.getChromosomes()), mutationProbability);
 
@@ -209,7 +225,7 @@ public class MetricIndividual
 
         }
         else
-            return null;
+            return this;
     }
 
     //TODO: WORKING ON THIS!
@@ -218,15 +234,41 @@ public class MetricIndividual
         boolean feasible = true;
         for(MetricExampleRooms example : examples)
         {
-            double score = this.getPhenotype().createMetric().calculateMetric(example.room);
-            if(score >= example.granularity_value.getMaxValue() || score <= example.granularity_value.getMinValue() )
+            if(example.positive)
             {
-                feasible = false;
-                return false;
+                double score = this.getPhenotype().createMetric().calculateMetric(example.room);
+                if(Math.abs(score - example.metric_value) > 0.7)
+                    return false;
             }
+            else
+            {
+                double score = this.getPhenotype().createMetric().calculateMetric(example.room);
+                if(Math.abs(score - example.metric_value) < 0.3)
+                    return false;
+            }
+
+//            if(score >= example.granularity_value.getMaxValue() || score <= example.granularity_value.getMinValue() )
+//            {
+//                feasible = false;
+//                return false;
+//            }
         }
 
         return feasible;
+
+//        return true;
+//        boolean feasible = true;
+//        for(MetricExampleRooms example : examples)
+//        {
+//            double score = this.getPhenotype().createMetric().calculateMetric(example.room);
+//            if(score >= example.granularity_value.getMaxValue() || score <= example.granularity_value.getMinValue() )
+//            {
+//                feasible = false;
+//                return false;
+//            }
+//        }
+//
+//        return feasible;
     }
 
     /**
@@ -302,5 +344,54 @@ public class MetricIndividual
     public void ResetPhenotype()
     {
         phenotype = null;
+    }
+
+    public boolean equals(MetricIndividual other, ArrayList<MetricExampleRooms> examples)
+    {
+        for(MetricExampleRooms example : examples)
+        {
+            double this_metric = this.getPhenotype().createMetric().calculateMetric(example.room);
+            double other_metric = other.getPhenotype().createMetric().calculateMetric(example.room);
+            if(this_metric > other_metric + 0.05 || this_metric < other_metric - 0.05)
+            {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    protected void FilterChromosomes()
+    {
+        boolean nothingToFilter = false;
+        int counter = 0;
+        int limit = this.getGenotype().getChromosomes().size();
+        int duplicates = 0;
+
+        while(limit-- > 0)
+        {
+            List<MetricChromosome> to_remove = new ArrayList<>();
+
+            if(counter >=  this.getGenotype().getChromosomes().size())
+                counter =  this.getGenotype().getChromosomes().size() - 1;
+
+            for(int i = 0; i <  this.getGenotype().getChromosomes().size(); i++)
+            {
+                if(i == counter)
+                    continue;
+
+                if(this.getGenotype().getChromosomes().get(counter).equals(this.getGenotype().getChromosomes().get(i)))
+                {
+                    to_remove.add(this.getGenotype().getChromosomes().get(i));
+                }
+            }
+            counter++;
+            duplicates += to_remove.size();
+            this.getGenotype().getChromosomes().removeAll(to_remove);
+        }
+
+        //Check the duplicates
+        duplicates += 1;
+
     }
 }

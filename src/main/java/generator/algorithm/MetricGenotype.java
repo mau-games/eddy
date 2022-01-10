@@ -37,14 +37,32 @@ public class MetricGenotype
 
         while(rnd != 0)
         {
-            rnd--;
+
 
             float w = Util.getNextFloat(-1.0f, 1.0f);
             int func_type = Util.getNextInt(0, 2);
             int func = func_type == 0 ?  Util.getNextInt(0, 5) : Util.getNextInt(0, 28);
+            MetricChromosome chromosome = new MetricChromosome(w, func_type, func);
 
-            chromosomes.add(new MetricChromosome(w, func_type, func));
+            if(isCopy(chromosome))
+                continue;
+
+            chromosomes.add(chromosome);
+            rnd--;
         }
+    }
+
+    public boolean isCopy(MetricChromosome other)
+    {
+        for(MetricChromosome chromosome : chromosomes)
+        {
+            if(other.functionType == chromosome.functionType && other.function == chromosome.function)
+            {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     public MetricChromosome[] getMetricsToExchange(int starting_pos, int amount)
@@ -82,11 +100,21 @@ public class MetricGenotype
 
     public void addFunc()
     {
+
         float w = Util.getNextFloat(-1.0f, 1.0f);
         int func_type = Util.getNextInt(0, 2);
         int func = func_type == 0 ?  Util.getNextInt(0, 5) : Util.getNextInt(0, 28);
+        MetricChromosome chromosome = new MetricChromosome(w, func_type, func);
 
-        this.chromosomes.add(new MetricChromosome(w, func_type, func));
+        while(isCopy(chromosome))
+        {
+            w = Util.getNextFloat(-1.0f, 1.0f);
+            func_type = Util.getNextInt(0, 2);
+            func = func_type == 0 ?  Util.getNextInt(0, 5) : Util.getNextInt(0, 28);
+            chromosome = new MetricChromosome(w, func_type, func);
+        }
+
+        this.chromosomes.add(chromosome);
     }
 
     public void removeFunc()
@@ -160,5 +188,33 @@ public class MetricGenotype
      */
     public int getSizeChromosome(){
         return chromosomes.size();
+    }
+
+    public boolean equals(MetricGenotype other)
+    {
+        if(this.getSizeChromosome() != other.getSizeChromosome())
+            return false;
+
+        int equal_count = 0;
+
+        for(MetricChromosome my_chromosome : this.chromosomes)
+        {
+            boolean found = false;
+            for(MetricChromosome other_chromosome : other.getChromosomes())
+            {
+                if(my_chromosome.functionType == other_chromosome.functionType && my_chromosome.function == other_chromosome.function)
+                {
+                    equal_count++;
+                    found = true;
+                    break;
+                }
+            }
+
+            if(!found)
+                return false;
+
+        }
+
+        return equal_count == getSizeChromosome();
     }
 }

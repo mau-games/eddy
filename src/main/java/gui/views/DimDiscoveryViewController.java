@@ -13,19 +13,23 @@ import generator.algorithm.MAPElites.Dimensions.MAPEDimensionFXML;
 import generator.algorithm.MAPElites.GADimensionsGranularity;
 import generator.algorithm.MetricAlgorithm;
 import generator.algorithm.MetricExampleRooms;
+import generator.algorithm.MetricIndividual;
 import gui.controls.*;
 import gui.utils.MapRenderer;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
+import javafx.geometry.HPos;
 import javafx.geometry.Insets;
+import javafx.geometry.Pos;
 import javafx.scene.Cursor;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.*;
+import javafx.scene.paint.Color;
 import util.config.ConfigurationUtility;
 import util.config.MissingConfigurationException;
 import util.eventrouting.EventRouter;
@@ -65,7 +69,6 @@ public class DimDiscoveryViewController extends BorderPane implements Listener
 	//left side as well
 	@FXML private GridPane legend;
 	@FXML private ToggleGroup brushes;
-
 
 	@FXML private DimensionsTable MainTable;
 	@FXML private DimensionsTable secondaryTable;
@@ -146,6 +149,10 @@ public class DimDiscoveryViewController extends BorderPane implements Listener
 
 	private MAPEDimensionFXML[] currentDimensions = new MAPEDimensionFXML[] {};
 
+	@FXML
+	public GridPane metricSuggestions;
+	private HBox sp;
+	private ArrayList<MetricPossibleRoom> metricDisplays;
 
 	//PROVISIONAL FIX!
 	public enum EvoState
@@ -185,6 +192,7 @@ public class DimDiscoveryViewController extends BorderPane implements Listener
 		router.registerListener(this, new SuggestedMapsDone());
 		router.registerListener(this, new SuggestedMapSelected(null));
 		router.registerListener(this, new UserEditedRoom(null, null));
+		router.registerListener(this, new MetricUpdate());
 
 //		router.registerListener(this, new InteractiveRoomHovered(null, null, null, null));
 //		router.registerListener(this, new InteractiveRoomEdited(null, null, null, null));
@@ -240,8 +248,109 @@ public class DimDiscoveryViewController extends BorderPane implements Listener
 		
 		currentState = EvoState.STOPPED;
 		saveGenBtn.setDisable(false);
-		
 
+		metricDisplays = new ArrayList<MetricPossibleRoom>();
+
+		for(int i = 0; i < 10; i++)
+		{
+			MetricPossibleRoom suggestion = new MetricPossibleRoom();
+			metricDisplays.add(suggestion);
+		}
+
+//		metricSuggestions = new GridPane();
+//		metricSuggestions.setStyle("-fx-background-color: transparent;");
+		metricSuggestions.setHgap(5.0);
+		metricSuggestions.setVgap(5.0);
+		metricSuggestions.setAlignment(Pos.CENTER);
+		SetupInnerGrid(metricDisplays, 5, 2);
+//		sp = new HBox(metricSuggestions);
+
+	}
+
+	public void SetupInnerGrid(ArrayList<MetricPossibleRoom> displays, int xResolution, int yResolution)
+	{
+		metricSuggestions.getChildren().clear();
+
+		for(int j = 0, red = yResolution; j < yResolution; j++, red--)
+		{
+			Label boxLabel = new Label(String.valueOf((float)red/yResolution));
+			boxLabel.setTextFill(Color.WHITE);
+			GridPane.clearConstraints(boxLabel);
+			GridPane.setConstraints(boxLabel,0, j);
+			metricSuggestions.getChildren().add(boxLabel);
+
+			for(int i = 1; i < xResolution + 1; i++)
+			{
+				GridPane.clearConstraints(displays.get((i - 1) + j * xResolution).getRoomCanvas());
+				GridPane.setConstraints(displays.get((i - 1) + j * xResolution).getRoomCanvas(), i, (red - 1));
+				metricSuggestions.getChildren().add(displays.get((i - 1) + j * xResolution).getRoomCanvas());
+			}
+		}
+
+		for(int i = 1; i < xResolution + 1; i++)
+		{
+			Label boxLabel = new Label(String.valueOf((float)(i)/xResolution));
+			boxLabel.setTextFill(Color.WHITE);
+			GridPane.clearConstraints(boxLabel);
+			GridPane.setConstraints(boxLabel, i, yResolution);
+			GridPane.setHalignment(boxLabel, HPos.CENTER);
+			metricSuggestions.getChildren().add(boxLabel);
+		}
+	}
+
+	private void CreateTestScenario(Room room)
+	{
+		Room edited_room = new Room(room);
+		edited_room.setTile(3, 0, TileTypes.WALL);
+		edited_room.setTile(3, 1, TileTypes.WALL);
+		edited_room.setTile(3, 2, TileTypes.WALL);
+		edited_room.setTile(3, 3, TileTypes.WALL);
+		edited_room.setTile(3, 5, TileTypes.WALL);
+		edited_room.setTile(3, 6, TileTypes.WALL);
+		edited_room.setTile(4, 5, TileTypes.WALL);
+		edited_room.setTile(4, 2, TileTypes.WALL);
+		edited_room.setTile(4, 6, TileTypes.TREASURE);
+		edited_room.setTile(6, 4, TileTypes.ENEMY);
+		editedRoomPane.editedPane.updateMap(edited_room);
+
+		edited_room = new Room(room);
+		edited_room.setTile(4, 5, TileTypes.WALL);
+		edited_room.setTile(5, 5, TileTypes.WALL);
+		edited_room.setTile(7, 5, TileTypes.WALL);
+		edited_room.setTile(8, 5, TileTypes.WALL);
+
+		edited_room.setTile(4, 4, TileTypes.WALL);
+		edited_room.setTile(8, 4, TileTypes.WALL);
+
+		edited_room.setTile(4, 3, TileTypes.WALL);
+		edited_room.setTile(8, 3, TileTypes.WALL);
+
+		edited_room.setTile(4, 2, TileTypes.WALL);
+		edited_room.setTile(8, 2, TileTypes.WALL);
+
+		edited_room.setTile(4, 1, TileTypes.WALL);
+		edited_room.setTile(5, 1, TileTypes.WALL);
+		edited_room.setTile(6, 1, TileTypes.WALL);
+		edited_room.setTile(7, 1, TileTypes.WALL);
+		edited_room.setTile(8, 1, TileTypes.WALL);
+
+		edited_room.setTile(6, 2, TileTypes.TREASURE);
+
+		verylow_example_pane.editedPane.updateMap(edited_room);
+
+		edited_room = new Room(room);
+		edited_room.setTile(1, 4, TileTypes.WALL);
+		edited_room.setTile(2, 3, TileTypes.WALL);
+		edited_room.setTile(1, 2, TileTypes.WALL);
+
+		edited_room.setTile(11, 4, TileTypes.WALL);
+		edited_room.setTile(10, 3, TileTypes.WALL);
+		edited_room.setTile(11, 2, TileTypes.WALL);
+
+		edited_room.setTile(11, 3, TileTypes.TREASURE);
+		edited_room.setTile(6, 3, TileTypes.ENEMY);
+
+		veryhigh_example_pane.editedPane.updateMap(edited_room);
 	}
 	
 	@FXML
@@ -305,6 +414,11 @@ public class DimDiscoveryViewController extends BorderPane implements Listener
 			sr.resizeCanvasForRoom(roomToBe);
 		}
 
+		for(MetricPossibleRoom md : metricDisplays)
+		{
+			md.resizeCanvasForRoom(roomToBe);
+		}
+
 		editedRoomPane.init(mapWidth, mapHeight, roomToBe);
 
 		mapHeight = (int)(15.0 * (float)((float)roomToBe.getRowCount())); //Recalculate map size
@@ -313,12 +427,20 @@ public class DimDiscoveryViewController extends BorderPane implements Listener
 		verylow_example_pane.init(mapWidth, mapHeight, new Room(roomToBe));
 		veryhigh_example_pane.init(mapWidth, mapHeight, new Room(roomToBe));
 
+
+
 		initButtons();
 		initLegend();
 		resetView();
 		roomToBe.forceReevaluation();
-		updateRoom(roomToBe);	
+		updateRoom(roomToBe);
+
+		//This is for testing purposes
+		CreateTestScenario(roomToBe);
+
+
 		generateNewMaps();
+
 
 	}
 
@@ -472,7 +594,84 @@ public class DimDiscoveryViewController extends BorderPane implements Listener
 	public void ping(PCGEvent e) {
 		//Lets see if it works!
 
-		if(e instanceof UserEditedRoom)
+		if(e instanceof MetricUpdate)
+		{
+			if (isActive) {
+				System.out.println("NEW ROUND OF UPDATES!");
+				List<MetricIndividual> top_candidates = ((MetricUpdate) e).top_individuals;
+				int display_counter = 0;
+
+//				LinkedHashMap<Room, Double> candidate_0_results = top_candidates.get(0).getPhenotype().results;
+
+				List<MetricExampleRooms> candidate_0_results = top_candidates.get(0).getPhenotype().results;
+
+				synchronized (candidate_0_results)
+				{
+					for(MetricExampleRooms result : candidate_0_results) {
+						metricDisplays.get(display_counter).setSuggestedRoom(result.room);
+						metricDisplays.get(display_counter).setOriginalRoom(result.room);
+						metricDisplays.get(display_counter).setExampleRoom(result.room, result.granularity_value, result.metric_value);
+						display_counter++;
+					}
+//
+//								new GADimensionsGranularity(((display_counter%5) + 1.0)/5.0, 5.0, (display_counter%5) + 1),
+//								candidate_0_results.get(result));
+//						display_counter++;
+//					}
+//					for (Room result : candidate_0_results.keySet())
+//					{
+//
+//					}
+				}
+
+					List<MetricExampleRooms> candidate_1_results = top_candidates.get(1).getPhenotype().results;
+
+					synchronized (candidate_1_results) {
+						for (MetricExampleRooms result : candidate_1_results) {
+							metricDisplays.get(display_counter).setSuggestedRoom(result.room);
+							metricDisplays.get(display_counter).setOriginalRoom(result.room);
+							metricDisplays.get(display_counter).setExampleRoom(result.room, result.granularity_value, result.metric_value);
+							display_counter++;
+						}
+					}
+
+
+//				LinkedHashMap<Room, Double> candidate_1_results = top_candidates.get(1).getPhenotype().results;
+//
+//				synchronized (candidate_1_results)
+//				{
+//					for (Room result : candidate_1_results.keySet())
+//					{
+//						metricDisplays.get(display_counter).setSuggestedRoom(result);
+//						metricDisplays.get(display_counter).setOriginalRoom(result);
+//						metricDisplays.get(display_counter).setExampleRoom(result,
+//								new GADimensionsGranularity(((display_counter%5) + 1.0)/5.0, 5.0, (display_counter%5) + 1),
+//								candidate_1_results.get(result));
+//						display_counter++;
+//					}
+//				}
+
+				Platform.runLater(() -> {
+					int i = 0;
+					for(MetricPossibleRoom possibleRoom : metricDisplays)
+					{
+						if(possibleRoom.getSuggestedRoom() != null)
+						{
+							possibleRoom.getRoomCanvas().draw(renderer.renderMiniSuggestedRoom(possibleRoom.getSuggestedRoom(), i));
+						}
+						else
+						{
+							possibleRoom.getRoomCanvas().draw(null);
+						}
+						i++;
+					}
+
+//					System.out.println("CANVAS WIDTH: " + canvas.getWidth() + ", CANVAS HEIGHT: " + canvas.getHeight());
+				});
+
+			}
+		}
+		else if(e instanceof UserEditedRoom)
 		{
 			UserEditedRoom(((UserEditedRoom) e).uniqueCanvasID, ((UserEditedRoom) e).editedRoom);
 		}
@@ -782,12 +981,35 @@ public class DimDiscoveryViewController extends BorderPane implements Listener
 
 	}
 
+	 @FXML
+	 private void onContinueMetricSearch(ActionEvent event) throws IOException, InterruptedException
+	 {
+		ArrayList<MetricExampleRooms> new_examples = new ArrayList<MetricExampleRooms>();
+
+		for(MetricPossibleRoom possible : metricDisplays)
+		{
+			if(possible.getSuggestedRoom() != null)
+			{
+				new_examples.add(possible.getPossibleRoom());
+			}
+		}
+
+		router.postEvent(new MetricContinue(new_examples));
+	 }
+
 	@FXML
 	private void onRunDimDiscovery(ActionEvent event) throws IOException, InterruptedException {
 		System.out.println("DISCOVER DIMS!");
 		ArrayList<MetricExampleRooms> example_rooms  = new ArrayList<MetricExampleRooms>();
-		MetricExampleRooms very_low = new MetricExampleRooms(verylow_example_pane.editedPane.getMap(), new GADimensionsGranularity(0.2, 5.0, 1));
-		MetricExampleRooms very_high = new MetricExampleRooms(veryhigh_example_pane.editedPane.getMap(), new GADimensionsGranularity(1.0, 5.0, 4));
+		MetricExampleRooms very_low = new MetricExampleRooms(verylow_example_pane.editedPane.getMap(),
+				new GADimensionsGranularity(0.2, 5.0, 1),
+				0.0f,
+				true);
+		MetricExampleRooms very_high = new MetricExampleRooms(veryhigh_example_pane.editedPane.getMap(),
+				new GADimensionsGranularity(1.0, 5.0, 4),
+				1.0f,
+				true);
+
 		example_rooms.add(very_low);
 		example_rooms.add(very_high);
 

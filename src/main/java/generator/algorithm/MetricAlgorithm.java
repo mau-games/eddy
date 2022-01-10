@@ -105,6 +105,9 @@ public class MetricAlgorithm extends Algorithm implements Listener {
 
 	public ArrayList<MetricExampleRooms> testExamples;
 
+	public boolean waitUser = false;
+	public boolean examples_changed = false;
+
 	public MetricAlgorithm()
 	{
 		//I do nothing! :D
@@ -274,6 +277,7 @@ public class MetricAlgorithm extends Algorithm implements Listener {
 //		populationSize = config.getPopulationSize();
 		populationSize = 250; //Setting same as experiments
 		mutationProbability = (float)config.getMutationProbability();
+		mutationProbability = 0.3f;
 		offspringSize = (float)config.getOffspringSize();
 //		feasibleAmount = (int)((double)populationSize * config.getFeasibleProportion());
 		feasibleAmount = 125; //Setting same as experiments
@@ -290,7 +294,8 @@ public class MetricAlgorithm extends Algorithm implements Listener {
 		}
 
 		this.save_data = AlgorithmSetup.getInstance().getSaveData();
-		this.iter_generations = AlgorithmSetup.getInstance().getITER_GENERATIONS();
+//		this.iter_generations = AlgorithmSetup.getInstance().getITER_GENERATIONS();
+		this.iter_generations = 50;
 	}
 	
 	
@@ -332,6 +337,7 @@ public class MetricAlgorithm extends Algorithm implements Listener {
 		EventRouter.getInstance().registerListener(this, new UpdatePreferenceModel(null));
 		EventRouter.getInstance().registerListener(this, new SaveCurrentGeneration());
 		EventRouter.getInstance().registerListener(this, new RoomEdited(null));
+		EventRouter.getInstance().registerListener(this, new MetricContinue((MetricExampleRooms) null));
 
 		feasiblePool = new ArrayList<MetricIndividual>();
 		infeasiblePool = new ArrayList<MetricIndividual>();
@@ -409,6 +415,18 @@ public class MetricAlgorithm extends Algorithm implements Listener {
 				this.roomCustomTiles = relativeRoom.customTiles;
 				room_changed = true;
 			}
+		}
+		else if(e instanceof MetricContinue)
+		{
+			testExamples.addAll(((MetricContinue) e).new_examples);
+			examples_changed = true;
+			waitUser = false;
+			System.out.println("LETS CONTINUE THE SEARCH!!");
+		}
+		else if(e instanceof StopMetricSearch)
+		{
+			stop = true;
+			waitUser = false;
 		}
 	}
 //
@@ -569,12 +587,29 @@ public class MetricAlgorithm extends Algorithm implements Listener {
 //
 //	}
 //
+
+	public List<MetricIndividual> GenerateFreshBatch()
+	{
+		List<MetricIndividual> freshBatch = new ArrayList<>();
+
+		for(int i = 0; i < populationSize; i++)
+		{
+			freshBatch.add(new MetricIndividual(relativeRoom, mutationProbability));
+		}
+
+		return freshBatch;
+	}
+
 	public Room NoSaveRun() throws InterruptedException {
 		Room bestRoom = null;
 		
 		for(int generationCount = 1; generationCount <= iter_generations; generationCount++) {
         	if(stop)
         		return bestRoom;
+
+        	if(waitUser)
+        		continue;
+
 
 			if(room_changed)
 			{
@@ -596,8 +631,44 @@ public class MetricAlgorithm extends Algorithm implements Listener {
 
 				room_changed = false;
 			}
+
+			if(examples_changed)
+            {
+				feasiblePool.clear();
+                infeasiblePool.clear();
+
+                //Now we need to add everything faktist to the pools so they all get evaluated again! (adaptive change!)
+				ArrayList<MetricIndividual> old_inds = new ArrayList<>(feasiblePopulation);
+                feasiblePopulation.clear();
+
+				old_inds.addAll(infeasiblePopulation);
+                infeasiblePopulation.clear();
+
+                //To foster new generations!
+                old_inds.addAll(GenerateFreshBatch());
+
+                for(MetricIndividual ind : old_inds)
+                {
+                    if(checkMetricIndividual(ind))
+                    {
+                        feasiblePool.add(ind);
+                    }
+                    else
+                    {
+                        infeasiblePool.add(ind);
+                    }
+                }
+                examples_changed = false;
+            }
         	
 //        	broadcastStatusUpdate("Generation " + generationCount);
+
+
+
+			FilterPopulation(feasiblePool);
+			FilterPopulation(infeasiblePool);
+			FilterPopulation(feasiblePopulation);
+			FilterPopulation(infeasiblePopulation);
 
         	movedInfeasiblesKept = 0;
         	evaluateAndTrimMetricPools();
@@ -611,13 +682,12 @@ public class MetricAlgorithm extends Algorithm implements Listener {
         	{
         		//PUBLISH THE BEST!	
         		currentGen = 0;
-				publishGeneration();
+//				publishGeneration();
         	}
         	else 
         	{
         		currentGen++;
         	}
-
         	
         	realCurrentGen++;
 		}
@@ -722,20 +792,49 @@ public class MetricAlgorithm extends Algorithm implements Listener {
 //        generations = 5;
         Room room = null;
 
-
-        
-        if(save_data)
-        {
+        while(!stop)
+		{
+			if(save_data)
+			{
 //        	room = SaveRun();
-        }
-        else
-        {
+			}
+			else
+			{
+				try {
+					room = NoSaveRun();
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+			}
+
+			System.out.println("DONE GENERATING!");
+
+			MAPEliteAlgorithm ind_alg = null;
+			sortPopulationMetric(feasiblePopulation, false, false);
+
+			ind_alg = feasiblePopulation.get(0).getPhenotype().getAlgorithm(relativeRoom);
 			try {
-				room = NoSaveRun();
+				ind_alg.join();
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
+
+			ind_alg = feasiblePopulation.get(1).getPhenotype().getAlgorithm(relativeRoom);
+			try {
+				ind_alg.join();
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+
+			EventRouter.getInstance().postEvent(new MetricUpdate(feasiblePopulation.get(0), feasiblePopulation.get(1))); //Top 2
+			waitUser = true;
+
+			while(waitUser)
+			{
+				//Just waiting
+			}
 		}
+
 
         
         System.out.println("FINISHED");
@@ -781,12 +880,12 @@ public class MetricAlgorithm extends Algorithm implements Listener {
                 noveltyMetric(ind); //TODO: IMPORTANT CHECK HERE (ADAPTATION)
         }
         this.sortPopulationMetric(feasiblePool, false, false);
-
-        for(int i = 0; i < l; i++)
-		{
-//			if(feasiblePool.get(i).getNovelty() > 0.3)
-				novelty_archive.add(feasiblePool.get(i));
-		}
+//
+//        for(int i = 0; i < l; i++)
+//		{
+////			if(feasiblePool.get(i).getNovelty() > 0.3)
+//				novelty_archive.add(feasiblePool.get(i));
+//		}
 
 		this.sortPopulationMetric(novelty_archive, false, false);
 		novelty_archive = (ArrayList<MetricIndividual>) novelty_archive.stream().limit(100).collect(Collectors.toList());
@@ -945,16 +1044,61 @@ public class MetricAlgorithm extends Algorithm implements Listener {
 		for(MetricExampleRooms example : testExamples)
 		{
 			double score = ind.getPhenotype().createMetric().calculateMetric(example.room);
-			if(score > example.metric_value)
+
+			if(example.positive)
 			{
-				fitness += 1.0 - score/example.granularity_value.getMaxValue();
+				if(score > example.metric_value)
+				{
+					//penalization for too high values!
+					if(score > example.granularity_value.getMaxValue())
+					{
+						fitness += 1.0 - ((score - example.metric_value)/(1.0 - example.metric_value));
+						fitness -= score - example.granularity_value.getMaxValue();
+					}
+					else
+						fitness += 1.0 - ((score - example.metric_value)/(example.granularity_value.getMaxValue() - example.metric_value));
+
+//				fitness += 1.0 - example.metric_value/score;
+				}
+				else if(score < example.metric_value)
+				{
+					//Penalization for too small value!
+					if(score < example.granularity_value.getMinValue())
+					{
+						fitness += (score - 0.0)/(example.metric_value - 0.0);
+						fitness -= score - example.granularity_value.getMinValue();
+					}
+					else
+						fitness += (score - example.granularity_value.getMinValue())/(example.metric_value - example.granularity_value.getMinValue());
+//				double calc = 1.0 - score/example.granularity_value.getMinValue();
+//				double cal2 = 1.0 - example.granularity_value.getMinValue()/score;
+//				fitness +=  example.granularity_value.getMinValue()/score;
+				}
+				else
+					fitness += 1.0;
 			}
-			else if(score < example.metric_value)
+			else //negative examples!
 			{
-				fitness += 1.0 - score/example.granularity_value.getMinValue();
+				double remainder = 1.0 - example.metric_value;
+
+				if(score > example.metric_value)
+				{
+					double min = example.metric_value;
+					double max = remainder <= 0.5 ? min + min : min + remainder;
+					fitness += ((score - min)/(max - min));
+				}
+				else if(score < example.metric_value)
+				{
+					double max = example.metric_value;
+					double min = remainder >= 0.5 ? max - remainder : 0.0;
+
+					fitness += 1.0 - ((score - min)/(max - min));
+				}
+				else {
+					fitness += 0.0;
+				}
 			}
-			else
-				fitness += 1.0;
+
 		}
 
 		fitness /= testExamples.size();
@@ -978,6 +1122,31 @@ public class MetricAlgorithm extends Algorithm implements Listener {
 		//FIXME: This needs to change
 
 		double fitness = 0.0;
+
+		for(MetricExampleRooms example : testExamples)
+		{
+			if(example.positive)
+			{
+				double score = ind.getPhenotype().createMetric().calculateMetric(example.room);
+
+				if(score > example.granularity_value.getMaxValue())
+					fitness += 1.0 - (score - example.granularity_value.getMaxValue());
+				else if(score < example.granularity_value.getMinValue())
+					fitness += 1.0 - (example.granularity_value.getMinValue() - score);
+			}
+			else
+			{
+				double score = ind.getPhenotype().createMetric().calculateMetric(example.room);
+
+				if(score > example.granularity_value.getMaxValue())
+					fitness += (score - example.granularity_value.getMaxValue());
+				else if(score < example.granularity_value.getMinValue())
+					fitness += (example.granularity_value.getMinValue() - score);
+			}
+
+		}
+
+		fitness /= testExamples.size();
 	    
 	    //set final fitness
 	    ind.setFitness(fitness);
@@ -1004,6 +1173,47 @@ public class MetricAlgorithm extends Algorithm implements Listener {
         }
     }
 
+    protected void FilterPopulation(List<MetricIndividual> population)
+	{
+		for(MetricIndividual ind : population)
+			ind.FilterChromosomes();
+
+		boolean nothingToFilter = false;
+		int counter = 0;
+		int limit = population.size();
+		int duplicates = 0;
+
+		while(limit-- > 0)
+		{
+			List<MetricIndividual> to_remove = new ArrayList<>();
+
+			if(counter >= population.size())
+				counter = population.size() - 1;
+
+			for(int i = 0; i < population.size(); i++)
+			{
+				if(i == counter)
+					continue;
+
+				if(population.get(counter).getGenotype().equals(population.get(i).getGenotype()))
+				{
+					to_remove.add(population.get(i));
+				}
+				else if(population.get(counter).equals(population.get(i), testExamples))
+				{
+					to_remove.add(population.get(i));
+				}
+			}
+			counter++;
+			duplicates += to_remove.size();
+			population.removeAll(to_remove);
+		}
+
+		//Check the duplicates
+		duplicates += 1;
+
+	}
+
     /**
      * Produces a new valid generation according to the following procedure:
      *  1. Select MetricIndividuals from the valid population to breed
@@ -1016,6 +1226,10 @@ public class MetricAlgorithm extends Algorithm implements Listener {
         List<MetricIndividual> parents = tournamentSelectionMetric(feasiblePopulation, false);
         //Crossover parents
         List<MetricIndividual> children = crossOverBetweenProgenitorsMetric(parents);
+
+        if(children == null)
+        	return;
+
         //Assign to a pool based on feasibility
         assignToPoolMetric(children, false);
     }
@@ -1045,6 +1259,9 @@ public class MetricAlgorithm extends Algorithm implements Listener {
      */
     protected List<MetricIndividual> crossOverBetweenProgenitorsMetric(List<MetricIndividual> progenitors)
     {
+    	if(progenitors == null)
+    		return null;
+
         List<MetricIndividual> sons = new ArrayList<MetricIndividual>();
         int sizeProgenitors = progenitors.size();
         int countSons = 0;
@@ -1055,8 +1272,10 @@ public class MetricAlgorithm extends Algorithm implements Listener {
             MetricIndividual[] offspring = progenitors.get(
             									Util.getNextInt(0, sizeProgenitors)).twoPointCrossover(
             											progenitors.get(Util.getNextInt(0, sizeProgenitors)));
-            
-            sons.addAll(Arrays.asList(offspring));
+
+            if(offspring != null)
+            	sons.addAll(Arrays.asList(offspring));
+
             countSons += 2;
         }
 
@@ -1076,6 +1295,9 @@ public class MetricAlgorithm extends Algorithm implements Listener {
         List<MetricIndividual> parents = new ArrayList<MetricIndividual>();
         int numberOfParents = (int)(offspringSize * population.size()) / 2;
 
+        if(population.size() < 4)
+        	return null;
+
         while(parents.size() < numberOfParents)
         {
         	//Select at least one MetricIndividual to "fight" in the tournament
@@ -1087,20 +1309,27 @@ public class MetricAlgorithm extends Algorithm implements Listener {
                 int progenitorIndex = Util.getNextInt(0, population.size());
                 MetricIndividual MetricIndividual = population.get(progenitorIndex);
 
-                //select the MetricIndividual with the highest fitness
-				if(infeasible_population || AlgorithmSetup.getInstance().algorithm_type == AlgorithmSetup.AlgorithmType.OBJECTIVE)
+				if(winner == null || (winner.getFitness() < MetricIndividual.getFitness()))
 				{
-					if(winner == null || (winner.getFitness() < MetricIndividual.getFitness()))
-					{
-						winner = MetricIndividual;
-					}
+					winner = MetricIndividual;
 				}
-				else {
-					if(winner == null || (winner.getNovelty() < MetricIndividual.getNovelty()))
-					{
-						winner = MetricIndividual;
-					}
-				}
+
+				//TODO: Dont forget about this!
+
+//                //select the MetricIndividual with the highest fitness
+//				if(infeasible_population || AlgorithmSetup.getInstance().algorithm_type == AlgorithmSetup.AlgorithmType.OBJECTIVE)
+//				{
+//					if(winner == null || (winner.getFitness() < MetricIndividual.getFitness()))
+//					{
+//						winner = MetricIndividual;
+//					}
+//				}
+//				else {
+//					if(winner == null || (winner.getNovelty() < MetricIndividual.getNovelty()))
+//					{
+//						winner = MetricIndividual;
+//					}
+//				}
 
             }
 
@@ -1145,10 +1374,14 @@ public class MetricAlgorithm extends Algorithm implements Listener {
      */
     protected void sortPopulationMetric(List<MetricIndividual> population, boolean ascending, boolean infeasible)
     {
-    	if(infeasible || AlgorithmSetup.getInstance().algorithm_type == AlgorithmSetup.AlgorithmType.OBJECTIVE)
-        	population.sort((x, y) -> (ascending ? 1 : -1) * Double.compare(x.getFitness(),y.getFitness()));
-    	else
-			population.sort((x, y) -> (ascending ? 1 : -1) * Double.compare(x.getNovelty(),y.getNovelty()));
+		population.sort((x, y) -> (ascending ? 1 : -1) * Double.compare(x.getFitness(),y.getFitness()));
+
+		//TODO: Dont forget about this!
+
+//    	if(infeasible || AlgorithmSetup.getInstance().algorithm_type == AlgorithmSetup.AlgorithmType.OBJECTIVE)
+//        	population.sort((x, y) -> (ascending ? 1 : -1) * Double.compare(x.getFitness(),y.getFitness()));
+//    	else
+//			population.sort((x, y) -> (ascending ? 1 : -1) * Double.compare(x.getNovelty(),y.getNovelty()));
     }
 
 

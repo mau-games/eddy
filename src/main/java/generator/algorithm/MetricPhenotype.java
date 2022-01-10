@@ -7,6 +7,7 @@ import game.TileTypes;
 import generator.algorithm.MAPElites.Dimensions.CustomGADimension;
 import generator.algorithm.MAPElites.Dimensions.GADimension;
 import generator.algorithm.MAPElites.Dimensions.MAPEDimensionFXML;
+import generator.algorithm.MAPElites.GADimensionsGranularity;
 import generator.algorithm.MAPElites.GrammarMAPEliteAlgorithm;
 import generator.algorithm.MAPElites.MAPEliteAlgorithm;
 import generator.config.GeneratorConfig;
@@ -28,7 +29,9 @@ public class MetricPhenotype implements Listener
     public UUID algorithm_unique_code;
 
     //Room = best room in cell, Double metric result.'
-    public LinkedHashMap<Room, Double> results = new LinkedHashMap();   // use LinkedHashMap to maintain sequence
+//    public LinkedHashMap<Room, Double> results = new LinkedHashMap();   // use LinkedHashMap to maintain sequence
+
+    public List<MetricExampleRooms> results = new ArrayList<>();
 
     public MetricPhenotype(MetricGenotype genotype)
     {
@@ -71,13 +74,28 @@ public class MetricPhenotype implements Listener
     {
         if(e instanceof MAPElitesMetricDone && ((MAPElitesMetricDone) e).getID() == algorithm_unique_code)
         {
+            int counter = 0;
             //Now we know this is our MAP-Elites
             for(Room fit_room : ((MAPElitesMetricDone) e).GetRooms())
             {
                 if(fit_room != null)
-                    results.put(fit_room, interpreter.calculateMetric(fit_room));
+                {
+                    results.add(new MetricExampleRooms(fit_room,
+                            new GADimensionsGranularity(((counter%5) + 1.0)/5.0, 5.0, (counter%5) + 1),
+                            interpreter.calculateMetric(fit_room)));
+                }
                 else
-                    results.put(null, -1.0);
+                    results.add(new MetricExampleRooms(null,
+                            new GADimensionsGranularity(((counter%5) + 1.0)/5.0, 5.0, (counter%5) + 1),
+                            -1.0));
+
+                counter++;
+//
+//
+//                if(fit_room != null)
+//                    results.put(fit_room, interpreter.calculateMetric(fit_room));
+//                else
+//                    results.put(null, -1.0);
             }
         }
     }
