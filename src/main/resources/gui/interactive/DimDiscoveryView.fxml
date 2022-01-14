@@ -42,11 +42,12 @@
 <?import javafx.scene.control.cell.TextFieldTableCell?>
 <?import gui.controls.DimensionsTable?>
 <?import gui.controls.Popup?>
+<?import javafx.scene.control.TextField?>
 <?import gui.controls.EditedRoomStackPane?>
 
 <fx:root type="javafx.scene.layout.BorderPane"
-	stylesheets="@../styling.css" fx:id="mainBorderPane"
-	xmlns:fx="http://javafx.com/fxml/1">
+		 stylesheets="@../styling.css" fx:id="mainBorderPane"
+		 xmlns:fx="http://javafx.com/fxml/1">
 	<padding>
 		<Insets top="0" right="15" bottom="0" left="0" />
 	</padding>
@@ -160,9 +161,50 @@
 		</ToolBar>
 	</left>
 	<center>
-<!--		<StackPane alignment="CENTER" fx:id="mapPane" />-->
-		<EditedRoomStackPane fx:id="editedRoomPane" prefHeight="122.0" prefWidth="309.0" BorderPane.alignment="CENTER" />
+		<BorderPane prefHeight="200.0" prefWidth="200.0" BorderPane.alignment="CENTER">
+			<top>
+				<EditedRoomStackPane fx:id="editedRoomPane" prefHeight="122.0" prefWidth="309.0" BorderPane.alignment="CENTER" />
+			</top>
+			<center>
+				<VBox prefHeight="200.0" prefWidth="100.0" spacing="25.0" BorderPane.alignment="CENTER">
+					<children>
+						<HBox alignment="TOP_CENTER" prefHeight="21.0" prefWidth="376.0" spacing="10.0">
+							<children>
+								<Label text="New Dim:" textAlignment="CENTER" />
+								<TextField fx:id="dimension_name" />
+								<CheckBox mnemonicParsing="false" text="Relative?" />
+								<Button fx:id="runDimDiscovery" mnemonicParsing="false" onAction="#onRunDimDiscovery" text="Run" />
+							</children>
+						</HBox>
+						<HBox prefHeight="100.0" prefWidth="200.0" spacing="15.0">
+							<children>
+								<VBox alignment="CENTER" prefHeight="150.0" prefWidth="200.0" spacing="15.0">
+									<children>
+										<EditedRoomStackPane fx:id="verylow_example_pane" prefHeight="83.0" prefWidth="91.0" />
+										<Label text="0.0" />
+									</children>
+								</VBox>
+								<EditedRoomStackPane fx:id="low_example_pane" prefHeight="150.0" prefWidth="200.0" />
+								<EditedRoomStackPane fx:id="mid_example_pane" prefHeight="150.0" prefWidth="200.0" />
+								<EditedRoomStackPane fx:id="high_example_pane" prefHeight="150.0" prefWidth="200.0" />
+								<VBox alignment="CENTER" prefHeight="200.0" prefWidth="200.0" spacing="15.0">
+									<children>
+										<EditedRoomStackPane fx:id="veryhigh_example_pane" prefHeight="150.0" prefWidth="200.0" />
+										<Label text="1.0" />
+									</children>
+								</VBox>
+							</children>
+						</HBox>
+						<GridPane fx:id="metricSuggestions"/>
+						<Button mnemonicParsing="false" onAction="#onContinueMetricSearch" text="Continue Metric search" />
+					</children>
+				</VBox>
+			</center>
+		</BorderPane>
 	</center>
+<!--	<center>-->
+<!--		<StackPane alignment="CENTER" fx:id="mapPane" />-->
+<!--	</center>-->
 
 	<right>
 

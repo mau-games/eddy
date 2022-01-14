@@ -95,21 +95,39 @@ public class Door extends InventorialPattern {
 	    //Average treasure safety
         evaluateTreasureSafeties(room);
         Double[] safeties = room.getAllTreasureSafeties();
-        double safeties_average = Util.calcAverage(safeties);
-        double averageTreasureSafetyQuality = 0.0;
-        averageTreasureSafetyQuality = Math.abs(safeties_average - room.getConfig().getAverageTreasureSafety());
-        
-        //Treasure Safety Variance
-        double safeties_variance = Util.calcVariance(safeties);
-        double expectedSafetyVariance = 0.0;
-		expectedSafetyVariance = room.getConfig().getTreasureSafetyVariance();
-        double treasureSafetyVarianceQuality = Math.abs(safeties_variance - expectedSafetyVariance);
-        
+
+		double averageTreasureSafetyQuality = -1.0;
+		double treasureSafetyVarianceQuality = -1.0;
+
+        if(safeties.length != 0)
+		{
+			double safeties_average = Util.calcAverage(safeties);
+			averageTreasureSafetyQuality = 0.0;
+			averageTreasureSafetyQuality = Math.abs(safeties_average - room.getConfig().getAverageTreasureSafety());
+
+			//Treasure Safety Variance
+			double safeties_variance = Util.calcVariance(safeties);
+			double expectedSafetyVariance = 0.0;
+			expectedSafetyVariance = room.getConfig().getTreasureSafetyVariance();
+			treasureSafetyVarianceQuality = Math.abs(safeties_variance - expectedSafetyVariance);
+		}
+
         //Door greed
         double doorGreedQuality = evaluateDoorGreed(room); //Note - this has been changed from the Unity version
     	doorGreedQuality = Math.abs(doorGreedQuality - room.getConfig().getEntranceGreed());
+
+    	double quality = 0.0;
+
+    	if(safeties.length != 0)
+		{
+			quality = 0.2*doorSafetyQuality + 0.2 * doorGreedQuality + 0.2 * averageTreasureSafetyQuality + 0.4 * treasureSafetyVarianceQuality;
+		}
+    	else
+		{
+			quality = 0.5*doorSafetyQuality + 0.5 * doorGreedQuality;
+		}
         
-        double quality = 0.2*doorSafetyQuality + 0.2 * doorGreedQuality + 0.2 * averageTreasureSafetyQuality + 0.4 * treasureSafetyVarianceQuality;
+
         return quality;
 		
 	}

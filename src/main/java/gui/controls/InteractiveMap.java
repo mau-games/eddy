@@ -1,35 +1,28 @@
 package gui.controls;
 
 import java.util.HashMap;
+import java.util.UUID;
 
-import collectors.ActionLogger;
-import collectors.ActionLogger.ActionType;
-import collectors.ActionLogger.TargetPane;
-import collectors.ActionLogger.View;
-import game.Game;
 import game.Room;
 import game.Tile;
 import game.TileTypes;
 import gui.utils.MapRenderer;
-import javafx.application.Platform;
-import javafx.geometry.HPos;
+import javafx.event.EventHandler;
 import javafx.geometry.Pos;
-import javafx.geometry.VPos;
-import javafx.scene.Group;
-import javafx.scene.effect.BlendMode;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.image.PixelFormat;
-import javafx.scene.image.PixelWriter;
 import javafx.scene.image.WritableImage;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.GridPane;
-import javafx.scene.layout.Priority;
+import javafx.scene.layout.Pane;
 import util.Point;
 import util.eventrouting.EventRouter;
 import util.eventrouting.Listener;
 import util.eventrouting.PCGEvent;
-import util.eventrouting.events.RequestWorldView;
 import util.eventrouting.events.SaveDisplayedCells;
+import util.eventrouting.events.intraview.InteractiveRoomBrushUpdated;
+import util.eventrouting.events.intraview.InteractiveRoomHovered;
+import util.eventrouting.events.intraview.InteractiveRoomEdited;
 
 /**
  * InteractiveMap describes a control that may be used to edit maps.
@@ -47,6 +40,10 @@ public class InteractiveMap extends GridPane implements Listener {
 	private  MapRenderer renderer = MapRenderer.getInstance();
 	private final HashMap<ImageView, Point> coords = new HashMap<ImageView, Point>();
 	private final static HashMap<TileTypes, Image> images = new HashMap<TileTypes, Image>();
+
+	public InteractiveMap self;
+	public EditedRoomStackPane owner;
+	public UUID ownerID;
 	
 	/**
 	 * Creates an empty instance of InteractiveMap.
@@ -67,6 +64,7 @@ public class InteractiveMap extends GridPane implements Listener {
 		super();
 		updateMap(room);
 		EventRouter.getInstance().registerListener(this, new SaveDisplayedCells());
+		EventRouter.getInstance().registerListener(this, new InteractiveRoomBrushUpdated(null, null));
 	}
 	
 	public void destructor()
@@ -76,6 +74,16 @@ public class InteractiveMap extends GridPane implements Listener {
 		coords.clear();
 		images.clear();
 		renderer = null;
+	}
+
+	//Think about removing the event filters!
+	public void init(EditedRoomStackPane owner, UUID ownerID)
+	{
+		this.owner = owner;
+		this.ownerID = ownerID;
+		self = this; //ugly but...
+		this.addEventFilter(MouseEvent.MOUSE_CLICKED, new InteractiveMap.EditViewEventHandler());
+		this.addEventFilter(MouseEvent.MOUSE_MOVED, new InteractiveMap.EditViewMouseHover());
 	}
 	
 	/**
@@ -231,11 +239,13 @@ public class InteractiveMap extends GridPane implements Listener {
 	public Image getImage(TileTypes type, double size) 
 	{
 		Image tile = images.get(type);
-		
-		if (tile != null) {
-			return tile;
-		}
-		
+
+		//Commented so I can edit multiple rooms with different sizes in views (static nature was the issue)
+		//This is not really a bottleneck
+//		if (tile != null) {
+//			return tile;
+//		}
+
 		tile = renderer.renderTile(type, size, size);
 		images.put(type, tile);
 		
@@ -369,6 +379,49 @@ public class InteractiveMap extends GridPane implements Listener {
 //				renderer.saveCurrentEditedRoom(this);
 //			});
 		}
+		else if(e instanceof InteractiveRoomBrushUpdated)
+		{
+			this.setCursor(((InteractiveRoomBrushUpdated) e).new_cursor);
+		}
 		
+	}
+
+	/*
+	 * Event handlers
+	 */
+	public class EditViewEventHandler implements EventHandler<MouseEvent> {
+		@Override
+		public void handle(MouseEvent event)
+		{
+
+			if (event.getTarget() instanceof ImageView) {
+				// Edit the map
+				ImageView tile = (ImageView) event.getTarget();
+				owner.RoomEdited(self, getMap(), tile, event);
+			}
+		}
+
+	}
+
+	/*
+	 * Event handlers
+	 */
+	public class EditViewMouseHover implements EventHandler<MouseEvent> {
+		@Override
+		public void handle(MouseEvent event)
+		{
+//			brushCanvas.setVisible(false);
+
+			if (event.getTarget() instanceof ImageView)
+			{
+
+				ImageView tile = (ImageView) event.getTarget();
+				util.Point p = CheckTile(tile);
+
+//				EventRouter.getInstance().postEvent(new InteractiveRoomHovered(self, getMap(), p, event));
+				owner.RoomHovered(self, getMap(), p, event);
+			}
+		}
+
 	}
 }

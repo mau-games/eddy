@@ -51,17 +51,7 @@ import util.Util;
 import util.eventrouting.EventRouter;
 import util.eventrouting.Listener;
 import util.eventrouting.PCGEvent;
-import util.eventrouting.events.AlgorithmDone;
-import util.eventrouting.events.AlgorithmStarted;
-import util.eventrouting.events.MAPEGenerationDone;
-import util.eventrouting.events.MAPEGridUpdate;
-import util.eventrouting.events.MAPElitesDone;
-import util.eventrouting.events.MapUpdate;
-import util.eventrouting.events.NextStepSequenceExperiment;
-import util.eventrouting.events.RoomEdited;
-import util.eventrouting.events.SaveCurrentGeneration;
-import util.eventrouting.events.SaveDisplayedCells;
-import util.eventrouting.events.UpdatePreferenceModel;
+import util.eventrouting.events.*;
 
 public class MAPEliteAlgorithm extends Algorithm implements Listener {
 	
@@ -96,6 +86,8 @@ public class MAPEliteAlgorithm extends Algorithm implements Listener {
 	
 	//UGLY WAY OF DOING THIS!
 	ArrayList<ZoneIndividual> currentRendered = new ArrayList<ZoneIndividual>(); //I think this didn't work
+
+	public boolean metric_map_elites = false;
 
 	public MAPEliteAlgorithm(GeneratorConfig config) {
 		super(config);
@@ -166,8 +158,8 @@ public class MAPEliteAlgorithm extends Algorithm implements Listener {
 		int i = 0;
 		int j = 0;
 		
-		populationSize = 1000;
-		feasibleAmount = 750;
+		populationSize = 500;
+		feasibleAmount = 250;
 		this.config = room.getCalculatedConfig();
 		
 		//initialize the data storage variables
@@ -299,7 +291,7 @@ public class MAPEliteAlgorithm extends Algorithm implements Listener {
 		
 		for(MAPEDimensionFXML dimension : dimensions)
 		{
-			MAPElitesDimensions.add(GADimension.CreateDimension(dimension.getDimension(), dimension.getGranularity()));
+			MAPElitesDimensions.add(GADimension.CreateDimension(dimension.getDimension(), dimension.getGranularity(), dimension.getMetricInterpreter()));
 			dimensionsGranularity[counter++] = dimension.getGranularity();
 		}
 
@@ -827,9 +819,13 @@ public class MAPEliteAlgorithm extends Algorithm implements Listener {
     
     private void publishGeneration()
     {
-		broadcastResultedRooms();
-		MAPECollector.getInstance().SaveGeneration(realCurrentGen, MAPElitesDimensions, cells, false); //store the cells in memory
-		
+    	if(!metric_map_elites)
+		{
+			broadcastResultedRooms();
+			MAPECollector.getInstance().SaveGeneration(realCurrentGen, MAPElitesDimensions, cells, false); //store the cells in memory
+		}
+
+
 		//This should be in a call when the ping happens! --> FIXME!!
 //		UpdateConfigFile();
 
@@ -907,9 +903,11 @@ public class MAPEliteAlgorithm extends Algorithm implements Listener {
         
         currentGen = 0;
         realCurrentGen = 0;
+
         
         while(!stop) //continuous evolution
         {
+
 //        	runNoInterbreedingExperiment();
 //        	runInterbreedingExperiment(); 
         	
@@ -921,7 +919,12 @@ public class MAPEliteAlgorithm extends Algorithm implements Listener {
         	{
         		noSaveRunNoInterbreedingApplElites();
         	}
-        	
+
+			if(metric_map_elites && realCurrentGen > 200)
+			{
+				stop = true;
+			}
+
 //        	runNoInterbreedingApplElites(); //This is actually the good one!! 2019-04-23
 //        	runInterbreedingApplElites();
         }
@@ -947,6 +950,15 @@ public class MAPEliteAlgorithm extends Algorithm implements Listener {
         		room = cell.GetFeasiblePopulation().get(0).getPhenotype().getMap(-1, -1, null, null, null);
         		break;
         	}
+		}
+
+        //Special case when using MAP-Elites for evaluating the metrics
+		if(metric_map_elites)
+		{
+			broadcastResultedRoomsMetrics();
+			destructor();
+			System.out.println("another MAP-Elites done! " + id);
+			return;
 		}
         
         
@@ -984,6 +996,59 @@ public class MAPEliteAlgorithm extends Algorithm implements Listener {
 		uniqueRoomsSinceData = null;
 		cells.clear();
 		MAPElitesDimensions.clear();
+	}
+
+	public void broadcastResultedRoomsMetrics()
+	{
+		//TODO: Not sure if this will work!
+		MAPElitesMetricDone ev = new MAPElitesMetricDone();
+		ev.setID(id);
+		int cellIndex = 0;
+		for(GACell cell : cells)
+		{
+
+//        	System.out.println("CELL = " + cellIndex++);
+//        	System.out.println("SYMMETRY: " + cell.GetDimensionValue(DimensionTypes.SIMILARITY) + ", PAT: " + cell.GetDimensionValue(DimensionTypes.SYMMETRY));
+//        	cell.BroadcastCellInfo();
+			if(cell.GetFeasiblePopulation().isEmpty())
+			{
+				ev.addRoom(null);
+//        		System.out.println("NO FIT ROOM!");
+			}
+			else //This is more tricky!!
+			{
+				if(currentRendered.get(cellIndex) != null)
+				{
+					double increasedAmount = currentRendered.get(cellIndex).getFitness() * 0.01; //1% different
+
+					if(cell.GetFeasiblePopulation().get(0).getFitness() >= currentRendered.get(cellIndex).getFitness() + increasedAmount)
+					{
+						currentRendered.set(cellIndex, cell.GetFeasiblePopulation().get(0));
+					}
+				}
+				else
+				{
+					currentRendered.set(cellIndex, cell.GetFeasiblePopulation().get(0));
+				}
+
+//        		ev.addRoom(currentRendered.get(cellIndex).getPhenotype().getMap(-1, -1, null, null, null));
+				ev.addRoom(cell.GetFeasiblePopulation().get(0).getPhenotype().getMap(-1, -1, null, null, null));
+				//Uncomment top to get previous result!
+
+//        		cell.GetFeasiblePopulation().get(0).BroadcastIndividualDimensions();
+				evaluateFeasibleZoneIndividual(cell.GetFeasiblePopulation().get(0));
+//        		System.out.println("FIT ROOM Fitness: " + cell.GetFeasiblePopulation().get(0).getFitness() +
+//        							", symmetry: " + cell.GetFeasiblePopulation().get(0).getDimensionValue(DimensionTypes.SIMILARITY) +
+//        							", pat: " + cell.GetFeasiblePopulation().get(0).getDimensionValue(DimensionTypes.SYMMETRY));
+			}
+
+//        	System.out.println("------------------");
+
+			cellIndex++;
+		}
+
+//        TEMPORARILY REMOVED FOR TESTING
+		EventRouter.getInstance().postEvent(ev);
 	}
 	
 	//TODO: There are problems on how the cells are rendered!

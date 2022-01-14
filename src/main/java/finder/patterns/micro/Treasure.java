@@ -85,6 +85,10 @@ public class Treasure extends InventorialPattern {
 	}
 	
 	private static double calculateTreasureQuality(Room room){
+
+		if(room.getTreasureCount() == 0)
+			return 0.0;
+
 		double[] expectedTreasuresRange = expectedTreasuresRange = room.getConfig().getTreasureQuantityRange();
         double quality = 0.0;
         double treasurePercent = room.getTreasurePercentage();

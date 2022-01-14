@@ -88,6 +88,10 @@ public class Enemy extends InventorialPattern {
 	}
 	
 	private static double calculateEnemyQuality(Room room){
+
+		if(room.getEnemyCount() == 0)
+			return 0.0;
+
 		double[] expectedEnemiesRange = null;
 		expectedEnemiesRange = room.getConfig().getEnemyQuantityRange();
         double quality = 0.0;

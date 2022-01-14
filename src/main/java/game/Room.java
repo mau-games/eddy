@@ -130,7 +130,7 @@ public class Room {
 	private int failedPathsToTreasures;
 	private int failedPathsToEnemies;
 	private int failedPathsToAnotherDoor;
-	private Dictionary<Point, Double> treasureSafety; //ODL
+	private Map<Point, Double> treasureSafety; //ODL
 	
 	private double doorSafety; //Sum of all the safeties
 	private double doorGreed; //Sum of all the greeds
@@ -1679,7 +1679,7 @@ public class Room {
      * 
      * @return A dictionary containing all treasures and their safety values.
      */
-    public Dictionary<Point, Double> getTreasureSafety() {
+    public Map<Point, Double> getTreasureSafety() {
     	return treasureSafety;
     }
     
@@ -1690,7 +1690,8 @@ public class Room {
      */
     public Double[] getAllTreasureSafeties()
     {
-    	return Collections.list(treasureSafety.elements()).stream().toArray(Double[]::new);
+    	return treasureSafety.values().toArray(new Double[0]);
+//    	return Collections.list(treasureSafety.values()).stream().toArray(Double[]::new);
     }
     
     
@@ -1707,6 +1708,21 @@ public class Room {
     {
     	doorsSafety.put(door, safety);
     }
+
+    public double calculateTreasureSafeness()
+	{
+		if(treasureSafety.isEmpty())
+			return 0.0;
+
+		double value = 0.0;
+
+		for (Double safety : treasureSafety.values()) {
+			value += safety;
+		}
+
+		value = value / (double)treasureSafety.size();
+		return value;
+	}
     
     public void calculateDoorSafeness()
     {

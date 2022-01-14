@@ -1,6 +1,7 @@
 package generator.algorithm.MAPElites.Dimensions;
 
 import game.Room;
+import generator.algorithm.MetricInterpreter;
 import generator.algorithm.ZoneIndividual;
 import generator.algorithm.MAPElites.GADimensionsGranularity;
 
@@ -18,7 +19,8 @@ public abstract class GADimension
 		GEOM_COMPLEXITY,
 		LENIENCY,
 		REWARD,
-		LINEARITY
+		LINEARITY,
+		CUSTOM
 
 	}
 	
@@ -52,7 +54,7 @@ public abstract class GADimension
 		return granularity;
 	}
 	
-	public static GADimension CreateDimension(DimensionTypes dim, Number granularity)
+	public static GADimension CreateDimension(DimensionTypes dim, Number granularity, MetricInterpreter interpreter)
 	{
 		switch(dim)
 		{
@@ -79,6 +81,8 @@ public abstract class GADimension
 			return new SymmetryGADimension(granularity.floatValue());			
 		case INNER_SIMILARITY:
 			return new CharacteristicSimilarityGADimension(granularity.floatValue());
+		case CUSTOM:
+			return new CustomGADimension(interpreter, granularity.floatValue());
 		default:
 			break;
 		
@@ -111,6 +115,8 @@ public abstract class GADimension
 			return CharacteristicSimilarityGADimension.getValue(individualRoom);
 		case SYMMETRY:
 			return SymmetryGADimension.getValue(individualRoom);
+		case CUSTOM:
+			return CustomGADimension.getValue(individualRoom);
 		default:
 			return -1.0;
 		
