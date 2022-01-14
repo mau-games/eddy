@@ -12,6 +12,7 @@ import java.util.UUID;
 import java.util.Map.Entry;
 
 import game.*;
+import gui.controls.*;
 import org.apache.commons.io.FileUtils;
 
 import collectors.ActionLogger;
@@ -32,19 +33,10 @@ import generator.algorithm.MAPElites.Dimensions.GADimension.DimensionTypes;
 import generator.algorithm.MAPElites.GACell;
 import generator.algorithm.MAPElites.Dimensions.MAPEDimensionFXML;
 import game.Game.MapMutationType;
-import gui.controls.DimensionsTable;
-import gui.controls.Drawer;
-import gui.controls.InteractiveMap;
-import gui.controls.LabeledCanvas;
-import gui.controls.MAPEVisualizationPane;
-import gui.controls.Modifier;
-import gui.controls.Popup;
-import gui.controls.SuggestionRoom;
 import gui.utils.InformativePopupManager;
 import gui.utils.InformativePopupManager.PresentableInformation;
 import gui.utils.MapRenderer;
-import gui.views.RoomViewController.EditViewEventHandler;
-import gui.views.RoomViewController.EditViewMouseHover;
+
 import javafx.application.Platform;
 import javafx.beans.Observable;
 import javafx.beans.property.SimpleDoubleProperty;
@@ -115,6 +107,10 @@ import util.eventrouting.EventRouter;
 import util.eventrouting.Listener;
 import util.eventrouting.PCGEvent;
 import util.eventrouting.events.*;
+import util.eventrouting.events.intraview.EditedRoomToggleLocks;
+import util.eventrouting.events.intraview.EditedRoomTogglePatterns;
+import util.eventrouting.events.intraview.InteractiveRoomBrushUpdated;
+import util.eventrouting.events.intraview.UserEditedRoom;
 
 /**
  * This class controls the interactive application's edit view.
@@ -128,6 +124,8 @@ import util.eventrouting.events.*;
 public class RoomViewController extends BorderPane implements Listener 
 {
 	@FXML private ComboBox<String> DisplayCombo;
+
+	@FXML public EditedRoomStackPane editedRoomPane;
 	
 	@FXML public StackPane mapPane;
 	@FXML public Pane minimap;
@@ -185,7 +183,7 @@ public class RoomViewController extends BorderPane implements Listener
 	private SuggestionRoom selectedSuggestion;
 
 	//Literally the only thing that should be here
-	private InteractiveMap mapView;
+//	private InteractiveMap mapView;
 	private Room largeMap;
 	private Canvas patternCanvas;
 	private Canvas warningCanvas;
@@ -257,12 +255,15 @@ public class RoomViewController extends BorderPane implements Listener
 		router.registerListener(this, new ApplySuggestion(0));
 		router.registerListener(this, new SuggestedMapsDone());
 		router.registerListener(this, new SuggestedMapSelected(null));
+		router.registerListener(this, new UserEditedRoom(null, null));
+		router.registerListener(this, new MetricUpdate());
 
 		myBrush = new Drawer();
 		myBrush.AddmodifierComponent("Lock", new Modifier(lockBrush));
 
 		brushSlider.valueProperty().addListener((obs, oldval, newVal) -> { 
-			redrawPatterns(mapView.getMap());
+//			redrawPatterns(mapView.getMap());
+			myBrush.SetBrushSize((int)(brushSlider.getValue()));
 			ActionLogger.getInstance().storeAction(ActionType.CHANGE_VALUE, 
 													View.ROOM, 
 													TargetPane.BRUSH_PANE,
@@ -316,11 +317,11 @@ public class RoomViewController extends BorderPane implements Listener
 	private void OnChangeTab()
 	{
 		//TODO: Debugging here!
-		if(getMapView() != null && getMapView().getMap() != null)
+		if(editedRoomPane.editedPane != null && editedRoomPane.editedPane.getMap() != null)
 		{
-			int paths = getMapView().getMap().LinearityWithinRoom();
-			double doors =  getMapView().getMap().getDoors().size();
-			double maxPaths = ((double) getMapView().getMap().getPatternFinder().getPatternGraph().countNodes()) + (double)(doors * 3) + doors;
+			int paths = editedRoomPane.editedPane.getMap().LinearityWithinRoom();
+			double doors =  editedRoomPane.editedPane.getMap().getDoors().size();
+			double maxPaths = ((double) editedRoomPane.editedPane.getMap().getPatternFinder().getPatternGraph().countNodes()) + (double)(doors * 3) + doors;
 			double finalValue = Math.min((double)paths/maxPaths, 1.0);
 			finalValue = (1.0 - finalValue);
 			
@@ -336,7 +337,7 @@ public class RoomViewController extends BorderPane implements Listener
 	private void init() {
 		mapWidth = 420;
 		mapHeight = 420;
-		initMapView();
+//		initMapView();
 		initLegend();
 
 	}
@@ -373,11 +374,15 @@ public class RoomViewController extends BorderPane implements Listener
 			sr.resizeCanvasForRoom(roomToBe);
 		}
 
-		initMapView();
+		editedRoomPane.init(mapWidth, mapHeight, roomToBe);
+
+		initButtons();
 		initLegend();
 		resetView();
 		roomToBe.forceReevaluation();
-		updateRoom(roomToBe);	
+		updateRoom(roomToBe);
+
+
 		generateNewMaps();
 
 	}
@@ -386,47 +391,7 @@ public class RoomViewController extends BorderPane implements Listener
 	 * Initialises the map view and creates canvases for pattern drawing and
 	 * infeasibility notifications.
 	 */
-	private void initMapView() {
-		
-		if(getMapView() != null)
-		{
-			getMapView().destructor();
-		}
-		
-		mapPane.getChildren().clear();
-
-		setMapView(new InteractiveMap());
-		StackPane.setAlignment(getMapView(), Pos.CENTER);
-		getMapView().setMinSize(mapWidth, mapHeight);
-		getMapView().setMaxSize(mapWidth, mapHeight);
-		getMapView().setPrefSize(mapWidth, mapHeight);
-		mapPane.getChildren().add(getMapView());
-		
-		brushCanvas = new Canvas(mapWidth, mapHeight);
-		StackPane.setAlignment(brushCanvas, Pos.CENTER);
-		mapPane.getChildren().add(brushCanvas);
-		brushCanvas.setVisible(false);
-		brushCanvas.setMouseTransparent(true);
-		brushCanvas.setOpacity(1.0f);
-		
-		lockCanvas = new Canvas(mapWidth, mapHeight);
-		StackPane.setAlignment(lockCanvas, Pos.CENTER);
-		mapPane.getChildren().add(lockCanvas);
-		lockCanvas.setVisible(false);
-		lockCanvas.setMouseTransparent(true);
-		lockCanvas.setOpacity(0.4f);
-
-		patternCanvas = new Canvas(mapWidth, mapHeight);
-		StackPane.setAlignment(patternCanvas, Pos.CENTER);
-		mapPane.getChildren().add(patternCanvas);
-		patternCanvas.setVisible(false);
-		patternCanvas.setMouseTransparent(true);
-		
-		tileCanvas = new Canvas(mapWidth, mapHeight);
-		StackPane.setAlignment(tileCanvas, Pos.CENTER);
-		mapPane.getChildren().add(tileCanvas);
-		tileCanvas.setVisible(true);
-		tileCanvas.setMouseTransparent(true);
+	private void initButtons() {
 
 		floorBtn.setMinWidth(75);
 		wallBtn.setMinWidth(75);
@@ -439,54 +404,18 @@ public class RoomViewController extends BorderPane implements Listener
 		getAppSuggestionsBtn().setTooltip(new Tooltip("Change the current map view with your selected generated map"));
 
 		getPatternButton().setTooltip(new Tooltip("Toggle the game design patterns for the current map"));
-
-		warningCanvas = new Canvas(mapWidth, mapHeight);
-		StackPane.setAlignment(warningCanvas, Pos.CENTER);
-		mapPane.getChildren().add(warningCanvas);
-		warningCanvas.setVisible(false);
-		warningCanvas.setMouseTransparent(true);
-
-		GraphicsContext gc = warningCanvas.getGraphicsContext2D();
-		gc.setStroke(Color.rgb(255, 0, 0, 1.0));
-		gc.setLineWidth(3);
-		gc.strokeRect(1, 1, mapWidth - 1, mapHeight - 1);
-		gc.setLineWidth(1);
-		gc.setStroke(Color.rgb(255, 0, 0, 0.9));
-		gc.strokeRect(3, 3, mapWidth - 6, mapHeight - 6);
-		gc.setStroke(Color.rgb(255, 0, 0, 0.8));
-		gc.strokeRect(4, 4, mapWidth - 8, mapHeight - 8);
-		gc.setStroke(Color.rgb(255, 0, 0, 0.7));
-		gc.strokeRect(5, 5, mapWidth - 10, mapHeight - 10);
-		gc.setStroke(Color.rgb(255, 0, 0, 0.6));
-		gc.strokeRect(6, 6, mapWidth - 12, mapHeight - 12);
-		gc.setStroke(Color.rgb(255, 0, 0, 0.5));
-		gc.strokeRect(7, 7, mapWidth - 14, mapHeight - 14);
-		gc.setStroke(Color.rgb(255, 0, 0, 0.4));
-		gc.strokeRect(8, 8, mapWidth - 16, mapHeight - 16);
-		gc.setStroke(Color.rgb(255, 0, 0, 0.3));
-		gc.strokeRect(9, 9, mapWidth - 18, mapHeight - 18);
-		gc.setStroke(Color.rgb(255, 0, 0, 0.2));
-		gc.strokeRect(10, 10, mapWidth - 20, mapHeight - 20);
-		gc.setStroke(Color.rgb(255, 0, 0, 0.1));
-		gc.strokeRect(11, 11, mapWidth - 22, mapHeight - 22);
-		
-//		
-//		mapView.addEventFilter(MouseEvent.MOUSE_CLICKED, new EditViewEventHandler());
-//		mapView.addEventFilter(MouseEvent.MOUSE_MOVED, new EditViewMouseHover());
-
 	}
-	
+
 	public void resetView()
 	{
 		//Reset all selectables
 		brushes.selectToggle(null);
 		getPatternButton().setSelected(false);
 		lockBrush.setSelected(false);
-		
+
 		selectBrush();
 		togglePatterns();
-		selectLockModifier();		
-		
+		selectLockModifier();
 	}
 
 	public void setContainer(MapContainer map) {
@@ -570,9 +499,9 @@ public class RoomViewController extends BorderPane implements Listener
 		{
 //			MAPElitesPane.GetGridCell(, row);
 //			this.cells.add(new GACell(MAPElitesDimensions, indices));
-			
+
 			roomDisplays.get((int) (indices[1] * dimensionSizes[0] + indices[0])).setSuggestedRoom(generatedRooms.get((int) (indices[1] * dimensionSizes[0] + indices[0])));
-			roomDisplays.get((int) (indices[1] * dimensionSizes[0] + indices[0])).setOriginalRoom(getMapView().getMap());
+			roomDisplays.get((int) (indices[1] * dimensionSizes[0] + indices[0])).setOriginalRoom(editedRoomPane.editedPane.getMap());
 //			roomDisplays.get(nextRoom).setOriginalRoom(); //Maybe this does not make sense? Idk
 			return;
 		}
@@ -584,30 +513,43 @@ public class RoomViewController extends BorderPane implements Listener
 		}
 	}
 
+	private void UserEditedRoom(UUID editCanvasID, Room editedRoom)
+	{
+		//This could change, but we are at the moment only interested in the room that is the edited room pange
+		if(editCanvasID == editedRoomPane.uniqueID)
+		{
+			router.postEvent(new RoomEdited(editedRoom));
+		}
+	}
+
 	@Override
 	public void ping(PCGEvent e) {
-		
-		if(e instanceof MAPEGridUpdate)
+
+		if(e instanceof UserEditedRoom)
+		{
+			UserEditedRoom(((UserEditedRoom) e).uniqueCanvasID, ((UserEditedRoom) e).editedRoom);
+		}
+		else if(e instanceof MAPEGridUpdate)
 		{
 			if(currentDimensions != null && currentDimensions.length > 0)
 			{
 				ActionLogger.getInstance().storeAction(ActionType.CHANGE_VALUE,
-														View.ROOM, 
-														TargetPane.SUGGESTION_PANE, 
-														false,
-														currentDimensions[0].getDimension(),
-														currentDimensions[0].getGranularity(),
-														currentDimensions[1].getDimension(),
-														currentDimensions[1].getGranularity(),
-														((MAPEGridUpdate) e).getDimensions()[0].getDimension(),
-														((MAPEGridUpdate) e).getDimensions()[0].getGranularity(),
-														((MAPEGridUpdate) e).getDimensions()[1].getDimension(),
-														((MAPEGridUpdate) e).getDimensions()[1].getGranularity()
-														);
+						View.ROOM,
+						TargetPane.SUGGESTION_PANE,
+						false,
+						currentDimensions[0].getDimension(),
+						currentDimensions[0].getGranularity(),
+						currentDimensions[1].getDimension(),
+						currentDimensions[1].getGranularity(),
+						((MAPEGridUpdate) e).getDimensions()[0].getDimension(),
+						((MAPEGridUpdate) e).getDimensions()[0].getGranularity(),
+						((MAPEGridUpdate) e).getDimensions()[1].getDimension(),
+						((MAPEGridUpdate) e).getDimensions()[1].getGranularity()
+				);
 			}
-			
+
 			MAPElitesPane.dimensionsUpdated(roomDisplays, ((MAPEGridUpdate) e).getDimensions());
-			currentDimensions = ((MAPEGridUpdate) e).getDimensions(); 
+			currentDimensions = ((MAPEGridUpdate) e).getDimensions();
 			OnChangeTab();
 		}
 		else if(e instanceof MAPElitesDone)
@@ -619,33 +561,11 @@ public class RoomViewController extends BorderPane implements Listener
 //				UUID uuid = ((MapUpdate) e).getID();
 				LabeledCanvas canvas;
 				synchronized (roomDisplays) {
-					
-					renderCell(generatedRooms, currentDimensions.length - 1, 
+
+					renderCell(generatedRooms, currentDimensions.length - 1,
 							new float [] {currentDimensions[0].getGranularity(), currentDimensions[1].getGranularity()}, new int[] {0,0});
-					
-//					for(Room room : generatedRooms)
-//					{
-//						if(room == null)
-//						{
-//							roomDisplays.get(nextRoom).setSuggestedRoom(null);
-//							roomDisplays.get(nextRoom).setOriginalRoom(getMapView().getMap()); //Maybe this does not make sense? Idk
-//							nextRoom++;
-//							continue;
-//							
-//						}
-//							
-//						
-//						roomDisplays.get(nextRoom).setSuggestedRoom(room);
-//						roomDisplays.get(nextRoom).setOriginalRoom(getMapView().getMap()); //Maybe this does not make sense? Idk
-//						
-//						canvas = roomDisplays.get(nextRoom).getRoomCanvas();
-//						canvas.setText("");
-//						
-//						suggestedRooms.put(nextRoom, room);
-//						nextRoom++;
-//					}
 				}
-				
+
 				Platform.runLater(() -> {
 					int i = 0;
 					for(SuggestionRoom sugRoom : roomDisplays)
@@ -663,7 +583,7 @@ public class RoomViewController extends BorderPane implements Listener
 
 //					System.out.println("CANVAS WIDTH: " + canvas.getWidth() + ", CANVAS HEIGHT: " + canvas.getHeight());
 				});
-				
+
 			}
 		}
 		else if (e instanceof MapUpdate) {
@@ -676,20 +596,8 @@ public class RoomViewController extends BorderPane implements Listener
 //				nextRoom = 0;
 				synchronized (roomDisplays) {
 					roomDisplays.get(0).setSuggestedRoom(room);
-					roomDisplays.get(0).setOriginalRoom(getMapView().getMap());
+//					roomDisplays.get(0).setOriginalRoom(getMapView().getMap()); //FIXME: Fix here!
 
-//					suggestionsBox.getChildren().add(suggestion.getRoomCanvas());
-					
-//					SuggestionRoom current = (SuggestionRoom)suggestionsBox.getChildren().get(nextRoom);
-					
-//					roomDisplays.get(nextRoom).setSuggestedRoom(room);
-//					roomDisplays.get(nextRoom).setOriginalRoom(getMapView().getMap()); //Maybe this does not make sense? Idk
-//
-//					canvas = roomDisplays.get(nextRoom).getRoomCanvas();
-//					canvas.setText("");
-//
-//					suggestedRooms.put(nextRoom, room);
-//					nextRoom++;
 				}
 
 				Platform.runLater(() -> {
@@ -709,63 +617,49 @@ public class RoomViewController extends BorderPane implements Listener
 
 //					System.out.println("CANVAS WIDTH: " + canvas.getWidth() + ", CANVAS HEIGHT: " + canvas.getHeight());
 				});
-
-//				Platform.runLater(() -> {
-//					canvas.draw(renderer.renderMiniSuggestedRoom(room, nextRoom - 1));
-////					System.out.println("CANVAS WIDTH: " + canvas.getWidth() + ", CANVAS HEIGHT: " + canvas.getHeight());
-//				});
 			}
-		} 
-		else if (e instanceof ApplySuggestion ) 
+		}
+		else if (e instanceof ApplySuggestion )
 		{
 			requestedSuggestion = (int) ((ApplySuggestion) e).getPayload();
 		}
 		else if(e instanceof SuggestedMapsDone) //All the evolutionary algorithms have finish their run and returned the best rooms!
 		{
 			getWorldGridBtn().setDisable(false);
-			getGenSuggestionsBtn().setDisable(false);	
+			getGenSuggestionsBtn().setDisable(false);
 		}
 		else if(e instanceof SuggestedMapSelected)
 		{
 			if(selectedSuggestion != null)
 				selectedSuggestion.setSelected(false);
-			
+
 			selectedSuggestion = (SuggestionRoom) ((SuggestedMapSelected) e).getPayload();
 			clearStats();
-			
+
 			if(selectedSuggestion == null || selectedSuggestion.getSuggestedRoom() == null)
 			{
 				getAppSuggestionsBtn().setDisable(true);
 				return;
 			}
-			
+
 			ActionLogger.getInstance().storeAction(ActionType.CLICK,
-													View.ROOM, 
-													TargetPane.SUGGESTION_PANE, 
-													false,
-													currentDimensions[0].getDimension(),
-													currentDimensions[0].getGranularity(),
-													selectedSuggestion.getSuggestedRoom().getDimensionValue(currentDimensions[0].getDimension()),
-													currentDimensions[1].getDimension(),
-													currentDimensions[1].getGranularity(),
-													selectedSuggestion.getSuggestedRoom().getDimensionValue(currentDimensions[1].getDimension()),
-													selectedSuggestion.getSuggestedRoom());
-			
+					View.ROOM,
+					TargetPane.SUGGESTION_PANE,
+					false,
+					currentDimensions[0].getDimension(),
+					currentDimensions[0].getGranularity(),
+					selectedSuggestion.getSuggestedRoom().getDimensionValue(currentDimensions[0].getDimension()),
+					currentDimensions[1].getDimension(),
+					currentDimensions[1].getGranularity(),
+					selectedSuggestion.getSuggestedRoom().getDimensionValue(currentDimensions[1].getDimension()),
+					selectedSuggestion.getSuggestedRoom());
+
 			selectedSuggestion.getSuggestedRoom().getRoomXML("clicked-suggestion\\");
-			
+
 //			clearStats();
 			displayStats();
 			getAppSuggestionsBtn().setDisable(false);
 		}
-	}
-
-	/**
-	 * Gets the interactive map.
-	 * 
-	 * @return An instance of InteractiveMap, if it exists.
-	 */
-	public InteractiveMap getMap() {
-		return getMapView();
 	}
 
 	/**
@@ -794,11 +688,17 @@ public class RoomViewController extends BorderPane implements Listener
 	 * @param room The new map.
 	 */
 	public void updateRoom(Room room) {
-		getMapView().updateMap(room);
-		redrawPatterns(room);
-		redrawLocks(room);
-		mapIsFeasible(room.isIntraFeasible());
-		router.postEvent(new RoomEdited(mapView.getMap()));
+
+		editedRoomPane.editedPane.updateMap(room);
+		togglePatterns();
+		selectLockModifier();
+		router.postEvent(new RoomEdited(editedRoomPane.editedPane.getMap())); //Not sure of this
+
+//		getMapView().updateMap(room);
+//		redrawPatterns(room);
+//		redrawLocks(room);
+//		mapIsFeasible(room.isIntraFeasible());
+//		router.postEvent(new RoomEdited(mapView.getMap()));
 		
 		//FIXME: Added for presentation
 //		room.calculateAllDimensionalValues();
@@ -814,21 +714,23 @@ public class RoomViewController extends BorderPane implements Listener
 
 	/**
 	 * Gets the current map being controlled by this controller.
-	 * 
+	 *
 	 * @return The current map.
 	 */
 	public Room getCurrentMap() {
 
-		return getMapView().getMap();
+//		return getMapView().getMap();
+		return null; //TODO: This one can become quite handy
 	}
 
 	/**
 	 * Renders the map, making it possible to export it.
-	 * 
+	 *
 	 * @return A rendered version of the map.
 	 */
 	public Image getRenderedMap() { //TODO: THERE CAN BE SOME PROBLEM HERE
-		return renderer.renderMap(getMapView().getMap());
+//		return renderer.renderMap(getMapView().getMap());
+		return null; //TODO: This one can become quite handy
 	}
 
 	/**
@@ -843,11 +745,11 @@ public class RoomViewController extends BorderPane implements Listener
 		
 		
 		if (brushes.getSelectedToggle() == null) {
-			mapView.setCursor(Cursor.DEFAULT);
 			myBrush.SetMainComponent(new Tile());
+			router.postEvent(new InteractiveRoomBrushUpdated(myBrush, Cursor.DEFAULT));
 			
 		} else {
-			mapView.setCursor(Cursor.HAND);
+//			editedRoomPane.editedPane.setCursor(Cursor.HAND);
 			switch (((ToggleButton) brushes.getSelectedToggle()).getText()) {
 			case "Floor":
 				myBrush.SetMainComponent(new FloorTile());
@@ -865,7 +767,7 @@ public class RoomViewController extends BorderPane implements Listener
 				myBrush.SetMainComponent(new BossEnemyTile());
 				break;
 			}
-		
+			router.postEvent(new InteractiveRoomBrushUpdated(myBrush, Cursor.HAND));
 			ActionLogger.getInstance().storeAction(ActionType.CHANGE_VALUE, 
 													View.ROOM, 
 													TargetPane.TILE_PANE,
@@ -877,7 +779,7 @@ public class RoomViewController extends BorderPane implements Listener
 		
 		
 	}
-	
+
 	/**
 	 * Toggles the main use of the lock modifier in the brush
 	 */
@@ -885,55 +787,52 @@ public class RoomViewController extends BorderPane implements Listener
 	{
 		myBrush.ChangeModifierMainValue("Lock", lockBrush.isSelected());
 		lockButton.setSelected(lockBrush.isSelected());
-		toggleLocks();
 		lockButton.setDisable(lockBrush.isSelected());
-	}	
-	
+		router.postEvent(new EditedRoomToggleLocks(lockBrush.isSelected()));
+	}
+
 	/**
 	 * Toggles the display of patterns on top of the map.
-	 * 
+	 *
 	 * "Why is this public?",  you ask. Because of FXML's method binding.
 	 */
-	public void togglePatterns() {
-		if (getPatternButton().isSelected()) {
-			patternCanvas.setVisible(true);
-		} else {
-			patternCanvas.setVisible(false);
-		}
+	public void togglePatterns() { //FIXME: Add this as an event, received by EditedRoomStackPane
+		router.postEvent(new EditedRoomTogglePatterns(getPatternButton().isSelected()));
 	}
-	
+
 	/**
 	 * Toggles the display of zones on top of the map.
-	 * 
+	 *
 	 */
-	public void toggleLocks() {
-		if (lockButton.isSelected()) {
-			lockCanvas.setVisible(true);
-		} else {
-			lockCanvas.setVisible(false);
-		}
+	public void toggleLocks() { //FIXME: Add this as an event, received by EditedRoomStackPane
+		router.postEvent(new EditedRoomToggleLocks(lockButton.isSelected()));
+//		if (lockButton.isSelected()) {
+//			lockCanvas.setVisible(true);
+//		} else {
+//			lockCanvas.setVisible(false);
+//		}
 	}
 
 	/**
 	 * Generates as many suggested rooms as specified
-	 * 
+	 *
 	 * "Why is this public?",  you ask. Because of FXML's method binding.
 	 */
 	@FXML
 	private void saveCurrentGeneration() //TODO: some changes here!
-	{	
+	{
 		switch(currentState)
 		{
-		case STOPPED:
-			//Nothing happens here :D 
-			break;
-		case RUNNING:
-			
-			router.postEvent(new SaveDisplayedCells());
+			case STOPPED:
+				//Nothing happens here :D
+				break;
+			case RUNNING:
+
+				router.postEvent(new SaveDisplayedCells());
 //			MAPElitesPane.SaveDimensionalGrid();
 //			MapRenderer.getInstance().saveCurrentEditedRoom(getMapView());
-			
-			break;
+
+				break;
 		}
 
 	}
@@ -945,9 +844,13 @@ public class RoomViewController extends BorderPane implements Listener
 	 */
 	@FXML
 	private void generateNewMaps() //TODO: some changes here!
-	{	
+	{
 		resetSuggestedRooms();
-		generateNewMaps(getMapView().getMap());
+		generateNewMaps(editedRoomPane.editedPane.getMap()); //Don't know about this
+
+
+//		resetSuggestedRooms();
+//		generateNewMaps(getMapView().getMap());
 		
 //		switch(currentState)
 //		{
@@ -1066,27 +969,27 @@ public class RoomViewController extends BorderPane implements Listener
 		}
 	}
 
-	/**
-	 * Marks the map as being infeasible.
-	 * 
-	 * @param state
-	 */
-	public void mapIsFeasible(boolean state) {
-		isFeasible = state;
-		warningCanvas.setVisible(!isFeasible);
-		
-		if(!state)
-			InformativePopupManager.getInstance().requestPopup(mapView, PresentableInformation.ROOM_INFEASIBLE, "");
-	}
+//	/**
+//	 * Marks the map as being infeasible.
+//	 *
+//	 * @param state
+//	 */
+//	public void mapIsFeasible(boolean state) {
+//		isFeasible = state;
+//		warningCanvas.setVisible(!isFeasible);
+//
+//		if(!state)
+//			InformativePopupManager.getInstance().requestPopup(mapView, PresentableInformation.ROOM_INFEASIBLE, "");
+//	}
 
 	/**
 	 * Generates four new mini maps.
-	 * 
+	 *
 	 * "Why is this public?",  you ask. Because of FXML's method binding.
 	 */
 	public void generateNewMaps(Room room) {
 		// TODO: If we want more diversity in the generated maps, then send more StartMapMutate events.
-		
+
 		switch(AlgorithmSetup.getInstance().algorithm_type)
 		{
 			case OBJECTIVE:
@@ -1095,11 +998,11 @@ public class RoomViewController extends BorderPane implements Listener
 				router.postEvent(new StartMapMutate(room, MapMutationType.Preserving, AlgorithmTypes.Native, 1, true));
 
 
-	//			int firstAmount = suggestionAmount/2;
-	//			int secondAmount = suggestionAmount - firstAmount;
-	//
-	//			router.postEvent(new StartMapMutate(room, MapMutationType.Preserving, AlgorithmTypes.Native, firstAmount, true)); //TODO: Move some of this hard coding to ApplicationConfig
-	//			router.postEvent(new StartMapMutate(room, MapMutationType.ComputedConfig, AlgorithmTypes.Native, secondAmount, true)); //TODO: Move some of this hard coding to ApplicationConfig
+				//			int firstAmount = suggestionAmount/2;
+				//			int secondAmount = suggestionAmount - firstAmount;
+				//
+				//			router.postEvent(new StartMapMutate(room, MapMutationType.Preserving, AlgorithmTypes.Native, firstAmount, true)); //TODO: Move some of this hard coding to ApplicationConfig
+				//			router.postEvent(new StartMapMutate(room, MapMutationType.ComputedConfig, AlgorithmTypes.Native, secondAmount, true)); //TODO: Move some of this hard coding to ApplicationConfig
 
 				break;
 			case MAP_ELITES:
@@ -1108,77 +1011,79 @@ public class RoomViewController extends BorderPane implements Listener
 					router.postEvent(new StartGA_MAPE(room, currentDimensions));
 
 					//Start the evolution using all the dimensions!
-	//				MAPEDimensionFXML[] rndDims = new MAPEDimensionFXML[7];
-	//				rndDims[0] = new MAPEDimensionFXML(DimensionTypes.SIMILARITY, 5);
-	//				rndDims[1] = new MAPEDimensionFXML(DimensionTypes.SYMMETRY, 5);
-	//				rndDims[2] = new MAPEDimensionFXML(DimensionTypes.INNER_SIMILARITY, 5);
-	//				rndDims[3] = new MAPEDimensionFXML(DimensionTypes.LENIENCY, 5);
-	//				rndDims[4] = new MAPEDimensionFXML(DimensionTypes.LINEARITY, 5);
-	//				rndDims[5] = new MAPEDimensionFXML(DimensionTypes.NUMBER_PATTERNS, 5);
-	//				rndDims[6] = new MAPEDimensionFXML(DimensionTypes.NUMBER_MESO_PATTERN, 5);
-	//				router.postEvent(new StartGA_MAPE(room, rndDims));
+					//				MAPEDimensionFXML[] rndDims = new MAPEDimensionFXML[7];
+					//				rndDims[0] = new MAPEDimensionFXML(DimensionTypes.SIMILARITY, 5);
+					//				rndDims[1] = new MAPEDimensionFXML(DimensionTypes.SYMMETRY, 5);
+					//				rndDims[2] = new MAPEDimensionFXML(DimensionTypes.INNER_SIMILARITY, 5);
+					//				rndDims[3] = new MAPEDimensionFXML(DimensionTypes.LENIENCY, 5);
+					//				rndDims[4] = new MAPEDimensionFXML(DimensionTypes.LINEARITY, 5);
+					//				rndDims[5] = new MAPEDimensionFXML(DimensionTypes.NUMBER_PATTERNS, 5);
+					//				rndDims[6] = new MAPEDimensionFXML(DimensionTypes.NUMBER_MESO_PATTERN, 5);
+					//				router.postEvent(new StartGA_MAPE(room, rndDims));
 				}
 
 				break;
 //		case CVT_MAP_ELITES:
 //			break;
-		default:
-			break;
-		
+			default:
+				break;
+
 		}
 	}
 
 	public void replaceRoom()
 	{
 		//pass the info from one room to the other one
-		
+
 		if(selectedSuggestion != null)
 		{
 			ActionLogger.getInstance().storeAction(ActionType.CHANGE_VALUE,
-													View.ROOM, 
-													TargetPane.SUGGESTION_PANE, 
-													false,
-													currentDimensions[0].getDimension(),
-													currentDimensions[0].getGranularity(),
-													selectedSuggestion.getSuggestedRoom().getDimensionValue(currentDimensions[0].getDimension()),
-													currentDimensions[1].getDimension(),
-													currentDimensions[1].getGranularity(),
-													selectedSuggestion.getSuggestedRoom().getDimensionValue(currentDimensions[1].getDimension()),
-													selectedSuggestion.getSuggestedRoom());
-			
-			
+					View.ROOM,
+					TargetPane.SUGGESTION_PANE,
+					false,
+					currentDimensions[0].getDimension(),
+					currentDimensions[0].getGranularity(),
+					selectedSuggestion.getSuggestedRoom().getDimensionValue(currentDimensions[0].getDimension()),
+					currentDimensions[1].getDimension(),
+					currentDimensions[1].getGranularity(),
+					selectedSuggestion.getSuggestedRoom().getDimensionValue(currentDimensions[1].getDimension()),
+					selectedSuggestion.getSuggestedRoom());
+
+
 //			selectedSuggestion.getSuggestedRoom()(prefix);
 			selectedSuggestion.getSuggestedRoom().getRoomXML("picked-room\\");
-			
+
 			router.postEvent(new SaveCurrentGeneration());
-			
-			mapView.getMap().applySuggestion(selectedSuggestion.getSuggestedRoom());
-			updateRoom(mapView.getMap());
+
+			//FIXME: Change when applying suggestion!
+			// Not sure of this
+			editedRoomPane.editedPane.getMap().applySuggestion(selectedSuggestion.getSuggestedRoom());
+			updateRoom(editedRoomPane.editedPane.getMap());
 		}
 	}
 
-	/**
-	 * Composes a list of micro patterns with their respective colours for the
-	 * map renderer to use.
-	 * 
-	 * @param patterns The patterns to analyse.
-	 * @return A map that maps each pattern instance to a colour.
-	 */
-	private HashMap<Pattern, Color> colourPatterns(List<Pattern> patterns) {
-		HashMap<Pattern, Color> patternMap = new HashMap<Pattern, Color>();
-
-		patterns.forEach((pattern) -> {
-			if (pattern instanceof Chamber) {
-				patternMap.put(pattern, Color.BLUE);
-			} else if (pattern instanceof Corridor) {
-				patternMap.put(pattern, Color.RED);
-			} else if (pattern instanceof Connector) {
-				patternMap.put(pattern, Color.YELLOW);
-			}
-		});
-
-		return patternMap;
-	}
+//	/**
+//	 * Composes a list of micro patterns with their respective colours for the
+//	 * map renderer to use.
+//	 *
+//	 * @param patterns The patterns to analyse.
+//	 * @return A map that maps each pattern instance to a colour.
+//	 */
+//	private HashMap<Pattern, Color> colourPatterns(List<Pattern> patterns) {
+//		HashMap<Pattern, Color> patternMap = new HashMap<Pattern, Color>();
+//
+//		patterns.forEach((pattern) -> {
+//			if (pattern instanceof Chamber) {
+//				patternMap.put(pattern, Color.BLUE);
+//			} else if (pattern instanceof Corridor) {
+//				patternMap.put(pattern, Color.RED);
+//			} else if (pattern instanceof Connector) {
+//				patternMap.put(pattern, Color.YELLOW);
+//			}
+//		});
+//
+//		return patternMap;
+//	}
 
 	public static double round(double value, int places) {
 		if (places < 0) {
@@ -1192,41 +1097,41 @@ public class RoomViewController extends BorderPane implements Listener
 		return bd.doubleValue();
 	}
 
-	/**
-	 * Redraws the pattern, based on the current map layout.
-	 * 
-	 * @param container
-	 */
-	private synchronized void redrawPatterns(Room room) {
-		//Change those 2 width and height hardcoded values (420,420)
-		//And change zone to its own method
-		patternCanvas.getGraphicsContext2D().clearRect(0, 0, mapWidth, mapHeight);
-
-		renderer.drawPatterns(patternCanvas.getGraphicsContext2D(), room.toMatrix(), colourPatterns(room.getPatternFinder().findMicroPatterns()));
-		renderer.drawGraph(patternCanvas.getGraphicsContext2D(), room.toMatrix(), room.getPatternFinder().getPatternGraph());
-		renderer.drawMesoPatterns(patternCanvas.getGraphicsContext2D(), room.toMatrix(), room.getPatternFinder().getMesoPatterns());
-	}
-
-	/***
-	 * Redraw the lock in the map --> TODO: I am afraid this should be in the renderer
-	 * @param room
-	 */
-	private void redrawLocks(Room room)
-	{
-		lockCanvas.getGraphicsContext2D().clearRect(0, 0, mapWidth, mapHeight);
-		
-		for(int i = 0; i < room.getRowCount(); ++i)
-		{
-			for(int j = 0; j < room.getColCount(); ++j)
-			{
-				if(room.getTile(j, i).GetImmutable())
-				{
-					lockCanvas.getGraphicsContext2D().drawImage(renderer.GetLock(mapView.scale * 0.75f, mapView.scale * 0.75f), j * mapView.scale, i * mapView.scale);
-//					lockCanvas.getGraphicsContext2D().drawImage(renderer.GetLock(mapView.scale * 3.0f, mapView.scale * 3.0f), (j-1) * mapView.scale, (i-1) * mapView.scale);
-				}
-			}
-		}
-	}
+//	/**
+//	 * Redraws the pattern, based on the current map layout.
+//	 *
+//	 * @param container
+//	 */
+//	private synchronized void redrawPatterns(Room room) {
+//		//Change those 2 width and height hardcoded values (420,420)
+//		//And change zone to its own method
+//		patternCanvas.getGraphicsContext2D().clearRect(0, 0, mapWidth, mapHeight);
+//
+//		renderer.drawPatterns(patternCanvas.getGraphicsContext2D(), room.toMatrix(), colourPatterns(room.getPatternFinder().findMicroPatterns()));
+//		renderer.drawGraph(patternCanvas.getGraphicsContext2D(), room.toMatrix(), room.getPatternFinder().getPatternGraph());
+//		renderer.drawMesoPatterns(patternCanvas.getGraphicsContext2D(), room.toMatrix(), room.getPatternFinder().getMesoPatterns());
+//	}
+//
+//	/***
+//	 * Redraw the lock in the map --> TODO: I am afraid this should be in the renderer
+//	 * @param room
+//	 */
+//	private void redrawLocks(Room room)
+//	{
+//		lockCanvas.getGraphicsContext2D().clearRect(0, 0, mapWidth, mapHeight);
+//
+//		for(int i = 0; i < room.getRowCount(); ++i)
+//		{
+//			for(int j = 0; j < room.getColCount(); ++j)
+//			{
+//				if(room.getTile(j, i).GetImmutable())
+//				{
+//					lockCanvas.getGraphicsContext2D().drawImage(renderer.GetLock(mapView.scale * 0.75f, mapView.scale * 0.75f), j * mapView.scale, i * mapView.scale);
+////					lockCanvas.getGraphicsContext2D().drawImage(renderer.GetLock(mapView.scale * 3.0f, mapView.scale * 3.0f), (j-1) * mapView.scale, (i-1) * mapView.scale);
+//				}
+//			}
+//		}
+//	}
 	
 	@FXML
 	public void clearStats() {
@@ -1248,29 +1153,30 @@ public class RoomViewController extends BorderPane implements Listener
 	@FXML
 	public void displayStats() 
 	{
-		Room original = getMapView().getMap();
+
+		Room original = editedRoomPane.editedPane.getMap();
 		Room toCompare = selectedSuggestion.getSuggestedRoom();
 		
 		int originalEnemies = 0;
 		int compareEnemies = 0;
 		
-		getMapView().getMap().createLists();
+		editedRoomPane.editedPane.getMap().createLists();
 		toCompare.createLists();
 		
 		StringBuilder str = new StringBuilder();
 		str.append("Number of enemies: ");
 		
-		str.append(getMapView().getMap().getEnemyCount());
+		str.append(editedRoomPane.editedPane.getMap().getEnemyCount());
 		str.append(" ➤  ");
 		enemyNumbr.setText(str.toString());	
 		str = new StringBuilder();
 
 		str.append(toCompare.getEnemyCount());
-		if (getMapView().getMap().getEnemyCount() > toCompare.getEnemyCount()) {
+		if (editedRoomPane.editedPane.getMap().getEnemyCount() > toCompare.getEnemyCount()) {
 			str.append(" ▼");
 			enemyNumbr2.setText(str.toString());
 			enemyNumbr2.setStyle("-fx-text-fill: red");
-		} else if (getMapView().getMap().getEnemyCount() < toCompare.getEnemyCount()) {			
+		} else if (editedRoomPane.editedPane.getMap().getEnemyCount() < toCompare.getEnemyCount()) {
 			str.append(" ▲");
 			enemyNumbr2.setText(str.toString());
 			enemyNumbr2.setStyle("-fx-text-fill: green");
@@ -1284,17 +1190,17 @@ public class RoomViewController extends BorderPane implements Listener
 
 		str.append("Number of treasures: ");
 
-		str.append(getMapView().getMap().getTreasureCount());
+		str.append(editedRoomPane.editedPane.getMap().getTreasureCount());
 		str.append(" ➤  ");
 		treasureNmbr.setText(str.toString());	
 		str = new StringBuilder();
 
 		str.append(toCompare.getTreasureCount());
-		if (getMapView().getMap().getTreasureCount() > toCompare.getTreasureCount()) {
+		if (editedRoomPane.editedPane.getMap().getTreasureCount() > toCompare.getTreasureCount()) {
 			str.append(" ▼");
 			treasureNmbr2.setText(str.toString());
 			treasureNmbr2.setStyle("-fx-text-fill: red");
-		} else if (getMapView().getMap().getTreasureCount() < toCompare.getTreasureCount()) {			
+		} else if (editedRoomPane.editedPane.getMap().getTreasureCount() < toCompare.getTreasureCount()) {
 			str.append(" ▲");
 			treasureNmbr2.setText(str.toString());
 			treasureNmbr2.setStyle("-fx-text-fill: green");
@@ -1308,7 +1214,7 @@ public class RoomViewController extends BorderPane implements Listener
 
 		str.append("Treasure percentage: ");
 
-		str.append(round(getMapView().getMap().getTreasurePercentage()* 100, 2 ));
+		str.append(round(editedRoomPane.editedPane.getMap().getTreasurePercentage()* 100, 2 ));
 		str.append("%");
 
 		str.append(" ➤  ");
@@ -1318,11 +1224,11 @@ public class RoomViewController extends BorderPane implements Listener
 		str.append(round(toCompare.getTreasurePercentage()* 100, 2 ));
 		str.append("%");
 
-		if (getMapView().getMap().getTreasurePercentage() > toCompare.getTreasurePercentage()) {
+		if (editedRoomPane.editedPane.getMap().getTreasurePercentage() > toCompare.getTreasurePercentage()) {
 			str.append(" ▼");
 			treasurePercent2.setText(str.toString());
 			treasurePercent2.setStyle("-fx-text-fill: red");
-		} else if (getMapView().getMap().getTreasurePercentage() < toCompare.getTreasurePercentage()) {			
+		} else if (editedRoomPane.editedPane.getMap().getTreasurePercentage() < toCompare.getTreasurePercentage()) {
 			str.append(" ▲");
 			treasurePercent2.setText(str.toString());
 			treasurePercent2.setStyle("-fx-text-fill: green");
@@ -1336,7 +1242,7 @@ public class RoomViewController extends BorderPane implements Listener
 
 		str.append("Enemy percentage: ");
 
-		str.append(round(getMapView().getMap().getEnemyPercentage()* 100, 2 ));
+		str.append(round(editedRoomPane.editedPane.getMap().getEnemyPercentage()* 100, 2 ));
 		str.append("%");
 
 		str.append(" ➤  ");
@@ -1346,11 +1252,11 @@ public class RoomViewController extends BorderPane implements Listener
 		str.append(round(toCompare.getEnemyPercentage()* 100, 2 ));
 		str.append("%");
 
-		if (getMapView().getMap().getEnemyPercentage() > toCompare.getEnemyPercentage()) {
+		if (editedRoomPane.editedPane.getMap().getEnemyPercentage() > toCompare.getEnemyPercentage()) {
 			str.append(" ▼");
 			enemyPercent2.setText(str.toString());
 			enemyPercent2.setStyle("-fx-text-fill: red");
-		} else if (getMapView().getMap().getEnemyPercentage() < toCompare.getEnemyPercentage()) {			
+		} else if (editedRoomPane.editedPane.getMap().getEnemyPercentage() < toCompare.getEnemyPercentage()) {
 			str.append(" ▲");
 			enemyPercent2.setText(str.toString());
 			enemyPercent2.setStyle("-fx-text-fill: green");
@@ -1364,7 +1270,7 @@ public class RoomViewController extends BorderPane implements Listener
 
 		str.append("Entrance safety: ");
 
-		str.append(round(getMapView().getMap().getDoorSafeness()* 100, 2 ));
+		str.append(round(editedRoomPane.editedPane.getMap().getDoorSafeness()* 100, 2 ));
 		str.append("%");
 
 		str.append(" ➤  ");
@@ -1374,11 +1280,11 @@ public class RoomViewController extends BorderPane implements Listener
 		str.append(round(toCompare.getDoorSafeness()* 100, 2 ));
 		str.append("%");
 
-		if (getMapView().getMap().getDoorSafeness() > toCompare.getDoorSafeness()) {
+		if (editedRoomPane.editedPane.getMap().getDoorSafeness() > toCompare.getDoorSafeness()) {
 			str.append(" ▼");
 			entranceSafety2.setText(str.toString());
 			entranceSafety2.setStyle("-fx-text-fill: red");
-		} else if (getMapView().getMap().getDoorSafeness() < toCompare.getDoorSafeness()) {			
+		} else if (editedRoomPane.editedPane.getMap().getDoorSafeness() < toCompare.getDoorSafeness()) {
 			str.append(" ▲");
 			entranceSafety2.setText(str.toString());
 			entranceSafety2.setStyle("-fx-text-fill: green");
@@ -1392,7 +1298,7 @@ public class RoomViewController extends BorderPane implements Listener
 
 		str.append("Treasure safety: ");
 
-		Double[] safeties = getMapView().getMap().getAllTreasureSafeties();
+		Double[] safeties = editedRoomPane.editedPane.getMap().getAllTreasureSafeties();
 
 		double totalSafety = 0;
 
@@ -1438,40 +1344,40 @@ public class RoomViewController extends BorderPane implements Listener
 		}
 
 	}
-	
-	public void roomMouseEvents() 
-	{
-		getMapView().addEventFilter(MouseEvent.MOUSE_CLICKED, new EditViewEventHandler());
-		getMapView().addEventFilter(MouseEvent.MOUSE_MOVED, new EditViewMouseHover());
-	}
-	
-	public boolean checkInfeasibleLockedRoom(ImageView tile)
-	{
-		Room auxRoom = new Room(mapView.getMap());
-		mapView.updateTileInARoom(auxRoom, tile, myBrush);
-		
-		if(!auxRoom.walkableSectionsReachable())
-		{
-			System.out.println("I DETECTED IT!!");
-			InformativePopupManager.getInstance().requestPopup(mapView, PresentableInformation.ROOM_INFEASIBLE_LOCK, "");
-			return true;
-		}
-		
-		return false;
-	}
+//
+//	public void roomMouseEvents()
+//	{
+//		getMapView().addEventFilter(MouseEvent.MOUSE_CLICKED, new EditViewEventHandler());
+//		getMapView().addEventFilter(MouseEvent.MOUSE_MOVED, new EditViewMouseHover());
+//	}
+//
+//	public boolean checkInfeasibleLockedRoom(ImageView tile)
+//	{
+//		Room auxRoom = new Room(mapView.getMap());
+//		mapView.updateTileInARoom(auxRoom, tile, myBrush);
+//
+//		if(!auxRoom.walkableSectionsReachable())
+//		{
+//			System.out.println("I DETECTED IT!!");
+//			InformativePopupManager.getInstance().requestPopup(mapView, PresentableInformation.ROOM_INFEASIBLE_LOCK, "");
+//			return true;
+//		}
+//
+//		return false;
+//	}
 	
 	public void saveEditedRoomInfo()
 	{
 		String DIRECTORY= System.getProperty("user.dir") + "\\my-data\\custom-save\\";
 		StringBuilder sb = new StringBuilder();
-		
-		mapView.getMap().calculateAllDimensionalValues();
-		sb.append(mapView.getMap().getDimensionValue(DimensionTypes.LENIENCY) + ";");         
-		sb.append(mapView.getMap().getDimensionValue(DimensionTypes.LINEARITY) + ";");        
+
+		editedRoomPane.editedPane.getMap().calculateAllDimensionalValues();
+		sb.append(editedRoomPane.editedPane.getMap().getDimensionValue(DimensionTypes.LENIENCY) + ";");
+		sb.append(editedRoomPane.editedPane.getMap().getDimensionValue(DimensionTypes.LINEARITY) + ";");
 		sb.append("1.0;");  //similarity
-		sb.append(mapView.getMap().getDimensionValue(DimensionTypes.NUMBER_MESO_PATTERN) + ";");
-		sb.append(mapView.getMap().getDimensionValue(DimensionTypes.NUMBER_PATTERNS) + ";");  
-		sb.append(mapView.getMap().getDimensionValue(DimensionTypes.SYMMETRY) + ";");
+		sb.append(editedRoomPane.editedPane.getMap().getDimensionValue(DimensionTypes.NUMBER_MESO_PATTERN) + ";");
+		sb.append(editedRoomPane.editedPane.getMap().getDimensionValue(DimensionTypes.NUMBER_PATTERNS) + ";");
+		sb.append(editedRoomPane.editedPane.getMap().getDimensionValue(DimensionTypes.SYMMETRY) + ";");
 		sb.append("1.0;");  //Inner_similarity
 		sb.append("1.0;");  //fitness
 		sb.append("1.0;");  //score
@@ -1494,85 +1400,16 @@ public class RoomViewController extends BorderPane implements Listener
 
 	}
 
-	/*
-	 * Event handlers
-	 */
-	public class EditViewEventHandler implements EventHandler<MouseEvent> {
-		@Override
-		public void handle(MouseEvent event) 
-		{
-			
-			if (event.getTarget() instanceof ImageView) {
-				// Edit the map
-				ImageView tile = (ImageView) event.getTarget();
-				
-				//TODO: This should go to its own class or function at least
-//				if(event.isControlDown())
-//					lockBrush.setSelected(true);
-//				else if()
-				myBrush.UpdateModifiers(event);
-//				mapView.updateTile(tile, brush, event.getButton() == MouseButton.SECONDARY, lockBrush.isSelected() || event.isControlDown());
-				
-				if(!myBrush.possibleToDraw() || (myBrush.GetModifierValue("Lock") && checkInfeasibleLockedRoom(tile)))
-					return;
-				
-				if(myBrush.GetModifierValue("Lock"))
-				{
-					InformativePopupManager.getInstance().requestPopup(mapView, PresentableInformation.LOCK_RESTART, "");
-				}
-				
-				mapView.updateTile(tile, myBrush);
-				mapView.getMap().forceReevaluation();
-				mapView.getMap().getRoomXML("room\\");
-				mapIsFeasible(mapView.getMap().isIntraFeasible());
-				redrawPatterns(mapView.getMap());
-				redrawLocks(mapView.getMap());
-				router.postEvent(new RoomEdited(mapView.getMap()));
-//				mapView.getMap().calculateAllDimensionalValues();
-				
-				//TODO: UNCOMMENT TO SAVE EACH STEP!!
-//				saveEditedRoomInfo();
-				
-//				System.out.println(mapView.getMap().fitnessEvaluation());
-//				mapView.getMap().calculateAllDimensionalValues();
-//				System.out.println(mapView.getMap().getDimensionValue(DimensionTypes.LENIENCY));         
-//				System.out.println(mapView.getMap().getDimensionValue(DimensionTypes.LINEARITY) + ";");        
-////				System.out.println(room.getDimensionValue(DimensionTypes.SIMILARITY) + ";");       
-//				System.out.println(mapView.getMap().getDimensionValue(DimensionTypes.NUMBER_MESO_PATTERN) + ";");
-//				System.out.println(mapView.getMap().getDimensionValue(DimensionTypes.NUMBER_PATTERNS) + ";");  
-//				System.out.println(mapView.getMap().getDimensionValue(DimensionTypes.SYMMETRY) + ";"); 
-//				redrawHeatMap(mapView.getMap());
-			}
-		}
-		
+	public void someRoomHovered(Room room)
+	{
+
 	}
-	
-	/*
-	 * Event handlers
-	 */
-	public class EditViewMouseHover implements EventHandler<MouseEvent> {
-		@Override
-		public void handle(MouseEvent event) 
-		{
-			brushCanvas.setVisible(false);
-			
-			if (event.getTarget() instanceof ImageView) 
-			{
-				// Show the brush canvas
-				ImageView tile = (ImageView) event.getTarget();
-				myBrush.SetBrushSize((int)(brushSlider.getValue()));
-				brushCanvas.getGraphicsContext2D().clearRect(0, 0, mapWidth, mapHeight);
-				brushCanvas.setVisible(true);
-				util.Point p = mapView.CheckTile(tile);
-				myBrush.Update(event, p, mapView.getMap());
-				
-				renderer.drawBrush(brushCanvas.getGraphicsContext2D(), mapView.getMap().toMatrix(), myBrush, 
-						myBrush.possibleToDraw() ? Color.WHITE : Color.RED);
-			}
-		}
-		
+
+	public void someRoomEdited(Room room)
+	{
+
 	}
-	
+
 	public Room getSelectedMiniMap() {
 		return selectedSuggestion.getSuggestedRoom();
 	}
@@ -1581,14 +1418,6 @@ public class RoomViewController extends BorderPane implements Listener
 		this.selectedSuggestion.setSuggestedRoom(selectedMiniMap);
 	}
 
-	public InteractiveMap getMapView() {
-		return mapView;
-	}
-
-	public void setMapView(InteractiveMap mapView) {
-		this.mapView = mapView;
-	}
-	
 	public Button getWorldGridBtn() {
 		return worldGridBtn;
 	}
@@ -1620,4 +1449,131 @@ public class RoomViewController extends BorderPane implements Listener
 	public void setPatternButton(ToggleButton patternButton) {
 		this.patternButton = patternButton;
 	}
+
+//	/*
+//	 * Event handlers
+//	 */
+//	public class EditViewEventHandler implements EventHandler<MouseEvent> {
+//		@Override
+//		public void handle(MouseEvent event) 
+//		{
+//			
+//			if (event.getTarget() instanceof ImageView) {
+//				// Edit the map
+//				ImageView tile = (ImageView) event.getTarget();
+//				
+//				//TODO: This should go to its own class or function at least
+////				if(event.isControlDown())
+////					lockBrush.setSelected(true);
+////				else if()
+//				myBrush.UpdateModifiers(event);
+////				mapView.updateTile(tile, brush, event.getButton() == MouseButton.SECONDARY, lockBrush.isSelected() || event.isControlDown());
+//				
+//				if(!myBrush.possibleToDraw() || (myBrush.GetModifierValue("Lock") && checkInfeasibleLockedRoom(tile)))
+//					return;
+//				
+//				if(myBrush.GetModifierValue("Lock"))
+//				{
+//					InformativePopupManager.getInstance().requestPopup(mapView, PresentableInformation.LOCK_RESTART, "");
+//				}
+//				
+//				mapView.updateTile(tile, myBrush);
+//				mapView.getMap().forceReevaluation();
+//				mapView.getMap().getRoomXML("room\\");
+//				mapIsFeasible(mapView.getMap().isIntraFeasible());
+//				redrawPatterns(mapView.getMap());
+//				redrawLocks(mapView.getMap());
+//				router.postEvent(new RoomEdited(mapView.getMap()));
+////				mapView.getMap().calculateAllDimensionalValues();
+//				
+//				//TODO: UNCOMMENT TO SAVE EACH STEP!!
+////				saveEditedRoomInfo();
+//				
+////				System.out.println(mapView.getMap().fitnessEvaluation());
+////				mapView.getMap().calculateAllDimensionalValues();
+////				System.out.println(mapView.getMap().getDimensionValue(DimensionTypes.LENIENCY));         
+////				System.out.println(mapView.getMap().getDimensionValue(DimensionTypes.LINEARITY) + ";");        
+//////				System.out.println(room.getDimensionValue(DimensionTypes.SIMILARITY) + ";");       
+////				System.out.println(mapView.getMap().getDimensionValue(DimensionTypes.NUMBER_MESO_PATTERN) + ";");
+////				System.out.println(mapView.getMap().getDimensionValue(DimensionTypes.NUMBER_PATTERNS) + ";");  
+////				System.out.println(mapView.getMap().getDimensionValue(DimensionTypes.SYMMETRY) + ";"); 
+////				redrawHeatMap(mapView.getMap());
+//			}
+//		}
+//		
+//	}
+//	
+//	/*
+//	 * Event handlers
+//	 */
+//	public class EditViewMouseHover implements EventHandler<MouseEvent> {
+//		@Override
+//		public void handle(MouseEvent event) 
+//		{
+//			brushCanvas.setVisible(false);
+//			
+//			if (event.getTarget() instanceof ImageView) 
+//			{
+//				// Show the brush canvas
+//				ImageView tile = (ImageView) event.getTarget();
+//				myBrush.SetBrushSize((int)(brushSlider.getValue()));
+//				brushCanvas.getGraphicsContext2D().clearRect(0, 0, mapWidth, mapHeight);
+//				brushCanvas.setVisible(true);
+//				util.Point p = mapView.CheckTile(tile);
+//				myBrush.Update(event, p, mapView.getMap());
+//				
+//				renderer.drawBrush(brushCanvas.getGraphicsContext2D(), mapView.getMap().toMatrix(), myBrush, 
+//						myBrush.possibleToDraw() ? Color.WHITE : Color.RED);
+//			}
+//		}
+//		
+//	}
+//	
+//	public Room getSelectedMiniMap() {
+//		return selectedSuggestion.getSuggestedRoom();
+//	}
+//
+//	public void setSelectedMiniMap(Room selectedMiniMap) {
+//		this.selectedSuggestion.setSuggestedRoom(selectedMiniMap);
+//	}
+//
+//	public InteractiveMap getMapView() {
+//		return mapView;
+//	}
+//
+//	public void setMapView(InteractiveMap mapView) {
+//		this.mapView = mapView;
+//	}
+//	
+//	public Button getWorldGridBtn() {
+//		return worldGridBtn;
+//	}
+//
+//	public void setWorldGridBtn(Button worldGridBtn) {
+//		this.worldGridBtn = worldGridBtn;
+//	}
+//
+//	public Button getGenSuggestionsBtn() {
+//		return genSuggestionsBtn;
+//	}
+//
+//	public void setGenSuggestionsBtn(Button genSuggestionsBtn) {
+//		this.genSuggestionsBtn = genSuggestionsBtn;
+//	}
+//
+//	public Button getAppSuggestionsBtn() {
+//		return appSuggestionsBtn;
+//	}
+//
+//	public void setAppSuggestionsBtn(Button appSuggestionsBtn) {
+//		this.appSuggestionsBtn = appSuggestionsBtn;
+//	}
+//
+//	public ToggleButton getPatternButton() {
+//		return patternButton;
+//	}
+//
+//	public void setPatternButton(ToggleButton patternButton) {
+//		this.patternButton = patternButton;
+//	}
 }

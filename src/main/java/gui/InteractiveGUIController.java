@@ -88,7 +88,7 @@ public class InteractiveGUIController implements Initializable, Listener {
 
 	SuggestionsViewController suggestionsView = null;
 //	RoomViewController roomView = null;
-	DimDiscoveryViewController roomView = null;
+	RoomViewController roomView = null;
 
 	WorldViewController worldView = null;
 	LaunchViewController launchView = null;
@@ -158,7 +158,7 @@ public class InteractiveGUIController implements Initializable, Listener {
 
 		suggestionsView = new SuggestionsViewController();
 //		roomView = new RoomViewController();
-		roomView = new DimDiscoveryViewController();
+		roomView = new RoomViewController();
 		worldView = new WorldViewController();
 		launchView = new LaunchViewController();
 		narrativeView = new NarrativeStructureViewController();
@@ -467,7 +467,7 @@ public class InteractiveGUIController implements Initializable, Listener {
 		InformativePopupManager.getInstance().restartPopups();
 		
 		suggestionsView = new SuggestionsViewController();
-		roomView = new DimDiscoveryViewController();
+		roomView = new RoomViewController();
 		worldView = new WorldViewController();
 		launchView = new LaunchViewController();
 		dungeonMap = null;
@@ -728,7 +728,7 @@ public class InteractiveGUIController implements Initializable, Listener {
 		
 		
 		roomView.initializeView(map.getMap());
-		roomView.roomMouseEvents();
+//		roomView.roomMouseEvents();
 		
 		//TODO: Crazyness to create mini map based on the dungeon...
 		//It would need to have different dimensions for the room view and for the world view

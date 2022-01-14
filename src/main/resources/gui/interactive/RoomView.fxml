@@ -42,7 +42,7 @@
 <?import javafx.scene.control.cell.TextFieldTableCell?>
 <?import gui.controls.DimensionsTable?>
 <?import gui.controls.Popup?>
-
+<?import gui.controls.EditedRoomStackPane?>
 
 <fx:root type="javafx.scene.layout.BorderPane"
 	stylesheets="@../styling.css" fx:id="mainBorderPane"
@@ -160,7 +160,8 @@
 		</ToolBar>
 	</left>
 	<center>
-		<StackPane alignment="CENTER" fx:id="mapPane" />
+<!--		<StackPane alignment="CENTER" fx:id="mapPane" />-->
+		<EditedRoomStackPane fx:id="editedRoomPane" prefHeight="122.0" prefWidth="309.0" BorderPane.alignment="CENTER" />
 	</center>
 
 	<right>
