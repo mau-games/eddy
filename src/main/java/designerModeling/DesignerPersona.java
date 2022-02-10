@@ -27,6 +27,7 @@ class RoomDesignerPersona
         persona = ArchetypicalPath.ArchetypicalPathTypes.NULL;
         path = new ArrayList<Integer>();
         reduced_path = new ArrayList<Integer>();
+        key_path = new ArrayList<Integer>();
     }
 
     public void addToPath(int step)
@@ -143,6 +144,22 @@ public class DesignerPersona implements Listener
         activate_path = new ArrayList<Integer>();
         active_reduced_path = new ArrayList<Integer>();
 
+    }
+
+    public void designStarted(Room room)
+    {
+        boolean exists = false;
+
+        for(RoomDesignerPersona rdp : roomPersonas)
+        {
+            if(rdp.room.equals(room))
+            {
+                exists = true;
+            }
+        }
+
+        if(!exists)
+            roomPersonas.add(new RoomDesignerPersona(room));
     }
 
     @Override

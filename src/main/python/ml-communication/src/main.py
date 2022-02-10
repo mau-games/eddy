@@ -17,8 +17,9 @@ from EDD.Room import CustomTiles, TileData, Room
 from EDD.RoomRenderer import RoomRenderer
 from designerPersona.DesignerPersonaModel import DesignerPersonaModel
 
+# print(os.listdir("../"))
 designer_persona = DesignerPersonaModel()
-renderer = RoomRenderer("../../resources/graphics/tiles", 1.0)
+renderer = RoomRenderer("../../../resources/graphics/tiles", 1.0)
 app = Flask(__name__)
 
 
@@ -81,6 +82,57 @@ def get_room():
     # prediction = 2
     # return jsonify({'prediction': list(prediction)})
 
+@app.route('/get_rooms/', methods=['POST'])
+def get_rooms():
+    # print("GET ROOM IS CALLED!")
+    json_ = request.json
+    print(json_)
+    # print(json_["rooms"])
+
+    some = json_["rooms"]
+    rooms = []
+
+    for s in some:
+        rooms.append(roomFromXML(s).test_data)
+
+    rooms = np.array(rooms)
+    # print("dimensions and shape: ", rooms.shape)
+    # if rooms.ndim > 2:
+    #     rooms = rooms.squeeze()
+
+    rooms = rooms.squeeze(axis=1)
+
+    a = designer_persona.transform_predict(rooms)
+
+    print("PREDICTED AS ", a)
+
+    # some = request.form.getlist("rooms[]")
+    #
+    # decoded_data = request.data.decode('utf-8')
+    # print(decoded_data)
+    # room = roomFromXML(decoded_data)
+    # print(room.test_data.shape)
+    # a = designer_persona.transform_predict(room.test_data)
+    #
+    # print("PREDICTED AS ", a)
+
+
+
+    # mydoc = minidom.parseString(decoded_data)
+    #
+    # print(mydoc.getElementsByTagName('Login'))
+    # print(mydoc.getElementsByTagName('Login')[0])
+    # print(mydoc.getElementsByTagName('Login')[0].data)
+
+
+    return jsonify({'prediction': a.tolist()})
+    # return jsonify(request.json)
+
+    # query_df = pd.DataFrame(json_)
+    # query = pd.get_dummies(query_df)
+    # prediction = 2
+    # return jsonify({'prediction': list(prediction)})
+
 def roomFromXML(file):
 
     # parse an xml file by name
@@ -101,11 +153,11 @@ def roomFromXML(file):
     for xmlTile in xmlTiles:
         xmlRoom.setTile(int(xmlTile.attributes['PosX'].value), int(xmlTile.attributes['PosY'].value), TileData[xmlTile.attributes['value'].value].value)
 
-    print(xmlRoom.matrix)
+    # print(xmlRoom.matrix)
     out_image = "./"
     canvas = Image.new("RGB", (int(xmlRoom.width * renderer.paint_step), int(xmlRoom.height * renderer.paint_step)))
     renderer.drawPixels(canvas, xmlRoom)
-    canvas = canvas.resize((130,70), Image.NEAREST)
+    canvas = canvas.resize((130, 70), Image.NEAREST)
     xmlRoom.addMinPixel(np.array(canvas))
     # canvas.save(out_image + 'reducedpixelRoom' + ".png")
     # testDataSet[cur_usr][td[i]][ind].addMinPixel(numpy.array(im))
@@ -134,11 +186,11 @@ def save_room_imgs(xmlRoom):
 
 if __name__ == '__main__':
 
-    # print(os.listdir("../"))
+    print(os.listdir("../"))
 
-    designer_persona.load_scaler("../../resources/models/despers_scaler.pkl")
-    designer_persona.load_pca("../../resources/models/despers_pca.pkl")
-    designer_persona.load_base_dataset("../../resources/models/despers_pca_dataset.pkl")
-    designer_persona.load_model("../../resources/models/despers_classifier.pkl")
-    designer_persona.print_background()
+    designer_persona.load_scaler("../../../resources/models/despers_scaler.pkl")
+    designer_persona.load_pca("../../../resources/models/despers_pca.pkl")
+    designer_persona.load_base_dataset("../../../resources/models/despers_pca_dataset.pkl")
+    designer_persona.load_model("../../../resources/models/despers_classifier.pkl")
+    # designer_persona.print_background()
     app.run(debug=True)

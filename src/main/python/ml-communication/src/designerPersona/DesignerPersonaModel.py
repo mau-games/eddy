@@ -50,6 +50,7 @@ class DesignerPersonaModel:
 
     def load_base_dataset(self, base_dataset):
         self.base_dataset = joblib.load(base_dataset)
+        print(self.base_dataset.shape)
         return self.base_dataset
 
     def load_model(self, model_path):

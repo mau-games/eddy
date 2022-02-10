@@ -18,6 +18,7 @@ import collectors.DataSaverLoader;
 import collectors.ActionLogger.ActionType;
 import collectors.ActionLogger.TargetPane;
 import collectors.ActionLogger.View;
+import designerModeling.ScikitLearnConnection;
 import finder.PatternFinder;
 import game.ApplicationConfig;
 import game.Dungeon;
@@ -155,6 +156,7 @@ public class InteractiveGUIController implements Initializable, Listener {
 		router.registerListener(this, new NarrativeSuggestionApplied(null));
 		router.registerListener(this, new RequestReplacementGrammarStructureNode(null, null));
 
+		ScikitLearnConnection python_connection = ScikitLearnConnection.getInstance();
 
 		suggestionsView = new SuggestionsViewController();
 //		roomView = new RoomViewController();

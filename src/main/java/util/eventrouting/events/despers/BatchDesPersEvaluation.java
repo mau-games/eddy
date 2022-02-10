@@ -5,19 +5,20 @@ import util.eventrouting.PCGEvent;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.UUID;
 
-public class DesPersEvaluation extends PCGEvent {
+public class BatchDesPersEvaluation extends PCGEvent {
 
     public ArrayList<Room> rooms = new ArrayList<Room>();
+    public UUID requester_id;
 
-    public DesPersEvaluation(Room... room_to_evaluate)
+    public BatchDesPersEvaluation( UUID unique_id, Room... room_to_evaluate)
     {
         this.rooms.clear();
-
         if(room_to_evaluate != null)
-            rooms.addAll(Arrays.asList(room_to_evaluate));
+            this.rooms.addAll(Arrays.asList(room_to_evaluate));
 
-        setPayload(room_to_evaluate);
+        this.requester_id = unique_id;
     }
 
 }

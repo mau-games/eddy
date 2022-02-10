@@ -1,5 +1,7 @@
 package designerModeling.designerPersona;
 
+import game.Room;
+
 import java.util.ArrayList;
 
 /***
@@ -25,6 +27,26 @@ public class RoomStyle {
     public int getCurrentStyle()
     {
         return current_style;
+    }
+
+    public void setCurrentStyle(int current_style)
+    {
+        this.current_style = current_style;
+        previous_styles.add(current_style);
+    }
+
+    public void setCurrentStyle(Room room)
+    {
+        int style = 0;
+
+        /**
+         *   CODE TO CALCULATE CURRENT STYLE
+          */
+
+
+
+        current_style = style;
+        previous_styles.add(current_style);
     }
 
 }

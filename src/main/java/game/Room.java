@@ -1,18 +1,10 @@
 package game;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.FileReader;
-import java.io.IOException;
-import java.nio.file.Watchable;
+import java.io.*;
 import java.sql.Timestamp;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Dictionary;
 import java.util.HashMap;
 import java.util.Hashtable;
-import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -20,14 +12,9 @@ import java.util.Queue;
 import java.util.Stack;
 import java.util.UUID;
 
-import javax.swing.text.Position;
-
-import java.util.Map.Entry;
-
+import designerModeling.designerPersona.RoomStyle;
 import finder.PatternFinder;
-import finder.Populator;
 import finder.geometry.Bitmap;
-import finder.geometry.Geometry;
 import finder.geometry.Polygon;
 import finder.graph.Edge;
 import finder.graph.Graph;
@@ -44,7 +31,6 @@ import finder.patterns.micro.Connector;
 import finder.patterns.micro.Corridor;
 import finder.patterns.micro.Door;
 import finder.patterns.micro.Enemy;
-import finder.patterns.micro.Entrance;
 import finder.patterns.micro.Boss;
 import finder.patterns.micro.Chamber;
 import finder.patterns.micro.Treasure;
@@ -55,22 +41,16 @@ import game.tiles.HeroTile;
 import util.Point;
 import util.config.MissingConfigurationException;
 import util.eventrouting.EventRouter;
-import util.eventrouting.events.AlgorithmDone;
 import util.eventrouting.events.MapLoaded;
-import util.eventrouting.events.MapUpdate;
-import generator.algorithm.Algorithm.AlgorithmTypes;
 import generator.algorithm.MAPElites.Dimensions.GADimension;
-import generator.algorithm.MAPElites.Dimensions.MAPEDimensionFXML;
 import generator.algorithm.MAPElites.Dimensions.GADimension.DimensionTypes;
 import generator.config.GeneratorConfig;
 import gui.InteractiveGUIController;
-import gui.controls.Brush.NeighborhoodStyle;
 
 import javax.xml.parsers.*;
 import javax.xml.transform.*;
 import javax.xml.transform.dom.*;
 import javax.xml.transform.stream.*;
-import org.xml.sax.*;
 
 import collectors.ActionLogger;
 import collectors.DataSaverLoader;
@@ -113,6 +93,8 @@ public class Room {
 	//For objectives
 	private CompositePattern roomObjective; 
 	private boolean hasMainObjective = false;
+
+	public RoomStyle room_style = new RoomStyle();
 	
 /////////////////////////OLD///////////////////////////
 
@@ -222,6 +204,8 @@ public class Room {
 		}
 		
 		root = new ZoneNode(null, this, getColCount(), getRowCount());
+
+		room_style = new RoomStyle();
 	}
 	
 	public Room(GeneratorConfig config, int rows, int cols)
@@ -3667,6 +3651,122 @@ public class Room {
 	    } catch (ParserConfigurationException pce) {
 	        System.out.println("UsersXML: Error trying to instantiate DocumentBuilder " + pce);
 	    }
+	}
+
+	public String getXML()
+	{
+		Document dom;
+		Element e = null;
+		Element next = null;
+
+//		File file = new File(DataSaverLoader.projectPath + "\\summer-school\\" + InteractiveGUIController.runID + "\\" + prefix + this.toString());
+//		if (!file.exists()) {
+//			file.mkdirs();
+//		}
+
+//		String xml = System.getProperty("user.dir") + "\\my-data\\summer-school\\" + InteractiveGUIController.runID + "\\" + prefix + this.toString() + "\\room-" + this.toString() + "_" + saveCounter++ + ".xml";
+
+		String xml = "";
+
+		// instance of a DocumentBuilderFactory
+		DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+		try {
+			// use factory to get an instance of document builder
+			DocumentBuilder db = dbf.newDocumentBuilder();
+			// create instance of DOM
+			dom = db.newDocument();
+
+			// create the root element
+			Element rootEle = dom.createElement("Room");
+			rootEle.setAttribute("ID", this.toString());
+			rootEle.setAttribute("width", Integer.toString(this.getColCount()));
+			rootEle.setAttribute("height", Integer.toString(this.getRowCount()));
+			rootEle.setAttribute("time", new Timestamp(System.currentTimeMillis()).toString());
+//	        rootEle.setAttribute("type", "SUGGESTIONS OR MAIN");
+
+			// create data elements and place them under root
+			e = dom.createElement("Dimensions");
+			rootEle.appendChild(e);
+
+			//DIMENSIONS --> THIS IS IMPORTANT TO CHANGE!! TODO:!!
+			next = dom.createElement("Dimension");
+			next.setAttribute("name", DimensionTypes.SIMILARITY.toString());
+			next.setAttribute("value", Double.toString(getDimensionValue(DimensionTypes.SIMILARITY)));
+			e.appendChild(next);
+
+			next = dom.createElement("Dimension");
+			next.setAttribute("name", DimensionTypes.SYMMETRY.toString());
+			next.setAttribute("value", Double.toString(getDimensionValue(DimensionTypes.SYMMETRY)));
+			e.appendChild(next);
+
+			//TILES
+			e = dom.createElement("Tiles");
+			rootEle.appendChild(e);
+
+			for (int j = 0; j < height; j++)
+			{
+				for (int i = 0; i < width; i++)
+				{
+					next = dom.createElement("Tile");
+					next.setAttribute("value", getTile(i, j).GetType().toString());
+					next.setAttribute("immutable", Boolean.toString(getTile(i, j).GetImmutable()));
+					next.setAttribute("PosX", Integer.toString(i));
+					next.setAttribute("PosY", Integer.toString(j));
+					e.appendChild(next);
+				}
+			}
+
+			e = dom.createElement("Customs");
+			rootEle.appendChild(e);
+
+			for(Tile custom : customTiles)
+			{
+				next = dom.createElement("Custom");
+				next.setAttribute("value", custom.GetType().toString());
+				next.setAttribute("immutable", Boolean.toString(custom.GetImmutable()));
+				next.setAttribute("centerX", Integer.toString(custom.GetCenterPosition().getX()));
+				next.setAttribute("centerY", Integer.toString(custom.GetCenterPosition().getY()));
+				e.appendChild(next);
+			}
+
+			dom.appendChild(rootEle);
+
+			System.out.println(dom.toString());
+			System.out.println(new DOMSource(dom).toString());
+
+
+			try {
+				Transformer tr = TransformerFactory.newInstance().newTransformer();
+				tr.setOutputProperty(OutputKeys.INDENT, "yes");
+				tr.setOutputProperty(OutputKeys.METHOD, "xml");
+				tr.setOutputProperty(OutputKeys.ENCODING, "UTF-8");
+				tr.setOutputProperty(OutputKeys.DOCTYPE_SYSTEM, "room.dtd");
+				tr.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "4");
+				StreamResult result = new StreamResult(new ByteArrayOutputStream());
+				tr.transform(new DOMSource(dom), result);
+//				System.out.println(result.getOutputStream());
+//				System.out.println(result.getOutputStream().toString());
+//				System.out.println(result.toString());
+//				System.out.println(xml);
+				return result.getOutputStream().toString();
+
+//				System.out.println(transform_result.toString());
+
+
+				// send DOM to file
+//				tr.transform(new DOMSource(dom),
+//						new StreamResult(new FileOutputStream(xml)));
+
+			} catch (TransformerException te) {
+				System.out.println(te.getMessage());
+			}
+
+//			return new DOMSource(dom);
+
+		} catch (ParserConfigurationException pce) {
+			System.out.println("UsersXML: Error trying to instantiate DocumentBuilder " + pce);
+		}
+		return null;
 	}
 	
 	/****

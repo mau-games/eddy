@@ -1,12 +1,13 @@
 package designerModeling;
 
+import com.google.gson.JsonArray;
 import game.Room;
-import gui.utils.MapRenderer;
 import util.eventrouting.EventRouter;
 import util.eventrouting.Listener;
 import util.eventrouting.PCGEvent;
-import util.eventrouting.events.AlgorithmDone;
 import util.eventrouting.events.RoomEdited;
+import util.eventrouting.events.despers.BatchDesPersEvaluation;
+import util.eventrouting.events.despers.BatchRoomStyleEvaluated;
 import util.eventrouting.events.despers.DesPersEvaluation;
 
 import java.io.*;
@@ -15,6 +16,9 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.*;
 import java.nio.charset.StandardCharsets;
+
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 
 //import org.pmml4s.model.Model;
 //import org.pmml4s.*;
@@ -31,7 +35,7 @@ public class ScikitLearnConnection implements Listener {
 //        router.registerListener(this, new AlgorithmDone(null, null, null));
         router.registerListener(this, new RoomEdited(null));
         router.registerListener(this, new DesPersEvaluation(null));
-
+        router.registerListener(this, new BatchDesPersEvaluation(null, null));
     }
 
     /**
@@ -51,21 +55,562 @@ public class ScikitLearnConnection implements Listener {
     {
         if(e instanceof RoomEdited)
         {
-
+            int[] resulting_styles = getCluster(((RoomEdited) e).editedRoom);
+            ((RoomEdited) e).editedRoom.room_style.setCurrentStyle(resulting_styles[0]);
         }
         else if(e instanceof  DesPersEvaluation)
         {
+            int[] resulting_styles = getClusters(((DesPersEvaluation) e).rooms);
+        }
+        else if(e instanceof BatchDesPersEvaluation)
+        {
+            int[] resulting_styles = getClusters(((BatchDesPersEvaluation) e).rooms);
+            router.postEvent(new BatchRoomStyleEvaluated(resulting_styles, ((BatchDesPersEvaluation) e).requester_id));
+        }
+    }
+
+    public static synchronized void sendJSON()
+    {
+        JsonObject to_send = new JsonObject();
+
+        ArrayList<String> rooms = new ArrayList<String>();
+        rooms.add("<Room ID=\"6a14d5f3-12f0-4ee8-9ad8-c899d231bfe8\" height=\"7\" time=\"2019-10-25 10:24:44.273\" width=\"13\">\n" +
+                "<Dimensions>\n" +
+                "<Dimension name=\"SIMILARITY\" value=\"1.0\"/>\n" +
+                "<Dimension name=\"SYMMETRY\" value=\"-1.0\"/>\n" +
+                "</Dimensions>\n" +
+                "<Tiles>\n" +
+                "<Tile PosX=\"0\" PosY=\"0\" immutable=\"false\" value=\"FLOOR\"/>\n" +
+                "<Tile PosX=\"1\" PosY=\"0\" immutable=\"false\" value=\"FLOOR\"/>\n" +
+                "<Tile PosX=\"2\" PosY=\"0\" immutable=\"false\" value=\"FLOOR\"/>\n" +
+                "<Tile PosX=\"3\" PosY=\"0\" immutable=\"false\" value=\"FLOOR\"/>\n" +
+                "<Tile PosX=\"4\" PosY=\"0\" immutable=\"false\" value=\"FLOOR\"/>\n" +
+                "<Tile PosX=\"5\" PosY=\"0\" immutable=\"false\" value=\"FLOOR\"/>\n" +
+                "<Tile PosX=\"6\" PosY=\"0\" immutable=\"false\" value=\"FLOOR\"/>\n" +
+                "<Tile PosX=\"7\" PosY=\"0\" immutable=\"false\" value=\"FLOOR\"/>\n" +
+                "<Tile PosX=\"8\" PosY=\"0\" immutable=\"false\" value=\"FLOOR\"/>\n" +
+                "<Tile PosX=\"9\" PosY=\"0\" immutable=\"false\" value=\"FLOOR\"/>\n" +
+                "<Tile PosX=\"10\" PosY=\"0\" immutable=\"false\" value=\"FLOOR\"/>\n" +
+                "<Tile PosX=\"11\" PosY=\"0\" immutable=\"false\" value=\"FLOOR\"/>\n" +
+                "<Tile PosX=\"12\" PosY=\"0\" immutable=\"false\" value=\"FLOOR\"/>\n" +
+                "<Tile PosX=\"0\" PosY=\"1\" immutable=\"false\" value=\"FLOOR\"/>\n" +
+                "<Tile PosX=\"1\" PosY=\"1\" immutable=\"false\" value=\"FLOOR\"/>\n" +
+                "<Tile PosX=\"2\" PosY=\"1\" immutable=\"false\" value=\"FLOOR\"/>\n" +
+                "<Tile PosX=\"3\" PosY=\"1\" immutable=\"false\" value=\"FLOOR\"/>\n" +
+                "<Tile PosX=\"4\" PosY=\"1\" immutable=\"false\" value=\"FLOOR\"/>\n" +
+                "<Tile PosX=\"5\" PosY=\"1\" immutable=\"false\" value=\"FLOOR\"/>\n" +
+                "<Tile PosX=\"6\" PosY=\"1\" immutable=\"false\" value=\"FLOOR\"/>\n" +
+                "<Tile PosX=\"7\" PosY=\"1\" immutable=\"false\" value=\"FLOOR\"/>\n" +
+                "<Tile PosX=\"8\" PosY=\"1\" immutable=\"false\" value=\"FLOOR\"/>\n" +
+                "<Tile PosX=\"9\" PosY=\"1\" immutable=\"false\" value=\"FLOOR\"/>\n" +
+                "<Tile PosX=\"10\" PosY=\"1\" immutable=\"false\" value=\"FLOOR\"/>\n" +
+                "<Tile PosX=\"11\" PosY=\"1\" immutable=\"false\" value=\"FLOOR\"/>\n" +
+                "<Tile PosX=\"12\" PosY=\"1\" immutable=\"false\" value=\"FLOOR\"/>\n" +
+                "<Tile PosX=\"0\" PosY=\"2\" immutable=\"false\" value=\"WALL\"/>\n" +
+                "<Tile PosX=\"1\" PosY=\"2\" immutable=\"false\" value=\"FLOOR\"/>\n" +
+                "<Tile PosX=\"2\" PosY=\"2\" immutable=\"false\" value=\"FLOOR\"/>\n" +
+                "<Tile PosX=\"3\" PosY=\"2\" immutable=\"false\" value=\"FLOOR\"/>\n" +
+                "<Tile PosX=\"4\" PosY=\"2\" immutable=\"false\" value=\"FLOOR\"/>\n" +
+                "<Tile PosX=\"5\" PosY=\"2\" immutable=\"false\" value=\"FLOOR\"/>\n" +
+                "<Tile PosX=\"6\" PosY=\"2\" immutable=\"false\" value=\"FLOOR\"/>\n" +
+                "<Tile PosX=\"7\" PosY=\"2\" immutable=\"false\" value=\"FLOOR\"/>\n" +
+                "<Tile PosX=\"8\" PosY=\"2\" immutable=\"false\" value=\"FLOOR\"/>\n" +
+                "<Tile PosX=\"9\" PosY=\"2\" immutable=\"false\" value=\"FLOOR\"/>\n" +
+                "<Tile PosX=\"10\" PosY=\"2\" immutable=\"false\" value=\"FLOOR\"/>\n" +
+                "<Tile PosX=\"11\" PosY=\"2\" immutable=\"false\" value=\"FLOOR\"/>\n" +
+                "<Tile PosX=\"12\" PosY=\"2\" immutable=\"false\" value=\"FLOOR\"/>\n" +
+                "<Tile PosX=\"0\" PosY=\"3\" immutable=\"false\" value=\"DOOR\"/>\n" +
+                "<Tile PosX=\"1\" PosY=\"3\" immutable=\"false\" value=\"FLOOR\"/>\n" +
+                "<Tile PosX=\"2\" PosY=\"3\" immutable=\"false\" value=\"FLOOR\"/>\n" +
+                "<Tile PosX=\"3\" PosY=\"3\" immutable=\"false\" value=\"FLOOR\"/>\n" +
+                "<Tile PosX=\"4\" PosY=\"3\" immutable=\"false\" value=\"FLOOR\"/>\n" +
+                "<Tile PosX=\"5\" PosY=\"3\" immutable=\"false\" value=\"FLOOR\"/>\n" +
+                "<Tile PosX=\"6\" PosY=\"3\" immutable=\"false\" value=\"FLOOR\"/>\n" +
+                "<Tile PosX=\"7\" PosY=\"3\" immutable=\"false\" value=\"FLOOR\"/>\n" +
+                "<Tile PosX=\"8\" PosY=\"3\" immutable=\"false\" value=\"FLOOR\"/>\n" +
+                "<Tile PosX=\"9\" PosY=\"3\" immutable=\"false\" value=\"FLOOR\"/>\n" +
+                "<Tile PosX=\"10\" PosY=\"3\" immutable=\"false\" value=\"FLOOR\"/>\n" +
+                "<Tile PosX=\"11\" PosY=\"3\" immutable=\"false\" value=\"FLOOR\"/>\n" +
+                "<Tile PosX=\"12\" PosY=\"3\" immutable=\"false\" value=\"FLOOR\"/>\n" +
+                "<Tile PosX=\"0\" PosY=\"4\" immutable=\"false\" value=\"FLOOR\"/>\n" +
+                "<Tile PosX=\"1\" PosY=\"4\" immutable=\"false\" value=\"FLOOR\"/>\n" +
+                "<Tile PosX=\"2\" PosY=\"4\" immutable=\"false\" value=\"FLOOR\"/>\n" +
+                "<Tile PosX=\"3\" PosY=\"4\" immutable=\"false\" value=\"FLOOR\"/>\n" +
+                "<Tile PosX=\"4\" PosY=\"4\" immutable=\"false\" value=\"FLOOR\"/>\n" +
+                "<Tile PosX=\"5\" PosY=\"4\" immutable=\"false\" value=\"FLOOR\"/>\n" +
+                "<Tile PosX=\"6\" PosY=\"4\" immutable=\"false\" value=\"FLOOR\"/>\n" +
+                "<Tile PosX=\"7\" PosY=\"4\" immutable=\"false\" value=\"FLOOR\"/>\n" +
+                "<Tile PosX=\"8\" PosY=\"4\" immutable=\"false\" value=\"FLOOR\"/>\n" +
+                "<Tile PosX=\"9\" PosY=\"4\" immutable=\"false\" value=\"FLOOR\"/>\n" +
+                "<Tile PosX=\"10\" PosY=\"4\" immutable=\"false\" value=\"FLOOR\"/>\n" +
+                "<Tile PosX=\"11\" PosY=\"4\" immutable=\"false\" value=\"FLOOR\"/>\n" +
+                "<Tile PosX=\"12\" PosY=\"4\" immutable=\"false\" value=\"FLOOR\"/>\n" +
+                "<Tile PosX=\"0\" PosY=\"5\" immutable=\"false\" value=\"FLOOR\"/>\n" +
+                "<Tile PosX=\"1\" PosY=\"5\" immutable=\"false\" value=\"FLOOR\"/>\n" +
+                "<Tile PosX=\"2\" PosY=\"5\" immutable=\"false\" value=\"FLOOR\"/>\n" +
+                "<Tile PosX=\"3\" PosY=\"5\" immutable=\"false\" value=\"FLOOR\"/>\n" +
+                "<Tile PosX=\"4\" PosY=\"5\" immutable=\"false\" value=\"FLOOR\"/>\n" +
+                "<Tile PosX=\"5\" PosY=\"5\" immutable=\"false\" value=\"FLOOR\"/>\n" +
+                "<Tile PosX=\"6\" PosY=\"5\" immutable=\"false\" value=\"FLOOR\"/>\n" +
+                "<Tile PosX=\"7\" PosY=\"5\" immutable=\"false\" value=\"FLOOR\"/>\n" +
+                "<Tile PosX=\"8\" PosY=\"5\" immutable=\"false\" value=\"FLOOR\"/>\n" +
+                "<Tile PosX=\"9\" PosY=\"5\" immutable=\"false\" value=\"FLOOR\"/>\n" +
+                "<Tile PosX=\"10\" PosY=\"5\" immutable=\"false\" value=\"FLOOR\"/>\n" +
+                "<Tile PosX=\"11\" PosY=\"5\" immutable=\"false\" value=\"FLOOR\"/>\n" +
+                "<Tile PosX=\"12\" PosY=\"5\" immutable=\"false\" value=\"FLOOR\"/>\n" +
+                "<Tile PosX=\"0\" PosY=\"6\" immutable=\"false\" value=\"FLOOR\"/>\n" +
+                "<Tile PosX=\"1\" PosY=\"6\" immutable=\"false\" value=\"FLOOR\"/>\n" +
+                "<Tile PosX=\"2\" PosY=\"6\" immutable=\"false\" value=\"FLOOR\"/>\n" +
+                "<Tile PosX=\"3\" PosY=\"6\" immutable=\"false\" value=\"FLOOR\"/>\n" +
+                "<Tile PosX=\"4\" PosY=\"6\" immutable=\"false\" value=\"FLOOR\"/>\n" +
+                "<Tile PosX=\"5\" PosY=\"6\" immutable=\"false\" value=\"FLOOR\"/>\n" +
+                "<Tile PosX=\"6\" PosY=\"6\" immutable=\"false\" value=\"FLOOR\"/>\n" +
+                "<Tile PosX=\"7\" PosY=\"6\" immutable=\"false\" value=\"FLOOR\"/>\n" +
+                "<Tile PosX=\"8\" PosY=\"6\" immutable=\"false\" value=\"FLOOR\"/>\n" +
+                "<Tile PosX=\"9\" PosY=\"6\" immutable=\"false\" value=\"FLOOR\"/>\n" +
+                "<Tile PosX=\"10\" PosY=\"6\" immutable=\"false\" value=\"FLOOR\"/>\n" +
+                "<Tile PosX=\"11\" PosY=\"6\" immutable=\"false\" value=\"FLOOR\"/>\n" +
+                "<Tile PosX=\"12\" PosY=\"6\" immutable=\"false\" value=\"FLOOR\"/>\n" +
+                "</Tiles>\n" +
+                "<Customs/>\n" +
+                "</Room>");
+
+        rooms.add("<Room ID=\"6a14d5f3-12f0-4ee8-9ad8-c899d231bfe8\" height=\"7\" time=\"2019-10-25 10:24:44.273\" width=\"13\">\n" +
+                "<Dimensions>\n" +
+                "<Dimension name=\"SIMILARITY\" value=\"1.0\"/>\n" +
+                "<Dimension name=\"SYMMETRY\" value=\"-1.0\"/>\n" +
+                "</Dimensions>\n" +
+                "<Tiles>\n" +
+                "<Tile PosX=\"0\" PosY=\"0\" immutable=\"false\" value=\"FLOOR\"/>\n" +
+                "<Tile PosX=\"1\" PosY=\"0\" immutable=\"false\" value=\"FLOOR\"/>\n" +
+                "<Tile PosX=\"2\" PosY=\"0\" immutable=\"false\" value=\"FLOOR\"/>\n" +
+                "<Tile PosX=\"3\" PosY=\"0\" immutable=\"false\" value=\"FLOOR\"/>\n" +
+                "<Tile PosX=\"4\" PosY=\"0\" immutable=\"false\" value=\"FLOOR\"/>\n" +
+                "<Tile PosX=\"5\" PosY=\"0\" immutable=\"false\" value=\"FLOOR\"/>\n" +
+                "<Tile PosX=\"6\" PosY=\"0\" immutable=\"false\" value=\"FLOOR\"/>\n" +
+                "<Tile PosX=\"7\" PosY=\"0\" immutable=\"false\" value=\"FLOOR\"/>\n" +
+                "<Tile PosX=\"8\" PosY=\"0\" immutable=\"false\" value=\"FLOOR\"/>\n" +
+                "<Tile PosX=\"9\" PosY=\"0\" immutable=\"false\" value=\"FLOOR\"/>\n" +
+                "<Tile PosX=\"10\" PosY=\"0\" immutable=\"false\" value=\"FLOOR\"/>\n" +
+                "<Tile PosX=\"11\" PosY=\"0\" immutable=\"false\" value=\"FLOOR\"/>\n" +
+                "<Tile PosX=\"12\" PosY=\"0\" immutable=\"false\" value=\"FLOOR\"/>\n" +
+                "<Tile PosX=\"0\" PosY=\"1\" immutable=\"false\" value=\"FLOOR\"/>\n" +
+                "<Tile PosX=\"1\" PosY=\"1\" immutable=\"false\" value=\"FLOOR\"/>\n" +
+                "<Tile PosX=\"2\" PosY=\"1\" immutable=\"false\" value=\"FLOOR\"/>\n" +
+                "<Tile PosX=\"3\" PosY=\"1\" immutable=\"false\" value=\"FLOOR\"/>\n" +
+                "<Tile PosX=\"4\" PosY=\"1\" immutable=\"false\" value=\"FLOOR\"/>\n" +
+                "<Tile PosX=\"5\" PosY=\"1\" immutable=\"false\" value=\"FLOOR\"/>\n" +
+                "<Tile PosX=\"6\" PosY=\"1\" immutable=\"false\" value=\"FLOOR\"/>\n" +
+                "<Tile PosX=\"7\" PosY=\"1\" immutable=\"false\" value=\"FLOOR\"/>\n" +
+                "<Tile PosX=\"8\" PosY=\"1\" immutable=\"false\" value=\"FLOOR\"/>\n" +
+                "<Tile PosX=\"9\" PosY=\"1\" immutable=\"false\" value=\"FLOOR\"/>\n" +
+                "<Tile PosX=\"10\" PosY=\"1\" immutable=\"false\" value=\"FLOOR\"/>\n" +
+                "<Tile PosX=\"11\" PosY=\"1\" immutable=\"false\" value=\"FLOOR\"/>\n" +
+                "<Tile PosX=\"12\" PosY=\"1\" immutable=\"false\" value=\"FLOOR\"/>\n" +
+                "<Tile PosX=\"0\" PosY=\"2\" immutable=\"false\" value=\"WALL\"/>\n" +
+                "<Tile PosX=\"1\" PosY=\"2\" immutable=\"false\" value=\"FLOOR\"/>\n" +
+                "<Tile PosX=\"2\" PosY=\"2\" immutable=\"false\" value=\"FLOOR\"/>\n" +
+                "<Tile PosX=\"3\" PosY=\"2\" immutable=\"false\" value=\"FLOOR\"/>\n" +
+                "<Tile PosX=\"4\" PosY=\"2\" immutable=\"false\" value=\"FLOOR\"/>\n" +
+                "<Tile PosX=\"5\" PosY=\"2\" immutable=\"false\" value=\"FLOOR\"/>\n" +
+                "<Tile PosX=\"6\" PosY=\"2\" immutable=\"false\" value=\"FLOOR\"/>\n" +
+                "<Tile PosX=\"7\" PosY=\"2\" immutable=\"false\" value=\"FLOOR\"/>\n" +
+                "<Tile PosX=\"8\" PosY=\"2\" immutable=\"false\" value=\"FLOOR\"/>\n" +
+                "<Tile PosX=\"9\" PosY=\"2\" immutable=\"false\" value=\"FLOOR\"/>\n" +
+                "<Tile PosX=\"10\" PosY=\"2\" immutable=\"false\" value=\"FLOOR\"/>\n" +
+                "<Tile PosX=\"11\" PosY=\"2\" immutable=\"false\" value=\"FLOOR\"/>\n" +
+                "<Tile PosX=\"12\" PosY=\"2\" immutable=\"false\" value=\"FLOOR\"/>\n" +
+                "<Tile PosX=\"0\" PosY=\"3\" immutable=\"false\" value=\"DOOR\"/>\n" +
+                "<Tile PosX=\"1\" PosY=\"3\" immutable=\"false\" value=\"FLOOR\"/>\n" +
+                "<Tile PosX=\"2\" PosY=\"3\" immutable=\"false\" value=\"FLOOR\"/>\n" +
+                "<Tile PosX=\"3\" PosY=\"3\" immutable=\"false\" value=\"FLOOR\"/>\n" +
+                "<Tile PosX=\"4\" PosY=\"3\" immutable=\"false\" value=\"FLOOR\"/>\n" +
+                "<Tile PosX=\"5\" PosY=\"3\" immutable=\"false\" value=\"FLOOR\"/>\n" +
+                "<Tile PosX=\"6\" PosY=\"3\" immutable=\"false\" value=\"FLOOR\"/>\n" +
+                "<Tile PosX=\"7\" PosY=\"3\" immutable=\"false\" value=\"FLOOR\"/>\n" +
+                "<Tile PosX=\"8\" PosY=\"3\" immutable=\"false\" value=\"FLOOR\"/>\n" +
+                "<Tile PosX=\"9\" PosY=\"3\" immutable=\"false\" value=\"FLOOR\"/>\n" +
+                "<Tile PosX=\"10\" PosY=\"3\" immutable=\"false\" value=\"FLOOR\"/>\n" +
+                "<Tile PosX=\"11\" PosY=\"3\" immutable=\"false\" value=\"FLOOR\"/>\n" +
+                "<Tile PosX=\"12\" PosY=\"3\" immutable=\"false\" value=\"FLOOR\"/>\n" +
+                "<Tile PosX=\"0\" PosY=\"4\" immutable=\"false\" value=\"FLOOR\"/>\n" +
+                "<Tile PosX=\"1\" PosY=\"4\" immutable=\"false\" value=\"FLOOR\"/>\n" +
+                "<Tile PosX=\"2\" PosY=\"4\" immutable=\"false\" value=\"FLOOR\"/>\n" +
+                "<Tile PosX=\"3\" PosY=\"4\" immutable=\"false\" value=\"FLOOR\"/>\n" +
+                "<Tile PosX=\"4\" PosY=\"4\" immutable=\"false\" value=\"FLOOR\"/>\n" +
+                "<Tile PosX=\"5\" PosY=\"4\" immutable=\"false\" value=\"FLOOR\"/>\n" +
+                "<Tile PosX=\"6\" PosY=\"4\" immutable=\"false\" value=\"FLOOR\"/>\n" +
+                "<Tile PosX=\"7\" PosY=\"4\" immutable=\"false\" value=\"FLOOR\"/>\n" +
+                "<Tile PosX=\"8\" PosY=\"4\" immutable=\"false\" value=\"FLOOR\"/>\n" +
+                "<Tile PosX=\"9\" PosY=\"4\" immutable=\"false\" value=\"FLOOR\"/>\n" +
+                "<Tile PosX=\"10\" PosY=\"4\" immutable=\"false\" value=\"FLOOR\"/>\n" +
+                "<Tile PosX=\"11\" PosY=\"4\" immutable=\"false\" value=\"FLOOR\"/>\n" +
+                "<Tile PosX=\"12\" PosY=\"4\" immutable=\"false\" value=\"FLOOR\"/>\n" +
+                "<Tile PosX=\"0\" PosY=\"5\" immutable=\"false\" value=\"FLOOR\"/>\n" +
+                "<Tile PosX=\"1\" PosY=\"5\" immutable=\"false\" value=\"FLOOR\"/>\n" +
+                "<Tile PosX=\"2\" PosY=\"5\" immutable=\"false\" value=\"FLOOR\"/>\n" +
+                "<Tile PosX=\"3\" PosY=\"5\" immutable=\"false\" value=\"FLOOR\"/>\n" +
+                "<Tile PosX=\"4\" PosY=\"5\" immutable=\"false\" value=\"FLOOR\"/>\n" +
+                "<Tile PosX=\"5\" PosY=\"5\" immutable=\"false\" value=\"FLOOR\"/>\n" +
+                "<Tile PosX=\"6\" PosY=\"5\" immutable=\"false\" value=\"FLOOR\"/>\n" +
+                "<Tile PosX=\"7\" PosY=\"5\" immutable=\"false\" value=\"FLOOR\"/>\n" +
+                "<Tile PosX=\"8\" PosY=\"5\" immutable=\"false\" value=\"FLOOR\"/>\n" +
+                "<Tile PosX=\"9\" PosY=\"5\" immutable=\"false\" value=\"FLOOR\"/>\n" +
+                "<Tile PosX=\"10\" PosY=\"5\" immutable=\"false\" value=\"FLOOR\"/>\n" +
+                "<Tile PosX=\"11\" PosY=\"5\" immutable=\"false\" value=\"FLOOR\"/>\n" +
+                "<Tile PosX=\"12\" PosY=\"5\" immutable=\"false\" value=\"FLOOR\"/>\n" +
+                "<Tile PosX=\"0\" PosY=\"6\" immutable=\"false\" value=\"FLOOR\"/>\n" +
+                "<Tile PosX=\"1\" PosY=\"6\" immutable=\"false\" value=\"FLOOR\"/>\n" +
+                "<Tile PosX=\"2\" PosY=\"6\" immutable=\"false\" value=\"FLOOR\"/>\n" +
+                "<Tile PosX=\"3\" PosY=\"6\" immutable=\"false\" value=\"FLOOR\"/>\n" +
+                "<Tile PosX=\"4\" PosY=\"6\" immutable=\"false\" value=\"FLOOR\"/>\n" +
+                "<Tile PosX=\"5\" PosY=\"6\" immutable=\"false\" value=\"FLOOR\"/>\n" +
+                "<Tile PosX=\"6\" PosY=\"6\" immutable=\"false\" value=\"FLOOR\"/>\n" +
+                "<Tile PosX=\"7\" PosY=\"6\" immutable=\"false\" value=\"FLOOR\"/>\n" +
+                "<Tile PosX=\"8\" PosY=\"6\" immutable=\"false\" value=\"FLOOR\"/>\n" +
+                "<Tile PosX=\"9\" PosY=\"6\" immutable=\"false\" value=\"FLOOR\"/>\n" +
+                "<Tile PosX=\"10\" PosY=\"6\" immutable=\"false\" value=\"FLOOR\"/>\n" +
+                "<Tile PosX=\"11\" PosY=\"6\" immutable=\"false\" value=\"FLOOR\"/>\n" +
+                "<Tile PosX=\"12\" PosY=\"6\" immutable=\"false\" value=\"FLOOR\"/>\n" +
+                "</Tiles>\n" +
+                "<Customs/>\n" +
+                "</Room>");
+
+        rooms.add("<Room ID=\"6a14d5f3-12f0-4ee8-9ad8-c899d231bfe8\" height=\"7\" time=\"2019-10-25 10:24:52.339\" width=\"13\">\n" +
+                "<Dimensions>\n" +
+                "<Dimension name=\"SIMILARITY\" value=\"1.0\"/>\n" +
+                "<Dimension name=\"SYMMETRY\" value=\"-1.0\"/>\n" +
+                "</Dimensions>\n" +
+                "<Tiles>\n" +
+                "<Tile PosX=\"0\" PosY=\"0\" immutable=\"false\" value=\"FLOOR\"/>\n" +
+                "<Tile PosX=\"1\" PosY=\"0\" immutable=\"false\" value=\"FLOOR\"/>\n" +
+                "<Tile PosX=\"2\" PosY=\"0\" immutable=\"false\" value=\"FLOOR\"/>\n" +
+                "<Tile PosX=\"3\" PosY=\"0\" immutable=\"false\" value=\"FLOOR\"/>\n" +
+                "<Tile PosX=\"4\" PosY=\"0\" immutable=\"false\" value=\"FLOOR\"/>\n" +
+                "<Tile PosX=\"5\" PosY=\"0\" immutable=\"false\" value=\"FLOOR\"/>\n" +
+                "<Tile PosX=\"6\" PosY=\"0\" immutable=\"false\" value=\"WALL\"/>\n" +
+                "<Tile PosX=\"7\" PosY=\"0\" immutable=\"false\" value=\"FLOOR\"/>\n" +
+                "<Tile PosX=\"8\" PosY=\"0\" immutable=\"false\" value=\"FLOOR\"/>\n" +
+                "<Tile PosX=\"9\" PosY=\"0\" immutable=\"false\" value=\"FLOOR\"/>\n" +
+                "<Tile PosX=\"10\" PosY=\"0\" immutable=\"false\" value=\"FLOOR\"/>\n" +
+                "<Tile PosX=\"11\" PosY=\"0\" immutable=\"false\" value=\"FLOOR\"/>\n" +
+                "<Tile PosX=\"12\" PosY=\"0\" immutable=\"false\" value=\"FLOOR\"/>\n" +
+                "<Tile PosX=\"0\" PosY=\"1\" immutable=\"false\" value=\"FLOOR\"/>\n" +
+                "<Tile PosX=\"1\" PosY=\"1\" immutable=\"false\" value=\"FLOOR\"/>\n" +
+                "<Tile PosX=\"2\" PosY=\"1\" immutable=\"false\" value=\"FLOOR\"/>\n" +
+                "<Tile PosX=\"3\" PosY=\"1\" immutable=\"false\" value=\"FLOOR\"/>\n" +
+                "<Tile PosX=\"4\" PosY=\"1\" immutable=\"false\" value=\"FLOOR\"/>\n" +
+                "<Tile PosX=\"5\" PosY=\"1\" immutable=\"false\" value=\"FLOOR\"/>\n" +
+                "<Tile PosX=\"6\" PosY=\"1\" immutable=\"false\" value=\"WALL\"/>\n" +
+                "<Tile PosX=\"7\" PosY=\"1\" immutable=\"false\" value=\"FLOOR\"/>\n" +
+                "<Tile PosX=\"8\" PosY=\"1\" immutable=\"false\" value=\"FLOOR\"/>\n" +
+                "<Tile PosX=\"9\" PosY=\"1\" immutable=\"false\" value=\"FLOOR\"/>\n" +
+                "<Tile PosX=\"10\" PosY=\"1\" immutable=\"false\" value=\"FLOOR\"/>\n" +
+                "<Tile PosX=\"11\" PosY=\"1\" immutable=\"false\" value=\"FLOOR\"/>\n" +
+                "<Tile PosX=\"12\" PosY=\"1\" immutable=\"false\" value=\"FLOOR\"/>\n" +
+                "<Tile PosX=\"0\" PosY=\"2\" immutable=\"false\" value=\"WALL\"/>\n" +
+                "<Tile PosX=\"1\" PosY=\"2\" immutable=\"false\" value=\"WALL\"/>\n" +
+                "<Tile PosX=\"2\" PosY=\"2\" immutable=\"false\" value=\"WALL\"/>\n" +
+                "<Tile PosX=\"3\" PosY=\"2\" immutable=\"false\" value=\"WALL\"/>\n" +
+                "<Tile PosX=\"4\" PosY=\"2\" immutable=\"false\" value=\"FLOOR\"/>\n" +
+                "<Tile PosX=\"5\" PosY=\"2\" immutable=\"false\" value=\"WALL\"/>\n" +
+                "<Tile PosX=\"6\" PosY=\"2\" immutable=\"false\" value=\"WALL\"/>\n" +
+                "<Tile PosX=\"7\" PosY=\"2\" immutable=\"false\" value=\"FLOOR\"/>\n" +
+                "<Tile PosX=\"8\" PosY=\"2\" immutable=\"false\" value=\"FLOOR\"/>\n" +
+                "<Tile PosX=\"9\" PosY=\"2\" immutable=\"false\" value=\"FLOOR\"/>\n" +
+                "<Tile PosX=\"10\" PosY=\"2\" immutable=\"false\" value=\"FLOOR\"/>\n" +
+                "<Tile PosX=\"11\" PosY=\"2\" immutable=\"false\" value=\"FLOOR\"/>\n" +
+                "<Tile PosX=\"12\" PosY=\"2\" immutable=\"false\" value=\"FLOOR\"/>\n" +
+                "<Tile PosX=\"0\" PosY=\"3\" immutable=\"false\" value=\"DOOR\"/>\n" +
+                "<Tile PosX=\"1\" PosY=\"3\" immutable=\"false\" value=\"FLOOR\"/>\n" +
+                "<Tile PosX=\"2\" PosY=\"3\" immutable=\"false\" value=\"FLOOR\"/>\n" +
+                "<Tile PosX=\"3\" PosY=\"3\" immutable=\"false\" value=\"FLOOR\"/>\n" +
+                "<Tile PosX=\"4\" PosY=\"3\" immutable=\"false\" value=\"FLOOR\"/>\n" +
+                "<Tile PosX=\"5\" PosY=\"3\" immutable=\"false\" value=\"FLOOR\"/>\n" +
+                "<Tile PosX=\"6\" PosY=\"3\" immutable=\"false\" value=\"FLOOR\"/>\n" +
+                "<Tile PosX=\"7\" PosY=\"3\" immutable=\"false\" value=\"FLOOR\"/>\n" +
+                "<Tile PosX=\"8\" PosY=\"3\" immutable=\"false\" value=\"FLOOR\"/>\n" +
+                "<Tile PosX=\"9\" PosY=\"3\" immutable=\"false\" value=\"FLOOR\"/>\n" +
+                "<Tile PosX=\"10\" PosY=\"3\" immutable=\"false\" value=\"FLOOR\"/>\n" +
+                "<Tile PosX=\"11\" PosY=\"3\" immutable=\"false\" value=\"FLOOR\"/>\n" +
+                "<Tile PosX=\"12\" PosY=\"3\" immutable=\"false\" value=\"FLOOR\"/>\n" +
+                "<Tile PosX=\"0\" PosY=\"4\" immutable=\"false\" value=\"WALL\"/>\n" +
+                "<Tile PosX=\"1\" PosY=\"4\" immutable=\"false\" value=\"WALL\"/>\n" +
+                "<Tile PosX=\"2\" PosY=\"4\" immutable=\"false\" value=\"WALL\"/>\n" +
+                "<Tile PosX=\"3\" PosY=\"4\" immutable=\"false\" value=\"WALL\"/>\n" +
+                "<Tile PosX=\"4\" PosY=\"4\" immutable=\"false\" value=\"WALL\"/>\n" +
+                "<Tile PosX=\"5\" PosY=\"4\" immutable=\"false\" value=\"WALL\"/>\n" +
+                "<Tile PosX=\"6\" PosY=\"4\" immutable=\"false\" value=\"WALL\"/>\n" +
+                "<Tile PosX=\"7\" PosY=\"4\" immutable=\"false\" value=\"FLOOR\"/>\n" +
+                "<Tile PosX=\"8\" PosY=\"4\" immutable=\"false\" value=\"FLOOR\"/>\n" +
+                "<Tile PosX=\"9\" PosY=\"4\" immutable=\"false\" value=\"FLOOR\"/>\n" +
+                "<Tile PosX=\"10\" PosY=\"4\" immutable=\"false\" value=\"FLOOR\"/>\n" +
+                "<Tile PosX=\"11\" PosY=\"4\" immutable=\"false\" value=\"FLOOR\"/>\n" +
+                "<Tile PosX=\"12\" PosY=\"4\" immutable=\"false\" value=\"FLOOR\"/>\n" +
+                "<Tile PosX=\"0\" PosY=\"5\" immutable=\"false\" value=\"FLOOR\"/>\n" +
+                "<Tile PosX=\"1\" PosY=\"5\" immutable=\"false\" value=\"FLOOR\"/>\n" +
+                "<Tile PosX=\"2\" PosY=\"5\" immutable=\"false\" value=\"FLOOR\"/>\n" +
+                "<Tile PosX=\"3\" PosY=\"5\" immutable=\"false\" value=\"FLOOR\"/>\n" +
+                "<Tile PosX=\"4\" PosY=\"5\" immutable=\"false\" value=\"FLOOR\"/>\n" +
+                "<Tile PosX=\"5\" PosY=\"5\" immutable=\"false\" value=\"FLOOR\"/>\n" +
+                "<Tile PosX=\"6\" PosY=\"5\" immutable=\"false\" value=\"WALL\"/>\n" +
+                "<Tile PosX=\"7\" PosY=\"5\" immutable=\"false\" value=\"FLOOR\"/>\n" +
+                "<Tile PosX=\"8\" PosY=\"5\" immutable=\"false\" value=\"FLOOR\"/>\n" +
+                "<Tile PosX=\"9\" PosY=\"5\" immutable=\"false\" value=\"FLOOR\"/>\n" +
+                "<Tile PosX=\"10\" PosY=\"5\" immutable=\"false\" value=\"FLOOR\"/>\n" +
+                "<Tile PosX=\"11\" PosY=\"5\" immutable=\"false\" value=\"FLOOR\"/>\n" +
+                "<Tile PosX=\"12\" PosY=\"5\" immutable=\"false\" value=\"FLOOR\"/>\n" +
+                "<Tile PosX=\"0\" PosY=\"6\" immutable=\"false\" value=\"FLOOR\"/>\n" +
+                "<Tile PosX=\"1\" PosY=\"6\" immutable=\"false\" value=\"FLOOR\"/>\n" +
+                "<Tile PosX=\"2\" PosY=\"6\" immutable=\"false\" value=\"FLOOR\"/>\n" +
+                "<Tile PosX=\"3\" PosY=\"6\" immutable=\"false\" value=\"FLOOR\"/>\n" +
+                "<Tile PosX=\"4\" PosY=\"6\" immutable=\"false\" value=\"FLOOR\"/>\n" +
+                "<Tile PosX=\"5\" PosY=\"6\" immutable=\"false\" value=\"FLOOR\"/>\n" +
+                "<Tile PosX=\"6\" PosY=\"6\" immutable=\"false\" value=\"WALL\"/>\n" +
+                "<Tile PosX=\"7\" PosY=\"6\" immutable=\"false\" value=\"FLOOR\"/>\n" +
+                "<Tile PosX=\"8\" PosY=\"6\" immutable=\"false\" value=\"FLOOR\"/>\n" +
+                "<Tile PosX=\"9\" PosY=\"6\" immutable=\"false\" value=\"FLOOR\"/>\n" +
+                "<Tile PosX=\"10\" PosY=\"6\" immutable=\"false\" value=\"FLOOR\"/>\n" +
+                "<Tile PosX=\"11\" PosY=\"6\" immutable=\"false\" value=\"FLOOR\"/>\n" +
+                "<Tile PosX=\"12\" PosY=\"6\" immutable=\"false\" value=\"FLOOR\"/>\n" +
+                "</Tiles>\n" +
+                "<Customs/>\n" +
+                "</Room>");
+
+        JsonArray a = new JsonArray();
+        for(String room : rooms)
+        {
+            a.add(room);
+        }
+        to_send.add("rooms", a);
+
+//        System.out.println(to_send.toString());
+
+//        to_send.addProperty("rooms", rooms.forEach());
+//        to_send.addProperty("rooms", Arrays.stream(rooms.toArray()).sequential().toString());
+//
+//        System.out.println(to_send.toString());
+//
+//        XML
+//
+//        JsonObject a = new JsonObject();
+//        a.
+
+        try {
+            URL url = new URL("http://127.0.0.1:5000/get_rooms/");
+            HttpURLConnection http = (HttpURLConnection) url.openConnection();
+            http.setRequestMethod("POST");
+            http.setDoOutput(true);
+            http.setRequestProperty("Content-Type", "application/json");
+            http.setRequestProperty("Accept", "application/json");
+
+
+            byte[] out = to_send.toString().getBytes(StandardCharsets.UTF_8);
+
+            OutputStream stream = http.getOutputStream();
+            stream.write(out);
+
+            System.out.println(http.getResponseCode() + " " + http.getResponseMessage());
+
+            BufferedReader br = new BufferedReader(new InputStreamReader(
+                        (http.getInputStream())));
+
+            JsonParser jsonParser = new JsonParser();
+            JsonObject jsonObject = (JsonObject)jsonParser.parse(
+                    new InputStreamReader(http.getInputStream(), "UTF-8"));
+
+            System.out.println(jsonObject.toString());
+
+            System.out.println(jsonObject.get("prediction"));
+            JsonArray ar_res = jsonObject.get("prediction").getAsJsonArray();
+
+            int[] result = new int[ ar_res.size()];
+            for(int i = 0; i < ar_res.size(); i++)
+            {
+                result[i] = ar_res.get(i).getAsInt();
+            }
+
+            ArrayList<Integer> result_list =  new ArrayList<Integer>();
+            for(int i = 0; i < ar_res.size(); i++)
+            {
+                result_list.add(ar_res.get(i).getAsInt());
+//                result[i] = ar_res.get(i).getAsInt();
+            }
+
+            System.out.println(Arrays.toString(result));
+            System.out.println(result_list);
+//
+//s
+//            ar_res.size();
+//
+//            int[] result = jsonObject.get("prediction");
+
+//                String output;
+//                System.out.println("Output from Server .... \n");
+//                while ((output = br.readLine()) != null) {
+//                    System.out.println(output);
+//                }
+            http.disconnect();
+
+
+
+//            http.disconnect();
+        }
+        catch (MalformedURLException e) {
+            e.printStackTrace();
+        }catch (IOException e){
+            e.printStackTrace();
+        }
+    }
+
+    public static synchronized int[] getCluster(Room room)
+    {
+        JsonObject to_send = new JsonObject();
+        JsonArray json_rooms = new JsonArray();
+        json_rooms.add(room.getXML());
+
+        to_send.add("rooms", json_rooms);
+
+//
+//        for(String room : rooms)
+//        {
+//            a.add(room);
+//        }
+//        to_send.add("rooms", a);
+
+
+        try {
+            URL url = new URL("http://127.0.0.1:5000/get_rooms/");
+            HttpURLConnection http = (HttpURLConnection) url.openConnection();
+            http.setRequestMethod("POST");
+            http.setDoOutput(true);
+            http.setRequestProperty("Content-Type", "application/json");
+            http.setRequestProperty("Accept", "application/json");
+
+
+            byte[] out = to_send.toString().getBytes(StandardCharsets.UTF_8);
+
+            OutputStream stream = http.getOutputStream();
+            stream.write(out);
+
+            System.out.println(http.getResponseCode() + " " + http.getResponseMessage());
+
+            JsonParser jsonParser = new JsonParser();
+            JsonObject jsonObject = (JsonObject)jsonParser.parse(
+                    new InputStreamReader(http.getInputStream(), "UTF-8"));
+
+            JsonArray ar_res = jsonObject.get("prediction").getAsJsonArray();
+
+            int[] result = new int[ ar_res.size()];
+            for(int i = 0; i < ar_res.size(); i++)
+            {
+                result[i] = ar_res.get(i).getAsInt();
+            }
+
+//            ArrayList<Integer> result_list =  new ArrayList<Integer>();
+//            for(int i = 0; i < ar_res.size(); i++)
+//            {
+//                result_list.add(ar_res.get(i).getAsInt());
+////                result[i] = ar_res.get(i).getAsInt();
+//            }
+//
+//
+//            System.out.println(Arrays.toString(result));
+//            System.out.println(result_list);
+
+            http.disconnect();
+
+            return result;
 
         }
+        catch (MalformedURLException e) {
+            e.printStackTrace();
+        }catch (IOException e){
+            e.printStackTrace();
+        }
 
+        return null;
     }
 
-    public synchronized int[] getCluster(Room room)
+    public static synchronized int[] getClusters(ArrayList<Room> rooms)
     {
-        int[] result = new int[3];
+        JsonObject to_send = new JsonObject();
+        JsonArray json_rooms = new JsonArray();
 
-        return result;
+        for(Room room : rooms)
+        {
+            json_rooms.add(room.getXML().toString());
+        }
+
+        to_send.add("rooms", json_rooms);
+
+//
+//        for(String room : rooms)
+//        {
+//            a.add(room);
+//        }
+//        to_send.add("rooms", a);
+
+
+        try {
+            URL url = new URL("http://127.0.0.1:5000/get_rooms/");
+            HttpURLConnection http = (HttpURLConnection) url.openConnection();
+            http.setRequestMethod("POST");
+            http.setDoOutput(true);
+            http.setRequestProperty("Content-Type", "application/json");
+            http.setRequestProperty("Accept", "application/json");
+
+
+            byte[] out = to_send.toString().getBytes(StandardCharsets.UTF_8);
+
+            OutputStream stream = http.getOutputStream();
+            stream.write(out);
+
+            System.out.println(http.getResponseCode() + " " + http.getResponseMessage());
+
+            JsonParser jsonParser = new JsonParser();
+            JsonObject jsonObject = (JsonObject)jsonParser.parse(
+                    new InputStreamReader(http.getInputStream(), "UTF-8"));
+
+            JsonArray ar_res = jsonObject.get("prediction").getAsJsonArray();
+
+            int[] result = new int[ ar_res.size()];
+            for(int i = 0; i < ar_res.size(); i++)
+            {
+                result[i] = ar_res.get(i).getAsInt();
+            }
+
+//            ArrayList<Integer> result_list =  new ArrayList<Integer>();
+//            for(int i = 0; i < ar_res.size(); i++)
+//            {
+//                result_list.add(ar_res.get(i).getAsInt());
+////                result[i] = ar_res.get(i).getAsInt();
+//            }
+//
+//
+//            System.out.println(Arrays.toString(result));
+//            System.out.println(result_list);
+
+            http.disconnect();
+
+            return result;
+
+        }
+        catch (MalformedURLException e) {
+            e.printStackTrace();
+        }catch (IOException e){
+            e.printStackTrace();
+        }
+
+        return null;
     }
+
+//    public synchronized int[] getCluster(Room room)
+//    {
+//        int[] result = new int[3];
+//
+//        return result;
+//    }
 
     public static void sendPOST()
     {
@@ -300,69 +845,71 @@ public class ScikitLearnConnection implements Listener {
 
     public static void main(String[] args)
     {
-        sendPOST();
+        sendJSON();
+//        getClusters(null);
+//        sendPOST();
 
-        HttpURLConnection conn = null;
-        DataOutputStream os = null;
-        try{
-            URL url = new URL("http://127.0.0.1:5000/add/"); //important to add the trailing slash after add
-//            ArrayList<String> asas = new ArrayList<String>(){add("SS"); add("3232");]
-            ArrayList<String> inputData = new ArrayList<String>(){{
-                add("{\"0\": 5, \"1\": 8, \"float\":\"0.5\", \"text\":\"random text\"}");
-                    add("{\"0\":5, \"1\":14,  \"float\":\"0.5\", \"text\":\"testing\"}");
-            }};
-
-            String bigger = "{";
-
-            for(int i = 0, j = 0; i < 10; i++, j+=2)
-            {
-                bigger += "\"" + i + "\": " + j + ", ";
-            }
-
-            bigger += " \"float\":\"0.5\", \"text\":\"LONGER!!\"}";
-
-            inputData.add(bigger);
-
-            System.out.println(inputData);
-
-            for(String input: inputData){
-                byte[] postData = input.getBytes(StandardCharsets.UTF_8);
-                conn = (HttpURLConnection) url.openConnection();
-                conn.setDoOutput(true);
-                conn.setRequestMethod("POST");
-                conn.setRequestProperty("Content-Type", "application/json");
-                conn.setRequestProperty( "charset", "utf-8");
-                conn.setRequestProperty("Content-Length", Integer.toString(input.length()));
-                os = new DataOutputStream(conn.getOutputStream());
-                os.write(postData);
-                os.flush();
-
-                if (conn.getResponseCode() != 200) {
-                    throw new RuntimeException("Failed : HTTP error code : "
-                            + conn.getResponseCode());
-                }
-
-                BufferedReader br = new BufferedReader(new InputStreamReader(
-                        (conn.getInputStream())));
-
-                String output;
-                System.out.println("Output from Server .... \n");
-                while ((output = br.readLine()) != null) {
-                    System.out.println(output);
-                }
-                conn.disconnect();
-            }
-        } catch (MalformedURLException e) {
-            e.printStackTrace();
-        }catch (IOException e){
-            e.printStackTrace();
-        }finally
-        {
-            if(conn != null)
-            {
-                conn.disconnect();
-            }
-        }
+//        HttpURLConnection conn = null;
+//        DataOutputStream os = null;
+//        try{
+//            URL url = new URL("http://127.0.0.1:5000/add/"); //important to add the trailing slash after add
+////            ArrayList<String> asas = new ArrayList<String>(){add("SS"); add("3232");]
+//            ArrayList<String> inputData = new ArrayList<String>(){{
+//                add("{\"0\": 5, \"1\": 8, \"float\":\"0.5\", \"text\":\"random text\"}");
+//                    add("{\"0\":5, \"1\":14,  \"float\":\"0.5\", \"text\":\"testing\"}");
+//            }};
+//
+//            String bigger = "{";
+//
+//            for(int i = 0, j = 0; i < 10; i++, j+=2)
+//            {
+//                bigger += "\"" + i + "\": " + j + ", ";
+//            }
+//
+//            bigger += " \"float\":\"0.5\", \"text\":\"LONGER!!\"}";
+//
+//            inputData.add(bigger);
+//
+//            System.out.println(inputData);
+//
+//            for(String input: inputData){
+//                byte[] postData = input.getBytes(StandardCharsets.UTF_8);
+//                conn = (HttpURLConnection) url.openConnection();
+//                conn.setDoOutput(true);
+//                conn.setRequestMethod("POST");
+//                conn.setRequestProperty("Content-Type", "application/json");
+//                conn.setRequestProperty( "charset", "utf-8");
+//                conn.setRequestProperty("Content-Length", Integer.toString(input.length()));
+//                os = new DataOutputStream(conn.getOutputStream());
+//                os.write(postData);
+//                os.flush();
+//
+//                if (conn.getResponseCode() != 200) {
+//                    throw new RuntimeException("Failed : HTTP error code : "
+//                            + conn.getResponseCode());
+//                }
+//
+//                BufferedReader br = new BufferedReader(new InputStreamReader(
+//                        (conn.getInputStream())));
+//
+//                String output;
+//                System.out.println("Output from Server .... \n");
+//                while ((output = br.readLine()) != null) {
+//                    System.out.println(output);
+//                }
+//                conn.disconnect();
+//            }
+//        } catch (MalformedURLException e) {
+//            e.printStackTrace();
+//        }catch (IOException e){
+//            e.printStackTrace();
+//        }finally
+//        {
+//            if(conn != null)
+//            {
+//                conn.disconnect();
+//            }
+//        }
 //
 //        try {
 //            URL url = new URL("http://127.0.0.1:5000/add?x=100&y=12&text='Test'");
