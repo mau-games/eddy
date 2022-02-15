@@ -57,7 +57,7 @@ public class SuggestionRoom
 	            public void handle(MouseEvent event) 
 	            {
 	            	highlight(true);
-	            	System.out.println("MOUSE ENTERED CANVAS");
+//	            	System.out.println("MOUSE ENTERED CANVAS");
 	            }
 
 	        });

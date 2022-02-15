@@ -52,6 +52,8 @@ import util.eventrouting.EventRouter;
 import util.eventrouting.Listener;
 import util.eventrouting.PCGEvent;
 import util.eventrouting.events.*;
+import util.eventrouting.events.despers.BatchDesPersEvaluation;
+import util.eventrouting.events.despers.BatchRoomStyleEvaluated;
 
 public class MAPEliteAlgorithm extends Algorithm implements Listener {
 	
@@ -150,6 +152,7 @@ public class MAPEliteAlgorithm extends Algorithm implements Listener {
 		EventRouter.getInstance().registerListener(this, new UpdatePreferenceModel(null));
 		EventRouter.getInstance().registerListener(this, new SaveCurrentGeneration());
 		EventRouter.getInstance().registerListener(this, new RoomEdited(null));
+		EventRouter.getInstance().registerListener(this, new BatchRoomStyleEvaluated(new int[0], null));
 		
 		this.dimensions = dimensions;
 		initCells(dimensions);
@@ -380,6 +383,13 @@ public class MAPEliteAlgorithm extends Algorithm implements Listener {
 //				originalRoom = (Room) e.getPayload();
 //				UpdateConfigFile();
 //			}
+		}
+		else if(e instanceof BatchRoomStyleEvaluated)
+		{
+			if(((BatchRoomStyleEvaluated) e).sender_id.equals(id)) //This is the correct place!
+			{
+				SetStyleToIndividuals(((BatchRoomStyleEvaluated) e).rooms_style);
+			}
 		}
 	}
 	
@@ -981,6 +991,8 @@ public class MAPEliteAlgorithm extends Algorithm implements Listener {
 		EventRouter.getInstance().unregisterListener(this, new UpdatePreferenceModel(null));
 		EventRouter.getInstance().unregisterListener(this, new SaveCurrentGeneration());
 		EventRouter.getInstance().unregisterListener(this, new RoomEdited(null));
+		EventRouter.getInstance().unregisterListener(this, new RoomEdited(null));
+		EventRouter.getInstance().unregisterListener(this, new BatchRoomStyleEvaluated(new int[0], null));
 		
 		HashMap<Room, Double[]> uniqueGeneratedRooms = new HashMap<Room, Double[]>();
 		HashMap<Room, Double[]> uniqueGeneratedRoomsFlush= new HashMap<Room, Double[]>();
@@ -1104,9 +1116,40 @@ public class MAPEliteAlgorithm extends Algorithm implements Listener {
 //        TEMPORARILY REMOVED FOR TESTING
 		EventRouter.getInstance().postEvent(ev);
 	}
+
+	public void RequestStyleEvaluation(List<ZoneIndividual> individuals)
+	{
+		Room[] individual_rooms = new Room[individuals.size()];
+		int i = 0;
+		for(ZoneIndividual individual : individuals)
+		{
+			individual_rooms[i++] = individual.getPhenotype().getMap(roomWidth, roomHeight, roomDoorPositions, roomCustomTiles, roomOwner);
+		}
+
+		EventRouter.getInstance().postEvent(new BatchDesPersEvaluation(id, individual_rooms));
+	}
+
+	public List<ZoneIndividual> evaluated_individuals;
+
+	public void SetStyleToIndividuals(int[] styles)
+	{
+		int a = 0;
+
+		for(int i = 0; i < styles.length; i++)
+		{
+			evaluated_individuals.get(i).getPhenotype().getMap(
+					roomWidth, roomHeight, roomDoorPositions, roomCustomTiles, roomOwner).room_style.setCurrentStyle(styles[i]);
+		}
+	}
 	
 	protected void CheckAndAssignToCell(List<ZoneIndividual> individuals, boolean infeasible)
 	{
+		if(AlgorithmSetup.getInstance().isUsingDesignerPersona())
+		{
+			evaluated_individuals = individuals;
+			RequestStyleEvaluation(individuals);
+		}
+
 		 for (ZoneIndividual individual : individuals)
 		{
 			if(infeasible)

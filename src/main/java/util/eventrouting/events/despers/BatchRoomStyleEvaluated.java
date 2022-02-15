@@ -6,8 +6,8 @@ import java.util.UUID;
 
 public class BatchRoomStyleEvaluated extends PCGEvent
 {
-    int[] rooms_style;
-    UUID sender_id;
+    public int[] rooms_style;
+    public UUID sender_id;
 
     public BatchRoomStyleEvaluated(int[] rooms_style, UUID sender_id)
     {

@@ -6,8 +6,8 @@ import java.util.UUID;
 
 public class RoomStyleEvaluated extends PCGEvent {
 
-    int room_style;
-    UUID room_id;
+    public int room_style;
+    public UUID room_id;
 
     public RoomStyleEvaluated(int room_style, UUID room_id)
     {

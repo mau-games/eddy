@@ -82,56 +82,50 @@ def get_room():
     # prediction = 2
     # return jsonify({'prediction': list(prediction)})
 
+@app.route('/print_steps/', methods=['POST'])
+def print_steps():
+    # print("GET ROOM IS CALLED!")
+
+    # We collect the json from EDD, and all the steps till now
+    json_ = request.json
+    raw_xml_room_steps = json_["rooms"]
+
+    # Create the rooms from the xmls
+    room_steps = []
+    for xml_room in raw_xml_room_steps:
+        room_steps.append(roomFromXML(xml_room).test_data)
+
+    # Convert to Numpy array and squeeze dim, so it can be used by the scikit model.
+    room_steps = np.array(room_steps)
+    room_steps = room_steps.squeeze(axis=1)
+
+    designer_persona.printStepsBackgroundLabeled(room_steps)
+
+    return "cool"
+
 @app.route('/get_rooms/', methods=['POST'])
 def get_rooms():
     # print("GET ROOM IS CALLED!")
+
+    # We collect the json from EDD, and the possible rooms
     json_ = request.json
-    print(json_)
-    # print(json_["rooms"])
-
     some = json_["rooms"]
-    rooms = []
 
+    # Create the rooms from the xmls
+    rooms = []
     for s in some:
         rooms.append(roomFromXML(s).test_data)
 
+    # Convert to Numpy array and squeeze dim, so it can be used by the scikit model.
     rooms = np.array(rooms)
-    # print("dimensions and shape: ", rooms.shape)
-    # if rooms.ndim > 2:
-    #     rooms = rooms.squeeze()
-
     rooms = rooms.squeeze(axis=1)
 
-    a = designer_persona.transform_predict(rooms)
+    # Pass the room array to get predictions
+    predictions = designer_persona.transform_predict(rooms)
 
-    print("PREDICTED AS ", a)
+    print("PREDICTED AS ", predictions)
 
-    # some = request.form.getlist("rooms[]")
-    #
-    # decoded_data = request.data.decode('utf-8')
-    # print(decoded_data)
-    # room = roomFromXML(decoded_data)
-    # print(room.test_data.shape)
-    # a = designer_persona.transform_predict(room.test_data)
-    #
-    # print("PREDICTED AS ", a)
-
-
-
-    # mydoc = minidom.parseString(decoded_data)
-    #
-    # print(mydoc.getElementsByTagName('Login'))
-    # print(mydoc.getElementsByTagName('Login')[0])
-    # print(mydoc.getElementsByTagName('Login')[0].data)
-
-
-    return jsonify({'prediction': a.tolist()})
-    # return jsonify(request.json)
-
-    # query_df = pd.DataFrame(json_)
-    # query = pd.get_dummies(query_df)
-    # prediction = 2
-    # return jsonify({'prediction': list(prediction)})
+    return jsonify({'prediction': predictions.tolist()})
 
 def roomFromXML(file):
 
@@ -184,13 +178,12 @@ def save_room_imgs(xmlRoom):
     renderer.drawPixels(minimal_canvas, xmlRoom.matrix, True)
     minimal_canvas.save(out_image + 'simplePixelMatrix' + ".png")
 
-if __name__ == '__main__':
 
-    print(os.listdir("../"))
+if __name__ == '__main__':
 
     designer_persona.load_scaler("../../../resources/models/despers_scaler.pkl")
     designer_persona.load_pca("../../../resources/models/despers_pca.pkl")
     designer_persona.load_base_dataset("../../../resources/models/despers_pca_dataset.pkl")
     designer_persona.load_model("../../../resources/models/despers_classifier.pkl")
     # designer_persona.print_background()
-    app.run(debug=True)
+    app.run(debug=False)

@@ -25,7 +25,7 @@ public class SplitCentralFocus extends ArchetypicalPath
     }
 
     /**
-     *FIX THIS
+     * Not very satisfied with this approach!!
      * @param other_path
      * @return
      */
@@ -34,8 +34,9 @@ public class SplitCentralFocus extends ArchetypicalPath
         //Very bad approach
         int counter = 0;
         boolean contain_branches = false;
+        int longest_path = Math.min(other_path.size(), path.size());
 
-        for(int i = 0; i < path.size(); i++)
+        for(int i = 0; i < longest_path; i++)
         {
             if(other_path.get(i).equals(path.get(i)))
             {
@@ -45,8 +46,10 @@ public class SplitCentralFocus extends ArchetypicalPath
 
         if(other_path.size() > path.size())
         {
+            longest_path = Math.min(branches.size(), other_path.size() - path.size());
+
             contain_branches = true;
-            for(int i = path.size(), j = 0; j < branches.size(); i++, j++)
+            for(int i = path.size(), j = 0; j < longest_path; i++, j++)
             {
                 if(other_path.get(i).equals(branches.get(j)))
                 {

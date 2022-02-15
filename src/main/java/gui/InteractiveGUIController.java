@@ -18,15 +18,10 @@ import collectors.DataSaverLoader;
 import collectors.ActionLogger.ActionType;
 import collectors.ActionLogger.TargetPane;
 import collectors.ActionLogger.View;
+import designerModeling.DesignerModel;
 import designerModeling.ScikitLearnConnection;
 import finder.PatternFinder;
-import game.ApplicationConfig;
-import game.Dungeon;
-import game.Game;
-import game.Room;
-import game.RoomEdge;
-import game.MapContainer;
-import game.TileTypes;
+import game.*;
 import game.narrative.GrammarGraph;
 import game.narrative.GrammarNode;
 import game.narrative.NarrativeShapeEdge;
@@ -156,7 +151,12 @@ public class InteractiveGUIController implements Initializable, Listener {
 		router.registerListener(this, new NarrativeSuggestionApplied(null));
 		router.registerListener(this, new RequestReplacementGrammarStructureNode(null, null));
 
+		DesignerModel designer_model = DesignerModel.getInstance();
+		AlgorithmSetup algorithm_setup = AlgorithmSetup.getInstance();
+		algorithm_setup.setDesignerModelUse(false);
+		algorithm_setup.setDesignerPersonaUse(false);
 		ScikitLearnConnection python_connection = ScikitLearnConnection.getInstance();
+
 
 		suggestionsView = new SuggestionsViewController();
 //		roomView = new RoomViewController();

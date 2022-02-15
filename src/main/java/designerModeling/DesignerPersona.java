@@ -3,12 +3,15 @@ package designerModeling;
 import designerModeling.archetypicalPaths.ArchetypicalPath;
 import designerModeling.archetypicalPaths.ArchitecturalFocus;
 import game.Room;
+import util.eventrouting.EventRouter;
 import util.eventrouting.Listener;
 import util.eventrouting.PCGEvent;
 import util.eventrouting.events.RoomEdited;
 import util.eventrouting.events.despers.DesPersEvaluation;
+import util.eventrouting.events.despers.RoomStyleEvaluated;
 
 import java.util.ArrayList;
+import java.util.UUID;
 
 class RoomDesignerPersona
 {
@@ -30,9 +33,30 @@ class RoomDesignerPersona
         key_path = new ArrayList<Integer>();
     }
 
+    private void debugRoomPersona()
+    {
+        System.out.println("-----------");
+        System.out.println("path: " + path);
+        System.out.println("reduced path: " + reduced_path);
+        System.out.println("key path: " + key_path);
+
+        System.out.println("architectural_focus: " + persona_percentages[0]);
+        System.out.println("goal oriented: " + persona_percentages[1]);
+        System.out.println("split central focus: " + persona_percentages[2]);
+        System.out.println("complex balance: " + persona_percentages[3]);
+        System.out.println("null: " + persona_percentages[4]);
+
+
+        System.out.println("-----------");
+
+    }
+
     public void addToPath(int step)
     {
         path.add(step);
+        transformPath();
+        checkPersona();
+        debugRoomPersona();
     }
 
     public void transformPath()
@@ -63,7 +87,7 @@ class RoomDesignerPersona
                     initial = false;
 
                 step_counter = 1;
-                reduced_path.add(path.get(i));
+                key_path.add(path.get(i));
             }
             else
             {
@@ -78,10 +102,10 @@ class RoomDesignerPersona
 
     public void checkPersona()
     {
-        persona_percentages[0] = ArchetypicalPath.calculatePath(ArchetypicalPath.ArchetypicalPathTypes.ARCHITECTURAL_FOCUS, reduced_path);
-        persona_percentages[1] = ArchetypicalPath.calculatePath(ArchetypicalPath.ArchetypicalPathTypes.GOAL_ORIENTED, reduced_path);
-        persona_percentages[2] = ArchetypicalPath.calculatePath(ArchetypicalPath.ArchetypicalPathTypes.SPLIT_CENTRAL_FOCUS, reduced_path);
-        persona_percentages[3] = ArchetypicalPath.calculatePath(ArchetypicalPath.ArchetypicalPathTypes.COMPLEX_BALANCE, reduced_path);
+        persona_percentages[0] = ArchetypicalPath.calculatePath(ArchetypicalPath.ArchetypicalPathTypes.ARCHITECTURAL_FOCUS, key_path);
+        persona_percentages[1] = ArchetypicalPath.calculatePath(ArchetypicalPath.ArchetypicalPathTypes.GOAL_ORIENTED, key_path);
+        persona_percentages[2] = ArchetypicalPath.calculatePath(ArchetypicalPath.ArchetypicalPathTypes.SPLIT_CENTRAL_FOCUS, key_path);
+        persona_percentages[3] = ArchetypicalPath.calculatePath(ArchetypicalPath.ArchetypicalPathTypes.COMPLEX_BALANCE, key_path);
 
         float null_sum = 0.0f;
 //        boolean not_null = false;
@@ -110,6 +134,11 @@ class RoomDesignerPersona
 
 //        persona_percentages[4] =
     }
+
+    public ArrayList<Integer> getFullSteps()
+    {
+        return path;
+    }
 }
 
 /***
@@ -134,6 +163,7 @@ public class DesignerPersona implements Listener
      * This list contains all the rooms in a session, and here we calculate their
      */
     public ArrayList<RoomDesignerPersona> roomPersonas;
+    private RoomDesignerPersona current_room_persona;
 
     public DesignerPersona()
     {
@@ -144,6 +174,8 @@ public class DesignerPersona implements Listener
         activate_path = new ArrayList<Integer>();
         active_reduced_path = new ArrayList<Integer>();
 
+        EventRouter.getInstance().registerListener(this, new RoomEdited(null));
+        EventRouter.getInstance().registerListener(this, new RoomStyleEvaluated(0, null));
     }
 
     public void designStarted(Room room)
@@ -152,14 +184,31 @@ public class DesignerPersona implements Listener
 
         for(RoomDesignerPersona rdp : roomPersonas)
         {
-            if(rdp.room.equals(room))
+            if(rdp.room.specificID.equals(room.specificID))
             {
                 exists = true;
+                current_room_persona = rdp;
             }
         }
 
         if(!exists)
-            roomPersonas.add(new RoomDesignerPersona(room));
+        {
+            RoomDesignerPersona rdp = new RoomDesignerPersona(room);
+            roomPersonas.add(rdp);
+            current_room_persona = rdp;
+
+        }
+    }
+
+    private void styleAdded(int style, UUID id)
+    {
+        for(RoomDesignerPersona rdp : roomPersonas)
+        {
+            if(rdp.room.specificID.equals(id))
+            {
+                rdp.addToPath(style);
+            }
+        }
     }
 
     @Override
@@ -167,11 +216,15 @@ public class DesignerPersona implements Listener
     {
         if(e instanceof RoomEdited)
         {
-
+            designStarted(((RoomEdited) e).editedRoom);
         }
         else if(e instanceof DesPersEvaluation)
         {
 
+        }
+        else if(e instanceof RoomStyleEvaluated)
+        {
+            styleAdded(((RoomStyleEvaluated) e).room_style, ((RoomStyleEvaluated) e).room_id);
         }
     }
 

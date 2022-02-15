@@ -19,6 +19,7 @@ import java.nio.charset.StandardCharsets;
 
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import util.eventrouting.events.despers.RoomStyleEvaluated;
 
 //import org.pmml4s.model.Model;
 //import org.pmml4s.*;
@@ -57,6 +58,7 @@ public class ScikitLearnConnection implements Listener {
         {
             int[] resulting_styles = getCluster(((RoomEdited) e).editedRoom);
             ((RoomEdited) e).editedRoom.room_style.setCurrentStyle(resulting_styles[0]);
+            router.postEvent(new RoomStyleEvaluated(resulting_styles[0], ((RoomEdited) e).editedRoom.specificID ));
         }
         else if(e instanceof  DesPersEvaluation)
         {
@@ -66,6 +68,42 @@ public class ScikitLearnConnection implements Listener {
         {
             int[] resulting_styles = getClusters(((BatchDesPersEvaluation) e).rooms);
             router.postEvent(new BatchRoomStyleEvaluated(resulting_styles, ((BatchDesPersEvaluation) e).requester_id));
+        }
+    }
+
+    public synchronized void printLabels(LinkedList<Room> room_Steps)
+    {
+        JsonObject to_send = new JsonObject();
+        JsonArray json_rooms = new JsonArray();
+
+        for(Room room : room_Steps)
+        {
+            json_rooms.add(room.getXML().toString());
+        }
+
+        to_send.add("rooms", json_rooms);
+
+        try {
+            URL url = new URL("http://127.0.0.1:5000/print_steps/");
+            HttpURLConnection http = (HttpURLConnection) url.openConnection();
+            http.setRequestMethod("POST");
+            http.setDoOutput(true);
+            http.setRequestProperty("Content-Type", "application/json");
+            http.setRequestProperty("Accept", "application/json");
+
+            byte[] out = to_send.toString().getBytes(StandardCharsets.UTF_8);
+
+            OutputStream stream = http.getOutputStream();
+            stream.write(out);
+            System.out.println(http.getResponseCode() + " " + http.getResponseMessage());
+
+            http.disconnect();
+
+        }
+        catch (MalformedURLException e) {
+            e.printStackTrace();
+        }catch (IOException e){
+            e.printStackTrace();
         }
     }
 

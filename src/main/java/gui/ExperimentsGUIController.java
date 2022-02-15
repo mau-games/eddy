@@ -16,6 +16,8 @@ import java.util.TimerTask;
 import java.util.UUID;
 import java.util.Map.Entry;
 
+import designerModeling.DesignerModel;
+import designerModeling.ScikitLearnConnection;
 import org.apache.commons.io.FileUtils;
 
 import collectors.ActionLogger;
@@ -236,6 +238,12 @@ public class ExperimentsGUIController implements Initializable, Listener {
 		router.registerListener(this, new LoadedXMLRoomSelected(null));
 		router.registerListener(this, new NextStepSequenceExperiment());
 		router.registerListener(this, new SessionRoomSelected(null));
+
+		DesignerModel designer_model = DesignerModel.getInstance();
+		AlgorithmSetup algorithm_setup = AlgorithmSetup.getInstance();
+		algorithm_setup.setDesignerModelUse(false);
+		algorithm_setup.setDesignerPersonaUse(false);
+		ScikitLearnConnection python_connection = ScikitLearnConnection.getInstance();
 		
 		/////////////// Should we do this?!!! ////////////////////
 		testDungeon = new Dungeon(gc, 1, 13, 7, false);
@@ -1237,6 +1245,7 @@ public class ExperimentsGUIController implements Initializable, Listener {
 //			saveEvaluation();
 			
 			router.postEvent(new RoomEditionStarted(currentEditRoom));
+			router.postEvent(new RoomEdited(currentEditRoom));
 	//		fillRoomSequence();
 		});
 	}
@@ -1586,14 +1595,16 @@ public class ExperimentsGUIController implements Initializable, Listener {
     		tt.schedule(new TimerTask(){
     		    public void run() {
     		    	
-    		    	if (counter == 0) {
-    		        	runningExperiment = false;
-    		            tt.cancel();
-    		        }
-    		    	
     		        //your job- Should be changed to a specific method.
 //    		    	initializeExperiment(currentEditRoom.getEditionSequence().get(index)); //This for not changing
     		    	initializeExperiment(currentEditRoom.getEditionSequence().get(index++));
+
+					if (counter == 0) {
+						runningExperiment = false;
+						ScikitLearnConnection.getInstance().printLabels(currentEditRoom.getEditionSequence());
+						tt.cancel();
+					}
+
     		        counter--;
     		        
     		    }

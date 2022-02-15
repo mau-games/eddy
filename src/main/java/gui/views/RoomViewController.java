@@ -821,19 +821,23 @@ public class RoomViewController extends BorderPane implements Listener
 	@FXML
 	private void saveCurrentGeneration() //TODO: some changes here!
 	{
-		switch(currentState)
-		{
-			case STOPPED:
-				//Nothing happens here :D
-				break;
-			case RUNNING:
+		//TODO: Check here!
+		AlgorithmSetup.getInstance().setDesignerPersonaUse(!AlgorithmSetup.getInstance().isUsingDesignerPersona());
 
-				router.postEvent(new SaveDisplayedCells());
-//			MAPElitesPane.SaveDimensionalGrid();
-//			MapRenderer.getInstance().saveCurrentEditedRoom(getMapView());
 
-				break;
-		}
+//		switch(currentState)
+//		{
+//			case STOPPED:
+//				//Nothing happens here :D
+//				break;
+//			case RUNNING:
+//
+//				router.postEvent(new SaveDisplayedCells());
+////			MAPElitesPane.SaveDimensionalGrid();
+////			MapRenderer.getInstance().saveCurrentEditedRoom(getMapView());
+//
+//				break;
+//		}
 
 	}
 

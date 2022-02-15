@@ -3653,20 +3653,12 @@ public class Room {
 	    }
 	}
 
+
 	public String getXML()
 	{
 		Document dom;
 		Element e = null;
 		Element next = null;
-
-//		File file = new File(DataSaverLoader.projectPath + "\\summer-school\\" + InteractiveGUIController.runID + "\\" + prefix + this.toString());
-//		if (!file.exists()) {
-//			file.mkdirs();
-//		}
-
-//		String xml = System.getProperty("user.dir") + "\\my-data\\summer-school\\" + InteractiveGUIController.runID + "\\" + prefix + this.toString() + "\\room-" + this.toString() + "_" + saveCounter++ + ".xml";
-
-		String xml = "";
 
 		// instance of a DocumentBuilderFactory
 		DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
@@ -3731,10 +3723,6 @@ public class Room {
 
 			dom.appendChild(rootEle);
 
-			System.out.println(dom.toString());
-			System.out.println(new DOMSource(dom).toString());
-
-
 			try {
 				Transformer tr = TransformerFactory.newInstance().newTransformer();
 				tr.setOutputProperty(OutputKeys.INDENT, "yes");
@@ -3744,24 +3732,12 @@ public class Room {
 				tr.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "4");
 				StreamResult result = new StreamResult(new ByteArrayOutputStream());
 				tr.transform(new DOMSource(dom), result);
-//				System.out.println(result.getOutputStream());
-//				System.out.println(result.getOutputStream().toString());
-//				System.out.println(result.toString());
-//				System.out.println(xml);
+
 				return result.getOutputStream().toString();
-
-//				System.out.println(transform_result.toString());
-
-
-				// send DOM to file
-//				tr.transform(new DOMSource(dom),
-//						new StreamResult(new FileOutputStream(xml)));
 
 			} catch (TransformerException te) {
 				System.out.println(te.getMessage());
 			}
-
-//			return new DOMSource(dom);
 
 		} catch (ParserConfigurationException pce) {
 			System.out.println("UsersXML: Error trying to instantiate DocumentBuilder " + pce);

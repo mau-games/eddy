@@ -81,6 +81,25 @@ public class NarrativePattern
         {
             quality = all_same_class.size() <= node_amount ? all_same_class.size()/node_amount : 2.0 - all_same_class.size()/node_amount;
         }
+//        node_amount = 3.0f;
+//
+//        double te = Math.abs(node_amount - all_same_class.size())/(double)all_same_class.size();
+//        te = Math.abs(node_amount - 6.0)/6.0;
+//        te = Math.abs(node_amount - 5.0)/5.0;
+//        te = Math.abs(node_amount - 4.0)/4.0;
+//        te = Math.abs(node_amount - 3.0)/3.0;
+//        te = Math.abs(node_amount - 2.0)/node_amount;
+//        te = Math.abs(node_amount - 1.0)/node_amount;
+//
+//        te = Math.min(node_amount, 6.0)/6.0;
+//        te = Math.min(node_amount, 5.0)/5.0;
+//        te = Math.min(node_amount, 4.0)/4.0;
+//        te = Math.min(node_amount, 3.0)/3.0;
+//        te = Math.min(node_amount, 2.0)/node_amount;
+//        te = Math.min(node_amount, 1.0)/node_amount;
+
+        //FIXME: This is how this quality is calculated
+//        te = 1.0 - Math.abs(node_amount - all_same_class.size())/(double)Math.max(all_same_class.size(), node_amount);
 
         return quality;
     }

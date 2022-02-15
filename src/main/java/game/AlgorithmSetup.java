@@ -29,6 +29,22 @@ public class AlgorithmSetup {
 		this.SAVE_DATA = saveData;
 	}
 
+	private boolean DESIGNER_MODELING = false;
+	public boolean isUsingDesignerModeling() {
+		return DESIGNER_MODELING;
+	}
+	public void setDesignerModelUse(boolean designer_model) {
+		this.DESIGNER_MODELING = designer_model;
+	}
+
+	private boolean DESIGNER_PERSONA = false;
+	public boolean isUsingDesignerPersona() {
+		return DESIGNER_PERSONA;
+	}
+	public void setDesignerPersonaUse(boolean designer_persona) {
+		this.DESIGNER_PERSONA = designer_persona;
+	}
+
 	private int ITER_GENERATIONS = 5000;
 	public int getITER_GENERATIONS() { return ITER_GENERATIONS; }
 	public void setITER_GENERATIONS(int ITER_GENERATIONS) { this.ITER_GENERATIONS = ITER_GENERATIONS;	}
