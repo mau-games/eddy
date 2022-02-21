@@ -153,8 +153,8 @@ public class InteractiveGUIController implements Initializable, Listener {
 
 		DesignerModel designer_model = DesignerModel.getInstance();
 		AlgorithmSetup algorithm_setup = AlgorithmSetup.getInstance();
-		algorithm_setup.setDesignerModelUse(false);
-		algorithm_setup.setDesignerPersonaUse(false);
+		algorithm_setup.setDesignerModelUse(true);
+		algorithm_setup.setDesignerPersonaUse(true);
 		ScikitLearnConnection python_connection = ScikitLearnConnection.getInstance();
 
 

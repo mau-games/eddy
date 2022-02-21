@@ -181,4 +181,5 @@ class DesignerPersonaModel:
                          # color=plt.cm.nipy_spectral(Z_hat[i] / n_clusters),
                          fontdict={'weight': 'bold', 'size': 21})
 
+        plt.show()
         # plt.show(block=False)

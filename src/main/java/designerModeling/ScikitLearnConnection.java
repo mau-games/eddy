@@ -503,11 +503,28 @@ public class ScikitLearnConnection implements Listener {
 
     public static synchronized int[] getCluster(Room room)
     {
+//        JsonObject to_send = new JsonObject();
+//        JsonArray json_rooms = new JsonArray();
+//        json_rooms.add(room.getXML());
+//
+//        to_send.add("rooms", json_rooms);
+
         JsonObject to_send = new JsonObject();
         JsonArray json_rooms = new JsonArray();
-        json_rooms.add(room.getXML());
+        JsonArray json_rooms_id = new JsonArray();
+        JsonArray json_rooms_width = new JsonArray();
+        JsonArray json_rooms_height = new JsonArray();
+
+        json_rooms.add(room.matrixToStringFlatten(false));
+        json_rooms_id.add(room.toString());
+        json_rooms_width.add(room.getColCount());
+        json_rooms_height.add(room.getRowCount());
 
         to_send.add("rooms", json_rooms);
+        to_send.add("rooms_id", json_rooms_id);
+        to_send.add("rooms_width", json_rooms_width);
+        to_send.add("rooms_height", json_rooms_height);
+
 
 //
 //        for(String room : rooms)
@@ -574,13 +591,29 @@ public class ScikitLearnConnection implements Listener {
     {
         JsonObject to_send = new JsonObject();
         JsonArray json_rooms = new JsonArray();
+        JsonArray json_rooms_id = new JsonArray();
+        JsonArray json_rooms_width = new JsonArray();
+        JsonArray json_rooms_height = new JsonArray();
 
         for(Room room : rooms)
         {
-            json_rooms.add(room.getXML().toString());
+            json_rooms.add(room.matrixToStringFlatten(false));
+            json_rooms_id.add(room.toString());
+            json_rooms_width.add(room.getColCount());
+            json_rooms_height.add(room.getRowCount());
         }
 
         to_send.add("rooms", json_rooms);
+        to_send.add("rooms_id", json_rooms_id);
+        to_send.add("rooms_width", json_rooms_width);
+        to_send.add("rooms_height", json_rooms_height);
+
+//        for(Room room : rooms)
+//        {
+//            json_rooms.add(room.getXML().toString());
+//        }
+//
+//        to_send.add("rooms", json_rooms);
 
 //
 //        for(String room : rooms)
@@ -628,6 +661,11 @@ public class ScikitLearnConnection implements Listener {
 //
 //            System.out.println(Arrays.toString(result));
 //            System.out.println(result_list);
+
+            http.getInputStream().reset();
+            http.getInputStream().close();
+
+
 
             http.disconnect();
 

@@ -3174,6 +3174,44 @@ public class Room {
 		return map.toString();
 	}
 
+	public String matrixToStringFlatten(boolean ignoreSpecials)
+	{
+		StringBuilder map = new StringBuilder();
+
+		for (int j = 0; j < height; j++)
+		{
+			for (int i = 0; i < width; i++)
+			{
+				if(ignoreSpecials && matrix[j][i] > 3)
+				{
+					map.append(Integer.toHexString(0));
+				}
+				else
+				{
+					map.append(Integer.toHexString(matrix[j][i]));
+				}
+
+			}
+		}
+
+		return map.toString();
+	}
+
+	public int[] FlattenMatrix()
+	{
+		int[] flatten_matrix = new int[height * width];
+		int index= 0;
+
+		for (int j = 0; j < height; j++) {
+			for (int i = 0; i < width; i++) {
+
+				flatten_matrix[index++] = matrix[j][i];
+			}
+		}
+
+		return flatten_matrix;
+	}
+
 
 	//This is the one 
 	//I think I could have this static method

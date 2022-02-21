@@ -1135,7 +1135,7 @@ public class MAPEliteAlgorithm extends Algorithm implements Listener {
 	{
 		int a = 0;
 
-		for(int i = 0; i < styles.length; i++)
+		for(int i = 0; i < evaluated_individuals.size(); i++)
 		{
 			evaluated_individuals.get(i).getPhenotype().getMap(
 					roomWidth, roomHeight, roomDoorPositions, roomCustomTiles, roomOwner).room_style.setCurrentStyle(styles[i]);
@@ -1144,11 +1144,11 @@ public class MAPEliteAlgorithm extends Algorithm implements Listener {
 	
 	protected void CheckAndAssignToCell(List<ZoneIndividual> individuals, boolean infeasible)
 	{
-		if(AlgorithmSetup.getInstance().isUsingDesignerPersona())
-		{
-			evaluated_individuals = individuals;
-			RequestStyleEvaluation(individuals);
-		}
+//		if(AlgorithmSetup.getInstance().isUsingDesignerPersona())
+//		{
+//			evaluated_individuals = individuals;
+//			RequestStyleEvaluation(individuals);
+//		}
 
 		 for (ZoneIndividual individual : individuals)
 		{

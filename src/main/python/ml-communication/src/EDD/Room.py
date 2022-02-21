@@ -31,6 +31,9 @@ class Room:
         self.custom_tiles = customs
         self.test_data = []
 
+    def setTilesFromMatrix(self, other_matrix):
+        self.matrix = other_matrix
+
     def setTile(self, x, y, tile):
         self.matrix[y, x] = tile
 
