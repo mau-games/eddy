@@ -2,6 +2,7 @@ package designerModeling.archetypicalPaths;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 
 public class ComplexBalance extends ArchetypicalPath
 {
@@ -114,78 +115,5 @@ public class ComplexBalance extends ArchetypicalPath
         //FIXME½
         return bestPath(resulting_subsets);
 
-    }
-
-    /**
-     * Lets try this first!
-     * @param resulting_subsets
-     * @return
-     */
-    public static SubsetPath bestPath(ArrayList<SubsetPath> resulting_subsets)
-    {
-        float min = -1.0f;
-        SubsetPath final_subset_path = null;
-
-        for(SubsetPath subsetPath : resulting_subsets)
-        {
-            if(subsetPath.path_percentage > min)
-            {
-                min = subsetPath.path_percentage;
-                final_subset_path = subsetPath;
-            }
-        }
-
-        return final_subset_path;
-    }
-
-    public static SubsetPath traverseTreePath(SpecialPath s_path, int index, int counter, SubsetPath subsetPath )
-    {
-        if(index >= subsetPath.path.size())
-            return subsetPath;
-
-        SpecialPath next_step = s_path.traverse(subsetPath.path.get(index));
-        if(next_step != null)
-        {
-            counter++;
-            subsetPath.reached_branch = next_step.branch;
-            subsetPath.setMatchingSteps(counter);
-//            subsetPath.matching_steps = counter;
-
-            subsetPath = traverseTreePath(next_step, ++index, counter, subsetPath);
-        }
-
-//        subsetPath.matching_steps = counter;
-
-        return subsetPath;
-    }
-
-
-    /**
-     * Create subsets of a path divided by different lengths and starting positions
-     * @param other_path
-     * @return
-     */
-    public static ArrayList<SubsetPath> ProduceSubsets(ArrayList<Integer> other_path)
-    {
-        ArrayList<SubsetPath>  resulting_subsets= new ArrayList<SubsetPath> ();
-        int max_length = other_path.size();
-        ArrayList<Integer> subset_path = new ArrayList<Integer>();
-
-        for(int containing = 1; containing < max_length + 1; containing++)
-        {
-            for(int starting_pos = 0; starting_pos < max_length; starting_pos++)
-            {
-                if(starting_pos + containing <= max_length)
-                {
-                    subset_path = new ArrayList<Integer>();
-                    subset_path.addAll(other_path.subList(starting_pos, starting_pos + containing));
-                    resulting_subsets.add(new SubsetPath(starting_pos, containing, max_length, subset_path));
-                }
-
-            }
-
-        }
-
-        return resulting_subsets;
     }
 }

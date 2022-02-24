@@ -1144,11 +1144,11 @@ public class MAPEliteAlgorithm extends Algorithm implements Listener {
 	
 	protected void CheckAndAssignToCell(List<ZoneIndividual> individuals, boolean infeasible)
 	{
-//		if(AlgorithmSetup.getInstance().isUsingDesignerPersona())
-//		{
-//			evaluated_individuals = individuals;
-//			RequestStyleEvaluation(individuals);
-//		}
+		if(AlgorithmSetup.getInstance().isUsingDesignerPersona())
+		{
+			evaluated_individuals = individuals;
+			RequestStyleEvaluation(individuals);
+		}
 
 		 for (ZoneIndividual individual : individuals)
 		{
