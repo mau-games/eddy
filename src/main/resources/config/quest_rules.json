@@ -1,0 +1,72 @@
+{
+  "<QUEST>": [["<knowledge>"],["<comfort>"],["<reputation>"],["<serenity>"],["<protection>"],["<conquest>"],["<wealth>"],["<ability>"],["<equipment>"]],
+  "<knowledge>": [
+    ["<get>","<go_to>","give"],
+    ["<spy>"],
+    ["<go_to>","listen","<go_to>","report"],
+    ["<get>","<go_to>","use","<go_to>","give"]],
+  "<comfort>":[
+    ["<get>","<go_to>","give"],
+    ["<go_to>","damage","<go_to>","report"]],
+  "<reputation>": [
+    ["<get>","<go_to>","give"],
+    ["<go_to>","<kill>","<go_to>","report"],
+    ["<go_to>","<go_to>","report"]],
+  "<serenity>": [
+    ["<go_to>","damage"],
+    ["<get>","<go_to>","use","<go_to>","give"],
+    ["<get>","<go_to>","use","capture","<go_to>","give"],
+    ["<go_to>","listen","<go_to>","report"],
+    ["<go_to>","take","<go_to>","give"],
+    ["<get>","<go_to>","give"],
+    ["<go_to>","damage","escort","<go_to>","report"]],
+  "<protection>": [
+    ["<go_to>","damage","<go_to>","report"],
+    ["<get>","<go_to>","use"],
+    ["<go_to>","repair"],
+    ["<get>","<go_to>","use"],
+    ["<go_to>","damage"],
+    ["<go_to>","repair"],
+    ["<go_to>","defend"]],
+  "<conquest>": [
+    ["<go_to>","damage"],
+    ["<go_to>","<steal>","<go_to>","give"]],
+  "<wealth>": [
+    ["<go_to>","<get>"],
+    ["<go_to>","<steal>"],
+    ["repair"]],
+  "<ability>": [
+    ["repair","use"],
+    ["<get>","use"],
+    ["use"],
+    ["damage"],
+    ["<get>","experiment"]],
+  "<equipment>": [
+    ["repair"],
+    ["<get>","<go_to>","give"],
+    ["<steal>"],
+    ["<go_to>","exchange"]],
+  "<subquest>": [
+    ["<go_to>"],
+    ["<go_to>","<QUEST>","go_to"]],
+  "<go_to>": [
+    ["explore"],
+    ["<learn>","go_to"]],
+  "<learn>": [
+    ["<go_to>","<subquest>","listen"],
+    ["<go_to>","<get>","read"],
+    ["<get>","<subquest>","give","listen"]],
+  "<get>": [
+    ["<steal>"],
+    ["<go_to>","gather"],
+    ["<go_to>","<get>","<go_to>","<subquest>","exchange"]],
+  "<steal>": [
+    ["<go_to>","stealth","take"],
+    ["<go_to>","<kill>","take"]],
+  "<spy>": [
+    ["<go_to>","spy","<go_to>","report"]],
+  "<capture>": [
+    ["<get>","<go_to>","capture"]],
+  "<kill>": [
+    ["<go_to>","kill"]]
+}

@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.Stack;
 import java.util.UUID;
+import java.util.*;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -19,6 +20,8 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
+import game.quest.Quest;
+import game.tiles.*;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
@@ -40,11 +43,11 @@ import generator.config.GeneratorConfig;
 import gui.InteractiveGUIController;
 import gui.utils.InformativePopupManager;
 import gui.utils.InformativePopupManager.PresentableInformation;
-import runners.InteractiveGUI;
 import util.Point;
 import util.eventrouting.EventRouter;
 import util.eventrouting.Listener;
 import util.eventrouting.PCGEvent;
+import util.eventrouting.events.*;
 import util.eventrouting.events.FocusRoom;
 import util.eventrouting.events.RequestConnection;
 import util.eventrouting.events.RequestRoomView;
@@ -58,7 +61,7 @@ import util.eventrouting.events.ToggleObjectives;
  * rooms (including the initial room and the currently selected room) + The
  * Graph Network that holds the internal information of connections between
  * nodes + The HighLevel Path finder (that scans the rooms to be traversed).
- * 
+ *
  * @author Alberto Alvarez, Malmö University
  *
  */
@@ -70,8 +73,9 @@ public class Dungeon implements Listener {
 	public static int ID_COUNTER = 0; // Probably not the best
 	public UUID id;
 	private int saveCounter = 1;
-
-	public MutableNetwork<Room, RoomEdge> network; // TODO: Public for now
+	
+	public MutableNetwork<Room, RoomEdge> network; //TODO: Public for now
+	private Quest quest;
 
 	ArrayList<Room> rooms;
 	Room initialRoom;
@@ -93,6 +97,18 @@ public class Dungeon implements Listener {
 	private ArrayList<BossEnemyTile> bosses;
 
 	// scale factor of the (canvas) view
+	private ArrayList<QuestPositionUpdate> bossesPositions;
+	private ArrayList<QuestPositionUpdate> enemiesPositions;
+	private ArrayList<QuestPositionUpdate> npcsPositions;
+	private ArrayList<QuestPositionUpdate> itemsPositions;
+	private ArrayList<QuestPositionUpdate> treasuresPositions;
+	private ArrayList<QuestPositionUpdate> soldierPositions;
+	private ArrayList<QuestPositionUpdate> magePositions;
+	private ArrayList<QuestPositionUpdate> bountyhunterPositions;
+	private ArrayList<QuestPositionUpdate> civilianPositions;
+
+
+	//scale factor of the (canvas) view
 	private int scaleFactor;
 
 	private boolean logger = true;
@@ -102,6 +118,17 @@ public class Dungeon implements Listener {
 	public Dungeon() {
 		dPane = new DungeonPane(this);
 		pathfinding = new DungeonPathFinder(this);
+		quest = new Quest(this);
+		bosses = new ArrayList<BossEnemyTile>();
+		bossesPositions = new ArrayList<QuestPositionUpdate>();
+		enemiesPositions = new ArrayList<QuestPositionUpdate>();
+		npcsPositions = new ArrayList<QuestPositionUpdate>();
+		itemsPositions = new ArrayList<QuestPositionUpdate>();
+		treasuresPositions = new ArrayList<QuestPositionUpdate>();
+		soldierPositions = new ArrayList<QuestPositionUpdate>();
+		magePositions = new ArrayList<QuestPositionUpdate>();
+		bountyhunterPositions = new ArrayList<QuestPositionUpdate>();
+		civilianPositions = new ArrayList<QuestPositionUpdate>();
 	}
 
 	public Dungeon(GeneratorConfig defaultConfig, int size, int defaultWidth, int defaultHeight) {
@@ -153,6 +180,16 @@ public class Dungeon implements Listener {
 
 		// Initialize neccesary information
 		bosses = new ArrayList<BossEnemyTile>();
+		bossesPositions = new ArrayList<QuestPositionUpdate>();
+		enemiesPositions = new ArrayList<QuestPositionUpdate>();
+		npcsPositions = new ArrayList<QuestPositionUpdate>();
+		itemsPositions = new ArrayList<QuestPositionUpdate>();
+		treasuresPositions = new ArrayList<QuestPositionUpdate>();
+		soldierPositions = new ArrayList<QuestPositionUpdate>();
+		magePositions = new ArrayList<QuestPositionUpdate>();
+		bountyhunterPositions = new ArrayList<QuestPositionUpdate>();
+		civilianPositions = new ArrayList<QuestPositionUpdate>();
+
 
 		dPane = new DungeonPane(this);
 		pathfinding = new DungeonPathFinder(this);
@@ -171,6 +208,10 @@ public class Dungeon implements Listener {
 		this.scaleFactor = defaultScaleFactor;
 
 		// Create rooms
+
+		quest = new Quest(this);
+
+		//Create rooms
 		rooms = new ArrayList<Room>();
 		selectedRoom = null;
 		initialRoom = null;
@@ -186,6 +227,10 @@ public class Dungeon implements Listener {
 		// We set this created room as the initial room
 		if (!rooms.isEmpty())
 			setInitialRoom(rooms.get(0), new Point(0, 0));
+
+		//We set this created room as the initial room
+		setInitialRoom(rooms.get(0), new Point(0,0));
+		EventRouter.getInstance().postEvent(new MapQuestUpdate());
 	}
 
 	@Override
@@ -197,14 +242,14 @@ public class Dungeon implements Listener {
 			}
 		} else if (e instanceof RequestWorldView) {
 			checkInterFeasible(true);
-		} else if (e instanceof ToggleObjectives) { 
+		} else if (e instanceof ToggleObjectives) {
 			calculateDungeonObjectives();
 			for (Room r : dungeonObjectives) {
 				ToggleObjectives toEvent = (ToggleObjectives) e;
 				boolean state = toEvent.getToggleState();
 				r.localConfig.getWorldCanvas().toggleObjectiveCanvas(state);
 			}
-		} 
+		}
 	}
 
 	public void editFocusedRoom() {
@@ -264,12 +309,13 @@ public class Dungeon implements Listener {
 				alreadyCreatedRoom, alreadyCreatedRoom.getColCount(), alreadyCreatedRoom.getRowCount());
 
 		saveDungeonXML();
+		EventRouter.getInstance().postEvent(new MapQuestUpdate());
 	}
 
 	/**
 	 * Remove the selected room from the dungeon +++ Remove the general information
 	 * the dungeon have about the room!
-	 * 
+	 *
 	 * @param roomToRemove
 	 */
 	public void removeRoom(Room roomToRemove) {
@@ -320,7 +366,7 @@ public class Dungeon implements Listener {
 		ActionLogger.getInstance().storeAction(ActionType.REMOVE_ROOM, View.WORLD, TargetPane.WORLD_MAP_PANE, false,
 				roomToRemove);
 		saveDungeonXML();
-
+		EventRouter.getInstance().postEvent(new MapQuestUpdate());
 	}
 
 	public void storeAction(ActionType action, View currentView, TargetPane targetPane, boolean grouped,
@@ -333,7 +379,7 @@ public class Dungeon implements Listener {
 
 	/**
 	 * Remove the selected edge from the dungeon
-	 * 
+	 *
 	 * @param edgeToRemove
 	 */
 	public void removeEdge(RoomEdge edgeToRemove) {
@@ -375,6 +421,7 @@ public class Dungeon implements Listener {
 				false, from, fromPosition, to, toPosition);
 
 		saveDungeonXML();
+
 	}
 
 	public void setInitialRoom(Room initRoom, Point initialPos) {
@@ -422,7 +469,7 @@ public class Dungeon implements Listener {
 
 	/**
 	 * Used to scale the resolution of each individual room canvas
-	 * 
+	 *
 	 * @param value
 	 * @deprecated get access to internal Dungeon pane {@link #dPane} and use
 	 *             {@link #dPane.tryScale(Scale)} instead
@@ -453,16 +500,36 @@ public class Dungeon implements Listener {
 				room.clearPath();
 			}
 
+
+//			pathfinding.printPath();
+			pathfinding.innerCalculation();
+		}
+	}
+
+	public void calculateAndPaintBestPath(Room init, Room end, Point initPos, Point endPos)
+	{
+		if(pathfinding.calculateBestPath(init, end, initPos, endPos, network))
+		{
+			//Clear all the paths in all the rooms
+			for(Room room : rooms)
+			{
+//				room.clearPath();
+				room.paintPath(true);
+			}
+
 //			pathfinding.printPath();
 			pathfinding.innerCalculation();
 		}
 	}
 
 	public void addBoss(BossEnemyTile bossTile) {
+		System.out.println("boss added - old");
 		bosses.add(bossTile);
 	}
 
 	public void removeBoss(BossEnemyTile bossTile) {
+		System.out.println("boss removed - old");
+
 		bosses.remove(bossTile);
 	}
 
@@ -475,36 +542,274 @@ public class Dungeon implements Listener {
 		return bosses;
 	}
 
-	public void calculateDungeonObjectives() 
+	public void addBoss(BossEnemyTile bossTile,Room room)
+	{
+		System.out.println("boss added - new");
+		int centerX = bossTile.GetCenterPosition().getX();
+		int centerY = bossTile.GetCenterPosition().getY();
+		List<finder.geometry.Point> points = new LinkedList<>();
+		points.add(bossTile.GetCenterPosition());
+		points.add(new finder.geometry.Point(centerX+1,centerY+1));
+		points.add(new finder.geometry.Point(centerX,centerY+1));
+		points.add(new finder.geometry.Point(centerX+1,centerY));
+		points.add(new finder.geometry.Point(centerX-1,centerY-1));
+		points.add(new finder.geometry.Point(centerX-1,centerY));
+		points.add(new finder.geometry.Point(centerX,centerY-1));
+		points.add(new finder.geometry.Point(centerX+1,centerY-1));
+		points.add(new finder.geometry.Point(centerX-1,centerY+1));
+		room.bossTiles.AddAllPoints(points);
+		bossesPositions.add(new QuestPositionUpdate(bossTile.GetCenterPosition(), room, false));
+	}
+
+	public void removeBoss(Tile tile, Room room)
+	{
+		System.out.println("boss removed - new");
+		bossesPositions.removeIf(bossEnemyTile -> tile.GetCenterPosition().getY() == tile.GetCenterPosition().getY() &&
+				tile.GetCenterPosition().getX() == tile.GetCenterPosition().getX());
+	}
+
+	public void replaceBoss(BossEnemyTile bossTile, BossEnemyTile prevbossTile, Room room)
+	{
+		removeBoss(prevbossTile,room);
+		addBoss(bossTile,room);
+	}
+
+	public ArrayList<QuestPositionUpdate> getBossesPositions()
+	{
+		return bossesPositions;
+	}
+
+	public void addEnemy(EnemyTile enemyTile, Room room)
+	{
+		room.enemyTiles.addPoint(enemyTile.GetCenterPosition());
+		enemiesPositions.add(new QuestPositionUpdate(enemyTile.GetCenterPosition(),room, false));
+	}
+
+	public void removeEnemy(Tile tile, Room room)
+	{
+		room.enemyTiles.getPoints().removeIf(point -> point.getY() == tile.GetCenterPosition().getY() &&
+				point.getX() == tile.GetCenterPosition().getX());
+		enemiesPositions.removeIf(enemyTiles -> enemyTiles.getPoint().getX() == tile.GetCenterPosition().getX() &&
+				enemyTiles.getPoint().getY() == tile.GetCenterPosition().getY() && enemyTiles.getRoom() == room);
+	}
+
+	public ArrayList<QuestPositionUpdate> getEnemies()
+	{
+		return enemiesPositions;
+	}
+
+	public void addCivilian(CivilianTile civilianTile, Room room)
+	{
+		room.civilianTiles.addPoint(civilianTile.GetCenterPosition());
+		civilianPositions.add(new QuestPositionUpdate(civilianTile.GetCenterPosition(),room, false));
+	}
+
+	public void removeCivilian(Tile tile, Room room)
+	{
+		System.out.println("npc removed");
+		room.civilianTiles.getPoints().removeIf(point -> point.getY() == tile.GetCenterPosition().getY() &&
+				point.getX() == tile.GetCenterPosition().getX());
+		civilianPositions.removeIf(npctile -> npctile.getPoint().getX() == tile.GetCenterPosition().getX() &&
+				npctile.getPoint().getY() == tile.GetCenterPosition().getY());
+	}
+
+	public void removeCivilians(finder.geometry.Point tempPoint, Room room)
+	{
+		System.out.println("npc removed");
+		room.civilianTiles.getPoints().removeIf(point -> point.getY() != tempPoint.getY() ||
+				point.getX() != tempPoint.getX());
+		civilianPositions.removeIf(civilianTile -> civilianTile.getPoint().getX() != tempPoint.getX() ||
+				civilianTile.getPoint().getY() != tempPoint.getY() && civilianTile.getRoom() == room);
+	}
+
+	public ArrayList<QuestPositionUpdate> getCivilians()
+	{
+		return civilianPositions;
+	}
+
+	public void addBountyhunter(BountyhunterTile bountyhunterTile, Room room)
+	{
+		room.bountyhunterTiles.addPoint(bountyhunterTile.GetCenterPosition());
+		bountyhunterPositions.add(new QuestPositionUpdate(bountyhunterTile.GetCenterPosition(),room, false));
+	}
+
+	public void removeBountyhunter(Tile tile, Room room)
+	{
+		System.out.println("npc removed");
+		room.bountyhunterTiles.getPoints().removeIf(point -> point.getY() == tile.GetCenterPosition().getY() &&
+				point.getX() == tile.GetCenterPosition().getX());
+		bountyhunterPositions.removeIf(npctile -> npctile.getPoint().getX() == tile.GetCenterPosition().getX() &&
+				npctile.getPoint().getY() == tile.GetCenterPosition().getY());
+	}
+
+	public void removeBountyHunters(finder.geometry.Point tempPoint, Room room)
+	{
+		System.out.println("npc removed");
+		room.bountyhunterTiles.getPoints().removeIf(point -> point.getY() != tempPoint.getY() ||
+				point.getX() != tempPoint.getX());
+		bountyhunterPositions.removeIf(bountyhunterTile -> bountyhunterTile.getPoint().getX() != tempPoint.getX() ||
+				bountyhunterTile.getPoint().getY() != tempPoint.getY() && bountyhunterTile.getRoom() == room);
+	}
+
+	public ArrayList<QuestPositionUpdate> getBountyHunters()
+	{
+		return bountyhunterPositions;
+	}
+
+	public void addMage(MageTile mageTile, Room room)
+	{
+		room.mageTiles.addPoint(mageTile.GetCenterPosition());
+		magePositions.add(new QuestPositionUpdate(mageTile.GetCenterPosition(),room, false));
+	}
+
+	public void removeMage(Tile tile, Room room)
+	{
+		System.out.println("npc removed");
+		room.mageTiles.getPoints().removeIf(point -> point.getY() == tile.GetCenterPosition().getY() &&
+				point.getX() == tile.GetCenterPosition().getX());
+		magePositions.removeIf(npctile -> npctile.getPoint().getX() == tile.GetCenterPosition().getX() &&
+				npctile.getPoint().getY() == tile.GetCenterPosition().getY());
+	}
+
+	public void removeMages(finder.geometry.Point tempPoint, Room room)
+	{
+		System.out.println("npc removed");
+		room.mageTiles.getPoints().removeIf(point -> point.getY() != tempPoint.getY() ||
+				point.getX() != tempPoint.getX());
+		magePositions.removeIf(mageTile -> mageTile.getPoint().getX() != tempPoint.getX() ||
+				mageTile.getPoint().getY() != tempPoint.getY() && mageTile.getRoom() == room);
+	}
+
+	public ArrayList<QuestPositionUpdate> getMages()
+	{
+		return magePositions;
+	}
+
+	public void addSoldier(SoldierTile soldierTile, Room room)
+	{
+		room.soldierTiles.addPoint(soldierTile.GetCenterPosition());
+		soldierPositions.add(new QuestPositionUpdate(soldierTile.GetCenterPosition(),room, false));
+	}
+
+	public void removeSoldier(Tile tile, Room room)
+	{
+		System.out.println("npc removed");
+		room.soldierTiles.getPoints().removeIf(point -> point.getY() == tile.GetCenterPosition().getY() &&
+				point.getX() == tile.GetCenterPosition().getX());
+		soldierPositions.removeIf(npctile -> npctile.getPoint().getX() == tile.GetCenterPosition().getX() &&
+				npctile.getPoint().getY() == tile.GetCenterPosition().getY());
+	}
+
+	public void removeSoldiers(finder.geometry.Point tempPoint, Room room)
+	{
+		System.out.println("npc removed");
+		room.soldierTiles.getPoints().removeIf(point -> point.getY() != tempPoint.getY() ||
+				point.getX() != tempPoint.getX());
+		soldierPositions.removeIf(soldierTile -> soldierTile.getPoint().getX() != tempPoint.getX() ||
+				soldierTile.getPoint().getY() != tempPoint.getY() && soldierTile.getRoom() == room);
+	}
+
+	public ArrayList<QuestPositionUpdate> getSoldiers()
+	{
+		return soldierPositions;
+	}
+
+	public void addNpc(NpcTile npcTile, Room room)
+	{
+		room.npcTiles.addPoint(npcTile.GetCenterPosition());
+		npcsPositions.add(new QuestPositionUpdate(npcTile.GetCenterPosition(),room, false));
+	}
+
+	public void removeNpc(Tile tile, Room room)
+	{
+		System.out.println("npc removed");
+		room.npcTiles.getPoints().removeIf(point -> point.getY() == tile.GetCenterPosition().getY() &&
+				point.getX() == tile.GetCenterPosition().getX());
+		npcsPositions.removeIf(npctile -> npctile.getPoint().getX() == tile.GetCenterPosition().getX() &&
+				npctile.getPoint().getY() == tile.GetCenterPosition().getY() && npctile.getRoom() == room);
+	}
+
+	public ArrayList<QuestPositionUpdate> getNpcs()
+	{
+		return npcsPositions;
+	}
+
+	public void addItem(ItemTile itemTile, Room room)
+	{
+		System.out.println("item added");
+		room.itemTiles.addPoint(itemTile.GetCenterPosition());
+		itemsPositions.add(new QuestPositionUpdate(itemTile.GetCenterPosition(),room,false));
+	}
+
+	public void removeItem(Tile tile, Room room)
+	{
+		room.itemTiles.getPoints().removeIf(point -> point.getY() == tile.GetCenterPosition().getY() &&
+				point.getX() == tile.GetCenterPosition().getX());
+		itemsPositions.removeIf(itemTile -> itemTile.getPoint().getX() == tile.GetCenterPosition().getX() &&
+				itemTile.getPoint().getY() == tile.GetCenterPosition().getY() && itemTile.getRoom() == room);
+	}
+
+	public ArrayList<QuestPositionUpdate> getItems() {
+		return itemsPositions;
+	}
+
+	public void addTreasure(TreasureTile treasureTile, Room room)
+	{
+		System.out.println("treasure added");
+		room.treasureTiles.addPoint(treasureTile.GetCenterPosition());
+		treasuresPositions.add(new QuestPositionUpdate(treasureTile.GetCenterPosition(), room, false));
+	}
+
+	public void removeTreasure(Tile tile, Room room)
+	{
+		room.treasureTiles.getPoints().removeIf(point -> point.getY() == tile.GetCenterPosition().getY() &&
+				point.getX() == tile.GetCenterPosition().getX());
+		treasuresPositions.removeIf(treasureTile -> treasureTile.getPoint().getX() == tile.GetCenterPosition().getX() &&
+				treasureTile.getPoint().getY() == tile.GetCenterPosition().getY() && treasureTile.getRoom() == room);
+	}
+
+	public ArrayList<QuestPositionUpdate> getTreasures() {
+		return treasuresPositions;
+	}
+
+	public int getAllNpcs()
+	{
+		int exactNumberOfNpcs;
+		exactNumberOfNpcs = getSoldiers().size() + getMages().size() + getBountyHunters().size() + getCivilians().size();
+		return exactNumberOfNpcs;
+	}
+
+	///////////////////////// TODO: TESTING TRAVERSAL AND RETRIEVAL OF ALL THE PATHS FROM A ROOM TO ANOTHER ROOM ///////////////////////////
+
+	public void calculateDungeonObjectives()
 	{
 		int amountOfObjectives = 0;
 		//boolean hasDeadEnds = true;
-
-		for (Room r : rooms) 
+		for (Room r : rooms)
 		{
-			if (r.getDoorCount() == 1 && r != initialRoom) 
+			if (r.getDoorCount() == 1 && r != initialRoom)
 			{
 				amountOfObjectives += 1;
 			}
 		}
-		
+
 		int tempAmount = rooms.size() - amountOfObjectives;
-		
-		if (tempAmount >= 4) 
+
+		if (tempAmount >= 4)
 		{
 			amountOfObjectives += tempAmount / 4;
 		}
 
 		dungeonObjectives = new ArrayList<Room>();
 
-		for (Room r : rooms) 
+		for (Room r : rooms)
 		{
 			r.setHasMainObjective(false);
 			r.SetRoomObjective();
-			
+
 			if (r.getRoomObjective() != null)
 			{
-				for (int i = 0; i < amountOfObjectives; i++) 
+				for (int i = 0; i < amountOfObjectives; i++)
 				{
 					if (i >= dungeonObjectives.size() || r.getDoorCount() < dungeonObjectives.get(i).getDoorCount())
 					{
@@ -513,7 +818,7 @@ public class Dungeon implements Listener {
 					}
 					else if (r.getDoorCount() == dungeonObjectives.get(i).getDoorCount())
 					{
-						if (calculateObjectiveQuality(r) > calculateObjectiveQuality(dungeonObjectives.get(i))) 
+						if (calculateObjectiveQuality(r) > calculateObjectiveQuality(dungeonObjectives.get(i)))
 						{
 							dungeonObjectives.add(i, r);
 							break;
@@ -521,13 +826,13 @@ public class Dungeon implements Listener {
 					}
 				}
 
-				if (dungeonObjectives.size() > amountOfObjectives) 
+				if (dungeonObjectives.size() > amountOfObjectives)
 				{
 					dungeonObjectives.remove(amountOfObjectives);
 				}
 			}
 		}
-		
+
 		if (dungeonObjectives.size() > 0)
 			dungeonObjectives.get(0).setHasMainObjective(true);
 	}
@@ -537,19 +842,19 @@ public class Dungeon implements Listener {
 		double shortestPath = 0;
 		double finalQuality;
 		List<Point> doorList = room.getDoors();
-		
+
 		for (Point p : doorList)
 		{
 			pathfinding.calculateBestPath(initialRoom, room, initialPos, p, network);
-			
+
 			if (shortestPath == 0 || pathfinding.path.size() < shortestPath)
 			{
 				shortestPath = pathfinding.path.size();
 			}
 		}
-		
+
 		finalQuality = shortestPath - room.getRoomObjective().getQuality();
-		
+
 		return finalQuality;
 	}
 
@@ -572,7 +877,9 @@ public class Dungeon implements Listener {
 		}
 	}
 
-	public boolean traverseTillDoor(Room end, Point endPos) {
+	//TODO: use or tweak for togglePath
+	public boolean traverseTillDoor(Room end, Point endPos)
+	{
 		return pathfinding.calculateBestPath(initialRoom, end, initialPos, endPos, network);
 	}
 
@@ -722,6 +1029,10 @@ public class Dungeon implements Listener {
 		}
 	}
 
-///////////////////////// TESTING TRAVERSAL AND RETRIEVAL OF ALL THE PATHS FROM A ROOM TO ANOTHER ROOM ///////////////////////////	
+	public Quest getQuest() {
+		return quest;
+	}
+
+	///////////////////////// TESTING TRAVERSAL AND RETRIEVAL OF ALL THE PATHS FROM A ROOM TO ANOTHER ROOM ///////////////////////////
 
 }

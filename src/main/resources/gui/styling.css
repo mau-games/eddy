@@ -21,7 +21,8 @@
 		-fx-background-color: #2c2f33;
 }
 
-#suggestionsPane, #suggestionsPane . viewport, #MAPElitesPane, #MAPElitesPane . viewport{
+#suggestionsPane, #suggestionsPane .viewport, #MAPElitesPane, #MAPElitesPane .viewport, #mapScrollPane, #mapScrollPane .viewport,
+#questScrollPane, #questScrollPane .viewport{
 	-fx-background-color: transparent;
 }
 
@@ -237,4 +238,3 @@
 		-fx-text-fill: white;
 		 -fx-font-size:16px;  
 }
-

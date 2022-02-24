@@ -18,7 +18,9 @@ public class DungeonDrawer
 		ROOM_CONNECTOR,
 		PATH_FINDING,
 		INITIAL_ROOM,
-		END_ROOM
+		END_ROOM,
+		QUEST_POS,
+		NONE
 	}
 	
 	public DungeonBrushes dungeonBrush;
@@ -101,6 +103,11 @@ public class DungeonDrawer
 			case END_ROOM:
 				brush = new SetImportantRoom(new EndRoom(null, null));
 				break;
+			case QUEST_POS:
+				brush = new QuestPositionBrush();
+				break;
+			case NONE:
+				brush = null;
 		}
 	}
 }

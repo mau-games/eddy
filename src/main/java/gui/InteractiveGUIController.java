@@ -15,10 +15,6 @@ import javax.imageio.ImageIO;
 
 import collectors.ActionLogger;
 import collectors.DataSaverLoader;
-import collectors.ActionLogger.ActionType;
-import collectors.ActionLogger.TargetPane;
-import collectors.ActionLogger.View;
-import finder.PatternFinder;
 import game.ApplicationConfig;
 import game.Dungeon;
 import game.Game;
@@ -31,13 +27,14 @@ import game.narrative.GrammarNode;
 import game.narrative.NarrativeShapeEdge;
 import game.narrative.TVTropeType;
 import generator.config.GeneratorConfig;
+import gui.utils.DungeonDrawer;
 import gui.utils.InformativePopupManager;
 import gui.utils.MapRenderer;
 import gui.utils.narrativeeditor.NarrativeStructDrawer;
 import gui.views.*;
+import gui.views.*;
 import javafx.application.Platform;
 import javafx.embed.swing.SwingFXUtils;
-import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -45,19 +42,14 @@ import javafx.geometry.Bounds;
 import javafx.geometry.Point2D;
 import javafx.scene.ImageCursor;
 import javafx.scene.Node;
-import javafx.scene.control.Button;
-import javafx.scene.control.MenuButton;
 //import javafx.scene.control.Alert;
 //import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.MenuItem;
-import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.stage.FileChooser;
 import javafx.stage.FileChooser.ExtensionFilter;
 import javafx.stage.Stage;
-import util.Point;
 import util.config.MissingConfigurationException;
 import util.eventrouting.EventRouter;
 import util.eventrouting.Listener;
@@ -92,6 +84,7 @@ public class InteractiveGUIController implements Initializable, Listener {
 
 	WorldViewController worldView = null;
 	LaunchViewController launchView = null;
+	QuestViewController questView = null; 	//feature-quest
 	NarrativeStructureViewController narrativeView = null;
 	EventHandler<MouseEvent> mouseEventHandler = null;
 
@@ -118,7 +111,7 @@ public class InteractiveGUIController implements Initializable, Listener {
 	private Dungeon dungeonMap = new Dungeon();
 
 	private GrammarGraph graph;
-	
+
 	public static UUID runID;
 	
 
@@ -155,6 +148,7 @@ public class InteractiveGUIController implements Initializable, Listener {
 		router.registerListener(this, new NarrativeSuggestionApplied(null));
 		router.registerListener(this, new RequestReplacementGrammarStructureNode(null, null));
 
+		router.registerListener(this, new RequestQuestView());	//feature-quest
 
 		suggestionsView = new SuggestionsViewController();
 //		roomView = new RoomViewController();
@@ -163,6 +157,7 @@ public class InteractiveGUIController implements Initializable, Listener {
 		launchView = new LaunchViewController();
 		narrativeView = new NarrativeStructureViewController();
 		initializeGraphGrammar();
+		questView = new QuestViewController();
 
 		mainPane.sceneProperty().addListener((observableScene, oldScene, newScene) -> {
 			if (newScene != null) {
@@ -292,7 +287,9 @@ public class InteractiveGUIController implements Initializable, Listener {
 	{
 		if(e instanceof ChangeCursor)
 		{
-			mainPane.getScene().setCursor(new ImageCursor(((ChangeCursor)e).getCursorImage()));
+			if (mainPane != null) {
+				mainPane.getScene().setCursor(new ImageCursor(((ChangeCursor)e).getCursorImage()));
+			}
 		}
 		else if(e instanceof InitialRoom)
 		{
@@ -342,6 +339,7 @@ public class InteractiveGUIController implements Initializable, Listener {
 
 		} else if (e instanceof RequestWorldView) {
 //			router.postEvent(new Stop());
+//			DungeonDrawer.getInstance().changeBrushTo(DungeonDrawer.DungeonBrushes.MOVEMENT);
 			backToWorldView();
 
 		} else if (e instanceof RequestEmptyRoom) {
@@ -356,6 +354,9 @@ public class InteractiveGUIController implements Initializable, Listener {
 			if (size != 0) {
 				initWorldView();
 				worldView.initialSetup();
+				//TODO:Check this
+				dungeonMap.getAllRooms().forEach(Room::isIntraFeasible);
+				DungeonDrawer.getInstance().changeBrushTo(DungeonDrawer.DungeonBrushes.MOVEMENT);
 			}
 
 		}
@@ -454,6 +455,10 @@ public class InteractiveGUIController implements Initializable, Listener {
 			if(graph.fullyConnectedGraph() == 0)
 				router.postEvent(new NarrativeStructEdited(graph, false));
 		}
+		else if(e instanceof RequestQuestView)
+		{
+			showQuestView();
+		}
 	}
 
 	/*
@@ -470,6 +475,7 @@ public class InteractiveGUIController implements Initializable, Listener {
 		roomView = new RoomViewController();
 		worldView = new WorldViewController();
 		launchView = new LaunchViewController();
+		questView = new QuestViewController();
 		dungeonMap = null;
 		
 		runID = UUID.randomUUID();
@@ -663,7 +669,6 @@ public class InteractiveGUIController implements Initializable, Listener {
 		narrativeView.setActive(false);
 
 	}
-
 	/**
 	 * Initialises the world view.
 	 */
@@ -709,6 +714,7 @@ public class InteractiveGUIController implements Initializable, Listener {
 		worldView.setActive(true);
 		launchView.setActive(false);
 		narrativeView.setActive(false);
+		questView.setActive(false);
 
 	}
 
@@ -752,6 +758,23 @@ public class InteractiveGUIController implements Initializable, Listener {
 
 	}
 
+	private void showQuestView(){
+		mainPane.getChildren().clear();
+		AnchorPane.setTopAnchor(questView, 0.0);
+		AnchorPane.setRightAnchor(questView, 0.0);
+		AnchorPane.setBottomAnchor(questView, 0.0);
+		AnchorPane.setLeftAnchor(questView, 0.0);
+		mainPane.getChildren().add(questView);
+
+		questView.initWorldMap(dungeonMap);
+
+		suggestionsView.setActive(false);
+		roomView.setActive(false);
+		worldView.setActive(false);
+		launchView.setActive(false);
+		questView.setActive(true);
+	}
+
 	/*
 	 * Mouse methods for controllers
 	 */
@@ -770,7 +793,7 @@ public class InteractiveGUIController implements Initializable, Listener {
 		}
 		
 		dungeonMap = new Dungeon(gc, 2, width, height);
-		
+
 		return dungeonMap;
 	}
 

@@ -2,6 +2,15 @@ package gui.utils;
 
 import java.io.File;
 import java.util.*;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Dictionary;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Queue;
+import java.util.UUID;
 import java.util.Map.Entry;
 import java.util.stream.Collectors;
 
@@ -77,7 +86,7 @@ public class MapRenderer implements Listener {
 
 	private ArrayList<Image> tiles = new ArrayList<Image>();
 	private double patternOpacity = 0;
-	private int nbrOfTiles = 7;
+	private int nbrOfTiles = 11;
 	
 	private int finalMapWidth;
 	private int finalMapHeight;
@@ -95,7 +104,9 @@ public class MapRenderer implements Listener {
 
 		finalMapHeight = config.getMapRenderHeight();
 		finalMapWidth = config.getMapRenderWidth();
-		
+		//TODO: Check this!
+		nbrOfTiles = TileTypes.values().length;
+
 		// Set up the tile image list
 		for (int i = 0; i < nbrOfTiles; i++) {
 			tiles.add(i, null);
@@ -590,7 +601,26 @@ public class MapRenderer implements Listener {
 		}
 
 	}
-	
+
+	public synchronized void drawEligibleTiles(GraphicsContext ctx,
+											   int[][] matrix,
+											   Bitmap borders,
+											   Point brushPosition,
+											   Color c) {
+
+		//TODO: The following calculation should probably be split out into a method ... should just send the width and the height instead
+		int width = matrix[0].length;
+		int height = matrix.length;
+		patternOpacity = config.getPatternOpacity();
+
+		double tileSize = width >= height ? ctx.getCanvas().getWidth() / width : ctx.getCanvas().getHeight() / height;
+
+		drawBitmapProperly(ctx, borders, c, tileSize);
+		if (borders.contains(brushPosition)) {
+			drawPoint(ctx, brushPosition, Color.WHITESMOKE, tileSize);
+		}
+	}
+
 	/**
 	 * Draws the border of a room.
 	 * 
@@ -775,11 +805,11 @@ public class MapRenderer implements Listener {
 		Image image = getMesoPatternImage(objective);
 		float scale = 0.25f;
 		Point offset = new Point((int)(image.getWidth() / 2 * scale), (int)(image.getHeight() / 2 * scale));
-		
+
 		drawArbitraryRectangle(ctx, center, width, height, color);
 		ctx.drawImage(image, center.getX() - offset.getX(), center.getY() - offset.getY(), image.getWidth() * scale, image.getHeight() * scale);
 	}
-	
+
 	private Point getPatternCentre(SpacialPattern p, double pWidth){
 		Point sum = ((Bitmap)p.getGeometry()).getPoints().stream().reduce(new Point(),(Point result, Point point)->{result.setX(result.getX()+point.getX()); result.setY(result.getY()+point.getY());return result;});
 		double x = (double)sum.getX()/((Bitmap)p.getGeometry()).getNumberOfPoints();
@@ -892,6 +922,24 @@ public class MapRenderer implements Listener {
 		case HERO:
 			image = new Image("/" + config.getInternalConfig().getString("map.tiles.hero"), width, height, false, true);
 			break;
+		case NPC:
+			image = new Image("/" + config.getInternalConfig().getString("map.tiles.npc"), width, height, false, true);
+			break;
+		case ITEM:
+			image = new Image("/" + config.getInternalConfig().getString("map.tiles.item"), width, height, false, true);
+			break;
+        case SOLDIER:
+			image = new Image("/" + config.getInternalConfig().getString("map.tiles.knight"), width, height, false, true);
+			break;
+        case MAGE:
+			image = new Image("/" + config.getInternalConfig().getString("map.tiles.wizard"), width, height, false, true);
+			break;
+        case BOUNTYHUNTER:
+			image = new Image("/" + config.getInternalConfig().getString("map.tiles.bountyhunter"), width, height, false, true);
+			break;
+        case CIVILIAN:
+			image = new Image("/" + config.getInternalConfig().getString("map.tiles.merchant"), width, height, false, true);
+			break;
 //		case DOORENTER:
 //			image = new Image("/" + config.getInternalConfig().getString("map.tiles.doorenter"), width, height, false, true);
 //			break;
@@ -934,6 +982,25 @@ public class MapRenderer implements Listener {
 			case HERO:
 				image = new Image("/" + config.getInternalConfig().getString("map.tiles.hero"));
 				break;
+			case NPC:
+				image = new Image("/" + config.getInternalConfig().getString("map.tiles.npc"));
+				break;
+			case ITEM:
+				image = new Image("/" + config.getInternalConfig().getString("map.tiles.item"));
+				break;
+			case SOLDIER:
+				image = new Image("/" + config.getInternalConfig().getString("map.tiles.knight"));
+				break;
+			case MAGE:
+				image = new Image("/" + config.getInternalConfig().getString("map.tiles.wizard"));
+				break;
+			case BOUNTYHUNTER:
+				image = new Image("/" + config.getInternalConfig().getString("map.tiles.bountyhunter"));
+				break;
+			case CIVILIAN:
+				image = new Image("/" + config.getInternalConfig().getString("map.tiles.merchant"));
+				break;
+			//TODO: add new tiles
 //			case DOORENTER:
 //				image = new Image("/" + config.getInternalConfig().getString("map.tiles.doorenter"));
 //				break;

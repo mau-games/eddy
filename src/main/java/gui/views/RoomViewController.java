@@ -6,14 +6,19 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 import java.util.Map.Entry;
+import java.util.Random;
 
 import game.*;
 import gui.controls.*;
+import game.tiles.*;
 import org.apache.commons.io.FileUtils;
+
+import com.sun.org.glassfish.external.statistics.impl.BoundaryStatisticImpl;
 
 import collectors.ActionLogger;
 import collectors.ActionLogger.ActionType;
@@ -28,11 +33,27 @@ import game.tiles.EnemyTile;
 import game.tiles.FloorTile;
 import game.tiles.TreasureTile;
 import game.tiles.WallTile;
+import game.ApplicationConfig;
+import game.Room;
+import game.Tile;
+import game.MapContainer;
+import game.TileTypes;
 import generator.algorithm.Algorithm.AlgorithmTypes;
 import generator.algorithm.MAPElites.Dimensions.GADimension.DimensionTypes;
+import generator.algorithm.grammar.QuestGrammar.QuestMotives;
 import generator.algorithm.MAPElites.GACell;
 import generator.algorithm.MAPElites.Dimensions.MAPEDimensionFXML;
 import game.Game.MapMutationType;
+import game.Game.PossibleGAs;
+import gui.controls.Brush;
+import gui.controls.DimensionsTable;
+import gui.controls.Drawer;
+import gui.controls.InteractiveMap;
+import gui.controls.LabeledCanvas;
+import gui.controls.MAPEVisualizationPane;
+import gui.controls.Modifier;
+import gui.controls.Popup;
+import gui.controls.SuggestionRoom;
 import gui.utils.InformativePopupManager;
 import gui.utils.InformativePopupManager.PresentableInformation;
 import gui.utils.MapRenderer;
@@ -58,7 +79,9 @@ import javafx.scene.Group;
 import javafx.scene.Node;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
+import javafx.scene.control.ButtonType;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
@@ -72,6 +95,7 @@ import javafx.scene.control.TableRow;
 import javafx.scene.control.TableView;
 import javafx.scene.control.ToggleButton;
 import javafx.scene.control.ToggleGroup;
+import javafx.scene.control.ToolBar;
 import javafx.scene.control.Tooltip;
 import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.scene.image.Image;
@@ -98,6 +122,7 @@ import javafx.scene.control.ScrollPane;
 import javafx.scene.control.ScrollPane.ScrollBarPolicy;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
+import javafx.scene.text.Text;
 import javafx.util.Callback;
 import javafx.util.converter.DoubleStringConverter;
 import javafx.util.converter.IntegerStringConverter;
@@ -111,6 +136,24 @@ import util.eventrouting.events.intraview.EditedRoomToggleLocks;
 import util.eventrouting.events.intraview.EditedRoomTogglePatterns;
 import util.eventrouting.events.intraview.InteractiveRoomBrushUpdated;
 import util.eventrouting.events.intraview.UserEditedRoom;
+import util.eventrouting.events.ApplySuggestion;
+import util.eventrouting.events.MAPEGridUpdate;
+import util.eventrouting.events.MAPElitesDone;
+import util.eventrouting.events.MapQuestUpdate;
+import util.eventrouting.events.MapUpdate;
+import util.eventrouting.events.RequestAppliedMap;
+import util.eventrouting.events.RequestRoomView;
+import util.eventrouting.events.RequestWorldView;
+import util.eventrouting.events.SaveCurrentGeneration;
+import util.eventrouting.events.SaveDisplayedCells;
+import util.eventrouting.events.StartGA_MAPE;
+import util.eventrouting.events.StartMapMutate;
+import util.eventrouting.events.Stop;
+import util.eventrouting.events.SuggestedMapSelected;
+import util.eventrouting.events.SuggestedMapsDone;
+import util.eventrouting.events.SuggestedMapsLoading;
+import util.eventrouting.events.UpdateMiniMap;
+import game.DungeonPane;
 
 /**
  * This class controls the interactive application's edit view.
@@ -155,7 +198,14 @@ public class RoomViewController extends BorderPane implements Listener
 	@FXML private ToggleButton treasureBtn;
 	@FXML private ToggleButton enemyBtn;
 	@FXML private ToggleButton bossEnemyBtn;
-	
+
+	//From questgram
+	@FXML private FlowPane npcChoice;
+	@FXML private Button SoldierChoice;
+	@FXML private Button MageChoice;
+	@FXML private Button BountyHunterChoice;
+	@FXML private Button CivilianChoice;
+
 	//Brush Slider
 	@FXML private Slider brushSlider;
 	
@@ -191,7 +241,11 @@ public class RoomViewController extends BorderPane implements Listener
 	private Canvas brushCanvas;
 	private Canvas tileCanvas;
 
+	Text recommendedText;
+	private List<NpcTile> npcTileList;
+
 	private MapContainer map;
+	private float[] perfectMotiveBalance;
 
 	private boolean isActive = false; //for having the same event listener in different views 
 	private boolean isFeasible = true; //How feasible the individual is
@@ -210,7 +264,8 @@ public class RoomViewController extends BorderPane implements Listener
 
 	private int RequestCounter = 0;
 	public Drawer myBrush;
-	
+	private Tile lastNpcTile;
+
 	int mapWidth;
 	int mapHeight;
 	private int suggestionAmount = 101; //TODO: Probably this value should be from the application config!!
@@ -339,7 +394,22 @@ public class RoomViewController extends BorderPane implements Listener
 		mapHeight = 420;
 //		initMapView();
 		initLegend();
+		initNpcPane();
 
+	}
+
+	private void initNpcPane()
+	{
+		recommendedText = new Text();
+		recommendedText.setFont(Font.font(12));
+		recommendedText.setFill(Color.WHITE);
+		npcTileList = new ArrayList<NpcTile>();
+		perfectMotiveBalance = new float[9];
+		SetPerfectMotiveBalance();
+		int temp = DecideRecommended();
+		RecommendNpc(temp);
+		npcChoice.getChildren().add(recommendedText);
+		NpcChoice();
 	}
 	
 	private void ProduceVerticalLabel()
@@ -765,6 +835,12 @@ public class RoomViewController extends BorderPane implements Listener
 				break;		
 			case "BOSS":
 				myBrush.SetMainComponent(new BossEnemyTile());
+				break;
+			case "NPC":
+				myBrush.SetMainComponent(new NpcTile());
+				break;
+			case "Item":
+				myBrush.SetMainComponent(new ItemTile());
 				break;
 			}
 			router.postEvent(new InteractiveRoomBrushUpdated(myBrush, Cursor.HAND));
@@ -1400,6 +1476,26 @@ public class RoomViewController extends BorderPane implements Listener
 
 	}
 
+	/**
+	 * Change on ON CLICK FOR QUEST GRAM!!!
+	 */
+//	if (myBrush.GetMainComponent() == TileTypes.NPC) {
+//	npcChoice.getChildren().stream().forEach(node -> {
+//		node.setDisable(false);
+//		InformativePopupManager.getInstance().requestPopup(mapView, PresentableInformation.CHOOSE_NPC, "");
+//
+//	});
+//	lastNpcTile = mapView.GetLastTile();
+//}
+//				else {
+//	npcChoice.getChildren().stream().forEach(node -> {
+//		node.setDisable(true);
+//
+//	});
+//}
+//
+//	updateRoom(mapView.getMap());
+
 	public void someRoomHovered(Room room)
 	{
 
@@ -1407,6 +1503,355 @@ public class RoomViewController extends BorderPane implements Listener
 
 	public void someRoomEdited(Room room)
 	{
+
+	}
+
+	private void NpcChoice()
+	{
+		npcChoice.getChildren().stream().forEach(node -> {
+			node.addEventHandler(MouseEvent.MOUSE_CLICKED, event -> {
+				switch (((Button)event.getSource()).getId()) {
+					case "SoldierChoice":
+						if (lastNpcTile.GetType() == TileTypes.NPC) {
+							SoldierTile temp = new SoldierTile(lastNpcTile.GetCenterPosition(), TileTypes.SOLDIER);
+							temp.SetType(TileTypes.SOLDIER);
+							EventRouter.getInstance().postEvent(new MapQuestUpdate(lastNpcTile, temp, mapView.getMap()));
+							mapView.getMap().setTile(lastNpcTile.GetCenterPosition().getX(),lastNpcTile.GetCenterPosition().getY(), temp);
+							npcTileList.add(temp);
+						}
+						break;
+					case "MageChoice":
+						if (lastNpcTile.GetType() == TileTypes.NPC) {
+							MageTile temp = new MageTile(lastNpcTile.GetCenterPosition(), TileTypes.MAGE);
+							temp.SetType(TileTypes.MAGE);
+							EventRouter.getInstance().postEvent(new MapQuestUpdate(lastNpcTile, temp, mapView.getMap()));
+							mapView.getMap().setTile(lastNpcTile.GetCenterPosition().getX(),lastNpcTile.GetCenterPosition().getY(), temp);
+							npcTileList.add(temp);
+						}
+						break;
+					case "BountyhunterChoice":
+						if (lastNpcTile.GetType() == TileTypes.NPC) {
+							BountyhunterTile temp = new BountyhunterTile(lastNpcTile.GetCenterPosition(), TileTypes.BOUNTYHUNTER);
+							temp.SetType(TileTypes.BOUNTYHUNTER);
+							EventRouter.getInstance().postEvent(new MapQuestUpdate(lastNpcTile, temp, mapView.getMap()));
+							mapView.getMap().setTile(lastNpcTile.GetCenterPosition().getX(),lastNpcTile.GetCenterPosition().getY(), temp);
+							npcTileList.add(temp);
+						}
+						break;
+					case "CivilianChoice":
+						if (lastNpcTile.GetType() == TileTypes.NPC) {
+							CivilianTile temp = new CivilianTile(lastNpcTile.GetCenterPosition(), TileTypes.CIVILIAN);
+							temp.SetType(TileTypes.CIVILIAN);
+							EventRouter.getInstance().postEvent(new MapQuestUpdate(lastNpcTile, temp, mapView.getMap()));
+							mapView.getMap().setTile(lastNpcTile.GetCenterPosition().getX(),lastNpcTile.GetCenterPosition().getY(), temp);
+							npcTileList.add(temp);
+						}
+						break;
+					default :
+						break;
+				}
+				InformativePopupManager.getInstance().requestPopup(mapView, PresentableInformation.NPCS_NEED_ITEM, "");
+				int temp = DecideRecommended();
+				RecommendNpc(temp);
+				System.out.println(((Button)event.getSource()).getId());
+				System.out.println(mapView.getMap().getTile(lastNpcTile.GetCenterPosition().getX(),lastNpcTile.GetCenterPosition().getY()).GetType());
+				updateRoom(mapView.getMap()); //TODO: Added so the room will redraw
+				npcChoice.getChildren().stream().forEach(node1 -> {
+					node1.setDisable(true);
+
+				});
+			});
+		});
+	}
+
+	private int DecideRecommended()
+	{
+		float[] motiveArray = new float[9];
+		for (int i = 0; i < npcTileList.size(); i++) {
+			if (npcTileList.get(i).CheckMotives(QuestMotives.KNOWLEDGE)) {
+				motiveArray[0]++;
+			} if (npcTileList.get(i).CheckMotives(QuestMotives.COMFORT)) {
+				motiveArray[1]++;
+			} if (npcTileList.get(i).CheckMotives(QuestMotives.REPUTATION)) {
+				motiveArray[2]++;
+			} if (npcTileList.get(i).CheckMotives(QuestMotives.SERENITY)) {
+				motiveArray[3]++;
+			} if (npcTileList.get(i).CheckMotives(QuestMotives.PROTECTION)) {
+				motiveArray[4]++;
+			} if (npcTileList.get(i).CheckMotives(QuestMotives.CONQUEST)) {
+				motiveArray[5]++;
+			} if (npcTileList.get(i).CheckMotives(QuestMotives.WEALTH)) {
+				motiveArray[6]++;
+			} if (npcTileList.get(i).CheckMotives(QuestMotives.ABILITY)) {
+				motiveArray[7]++;
+			} if (npcTileList.get(i).CheckMotives(QuestMotives.EQUIPMENT)) {
+				motiveArray[8]++;
+			}
+		}
+
+		float amountOfMotives = 0;
+
+		for (int i = 0; i < motiveArray.length; i++) {
+			amountOfMotives += motiveArray[i];
+		}
+
+		for (int i = 0; i < motiveArray.length; i++) {
+			if (amountOfMotives != 0) {
+				motiveArray[i] = motiveArray[i] / amountOfMotives;
+			}
+		}
+
+		List<NpcTile> tempTiles = new ArrayList<NpcTile>();
+		SoldierTile tempSoldier = new SoldierTile();
+		MageTile tempMage = new MageTile();
+		BountyhunterTile tempBountyhunter = new BountyhunterTile();
+		CivilianTile tempCivilian = new CivilianTile();
+
+		tempTiles.add(tempSoldier);
+		tempTiles.add(tempMage);
+		tempTiles.add(tempBountyhunter);
+		tempTiles.add(tempCivilian);
+
+		float[] NPCMotivesWeight = new float[4];
+		for (int i = 0; i < NPCMotivesWeight.length; i++) {
+			NPCMotivesWeight[i] = 0;
+		}
+
+		for (int i = 0; i < tempTiles.size(); i++) {
+			List<QuestMotives> npcQuestMotives = new ArrayList<QuestMotives>();
+			npcQuestMotives = tempTiles.get(i).ReturnMotives();
+
+			for (int j = 0; j < npcQuestMotives.size(); j++) {
+				float currentWeight = blast(npcQuestMotives.get(j), motiveArray);
+
+				NPCMotivesWeight[i] += currentWeight;
+			}
+		}
+
+		int recommendedNpcIndex = 0;
+		float currentChoice = NPCMotivesWeight[0];
+		for (int i = 1; i < NPCMotivesWeight.length; i++) {
+			if (NPCMotivesWeight[i] >= currentChoice) {
+				currentChoice = NPCMotivesWeight[i];
+				recommendedNpcIndex = i;
+			}
+		}
+
+		return recommendedNpcIndex;
+	}
+
+	private float blast(QuestMotives temp, float[] motiveArray)
+	{
+		float startValue = 0;
+		switch (temp) {
+			case KNOWLEDGE:
+				startValue = perfectMotiveBalance[0] - motiveArray[0];
+				break;
+			case COMFORT:
+				startValue = perfectMotiveBalance[1] - motiveArray[1];
+				break;
+			case REPUTATION:
+				startValue = perfectMotiveBalance[2] - motiveArray[2];
+				break;
+			case SERENITY:
+				startValue = perfectMotiveBalance[3] - motiveArray[3];
+				break;
+			case PROTECTION:
+				startValue = perfectMotiveBalance[4] - motiveArray[4];
+				break;
+			case CONQUEST:
+				startValue = perfectMotiveBalance[5] - motiveArray[5];
+				break;
+			case WEALTH:
+				startValue = perfectMotiveBalance[6] - motiveArray[6];
+				break;
+			case ABILITY:
+				startValue = perfectMotiveBalance[7] - motiveArray[7];
+				break;
+			case EQUIPMENT:
+				startValue = perfectMotiveBalance[8] - motiveArray[8];
+				break;
+			default:
+				break;
+		}
+		return startValue;
+	}
+
+	private QuestMotives DecideRecommendedText()
+	{
+		float[] motiveArray = new float[9];
+		for (int i = 0; i < npcTileList.size(); i++) {
+			if (npcTileList.get(i).CheckMotives(QuestMotives.KNOWLEDGE)) {
+				motiveArray[0]++;
+			} if (npcTileList.get(i).CheckMotives(QuestMotives.COMFORT)) {
+				motiveArray[1]++;
+			} if (npcTileList.get(i).CheckMotives(QuestMotives.REPUTATION)) {
+				motiveArray[2]++;
+			} if (npcTileList.get(i).CheckMotives(QuestMotives.SERENITY)) {
+				motiveArray[3]++;
+			} if (npcTileList.get(i).CheckMotives(QuestMotives.PROTECTION)) {
+				motiveArray[4]++;
+			} if (npcTileList.get(i).CheckMotives(QuestMotives.CONQUEST)) {
+				motiveArray[5]++;
+			} if (npcTileList.get(i).CheckMotives(QuestMotives.WEALTH)) {
+				motiveArray[6]++;
+			} if (npcTileList.get(i).CheckMotives(QuestMotives.ABILITY)) {
+				motiveArray[7]++;
+			} if (npcTileList.get(i).CheckMotives(QuestMotives.EQUIPMENT)) {
+				motiveArray[8]++;
+			}
+		}
+
+		float amountOfMotives = 0;
+
+		for (int i = 0; i < motiveArray.length; i++) {
+			amountOfMotives += motiveArray[i];
+		}
+
+		for (int i = 0; i < motiveArray.length; i++) {
+			motiveArray[i] = motiveArray[i] / amountOfMotives;
+		}
+
+		int idx = 0;
+		float myNumber = perfectMotiveBalance[0];
+		float distance = Math.abs(motiveArray[0] - myNumber);
+		for(int c = 1; c < motiveArray.length; c++){
+			float cdistance = Math.abs(motiveArray[c] - perfectMotiveBalance[c]);
+			if(cdistance > distance && perfectMotiveBalance[c] > motiveArray[c]){
+				idx = c;
+				distance = cdistance;
+			}
+		}
+
+		QuestMotives tempMotive;
+		switch (idx) {
+			case 0:
+				tempMotive = QuestMotives.KNOWLEDGE;
+				break;
+			case 1:
+				tempMotive = QuestMotives.COMFORT;
+				break;
+			case 2:
+				tempMotive = QuestMotives.REPUTATION;
+				break;
+			case 3:
+				tempMotive = QuestMotives.SERENITY;
+				break;
+			case 4:
+				tempMotive = QuestMotives.PROTECTION;
+				break;
+			case 5:
+				tempMotive = QuestMotives.CONQUEST;
+				break;
+			case 6:
+				tempMotive = QuestMotives.WEALTH;
+				break;
+			case 7:
+				tempMotive = QuestMotives.ABILITY;
+				break;
+			case 8:
+				tempMotive = QuestMotives.EQUIPMENT;
+				break;
+
+			default:
+				tempMotive = QuestMotives.KNOWLEDGE;
+				break;
+		}
+
+		return tempMotive;
+
+		/*List<Integer> percent = new ArrayList<Integer>();
+		for (int i = 0; i < 100; i++) {
+			percent.add(i);
+		}
+		Random rand = new Random();
+	    int randomElement = percent.get(rand.nextInt(percent.size()));
+	    return randomElement;*/
+	}
+
+	private void RecommendNpc(int NPCindex)
+	{
+		String text = new String("");
+
+		if (NPCindex == 0) {
+			text += "Recommended NPC: Soldier";
+		}
+		else if (NPCindex == 1) {
+			text += "Recommended NPC: Mage";
+		}
+		else if (NPCindex == 2) {
+			text += "Recommended NPC: Bountyhunter";
+		}
+		else if (NPCindex == 3) {
+			text += "Recommended NPC: Civilian";
+		}
+		recommendedText.setText(text);
+	}
+
+	private void ChooseWhatIsRecommended(QuestMotives temp)
+	{
+		List<NpcTile> tempTiles = new ArrayList<NpcTile>();
+
+		SoldierTile tempKnight = new SoldierTile();
+		MageTile tempWizard = new MageTile();
+		BountyhunterTile tempBountyhunter = new BountyhunterTile();
+		CivilianTile tempMerchant = new CivilianTile();
+
+		tempTiles.add(tempKnight);
+		tempTiles.add(tempWizard);
+		tempTiles.add(tempBountyhunter);
+		tempTiles.add(tempMerchant);
+
+		String text = new String("");
+
+		for (int i = 0; i < tempTiles.size(); i++) {
+			if (tempTiles.get(i).CheckMotives(temp)) {
+				if (tempTiles.get(i) instanceof SoldierTile) {
+					if ("".equals(text)) {
+						text += "Recommended NPCs: Soldier";
+
+					}
+					else {
+						text += ", Soldier";
+					}
+				} else if (tempTiles.get(i) instanceof MageTile) {
+					if ("".equals(text)) {
+						text += "Recommended NPCs: Mage";
+					}
+					else {
+						text += ", Mage";
+					}
+				} else if (tempTiles.get(i) instanceof BountyhunterTile) {
+					if ("".equals(text)) {
+						text += "Recommended NPCs: Bountyhunter";
+					}
+					else {
+						text += ", Bountyhunter";
+					}
+				} else if (tempTiles.get(i) instanceof CivilianTile) {
+					if ("".equals(text)) {
+						text += "Recommended NPCs: Civilian";
+					}
+					else {
+						text += ", Civilian";
+					}
+				}
+			}
+		}
+		recommendedText.setText(text);
+	}
+
+	private void SetPerfectMotiveBalance()
+	{
+		perfectMotiveBalance[0] = 0.183f; //Knowledge
+		perfectMotiveBalance[1] = 0.016f; //Comfort
+		perfectMotiveBalance[2] = 0.065f; //Reputation
+		perfectMotiveBalance[3] = 0.137f; //Serenity
+		perfectMotiveBalance[4] = 0.182f; //Protection
+		perfectMotiveBalance[5] = 0.202f; //Conquest
+		perfectMotiveBalance[6] = 0.02f;  //Wealth
+		perfectMotiveBalance[7] = 0.011f; //Ability
+		perfectMotiveBalance[8] = 0.185f; //Equipment
 
 	}
 

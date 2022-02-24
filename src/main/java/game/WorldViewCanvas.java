@@ -5,11 +5,10 @@ import collectors.ActionLogger;
 import collectors.ActionLogger.ActionType;
 import collectors.ActionLogger.TargetPane;
 import collectors.ActionLogger.View;
+import finder.geometry.Bitmap;
+import gui.controls.Brush;
 import gui.controls.LabeledCanvas;
-import gui.utils.DungeonDrawer;
-import gui.utils.MapRenderer;
-import gui.utils.MoveElementBrush;
-import gui.utils.RoomConnectorBrush;
+import gui.utils.*;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.SimpleDoubleProperty;
@@ -21,8 +20,13 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.paint.Color;
 import util.Point;
 import util.eventrouting.EventRouter;
-import util.eventrouting.events.FocusRoom;
-import util.eventrouting.events.RequestRoomView;
+import util.eventrouting.PCGEvent;
+import util.eventrouting.events.*;
+
+import java.lang.reflect.Array;
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
 
 public class WorldViewCanvas 
 {
@@ -45,6 +49,7 @@ public class WorldViewCanvas
 	
 	//CANVAS
 	private Canvas borderCanvas;
+	private Canvas tileCanvas;
 	private Canvas pathCanvas;
 	private Canvas interFeasibilityCanvas; //creisi
 	private Canvas objectiveCanvas;
@@ -56,7 +61,9 @@ public class WorldViewCanvas
 	public DoubleProperty tileSizeHeight;
 
 	private Point currentBrushPosition = new Point();
-	
+	private Bitmap questBitmap = new Bitmap();
+	private boolean doublePos = false;
+
 	public WorldViewCanvas(Room owner)
 	{
 		this.owner = owner;
@@ -73,6 +80,28 @@ public class WorldViewCanvas
             	worldGraphicNode.startFullDrag();
             }
         });
+		worldGraphicNode.addEventFilter(MouseEvent.MOUSE_CLICKED, event -> {
+			source = (Node)event.getSource();
+			if (DungeonDrawer.getInstance().getBrush() instanceof QuestPositionBrush){
+				currentBrushPosition =  new Point((int)( event.getX() / tileSizeWidth.get()), (int)( event.getY() / tileSizeHeight.get() ));
+				if (questBitmap.contains(Point.castToGeometry(currentBrushPosition))){
+					EventRouter.getInstance().postEvent(
+							new QuestPositionUpdate(
+									new finder.geometry.Point(
+											currentBrushPosition.getX(),
+											currentBrushPosition.getY()),
+									owner,
+									doublePos));
+				} else {
+					EventRouter.getInstance().postEvent(new QuestPositionInvalid());
+				}
+			}
+		});
+
+		EventRouter.getInstance().registerListener(this::ping, new RequestDisplayQuestTilesSelection(null));
+		EventRouter.getInstance().registerListener(this::ping, new RequestDisplayQuestTilesSelection2(null,null));
+		EventRouter.getInstance().registerListener(this::ping, new RequestDisplayQuestTilesUnselection(false));
+		EventRouter.getInstance().registerListener(this::ping, new RequestDisplayQuestTilePosition());
 		
 		rendered = false;
 		viewSizeHeight = 0;
@@ -93,6 +122,11 @@ public class WorldViewCanvas
 		worldGraphicNode.getChildren().add(borderCanvas);
 		borderCanvas.setVisible(false);
 		borderCanvas.setMouseTransparent(true);
+
+		tileCanvas = new Canvas(viewSizeHeight, viewSizeHeight);
+		worldGraphicNode.getChildren().add(tileCanvas);
+		tileCanvas.setVisible(false);
+		tileCanvas.setMouseTransparent(true);
 		
 		pathCanvas = new Canvas(viewSizeHeight, viewSizeHeight);
 		worldGraphicNode.getChildren().add(pathCanvas);
@@ -109,13 +143,179 @@ public class WorldViewCanvas
 		objectiveCanvas.setVisible(false);
 		objectiveCanvas.setMouseTransparent(true);
 	}
-	
-	//TODO: We can delete this method... probably is not useful anymore
-	public void setParent()
-	{
-		System.out.println("XPOSITION: " + xPosition.get() +", YPOSITION: " + yPosition.get());
+
+	private void ping(PCGEvent e) {
+		if (e instanceof RequestDisplayQuestTilesSelection){
+			tileCanvas.setVisible(true);
+			questBitmap.clearAllPoints();
+			((List<TileTypes>)e.getPayload()).forEach(tileTypes -> {
+				owner.isIntraFeasible();
+				List<finder.geometry.Point> walkableTilesPoints = owner.walkableTiles.getPoints();
+
+				switch(tileTypes){
+					case NPC:
+						questBitmap
+								.AddAllPoints(owner.npcTiles.getPoints()
+										.stream()
+										.filter(point -> walkableTilesPoints.stream().anyMatch(point::equals))
+										.collect(Collectors.toList()));
+						break;
+					case SOLDIER:
+						questBitmap
+								.AddAllPoints(owner.soldierTiles.getPoints()
+										.stream()
+										.filter(point -> walkableTilesPoints.stream().anyMatch(point::equals))
+										.collect(Collectors.toList()));
+						break;
+					case MAGE:
+						questBitmap
+								.AddAllPoints(owner.mageTiles.getPoints()
+										.stream()
+										.filter(point -> walkableTilesPoints.stream().anyMatch(point::equals))
+										.collect(Collectors.toList()));
+						break;
+					case BOUNTYHUNTER:
+						questBitmap
+								.AddAllPoints(owner.bountyhunterTiles.getPoints()
+										.stream()
+										.filter(point -> walkableTilesPoints.stream().anyMatch(point::equals))
+										.collect(Collectors.toList()));
+						break;
+					case CIVILIAN:
+						questBitmap
+								.AddAllPoints(owner.civilianTiles.getPoints()
+										.stream()
+										.filter(point -> walkableTilesPoints.stream().anyMatch(point::equals))
+										.collect(Collectors.toList()));
+						break;
+					case ENEMY:
+						questBitmap.AddAllPoints(owner.enemyTiles.getPoints().stream()
+								.filter(point -> walkableTilesPoints.stream().anyMatch(point::equals))
+								.collect(Collectors.toList()));
+						break;
+					case TREASURE:
+						questBitmap.AddAllPoints(owner.treasureTiles.getPoints().stream()
+								.filter(point -> walkableTilesPoints.stream().anyMatch(point::equals))
+								.collect(Collectors.toList()));
+						break;
+					case ENEMY_BOSS:
+						questBitmap.AddAllPoints(owner.bossTiles.getPoints().stream()
+								.filter(point -> walkableTilesPoints.stream().anyMatch(point::equals))
+								.collect(Collectors.toList()));
+						break;
+					case ITEM:
+						questBitmap.AddAllPoints(owner.itemTiles.getPoints().stream()
+								.filter(point -> walkableTilesPoints.stream().anyMatch(point::equals))
+								.collect(Collectors.toList()));
+						break;
+					case FLOOR:
+						questBitmap.AddAllPoints(walkableTilesPoints);
+						break;
+				}
+		});
+			drawTiles(Color.GREEN);
+		} else if (e instanceof RequestDisplayQuestTilesUnselection){
+//			System.out.println("UnDisplayQuestTiles");
+			doublePos = (boolean) e.getPayload();
+			tileCanvas.setVisible(doublePos);
+			if (doublePos) {
+				questBitmap.clearAllPoints();
+				questBitmap.AddAllPoints(owner.civilianTiles.getPoints());
+				drawTiles(Color.GREEN);
+			}
+		} else if (e instanceof RequestDisplayQuestTilePosition){
+				if (!tileCanvas.isVisible()){
+					tileCanvas.setVisible(true);
+					questBitmap.clearAllPoints();
+					for (QuestPositionUpdate update: ((RequestDisplayQuestTilePosition) e).getPos()) {
+						if (update != null){
+							if (owner != null){
+								if (update.getRoom().equals(owner)){
+									questBitmap.addPoint(update.getPoint());
+								}
+							}
+						}
+					}
+					drawTiles(Color.BLUEVIOLET);
+			}
+		}
+		else if (e instanceof RequestDisplayQuestTilesSelection2) {
+			tileCanvas.setVisible(true);
+			questBitmap.clearAllPoints();
+			((List<TileTypes>)e.getPayload()).forEach(tileTypes -> {
+				owner.isIntraFeasible();
+				List<finder.geometry.Point> walkableTilesPoints = owner.walkableTiles.getPoints();
+
+				switch(tileTypes){
+					case NPC:
+						questBitmap
+								.AddAllPoints(owner.npcTiles.getPoints()
+										.stream()
+										.filter(point -> walkableTilesPoints.stream().anyMatch(point::equals))
+										.filter(point -> ((finder.geometry.Point)e.getPayload2()).equals(point))
+										.collect(Collectors.toList()));
+						break;
+					case SOLDIER:
+						questBitmap
+						.AddAllPoints(owner.soldierTiles.getPoints()
+								.stream()
+								.filter(point -> walkableTilesPoints.stream().anyMatch(point::equals))
+								.filter(point -> ((finder.geometry.Point)e.getPayload2()).equals(point))
+								.collect(Collectors.toList()));
+						break;
+					case MAGE:
+						questBitmap
+								.AddAllPoints(owner.mageTiles.getPoints()
+										.stream()
+										.filter(point -> walkableTilesPoints.stream().anyMatch(point::equals))
+										.filter(point -> ((finder.geometry.Point)e.getPayload2()).equals(point))
+										.collect(Collectors.toList()));
+						break;
+					case BOUNTYHUNTER:
+						questBitmap
+								.AddAllPoints(owner.bountyhunterTiles.getPoints()
+										.stream()
+										.filter(point -> walkableTilesPoints.stream().anyMatch(point::equals))
+										.filter(point -> ((finder.geometry.Point)e.getPayload2()).equals(point))
+										.collect(Collectors.toList()));
+						break;
+					case CIVILIAN:
+						questBitmap
+								.AddAllPoints(owner.civilianTiles.getPoints()
+										.stream()
+										.filter(point -> walkableTilesPoints.stream().anyMatch(point::equals))
+										.filter(point -> ((finder.geometry.Point)e.getPayload2()).equals(point))
+										.collect(Collectors.toList()));
+						break;
+					case ENEMY:
+						questBitmap.AddAllPoints(owner.enemyTiles.getPoints().stream()
+								.filter(point -> walkableTilesPoints.stream().anyMatch(point::equals))
+								.collect(Collectors.toList()));
+						break;
+					case TREASURE:
+						questBitmap.AddAllPoints(owner.treasureTiles.getPoints().stream()
+								.filter(point -> walkableTilesPoints.stream().anyMatch(point::equals))
+								.collect(Collectors.toList()));
+						break;
+					case ENEMY_BOSS:
+						questBitmap.AddAllPoints(owner.bossTiles.getPoints().stream()
+								.filter(point -> walkableTilesPoints.stream().anyMatch(point::equals))
+								.collect(Collectors.toList()));
+						break;
+					case ITEM:
+						questBitmap.AddAllPoints(owner.itemTiles.getPoints().stream()
+								.filter(point -> walkableTilesPoints.stream().anyMatch(point::equals))
+								.collect(Collectors.toList()));
+						break;
+					case FLOOR:
+						questBitmap.AddAllPoints(walkableTilesPoints);
+						break;
+				}
+		});
+			drawTiles(Color.GREEN);
+		}
 	}
-	
+
 	public LabeledCanvas getCanvas() { return worldGraphicNode; }
 	
 	public void setRendered(boolean value)
@@ -154,6 +354,9 @@ public class WorldViewCanvas
 		//Change the size of the border canvas (where you can place doors)
 		borderCanvas.setWidth(viewSizeWidth);
 		borderCanvas.setHeight(viewSizeHeight);
+
+		tileCanvas.setWidth(viewSizeWidth);
+		tileCanvas.setHeight(viewSizeHeight);
 		
 		pathCanvas.setWidth(viewSizeWidth);
 		pathCanvas.setHeight(viewSizeHeight);
@@ -191,7 +394,9 @@ public class WorldViewCanvas
 	            		highlight(true);
 	            	}
 
-	            	DungeonDrawer.getInstance().getBrush().onEnteredRoom(owner);
+					if (DungeonDrawer.getInstance().getBrush() != null) {
+						DungeonDrawer.getInstance().getBrush().onEnteredRoom(owner);
+					}
 	            }
 	        });
 
@@ -244,7 +449,9 @@ public class WorldViewCanvas
 	            	}
 	            	else
 	            	{
-	            		DungeonDrawer.getInstance().getBrush().onReleaseRoom(owner, currentBrushPosition);
+						if (DungeonDrawer.getInstance().getBrush() != null) {
+							DungeonDrawer.getInstance().getBrush().onReleaseRoom(owner, currentBrushPosition);
+						}
 	            	}
 	            	
 	            	Bounds ltoS = worldGraphicNode.localToScene(worldGraphicNode.getBoundsInLocal());
@@ -290,17 +497,25 @@ public class WorldViewCanvas
 	            @Override
 	            public void handle(MouseEvent event) 
 	            {
-	            	if(DungeonDrawer.getInstance().getBrush() instanceof RoomConnectorBrush)
+	            	ShapeBrush brush = DungeonDrawer.getInstance().getBrush();
+	            	if(brush instanceof RoomConnectorBrush)
 	            	{
 		            	borderCanvas.setVisible(true);
 		            	drawBorder();
-	            	}
+	            	} else if (brush instanceof QuestPositionBrush){
+	            		tileCanvas.setVisible(true);
+	            		drawTiles(Color.GREEN);
+					}
 	            	else
 	            	{
 	            		highlight(true);
 	            	}
 
-	            	DungeonDrawer.getInstance().getBrush().onEnteredRoom(owner); //This could also use the event actually :O
+
+	            	if (brush != null) {
+	            		DungeonDrawer.getInstance().getBrush().onEnteredRoom(owner); //This could also use the event actually :O
+					}
+
 	            }
 
 	        });
@@ -311,8 +526,14 @@ public class WorldViewCanvas
 	            @Override
 	            public void handle(MouseEvent event) 
 	            {
-	            	currentBrushPosition =  new Point((int)( event.getX() / tileSizeWidth.get()), (int)( event.getY() / tileSizeHeight.get() ));            	
-	            	drawBorder();
+	            	ShapeBrush brush = DungeonDrawer.getInstance().getBrush();
+	            	currentBrushPosition =  new Point((int)( event.getX() / tileSizeWidth.get()), (int)( event.getY() / tileSizeHeight.get() ));
+	            	if(brush instanceof RoomConnectorBrush) {
+						drawBorder();
+					} else if (brush instanceof QuestPositionBrush){
+	            		tileCanvas.setVisible(true);
+	            		drawTiles(Color.GREEN);
+					}
 	            }
 	        });
 
@@ -326,7 +547,9 @@ public class WorldViewCanvas
 	            		//TODO: I think is better that the dungeon receives an event to request room view but maybe that will be too convoluted
 	            		MapContainer mc = new MapContainer(); // this map container thingy, idk, me not like it
 	            		mc.setMap(owner);
-	            		EventRouter.getInstance().postEvent(new RequestRoomView(mc, 0, 0, null));
+	            		if (DungeonDrawer.getInstance().getBrush() != null && !(DungeonDrawer.getInstance().getBrush() instanceof QuestPositionBrush)){
+							EventRouter.getInstance().postEvent(new RequestRoomView(mc, 0, 0, null));
+						}
 	            	}
 	            	
 	            	EventRouter.getInstance().postEvent(new FocusRoom(owner, null));
@@ -346,7 +569,9 @@ public class WorldViewCanvas
 	            	}
 	            	else
 	            	{
-	            		DungeonDrawer.getInstance().getBrush().onClickRoom(owner,currentBrushPosition);
+						if (DungeonDrawer.getInstance().getBrush() != null) {
+							DungeonDrawer.getInstance().getBrush().onClickRoom(owner,currentBrushPosition);
+						}
 	            	}
 
 	            }
@@ -423,6 +648,33 @@ public class WorldViewCanvas
 	    			owner.borders, 
 	    			Point.castToGeometry(currentBrushPosition) , 
 	    			Color.WHITE);
+		}
+	}
+
+	private synchronized void drawTiles(Color color)
+	{
+		if(tileCanvas.isVisible())
+		{
+			tileCanvas.getGraphicsContext2D().clearRect(0, 0, tileCanvas.getWidth(), tileCanvas.getHeight());
+			MapRenderer.getInstance().drawEligibleTiles(tileCanvas.getGraphicsContext2D(),
+					owner.matrix,
+					questBitmap,
+					Point.castToGeometry(currentBrushPosition) ,
+					color);
+		}
+	}
+
+	private synchronized  void drawTile(finder.geometry.Point... points){
+		if(tileCanvas.isVisible())
+		{
+			Bitmap bitmap = new Bitmap();
+			bitmap.AddAllPoints(Arrays.asList(points));
+			tileCanvas.getGraphicsContext2D().clearRect(0, 0, tileCanvas.getWidth(), tileCanvas.getHeight());
+			MapRenderer.getInstance().drawEligibleTiles(tileCanvas.getGraphicsContext2D(),
+					owner.matrix,
+					bitmap,
+					Point.castToGeometry(currentBrushPosition) ,
+					Color.BLUEVIOLET);
 		}
 	}
 	

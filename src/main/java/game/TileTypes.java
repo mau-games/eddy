@@ -16,8 +16,14 @@ public enum TileTypes {
     DOOR(4),
     ENEMY_BOSS(5),
     HERO(6),
-    NONE(7);
-	
+	NPC(7),
+	ITEM(8),
+	NONE(9),
+	SOLDIER(10),
+	MAGE(11),
+	BOUNTYHUNTER(12),
+	CIVILIAN(13);
+
 	private final int value;
 	
 	private TileTypes(int value){
@@ -37,8 +43,16 @@ public enum TileTypes {
 		return value == TREASURE.getValue();
 	}
 	
+	public boolean isFloor() {
+		return value == FLOOR.getValue();
+	}
+	
 	public boolean isEnemy(){
 		return value == ENEMY.getValue();
+	}
+
+	public boolean isEnemyBoss(){
+		return value == ENEMY_BOSS.getValue();
 	}
 
 	public boolean isDoor(){
@@ -47,6 +61,30 @@ public enum TileTypes {
 	
 	public boolean isWall() {
 		return value == WALL.getValue();
+	}
+
+	public boolean isItem(){
+		return value == ITEM.getValue();
+	}
+
+	public boolean isNPC(){
+		return value == NPC.getValue();
+	}
+	
+	public boolean isSoldier() {
+		return value == SOLDIER.getValue();
+	}
+	
+	public boolean isMage() {
+		return value == MAGE.getValue();
+	}
+	
+	public boolean isBountyhunter() {
+		return value == BOUNTYHUNTER.getValue();
+	}
+	
+	public boolean isCivilian() {
+		return value == CIVILIAN.getValue();
 	}
 
 	/**
@@ -79,6 +117,24 @@ public enum TileTypes {
 			break;
 		case 6:
 			tile = TileTypes.HERO;
+			break;
+		case 7:
+			tile = TileTypes.NPC;
+			break;
+		case 8:
+			tile = TileTypes.ITEM;
+			break;
+		case 10:
+			tile = TileTypes.SOLDIER;
+			break;
+		case 11:
+			tile = TileTypes.MAGE;
+			break;
+		case 12:
+			tile = TileTypes.BOUNTYHUNTER;
+			break;
+		case 13:
+			tile = TileTypes.CIVILIAN;
 			break;
 		default:
 			tile = TileTypes.NONE;

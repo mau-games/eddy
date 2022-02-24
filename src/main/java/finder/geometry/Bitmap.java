@@ -1,6 +1,7 @@
 package finder.geometry;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import game.PathInformation;
 
@@ -30,7 +31,7 @@ public class Bitmap extends Polygon {
 		return points.contains(p);
 	}
 	
-	public void AddAllPoints(ArrayList<Point> otherPoints)
+	public void AddAllPoints(List<Point> otherPoints)
 	{
 		this.points.addAll(otherPoints);
 	}

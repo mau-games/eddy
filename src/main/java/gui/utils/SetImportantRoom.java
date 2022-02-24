@@ -49,8 +49,8 @@ public class SetImportantRoom extends InterRoomBrush
 	{
 		System.out.println("THIS HAPPENs");
 	}
-	
-	
+
+
 	public void InitDrawing()
 	{
 		

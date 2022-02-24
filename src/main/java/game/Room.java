@@ -23,10 +23,12 @@ import java.util.UUID;
 import javax.swing.text.Position;
 
 import java.util.Map.Entry;
+import java.util.stream.Collectors;
 
 import finder.PatternFinder;
 import finder.Populator;
 import finder.geometry.Bitmap;
+import finder.geometry.Multipoint;
 import finder.geometry.Geometry;
 import finder.geometry.Polygon;
 import finder.graph.Edge;
@@ -55,9 +57,7 @@ import game.tiles.HeroTile;
 import util.Point;
 import util.config.MissingConfigurationException;
 import util.eventrouting.EventRouter;
-import util.eventrouting.events.AlgorithmDone;
-import util.eventrouting.events.MapLoaded;
-import util.eventrouting.events.MapUpdate;
+import util.eventrouting.events.*;
 import generator.algorithm.Algorithm.AlgorithmTypes;
 import generator.algorithm.MAPElites.Dimensions.GADimension;
 import generator.algorithm.MAPElites.Dimensions.MAPEDimensionFXML;
@@ -98,9 +98,21 @@ public class Room {
 	
 	public int maxNumberDoors; //--> HAHA
 	public Bitmap borders = new Bitmap();
+	public Bitmap enemyTiles = new Bitmap();
+	public Bitmap npcTiles = new Bitmap();
+	public Bitmap soldierTiles = new Bitmap();
+	public Bitmap mageTiles = new Bitmap();
+	public Bitmap bountyhunterTiles = new Bitmap();
+	public Bitmap civilianTiles = new Bitmap();
+	public Bitmap itemTiles = new Bitmap();
+	public Bitmap treasureTiles = new Bitmap();
+	public Bitmap bossTiles = new Bitmap();
+	public Bitmap walkableTiles = new Bitmap();
 	public Bitmap path = new Bitmap();//TODO: For testing
 	public Bitmap nonInterFeasibleTiles = new Bitmap();//TODO: For testing
-	
+
+	public List<QuestPositionUpdate> walkablePositions = new ArrayList<QuestPositionUpdate>();
+
 	public RoomPathFinder pathfinder;
 	public Dungeon owner;
 	
@@ -109,11 +121,11 @@ public class Room {
 	//I need a special ID for rooms
 	public UUID specificID = UUID.randomUUID();
 	int saveCounter = 1;
-	
+
 	//For objectives
-	private CompositePattern roomObjective; 
+	private CompositePattern roomObjective;
 	private boolean hasMainObjective = false;
-	
+
 /////////////////////////OLD///////////////////////////
 
 	private Tile[] tileMap; //This HAVE to be the real tilemap
@@ -156,11 +168,11 @@ public class Room {
 	private double enemySparsity 	= -1.0f;
 	private double floorDensity 	= -1.0f;
 	private double floorSparsity 	= -1.0f;
-	
+
 	//NEW THINGS
 	public ZoneNode root;
 	public int scaleFactor;
-	
+
 	//Important new list --> Sequence of changes done to this room
 	private LinkedList<Room> editionSequence = new LinkedList<Room>();
 	public int indexEditionStep;
@@ -175,9 +187,9 @@ public class Room {
 			treasures = new ArrayList<Point>();
 	}
 	
-	public void SetRoomObjective() {	
+	public void SetRoomObjective() {
 		CompositePattern tempObjective = null;
-		
+
 		for (CompositePattern objective : finder.getMacroPatterns())
 		{
 			if (tempObjective == null)
@@ -185,22 +197,22 @@ public class Room {
 			else if (objective.getQuality() > tempObjective.getQuality())
 				tempObjective = objective;
 		}
-		
+
 		roomObjective = tempObjective;
 	}
-	
+
 	public CompositePattern getRoomObjective() {
 		return roomObjective;
 	}
-	
+
 	public boolean getHasMainObjective() {
 		return hasMainObjective;
 	}
-	
+
 	public void setHasMainObjective(boolean state) {
 		hasMainObjective = state;
 	}
-	
+
 	/**
 	 * Creates an instance of map.
 	 * 
@@ -223,23 +235,24 @@ public class Room {
 		
 		root = new ZoneNode(null, this, getColCount(), getRowCount());
 	}
-	
+
+	//Todo: check if  these will need something similar to work on!
 	public Room(GeneratorConfig config, int rows, int cols)
 	{
 		init(rows, cols);
 		this.config = config; //FIXME: Perhaps needs to be changed!
 		localConfig = new RoomConfig(this, 30); //TODO: NEW ADDITION --> HAVE TO BE ADDED EVERYWHERE
 	}
-	
+
 	public void setupRoom()
 	{
 		finder = new PatternFinder(this);
 		pathfinder = new RoomPathFinder(this);
-		
+
 		root = new ZoneNode(null, this, getColCount(), getRowCount());
-		node = new finder.graph.Node<Room>(this);	
+		node = new finder.graph.Node<Room>(this);
 	}
-	
+
 	
 	/**
 	 * Creates an instance of map.
@@ -264,6 +277,7 @@ public class Room {
 		pathfinder = new RoomPathFinder(this);
 		
 		root = new ZoneNode(null, this, getColCount(), getRowCount());
+		isIntraFeasible();
 	}
 	
 	public Room(Dungeon owner, GeneratorConfig config, int rows, int cols, int scaleFactor) //THIS IS CALLED WHEN ADDING ROOMS TO THE DUNGEON!
@@ -287,6 +301,7 @@ public class Room {
 		
 		root = new ZoneNode(null, this, getColCount(), getRowCount());
 		node = new finder.graph.Node<Room>(this);
+//		isIntraFeasible();
 	}
 	
 	public Room(Room copyMap) //THIS IS CALLED WHEN CREATING A ZONE IN THE TREE (TO HAVE A COPY OF THE DOORS)
@@ -295,7 +310,7 @@ public class Room {
 		this.config = copyMap.config;
 		this.scaleFactor = copyMap.scaleFactor;
 		localConfig = new RoomConfig(this, copyMap.scaleFactor); //TODO: NEW ADDITION --> HAVE TO BE ADDED EVERYWHERE
-		
+
 //		for (int j = 0; j < height; j++)
 //		{
 //			for (int i = 0; i < width; i++) 
@@ -341,9 +356,9 @@ public class Room {
 		//Copy the sequences!!!!
 		//TODO: I do not know how to do this better, for now
 		//TODO: You must copy the sequences and the edition step manually
-		//TODO: when you create a copy of the room! 
+		//TODO: when you create a copy of the room!
 //		this.indexEditionStep = copyMap.indexEditionStep;
-		
+
 		finder = new PatternFinder(this);
 		SetDimensionValues(copyMap.dimensionValues);
 		pathfinder = new RoomPathFinder(this);
@@ -409,6 +424,7 @@ public class Room {
 //		this.localConfig = new RoomConfig(this, 40); //TODO: NEW ADDITION --> HAVE TO BE ADDED EVERYWHERE
 		
 		CloneMap(rootCopy.GetMap(), chromosomes);
+		isIntraFeasible();
 	}
 	
 	private void CloneMap(Room room, int[] chromosomes) //FROM THE PREVIOUS CONSTRUCTOR
@@ -558,7 +574,7 @@ public class Room {
 	private void copyCustomTiles(List<Tile> customs)
 	{
 		customTiles.clear();
-		
+
 		if(customs != null)
 			customTiles.addAll(customs);
 	}
@@ -684,6 +700,7 @@ public class Room {
 				setTile(i, j, suggestions.getTile(i, j));
 //				matrix[j][i] = suggestions.matrix[j][i];
 //				tileMap[j * width + i] = new Tile(suggestions.tileMap[j * width + i]);
+				EventRouter.getInstance().postEvent(new MapQuestUpdate(getTile(i,j),suggestions.getTile(i,j), this));
 			}
 		}	
 		
@@ -900,7 +917,7 @@ public class Room {
 	 * @param tile A tile.
 	 */
 	public void setTile(int x, int y, TileTypes tile) 
-	{	
+	{
 		wallDensity 		= -1.0f;
 		wallSparsity 		= -1.0f;
 		treasureDensity 	= -1.0f;
@@ -1723,7 +1740,7 @@ public class Room {
 		value = value / (double)treasureSafety.size();
 		return value;
 	}
-    
+
     public void calculateDoorSafeness()
     {
     	double value = 0.0;
@@ -1761,7 +1778,7 @@ public class Room {
     	doorsSafety.clear();
     	treasureSafety = new Hashtable<Point, Double>();
     }
-    
+
     /**
      * Sets the safety value for the map's entry point.
      *TODO: THIS CODE MUST DISAPPEAR
@@ -1973,6 +1990,8 @@ public class Room {
 	{
     	Queue<Node> queue = new LinkedList<Node>();
     	clearFailedPaths();
+    	walkableTiles.clearAllPoints();
+    	walkablePositions.clear();
     	int treasure = 0;
     	int enemies = 0;
     	int doors = 0;
@@ -2068,12 +2087,16 @@ public class Room {
 			{
 				treasure += section.getTreasures();
 				enemies += section.getEnemies();
+				walkableTiles.AddAllPoints(section.getPositions().stream().map(Point::castToGeometry).collect(Collectors.toList()));
+				walkablePositions.addAll(section.getPositions().stream().map(point -> new QuestPositionUpdate(Point.castToGeometry(point), this, false)).collect(Collectors.toList()));
 			}
 			else
 			{
 				sectionsReachable = false;
 			}
 		}
+
+    	//TODO: check roomsection reachability
 
     	for(int i = treasure; i < getTreasureCount();i++)
     		addFailedPathToTreasures();
@@ -2888,7 +2911,7 @@ public class Room {
 	{
 		customTiles.add(customTile);
 	}
-	
+
 	public Tile addCustomTile(Tile customTile, int maxAmount)
 	{
 		if(CheckCustomTile(customTile, maxAmount))
@@ -2955,30 +2978,30 @@ public class Room {
 	{
 		return editionSequence;
 	}
-	
+
 	public void clearEditionSequence()
 	{
 		editionSequence.clear();
 	}
-	
+
 	public void addEdition()
 	{
 		Room editionRoom = new Room(this);
 		editionRoom.indexEditionStep = this.indexEditionStep;
 		editionSequence.add(editionRoom); //Will this work? --> OGK
-		
+
 	}
-	
+
 	public void addEditions(List<Room> editions)
 	{
 		//or should I create a new room per edition?
 		editionSequence.addAll(editions);//Will this work? -->  OGK
 	}
-	
+
 	public void setOwner(Dungeon owner)
 	{
 		this.owner = owner;
-		
+
 		for(Tile customTile : customTiles)
 		{
 			if(customTile instanceof BossEnemyTile)
@@ -2987,8 +3010,8 @@ public class Room {
 			}
 		}
 	}
-	
-	
+
+
 	/////////////////////////////// LOADING MAPS AND STRING DEBUG //////////////////////////////////////////////
 
 	//TODO: This will need to be REMADE how to load/save
@@ -3165,14 +3188,14 @@ public class Room {
 
 		return map.toString();
 	}
-	
-	public String matrixToString(boolean ignoreSpecials) 
+
+	public String matrixToString(boolean ignoreSpecials)
 	{
 		StringBuilder map = new StringBuilder();
 
 		for (int j = 0; j < height; j++)
 		{
-			for (int i = 0; i < width; i++)  
+			for (int i = 0; i < width; i++)
 			{
 				if(ignoreSpecials && matrix[j][i] > 3)
 				{
@@ -3191,14 +3214,14 @@ public class Room {
 	}
 
 
-	//This is the one 
+	//This is the one
 	//I think I could have this static method
 	//But I am also seduce by the idea that I can change the size of the room at runtime which is not possible at the moment.
 	public static Room createRoomFromColumnString(String ... roomColumns)
 	{
 		int cols = roomColumns.length;
 		int rows = roomColumns[0].length(); //This is taking for granted that you are sending columns with the same amount!
-		
+
 		GeneratorConfig gc = null;
 		try {
 			gc = new GeneratorConfig();
@@ -3206,38 +3229,38 @@ public class Room {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		
+
 		Room room = new Room(gc, rows, cols);
 		int x=0;
 		int y=0;
-		
+
 		//Each index in the array is a column
 		for(String column : roomColumns)
 		{
 			for(String c : column.split(""))
 			{
-				room.setTile(x, y++, new Tile(x,y,Integer.parseInt(c)));	
+				room.setTile(x, y++, new Tile(x,y,Integer.parseInt(c)));
 			}
-			
+
 			x++;
 			y=0;
 		}
-		
+
 		room.setupRoom();
-		
+
 		return room;
 	}
-	
-	//This is the one 
+
+	//This is the one
 	//I think I could have this static method
 	//But I am also seduce by the idea that I can change the size of the room at runtime which is not possible at the moment.
 	public static Room createRoomFromString(String roomString)
 	{
 		String[] roomDividedRows = roomString.split("[\\n]+");
-		
+
 		int rows = roomDividedRows.length;
 		int cols = roomDividedRows[0].length();
-		
+
 		GeneratorConfig gc = null;
 		try {
 			gc = new GeneratorConfig();
@@ -3245,28 +3268,28 @@ public class Room {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		
+
 		Room room = new Room(gc, rows, cols);
 		int x=0;
 		int y=0;
-		
+
 		//Each index in the array is a column
 		for(String roomRows : roomDividedRows)
 		{
 			for(String c : roomRows.split(""))
 			{
-				room.setTile(x++, y, new Tile(x,y,Integer.parseInt(c)));	
+				room.setTile(x++, y, new Tile(x,y,Integer.parseInt(c)));
 			}
-			
+
 			x = 0;
 			y++;
 		}
-		
+
 		room.setupRoom();
-		
+
 		return room;
 	}
-	
+
 //
 //	@Override
 //	public String toString() {
@@ -3474,16 +3497,16 @@ public class Room {
 
 	public void saveRoomXMLSequence(String direction, String room_id)
 	{
-		
+
 		Document dom;
 	    Element e = null;
 	    Element next = null;
-	    
+
 	    File file = new File(DataSaverLoader.projectPath + "\\" + direction + "\\room\\" + room_id);
 		if (!file.exists()) {
 			file.mkdirs();
 		}
-	    
+
 	    String xml = System.getProperty("user.dir") + "\\my-data\\" + direction + "\\room\\" + room_id + "\\room-" + room_id + "_" + indexEditionStep + ".xml";
 
 	    // instance of a DocumentBuilderFactory
@@ -3501,29 +3524,29 @@ public class Room {
 	        rootEle.setAttribute("height", Integer.toString(this.getRowCount()));
 	        rootEle.setAttribute("time", new Timestamp(System.currentTimeMillis()).toString());
 //	        rootEle.setAttribute("type", "SUGGESTIONS OR MAIN");
-	        
+
 	        // create data elements and place them under root
 	        e = dom.createElement("Dimensions");
 	        rootEle.appendChild(e);
-	        
+
 	        //DIMENSIONS --> THIS IS IMPORTANT TO CHANGE!! TODO:!!
 	        next = dom.createElement("Dimension");
 	        next.setAttribute("name", DimensionTypes.SIMILARITY.toString());
 	        next.setAttribute("value", Double.toString(getDimensionValue(DimensionTypes.SIMILARITY)));
 	        e.appendChild(next);
-	        
+
 	        next = dom.createElement("Dimension");
 	        next.setAttribute("name", DimensionTypes.SYMMETRY.toString());
 	        next.setAttribute("value", Double.toString(getDimensionValue(DimensionTypes.SYMMETRY)));
 	        e.appendChild(next);
-	        
+
 	        //TILES
 	        e = dom.createElement("Tiles");
 	        rootEle.appendChild(e);
-	        
-	        for (int j = 0; j < height; j++) 
+
+	        for (int j = 0; j < height; j++)
 			{
-				for (int i = 0; i < width; i++) 
+				for (int i = 0; i < width; i++)
 				{
 					next = dom.createElement("Tile");
 			        next.setAttribute("value", getTile(i, j).GetType().toString());
@@ -3533,10 +3556,10 @@ public class Room {
 			        e.appendChild(next);
 				}
 			}
-	        
+
 	        e = dom.createElement("Customs");
 	        rootEle.appendChild(e);
-	        
+
 	        for(Tile custom : customTiles)
 	        {
 	        	next = dom.createElement("Custom");
@@ -3558,7 +3581,7 @@ public class Room {
 	            tr.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "4");
 
 	            // send DOM to file
-	            tr.transform(new DOMSource(dom), 
+	            tr.transform(new DOMSource(dom),
 	                                 new StreamResult(new FileOutputStream(xml)));
 
 	        } catch (TransformerException te) {
@@ -3570,7 +3593,7 @@ public class Room {
 	        System.out.println("UsersXML: Error trying to instantiate DocumentBuilder " + pce);
 	    }
 	}
-	
+
 	public void getRoomXML(String prefix)
 	{
 		Document dom;
@@ -3842,5 +3865,12 @@ public class Room {
     	return fitness;
 	}
 
-	
+
+	public Bitmap accessibleFloorTiles() {
+		return walkableTiles;
+	}
+
+	public List<QuestPositionUpdate> getWalkablePositions() {
+		return walkablePositions;
+	}
 }

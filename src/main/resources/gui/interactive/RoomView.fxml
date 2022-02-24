@@ -42,6 +42,8 @@
 <?import javafx.scene.control.cell.TextFieldTableCell?>
 <?import gui.controls.DimensionsTable?>
 <?import gui.controls.Popup?>
+<?import javafx.scene.control.Cell?>
+
 <?import gui.controls.EditedRoomStackPane?>
 
 <fx:root type="javafx.scene.layout.BorderPane"
@@ -109,13 +111,37 @@
 					</graphic>
 				</ToggleButton>
 				<ToggleButton contentDisplay="TOP" prefWidth="75.0"
-					mnemonicParsing="false" text="BOSS" toggleGroup="$brushes"
-					onAction="#selectBrush" fx:id="bossEnemyBtn">
+							  mnemonicParsing="false" text="BOSS" toggleGroup="$brushes"
+							  onAction="#selectBrush" fx:id="bossEnemyBtn">
 					<graphic>
 						<ImageView fitWidth="40.0" pickOnBounds="true"
-							preserveRatio="true">
+								   preserveRatio="true">
 							<image>
 								<Image url="@../../graphics/tiles/enemy.png" />
+							</image>
+						</ImageView>
+					</graphic>
+				</ToggleButton>
+				<ToggleButton contentDisplay="TOP" prefWidth="75.0"
+							  mnemonicParsing="false" text="NPC" toggleGroup="$brushes"
+							  onAction="#selectBrush" fx:id="npcBtn">
+					<graphic>
+						<ImageView fitWidth="40.0" pickOnBounds="true"
+								   preserveRatio="true">
+							<image>
+								<Image url="@../../graphics/tiles/npc.png" />
+							</image>
+						</ImageView>
+					</graphic>
+				</ToggleButton>
+				<ToggleButton contentDisplay="TOP" prefWidth="75.0"
+							  mnemonicParsing="false" text="Item" toggleGroup="$brushes"
+							  onAction="#selectBrush" fx:id="itemBtn">
+					<graphic>
+						<ImageView fitWidth="40.0" pickOnBounds="true"
+								   preserveRatio="true">
+							<image>
+								<Image url="@../../graphics/tiles/item.png" />
 							</image>
 						</ImageView>
 					</graphic>
@@ -160,9 +186,49 @@
 		</ToolBar>
 	</left>
 	<center>
-<!--		<StackPane alignment="CENTER" fx:id="mapPane" />-->
-		<EditedRoomStackPane fx:id="editedRoomPane" prefHeight="122.0" prefWidth="309.0" BorderPane.alignment="CENTER" />
+        <BorderPane style="-fx-border-color: transparent lightgray transparent lightgray;">
+            <center>
+				<EditedRoomStackPane fx:id="editedRoomPane" prefHeight="122.0" prefWidth="309.0" BorderPane.alignment="CENTER" />
+<!--				<StackPane fx:id="mapPane" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" />-->
+            </center>
+            <bottom>
+                <BorderPane style="-fx-border-color: lightgray transparent;">
+                    <center>
+                        <FlowPane fx:id="npcChoice" hgap="20.0" maxHeight="100" maxWidth="800" prefHeight="100.0" vgap="5.0" BorderPane.alignment="CENTER_LEFT" orientation="HORIZONTAL">
+                            <FlowPane.margin>
+                                <Insets left="40.0" right="40.0" />
+                            </FlowPane.margin>
+                            <children>
+                                <Button fx:id="SoldierChoice" mnemonicParsing="false" text="Soldier" disable="true"/>
+                            </children>
+                            <padding>
+                                <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+                            </padding>
+                            <FlowPane.margin>
+                                <Insets left="40.0" right="40.0" />
+                            </FlowPane.margin>
+                          	<children>
+                             <Button fx:id="MageChoice" mnemonicParsing="false" text="Mage" disable="true"/>
+                          	</children>
+                          	<FlowPane.margin>
+                                <Insets left="40.0" right="40.0" />
+                            </FlowPane.margin>
+                          	<children>
+                             <Button fx:id="BountyhunterChoice" mnemonicParsing="false" text="Bounty Hunter" disable="true"/>
+                          	</children>
+                          	<FlowPane.margin>
+                                <Insets left="40.0" right="40.0" />
+                            </FlowPane.margin>
+                          	<children>
+                             <Button fx:id="CivilianChoice" mnemonicParsing="false" text="Civilian" disable="true"/>
+                          	</children>
+                        </FlowPane>
+                     </center>
+                </BorderPane>
+            </bottom>
+        </BorderPane>
 	</center>
+
 
 	<right>
 

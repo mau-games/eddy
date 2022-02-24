@@ -13,6 +13,7 @@ import javafx.scene.image.Image;
 
 public class Tile
 {
+	
 	protected TileTypes m_type;
 	private ArrayList<Point> positions;
 	protected Point center;
@@ -21,6 +22,7 @@ public class Tile
 	public int maxAmountPerRoom;
 	public int width = 1; //tile size
 	public int height = 1; //tile size
+	public boolean used;
 	
 	//When using the tile as a brush
 	protected BrushUsage usage = BrushUsage.DEFAULT;

@@ -6,6 +6,8 @@ import java.util.UUID;
 import game.Room;
 import game.Tile;
 import game.TileTypes;
+import game.tiles.MageTile;
+import game.tiles.NpcTile;
 import gui.utils.MapRenderer;
 import javafx.event.EventHandler;
 import javafx.geometry.Pos;
@@ -19,6 +21,8 @@ import util.Point;
 import util.eventrouting.EventRouter;
 import util.eventrouting.Listener;
 import util.eventrouting.PCGEvent;
+import util.eventrouting.events.MapQuestUpdate;
+import util.eventrouting.events.RequestWorldView;
 import util.eventrouting.events.SaveDisplayedCells;
 import util.eventrouting.events.intraview.InteractiveRoomBrushUpdated;
 import util.eventrouting.events.intraview.InteractiveRoomHovered;
@@ -36,7 +40,8 @@ public class InteractiveMap extends GridPane implements Listener {
 	private int cols = 0;
 	private int rows = 0;
 	public double scale = 0;
-	
+	private Tile lastTile;
+
 	private  MapRenderer renderer = MapRenderer.getInstance();
 	private final HashMap<ImageView, Point> coords = new HashMap<ImageView, Point>();
 	private final static HashMap<TileTypes, Image> images = new HashMap<TileTypes, Image>();
@@ -44,7 +49,7 @@ public class InteractiveMap extends GridPane implements Listener {
 	public InteractiveMap self;
 	public EditedRoomStackPane owner;
 	public UUID ownerID;
-	
+
 	/**
 	 * Creates an empty instance of InteractiveMap.
 	 */
@@ -85,7 +90,7 @@ public class InteractiveMap extends GridPane implements Listener {
 		this.addEventFilter(MouseEvent.MOUSE_CLICKED, new InteractiveMap.EditViewEventHandler());
 		this.addEventFilter(MouseEvent.MOUSE_MOVED, new InteractiveMap.EditViewMouseHover());
 	}
-	
+
 	/**
 	 * Updates a tile on the map.
 	 * This, dear reader, is not a beautiful way of doing things, but it works.
@@ -107,27 +112,26 @@ public class InteractiveMap extends GridPane implements Listener {
 		
 		if(p == null)
 			return;
-		
+
 		// Let's discard any attempts at erasing the doors or the hero
 		if (!brush.GetModifierValue("No-Rules") &&
 				( currentTile.GetType() == TileTypes.DOOR
 				|| currentTile.GetType() == TileTypes.HERO)) {
 			return;
 		}
-		
 		brush.Draw(Point.castToGeometry(p), room, this);
 
-//		
+//
 //		//The brush has all the points that will be modified
 //		//TODO: I THINK THAT the brush should do this part!
 //		for(finder.geometry.Point position : brush.GetDrawableTiles().getPoints())
 //		{
 //			currentTile = room.getTile(position.getX(), position.getY());
-//			
+//
 //			// Let's discard any attempts at erasing the doors
 //			if(currentTile.GetType() == TileTypes.DOOR)
 //				continue;
-//			
+//
 //			currentTile.SetImmutable(brush.GetModifierValue("Lock"));
 //			if(brush.GetMainComponent() != null)
 //			{
@@ -135,8 +139,10 @@ public class InteractiveMap extends GridPane implements Listener {
 //				drawTile(position.getX(), position.getY(), brush.GetMainComponent());
 //			}
 //		}
-		
+
 		brush.DoneDrawing();
+		EventRouter.getInstance().postEvent(new MapQuestUpdate(currentTile, new Tile(currentTile.GetCenterPosition(), brush.GetMainComponent()), room));
+		lastTile = room.getTile(p);
 	}
 	
 	public void updateTileInARoom(Room aRoom, ImageView tile, Drawer brush)
@@ -153,15 +159,16 @@ public class InteractiveMap extends GridPane implements Listener {
 		
 		if(p == null)
 			return;
-		
+
 		// Let's discard any attempts at erasing the doors or the hero
 		if (!brush.GetModifierValue("No-Rules") &&
 				( currentTile.GetType() == TileTypes.DOOR
 				|| currentTile.GetType() == TileTypes.HERO)) {
 			return;
 		}
-		
 		brush.simulateDrawing(Point.castToGeometry(p), aRoom, this);
+		EventRouter.getInstance().postEvent(new MapQuestUpdate(currentTile, new Tile(currentTile.GetCenterPosition(), brush.GetMainComponent()), aRoom));
+
 	}
 
 	public Point CheckTile(ImageView tile)
@@ -383,7 +390,7 @@ public class InteractiveMap extends GridPane implements Listener {
 		{
 			this.setCursor(((InteractiveRoomBrushUpdated) e).new_cursor);
 		}
-		
+
 	}
 
 	/*
@@ -422,6 +429,11 @@ public class InteractiveMap extends GridPane implements Listener {
 				owner.RoomHovered(self, getMap(), p, event);
 			}
 		}
+
+	}
+
+	public Tile GetLastTile() {
+		return room.getTile(lastTile.GetCenterPosition().getX(), lastTile.GetCenterPosition().getY());
 
 	}
 }

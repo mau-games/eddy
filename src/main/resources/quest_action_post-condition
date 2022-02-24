@@ -1,0 +1,20 @@
+
+capture=Somebody is there.
+damage=Somebody or something is there.
+defend=Attempts to damage it have failed.
+escort=They will now accompany you.
+exchange=You have theirs and they have yours.
+experiment=Perhaps you have learned what it is for.
+explore=Wander around at random.
+gather=You have it.
+give=They have it, and you don’t.
+goto=You are there.
+kill=They’re dead.
+listen=You have some of their information.
+read=You have information from it.
+repair=It is less damaged.
+report=They have information that you have.
+spy=You have information about it.
+stealth=Sneak up on them.
+take=You have it and they don’t.
+use=It has affected characters or environment.
