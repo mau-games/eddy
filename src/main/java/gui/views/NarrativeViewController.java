@@ -192,13 +192,4 @@ public class NarrativeViewController extends BorderPane implements Listener {
             }
         }
     }*/
-
-    /**
-     * Set this Pane as active
-     *
-     * @param active
-     */
-    public void setActive(boolean active) {
-        this.isActive = active;
-    }
 }
