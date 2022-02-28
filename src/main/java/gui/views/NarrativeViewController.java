@@ -58,98 +58,12 @@ import java.util.concurrent.atomic.AtomicBoolean;
  */
 
 public class NarrativeViewController extends BorderPane implements Listener {
-    private final EventRouter router = EventRouter.getInstance();
-    private static final int GENERATOR_ATTEMPT_LIMIT = 100;
-    private ApplicationConfig config;
-    private boolean isActive = false;
-    private Dungeon dungeon;
-    private ActionType selectedActionType = ActionType.NONE;
-    private QuestPositionUpdate updatedPosition = null;
-    private QuestPositionUpdate secondUpdatedPosition = null;
-    private boolean doublePosition = false;
-    private boolean firstTime = true;
-    float[] motiveArray;
-
-    private Tile tempTile;
-    private Action tempAction;
-
-    private Stack<TileTypes> stackNpc;
-    private Stack<finder.geometry.Point> npcPosition;
-    private Stack<TileTypes> stackCivilian;
-    private Stack<finder.geometry.Point> civilianPosition;
-    private Stack<Room> roomsNpc;
-    private Stack<Room> roomsCivilian;
-
-    private QuestGrammar questGrammar;
-    //    private List<Quest> suggestedQuests;
-    private List<Action> suggestedActions;
-    private int globalQuestIndex;
-
-    @FXML
-    private StackPane mapPane;
-    @FXML
-    private BorderPane buttonPane;
-    @FXML
-    private VBox questPaneV;
-    @FXML
-    private HBox questPaneH;
-    @FXML
-    private FlowPane generatorPane;
-    @FXML
-    private ToolBar tbQuestTools;
-    @FXML
-    private ToggleGroup questActions;
-    @FXML
-    private ToggleGroup questActionsTools;
-    @FXML
-    private ToggleGroup generatorActions;
-    @FXML
-    private CheckBox togglePath;
-    @FXML
-    private CheckBox toggleHelp;
-    @FXML
-    private Button regenerateButton;
-    @FXML
-    private Button clearQuestButton;
-    @FXML
-    private Button questPlaceholder;
-    @FXML
-    private FlowPane motivePane;
-    @FXML
-    private Label knowledgeText;
-    @FXML
-    private Label comfortText;
-    @FXML
-    private Label reputationText;
-    @FXML
-    private Label serenityText;
-    @FXML
-    private Label protectionText;
-    @FXML
-    private Label conquestText;
-    @FXML
-    private Label wealthText;
-    @FXML
-    private Label abilityText;
-    @FXML
-    private Label equipmentText;
-
-
-    LabeledCanvas canvas;
 
     public NarrativeViewController() {
         super();
         FXMLLoader loader = new FXMLLoader(getClass().getResource("/gui/interactive/NarrativeView.fxml"));
         loader.setRoot(this);
         loader.setController(this);
-
-        try {
-            loader.load();
-            config = ApplicationConfig.getInstance();
-        } catch (IOException | MissingConfigurationException ex) {
-            ex.printStackTrace();
-        }
-
     }
 
     private void initNarrativeView() {
@@ -278,13 +192,4 @@ public class NarrativeViewController extends BorderPane implements Listener {
             }
         }
     }*/
-
-    /**
-     * Set this Pane as active
-     *
-     * @param active
-     */
-    public void setActive(boolean active) {
-        this.isActive = active;
-    }
 }
