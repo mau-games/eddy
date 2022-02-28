@@ -12,6 +12,23 @@ public class Defines {
         Phobia
     }
 
+    public enum ItemType{
+        Locked,
+        Weapon,
+        Armour,
+        Potion,
+        Accessory
+    }
+
+    public enum Element{
+        Locked,
+        Fire,
+        Water,
+        Earth,
+        Air,
+        None
+    }
+
     public enum Gender{
         Locked,
         Female,
@@ -27,7 +44,7 @@ public class Defines {
         Dwarf
     }
 
-    enum Class{
+    public enum Class{
         Locked,
         Mage,
         Soldier,
