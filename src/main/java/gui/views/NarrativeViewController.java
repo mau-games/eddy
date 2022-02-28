@@ -58,6 +58,13 @@ import java.util.concurrent.atomic.AtomicBoolean;
  */
 
 public class NarrativeViewController extends BorderPane implements Listener {
+    private final EventRouter router = EventRouter.getInstance();
+    private static final int GENERATOR_ATTEMPT_LIMIT = 100;
+    private ApplicationConfig config;
+    private boolean isActive = false;
+    private Dungeon dungeon;
+    private boolean doublePosition = false;
+    private boolean firstTime = true;
 
     public NarrativeViewController() {
         super();
@@ -192,4 +199,8 @@ public class NarrativeViewController extends BorderPane implements Listener {
             }
         }
     }*/
+
+    public void setActive(boolean active) {
+        this.isActive = active;
+    }
 }

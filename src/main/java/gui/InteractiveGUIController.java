@@ -76,6 +76,7 @@ public class InteractiveGUIController implements Initializable, Listener {
 	WorldViewController worldView = null;
 	LaunchViewController launchView = null;
 	QuestViewController questView = null; 	//feature-quest
+	NarrativeViewController narrativeView = null; //story-narrative
 	EventHandler<MouseEvent> mouseEventHandler = null;
 
 //	final static Logger logger = LoggerFactory.getLogger(InteractiveGUIController.class);
@@ -129,12 +130,14 @@ public class InteractiveGUIController implements Initializable, Listener {
 		router.registerListener(this, new RequestConnectionRemoval(null, null, 0));
 		router.registerListener(this, new StartWorld(0));
 		router.registerListener(this, new RequestQuestView());	//feature-quest
+		router.registerListener(this, new RequestNarrativeView());	//story-narrative
 
 		suggestionsView = new SuggestionsViewController();
 		roomView = new RoomViewController();
 		worldView = new WorldViewController();
 		launchView = new LaunchViewController();
 		questView = new QuestViewController();
+		narrativeView = new NarrativeViewController();
 
 		mainPane.sceneProperty().addListener((observableScene, oldScene, newScene) -> {
 			if (newScene != null) {
@@ -262,7 +265,10 @@ public class InteractiveGUIController implements Initializable, Listener {
 		 }
 		 else if(e instanceof RequestQuestView){
 			showQuestView();
-		}
+		 }
+		 else if(e instanceof RequestNarrativeView){
+			showNarrativeView();
+		 }
 
 	}
 
@@ -548,6 +554,24 @@ public class InteractiveGUIController implements Initializable, Listener {
 		worldView.setActive(false);
 		launchView.setActive(false);
 		questView.setActive(true);
+	}
+
+	private void showNarrativeView(){
+		mainPane.getChildren().clear();
+		AnchorPane.setTopAnchor(narrativeView, 0.0);
+		AnchorPane.setRightAnchor(narrativeView, 0.0);
+		AnchorPane.setBottomAnchor(narrativeView, 0.0);
+		AnchorPane.setLeftAnchor(narrativeView, 0.0);
+		mainPane.getChildren().add(narrativeView);
+
+		questView.initWorldMap(dungeonMap);
+
+		suggestionsView.setActive(false);
+		roomView.setActive(false);
+		worldView.setActive(false);
+		launchView.setActive(false);
+		questView.setActive(false);
+		narrativeView.setActive(true);
 	}
 
 	/*

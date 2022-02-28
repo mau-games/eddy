@@ -734,7 +734,7 @@ public class WorldViewController extends BorderPane implements Listener
 			@Override
 			public void handle(ActionEvent event) {
 				ActionLogger.getInstance().storeAction(ActionType.CLICK, View.WORLD, TargetPane.BUTTON_PANE, false, "Open Story Editor");
-				router.postEvent(new RequestQuestView());
+				router.postEvent(new RequestNarrativeView());
 			}
 		});
 	}
