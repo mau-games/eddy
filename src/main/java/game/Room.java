@@ -165,6 +165,18 @@ public class Room {
 	//NEW THINGS
 	public ZoneNode root;
 
+	//Narrative addition
+	private List<Point> npcList =  new ArrayList<Point>();
+	private List<Point> itemList =  new ArrayList<Point>();
+
+	public List<Point> getNPCs(){
+		return npcList;
+	}
+
+	public List<Point> getItems(){
+		return itemList;
+	}
+
 	//SIDE!!!
 	public void createLists()
 	{
@@ -284,8 +296,13 @@ public class Room {
 				case TREASURE:
 					treasures.add(new Point(i, j));
 					break;
-				default:
+				case NPC:
+					npcList.add(new Point(i,j));
 					break;
+				case ITEM:
+					itemList.add(new Point(i,j));
+					break;
+				default:
 				}
 			}
 		}
