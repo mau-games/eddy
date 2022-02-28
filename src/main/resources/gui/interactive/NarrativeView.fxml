@@ -1,15 +1,22 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.geometry.*?>
-<?import javafx.scene.control.*?>
-<?import javafx.scene.layout.*?>
-<?import javafx.scene.text.*?>
-<?import javafx.scene.layout.HBox?>
-<?import javafx.scene.text.Text?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.CheckBox?>
 <?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.ToggleButton?>
+<?import javafx.scene.control.ToggleGroup?>
+<?import javafx.scene.control.ToolBar?>
+<?import javafx.scene.control.Tooltip?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.FlowPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
 
-<fx:root fx:id="rootWorldViewPane" stylesheets="@../styling.css" type="javafx.scene.layout.BorderPane" xmlns="http://javafx.com/javafx/10.0.2-internal" xmlns:fx="http://javafx.com/fxml/1">
+<fx:root fx:id="rootWorldViewPane" stylesheets="@../styling.css" type="javafx.scene.layout.BorderPane" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1">
     <fx:define>
         <ToggleGroup fx:id="questActionsTools" />
         <ToggleGroup fx:id="questActions" />
@@ -38,7 +45,7 @@
                             <content>
                                 <VBox fx:id="questPaneV" maxWidth="1.7976931348623157E308" prefHeight="300.0">
                                     <children>
-                                        <HBox fx:id="questPaneH" spacing="2.0" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefHeight="50.0" BorderPane.alignment="CENTER_LEFT">
+                                        <HBox fx:id="questPaneH" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefHeight="50.0" spacing="2.0" BorderPane.alignment="CENTER_LEFT">
                                         <children>
                                             <Button fx:id="questPlaceholder" mnemonicParsing="false" text="+" />
                                         </children>
@@ -80,10 +87,13 @@
         <BorderPane id="actionPane" style="-fx-background-color: BLACK;">
             <center>
 
-                <ToolBar fx:id="tbQuestTools" orientation="VERTICAL" prefWidth="150.0" style="-fx-background-color: black;" >
+                <ToolBar fx:id="tbQuestTools" orientation="VERTICAL" prefWidth="150.0" style="-fx-background-color: black;">
 
-                    <ToggleButton id="CAPTURE" disable="true" maxWidth="1.7976931348623157E308" mnemonicParsing="false" text="CAPTURE" toggleGroup="$questActionsTools">
+                    <ToggleButton id="CAPTURE" disable="true" maxWidth="1.7976931348623157E308" mnemonicParsing="false" text="Putin sucks">
                         <tooltip><Tooltip text="CAPTURE" /> </tooltip>
+                  <toggleGroup>
+                     <ToggleGroup fx:id="questActionsTools" />
+                  </toggleGroup>
                     </ToggleButton>
                     <ToggleButton id="DAMAGE" disable="true" maxWidth="1.7976931348623157E308" mnemonicParsing="false" text="DAMAGE" toggleGroup="$questActionsTools">
                         <tooltip><Tooltip text="DAMAGE" /> </tooltip>
@@ -149,7 +159,7 @@
               </FlowPane>
           </center>
           <bottom>
-          		<FlowPane fx:id="motivePane" hgap="5.0" maxHeight="400" maxWidth="100" prefHeight="300.0" vgap="5.0" BorderPane.alignment="CENTER" orientation="VERTICAL">
+          		<FlowPane fx:id="motivePane" hgap="5.0" maxHeight="400" maxWidth="100" orientation="VERTICAL" prefHeight="300.0" vgap="5.0" BorderPane.alignment="CENTER">
                      <children>
                          <Label contentDisplay="CENTER" maxWidth="1.7976931348623157E308" text="Current percentage of motives" textAlignment="CENTER" textFill="white" underline="true" wrapText="true" xmlns="http://javafx.com/javafx/10.0.2-internal" xmlns:fx="http://javafx.com/fxml/1">
                      		<font>
