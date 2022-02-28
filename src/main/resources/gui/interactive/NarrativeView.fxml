@@ -1,22 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.geometry.Insets?>
-<?import javafx.scene.control.Button?>
-<?import javafx.scene.control.CheckBox?>
-<?import javafx.scene.control.Label?>
-<?import javafx.scene.control.ScrollPane?>
-<?import javafx.scene.control.ToggleButton?>
-<?import javafx.scene.control.ToggleGroup?>
-<?import javafx.scene.control.ToolBar?>
-<?import javafx.scene.control.Tooltip?>
-<?import javafx.scene.layout.BorderPane?>
-<?import javafx.scene.layout.FlowPane?>
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
 <?import javafx.scene.layout.HBox?>
-<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.text.Text?>
+<?import javafx.scene.control.Label?>
 <?import javafx.scene.layout.VBox?>
-<?import javafx.scene.text.Font?>
 
-<fx:root fx:id="rootWorldViewPane" stylesheets="@../styling.css" type="javafx.scene.layout.BorderPane" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1">
+<fx:root fx:id="rootWorldViewPane" stylesheets="@../styling.css" type="javafx.scene.layout.BorderPane" xmlns="http://javafx.com/javafx/10.0.2-internal" xmlns:fx="http://javafx.com/fxml/1">
     <fx:define>
         <ToggleGroup fx:id="questActionsTools" />
         <ToggleGroup fx:id="questActions" />
@@ -25,7 +18,7 @@
     <center>
         <BorderPane style="-fx-border-color: transparent lightgray transparent lightgray; -fx-border-width: 2px;">
             <center>
-                    <StackPane fx:id="mapPane" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" />
+                <StackPane fx:id="mapPane" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" />
             </center>
             <bottom>
                 <BorderPane style="-fx-border-color: lightgray transparent; -fx-border-width: 2px;">
@@ -45,38 +38,38 @@
                             <content>
                                 <VBox fx:id="questPaneV" maxWidth="1.7976931348623157E308" prefHeight="300.0">
                                     <children>
-                                        <HBox fx:id="questPaneH" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefHeight="50.0" spacing="2.0" BorderPane.alignment="CENTER_LEFT">
-                                        <children>
-                                            <Button fx:id="questPlaceholder" mnemonicParsing="false" text="+" />
-                                        </children>
-                                        <padding>
-                                            <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
-                                        </padding>
+                                        <HBox fx:id="questPaneH" spacing="2.0" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefHeight="50.0" BorderPane.alignment="CENTER_LEFT">
+                                            <children>
+                                                <Button fx:id="questPlaceholder" mnemonicParsing="false" text="+" />
+                                            </children>
+                                            <padding>
+                                                <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+                                            </padding>
                                         </HBox>
                                     </children>
                                 </VBox>
                             </content>
                         </ScrollPane>
-                        </center>
+                    </center>
                     <bottom>
-                       <StackPane alignment="BOTTOM_RIGHT" BorderPane.alignment="CENTER">
-                          <children>
-                             <Button fx:id="clearQuestButton" mnemonicParsing="false" text="Erase Quest">
-                                <StackPane.margin>
-                                   <Insets bottom="8.0" left="8.0" right="8.0" top="8.0" />
-                                </StackPane.margin></Button>
-                          </children>
-                       </StackPane>
+                        <StackPane alignment="BOTTOM_RIGHT" BorderPane.alignment="CENTER">
+                            <children>
+                                <Button fx:id="clearQuestButton" mnemonicParsing="false" text="Erase Quest">
+                                    <StackPane.margin>
+                                        <Insets bottom="8.0" left="8.0" right="8.0" top="8.0" />
+                                    </StackPane.margin></Button>
+                            </children>
+                        </StackPane>
                     </bottom>
                     <bottom>
-                       <StackPane alignment="BOTTOM_RIGHT" BorderPane.alignment="CENTER">
-                          <children>
-                             <Button fx:id="clearQuestButton" mnemonicParsing="false" text="Erase Quest">
-                                <StackPane.margin>
-                                   <Insets bottom="8.0" left="8.0" right="8.0" top="8.0" />
-                                </StackPane.margin></Button>
-                          </children>
-                       </StackPane>
+                        <StackPane alignment="BOTTOM_RIGHT" BorderPane.alignment="CENTER">
+                            <children>
+                                <Button fx:id="clearQuestButton" mnemonicParsing="false" text="Erase Quest">
+                                    <StackPane.margin>
+                                        <Insets bottom="8.0" left="8.0" right="8.0" top="8.0" />
+                                    </StackPane.margin></Button>
+                            </children>
+                        </StackPane>
                     </bottom>
                 </BorderPane>
             </bottom>
@@ -87,13 +80,10 @@
         <BorderPane id="actionPane" style="-fx-background-color: BLACK;">
             <center>
 
-                <ToolBar fx:id="tbQuestTools" orientation="VERTICAL" prefWidth="150.0" style="-fx-background-color: black;">
+                <ToolBar fx:id="tbQuestTools" orientation="VERTICAL" prefWidth="150.0" style="-fx-background-color: black;" >
 
-                    <ToggleButton id="CAPTURE" disable="true" maxWidth="1.7976931348623157E308" mnemonicParsing="false" text="Putin sucks">
+                    <ToggleButton id="CAPTURE" disable="true" maxWidth="1.7976931348623157E308" mnemonicParsing="false" text="CAPTURE" toggleGroup="$questActionsTools">
                         <tooltip><Tooltip text="CAPTURE" /> </tooltip>
-                  <toggleGroup>
-                     <ToggleGroup fx:id="questActionsTools" />
-                  </toggleGroup>
                     </ToggleButton>
                     <ToggleButton id="DAMAGE" disable="true" maxWidth="1.7976931348623157E308" mnemonicParsing="false" text="DAMAGE" toggleGroup="$questActionsTools">
                         <tooltip><Tooltip text="DAMAGE" /> </tooltip>
@@ -137,128 +127,128 @@
                     </padding>
                 </ToolBar>
             </center>
-         <padding>
-            <Insets bottom="10.0" left="10.0" top="10.0" />
-         </padding>
-         <bottom>
-                  <VBox alignment="TOP_CENTER" BorderPane.alignment="CENTER">
-                      <CheckBox fx:id="toggleHelp" selected="true" text="Toggle Help" />
-                      <CheckBox fx:id="togglePath" text="Toggle Path" />
-                  </VBox>
-         </bottom>
+            <padding>
+                <Insets bottom="10.0" left="10.0" top="10.0" />
+            </padding>
+            <bottom>
+                <VBox alignment="TOP_CENTER" BorderPane.alignment="CENTER">
+                    <CheckBox fx:id="toggleHelp" selected="true" text="Toggle Help" />
+                    <CheckBox fx:id="togglePath" text="Toggle Path" />
+                </VBox>
+            </bottom>
         </BorderPane>
     </left>
-    
-   <right>
-      <BorderPane maxWidth="1.7976931348623157E308" style="-fx-background-color: black;">
-          <center>
-              <FlowPane fx:id="generatorPane" alignment="TOP_CENTER" columnHalignment="CENTER" maxWidth="1.7976931348623157E308" orientation="VERTICAL" vgap="5.0" StackPane.alignment="CENTER">
-               <padding>
-                   <Insets top="50" />
-               </padding>
-              </FlowPane>
-          </center>
-          <bottom>
-          		<FlowPane fx:id="motivePane" hgap="5.0" maxHeight="400" maxWidth="100" orientation="VERTICAL" prefHeight="300.0" vgap="5.0" BorderPane.alignment="CENTER">
-                     <children>
-                         <Label contentDisplay="CENTER" maxWidth="1.7976931348623157E308" text="Current percentage of motives" textAlignment="CENTER" textFill="white" underline="true" wrapText="true" xmlns="http://javafx.com/javafx/10.0.2-internal" xmlns:fx="http://javafx.com/fxml/1">
-                     		<font>
-                         		<Font size="14.0" />
-                     		</font>
-                		</Label>
-                     </children>
-                     <children>
-                     	<Label fx:id="knowledgeText" contentDisplay="CENTER" maxWidth="1.7976931348623157E308" text="Knowledge = 0.0/18.3%" textAlignment="CENTER" textFill="white" wrapText="true" xmlns="http://javafx.com/javafx/10.0.2-internal" xmlns:fx="http://javafx.com/fxml/1">
-                     		<font>
-                         		<Font size="12.0" />
-                     		</font>
-                		</Label>
-                     </children>
-                     <children>
-                     	<Label fx:id="comfortText" contentDisplay="CENTER" maxWidth="1.7976931348623157E308" text="Comfort = 0.0/1.6%" textAlignment="CENTER" textFill="white" wrapText="true" xmlns="http://javafx.com/javafx/10.0.2-internal" xmlns:fx="http://javafx.com/fxml/1">
-                     		<font>
-                         		<Font size="12.0" />
-                     		</font>
-                		</Label>
-                     </children>
-                     <children>
-                     	<Label fx:id="reputationText" contentDisplay="CENTER" maxWidth="1.7976931348623157E308" text="Reputation = 0.0/6.5%" textAlignment="CENTER" textFill="white" wrapText="true" xmlns="http://javafx.com/javafx/10.0.2-internal" xmlns:fx="http://javafx.com/fxml/1">
-                     		<font>
-                         		<Font size="12.0" />
-                     		</font>
-                		</Label>
-                     </children>
-                     <children>
-                     	<Label fx:id="serenityText" contentDisplay="CENTER" maxWidth="1.7976931348623157E308" text="Serenity = 0.0/13.7%" textAlignment="CENTER" textFill="white" wrapText="true" xmlns="http://javafx.com/javafx/10.0.2-internal" xmlns:fx="http://javafx.com/fxml/1">
-                     		<font>
-                         		<Font size="12.0" />
-                     		</font>
-                		</Label>
-                     </children>
-                     <children>
-                     	<Label fx:id="protectionText" contentDisplay="CENTER" maxWidth="1.7976931348623157E308" text="Protection = 0.0/18.2%" textAlignment="CENTER" textFill="white" wrapText="true" xmlns="http://javafx.com/javafx/10.0.2-internal" xmlns:fx="http://javafx.com/fxml/1">
-                     		<font>
-                         		<Font size="12.0" />
-                     		</font>
-                		</Label>
-                     </children>
-                     <children>
-                     	<Label fx:id="conquestText" contentDisplay="CENTER" maxWidth="1.7976931348623157E308" text="Conquest = 0.0/20.2%" textAlignment="CENTER" textFill="white" wrapText="true" xmlns="http://javafx.com/javafx/10.0.2-internal" xmlns:fx="http://javafx.com/fxml/1">
-                     		<font>
-                         		<Font size="12.0" />
-                     		</font>
-                		</Label>
-                     </children>
-                     <children>
-                     	<Label fx:id="wealthText" contentDisplay="CENTER" maxWidth="1.7976931348623157E308" text="Wealth = 0.0/2.0%" textAlignment="CENTER" textFill="white" wrapText="true" xmlns="http://javafx.com/javafx/10.0.2-internal" xmlns:fx="http://javafx.com/fxml/1">
-                     		<font>
-                         		<Font size="12.0" />
-                     		</font>
-                		</Label>
-                     </children>
-                     <children>
-                     	<Label fx:id="abilityText" contentDisplay="CENTER" maxWidth="1.7976931348623157E308" text="Ability = 0.0/1.1%" textAlignment="CENTER" textFill="white" wrapText="true" xmlns="http://javafx.com/javafx/10.0.2-internal" xmlns:fx="http://javafx.com/fxml/1">
-                     		<font>
-                         		<Font size="12.0" />
-                     		</font>
-                		</Label>
-                     </children>
-                     <children>
-                     	<Label fx:id="equipmentText" contentDisplay="CENTER" maxWidth="1.7976931348623157E308" text="Equipment = 0.0/18.5%" textAlignment="CENTER" textFill="white" wrapText="true" xmlns="http://javafx.com/javafx/10.0.2-internal" xmlns:fx="http://javafx.com/fxml/1">
-                     		<font>
-                         		<Font size="12.0" />
-                     		</font>
-                		</Label>
-                     </children>
-                     <padding>
+
+    <right>
+        <BorderPane maxWidth="1.7976931348623157E308" style="-fx-background-color: black;">
+            <center>
+                <FlowPane fx:id="generatorPane" alignment="TOP_CENTER" columnHalignment="CENTER" maxWidth="1.7976931348623157E308" orientation="VERTICAL" vgap="5.0" StackPane.alignment="CENTER">
+                    <padding>
+                        <Insets top="50" />
+                    </padding>
+                </FlowPane>
+            </center>
+            <bottom>
+                <FlowPane fx:id="motivePane" hgap="5.0" maxHeight="400" maxWidth="100" prefHeight="300.0" vgap="5.0" BorderPane.alignment="CENTER" orientation="VERTICAL">
+                    <children>
+                        <Label contentDisplay="CENTER" maxWidth="1.7976931348623157E308" text="Current percentage of motives" textAlignment="CENTER" textFill="white" underline="true" wrapText="true" xmlns="http://javafx.com/javafx/10.0.2-internal" xmlns:fx="http://javafx.com/fxml/1">
+                            <font>
+                                <Font size="14.0" />
+                            </font>
+                        </Label>
+                    </children>
+                    <children>
+                        <Label fx:id="knowledgeText" contentDisplay="CENTER" maxWidth="1.7976931348623157E308" text="Knowledge = 0.0/18.3%" textAlignment="CENTER" textFill="white" wrapText="true" xmlns="http://javafx.com/javafx/10.0.2-internal" xmlns:fx="http://javafx.com/fxml/1">
+                            <font>
+                                <Font size="12.0" />
+                            </font>
+                        </Label>
+                    </children>
+                    <children>
+                        <Label fx:id="comfortText" contentDisplay="CENTER" maxWidth="1.7976931348623157E308" text="Comfort = 0.0/1.6%" textAlignment="CENTER" textFill="white" wrapText="true" xmlns="http://javafx.com/javafx/10.0.2-internal" xmlns:fx="http://javafx.com/fxml/1">
+                            <font>
+                                <Font size="12.0" />
+                            </font>
+                        </Label>
+                    </children>
+                    <children>
+                        <Label fx:id="reputationText" contentDisplay="CENTER" maxWidth="1.7976931348623157E308" text="Reputation = 0.0/6.5%" textAlignment="CENTER" textFill="white" wrapText="true" xmlns="http://javafx.com/javafx/10.0.2-internal" xmlns:fx="http://javafx.com/fxml/1">
+                            <font>
+                                <Font size="12.0" />
+                            </font>
+                        </Label>
+                    </children>
+                    <children>
+                        <Label fx:id="serenityText" contentDisplay="CENTER" maxWidth="1.7976931348623157E308" text="Serenity = 0.0/13.7%" textAlignment="CENTER" textFill="white" wrapText="true" xmlns="http://javafx.com/javafx/10.0.2-internal" xmlns:fx="http://javafx.com/fxml/1">
+                            <font>
+                                <Font size="12.0" />
+                            </font>
+                        </Label>
+                    </children>
+                    <children>
+                        <Label fx:id="protectionText" contentDisplay="CENTER" maxWidth="1.7976931348623157E308" text="Protection = 0.0/18.2%" textAlignment="CENTER" textFill="white" wrapText="true" xmlns="http://javafx.com/javafx/10.0.2-internal" xmlns:fx="http://javafx.com/fxml/1">
+                            <font>
+                                <Font size="12.0" />
+                            </font>
+                        </Label>
+                    </children>
+                    <children>
+                        <Label fx:id="conquestText" contentDisplay="CENTER" maxWidth="1.7976931348623157E308" text="Conquest = 0.0/20.2%" textAlignment="CENTER" textFill="white" wrapText="true" xmlns="http://javafx.com/javafx/10.0.2-internal" xmlns:fx="http://javafx.com/fxml/1">
+                            <font>
+                                <Font size="12.0" />
+                            </font>
+                        </Label>
+                    </children>
+                    <children>
+                        <Label fx:id="wealthText" contentDisplay="CENTER" maxWidth="1.7976931348623157E308" text="Wealth = 0.0/2.0%" textAlignment="CENTER" textFill="white" wrapText="true" xmlns="http://javafx.com/javafx/10.0.2-internal" xmlns:fx="http://javafx.com/fxml/1">
+                            <font>
+                                <Font size="12.0" />
+                            </font>
+                        </Label>
+                    </children>
+                    <children>
+                        <Label fx:id="abilityText" contentDisplay="CENTER" maxWidth="1.7976931348623157E308" text="Ability = 0.0/1.1%" textAlignment="CENTER" textFill="white" wrapText="true" xmlns="http://javafx.com/javafx/10.0.2-internal" xmlns:fx="http://javafx.com/fxml/1">
+                            <font>
+                                <Font size="12.0" />
+                            </font>
+                        </Label>
+                    </children>
+                    <children>
+                        <Label fx:id="equipmentText" contentDisplay="CENTER" maxWidth="1.7976931348623157E308" text="Equipment = 0.0/18.5%" textAlignment="CENTER" textFill="white" wrapText="true" xmlns="http://javafx.com/javafx/10.0.2-internal" xmlns:fx="http://javafx.com/fxml/1">
+                            <font>
+                                <Font size="12.0" />
+                            </font>
+                        </Label>
+                    </children>
+                    <padding>
                         <Insets bottom="10.0" top="10.0" />
-                     </padding>
-                   	<children>
-                      <Button fx:id="btnBackToWorld" alignment="BASELINE_CENTER" maxHeight="1.7976931348623157E308" mnemonicParsing="false" onAction="#backWorldView" text="Back To World View" textAlignment="CENTER" wrapText="true">
-                   	</Button>
-                   	</children>
-                 </FlowPane>
-              <!--<StackPane>
-                  <Button fx:id="btnBackToWorld" alignment="BASELINE_CENTER" maxHeight="1.7976931348623157E308" mnemonicParsing="false" onAction="#backWorldView" text="Back To World View" textAlignment="CENTER" wrapText="true">
-                      <StackPane.margin>
-                          <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
-                      </StackPane.margin>
-                  </Button>
-                    
-              </StackPane>-->
-          </bottom>
-         <padding>
-            <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
-         </padding>
-         <top>
-            <VBox alignment="TOP_CENTER" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefWidth="132.0" BorderPane.alignment="CENTER">
-                 <Label contentDisplay="CENTER" maxWidth="1.7976931348623157E308" text="Generated suggestions" textAlignment="CENTER" textFill="white" underline="true" wrapText="true" xmlns="http://javafx.com/javafx/10.0.2-internal" xmlns:fx="http://javafx.com/fxml/1">
-                     <font>
-                         <Font size="24.0" />
-                     </font>
-                </Label>
-             </VBox>
-         </top>
-       </BorderPane>
-   </right>
+                    </padding>
+                    <children>
+                        <Button fx:id="btnBackToWorld" alignment="BASELINE_CENTER" maxHeight="1.7976931348623157E308" mnemonicParsing="false" onAction="#backWorldView" text="Back To World View" textAlignment="CENTER" wrapText="true">
+                        </Button>
+                    </children>
+                </FlowPane>
+                <!--<StackPane>
+                    <Button fx:id="btnBackToWorld" alignment="BASELINE_CENTER" maxHeight="1.7976931348623157E308" mnemonicParsing="false" onAction="#backWorldView" text="Back To World View" textAlignment="CENTER" wrapText="true">
+                        <StackPane.margin>
+                            <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+                        </StackPane.margin>
+                    </Button>
+
+                </StackPane>-->
+            </bottom>
+            <padding>
+                <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+            </padding>
+            <top>
+                <VBox alignment="TOP_CENTER" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefWidth="132.0" BorderPane.alignment="CENTER">
+                    <Label contentDisplay="CENTER" maxWidth="1.7976931348623157E308" text="Generated suggestions" textAlignment="CENTER" textFill="white" underline="true" wrapText="true" xmlns="http://javafx.com/javafx/10.0.2-internal" xmlns:fx="http://javafx.com/fxml/1">
+                        <font>
+                            <Font size="24.0" />
+                        </font>
+                    </Label>
+                </VBox>
+            </top>
+        </BorderPane>
+    </right>
 </fx:root>

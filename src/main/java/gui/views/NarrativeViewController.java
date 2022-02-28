@@ -36,6 +36,7 @@ import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.TextAlignment;
+import narrative.entity.NPC;
 import org.checkerframework.checker.units.qual.A;
 import util.Point;
 import util.config.MissingConfigurationException;
@@ -66,11 +67,35 @@ public class NarrativeViewController extends BorderPane implements Listener {
     private boolean doublePosition = false;
     private boolean firstTime = true;
 
+    private Stack<NPC> stackNpc;
+    private Stack<finder.geometry.Point> npcPosition;
+    private Stack<Room> roomsNpc;
+
     public NarrativeViewController() {
         super();
         FXMLLoader loader = new FXMLLoader(getClass().getResource("/gui/interactive/NarrativeView.fxml"));
         loader.setRoot(this);
         loader.setController(this);
+
+        try {
+            loader.load();
+            config = ApplicationConfig.getInstance();
+        } catch (IOException | MissingConfigurationException ex) {
+            ex.printStackTrace();
+        }
+
+        router.registerListener(this, new MapUpdate(null));
+        router.registerListener(this, new RequestQuestView());
+        router.registerListener(this, new QuestPositionUpdate(null, null, false));
+        router.registerListener(this, new QuestPositionInvalid());
+        router.registerListener(this, new QuestActionSuggestionUpdate());
+
+        initNarrativeView();
+        initAttributeToolbar();
+
+        stackNpc = new Stack<NPC>();
+        npcPosition = new Stack<finder.geometry.Point>();
+        roomsNpc = new Stack<Room>();
     }
 
     private void initNarrativeView() {
