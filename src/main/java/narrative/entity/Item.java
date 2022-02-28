@@ -1,4 +1,4 @@
 package narrative.entity;
 
-public class Item {
+public class Item implements Entity {
 }

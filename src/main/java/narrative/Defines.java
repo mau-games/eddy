@@ -4,7 +4,7 @@ import java.util.List;
 import narrative.entity.Entity;
 
 public class Defines {
-    enum RelationshipType{
+    public enum RelationshipType{
         Locked,
         Hate,
         Love,
@@ -12,14 +12,14 @@ public class Defines {
         Phobia
     }
 
-    enum Gender{
+    public enum Gender{
         Locked,
         Female,
         Male,
         Other
     }
 
-    enum Race{
+    public enum Race{
         Locked,
         Orc,
         Human,
@@ -35,10 +35,10 @@ public class Defines {
         BountyHunter
     }
 
-    enum AttributeType{
+    public enum AttributeType{
         Race,
         Element,
-        Class,
+        NpcClass,
         Gender,
         Name,
         NameSecond,
@@ -48,7 +48,7 @@ public class Defines {
         HairColour
     }
 
-    class Relationship{
+    public class Relationship{
         RelationshipType m_relationshipType;
         List<Entity> m_relationshipTarget;
         AttributeType m_phobiaTarget;
