@@ -150,24 +150,13 @@ public class NarrativeViewController extends BorderPane implements Listener {
             ex.printStackTrace();
         }
 
-        router.registerListener(this, new MapUpdate(null));
-        router.registerListener(this, new RequestQuestView());
-        router.registerListener(this, new QuestPositionUpdate(null, null, false));
-        router.registerListener(this, new QuestPositionInvalid());
-        router.registerListener(this, new QuestActionSuggestionUpdate());
-
-        initQuestView();
-        initActionToolbar();
-
-        stackNpc = new Stack<TileTypes>();
-        npcPosition = new Stack<finder.geometry.Point>();
-        stackCivilian = new Stack<TileTypes>();
-        civilianPosition = new Stack<finder.geometry.Point>();
-        roomsNpc = new Stack<Room>();
-        roomsCivilian = new Stack<Room>();
-
     }
 
+    private void initNarrativeView() {
+    }
+
+    private void initAttributeToolbar() {
+    }
 
     @Override
     public void ping(PCGEvent e) {
