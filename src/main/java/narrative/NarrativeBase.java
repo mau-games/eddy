@@ -3,7 +3,9 @@ import game.Dungeon;
 import game.Room;
 import game.Tile;
 import narrative.entity.Actor;
+import narrative.entity.Enemy;
 import narrative.entity.Entity;
+import narrative.entity.NPC;
 import narrative.entity.Item;
 import java.util.ArrayList;
 import java.util.List;
@@ -35,18 +37,16 @@ private Dungeon owner;
     public void getallEntities(){
         for (Room room :  getAllRooms()){
             for (Point enemy : room.getEnemies()){
-                entities.add(new Actor()); // new actor()
+                entities.add(new Enemy()); // new Enemy()
             }
 
             for (Point NPC : room.getNPCs()){
-                entities.add(new Actor()); // new actor()
+                entities.add(new NPC()); // new NPC()
             }
 
             for (Point item : room.getItems()){
-                entities.add(new Item()); // new item()
+                entities.add(new Item()); // new Item()
             }
         }
     }
-
-
 }
