@@ -70,6 +70,8 @@ public class NarrativeViewController extends BorderPane implements Listener {
     private Stack<NPC> stackNpc;
     private Stack<finder.geometry.Point> npcPosition;
     private Stack<Room> roomsNpc;
+    @FXML
+    private StackPane mapPane;
 
     public NarrativeViewController() {
         super();
@@ -102,6 +104,18 @@ public class NarrativeViewController extends BorderPane implements Listener {
     }
 
     private void initAttributeToolbar() {
+    }
+
+    public void initWorldMap(Dungeon dungeon) {
+        this.dungeon = dungeon;
+        dungeon.dPane.renderAll();
+        mapPane.getChildren().add(dungeon.dPane);
+    }
+
+    @FXML
+    private void backWorldView(ActionEvent event) throws IOException {
+        DungeonDrawer.getInstance().changeBrushTo(DungeonDrawer.DungeonBrushes.MOVEMENT);
+        router.postEvent(new RequestWorldView());
     }
 
     @Override

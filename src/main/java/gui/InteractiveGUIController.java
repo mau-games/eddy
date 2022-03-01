@@ -564,7 +564,7 @@ public class InteractiveGUIController implements Initializable, Listener {
 		AnchorPane.setLeftAnchor(narrativeView, 0.0);
 		mainPane.getChildren().add(narrativeView);
 
-		questView.initWorldMap(dungeonMap);
+		narrativeView.initWorldMap(dungeonMap);
 
 		suggestionsView.setActive(false);
 		roomView.setActive(false);
