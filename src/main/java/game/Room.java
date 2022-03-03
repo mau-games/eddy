@@ -299,6 +299,18 @@ public class Room {
 				case NPC:
 					npcList.add(new Point(i,j));
 					break;
+					case MAGE:
+						npcList.add(new Point(i,j));
+						break;
+					case SOLDIER:
+						npcList.add(new Point(i,j));
+						break;
+					case CIVILIAN:
+						npcList.add(new Point(i,j));
+						break;
+					case BOUNTYHUNTER:
+						npcList.add(new Point(i,j));
+						break;
 				case ITEM:
 					itemList.add(new Point(i,j));
 					break;
@@ -411,6 +423,8 @@ public class Room {
 		wallCount = 0;
 		enemies.clear();
 		treasures.clear();
+		npcList.clear();
+		itemList.clear();
 //		
 		for (int j = 0; j < height; j++){
 			for (int i = 0; i < width; i++) {
@@ -423,6 +437,24 @@ public class Room {
 					break;
 				case TREASURE:
 					treasures.add(new Point(i, j));
+					break;
+				case NPC:
+					npcList.add(new Point(i,j));
+					break;
+					case MAGE:
+						npcList.add(new Point(i,j));
+						break;
+					case SOLDIER:
+						npcList.add(new Point(i,j));
+						break;
+					case CIVILIAN:
+						npcList.add(new Point(i,j));
+						break;
+					case BOUNTYHUNTER:
+						npcList.add(new Point(i,j));
+						break;
+				case ITEM:
+					itemList.add(new Point(i,j));
 					break;
 				default:
 					break;
@@ -461,7 +493,9 @@ public class Room {
 		enemies.clear();
 		treasures.clear();
 		doors.clear();
-		
+		npcList.clear();
+		itemList.clear();
+
 		this.width = cols;
 		this.height = rows;
 		wallCount = 0;
@@ -698,6 +732,8 @@ public class Room {
 		wallCount = 0;
 		enemies.clear();
 		treasures.clear();
+		npcList.clear();
+		itemList.clear();
 		
 		for (int j = 0; j < height; j++) 
 		{
@@ -712,6 +748,24 @@ public class Room {
 					break;
 				case TREASURE:
 					treasures.add(new Point(i, j));
+					break;
+				case NPC:
+					npcList.add(new Point(i,j));
+					break;
+				case MAGE:
+					npcList.add(new Point(i,j));
+					break;
+				case SOLDIER:
+					npcList.add(new Point(i,j));
+					break;
+				case CIVILIAN:
+					npcList.add(new Point(i,j));
+					break;
+				case BOUNTYHUNTER:
+					npcList.add(new Point(i,j));
+					break;
+				case ITEM:
+					itemList.add(new Point(i,j));
 					break;
 				default:
 					break;
@@ -736,6 +790,8 @@ public class Room {
 		treasures.clear();
 		enemies.clear();
 		doors.clear();
+		npcList.clear();
+		itemList.clear();
 		treasureSafety = new Hashtable<Point, Double>();
 		wallCount = 0;
 		allocated = new boolean[height][width];
@@ -754,6 +810,24 @@ public class Room {
 					break;
 				case DOOR:
 					addDoor(new Point(i, j));
+					break;
+				case NPC:
+					npcList.add(new Point(i,j));
+					break;
+				case MAGE:
+					npcList.add(new Point(i,j));
+					break;
+				case SOLDIER:
+					npcList.add(new Point(i,j));
+					break;
+				case CIVILIAN:
+					npcList.add(new Point(i,j));
+					break;
+				case BOUNTYHUNTER:
+					npcList.add(new Point(i,j));
+					break;
+				case ITEM:
+					itemList.add(new Point(i,j));
 					break;
 				default:
 					break;
@@ -853,6 +927,24 @@ public class Room {
 			break;
 		case TREASURE:
 			treasures.add(new Point(x, y));
+			break;
+		case NPC:
+			npcList.add(new Point(x,y));
+			break;
+			case MAGE:
+				npcList.add(new Point(x,y));
+				break;
+			case SOLDIER:
+				npcList.add(new Point(x,y));
+				break;
+			case CIVILIAN:
+				npcList.add(new Point(x,y));
+				break;
+			case BOUNTYHUNTER:
+				npcList.add(new Point(x,y));
+				break;
+		case ITEM:
+			itemList.add(new Point(x,y));
 			break;
 		default:
 			break;
@@ -1619,7 +1711,9 @@ public class Room {
 	private void initMapFromTypes(TileTypes[] tiles) {
 		enemies.clear();
 		treasures.clear();
-		
+		npcList.clear();
+		itemList.clear();
+
 		int tile = 0;
 		for (int j = 0; j < height; j++) {
 			for (int i = 0; i < width; i++) {
@@ -1633,6 +1727,25 @@ public class Room {
 				case TREASURE:
 					treasures.add(new Point(i, j));
 					break;
+				case NPC:
+					npcList.add(new Point(i,j));
+					break;
+				case MAGE:
+					npcList.add(new Point(i,j));
+					break;
+				case SOLDIER:
+					npcList.add(new Point(i,j));
+					break;
+				case CIVILIAN:
+					npcList.add(new Point(i,j));
+					break;
+				case BOUNTYHUNTER:
+					npcList.add(new Point(i,j));
+					break;
+				case ITEM:
+					itemList.add(new Point(i,j));
+					break;
+
 				default:
 					break;
 				}

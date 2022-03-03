@@ -16,6 +16,7 @@ import javax.xml.transform.stream.StreamResult;
 
 import game.quest.Quest;
 import game.tiles.*;
+import narrative.NarrativeBase;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
@@ -57,6 +58,7 @@ public class Dungeon implements Listener
 	
 	public MutableNetwork<Room, RoomEdge> network; //TODO: Public for now
 	private Quest quest;
+	private NarrativeBase narrative;
 	ArrayList<Room> rooms;
 	Room initialRoom;
 	Point initialPos;
@@ -138,7 +140,7 @@ public class Dungeon implements Listener
 		this.scaleFactor = defaultScaleFactor;
 
 		quest = new Quest(this);
-		
+		narrative = new NarrativeBase(this);
 		//Create rooms
 		rooms = new ArrayList<Room>();
 		selectedRoom = null;
@@ -781,15 +783,15 @@ public class Dungeon implements Listener
 			}
 			
 //			Stack<Room> steps = new Stack<Room>();
-//			steps.push(init);
-//			steps.push(r);
-//			
-//			Set<Room> adjRooms = network.adjacentNodes(r);
-//			adjRooms.remove(init);
-//			
-//			if(adjRooms.contains(end))
-//			{
-//				steps.push(r);
+////			steps.push(init);
+////			steps.push(r);
+////
+////			Set<Room> adjRooms = network.adjacentNodes(r);
+////			adjRooms.remove(init);
+////
+////			if(adjRooms.contains(end))
+////			{
+////				steps.push(r);
 //				System.out.println("REACHED");
 //				printRoomNumbers(steps);
 //			}
@@ -916,6 +918,10 @@ public class Dungeon implements Listener
 
 	public Quest getQuest() {
 		return quest;
+	}
+
+	public void narrativeCreateEntities() {
+		narrative.CreateEntities();
 	}
 
 	///////////////////////// TESTING TRAVERSAL AND RETRIEVAL OF ALL THE PATHS FROM A ROOM TO ANOTHER ROOM ///////////////////////////

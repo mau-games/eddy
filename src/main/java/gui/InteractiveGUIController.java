@@ -17,6 +17,8 @@ import collectors.ActionLogger;
 import collectors.DataSaverLoader;
 import game.ApplicationConfig;
 import game.Dungeon;
+
+import narrative.NarrativeBase;
 import game.Game;
 import game.Room;
 import game.RoomEdge;
@@ -287,6 +289,7 @@ public class InteractiveGUIController implements Initializable, Listener {
 		worldView = new WorldViewController();
 		launchView = new LaunchViewController();
 		questView = new QuestViewController();
+		narrativeView = new NarrativeViewController();
 		dungeonMap = null;
 		
 		runID = UUID.randomUUID();
@@ -553,6 +556,7 @@ public class InteractiveGUIController implements Initializable, Listener {
 		roomView.setActive(false);
 		worldView.setActive(false);
 		launchView.setActive(false);
+		narrativeView.setActive(false);
 		questView.setActive(true);
 	}
 
@@ -566,6 +570,7 @@ public class InteractiveGUIController implements Initializable, Listener {
 
 		narrativeView.initWorldMap(dungeonMap);
 
+		dungeonMap.narrativeCreateEntities();
 		suggestionsView.setActive(false);
 		roomView.setActive(false);
 		worldView.setActive(false);

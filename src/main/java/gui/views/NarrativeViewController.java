@@ -36,6 +36,7 @@ import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.TextAlignment;
+import narrative.NarrativeBase;
 import narrative.entity.NPC;
 import org.checkerframework.checker.units.qual.A;
 import util.Point;
@@ -79,6 +80,8 @@ public class NarrativeViewController extends BorderPane implements Listener {
         loader.setRoot(this);
         loader.setController(this);
 
+        //dungeon.getNarrative().CreateEntities();
+
         try {
             loader.load();
             config = ApplicationConfig.getInstance();
@@ -101,6 +104,7 @@ public class NarrativeViewController extends BorderPane implements Listener {
     }
 
     private void initNarrativeView() {
+
     }
 
     private void initAttributeToolbar() {
@@ -126,4 +130,5 @@ public class NarrativeViewController extends BorderPane implements Listener {
     public void setActive(boolean active) {
         this.isActive = active;
     }
+
 }

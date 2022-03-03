@@ -96,7 +96,7 @@
 					<archive>
 						<manifest>
 							<addClasspath>true</addClasspath>
-							<mainClass>runners.InteractiveGUI</mainClass>
+							<mainClass>gui.views.runners.InteractiveGUI</mainClass>
 						</manifest>
 					</archive>
 				</configuration>

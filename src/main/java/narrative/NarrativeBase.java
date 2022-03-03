@@ -2,6 +2,7 @@ package narrative;
 import game.Dungeon;
 import game.Room;
 import game.Tile;
+import game.quest.Action;
 import narrative.entity.Actor;
 import narrative.entity.Enemy;
 import narrative.entity.Entity;
@@ -31,11 +32,25 @@ import util.eventrouting.events.*;
 import java.util.ArrayList;
 
 public class NarrativeBase extends Dungeon {
-private Dungeon owner;
+    private Dungeon owner;
     private ArrayList<Entity> entities; //ändras till entity
 
-    public void getallEntities(){
-        for (Room room :  getAllRooms()){
+    public NarrativeBase(){
+        this.entities = new ArrayList<Entity>();
+        CreateEntities();
+    }
+
+    public NarrativeBase(Dungeon owner) {
+        this.entities = new ArrayList<Entity>();
+        this.owner = owner;
+
+        //EventRouter.getInstance().registerListener(this::pings, new MapQuestUpdate());
+    }
+
+    public void CreateEntities(){
+        entities.clear();
+
+        for (Room room :  owner.getAllRooms()){
             for (Point enemy : room.getEnemies()){
                 entities.add(new Enemy()); // new Enemy()
             }
