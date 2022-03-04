@@ -153,7 +153,7 @@ class DesignerPersonaModel:
         final_figure = plt.figure(1, figsize=(15, 15))
         plt.clf()
 
-        # Uncomment if you want zoom!
+        # Uncomment if you want zoom! Then also plt.xlim and plt.ylim must be commented! (and plt.colorbar)
         # plt.axis([xx.min(), 50, yy.min(), 15])
 
         plt.imshow(Z, interpolation='nearest',
@@ -180,6 +180,12 @@ class DesignerPersonaModel:
                          color='black',
                          # color=plt.cm.nipy_spectral(Z_hat[i] / n_clusters),
                          fontdict={'weight': 'bold', 'size': 21})
+
+                # Uncomment if you want to save the steps!
+                # if not path.exists('./steps/'+'/k-means12-tiles-reduced_print/'):
+                #     os.makedirs('./steps/' +'/k-means12-tiles-reduced_print/')
+                #
+                # final_figure.savefig('./steps/' + '/k-means12-tiles-reduced_print/' + str(i) +"_.png")
 
         plt.show()
         # plt.show(block=False)

@@ -22,7 +22,6 @@ designer_persona = DesignerPersonaModel()
 renderer = RoomRenderer("../../../resources/graphics/tiles", 0.01)
 app = Flask(__name__)
 
-
 @app.route('/')
 def hello_world():
     return 'Hello World!'
@@ -92,8 +91,10 @@ def print_steps():
 
     # Create the rooms from the xmls
     room_steps = []
+    counter = 0
     for xml_room in raw_xml_room_steps:
-        room_steps.append(roomFromXML(xml_room).test_data)
+        room_steps.append(roomFromXML(xml_room, counter).test_data)
+        counter = counter + 1
 
     # Convert to Numpy array and squeeze dim, so it can be used by the scikit model.
     room_steps = np.array(room_steps)
@@ -210,7 +211,7 @@ def roomFromMatrix(room_matrix, width, height, room_id):
     return room_from_matrix
 
 
-def roomFromXML(file):
+def roomFromXML(file, counter=0):
     # parse an xml file by name
     mydoc = minidom.parseString(file)
     room_info = mydoc.getElementsByTagName('Room')
@@ -238,30 +239,34 @@ def roomFromXML(file):
     renderer.drawPixels(canvas, xmlRoom)
     canvas = canvas.resize((130, 70), Image.NEAREST)
     xmlRoom.addMinPixel(np.array(canvas))
+
+    # Uncomment to save each room!
+    # save_room_imgs(xmlRoom, counter)
+
     # canvas.save(out_image + 'reducedpixelRoom' + ".png")
     # testDataSet[cur_usr][td[i]][ind].addMinPixel(numpy.array(im))
 
     return xmlRoom
 
 
-def save_room_imgs(xmlRoom):
+def save_room_imgs(xmlRoom, counter=0):
     out_image = "./"
     canvas = Image.new("RGB", (int(xmlRoom.width * renderer.paint_step), int(xmlRoom.height * renderer.paint_step)))
     minimal_canvas = Image.new("RGB", (int(xmlRoom.width), int(xmlRoom.height)))
 
     renderer.drawPixels(canvas, xmlRoom)
-    canvas.save(out_image + 'pixelRoom' + ".png")
+    canvas.save(out_image + 'pixelRoom' + str(counter) + ".png")
     renderer.drawPixels(canvas, xmlRoom.matrix)
-    canvas.save(out_image + 'pixelMatrix' + ".png")
+    canvas.save(out_image + 'pixelMatrix' + str(counter) +".png")
     renderer.drawTiles(canvas, xmlRoom)
-    canvas.save(out_image + 'tilesRoom' + ".png")
+    canvas.save(out_image + 'tilesRoom' + str(counter) +".png")
     renderer.drawTiles(canvas, xmlRoom.matrix)
-    canvas.save(out_image + 'tilesMatrix' + ".png")
+    canvas.save(out_image + 'tilesMatrix' + str(counter) +".png")
 
     renderer.drawPixels(minimal_canvas, xmlRoom, True)
-    minimal_canvas.save(out_image + 'simplePixelRoom' + ".png")
+    minimal_canvas.save(out_image + 'simplePixelRoom' + str(counter) +".png")
     renderer.drawPixels(minimal_canvas, xmlRoom.matrix, True)
-    minimal_canvas.save(out_image + 'simplePixelMatrix' + ".png")
+    minimal_canvas.save(out_image + 'simplePixelMatrix' + str(counter) +".png")
 
 
 if __name__ == '__main__':
