@@ -44,7 +44,6 @@ import generator.algorithm.grammar.QuestGrammar.QuestMotives;
 import generator.algorithm.MAPElites.GACell;
 import generator.algorithm.MAPElites.Dimensions.MAPEDimensionFXML;
 import game.Game.MapMutationType;
-import game.Game.PossibleGAs;
 import gui.controls.Brush;
 import gui.controls.DimensionsTable;
 import gui.controls.Drawer;
@@ -409,7 +408,7 @@ public class RoomViewController extends BorderPane implements Listener
 		int temp = DecideRecommended();
 		RecommendNpc(temp);
 		npcChoice.getChildren().add(recommendedText);
-		NpcChoice();
+		NpcChoice(); //TODO: Ugly
 	}
 	
 	private void ProduceVerticalLabel()
@@ -588,6 +587,23 @@ public class RoomViewController extends BorderPane implements Listener
 		//This could change, but we are at the moment only interested in the room that is the edited room pange
 		if(editCanvasID == editedRoomPane.uniqueID)
 		{
+			//FIXME: Change those "editedRoomPane.editedPane"
+			//FIXME: Consider sending everything to a class that handles this, and communicate with events as usual!
+			if (myBrush.GetMainComponent() == TileTypes.NPC) {
+				npcChoice.getChildren().stream().forEach(node -> {
+					node.setDisable(false);
+					InformativePopupManager.getInstance().requestPopup(editedRoomPane.editedPane, PresentableInformation.CHOOSE_NPC, "");
+
+				});
+				lastNpcTile = editedRoomPane.editedPane.GetLastTile();
+			}
+			else {
+				npcChoice.getChildren().stream().forEach(node -> {
+					node.setDisable(true);
+
+				});
+			}
+
 			router.postEvent(new RoomEdited(editedRoom));
 		}
 	}
@@ -1506,6 +1522,7 @@ public class RoomViewController extends BorderPane implements Listener
 
 	}
 
+	//FIXME: THIS IS NOT GOOD! FIX THIS!!!
 	private void NpcChoice()
 	{
 		npcChoice.getChildren().stream().forEach(node -> {
@@ -1515,8 +1532,8 @@ public class RoomViewController extends BorderPane implements Listener
 						if (lastNpcTile.GetType() == TileTypes.NPC) {
 							SoldierTile temp = new SoldierTile(lastNpcTile.GetCenterPosition(), TileTypes.SOLDIER);
 							temp.SetType(TileTypes.SOLDIER);
-							EventRouter.getInstance().postEvent(new MapQuestUpdate(lastNpcTile, temp, mapView.getMap()));
-							mapView.getMap().setTile(lastNpcTile.GetCenterPosition().getX(),lastNpcTile.GetCenterPosition().getY(), temp);
+							EventRouter.getInstance().postEvent(new MapQuestUpdate(lastNpcTile, temp, editedRoomPane.editedPane.getMap()));
+							editedRoomPane.editedPane.getMap().setTile(lastNpcTile.GetCenterPosition().getX(),lastNpcTile.GetCenterPosition().getY(), temp);
 							npcTileList.add(temp);
 						}
 						break;
@@ -1524,8 +1541,8 @@ public class RoomViewController extends BorderPane implements Listener
 						if (lastNpcTile.GetType() == TileTypes.NPC) {
 							MageTile temp = new MageTile(lastNpcTile.GetCenterPosition(), TileTypes.MAGE);
 							temp.SetType(TileTypes.MAGE);
-							EventRouter.getInstance().postEvent(new MapQuestUpdate(lastNpcTile, temp, mapView.getMap()));
-							mapView.getMap().setTile(lastNpcTile.GetCenterPosition().getX(),lastNpcTile.GetCenterPosition().getY(), temp);
+							EventRouter.getInstance().postEvent(new MapQuestUpdate(lastNpcTile, temp, editedRoomPane.editedPane.getMap()));
+							editedRoomPane.editedPane.getMap().setTile(lastNpcTile.GetCenterPosition().getX(),lastNpcTile.GetCenterPosition().getY(), temp);
 							npcTileList.add(temp);
 						}
 						break;
@@ -1533,8 +1550,8 @@ public class RoomViewController extends BorderPane implements Listener
 						if (lastNpcTile.GetType() == TileTypes.NPC) {
 							BountyhunterTile temp = new BountyhunterTile(lastNpcTile.GetCenterPosition(), TileTypes.BOUNTYHUNTER);
 							temp.SetType(TileTypes.BOUNTYHUNTER);
-							EventRouter.getInstance().postEvent(new MapQuestUpdate(lastNpcTile, temp, mapView.getMap()));
-							mapView.getMap().setTile(lastNpcTile.GetCenterPosition().getX(),lastNpcTile.GetCenterPosition().getY(), temp);
+							EventRouter.getInstance().postEvent(new MapQuestUpdate(lastNpcTile, temp, editedRoomPane.editedPane.getMap()));
+							editedRoomPane.editedPane.getMap().setTile(lastNpcTile.GetCenterPosition().getX(),lastNpcTile.GetCenterPosition().getY(), temp);
 							npcTileList.add(temp);
 						}
 						break;
@@ -1542,20 +1559,20 @@ public class RoomViewController extends BorderPane implements Listener
 						if (lastNpcTile.GetType() == TileTypes.NPC) {
 							CivilianTile temp = new CivilianTile(lastNpcTile.GetCenterPosition(), TileTypes.CIVILIAN);
 							temp.SetType(TileTypes.CIVILIAN);
-							EventRouter.getInstance().postEvent(new MapQuestUpdate(lastNpcTile, temp, mapView.getMap()));
-							mapView.getMap().setTile(lastNpcTile.GetCenterPosition().getX(),lastNpcTile.GetCenterPosition().getY(), temp);
+							EventRouter.getInstance().postEvent(new MapQuestUpdate(lastNpcTile, temp, editedRoomPane.editedPane.getMap()));
+							editedRoomPane.editedPane.getMap().setTile(lastNpcTile.GetCenterPosition().getX(),lastNpcTile.GetCenterPosition().getY(), temp);
 							npcTileList.add(temp);
 						}
 						break;
 					default :
 						break;
 				}
-				InformativePopupManager.getInstance().requestPopup(mapView, PresentableInformation.NPCS_NEED_ITEM, "");
+				InformativePopupManager.getInstance().requestPopup(editedRoomPane.editedPane, PresentableInformation.NPCS_NEED_ITEM, "");
 				int temp = DecideRecommended();
 				RecommendNpc(temp);
 				System.out.println(((Button)event.getSource()).getId());
-				System.out.println(mapView.getMap().getTile(lastNpcTile.GetCenterPosition().getX(),lastNpcTile.GetCenterPosition().getY()).GetType());
-				updateRoom(mapView.getMap()); //TODO: Added so the room will redraw
+				System.out.println(editedRoomPane.editedPane.getMap().getTile(lastNpcTile.GetCenterPosition().getX(),lastNpcTile.GetCenterPosition().getY()).GetType());
+				updateRoom(editedRoomPane.editedPane.getMap()); //TODO: Added so the room will redraw
 				npcChoice.getChildren().stream().forEach(node1 -> {
 					node1.setDisable(true);
 

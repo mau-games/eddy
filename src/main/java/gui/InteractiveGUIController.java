@@ -108,7 +108,7 @@ public class InteractiveGUIController implements Initializable, Listener {
 	private Node oldNode;
 	
 	//NEW
-	private Dungeon dungeonMap = new Dungeon();
+	private Dungeon dungeonMap;
 
 	private GrammarGraph graph;
 
@@ -280,7 +280,6 @@ public class InteractiveGUIController implements Initializable, Listener {
 		graph.pattern_finder.findNarrativePatterns(null);
 
 	}
-
 
 	@Override
 	public synchronized void ping(PCGEvent e) 
@@ -461,10 +460,9 @@ public class InteractiveGUIController implements Initializable, Listener {
 		}
 	}
 
-	/*
+	/***
 	 * Event stuff
-	 */
-
+	 ***/
 	public void startNewFlow() {
 		//TODO: There is mucho more than this, a lot of things need to be redone!
 		
@@ -681,7 +679,7 @@ public class InteractiveGUIController implements Initializable, Listener {
 		AnchorPane.setLeftAnchor(narrativeView, 0.0);
 		mainPane.getChildren().add(narrativeView);
 
-		narrativeView.initNarrative(graph, dungeonMap.getSelectedRoom());
+		narrativeView.initNarrative(graph, dungeonMap.getSelectedRoom(), dungeonMap);
 
 //		saveItem.setDisable(false);
 //		saveAsItem.setDisable(false);

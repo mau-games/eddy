@@ -137,6 +137,15 @@ public class Dungeon implements Listener {
 
 		// Initialize neccesary information
 		bosses = new ArrayList<BossEnemyTile>();
+		bossesPositions = new ArrayList<QuestPositionUpdate>();
+		enemiesPositions = new ArrayList<QuestPositionUpdate>();
+		npcsPositions = new ArrayList<QuestPositionUpdate>();
+		itemsPositions = new ArrayList<QuestPositionUpdate>();
+		treasuresPositions = new ArrayList<QuestPositionUpdate>();
+		soldierPositions = new ArrayList<QuestPositionUpdate>();
+		magePositions = new ArrayList<QuestPositionUpdate>();
+		bountyhunterPositions = new ArrayList<QuestPositionUpdate>();
+		civilianPositions = new ArrayList<QuestPositionUpdate>();
 
 		dPane = new DungeonPane(this);
 		pathfinding = new DungeonPathFinder(this);
@@ -153,6 +162,8 @@ public class Dungeon implements Listener {
 		this.defaultHeight = defaultHeight;
 		this.defaultConfig = defaultConfig;
 		this.scaleFactor = defaultScaleFactor;
+
+		quest = new Quest(this);
 
 		// Create rooms
 		rooms = new ArrayList<Room>();

@@ -49,9 +49,12 @@ public class RevealPattern extends CompositeNarrativePattern
                         rp.source = np;
                         rp.target = non_directed_pat;
                         rp.connected_node = np.connected_node;
+
+                        //for knowing if a character is only one!
+                        non_directed_pat.revealed = np;
+                        np.revealed = non_directed_pat;
+
                         results.add(rp);
-
-
                     }
                 }
             }
@@ -75,6 +78,10 @@ public class RevealPattern extends CompositeNarrativePattern
                         rp.source = np;
                         rp.target = non_directed_pat;
                         rp.connected_node = np.connected_node;
+
+                        //for knowing if a character is only one!
+                        non_directed_pat.revealed = np;
+                        np.revealed = non_directed_pat;
 
                         results.add(rp);
                     }

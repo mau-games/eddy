@@ -6,6 +6,7 @@ import finder.patterns.meso.DeadEnd;
 import game.Room;
 import game.narrative.GrammarGraph;
 import game.narrative.GrammarNode;
+import game.narrative.TVTropeType;
 
 import java.util.*;
 
@@ -182,6 +183,36 @@ public class DerivativePattern extends CompositeNarrativePattern
         for(NarrativePattern np : currentPatterns)
         {
             np.derivative = false;
+        }
+
+        //New addition to know ambiguous and factions
+        for(CompositeNarrativePattern cnp : results)
+        {
+            if(cnp instanceof DerivativePattern)
+            {
+                dp = (DerivativePattern) cnp;
+                NarrativePattern source = dp.source;
+                boolean hero_pat = false;
+
+                //Set the faction!
+                if(source instanceof HeroNodePattern)
+                {
+                    hero_pat = true;
+                    source.faction = source.connected_node.getGrammarNodeType().equals(TVTropeType.HERO);
+                }
+                else
+                    source.faction = source.connected_node.getGrammarNodeType().equals(TVTropeType.ENEMY);
+
+                //check for ambiguous characters
+                for(NarrativePattern derivate : dp.derivatives)
+                {
+                    if(hero_pat)
+                        derivate.ambiguous = derivate instanceof VillainNodePattern;
+                    else
+                        derivate.ambiguous = derivate instanceof HeroNodePattern;
+                }
+
+            }
         }
 
         return results;

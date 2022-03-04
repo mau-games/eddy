@@ -22,6 +22,10 @@ public class NarrativePattern
 
     protected boolean derivative = false;
 
+    public NarrativePattern revealed = null;
+    public boolean ambiguous = false;
+    public boolean faction = false;
+
     public NarrativePattern()
     {
         connected_patterns = new HashMap<Integer, List<NarrativePattern>>();

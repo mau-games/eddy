@@ -9,6 +9,7 @@ import game.Room;
 import game.narrative.GrammarGraph;
 import game.narrative.NarrativeFinder.CompoundConflictPattern;
 import game.narrative.NarrativeFinder.NarrativePattern;
+import game.narrative.NarrativeStructureConstraints;
 import game.narrative.TVTropeType;
 import generator.algorithm.Algorithm;
 import generator.algorithm.MAPElites.Dimensions.GADimension.DimensionTypes;
@@ -96,6 +97,23 @@ public class GrammarMAPEliteAlgorithm extends Algorithm implements Listener {
 	}
 
 	public GrammarMAPEliteAlgorithm(GrammarGraph target, GrammarGraph axiom)
+	{
+		this.axiom = axiom;
+		this.target_graph = target;
+
+		id = UUID.randomUUID();
+//		populationSize = config.getPopulationSize();
+		populationSize = 1250; //Setting same as experiments
+		mutationProbability = 0.5f;
+		offspringSize = 50;
+//		feasibleAmount = (int)((double)populationSize * config.getFeasibleProportion());
+		feasibleAmount = 625; //Setting same as experiments
+
+		this.save_data = AlgorithmSetup.getInstance().getSaveData();
+		this.iter_generations = AlgorithmSetup.getInstance().getITER_GENERATIONS();
+	}
+
+	public GrammarMAPEliteAlgorithm(GrammarGraph target, GrammarGraph axiom, NarrativeStructureConstraints currentConstraints)
 	{
 		this.axiom = axiom;
 		this.target_graph = target;
@@ -508,8 +526,9 @@ public class GrammarMAPEliteAlgorithm extends Algorithm implements Listener {
 			}
 		}
 
-
-		return nStructure.fullyConnectedGraph() == 0 && !self_conflicts;
+		return nStructure.fullyConnectedGraph() == 0 &&
+				!self_conflicts &&
+				AlgorithmSetup.getInstance().checkNarrativeConstraints(nStructure) == 0;
 
 
 //		return unconnectedNodes <= 0;

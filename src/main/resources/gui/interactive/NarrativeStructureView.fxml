@@ -67,7 +67,12 @@
 					<Separator orientation="VERTICAL" valignment="CENTER" prefHeight="200" minHeight="200" maxHeight="200"/>
 					<GrammarGraphInfoPane fx:id="selected_graph_info" evaluation="Selected Suggestion" alignment="CENTER" spacing="5.0"/>
 					<Separator orientation="VERTICAL" valignment="CENTER" prefHeight="200" minHeight="200" maxHeight="200"/>
+					<Button contentDisplay="TOP"
+							mnemonicParsing="false" wrapText="true" textAlignment="CENTER"
+							text="Go To World Grid" onAction="#backWorldView">
 
+					</Button>
+					<Separator orientation="VERTICAL" valignment="CENTER" prefHeight="200" minHeight="200" maxHeight="200"/>
 				</HBox>
 
 			</bottom>

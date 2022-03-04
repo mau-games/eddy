@@ -1,10 +1,7 @@
 package gui.views;
 
 import game.*;
-import game.narrative.GrammarGraph;
-import game.narrative.GrammarNode;
-import game.narrative.NarrativePane;
-import game.narrative.TVTropeType;
+import game.narrative.*;
 import generator.algorithm.Algorithm;
 import generator.algorithm.MAPElites.GrammarGACell;
 import generator.algorithm.MAPElites.GrammarMAPEliteAlgorithm;
@@ -46,6 +43,8 @@ public class NarrativeStructureViewController extends BorderPane implements List
 	private ApplicationConfig config;
 	private EventRouter router = EventRouter.getInstance();
 	private boolean isActive = false;
+
+	Algorithm narrativeGraphMAPE;
 
 	@FXML Pane worldPane;
 
@@ -97,6 +96,9 @@ public class NarrativeStructureViewController extends BorderPane implements List
 
 	NSEvolutionarySystemEvaluator evaluator = new NSEvolutionarySystemEvaluator();
 	DecimalFormat df = new DecimalFormat("#.##");
+
+	//Info for constraining Narrative from the Level design
+	NarrativeStructureConstraints narrativeConstraints = new NarrativeStructureConstraints();
 
 	public NarrativeStructureViewController() {
 		super();
@@ -325,8 +327,14 @@ public class NarrativeStructureViewController extends BorderPane implements List
 		clipChildren(worldPane, 12);
 	}
 
-	public void initNarrative(GrammarGraph grammar, Room currentRoom)
+	public void initNarrative(GrammarGraph grammar, Room currentRoom, Dungeon currentDungeon)
 	{
+		//Set the narrative constraints!
+		narrativeConstraints.setConstraintsFromDungeon(currentDungeon);
+		AlgorithmSetup.getInstance().setNarrativeConstraints(currentDungeon);
+		AlgorithmSetup.getInstance().setFakeNarrativeConstraints();
+
+
 		//important distinction so you can use the graph for MAP-Elites and edit at the same time
 		this.editedGraph = new GrammarGraph(grammar);
 		this.renderedGraph = grammar;
@@ -357,10 +365,11 @@ public class NarrativeStructureViewController extends BorderPane implements List
 		axiom_graph = editedGraph;
 
 //		RunMAPElites(core_graph);
-		//Fixme: This should happen as an event to be received by the class Game
+		//Fixme: This should happen as an event to be received by the class Game (check this!)
 		AlgorithmSetup.getInstance().setSaveData(false);
 //		AlgorithmSetup.getInstance().setSaveData(true);
-		RunMAPElites(editedGraph, axiom_graph);
+
+		RunMAPElites(editedGraph, axiom_graph); //This one is the one to run!
 //		RunMAPElites(editedGraph, axiom_graph);
 	}
 	
@@ -475,9 +484,9 @@ public class NarrativeStructureViewController extends BorderPane implements List
 
 	private void RunMAPElites(GrammarGraph target_graph, GrammarGraph ax)
 	{
-		Algorithm ga = new GrammarMAPEliteAlgorithm(target_graph, ax);
-		((GrammarMAPEliteAlgorithm)ga).initPopulations(currentDimensions);
-		ga.start();
+		narrativeGraphMAPE = new GrammarMAPEliteAlgorithm(target_graph, ax);
+		((GrammarMAPEliteAlgorithm)narrativeGraphMAPE).initPopulations(currentDimensions);
+		narrativeGraphMAPE.start();
 	}
 
 	public void renderCell(List<GrammarGACell> filled_cells, int dimension, float [] dimensionSizes, int[] indices)
@@ -516,6 +525,19 @@ public class NarrativeStructureViewController extends BorderPane implements List
 			indices[dimension] = i;
 			renderCell(filled_cells, dimension-1, dimensionSizes, indices);
 		}
+	}
+
+	/***
+	 * Send event that is captured in the InteractiveGUIController and returns to the world view
+	 * @param event
+	 * @throws IOException
+	 */
+	@FXML
+	private void backWorldView(ActionEvent event) throws IOException
+	{
+//		router.postEvent(new Stop());
+		if(narrativeGraphMAPE.isAlive()) narrativeGraphMAPE.terminate();
+		router.postEvent(new RequestWorldView());
 	}
 
 	@Override
@@ -569,6 +591,8 @@ public class NarrativeStructureViewController extends BorderPane implements List
 
 			double[] fitness_values = evaluator.testEvaluation(hovered_suggestion.getElite(), editedGraph);
 
+			checkConstraints(hovered_graph_info, hovered_suggestion.getElite(), editedGraph);
+
 			hovered_graph_info.intFitnessText.setText(df.format(fitness_values[0]));
 			hovered_graph_info.cohFitnessText.setText(df.format(fitness_values[1]));
 			hovered_graph_info.fitnessText.setText(df.format(fitness_values[2]));
@@ -599,6 +623,8 @@ public class NarrativeStructureViewController extends BorderPane implements List
 //			elite_preview_1.setPrefHeight(300);
 
 			double[] fitness_values = evaluator.testEvaluation(selected_suggestion.getSelectedElite(), editedGraph);
+
+			checkConstraints(selected_graph_info, selected_suggestion.getSelectedElite(), editedGraph);
 
 			selected_graph_info.intFitnessText.setText(df.format(fitness_values[0]));
 			selected_graph_info.cohFitnessText.setText(df.format(fitness_values[1]));
@@ -653,10 +679,24 @@ public class NarrativeStructureViewController extends BorderPane implements List
 				renderedGraph.nPane.setTranslateY(Math.abs(renderedGraph.nPane.getBoundsInLocal().getMinY()) + old_bounds.getMinY());
 			}
 
+			//TODO: Setting and testing Narrative Structure Constraints
+//			editedGraph.pattern_finder.findNarrativePatterns(null);
+//			NarrativeStructureConstraints nsc = new NarrativeStructureConstraints();
+//			nsc.testConstraints();
+//			int violations = nsc.isViolatingConstraints(editedGraph);
+//
+//			int[] violation_count = nsc.testingViolatingConstraints(editedGraph);
+//
+//			current_graph_info.bossesText.setText("vc:" + violation_count[0] + ", h:" + violation_count[1] +
+//					", v:" + violation_count[2] + ", pd:" + violation_count[3]);
+
+
 
 //			System.out.println(renderedGraph.nPane.getBoundsInParent());
 
 			double[] fitness_values = evaluator.testEvaluation(editedGraph, editedGraph);
+
+			checkConstraints(current_graph_info, editedGraph, editedGraph);
 
 			current_graph_info.intFitnessText.setText(df.format(fitness_values[0]));
 			current_graph_info.cohFitnessText.setText(df.format(fitness_values[1]));
@@ -664,7 +704,17 @@ public class NarrativeStructureViewController extends BorderPane implements List
 
 			if(hovered_suggestion != null && hovered_suggestion.getElite() != null)
 			{
+				// Checking these
+//				hovered_suggestion.getElite().pattern_finder.findNarrativePatterns(editedGraph);
+//				violation_count = nsc.testingViolatingConstraints(hovered_suggestion.getElite());
+//				hovered_graph_info.bossesText.setText("vc:" + violation_count[0] + ", h:" + violation_count[1] +
+//						", v:" + violation_count[2] + ", pd:" + violation_count[3]);
+
+
 				fitness_values = evaluator.testEvaluation(hovered_suggestion.getElite(), editedGraph);
+
+				checkConstraints(hovered_graph_info, hovered_suggestion.getSelectedElite(), editedGraph);
+
 
 				hovered_graph_info.intFitnessText.setText(df.format(fitness_values[0]));
 				hovered_graph_info.cohFitnessText.setText(df.format(fitness_values[1]));
@@ -673,14 +723,29 @@ public class NarrativeStructureViewController extends BorderPane implements List
 
 			if(selected_suggestion != null && selected_suggestion.getSelectedElite() != null)
 			{
+				// Checking these
+//				selected_suggestion.getElite().pattern_finder.findNarrativePatterns(editedGraph);
+//				violation_count = nsc.testingViolatingConstraints(selected_suggestion.getElite());
+//				selected_graph_info.bossesText.setText("vc:" + violation_count[0] + ", h:" + violation_count[1] +
+//						", v:" + violation_count[2] + ", pd:" + violation_count[3]);
+
 				fitness_values = evaluator.testEvaluation(selected_suggestion.getSelectedElite(), editedGraph);
 
+				checkConstraints(selected_graph_info, selected_suggestion.getSelectedElite(), editedGraph);
 				selected_graph_info.intFitnessText.setText(df.format(fitness_values[0]));
 				selected_graph_info.cohFitnessText.setText(df.format(fitness_values[1]));
 				selected_graph_info.fitnessText.setText(df.format(fitness_values[2]));
 			}
 
 		}
+	}
+
+	public void checkConstraints(GrammarGraphInfoPane graph_info, GrammarGraph testGraph, GrammarGraph otherGraph)
+	{
+//		testGraph.pattern_finder.findNarrativePatterns(editedGraph);
+		int[] violation_count = AlgorithmSetup.getInstance().testNarrativeConstraints(testGraph);
+		graph_info.bossesText.setText("vc:" + violation_count[0] + ", h:" + violation_count[1] +
+				", v:" + violation_count[2] + ", pd:" + violation_count[3]);
 	}
 
 }

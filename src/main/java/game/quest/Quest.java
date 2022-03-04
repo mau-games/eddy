@@ -21,7 +21,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  * @author Eric Grevillius
  * @author Elin Olsson
  */
-public class Quest {
+public class Quest implements Listener {
     private List<Action> actions;
     private Dungeon owner;
     private boolean feasible = true;
@@ -35,7 +35,7 @@ public class Quest {
     public Quest(Dungeon owner) {
         this.actions = new ArrayList<Action>();
         this.owner = owner;
-        EventRouter.getInstance().registerListener(this::pings, new MapQuestUpdate());
+        EventRouter.getInstance().registerListener(this, new MapQuestUpdate());
     }
 
     private Quest(Quest quest) {
@@ -174,59 +174,6 @@ public class Quest {
     }
 
     public void pings(PCGEvent e) {
-
-    	
-        //TODO: get any update from dungeon that might affect any quest artifact
-        if (e instanceof MapQuestUpdate){
-            System.out.println(this.getClass().getName() + " : " + e.getClass().getName());
-            MapQuestUpdate update = (MapQuestUpdate)e;
-            if (update.hasPayload()){
-                Tile prev = update.getPrev();
-                if(prev instanceof EnemyTile){
-                    owner.removeEnemy(new EnemyTile(prev),update.getRoom());
-                } else if (prev instanceof ItemTile){
-                    owner.removeItem(new ItemTile(prev),update.getRoom());
-                } else if (prev instanceof TreasureTile){
-                    owner.removeTreasure(new TreasureTile(prev),update.getRoom());
-                } else if (prev instanceof BossEnemyTile) {
-                    owner.removeBoss(new BossEnemyTile(prev), update.getRoom());
-                } else if (prev instanceof SoldierTile) {
-                    owner.removeSoldier(new SoldierTile(prev), update.getRoom());
-                } else if (prev instanceof MageTile) {
-                    owner.removeMage(new MageTile(prev), update.getRoom());
-                } else if (prev instanceof BountyhunterTile) {
-                    owner.removeBountyhunter(new BountyhunterTile(prev), update.getRoom());
-                } else if (prev instanceof CivilianTile) {
-                    owner.removeCivilian(new CivilianTile(prev), update.getRoom());
-                }
-
-                Tile next = update.getNext();
-                if(next.GetType().isEnemy()){
-                    owner.addEnemy(new EnemyTile(next),update.getRoom());
-                } else if (next.GetType().isNPC()){
-                    owner.addNpc(new NpcTile(next),update.getRoom());
-                } 
-                else if (next.GetType().isItem()){
-                    owner.addItem(new ItemTile(next),update.getRoom());
-                } else if (next.GetType().isTreasure()){
-                    owner.addTreasure(new TreasureTile(next),update.getRoom());
-                } else if (next.GetType().isEnemyBoss()) {
-                    owner.addBoss(new BossEnemyTile(prev), update.getRoom());
-                } else if (next.GetType().isSoldier()) {
-                    owner.addSoldier(new SoldierTile(next), update.getRoom());
-				} else if (next.GetType().isMage()) {
-                    owner.addMage(new MageTile(next), update.getRoom());
-				} else if (next.GetType().isBountyhunter()) {
-                    owner.addBountyhunter(new BountyhunterTile(next), update.getRoom());
-				} else if (next.GetType().isCivilian()) {
-                    owner.addCivilian(new CivilianTile(next), update.getRoom());
-				}
-            }
-            checkCurrentActions();
-            synchronized (availableActions) {
-                checkForAvailableActions();
-			}
-        }
     }
 
     private void checkCurrentActions() {
@@ -343,5 +290,60 @@ public class Quest {
 		}
         
     	
+    }
+
+    @Override
+    public void ping(PCGEvent e) {
+//        TODO: get any update from dungeon that might affect any quest artifact
+        if (e instanceof MapQuestUpdate){
+            System.out.println(this.getClass().getName() + " : " + e.getClass().getName());
+            MapQuestUpdate update = (MapQuestUpdate)e;
+            if (update.hasPayload()){
+                Tile prev = update.getPrev();
+                if(prev instanceof EnemyTile){
+                    owner.removeEnemy(new EnemyTile(prev),update.getRoom());
+                } else if (prev instanceof ItemTile){
+                    owner.removeItem(new ItemTile(prev),update.getRoom());
+                } else if (prev instanceof TreasureTile){
+                    owner.removeTreasure(new TreasureTile(prev),update.getRoom());
+                } else if (prev instanceof BossEnemyTile) {
+                    owner.removeBoss(new BossEnemyTile(prev), update.getRoom());
+                } else if (prev instanceof SoldierTile) {
+                    owner.removeSoldier(new SoldierTile(prev), update.getRoom());
+                } else if (prev instanceof MageTile) {
+                    owner.removeMage(new MageTile(prev), update.getRoom());
+                } else if (prev instanceof BountyhunterTile) {
+                    owner.removeBountyhunter(new BountyhunterTile(prev), update.getRoom());
+                } else if (prev instanceof CivilianTile) {
+                    owner.removeCivilian(new CivilianTile(prev), update.getRoom());
+                }
+
+                Tile next = update.getNext();
+                if(next.GetType().isEnemy()){
+                    owner.addEnemy(new EnemyTile(next),update.getRoom());
+                } else if (next.GetType().isNPC()){
+                    owner.addNpc(new NpcTile(next),update.getRoom());
+                }
+                else if (next.GetType().isItem()){
+                    owner.addItem(new ItemTile(next),update.getRoom());
+                } else if (next.GetType().isTreasure()){
+                    owner.addTreasure(new TreasureTile(next),update.getRoom());
+                } else if (next.GetType().isEnemyBoss()) {
+                    owner.addBoss(new BossEnemyTile(prev), update.getRoom());
+                } else if (next.GetType().isSoldier()) {
+                    owner.addSoldier(new SoldierTile(next), update.getRoom());
+                } else if (next.GetType().isMage()) {
+                    owner.addMage(new MageTile(next), update.getRoom());
+                } else if (next.GetType().isBountyhunter()) {
+                    owner.addBountyhunter(new BountyhunterTile(next), update.getRoom());
+                } else if (next.GetType().isCivilian()) {
+                    owner.addCivilian(new CivilianTile(next), update.getRoom());
+                }
+            }
+            checkCurrentActions();
+            synchronized (availableActions) {
+                checkForAvailableActions();
+            }
+        }
     }
 }
