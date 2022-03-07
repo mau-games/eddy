@@ -60,7 +60,7 @@ public class MAPECollector implements Listener
 	 * This constructor is only to be called by the getInstance() method.
 	 */
 	protected MAPECollector() {
-		currentProjectPath = System.getProperty("user.dir") + "\\my-data";
+		currentProjectPath = System.getProperty("user.dir") + File.separator + File.separator + "my-data";
 		
 		//Just checking if the directory exists!S
 		File directory = new File(currentProjectPath);
@@ -108,13 +108,13 @@ public class MAPECollector implements Listener
 	
 	public synchronized void MapElitesStarted(UUID runID)
 	{
-		currentRunPath = currentProjectPath + "\\RUN_" + runID;
+		currentRunPath = currentProjectPath + File.separator + File.separator + "RUN_" + runID;
 	}
 	
 	public synchronized void SaveGeneration(int generationCounter, ArrayList<GADimension> dimensions, ArrayList<GACell> cells, String folderName, boolean save)
 	{
 		this.currentGeneration = generationCounter;
-		currentGenerationPath = currentRunPath + "\\" + folderName + "-" + generationCounter;
+		currentGenerationPath = currentRunPath + File.separator + File.separator + folderName + "-" + generationCounter;
 
 		//Save the generation summary
 		saveGenerationalSummary(dimensions, cells);
@@ -134,7 +134,7 @@ public class MAPECollector implements Listener
 	public synchronized void SaveGeneration(int generationCounter, ArrayList<GADimension> dimensions, ArrayList<GACell> cells, boolean save)
 	{
 		this.currentGeneration = generationCounter;
-		currentGenerationPath = currentRunPath + "\\Generation-" + generationCounter;
+		currentGenerationPath = currentRunPath + File.separator + File.separator + "Generation-" + generationCounter;
 
 		//Save the generation summary
 		saveGenerationalSummary(dimensions, cells);
@@ -268,7 +268,7 @@ public class MAPECollector implements Listener
 	
 	private synchronized void WriteGenSummaryToFile()
 	{
-		File file = new File(currentGenerationPath + "\\generational-summary.csv");
+		File file = new File(currentGenerationPath + File.separator + File.separator + "generational-summary.csv");
 		
 		try {
 			for(StringBuilder tuple : currentGenerationSummary)
@@ -286,7 +286,7 @@ public class MAPECollector implements Listener
 		for(int cellIndex = 0; cellIndex < currentGenerationCell.size(); cellIndex++)
 		{
 			//Rename the file!
-			File file = new File(currentGenerationPath + "\\cell_" + cellIndex +".csv");
+			File file = new File(currentGenerationPath + File.separator + File.separator + "cell_" + cellIndex +".csv");
 			
 			try {
 				for(StringBuilder tuple : currentGenerationCell.get(cellIndex))
@@ -305,7 +305,7 @@ public class MAPECollector implements Listener
 		for(int cellIndex = 0; cellIndex < currentEliteRoom.size(); cellIndex++)
 		{
 			//Rename the file!
-			File file = new File(currentGenerationPath + "\\cell_" + cellIndex +".txt");
+			File file = new File(currentGenerationPath + File.separator + File.separator + "cell_" + cellIndex +".txt");
 			
 			try {
 				FileUtils.write(file, currentEliteRoom.get(cellIndex).toString(), true);

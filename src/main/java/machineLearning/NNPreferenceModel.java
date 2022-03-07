@@ -1,18 +1,17 @@
 package machineLearning;
 
+import java.io.File;
 import java.util.Stack;
-import java.util.Map.Entry;
 
 import game.Room;
+import machineLearning.neuralnetwork.activationFunction.ActivationFunction;
+import machineLearning.neuralnetwork.activationFunction.LeakyReLU;
+import machineLearning.neuralnetwork.activationFunction.SoftMax;
 import machineLearning.neuralnetwork.DataTupleManager;
 import machineLearning.neuralnetwork.DatasetUses;
 import machineLearning.neuralnetwork.MapPreferenceModelTuple;
 import machineLearning.neuralnetwork.NeuralNetwork;
 import machineLearning.neuralnetwork.PreferenceModelDataTuple;
-import machineLearning.neuralnetwork.activationFunction.ActivationFunction;
-import machineLearning.neuralnetwork.activationFunction.LeakyReLU;
-import machineLearning.neuralnetwork.activationFunction.ReLU;
-import machineLearning.neuralnetwork.activationFunction.SoftMax;
 
 public class NNPreferenceModel extends PreferenceModel 
 {
@@ -22,10 +21,11 @@ public class NNPreferenceModel extends PreferenceModel
 	public NNPreferenceModel()
 	{
 		prevStates = new Stack<PreferenceModel>();
-		projectPath = System.getProperty("user.dir") + "\\my-data\\PreferenceModels";
+		projectPath = System.getProperty("user.dir") + File.separator + File.separator + "my-data" + File.separator + File.separator +
+				"PreferenceModels";
 		
 		mapValues = new NeuralNetwork<MapPreferenceModelTuple>(new int[] {256, 200, 100}, 
-				DataTupleManager.LoadValueMapDataList("PreferenceModels", "newmap_map"), "MAP_NETWORK_256_100_RELU", 
+				DataTupleManager.LoadValueMapDataList("PreferenceModels", "newmap_map"), "MAP_NETWORK_256_100_RELU",
 				new ActivationFunction[] {new ActivationFunction(), new LeakyReLU(), new LeakyReLU(), new LeakyReLU(), new SoftMax()});
 //		attributeValues = new NeuralNetwork<PreferenceModelDataTuple>(new int[] {100,100, 100, 100}, 
 //				DataTupleManager.LoadPreferenceModelDataList("PreferenceModels", "newmap"), "MAP_NETWORK_100_100_RELU", 

@@ -79,7 +79,8 @@ public class XMLHandler
 {
 	private static XMLHandler instance = null;
 	private boolean saveInformation = true; //enabled by default
-	public static String projectPath = System.getProperty("user.dir") + "\\my-data\\";
+	public static String projectPath = System.getProperty("user.dir") +
+			File.separator + File.separator + "my-data" + File.separator + File.separator;
 	
 	//This is for testing! Pls remove!
 	public HashMap<String, XMLRoom> xmlRooms = new HashMap<String, XMLRoom>();

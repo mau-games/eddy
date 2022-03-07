@@ -2,8 +2,8 @@ package machineLearning.neuralnetwork;
 
 import java.util.ArrayList;
 
-import machineLearning.neuralnetwork.Neuron.NeuronTypes;
 import machineLearning.neuralnetwork.activationFunction.ActivationFunction;
+import machineLearning.neuralnetwork.Neuron.NeuronTypes;
 
 //Methods that can be implemented:
 // (1) The neuron with the highest value in the layer

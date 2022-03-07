@@ -3292,7 +3292,11 @@ public class Room {
 		Document dom;
 	    Element e = null;
 	    Element next = null;
-	    String xml = System.getProperty("user.dir") + "\\my-data\\summer-school\\" + InteractiveGUIController.runID + "\\" + prefix + "room-" + this.toString() + ".xml";
+		String xml = System.getProperty("user.dir") + File.separator + File.separator + "my-data" +
+				File.separator + File.separator + "summer-school" + File.separator + File.separator +
+				InteractiveGUIController.runID
+				+ File.separator + File.separator + prefix + "room-" +
+				this.toString() + "_" + saveCounter++ + ".xml";
 
 	    // instance of a DocumentBuilderFactory
 	    DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
@@ -3384,8 +3388,12 @@ public class Room {
 		Document dom;
 	    Element e = null;
 	    Element next = null;
-	    
-	    String xml = System.getProperty("user.dir") + "\\my-data\\summer-school\\" + InteractiveGUIController.runID + "\\" + prefix + "room-" + this.toString() + "_" + saveCounter++ + ".xml";
+
+		String xml = System.getProperty("user.dir") + File.separator + File.separator + "my-data" +
+				File.separator + File.separator + "summer-school" + File.separator + File.separator +
+				InteractiveGUIController.runID
+				+ File.separator + File.separator + prefix + "room-" +
+				this.toString() + "_" + saveCounter++ + ".xml";
 
 	    // instance of a DocumentBuilderFactory
 	    DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
@@ -3479,12 +3487,21 @@ public class Room {
 	    Element e = null;
 	    Element next = null;
 	    
-	    File file = new File(DataSaverLoader.projectPath + "\\" + direction + "\\room\\" + room_id);
+	    File file = new File(DataSaverLoader.projectPath + File.separator + File.separator +
+				direction +
+				File.separator + File.separator + "room" + File.separator + File.separator + room_id);
 		if (!file.exists()) {
 			file.mkdirs();
 		}
-	    
-	    String xml = System.getProperty("user.dir") + "\\my-data\\" + direction + "\\room\\" + room_id + "\\room-" + room_id + "_" + indexEditionStep + ".xml";
+
+		String xml = System.getProperty("user.dir") + File.separator + File.separator + "my-data" +
+				File.separator + File.separator +
+				direction +
+				File.separator + File.separator + "room" +
+				File.separator + File.separator +
+				room_id +
+				File.separator + File.separator + "room-" +
+				room_id + "_" + indexEditionStep + ".xml";
 
 	    // instance of a DocumentBuilderFactory
 	    DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
@@ -3577,12 +3594,19 @@ public class Room {
 	    Element e = null;
 	    Element next = null;
 	    
-	    File file = new File(DataSaverLoader.projectPath + "\\summer-school\\" + InteractiveGUIController.runID + "\\" + prefix + this.toString());
+	    File file = new File(DataSaverLoader.projectPath +
+				File.separator + File.separator + "summer-school" + File.separator + File.separator
+				+ InteractiveGUIController.runID + File.separator + File.separator + prefix + this.toString());
 		if (!file.exists()) {
 			file.mkdirs();
 		}
 	    
-	    String xml = System.getProperty("user.dir") + "\\my-data\\summer-school\\" + InteractiveGUIController.runID + "\\" + prefix + this.toString() + "\\room-" + this.toString() + "_" + saveCounter++ + ".xml";
+	    String xml = System.getProperty("user.dir") +
+				File.separator + File.separator +"my-data" + File.separator + File.separator +
+				"summer-school" + File.separator + File.separator +
+				InteractiveGUIController.runID + File.separator + File.separator
+				+ prefix + this.toString() + File.separator + File.separator + "room-" +
+				this.toString() + "_" + saveCounter++ + ".xml";
 
 	    // instance of a DocumentBuilderFactory
 	    DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();

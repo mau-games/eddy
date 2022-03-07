@@ -38,6 +38,7 @@ import util.eventrouting.PCGEvent;
 import util.eventrouting.events.*;
 import util.eventrouting.events.intraview.*;
 
+import java.io.File;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -800,7 +801,7 @@ public class DimDiscoveryViewController extends BorderPane implements Listener
 													selectedSuggestion.getSuggestedRoom().getDimensionValue(currentDimensions[1].getDimension()),
 													selectedSuggestion.getSuggestedRoom());
 			
-			selectedSuggestion.getSuggestedRoom().getRoomXML("clicked-suggestion\\");
+			selectedSuggestion.getSuggestedRoom().getRoomXML("clicked-suggestion" + File.separator + File.separator);
 			
 //			clearStats();
 			displayStats();
@@ -1235,7 +1236,7 @@ public class DimDiscoveryViewController extends BorderPane implements Listener
 			
 			
 //			selectedSuggestion.getSuggestedRoom()(prefix);
-			selectedSuggestion.getSuggestedRoom().getRoomXML("picked-room\\");
+			selectedSuggestion.getSuggestedRoom().getRoomXML("picked-room" + File.separator + File.separator);
 			
 			router.postEvent(new SaveCurrentGeneration());
 

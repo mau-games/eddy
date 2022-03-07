@@ -1,6 +1,5 @@
 package gui.controls;
 
-import com.sun.org.apache.xerces.internal.xni.grammars.Grammar;
 import game.Room;
 import game.narrative.GrammarGraph;
 import javafx.event.EventHandler;

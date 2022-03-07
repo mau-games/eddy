@@ -9,8 +9,6 @@ import java.util.UUID;
 
 import gui.InteractiveGUIController;
 import javafx.util.Duration;
-import machineLearning.neuralnetwork.DataTupleManager;
-import util.eventrouting.PCGEvent;
 
 public class ActionLogger {
 
@@ -89,7 +87,8 @@ public class ActionLogger {
 	
 	public void init()
 	{
-		DataSaverLoader.SaveData(getHeader(), "\\summer-school\\" + InteractiveGUIController.runID , "actionLogs");
+		DataSaverLoader.SaveData(getHeader(), File.separator + File.separator + "summer-school" + File.separator + File.separator +
+				InteractiveGUIController.runID , "actionLogs");
 	}
 	
 	private String getHeader()
@@ -106,7 +105,8 @@ public class ActionLogger {
 			inf.append(log.toString() + System.lineSeparator());;
 		}
 		
-		DataSaverLoader.SaveData(inf.toString(), "\\summer-school\\" + InteractiveGUIController.runID , "actionLogs");
+		DataSaverLoader.SaveData(inf.toString(), File.separator + File.separator + "summer-school" + File.separator + File.separator
+				+ InteractiveGUIController.runID , "actionLogs");
 		logs.clear();
 	}
 	
