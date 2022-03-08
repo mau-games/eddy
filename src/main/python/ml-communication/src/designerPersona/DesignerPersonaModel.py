@@ -122,9 +122,10 @@ class DesignerPersonaModel:
 
         plt.show()
 
-    def printStepsBackgroundLabeled(self, labeled_data):
+    def printStepsBackgroundLabeled(self, labeled_data, save_final=False):
 
         plt.ioff()
+        mpl.use('Agg')
         labeled_data = self.scale_transform(labeled_data)
 
         offset = 0.4
@@ -187,5 +188,11 @@ class DesignerPersonaModel:
                 #
                 # final_figure.savefig('./steps/' + '/k-means12-tiles-reduced_print/' + str(i) +"_.png")
 
-        plt.show()
+        if save_final:
+            if not path.exists('./steps/'):
+                os.makedirs('./steps/')
+
+        final_figure.savefig('./steps/plotStep.png')
+
+        #plt.show()
         # plt.show(block=False)

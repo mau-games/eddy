@@ -10,6 +10,7 @@ from os import listdir
 from os import path
 
 from PIL import Image, ImageDraw
+import matplotlib.pyplot as plt
 
 from xml.dom import minidom
 
@@ -100,7 +101,7 @@ def print_steps():
     room_steps = np.array(room_steps)
     room_steps = room_steps.squeeze(axis=1)
 
-    designer_persona.printStepsBackgroundLabeled(room_steps)
+    designer_persona.printStepsBackgroundLabeled(room_steps, True)
 
     return "cool"
 
