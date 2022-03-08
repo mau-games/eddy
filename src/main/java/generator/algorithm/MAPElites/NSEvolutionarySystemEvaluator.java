@@ -1,12 +1,10 @@
 package generator.algorithm.MAPElites;
 
-import com.sun.org.apache.xerces.internal.xni.grammars.Grammar;
 import game.narrative.GrammarGraph;
 import game.narrative.GrammarNode;
 import game.narrative.NarrativeFinder.*;
 import game.narrative.TVTropeType;
 import generator.algorithm.GrammarIndividual;
-import sun.java2d.pipe.SpanShapeRenderer;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;

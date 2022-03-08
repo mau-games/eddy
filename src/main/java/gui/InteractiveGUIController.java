@@ -167,15 +167,29 @@ public class InteractiveGUIController implements Initializable, Listener {
 
 		runID = UUID.randomUUID();
 
-		File file = new File(DataSaverLoader.projectPath + "\\summer-school\\" + runID + "\\algorithm\\");
+		System.out.println(DataSaverLoader.projectPath +
+				File.separator + File.separator + "summer-school" + File.separator + File.separator +
+				runID +
+				File.separator + File.separator + "algorithm" + File.separator + File.separator);
+
+		File file = new File(DataSaverLoader.projectPath +
+				File.separator + File.separator + "summer-school" + File.separator + File.separator +
+				runID +
+				File.separator + File.separator + "algorithm" + File.separator + File.separator);
 		if (!file.exists()) {
 			file.mkdirs();
 		}
-		file = new File(DataSaverLoader.projectPath + "\\summer-school\\" + runID + "\\dungeon\\");
+		file = new File(DataSaverLoader.projectPath +
+				File.separator + File.separator + "summer-school" + File.separator + File.separator +
+				runID +
+				File.separator + File.separator + "dungeon" + File.separator + File.separator);
 		if (!file.exists()) {
 			file.mkdirs();
 		}
-		file = new File(DataSaverLoader.projectPath + "\\summer-school\\" + runID + "\\room\\");
+		file = new File(DataSaverLoader.projectPath +
+				File.separator + File.separator + "summer-school" + File.separator + File.separator +
+				runID +
+				File.separator + File.separator + "room" + File.separator + File.separator);
 		if (!file.exists()) {
 			file.mkdirs();
 		}
@@ -477,15 +491,25 @@ public class InteractiveGUIController implements Initializable, Listener {
 		dungeonMap = null;
 		
 		runID = UUID.randomUUID();
-		File file = new File(DataSaverLoader.projectPath + "\\summer-school\\" + runID + "\\algorithm\\");
+
+		File file = new File(DataSaverLoader.projectPath +
+				File.separator + File.separator + "summer-school" + File.separator + File.separator +
+				runID +
+				File.separator + File.separator + "algorithm" + File.separator + File.separator);
 		if (!file.exists()) {
 			file.mkdirs();
 		}
-		file = new File(DataSaverLoader.projectPath + "\\summer-school\\" + runID + "\\dungeon\\");
+		file = new File(DataSaverLoader.projectPath +
+				File.separator + File.separator + "summer-school" + File.separator + File.separator +
+				runID +
+				File.separator + File.separator + "dungeon" + File.separator + File.separator);
 		if (!file.exists()) {
 			file.mkdirs();
 		}
-		file = new File(DataSaverLoader.projectPath + "\\summer-school\\" + runID + "\\room\\");
+		file = new File(DataSaverLoader.projectPath +
+				File.separator + File.separator + "summer-school" + File.separator + File.separator +
+				runID +
+				File.separator + File.separator + "room" + File.separator + File.separator);
 		if (!file.exists()) {
 			file.mkdirs();
 		}

@@ -1,5 +1,6 @@
 package gui.controls;
 
+import java.io.File;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -325,7 +326,7 @@ public class EvolutionMAPEPane extends AnchorPane implements Listener
 													selectedSuggestion.getSuggestedRoom().getDimensionValue(currentDimensions[1].getDimension()),
 													selectedSuggestion.getSuggestedRoom());
 			
-			XMLHandler.getInstance().saveIndividualRoomXML(selectedSuggestion.getSuggestedRoom(), "clicked-suggestion\\");
+			XMLHandler.getInstance().saveIndividualRoomXML(selectedSuggestion.getSuggestedRoom(), "clicked-suggestion" + File.separator + File.separator);
 
 			
 			displayStats();
@@ -421,7 +422,7 @@ public class EvolutionMAPEPane extends AnchorPane implements Listener
 					selectedSuggestion.getSuggestedRoom());
 
 	
-			XMLHandler.getInstance().saveIndividualRoomXML(selectedSuggestion.getSuggestedRoom(), "picked-room\\");
+			XMLHandler.getInstance().saveIndividualRoomXML(selectedSuggestion.getSuggestedRoom(), "picked-room" + File.separator + File.separator);
 			
 			router.postEvent(new SaveCurrentGeneration());
 			router.postEvent(new SuggestionApplied(selectedSuggestion.getSuggestedRoom()));

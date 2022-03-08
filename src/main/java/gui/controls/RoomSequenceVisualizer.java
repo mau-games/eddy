@@ -1,5 +1,6 @@
 package gui.controls;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.LinkedList;
 import java.util.List;
@@ -229,7 +230,7 @@ public class RoomSequenceVisualizer extends BorderPane implements Listener {
 	public void onLoadRooms()
 	{
 		XMLHandler.getInstance().clearLoaded();
-		XMLHandler.getInstance().loadRooms(XMLHandler.projectPath + "testReader\\", false);
+		XMLHandler.getInstance().loadRooms(XMLHandler.projectPath + "testReader" + File.separator + File.separator, false);
 		XMLHandler.getInstance().sortRoomsToLoad();
 		XMLHandler.getInstance().createRooms();
 		

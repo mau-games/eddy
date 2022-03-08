@@ -278,7 +278,7 @@ public class MapRenderer implements Listener {
 		System.out.println(gridPane.getWidth());
 		System.out.println(gridPane.getHeight());
 		
-		File file = new File(MAPECollector.getInstance().getDirectory().getAbsolutePath() + "\\CellIndividuals.png");
+		File file = new File(MAPECollector.getInstance().getDirectory().getAbsolutePath() +  File.separator + File.separator + "CellIndividuals.png");
 		try {
             ImageIO.write(SwingFXUtils.fromFXImage(writableImage, null), "png", file);
         } catch (Exception s) {
@@ -304,7 +304,7 @@ public class MapRenderer implements Listener {
 		final WritableImage writableImage = new WritableImage((int)currentEditedPane.getWidth(), (int)currentEditedPane.getHeight());
 		Image image = currentEditedPane.snapshot(new SnapshotParameters(), writableImage);
 
-		File file = new File(MAPECollector.getInstance().getDirectory().getAbsolutePath()  + "\\currentRoom.png");
+		File file = new File(MAPECollector.getInstance().getDirectory().getAbsolutePath()  + File.separator + File.separator + "currentRoom.png");
 		try {
             ImageIO.write(SwingFXUtils.fromFXImage(writableImage, null), "png", file);
         } catch (Exception s) {
@@ -332,7 +332,7 @@ public class MapRenderer implements Listener {
 		final WritableImage writableImage = new WritableImage((int) canvas.getWidth(), (int) canvas.getHeight());
 		Image image = canvas.snapshot(new SnapshotParameters(), writableImage);
 		
-		File file = new File(MAPECollector.getInstance().getDirectory().getAbsolutePath()  + "\\currentRoom.png");
+		File file = new File(MAPECollector.getInstance().getDirectory().getAbsolutePath()  +  File.separator + File.separator + "currentRoom.png");
 		try {
             ImageIO.write(SwingFXUtils.fromFXImage(writableImage, null), "png", file);
         } catch (Exception s) {

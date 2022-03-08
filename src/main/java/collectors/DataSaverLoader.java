@@ -7,18 +7,16 @@ import java.io.PrintWriter;
 
 import org.apache.commons.io.FileUtils;
 
-import machineLearning.neuralnetwork.DataTuple;
-
 public class DataSaverLoader {
 	
-	public static final String DIRECTORY= System.getProperty("user.dir") + "\\my-data\\";
-	public static String projectPath = System.getProperty("user.dir") + "\\my-data";
+	public static final String DIRECTORY= System.getProperty("user.dir") + File.separator + File.separator + "my-data" + File.separator + File.separator ;
+	public static String projectPath = System.getProperty("user.dir") + File.separator + File.separator + "my-data";
 	
 	public static boolean saveFile(String directoryName, String fileName,String data,boolean append)
 	{
         try 
         {
-            FileOutputStream outS=new FileOutputStream((DIRECTORY + directoryName + "\\" + fileName), append);
+            FileOutputStream outS=new FileOutputStream((DIRECTORY + directoryName + File.separator + File.separator + fileName), append);
             PrintWriter pw=new PrintWriter(outS);
 
             pw.println(data);
@@ -37,7 +35,7 @@ public class DataSaverLoader {
 	
 	public static void SaveData(String data, String internalPath, String fileName)
 	{
-		File file = new File(projectPath + internalPath + "\\" + fileName + ".csv");
+		File file = new File(projectPath + internalPath + File.separator + File.separator + fileName + ".csv");
 		try {
 			FileUtils.write(file, data, true);
 		} catch (IOException e) {

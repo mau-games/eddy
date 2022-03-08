@@ -1,6 +1,5 @@
 package game.narrative;
 
-import com.sun.org.apache.xerces.internal.xni.grammars.Grammar;
 import game.narrative.NarrativeFinder.NarrativeStructPatternFinder;
 import generator.algorithm.MAPElites.Dimensions.GADimension;
 import generator.algorithm.MAPElites.grammarDimensions.GADimensionGrammar;

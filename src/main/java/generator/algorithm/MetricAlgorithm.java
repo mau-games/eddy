@@ -1,19 +1,11 @@
 package generator.algorithm;
 
 import finder.PatternFinder;
-import finder.geometry.Polygon;
-import finder.patterns.CompositePattern;
-import finder.patterns.Pattern;
-import finder.patterns.meso.*;
-import finder.patterns.micro.*;
 import game.*;
-import generator.algorithm.MAPElites.Dimensions.CharacteristicSimilarityGADimension;
 import generator.algorithm.MAPElites.Dimensions.GADimension.DimensionTypes;
-import generator.algorithm.MAPElites.Dimensions.SimilarityGADimension;
 import generator.algorithm.MAPElites.MAPEliteAlgorithm;
 import generator.config.GeneratorConfig;
 import machineLearning.PreferenceModel;
-import org.apache.commons.io.FileUtils;
 import util.Point;
 import util.Util;
 import util.eventrouting.EventRouter;
@@ -21,10 +13,7 @@ import util.eventrouting.Listener;
 import util.eventrouting.PCGEvent;
 import util.eventrouting.events.*;
 
-import java.io.File;
-import java.io.IOException;
 import java.util.*;
-import java.util.Map.Entry;
 import java.util.stream.Collectors;
 
 /**

@@ -14,11 +14,11 @@ import org.apache.commons.io.FileUtils;
  */
 public class DataTupleManager {
 	
-	private static String projectPath = System.getProperty("user.dir") + "\\my-data";
+	private static String projectPath = System.getProperty("user.dir") + File.separator + File.separator + "my-data";
 	
 	public static void SaveHeader(DataTuple data, String internalPath, String fileName)
 	{
-		File file = new File(projectPath + internalPath + "\\" + fileName + ".csv");
+		File file = new File(projectPath + internalPath + File.separator + File.separator + fileName + ".csv");
 		try {
 			FileUtils.write(file, data.getHeader(), true);
 		} catch (IOException e) {
@@ -29,7 +29,7 @@ public class DataTupleManager {
 	
 	public static void SaveData(DataTuple data, String internalPath, String fileName)
 	{
-		File file = new File(projectPath + internalPath + "\\" + fileName + ".csv");
+		File file = new File(projectPath + internalPath + File.separator + File.separator + fileName + ".csv");
 		try {
 			FileUtils.write(file, data.getSaveString(), true);
 		} catch (IOException e) {
@@ -53,7 +53,7 @@ public class DataTupleManager {
 	
 	public static DataTuple[] LoadData(String internalPath, String fileName)
 	{
-		File file = new File(projectPath + internalPath + "\\" + fileName + ".csv");
+		File file = new File(projectPath + internalPath + File.separator + File.separator + fileName + ".csv");
 		
 		String data;
 		try {
@@ -76,7 +76,7 @@ public class DataTupleManager {
 	
 	public static PreferenceModelDataTuple[] LoadPreferenceModelData (String internalPath, String fileName)
 	{
-		File file = new File(projectPath + internalPath + "\\" + fileName + ".csv");
+		File file = new File(projectPath + internalPath + File.separator + File.separator + fileName + ".csv");
 		
 		String data;
 		try {
@@ -99,7 +99,7 @@ public class DataTupleManager {
 	
 	public static ArrayList<PreferenceModelDataTuple> LoadPreferenceModelDataList (String internalPath, String fileName)
 	{
-		File file = new File(projectPath + "\\" + internalPath + "\\" + fileName + ".csv");
+		File file = new File(projectPath + File.separator + File.separator + internalPath + File.separator + File.separator + fileName + ".csv");
 		
 		String data;
 		try {
@@ -122,7 +122,7 @@ public class DataTupleManager {
 	
 	public static ArrayList<MapPreferenceModelTuple> LoadValueMapDataList (String internalPath, String fileName)
 	{
-		File file = new File(projectPath + "\\" + internalPath + "\\" + fileName + ".csv");
+		File file = new File(projectPath + File.separator + File.separator + internalPath + File.separator + File.separator + fileName + ".csv");
 		
 		String data;
 		try {

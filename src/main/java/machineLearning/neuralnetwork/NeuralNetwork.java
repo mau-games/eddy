@@ -5,7 +5,6 @@ import java.util.ArrayList;
 import java.util.Random;
 
 import collectors.DataSaverLoader;
-import machineLearning.neuralnetwork.LossCalculator.lossFunctions;
 import machineLearning.neuralnetwork.Neuron.NeuronTypes;
 import machineLearning.neuralnetwork.activationFunction.ActivationFunction;
 import machineLearning.neuralnetwork.activationFunction.LeakyReLU;
@@ -431,9 +430,9 @@ public class NeuralNetwork <T extends DataTuple>
 			ModelInformation currentModel = new ModelInformation(learningRate, epoch, -1, batchSize, iterations, max_epochs);
 			modelInfoEachStep.add(currentModel);
 			
-			TestNetwork(epoch, -1, trainingSet, DatasetUses.TRAINING, true, false, currentModel, DebugMode.NONE, lossFunctions.CROSSENTROPY);
-			TestNetwork(epoch, -1, testSet, DatasetUses.TEST, true, false, currentModel, DebugMode.NONE, lossFunctions.CROSSENTROPY);
-			TestNetwork(epoch, -1, validationSet, DatasetUses.VALIDATION, true, false, currentModel, DebugMode.NONE, lossFunctions.CROSSENTROPY);
+			TestNetwork(epoch, -1, trainingSet, DatasetUses.TRAINING, true, false, currentModel, DebugMode.NONE, LossCalculator.lossFunctions.CROSSENTROPY);
+			TestNetwork(epoch, -1, testSet, DatasetUses.TEST, true, false, currentModel, DebugMode.NONE, LossCalculator.lossFunctions.CROSSENTROPY);
+			TestNetwork(epoch, -1, validationSet, DatasetUses.VALIDATION, true, false, currentModel, DebugMode.NONE, LossCalculator.lossFunctions.CROSSENTROPY);
 			System.out.println("----------------------------------");		
 		}
 		
@@ -572,21 +571,21 @@ public class NeuralNetwork <T extends DataTuple>
 			ModelInformation currentModel = new ModelInformation(learningRate, epoch, -1, batchSize, iterations, max_epochs);
 			modelInfoEachStep.add(currentModel);
 			
-			TestNetwork(epoch, -1, validationSet, DatasetUses.VALIDATION, true, false, currentModel, DebugMode.EVERYTHING, lossFunctions.MSE);
-			TestNetwork(epoch, -1, trainingSet, DatasetUses.TRAINING, true, false, currentModel, DebugMode.EVERYTHING,lossFunctions.MSE);
+			TestNetwork(epoch, -1, validationSet, DatasetUses.VALIDATION, true, false, currentModel, DebugMode.EVERYTHING, LossCalculator.lossFunctions.MSE);
+			TestNetwork(epoch, -1, trainingSet, DatasetUses.TRAINING, true, false, currentModel, DebugMode.EVERYTHING, LossCalculator.lossFunctions.MSE);
 			System.out.println("----------------------------------");
 
 			if(currentModel.getAccuracy(DatasetUses.VALIDATION) >= accuracyThreshold)
 			{
 				System.out.println("IS OVER, ACCURATE ENOUGH for Validadation, accuracy threshold: " + accuracyThreshold);
-				TestNetwork(epoch, -1, testSet, DatasetUses.TEST, true, false, currentModel, DebugMode.EVERYTHING, lossFunctions.MSE);
+				TestNetwork(epoch, -1, testSet, DatasetUses.TEST, true, false, currentModel, DebugMode.EVERYTHING, LossCalculator.lossFunctions.MSE);
 				saveModelInformation("Execution-" + LocalDateTime.now().getNano());
 				return;
 			}
 		
 		}
 		ModelInformation currentModel = new ModelInformation(learningRate, 0, -1, batchSize, iterations, max_epochs);
-		TestNetwork(0, -1, testSet, DatasetUses.TEST, true, false, currentModel, DebugMode.EVERYTHING, lossFunctions.MSE);
+		TestNetwork(0, -1, testSet, DatasetUses.TEST, true, false, currentModel, DebugMode.EVERYTHING, LossCalculator.lossFunctions.MSE);
 		saveModelInformation("Execution-" + LocalDateTime.now().getNano());
 		System.out.println("IS OVER!");
 	}
@@ -609,7 +608,7 @@ public class NeuralNetwork <T extends DataTuple>
 	
 	private void TestNetwork(int epoch, int iteration, ArrayList<T> set, 
 							DatasetUses setName, boolean getLoss, boolean saveValues, 
-							ModelInformation modelInfo, DebugMode debug, lossFunctions lossFunction)
+							ModelInformation modelInfo, DebugMode debug, LossCalculator.lossFunctions lossFunction)
 	{
 		float success = 0.0f;
 		float failure = 0.0f;

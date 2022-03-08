@@ -1,5 +1,6 @@
 package game;
 
+import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -961,8 +962,11 @@ public class Dungeon implements Listener {
 		Document dom;
 		Element e = null;
 		Element next = null;
-		String xml = System.getProperty("user.dir") + "\\my-data\\summer-school\\" + InteractiveGUIController.runID
-				+ "\\dungeon\\dungeon-" + this.id.toString() + "_" + saveCounter++ + ".xml";
+		String xml = System.getProperty("user.dir") + File.separator + File.separator + "my-data" +
+				File.separator + File.separator + "summer-school" + File.separator + File.separator +
+				InteractiveGUIController.runID
+				+ File.separator + File.separator + "dungeon" + File.separator + File.separator + "dungeon-" +
+				this.id.toString() + "_" + saveCounter++ + ".xml";
 
 		// instance of a DocumentBuilderFactory
 		DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
@@ -983,7 +987,7 @@ public class Dungeon implements Listener {
 			rootEle.appendChild(e);
 
 			for (Room node : network.nodes()) {
-				node.getRoomFromDungeonXML("dungeon\\");
+				node.getRoomFromDungeonXML("dungeon" + File.separator + File.separator);
 				next = dom.createElement("Room");
 				next.setAttribute("ID", node.toString());
 				e.appendChild(next);

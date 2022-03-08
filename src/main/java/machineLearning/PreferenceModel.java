@@ -1,23 +1,19 @@
 package machineLearning;
 
 import java.io.File;
-import java.io.IOException;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map.Entry;
 
-import org.apache.commons.io.FileUtils;
+import machineLearning.neuralnetwork.DataTupleManager;
+import machineLearning.neuralnetwork.MapPreferenceModelTuple;
+import machineLearning.neuralnetwork.PreferenceModelDataTuple;
 
 import java.util.Stack;
 
 import game.Room;
 import generator.algorithm.MAPElites.Dimensions.GADimension.DimensionTypes;
-import gui.views.TinderViewController;
-import machineLearning.neuralnetwork.DataTupleManager;
-import machineLearning.neuralnetwork.MapPreferenceModelTuple;
-import machineLearning.neuralnetwork.PreferenceModelDataTuple;
 import util.eventrouting.EventRouter;
 import util.eventrouting.events.UpdatePreferenceModel;
 
@@ -75,7 +71,9 @@ public class PreferenceModel
 		}
 		
 		prevStates = new Stack<PreferenceModel>();
-		projectPath = System.getProperty("user.dir") + "\\my-data\\PreferenceModels";
+		projectPath = System.getProperty("user.dir") + File.separator + File.separator + "my-data" +
+				File.separator + File.separator +
+				"PreferenceModels";
 //		symmetry = 0.5;
 //		density = 0.5;
 //		challenge = 0.5;
@@ -249,13 +247,13 @@ public class PreferenceModel
 	
 	public void SaveDataset(String userName)
 	{
-		DataTupleManager.SaveHeader(tuples.get(0), "\\PreferenceModels", userName);
-		DataTupleManager.SaveHeader(mapTuples.get(0), "\\PreferenceModels", userName + "_map");
+		DataTupleManager.SaveHeader(tuples.get(0), File.separator + File.separator + "PreferenceModels", userName);
+		DataTupleManager.SaveHeader(mapTuples.get(0), File.separator + File.separator + "PreferenceModels", userName + "_map");
 		
 		for(int i = 0; i < tuples.size() ;i++)
 		{
-			DataTupleManager.SaveData(tuples.get(i), "\\PreferenceModels", userName);
-			DataTupleManager.SaveData(mapTuples.get(i), "\\PreferenceModels", userName + "_map");
+			DataTupleManager.SaveData(tuples.get(i), File.separator + File.separator +"PreferenceModels", userName);
+			DataTupleManager.SaveData(mapTuples.get(i), File.separator + File.separator +"PreferenceModels", userName + "_map");
 		}
 //		
 //		for(PreferenceModelDataTuple tuple : tuples)
