@@ -1,6 +1,5 @@
 package generator.algorithm;
 
-import java.awt.*;
 import java.io.File;
 import java.io.IOException;
 import java.util.*;
@@ -8,8 +7,6 @@ import java.util.List;
 import java.util.Map.Entry;
 import java.util.stream.Collectors;
 
-import collectors.MAPECollector;
-import generator.algorithm.MAPElites.GACell;
 import org.apache.commons.io.FileUtils;
 
 import finder.PatternFinder;
@@ -36,7 +33,6 @@ import generator.algorithm.MAPElites.Dimensions.SimilarityGADimension;
 import generator.algorithm.MAPElites.Dimensions.GADimension.DimensionTypes;
 import generator.config.GeneratorConfig;
 import machineLearning.PreferenceModel;
-import org.checkerframework.checker.units.qual.A;
 import util.Point;
 import util.Util;
 import util.eventrouting.EventRouter;
@@ -436,7 +432,8 @@ public class Algorithm extends Thread implements Listener {
 	
 	protected void saveUniqueRoomsToFile()
 	{
-		String DIRECTORY= System.getProperty("user.dir") + "\\my-data\\expressive-range\\";
+		String DIRECTORY= System.getProperty("user.dir") + File.separator + File.separator + "my-data" +
+				File.separator + File.separator + "expressive-range" + File.separator + File.separator;
 		StringBuilder data = new StringBuilder();
 		
 		data.append("Leniency;Linearity;Similarity;NMesoPatterns;NSpatialPatterns;Symmetry;Inner Similarity;Fitness;GEN;Score" + System.lineSeparator());
@@ -470,7 +467,8 @@ public class Algorithm extends Thread implements Listener {
 	protected void saveUniqueRoomsToFileAndFlush()
 	{
 //		String DIRECTORY= System.getProperty("user.dir") + "\\my-data\\expressive-range\\";
-		String DIRECTORY= System.getProperty("user.dir") + "\\my-data\\custom-save\\";
+		String DIRECTORY= System.getProperty("user.dir") + File.separator + File.separator +"my-data" +
+				File.separator + File.separator + "custom-save" + File.separator + File.separator;
 		//Create the data:
 		for (Entry<Room, Double[]> entry : uniqueGeneratedRoomsFlush.entrySet()) 
 		{

@@ -18,6 +18,7 @@ import util.eventrouting.events.SaveDisplayedCells;
 import util.eventrouting.events.intraview.*;
 
 import java.awt.*;
+import java.io.File;
 import java.util.UUID;
 
 public class EditedRoomStackPane extends StackPane implements Listener
@@ -219,7 +220,7 @@ public class EditedRoomStackPane extends StackPane implements Listener
 
         editedRoomCanvas.updateTile(tile, currentBrush);
         editedRoom.forceReevaluation();
-        editedRoom.getRoomXML("room\\");
+        editedRoom.getRoomXML("room" + File.separator + File.separator);
 
         mapIsFeasible(editedPane.getMap().isIntraFeasible());
         redrawPatterns(editedPane.getMap());

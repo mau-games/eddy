@@ -1247,7 +1247,8 @@ public class MAPEliteAlgorithm extends Algorithm implements Listener {
 	
 	protected void saveUniqueRoomsToFile()
 	{
-		String DIRECTORY= System.getProperty("user.dir") + "\\my-data\\expressive-range\\";
+		String DIRECTORY= System.getProperty("user.dir") + File.separator + File.separator + "my-data" +
+				File.separator + File.separator + "expressive-range" + File.separator + File.separator;
 		StringBuilder data = new StringBuilder();
 		
 		data.append("Leniency;Linearity;Similarity;NMesoPatterns;NSpatialPatterns;Symmetry;Inner Similarity;Fitness;GEN;Score" + System.lineSeparator());
@@ -1281,7 +1282,9 @@ public class MAPEliteAlgorithm extends Algorithm implements Listener {
 	protected void saveUniqueRoomsToFileAndFlush()
 	{
 //		String DIRECTORY= System.getProperty("user.dir") + "\\my-data\\expressive-range\\";
-		String DIRECTORY= System.getProperty("user.dir") + "\\my-data\\custom-save\\";
+		String DIRECTORY= System.getProperty("user.dir") +
+				File.separator + File.separator + "my-data" + File.separator + File.separator +
+				"custom-save" + File.separator + File.separator;
 		//Create the data:
 		for (Entry<Room, Double[]> entry : uniqueGeneratedRoomsFlush.entrySet()) 
 		{
@@ -1409,12 +1412,19 @@ public class MAPEliteAlgorithm extends Algorithm implements Listener {
 	    Element e = null;
 	    Element next = null;
 	    
-	    File file = new File(DataSaverLoader.projectPath + "\\summer-school\\" + InteractiveGUIController.runID + "\\algorithm\\" + id);
+	    File file = new File(DataSaverLoader.projectPath +
+				File.separator + File.separator + "summer-school" +File.separator + File.separator
+				+ InteractiveGUIController.runID +
+				File.separator + File.separator + "algorithm" +File.separator + File.separator + id);
 		if (!file.exists()) {
 			file.mkdirs();
 		}
 	    
-	    String xml = System.getProperty("user.dir") + "\\my-data\\summer-school\\"+ InteractiveGUIController.runID + "\\algorithm\\" + id + "\\algorithm-" + id + "_" + saveCounter + ".xml";
+	    String xml = System.getProperty("user.dir") +
+				File.separator + File.separator + "my-data" + File.separator + File.separator +
+				"summer-school" + File.separator + File.separator + InteractiveGUIController.runID +
+				File.separator + File.separator + "algorithm" + File.separator + File.separator
+				+ id + File.separator + File.separator + "algorithm-" + id + "_" + saveCounter + ".xml";
 
 	    // instance of a DocumentBuilderFactory
 	    DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
@@ -1455,7 +1465,9 @@ public class MAPEliteAlgorithm extends Algorithm implements Listener {
 		        }
 		        else
 		        {
-		        	cell.GetFeasiblePopulation().get(0).getPhenotype().getMap(-1, -1, null, null, null).saveRoomXMLMapElites("algorithm\\" + id + "\\algorithm-" + saveCounter + "_");
+		        	cell.GetFeasiblePopulation().get(0).getPhenotype().getMap(-1, -1, null, null, null).
+							saveRoomXMLMapElites("algorithm" + File.separator + File.separator + id +
+									File.separator + File.separator + "algorithm-" + saveCounter + "_");
 		        	next.setAttribute("ROOM_ID", cell.GetFeasiblePopulation().get(0).getPhenotype().getMap(-1, -1, null, null, null).toString());
 			        next.setAttribute("fitness", Double.toString(cell.GetFeasiblePopulation().get(0).getFitness()));
 			       

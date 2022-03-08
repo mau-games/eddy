@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <module org.jetbrains.idea.maven.project.MavenProjectsManager.isMavenModule="true" type="JAVA_MODULE" version="4">
-  <component name="NewModuleRootManager" LANGUAGE_LEVEL="JDK_1_8">
+  <component name="NewModuleRootManager" LANGUAGE_LEVEL="JDK_1_9">
     <output url="file://$MODULE_DIR$/target/classes" />
     <output-test url="file://$MODULE_DIR$/target/test-classes" />
     <content url="file://$MODULE_DIR$">
@@ -12,6 +12,20 @@
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
+    <orderEntry type="library" name="Maven: org.openjfx:javafx-swing:17.0.2" level="project" />
+    <orderEntry type="library" name="Maven: org.openjfx:javafx-swing:mac-aarch64:17.0.2" level="project" />
+    <orderEntry type="library" name="Maven: org.openjfx:javafx-base:17.0.2" level="project" />
+    <orderEntry type="library" name="Maven: org.openjfx:javafx-base:mac-aarch64:17.0.2" level="project" />
+    <orderEntry type="library" name="Maven: org.openjfx:javafx-graphics:17.0.2" level="project" />
+    <orderEntry type="library" name="Maven: org.openjfx:javafx-graphics:mac-aarch64:17.0.2" level="project" />
+    <orderEntry type="library" name="Maven: org.openjfx:javafx-fxml:17.0.2" level="project" />
+    <orderEntry type="library" name="Maven: org.openjfx:javafx-fxml:mac-aarch64:17.0.2" level="project" />
+    <orderEntry type="library" name="Maven: org.openjfx:javafx-media:17.0.2" level="project" />
+    <orderEntry type="library" name="Maven: org.openjfx:javafx-media:mac-aarch64:17.0.2" level="project" />
+    <orderEntry type="library" name="Maven: org.openjfx:javafx-web:17.0.2" level="project" />
+    <orderEntry type="library" name="Maven: org.openjfx:javafx-web:mac-aarch64:17.0.2" level="project" />
+    <orderEntry type="library" name="Maven: org.openjfx:javafx-controls:17.0.2" level="project" />
+    <orderEntry type="library" name="Maven: org.openjfx:javafx-controls:mac-aarch64:17.0.2" level="project" />
     <orderEntry type="library" name="Maven: com.google.code.gson:gson:2.8.0" level="project" />
     <orderEntry type="library" scope="TEST" name="Maven: junit:junit:4.13.1" level="project" />
     <orderEntry type="library" scope="TEST" name="Maven: org.hamcrest:hamcrest-core:1.3" level="project" />

@@ -1,7 +1,6 @@
 package generator.algorithm.MAPElites;
 
 import collectors.MAPECollector;
-import com.sun.org.apache.xerces.internal.xni.grammars.Grammar;
 import finder.PatternFinder;
 import game.AlgorithmSetup;
 import game.MapContainer;
@@ -1663,7 +1662,9 @@ public class GrammarMAPEliteAlgorithm extends Algorithm implements Listener {
 	protected void saveUniqueNarrativesToFileAndFlush()
 	{
 //		String DIRECTORY= System.getProperty("user.dir") + "\\my-data\\expressive-range\\";
-		String DIRECTORY= System.getProperty("user.dir") + "\\my-data\\custom-save\\";
+		String DIRECTORY= System.getProperty("user.dir") +
+				File.separator + File.separator + "my-data" + File.separator + File.separator +
+				"custom-save" + File.separator + File.separator;
 
 		//Create the data:
 		for (Entry<GrammarGraph, Double[]> entry : uniqueGeneratedNarrativesFlush.entrySet())

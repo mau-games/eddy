@@ -1718,7 +1718,7 @@ public class ExperimentsGUIController implements Initializable, Listener {
 	public void saveEvaluationAllLoaded()
 	{
 		String DIRECTORY= selectedDirectory.getAbsolutePath();
-		File file = new File(DIRECTORY + "\\evaluation.csv");
+		File file = new File(DIRECTORY + File.separator + File.separator +"evaluation.csv");
 		StringBuilder data = new StringBuilder();
 		
 		if(!file.exists())
@@ -1772,7 +1772,9 @@ public class ExperimentsGUIController implements Initializable, Listener {
 	@FXML
 	public void saveEvaluation()
 	{
-		String DIRECTORY= System.getProperty("user.dir") + "\\my-data\\" + evaluationFilename.getText();
+		String DIRECTORY= System.getProperty("user.dir") +
+				File.separator + File.separator + "my-data" + File.separator + File.separator +
+				evaluationFilename.getText();
 		File file = new File(DIRECTORY);
 		StringBuilder data = new StringBuilder();
 		
@@ -1819,7 +1821,10 @@ public class ExperimentsGUIController implements Initializable, Listener {
 
 	private void saveExperimentRoom(int ident)
 	{
-		String DIRECTORY= System.getProperty("user.dir") + "\\my-data\\" + experimentFilename.getText();
+		String DIRECTORY= System.getProperty("user.dir") +
+				File.separator + File.separator + "my-data" + File.separator + File.separator +
+				experimentFilename.getText();
+
 //		String DIRECTORY= experimentFilename.getText();
 		File file = new File(DIRECTORY);
 		StringBuilder data = new StringBuilder();
@@ -1879,7 +1884,10 @@ public class ExperimentsGUIController implements Initializable, Listener {
 
 	private void saveExperimentRoom()
 	{
-		String DIRECTORY= System.getProperty("user.dir") + "\\my-data\\" + experimentFilename.getText();
+		String DIRECTORY= System.getProperty("user.dir") +
+				File.separator + File.separator + "my-data" + File.separator + File.separator +
+				experimentFilename.getText();
+
 		File file = new File(DIRECTORY);
 		StringBuilder data = new StringBuilder();
 		
@@ -1950,7 +1958,7 @@ public class ExperimentsGUIController implements Initializable, Listener {
 				roomInteractiveView.updateTile(tile, myBrush);
 				roomInteractiveView.getMap().forceReevaluation();
 				evaluateRoom();
-				roomInteractiveView.getMap().getRoomXML("room\\");
+				roomInteractiveView.getMap().getRoomXML("room" + File.separator + File.separator);
 //				mapIsFeasible(mapView.getMap().isIntraFeasible());
 //				redrawPatterns(mapView.getMap());
 //				redrawLocks(mapView.getMap());

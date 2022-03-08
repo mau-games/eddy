@@ -1,7 +1,5 @@
 package machineLearning.neuralnetwork;
 
-import java.util.ArrayList;
-
 public class ModelInformation {
 	
 	protected double[] accuracy;

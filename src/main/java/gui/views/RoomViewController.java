@@ -654,7 +654,7 @@ public class RoomViewController extends BorderPane implements Listener
 					selectedSuggestion.getSuggestedRoom().getDimensionValue(currentDimensions[1].getDimension()),
 					selectedSuggestion.getSuggestedRoom());
 
-			selectedSuggestion.getSuggestedRoom().getRoomXML("clicked-suggestion\\");
+			selectedSuggestion.getSuggestedRoom().getRoomXML("clicked-suggestion" + File.separator + File.separator);
 
 //			clearStats();
 			displayStats();
@@ -1055,7 +1055,7 @@ public class RoomViewController extends BorderPane implements Listener
 
 
 //			selectedSuggestion.getSuggestedRoom()(prefix);
-			selectedSuggestion.getSuggestedRoom().getRoomXML("picked-room\\");
+			selectedSuggestion.getSuggestedRoom().getRoomXML("picked-room" + File.separator + File.separator);
 
 			router.postEvent(new SaveCurrentGeneration());
 
@@ -1372,7 +1372,9 @@ public class RoomViewController extends BorderPane implements Listener
 	
 	public void saveEditedRoomInfo()
 	{
-		String DIRECTORY= System.getProperty("user.dir") + "\\my-data\\custom-save\\";
+		String DIRECTORY= System.getProperty("user.dir") +
+				File.separator + File.separator + "my-data" + File.separator + File.separator +
+				"custom-save" + File.separator + File.separator;
 		StringBuilder sb = new StringBuilder();
 
 		editedRoomPane.editedPane.getMap().calculateAllDimensionalValues();
