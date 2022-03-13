@@ -690,6 +690,8 @@ public class EditViewController extends BorderPane implements Listener {
 				redrawPatterns(mapView.getMap());
 				redrawLocks(mapView.getMap());
 //				redrawHeatMap(mapView.getMap());
+
+
 			}
 		}
 		

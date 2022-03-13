@@ -189,7 +189,7 @@ public class EditedRoomStackPane extends StackPane implements Listener
 
     public void RoomHovered(InteractiveMap editedRoomCanvas, Room hoveredRoom, util.Point p, MouseEvent event)
     {
-        System.out.println("ROOM HOVERED");
+        //System.out.println("ROOM HOVERED");
         brushCanvas.setVisible(false);
         brushCanvas.getGraphicsContext2D().clearRect(0, 0, mapWidth, mapHeight); //Needs to change!
         brushCanvas.setVisible(true);

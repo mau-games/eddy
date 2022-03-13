@@ -1,106 +1,29 @@
 package gui.views;
 
-import java.io.File;
-import java.io.IOException;
-import java.math.BigDecimal;
-import java.math.RoundingMode;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Set;
-import java.util.UUID;
-import java.util.Map.Entry;
-
-import game.*;
-import gui.controls.*;
-import org.apache.commons.io.FileUtils;
-
 import collectors.ActionLogger;
 import collectors.ActionLogger.ActionType;
 import collectors.ActionLogger.TargetPane;
 import collectors.ActionLogger.View;
-import finder.patterns.Pattern;
-import finder.patterns.micro.Connector;
-import finder.patterns.micro.Corridor;
-import finder.patterns.micro.Chamber;
-import game.tiles.BossEnemyTile;
-import game.tiles.EnemyTile;
-import game.tiles.FloorTile;
-import game.tiles.TreasureTile;
-import game.tiles.WallTile;
+import game.*;
+import game.Game.MapMutationType;
+import game.tiles.*;
 import generator.algorithm.Algorithm.AlgorithmTypes;
 import generator.algorithm.MAPElites.Dimensions.GADimension.DimensionTypes;
-import generator.algorithm.MAPElites.GACell;
 import generator.algorithm.MAPElites.Dimensions.MAPEDimensionFXML;
-import game.Game.MapMutationType;
-import gui.utils.InformativePopupManager;
-import gui.utils.InformativePopupManager.PresentableInformation;
+import gui.controls.*;
 import gui.utils.MapRenderer;
-
 import javafx.application.Platform;
-import javafx.beans.Observable;
-import javafx.beans.property.SimpleDoubleProperty;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
-import javafx.collections.FXCollections;
-import javafx.collections.ListChangeListener.Change;
-import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
-import javafx.geometry.HPos;
 import javafx.geometry.Insets;
-import javafx.geometry.Orientation;
-import javafx.geometry.Pos;
 import javafx.scene.Cursor;
-import javafx.scene.Group;
-import javafx.scene.Node;
 import javafx.scene.canvas.Canvas;
-import javafx.scene.canvas.GraphicsContext;
-import javafx.scene.control.Button;
-import javafx.scene.control.CheckBox;
-import javafx.scene.control.ComboBox;
-import javafx.scene.control.Label;
-import javafx.scene.control.ScrollBar;
-import javafx.scene.control.Slider;
-import javafx.scene.control.Tab;
-import javafx.scene.control.TabPane;
-import javafx.scene.control.TableColumn;
-import javafx.scene.control.TableColumn.CellDataFeatures;
-import javafx.scene.control.TableRow;
-import javafx.scene.control.TableView;
-import javafx.scene.control.ToggleButton;
-import javafx.scene.control.ToggleGroup;
-import javafx.scene.control.Tooltip;
-import javafx.scene.control.cell.TextFieldTableCell;
+import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.input.ClipboardContent;
-import javafx.scene.input.DataFormat;
-import javafx.scene.input.Dragboard;
-import javafx.scene.input.MouseEvent;
-import javafx.scene.input.TransferMode;
-import javafx.scene.layout.AnchorPane;
-import javafx.scene.layout.Border;
-import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.BorderStroke;
-import javafx.scene.layout.BorderStrokeStyle;
-import javafx.scene.layout.BorderWidths;
-import javafx.scene.layout.CornerRadii;
-import javafx.scene.layout.FlowPane;
-import javafx.scene.layout.GridPane;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.Pane;
-import javafx.scene.layout.StackPane;
-import javafx.scene.layout.VBox;
-import javafx.scene.control.ScrollPane;
-import javafx.scene.control.ScrollPane.ScrollBarPolicy;
-import javafx.scene.paint.Color;
-import javafx.scene.text.Font;
-import javafx.util.Callback;
-import javafx.util.converter.DoubleStringConverter;
-import javafx.util.converter.IntegerStringConverter;
+import javafx.scene.layout.*;
+import org.apache.commons.io.FileUtils;
 import util.config.ConfigurationUtility;
 import util.config.MissingConfigurationException;
 import util.eventrouting.EventRouter;
@@ -112,40 +35,50 @@ import util.eventrouting.events.intraview.EditedRoomTogglePatterns;
 import util.eventrouting.events.intraview.InteractiveRoomBrushUpdated;
 import util.eventrouting.events.intraview.UserEditedRoom;
 
+import java.io.File;
+import java.io.IOException;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.UUID;
+
 /**
- * This class controls the interactive application's edit view.
+ * This class controls the Co-Creative Room edit view
  * FIXME: A lot of things need to change here! 
  * 
  * @author Johan Holmberg, Malmö University
  * @author Alberto Alvarez, Malmö University
  * @author Chelsi Nolasco, Malmö University
  * @author Axel Österman, Malmö University
+ * @author Tinea Larsson, Malmö University
  */
-public class RoomViewController extends BorderPane implements Listener 
+public class CCRoomViewController extends BorderPane implements Listener
 {
 	@FXML private ComboBox<String> DisplayCombo;
 
 	@FXML public EditedRoomStackPane editedRoomPane;
-	
+
 	@FXML public StackPane mapPane;
 	@FXML public Pane minimap;
 
 	//left side as well
 	@FXML private GridPane legend;
 	@FXML private ToggleGroup brushes;
-	
-	
+
+
 	@FXML private DimensionsTable MainTable;
 	@FXML private DimensionsTable secondaryTable;
-	
+
 	//RIGHT SIDE!
 	@FXML private VBox rightSidePane;
-	
+
 	//Suggestions
 //	@FXML private GridPane suggestionsPane;
 	@FXML private MAPEVisualizationPane MAPElitesPane;
 	private ArrayList<SuggestionRoom> roomDisplays;
-	
+
 	//All the buttons to the left
 	@FXML private ToggleButton patternButton;
 	@FXML private ToggleButton lockBrush;
@@ -155,10 +88,10 @@ public class RoomViewController extends BorderPane implements Listener
 	@FXML private ToggleButton treasureBtn;
 	@FXML private ToggleButton enemyBtn;
 	@FXML private ToggleButton bossEnemyBtn;
-	
+
 	//Brush Slider
 	@FXML private Slider brushSlider;
-	
+
 	//Abusive amount of labels for info
 	@FXML private Label enemyNumbr;
 	@FXML private Label enemyNumbr2;
@@ -193,7 +126,7 @@ public class RoomViewController extends BorderPane implements Listener
 
 	private MapContainer map;
 
-	private boolean isActive = false; //for having the same event listener in different views 
+	private boolean isActive = false; //for having the same event listener in different views
 	private boolean isFeasible = true; //How feasible the individual is
 	public HashMap<Integer, Room> suggestedRooms = new HashMap<Integer, Room>();
 	private int nextRoom = 0;
@@ -210,30 +143,30 @@ public class RoomViewController extends BorderPane implements Listener
 
 	private int RequestCounter = 0;
 	public Drawer myBrush;
-	
+
 	int mapWidth;
 	int mapHeight;
 	private int suggestionAmount = 101; //TODO: Probably this value should be from the application config!!
 
 	private MAPEDimensionFXML[] currentDimensions = new MAPEDimensionFXML[] {};
-	
-	
+
+
 	//PROVISIONAL FIX!
 	public enum EvoState
 	{
 		STOPPED,
 		RUNNING
 	}
-	
+
 	public EvoState currentState;
-	
+
 	int currentEditionStep = 0;
-	
+
 	/**
 	 * Creates an instance of this class.
 	 */
 	@SuppressWarnings("unchecked")
-	public RoomViewController() {
+	public CCRoomViewController() {
 		super();
 		FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource(
 				"/gui/interactive/RoomView.fxml"));
@@ -275,23 +208,23 @@ public class RoomViewController extends BorderPane implements Listener
 		init();
 		
 		roomDisplays = new ArrayList<SuggestionRoom>();
-		
-		for(int i = 0; i < suggestionAmount; i++) 
+
+		for(int i = 0; i < suggestionAmount; i++)
 		{
 			SuggestionRoom suggestion = new SuggestionRoom();
 			roomDisplays.add(suggestion);
 		}
-			
+
 //		suggestionsPane.setVisible(false);
-		
+
 		MAPElitesPane.init(roomDisplays, "","",0,0);
-		
+
 		MainTable.setup(2);
 		MainTable.InitMainTable(MAPElitesPane);
 		MainTable.setEventListeners();
 		
 		secondaryTable.setup(DimensionTypes.values().length);
-		
+
 		for(DimensionTypes dimension : DimensionTypes.values())
         {
         	if(dimension != DimensionTypes.SIMILARITY && dimension != DimensionTypes.SYMMETRY
@@ -300,9 +233,9 @@ public class RoomViewController extends BorderPane implements Listener
         	{
         		secondaryTable.getItems().add(new MAPEDimensionFXML(dimension, 5));
         	}
-            
+
         }
-		
+
 		secondaryTable.setEventListeners();
 		
 		currentState = EvoState.RUNNING;
@@ -527,7 +460,6 @@ public class RoomViewController extends BorderPane implements Listener
 
 		if(e instanceof UserEditedRoom)
 		{
-			System.out.println("ping UserEditedRoom in RoomViewController"); // HÄR HAR EN EDIT REDAN SKETT I EDITEDROOMSTACKPANE
 			UserEditedRoom(((UserEditedRoom) e).uniqueCanvasID, ((UserEditedRoom) e).editedRoom);
 		}
 		else if(e instanceof MAPEGridUpdate)
@@ -710,9 +642,7 @@ public class RoomViewController extends BorderPane implements Listener
 //		System.out.println(room.getDimensionValue(DimensionTypes.NUMBER_MESO_PATTERN) + ";");
 //		System.out.println(room.getDimensionValue(DimensionTypes.NUMBER_PATTERNS) + ";");  
 //		System.out.println(room.getDimensionValue(DimensionTypes.SYMMETRY) + ";");         
-//		System.out.println(room.getDimensionValue(DimensionTypes.INNER_SIMILARITY) + ";");
-
-
+//		System.out.println(room.getDimensionValue(DimensionTypes.INNER_SIMILARITY) + ";"); 
 	}
 
 	/**
