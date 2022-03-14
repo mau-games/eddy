@@ -27,7 +27,7 @@ public class NarrativeStructureConstraints
         resetConstraints();
         this.heroes = 2;
         this.villains = 2;
-        this.quest_items = 1;
+        this.quest_items = 2;
         this.treasures = 1;
     }
 

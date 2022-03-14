@@ -13,7 +13,7 @@ import java.util.List;
 public class NarrativePattern
 {
     protected double quality;
-    protected GrammarNode connected_node;
+    public GrammarNode connected_node;
     protected HashMap<Integer, List<NarrativePattern>> connected_patterns; // Mainly for the Basic Patterns
     protected HashMap<Integer, List<NarrativePattern>> connected_patterns_from_me; // Mainly for the Basic Patterns
 

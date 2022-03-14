@@ -198,10 +198,15 @@ public class DerivativePattern extends CompositeNarrativePattern
                 if(source instanceof HeroNodePattern)
                 {
                     hero_pat = true;
-                    source.faction = source.connected_node.getGrammarNodeType().equals(TVTropeType.HERO);
+                    if(source.connected_node.getGrammarNodeType().equals(TVTropeType.HERO))
+                        source.faction = true;
                 }
                 else
-                    source.faction = source.connected_node.getGrammarNodeType().equals(TVTropeType.ENEMY);
+                {
+                    if(source.connected_node.getGrammarNodeType().equals(TVTropeType.ENEMY) &&
+                            source.connected_node.getGrammarNodeType().equals(TVTropeType.EMP) )
+                        source.faction = true;
+                }
 
                 //check for ambiguous characters
                 for(NarrativePattern derivate : dp.derivatives)

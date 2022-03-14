@@ -35,7 +35,6 @@ import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.TextAlignment;
-import org.checkerframework.checker.units.qual.A;
 import util.Point;
 import util.config.MissingConfigurationException;
 import util.eventrouting.EventRouter;

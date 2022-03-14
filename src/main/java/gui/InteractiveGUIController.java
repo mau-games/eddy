@@ -218,25 +218,25 @@ public class InteractiveGUIController implements Initializable, Listener {
 		graph.nodes.add(enemy);
 
 		//Mario
-//		graph = new GrammarGraph();
-//
-//		GrammarNode mario = graph.addNode(TVTropeType.HERO);
-//		GrammarNode conf = graph.addNode(TVTropeType.CONFLICT);
-//		GrammarNode empire = graph.addNode(TVTropeType.EMP);
-//		GrammarNode fake_bowser = graph.addNode(TVTropeType.DRA);
-//		GrammarNode bowser = graph.addNode(TVTropeType.BAD);
-//		GrammarNode quest_item = graph.addNode(TVTropeType.MCG);
-//		GrammarNode peach = graph.addNode(TVTropeType.HERO);
-//
-//		mario.addConnection(conf, 1);
-//		mario.addConnection(quest_item, 1);
-//		conf.addConnection(empire, 1);
-//
-//		empire.addConnection(fake_bowser, 0);
-//		fake_bowser.addConnection(bowser, 0);
-//		bowser.addConnection(quest_item, 0);
-//
-//		quest_item.addConnection(peach, 1);
+		graph = new GrammarGraph();
+
+		GrammarNode mario = graph.addNode(TVTropeType.HERO);
+		GrammarNode conf = graph.addNode(TVTropeType.CONFLICT);
+		GrammarNode empire = graph.addNode(TVTropeType.EMP);
+		GrammarNode fake_bowser = graph.addNode(TVTropeType.DRA);
+		GrammarNode bowser = graph.addNode(TVTropeType.BAD);
+		GrammarNode quest_item = graph.addNode(TVTropeType.MCG);
+		GrammarNode peach = graph.addNode(TVTropeType.HERO);
+
+		mario.addConnection(conf, 1);
+		mario.addConnection(quest_item, 1);
+		conf.addConnection(empire, 1);
+
+		empire.addConnection(fake_bowser, 0);
+		fake_bowser.addConnection(bowser, 0);
+		bowser.addConnection(quest_item, 0);
+
+		quest_item.addConnection(peach, 1);
 
 		//ZELDA temple
 //		graph = new GrammarGraph();

@@ -131,7 +131,7 @@ public class MapRenderer implements Listener {
 			MapContainer result = (MapContainer) ((AlgorithmDone) e).getPayload();
 			Platform.runLater(() -> {
 				// We might as well see if anyone is interested in our rendered map
-				sendRenderedMap(((AlgorithmDone)e).getID(), (game.Room) result.getMap());
+//				sendRenderedMap(((AlgorithmDone)e).getID(), (game.Room) result.getMap());
 			});
 		}
 	}

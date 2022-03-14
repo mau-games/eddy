@@ -14,7 +14,7 @@ import java.util.List;
 
 public class CompositeNarrativePattern extends NarrativePattern
 {
-    protected List<NarrativePattern> patterns = new ArrayList<NarrativePattern>();
+    public List<NarrativePattern> patterns = new ArrayList<NarrativePattern>();
     protected List<GrammarNode> relevant_nodes;
 
     //But actually, it might be smarter to create subgraphs as we do to apply the rules

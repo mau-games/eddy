@@ -122,6 +122,7 @@ public class NarrativeStructureViewController extends BorderPane implements List
 		router.registerListener(this, new SuggestedNarrativeHovered(null));
 		router.registerListener(this, new SuggestedNarrativeSelected(null));
 		router.registerListener(this, new NarrativeStructEdited(null, false));
+		router.registerListener(this, new AlgorithmDone(null, null, ""));
 
 		//Create the graphs!
 		Scale newScale = new Scale();
@@ -333,7 +334,10 @@ public class NarrativeStructureViewController extends BorderPane implements List
 		narrativeConstraints.setConstraintsFromDungeon(currentDungeon);
 		AlgorithmSetup.getInstance().setNarrativeConstraints(currentDungeon);
 		AlgorithmSetup.getInstance().setFakeNarrativeConstraints();
+		AlgorithmSetup.getInstance().setConstraintNarrativeStruct(true);
 
+		//Testing how the narrative structure components work:
+		grammar.getNarrativeComponents().evaluate_collect_components();
 
 		//important distinction so you can use the graph for MAP-Elites and edit at the same time
 		this.editedGraph = new GrammarGraph(grammar);
@@ -369,7 +373,7 @@ public class NarrativeStructureViewController extends BorderPane implements List
 		AlgorithmSetup.getInstance().setSaveData(false);
 //		AlgorithmSetup.getInstance().setSaveData(true);
 
-		RunMAPElites(editedGraph, axiom_graph); //This one is the one to run!
+		RunMAPElites(editedGraph, axiom_graph); //This one is the one to run!        \
 //		RunMAPElites(editedGraph, axiom_graph);
 	}
 	
@@ -542,9 +546,13 @@ public class NarrativeStructureViewController extends BorderPane implements List
 
 	@Override
 	public void ping(PCGEvent e) {
-		if(e instanceof MAPENarrativeGridUpdate)
-		{
 
+		if(e instanceof AlgorithmDone)       //Only for this evaluations!
+		{
+			RunMAPElites(editedGraph, axiom_graph); //This one is the one to run!
+		}
+		else if(e instanceof MAPENarrativeGridUpdate)
+		{
 			MAPElitesPane.dimensionsUpdated(narrativeStructureDisplays, ((MAPENarrativeGridUpdate) e).getDimensions());
 			currentDimensions = ((MAPENarrativeGridUpdate) e).getDimensions();
 //			OnChangeTab();

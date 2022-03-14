@@ -28,6 +28,10 @@ public class VillainNodePattern extends BasicNarrativePattern
             {
                 VillainNodePattern vnp = new VillainNodePattern(node);
                 vnp.quality = 1.0; //TODO: Here we need some type of calculation
+
+                if(node.getGrammarNodeType().equals(TVTropeType.EMP))
+                    vnp.faction = true;
+
                 results.add(vnp);
             }
         }

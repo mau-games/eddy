@@ -18,8 +18,6 @@ import gui.controls.*;
 import game.tiles.*;
 import org.apache.commons.io.FileUtils;
 
-import com.sun.org.glassfish.external.statistics.impl.BoundaryStatisticImpl;
-
 import collectors.ActionLogger;
 import collectors.ActionLogger.ActionType;
 import collectors.ActionLogger.TargetPane;

@@ -37,6 +37,13 @@ public class AlgorithmSetup {
 	public void setITER_GENERATIONS(int ITER_GENERATIONS) { this.ITER_GENERATIONS = ITER_GENERATIONS;	}
 
 	private NarrativeStructureConstraints narrativeConstraints;
+	private boolean ConstraintNarrativeStructure = true;
+	public boolean getConstraintNarrativeStruct() {
+		return ConstraintNarrativeStructure;
+	}
+	public void setConstraintNarrativeStruct(boolean constrained_narrative_structure) {
+		this.ConstraintNarrativeStructure = constrained_narrative_structure;
+	}
 
 	private AlgorithmSetup()
 	{
@@ -70,12 +77,12 @@ public class AlgorithmSetup {
 	 */
 	public int checkNarrativeConstraints(GrammarGraph otherGraph)
 	{
-		return narrativeConstraints.isViolatingConstraints(otherGraph);
+		return getConstraintNarrativeStruct() ? narrativeConstraints.isViolatingConstraints(otherGraph) : 0;
 	}
 
 	public int[] testNarrativeConstraints(GrammarGraph otherGraph)
 	{
-		return narrativeConstraints.testingViolatingConstraints(otherGraph);
+		return getConstraintNarrativeStruct() ? narrativeConstraints.testingViolatingConstraints(otherGraph) : new int[]{0,0,0,0};
 	}
 
 }

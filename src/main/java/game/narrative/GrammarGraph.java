@@ -21,11 +21,14 @@ public class GrammarGraph
     //Might be interesting to know the dimension of the room?
     protected HashMap<GADimensionGrammar.GrammarDimensionTypes, Double> dimensionValues;
 
+    protected NarrativeStructureComponents narrative_components;
+
     public GrammarGraph()
     {
         nodes = new ArrayList<GrammarNode>();
         nPane = new NarrativePane(this);
         pattern_finder = new NarrativeStructPatternFinder(this);
+        narrative_components = new NarrativeStructureComponents(this);
     }
 
     //Copy constructor.
@@ -51,6 +54,7 @@ public class GrammarGraph
 
         nPane = new NarrativePane(this);
         pattern_finder = new NarrativeStructPatternFinder(this);
+        narrative_components = new NarrativeStructureComponents(this);
     }
 
     public GrammarNode addNode(TVTropeType nodeType)
@@ -706,7 +710,6 @@ public class GrammarGraph
     /***
      * This value when local is in effect, the diversity within the graph
      * While passing a false will return global diversity based on the nodes that can be used!
-     * @param local True if you want local diversity
      * @return
      */
     public float getNodeDiversityBase()
@@ -979,6 +982,11 @@ public class GrammarGraph
     {
         if(dimensionValues == null || !dimensionValues.containsKey(currentDimension)) return -1.0;
         return dimensionValues.get(currentDimension);
+    }
+
+    public NarrativeStructureComponents getNarrativeComponents()
+    {
+        return narrative_components;
     }
 
     @Override
