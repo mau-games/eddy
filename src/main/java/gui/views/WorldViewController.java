@@ -91,6 +91,7 @@ public class WorldViewController extends BorderPane implements Listener
 	private Button removeRoomBtn = new Button();
 	private Button pickInitBtn = new Button();
 	private Button toggleFilterButton = new Button();
+	private Button CCEditViewButton = new Button();
 	
 	private ArrayList<Button> brushBtns = new ArrayList<Button>(); //TODO: This can be improved to be dependant on how many brushes and have maybe its own class?
 	private ComboBox<PathInformation.PathType> pathTypeComboBox = new ComboBox<>();
@@ -763,6 +764,36 @@ public class WorldViewController extends BorderPane implements Listener
 				}
 			}
 		});
+
+		// Tinea
+		//roomEditCCButton().setOnAction(new EventHandler<ActionEvent>() {
+		//	@Override
+		//	public void handle(ActionEvent e)
+		//	{
+		//		if(dungeon.getSelectedRoom().getDoorCount() > 0)
+		//		{
+		//			ActionLogger.getInstance().storeAction(ActionType.CLICK,
+		//					View.WORLD,
+		//					TargetPane.BUTTON_PANE,
+		//					false,
+		//					"Suggestions");
+		//			DungeonDrawer.getInstance().changeBrushTo(DungeonBrushes.MOVEMENT);
+		//			MapContainer mc = new MapContainer();
+		//			mc.setMap(dungeon.getSelectedRoom());
+		//			router.postEvent(new RequestSuggestionsView(mc, 6));
+//
+//		//			router.postEvent(new RequestNarrativeView());
+		//		}
+//
+//
+		//		//uncomment to reset scale
+//		//		for(Node child : worldPane.getChildren())
+//      //  		{
+//      //  	        ((DungeonPane)child).resetScale();
+//      //  		}
+		//	}
+//
+		//});
 	}
 	
 	

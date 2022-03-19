@@ -46,7 +46,7 @@ import java.util.UUID;
 
 /**
  * This class controls the Co-Creative Room edit view
- * FIXME: A lot of things need to change here! 
+ *
  * 
  * @author Johan Holmberg, Malmö University
  * @author Alberto Alvarez, Malmö University
@@ -64,8 +64,8 @@ public class CCRoomViewController extends BorderPane implements Listener
 	@FXML public Pane minimap;
 
 	//left side as well
-	@FXML private GridPane legend;
-	@FXML private ToggleGroup brushes;
+	@FXML private GridPane legend; //
+	@FXML private ToggleGroup brushes; //
 
 
 	@FXML private DimensionsTable MainTable;
@@ -169,7 +169,7 @@ public class CCRoomViewController extends BorderPane implements Listener
 	public CCRoomViewController() {
 		super();
 		FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource(
-				"/gui/interactive/RoomView.fxml"));
+				"/gui/interactive/CCRoomView.fxml"));
 		fxmlLoader.setRoot(this);
 		fxmlLoader.setController(this);
 
@@ -185,9 +185,9 @@ public class CCRoomViewController extends BorderPane implements Listener
 		router.registerListener(this, new MAPEGridUpdate(null));
 		router.registerListener(this, new MAPElitesDone());
 		router.registerListener(this, new MapUpdate(null));
-		router.registerListener(this, new ApplySuggestion(0));
+		router.registerListener(this, new ApplySuggestion(0));                  //
 		router.registerListener(this, new SuggestedMapsDone());
-		router.registerListener(this, new SuggestedMapSelected(null));
+		router.registerListener(this, new SuggestedMapSelected(null));             //
 		router.registerListener(this, new UserEditedRoom(null, null));
 		router.registerListener(this, new MetricUpdate());
 

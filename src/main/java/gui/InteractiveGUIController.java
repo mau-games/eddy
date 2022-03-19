@@ -89,6 +89,7 @@ public class InteractiveGUIController implements Initializable, Listener {
 	SuggestionsViewController suggestionsView = null;
 //	RoomViewController roomView = null;
 	RoomViewController roomView = null;
+	CCRoomViewController CCroomView = null;
 
 	WorldViewController worldView = null;
 	LaunchViewController launchView = null;
@@ -139,6 +140,7 @@ public class InteractiveGUIController implements Initializable, Listener {
 		router.registerListener(this, new AlgorithmDone(null, null, null));
 		router.registerListener(this, new RequestRedraw());
 		router.registerListener(this, new RequestRoomView(null, 0, 0, null));
+		router.registerListener(this, new RequestCCRoomView(null, 0, 0, null));
 		router.registerListener(this, new MapLoaded(null));
 		router.registerListener(this, new RequestWorldView());
 		router.registerListener(this, new RequestEmptyRoom(null, 0, 0, null));
@@ -159,6 +161,7 @@ public class InteractiveGUIController implements Initializable, Listener {
 		suggestionsView = new SuggestionsViewController();
 //		roomView = new RoomViewController();
 		roomView = new RoomViewController();
+		CCroomView = new CCRoomViewController();
 		worldView = new WorldViewController();
 		launchView = new LaunchViewController();
 		narrativeView = new NarrativeStructureViewController();
@@ -332,7 +335,15 @@ public class InteractiveGUIController implements Initializable, Listener {
 			if(((MapContainer) e.getPayload()).getMap().getDoorCount() > 0)
 				initRoomView((MapContainer) e.getPayload());
 
-		} else if (e instanceof RequestSuggestionsView) 
+		}
+		else if (e instanceof RequestCCRoomView) {
+
+
+			if(((MapContainer) e.getPayload()).getMap().getDoorCount() > 0)
+				initCCRoomView((MapContainer) e.getPayload());
+
+		}
+		else if (e instanceof RequestSuggestionsView)
 		{
 			MapContainer container = (MapContainer) e.getPayload();
 			if(container.getMap().getDoorCount() > 0)
@@ -750,6 +761,33 @@ public class InteractiveGUIController implements Initializable, Listener {
 		narrativeView.setActive(false);
 
 
+	}
+
+	/**
+	 * Initialises the CC room edit view and starts a new generation run.
+	 */
+	private void initCCRoomView(MapContainer map) {
+		mainPane.getChildren().clear();
+		AnchorPane.setTopAnchor(CCroomView, 0.0);
+		AnchorPane.setRightAnchor(CCroomView, 0.0);
+		AnchorPane.setBottomAnchor(CCroomView, 0.0);
+		AnchorPane.setLeftAnchor(CCroomView, 0.0);
+		mainPane.getChildren().add(CCroomView);
+//		roomView.updateRoom(map.getMap());
+		setCurrentQuadMap(map);
+
+
+
+		CCroomView.initializeView(map.getMap());
+//		roomView.roomMouseEvents();
+
+
+		worldView.setActive(false);
+		roomView.setActive(false);
+		CCroomView.setActive(true);
+		launchView.setActive(false);
+		suggestionsView.setActive(false);
+		narrativeView.setActive(false);
 	}
 
 	/*

@@ -22,6 +22,7 @@ import javafx.scene.paint.Color;
 import util.Point;
 import util.eventrouting.EventRouter;
 import util.eventrouting.events.FocusRoom;
+import util.eventrouting.events.RequestCCRoomView;
 import util.eventrouting.events.RequestRoomView;
 
 public class WorldViewCanvas 
@@ -326,7 +327,8 @@ public class WorldViewCanvas
 	            		//TODO: I think is better that the dungeon receives an event to request room view but maybe that will be too convoluted
 	            		MapContainer mc = new MapContainer(); // this map container thingy, idk, me not like it
 	            		mc.setMap(owner);
-	            		EventRouter.getInstance().postEvent(new RequestRoomView(mc, 0, 0, null));
+	            		//EventRouter.getInstance().postEvent(new RequestRoomView(mc, 0, 0, null));
+						EventRouter.getInstance().postEvent(new RequestCCRoomView(mc, 0, 0, null));
 	            	}
 	            	
 	            	EventRouter.getInstance().postEvent(new FocusRoom(owner, null));

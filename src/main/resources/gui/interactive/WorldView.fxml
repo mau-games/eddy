@@ -18,8 +18,11 @@
 <?import javafx.scene.layout.VBox?>
 
 <fx:root type="javafx.scene.layout.BorderPane" stylesheets="@../styling.css" xmlns:fx="http://javafx.com/fxml/1" fx:id="rootWorldViewPane">
+
+
 	<center>
 		<Pane alignment="CENTER" fx:id="worldPane" />
+
 	</center>
 	<right>
 		<StackPane alignment="CENTER" fx:id="buttonPane" /> 
