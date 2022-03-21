@@ -3,11 +3,13 @@
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.Label?>
+<?import javafx.scene.control.MenuButton?>
+<?import javafx.scene.control.MenuItem?>
 <?import javafx.scene.control.ScrollPane?>
 <?import javafx.scene.control.ToggleButton?>
-<?import javafx.scene.control.ToggleGroup?>
 <?import javafx.scene.control.ToolBar?>
-<?import javafx.scene.control.Tooltip?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.FlowPane?>
 <?import javafx.scene.layout.HBox?>
@@ -16,18 +18,13 @@
 <?import javafx.scene.text.Font?>
 
 <fx:root fx:id="rootWorldViewPane" stylesheets="@../styling.css" type="javafx.scene.layout.BorderPane" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1">
-    <fx:define>
-        <ToggleGroup fx:id="questActionsTools" />
-        <ToggleGroup fx:id="questActions" />
-        <ToggleGroup fx:id="generatorActions" />
-    </fx:define>
     <center>
         <BorderPane style="-fx-border-color: transparent lightgray transparent lightgray; -fx-border-width: 2px;">
             <center>
                 <StackPane fx:id="mapPane" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" />
             </center>
             <bottom>
-                <BorderPane style="-fx-border-color: lightgray transparent; -fx-border-width: 2px;">
+                <BorderPane prefHeight="341.0" prefWidth="130.0" style="-fx-border-color: lightgray transparent; -fx-border-width: 2px;">
                     <center>
                         <!-- <FlowPane fx:id="questPane" hgap="5.0" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefHeight="300.0" vgap="5.0" BorderPane.alignment="CENTER_LEFT">
                         	<FlowPane.margin>
@@ -42,16 +39,20 @@
                         </FlowPane>  -->
                         <ScrollPane fx:id="questScrollPane">
                             <content>
-                                <VBox fx:id="questPaneV" maxWidth="1.7976931348623157E308" prefHeight="300.0">
+                                <VBox fx:id="questPaneV" alignment="TOP_LEFT" maxWidth="1.7976931348623157E308" prefHeight="200.0">
                                     <children>
-                                        <HBox fx:id="questPaneH" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefHeight="50.0" spacing="2.0" BorderPane.alignment="CENTER_LEFT">
-                                            <children>
-                                                <Button fx:id="questPlaceholder" mnemonicParsing="false" text="+" />
-                                            </children>
+                                        <HBox fx:id="questPaneH" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefHeight="76.0" spacing="2.0" BorderPane.alignment="CENTER_LEFT">
+                                            <VBox fx:id="parameterVBox" />
                                             <padding>
                                                 <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
                                             </padding>
                                         </HBox>
+
+                                        <!-- <ImageView fitWidth="40.0" pickOnBounds="true" preserveRatio="true">
+                                            <image>
+                                                <Image url="@../../graphics/tiles/enemy.png" />
+                                            </image>
+                                        </ImageView> -->
                                     </children>
                                 </VBox>
                             </content>
@@ -70,78 +71,72 @@
                     <bottom>
                         <StackPane alignment="BOTTOM_RIGHT" BorderPane.alignment="CENTER">
                             <children>
-                                <Button fx:id="clearQuestButton" mnemonicParsing="false" text="Erase Quest">
+                                <Button fx:id="clearQuestButton" mnemonicParsing="false" text="Remove Attribute">
                                     <StackPane.margin>
                                         <Insets bottom="8.0" left="8.0" right="8.0" top="8.0" />
                                     </StackPane.margin></Button>
                             </children>
                         </StackPane>
                     </bottom>
+
+
+
+               <top>
+                   <ScrollPane fx:id="narrativeScrollPane" prefHeight="80.0" prefWidth="120.0" style="-fx-border-color: lightgray transparent;">
+                     <content>
+                        <VBox fx:id="narrativePaneV" prefHeight="74.0" prefWidth="100.0">
+                           <children>
+                              <HBox fx:id="narrativePaneH" prefHeight="100.0" prefWidth="35.0">
+                                 <children>
+                                     <ImageView fitWidth="40.0" pickOnBounds="true" preserveRatio="true">
+                                         <image>
+                                             <Image url="@../../graphics/tiles/enemy.png" />
+                                         </image>
+                                     </ImageView>
+                                    <MenuButton mnemonicParsing="false" text="MenuButton">
+                                      <items>
+                                        <MenuItem mnemonicParsing="false" text="Hejsan" />
+                                        <MenuItem mnemonicParsing="false" text="Hej då" />
+                                      </items>
+                                    </MenuButton>
+                                 </children>
+                              </HBox>
+                           </children>
+                        </VBox>
+                     </content>
+                   </ScrollPane>
+               </top>
                 </BorderPane>
             </bottom>
         </BorderPane>
     </center>
 
     <left>
-        <BorderPane id="actionPane" style="-fx-background-color: BLACK;">
-            <center>
-
-                <ToolBar fx:id="tbQuestTools" orientation="VERTICAL" prefWidth="150.0" style="-fx-background-color: black;">
-
-                    <ToggleButton id="CAPTURE" disable="true" maxWidth="1.7976931348623157E308" mnemonicParsing="false" text="CAPTURE">
-                        <tooltip><Tooltip text="CAPTURE" /> </tooltip>
-                  <toggleGroup>
-                     <ToggleGroup fx:id="questActionsTools" />
-                  </toggleGroup>
-                    </ToggleButton>
-                    <ToggleButton id="DAMAGE" disable="true" maxWidth="1.7976931348623157E308" mnemonicParsing="false" text="DAMAGE" toggleGroup="$questActionsTools">
-                        <tooltip><Tooltip text="DAMAGE" /> </tooltip>
-                    </ToggleButton>
-                    <ToggleButton id="DEFEND" disable="true" maxWidth="1.7976931348623157E308" mnemonicParsing="false" text="DEFEND" toggleGroup="$questActionsTools">
-                        <tooltip><Tooltip text="DEFEND" /> </tooltip>
-                    </ToggleButton>
-                    <ToggleButton id="ESCORT" disable="true" maxWidth="1.7976931348623157E308" mnemonicParsing="false" text="ESCORT" toggleGroup="$questActionsTools">
-                        <tooltip><Tooltip text="ESCORT" /> </tooltip>
-                    </ToggleButton>
-                    <ToggleButton id="EXPERIMENT" disable="true" maxWidth="1.7976931348623157E308" mnemonicParsing="false" text="EXPERIMENT" toggleGroup="$questActionsTools">
-                        <tooltip><Tooltip text="EXPERIMENT" /> </tooltip>
-                    </ToggleButton>
-                    <ToggleButton id="GATHER" disable="true" maxWidth="1.7976931348623157E308" mnemonicParsing="false" text="GATHER" toggleGroup="$questActionsTools">
-                        <tooltip><Tooltip text="GATHER" /> </tooltip>
-                    </ToggleButton>
-                    <ToggleButton id="KILL" disable="true" maxWidth="1.7976931348623157E308" mnemonicParsing="false" text="KILL" toggleGroup="$questActionsTools">
-                        <tooltip><Tooltip text="KILL" /> </tooltip>
-                    </ToggleButton>
-                    <ToggleButton id="LISTEN" disable="true" maxWidth="1.7976931348623157E308" mnemonicParsing="false" text="LISTEN" toggleGroup="$questActionsTools">
-                        <tooltip><Tooltip text="LISTEN" /> </tooltip>
-                    </ToggleButton>
-                    <ToggleButton id="READ" disable="true" maxWidth="1.7976931348623157E308" mnemonicParsing="false" text="READ" toggleGroup="$questActionsTools">
-                        <tooltip><Tooltip text="READ" /> </tooltip>
-                    </ToggleButton>
-                    <ToggleButton id="REPAIR" disable="true" maxWidth="1.7976931348623157E308" mnemonicParsing="false" text="REPAIR" toggleGroup="$questActionsTools">
-                        <tooltip><Tooltip text="REPAIR" /> </tooltip>
-                    </ToggleButton>
-                    <ToggleButton id="REPORT" disable="true" maxWidth="1.7976931348623157E308" mnemonicParsing="false" text="REPORT" toggleGroup="$questActionsTools">
-                        <tooltip><Tooltip text="REPORT" /> </tooltip>
-                    </ToggleButton>
-                    <ToggleButton id="SPY" disable="true" maxWidth="1.7976931348623157E308" mnemonicParsing="false" text="SPY" toggleGroup="$questActionsTools">
-                        <tooltip><Tooltip text="SPY" /> </tooltip>
-                    </ToggleButton>
-                    <ToggleButton id="USE" disable="true" maxWidth="1.7976931348623157E308" minWidth="-Infinity" mnemonicParsing="false" text="USE" toggleGroup="$questActionsTools">
-                        <tooltip><Tooltip text="USE" /> </tooltip>
-                    </ToggleButton>
-
-                    <padding>
-                        <Insets right="10.0" />
-                    </padding>
+        <BorderPane maxWidth="250" prefHeight="400.0" BorderPane.alignment="CENTER">
+            <right>
+                <ToolBar fx:id="tbNarrativeLocks" orientation="VERTICAL" prefHeight="555.0" prefWidth="150.0" style="-fx-background-color: black;" BorderPane.alignment="TOP_LEFT">
+                    <items>
+                        <ToggleButton fx:id="nameLock" maxWidth="75.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="75.0" text="Lock" />
+                        <ToggleButton fx:id="ageLock" maxWidth="75.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="75.0" text="Lock" />
+                        <ToggleButton fx:id="GenderLock" maxWidth="75.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="75.0" text="Lock" />
+                        <ToggleButton fx:id="RaceLock" maxWidth="75.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="75.0" text="Lock" />
+                        <ToggleButton fx:id="classLock" maxWidth="75.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="75.0" text="Lock" />
+                        <ToggleButton fx:id="relationLock" maxWidth="75.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="75.0" text="Lock" />
+                    </items>
                 </ToolBar>
-            </center>
-            <padding>
-                <Insets bottom="10.0" left="10.0" top="10.0" />
-            </padding>
-            <bottom>
-                <VBox alignment="TOP_CENTER" BorderPane.alignment="CENTER" />
-            </bottom>
+            </right>
+         <center>
+                <ToolBar fx:id="tbNarrativeTools" orientation="VERTICAL" prefHeight="555.0" prefWidth="120.0" style="-fx-background-color: black;" BorderPane.alignment="CENTER">
+                    <items>
+                        <ToggleButton fx:id="Name" maxWidth="150.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="150.0" text="Name" />
+                        <ToggleButton fx:id="Age" maxWidth="150.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="150.0" text="Age" />
+                        <ToggleButton fx:id="Gender" maxWidth="150.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="150.0" text="Gender" />
+                        <ToggleButton fx:id="Race" maxWidth="150.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="150.0" text="Race" />
+                        <ToggleButton fx:id="NpcClass" maxWidth="150.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="150.0" text="Class" />
+                        <ToggleButton fx:id="Relationship" maxWidth="150.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="150.0" text="Relationship" />
+                    </items>
+                </ToolBar>
+         </center>
         </BorderPane>
     </left>
 
@@ -154,95 +149,6 @@
                     </padding>
                 </FlowPane>
             </center>
-            <bottom>
-                <FlowPane fx:id="motivePane" hgap="5.0" maxHeight="400" maxWidth="100" orientation="VERTICAL" prefHeight="300.0" vgap="5.0" BorderPane.alignment="CENTER">
-                    <children>
-                        <Label contentDisplay="CENTER" maxWidth="1.7976931348623157E308" text="Current percentage of motives" textAlignment="CENTER" textFill="white" underline="true" wrapText="true" xmlns="http://javafx.com/javafx/10.0.2-internal" xmlns:fx="http://javafx.com/fxml/1">
-                            <font>
-                                <Font size="14.0" />
-                            </font>
-                        </Label>
-                    </children>
-                    <children>
-                        <Label fx:id="knowledgeText" contentDisplay="CENTER" maxWidth="1.7976931348623157E308" text="Knowledge = 0.0/18.3%" textAlignment="CENTER" textFill="white" wrapText="true" xmlns="http://javafx.com/javafx/10.0.2-internal" xmlns:fx="http://javafx.com/fxml/1">
-                            <font>
-                                <Font size="12.0" />
-                            </font>
-                        </Label>
-                    </children>
-                    <children>
-                        <Label fx:id="comfortText" contentDisplay="CENTER" maxWidth="1.7976931348623157E308" text="Comfort = 0.0/1.6%" textAlignment="CENTER" textFill="white" wrapText="true" xmlns="http://javafx.com/javafx/10.0.2-internal" xmlns:fx="http://javafx.com/fxml/1">
-                            <font>
-                                <Font size="12.0" />
-                            </font>
-                        </Label>
-                    </children>
-                    <children>
-                        <Label fx:id="reputationText" contentDisplay="CENTER" maxWidth="1.7976931348623157E308" text="Reputation = 0.0/6.5%" textAlignment="CENTER" textFill="white" wrapText="true" xmlns="http://javafx.com/javafx/10.0.2-internal" xmlns:fx="http://javafx.com/fxml/1">
-                            <font>
-                                <Font size="12.0" />
-                            </font>
-                        </Label>
-                    </children>
-                    <children>
-                        <Label fx:id="serenityText" contentDisplay="CENTER" maxWidth="1.7976931348623157E308" text="Serenity = 0.0/13.7%" textAlignment="CENTER" textFill="white" wrapText="true" xmlns="http://javafx.com/javafx/10.0.2-internal" xmlns:fx="http://javafx.com/fxml/1">
-                            <font>
-                                <Font size="12.0" />
-                            </font>
-                        </Label>
-                    </children>
-                    <children>
-                        <Label fx:id="protectionText" contentDisplay="CENTER" maxWidth="1.7976931348623157E308" text="Protection = 0.0/18.2%" textAlignment="CENTER" textFill="white" wrapText="true" xmlns="http://javafx.com/javafx/10.0.2-internal" xmlns:fx="http://javafx.com/fxml/1">
-                            <font>
-                                <Font size="12.0" />
-                            </font>
-                        </Label>
-                    </children>
-                    <children>
-                        <Label fx:id="conquestText" contentDisplay="CENTER" maxWidth="1.7976931348623157E308" text="Conquest = 0.0/20.2%" textAlignment="CENTER" textFill="white" wrapText="true" xmlns="http://javafx.com/javafx/10.0.2-internal" xmlns:fx="http://javafx.com/fxml/1">
-                            <font>
-                                <Font size="12.0" />
-                            </font>
-                        </Label>
-                    </children>
-                    <children>
-                        <Label fx:id="wealthText" contentDisplay="CENTER" maxWidth="1.7976931348623157E308" text="Wealth = 0.0/2.0%" textAlignment="CENTER" textFill="white" wrapText="true" xmlns="http://javafx.com/javafx/10.0.2-internal" xmlns:fx="http://javafx.com/fxml/1">
-                            <font>
-                                <Font size="12.0" />
-                            </font>
-                        </Label>
-                    </children>
-                    <children>
-                        <Label fx:id="abilityText" contentDisplay="CENTER" maxWidth="1.7976931348623157E308" text="Ability = 0.0/1.1%" textAlignment="CENTER" textFill="white" wrapText="true" xmlns="http://javafx.com/javafx/10.0.2-internal" xmlns:fx="http://javafx.com/fxml/1">
-                            <font>
-                                <Font size="12.0" />
-                            </font>
-                        </Label>
-                    </children>
-                    <children>
-                        <Label fx:id="equipmentText" contentDisplay="CENTER" maxWidth="1.7976931348623157E308" text="Equipment = 0.0/18.5%" textAlignment="CENTER" textFill="white" wrapText="true" xmlns="http://javafx.com/javafx/10.0.2-internal" xmlns:fx="http://javafx.com/fxml/1">
-                            <font>
-                                <Font size="12.0" />
-                            </font>
-                        </Label>
-                    </children>
-                    <padding>
-                        <Insets bottom="10.0" top="10.0" />
-                    </padding>
-                    <children>
-                        <Button fx:id="btnBackToWorld" alignment="BASELINE_CENTER" maxHeight="1.7976931348623157E308" mnemonicParsing="false" onAction="#backWorldView" text="Back To World View" textAlignment="CENTER" wrapText="true">
-                        </Button>
-                    </children>
-                </FlowPane>
-                <!--<StackPane>
-                    <Button fx:id="btnBackToWorld" alignment="BASELINE_CENTER" maxHeight="1.7976931348623157E308" mnemonicParsing="false" onAction="#backWorldView" text="Back To World View" textAlignment="CENTER" wrapText="true">
-                        <StackPane.margin>
-                            <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
-                        </StackPane.margin>
-                    </Button>
-
-                </StackPane>-->
-            </bottom>
             <padding>
                 <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
             </padding>
@@ -255,6 +161,10 @@
                     </Label>
                 </VBox>
             </top>
+         <bottom>
+                  <Button fx:id="btnBackToWorld" alignment="BASELINE_CENTER" maxHeight="1.7976931348623157E308" mnemonicParsing="false" onAction="#backWorldView" text="Back To World View" textAlignment="CENTER" wrapText="true" BorderPane.alignment="CENTER">
+                        </Button>
+         </bottom>
         </BorderPane>
     </right>
 </fx:root>

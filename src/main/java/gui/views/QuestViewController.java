@@ -167,9 +167,7 @@ public class QuestViewController extends BorderPane implements Listener {
     }
     //trycker på plus + ändring av JA
     private void initQuestView() {
-        questPaneH.getChildren().stream()
-                .filter(node -> node.getId().equals("questPlaceholder"))
-                .forEach(node -> {
+        questPaneH.getChildren().stream().filter(node -> node.getId().equals("questPlaceholder")).forEach(node -> {
                     node.addEventHandler(MouseEvent.MOUSE_CLICKED,
                             event -> {
                                 AtomicBoolean added = new AtomicBoolean(false);
@@ -181,8 +179,7 @@ public class QuestViewController extends BorderPane implements Listener {
                                             int questCount = dungeon.getQuest().getActions().size();
                                             
                                             if (!doublePosition && updatedPosition != null) {
-                                                Action action = addQuestAction(toggleButton, questCount);
-                                                Tile tile = action.getRoom().getTile(action.getPosition().getX(), action.getPosition().getY());
+                                                Action action = addQuestAction(toggleButton, questCount);Tile tile = action.getRoom().getTile(action.getPosition().getX(), action.getPosition().getY());
                                                 CheckUsedTile(tile, action);
                                                 tempTile = tile;
                                                 tempAction = action;

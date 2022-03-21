@@ -45,6 +45,7 @@ public class NarrativeBase extends Dungeon {
         this.owner = owner;
 
         //EventRouter.getInstance().registerListener(this::pings, new MapQuestUpdate());
+
     }
 
     public void CreateEntities(){

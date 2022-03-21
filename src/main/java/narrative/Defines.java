@@ -55,6 +55,7 @@ public class Defines {
     public enum AttributeType{
         Race,
         Element,
+        Age,
         NpcClass,
         Gender,
         Name,
@@ -62,7 +63,8 @@ public class Defines {
         HomeTown,
         EyeColour,
         SkinColour,
-        HairColour
+        HairColour,
+        Relationship
     }
 
     public class Relationship{

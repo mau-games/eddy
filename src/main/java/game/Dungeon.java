@@ -59,6 +59,7 @@ public class Dungeon implements Listener
 	public MutableNetwork<Room, RoomEdge> network; //TODO: Public for now
 	private Quest quest;
 	private NarrativeBase narrative;
+	public NarrativeBase GetNarrativeBase() {return narrative;}
 	ArrayList<Room> rooms;
 	Room initialRoom;
 	Point initialPos;

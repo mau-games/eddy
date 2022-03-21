@@ -36,7 +36,7 @@
                         </FlowPane>  -->
                         <ScrollPane fx:id="questScrollPane">
                             <content>
-                                <VBox fx:id="questPaneV" maxWidth="1.7976931348623157E308" prefHeight="300.0">
+                                <VBox fx:id="questPaneV" maxWidth="1.7976931348623157E308" prefHeight="50.0" BorderPane.alignment="TOP_LEFT">
                                     <children>
                                         <HBox fx:id="questPaneH" spacing="2.0" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefHeight="50.0" BorderPane.alignment="CENTER_LEFT">
                                         <children>
@@ -79,9 +79,7 @@
     <left>
         <BorderPane id="actionPane" style="-fx-background-color: BLACK;">
             <center>
-
                 <ToolBar fx:id="tbQuestTools" orientation="VERTICAL" prefWidth="150.0" style="-fx-background-color: black;" >
-
                     <ToggleButton id="CAPTURE" disable="true" maxWidth="1.7976931348623157E308" mnemonicParsing="false" text="CAPTURE" toggleGroup="$questActionsTools">
                         <tooltip><Tooltip text="CAPTURE" /> </tooltip>
                     </ToggleButton>

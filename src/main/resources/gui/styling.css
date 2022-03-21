@@ -22,7 +22,7 @@
 }
 
 #suggestionsPane, #suggestionsPane .viewport, #MAPElitesPane, #MAPElitesPane .viewport, #mapScrollPane, #mapScrollPane .viewport,
-#questScrollPane, #questScrollPane .viewport{
+#questScrollPane, #questScrollPane .viewport, #narrativeScrollPane, #narrativeScrollPane .viewport{
 	-fx-background-color: transparent;
 }
 

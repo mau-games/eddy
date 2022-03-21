@@ -570,7 +570,8 @@ public class InteractiveGUIController implements Initializable, Listener {
 
 		narrativeView.initWorldMap(dungeonMap);
 
-		dungeonMap.narrativeCreateEntities();
+		dungeonMap.narrativeCreateEntities(); // Vet inte varför den skulle kallas därifrån...
+		narrativeView.DrawSelectableEntities();
 		suggestionsView.setActive(false);
 		roomView.setActive(false);
 		worldView.setActive(false);
