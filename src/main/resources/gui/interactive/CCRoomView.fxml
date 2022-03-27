@@ -253,10 +253,14 @@
                 <Popup text="Drag dimensions from available to current (Max. 2). To see your locked tiles, you must press Restart!" width="150" height="100" image="FALSE"/>
 
                 <HBox spacing="10">
+                    <Button fx:id="endTurnBtn" contentDisplay="TOP"
+                            mnemonicParsing="false" wrapText="true" textAlignment="CENTER"
+                            text="End Turn" onAction="#endTurn" />
 
                     <Button fx:id="worldGridBtn" contentDisplay="TOP"
                             mnemonicParsing="false" wrapText="true" textAlignment="CENTER"
                             text="Go To World Grid" onAction="#backWorldView">
+
 
                     </Button>
                     <Button fx:id="genSuggestionsBtn" contentDisplay="TOP"
@@ -268,6 +272,7 @@
                     <Button fx:id="saveGenBtn" contentDisplay="TOP"
                             mnemonicParsing="false" wrapText="true" textAlignment="CENTER"
                             text="Save Current" onAction="#saveCurrentGeneration" />
+
 
                 </HBox>
                 <Pane fx:id="minimap" />

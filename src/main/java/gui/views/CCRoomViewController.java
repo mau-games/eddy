@@ -109,6 +109,7 @@ public class CCRoomViewController extends BorderPane implements Listener
 	@FXML private Button worldGridBtn; //ok
 	@FXML private Button genSuggestionsBtn; //bra
 	@FXML private Button appSuggestionsBtn; //bra
+	@FXML private Button endTurnBtn; // tinea
 	@FXML private Button flowControlBtn; //bra
 	@FXML private Button stopEABtn; //bra
 	@FXML private Button saveGenBtn;
@@ -744,6 +745,18 @@ public class CCRoomViewController extends BorderPane implements Listener
 //		} else {
 //			lockCanvas.setVisible(false);
 //		}
+	}
+
+	/**
+	 * Function connected to End Turn button
+	 *
+	 * "Why is this public?",  you ask. Because of FXML's method binding.
+	 */
+	@FXML
+	private void endTurn()
+	{
+		System.out.println("TRYCKT PÅ END TURN");
+
 	}
 
 	/**
