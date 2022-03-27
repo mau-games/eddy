@@ -1,6 +1,8 @@
 package gui.controls;
 
 import game.Room;
+import game.Tile;
+import game.TileTypes;
 import gui.utils.InformativePopupManager;
 import gui.utils.MapRenderer;
 import javafx.geometry.Pos;
@@ -218,6 +220,8 @@ public class EditedRoomStackPane extends StackPane implements Listener
         }
 
         editedRoomCanvas.updateTile(tile, currentBrush);
+
+
         editedRoom.forceReevaluation();
         editedRoom.getRoomXML("room\\");
 
@@ -232,6 +236,58 @@ public class EditedRoomStackPane extends StackPane implements Listener
 //        EventRouter.getInstance().postEvent(new EditedRoomRedrawCanvas(editedRoomCanvas.ownerID));
 //        EventRouter.getInstance().postEvent(new RoomEdited(editedRoom));
 
+    }
+
+    /***
+     * The Method that AI uses to edit the room , called in CCRoomViewController.endTurn()
+     * @param
+     */
+    public void CCRoomEdited(InteractiveMap editedRoomCanvas, Room editedRoom)
+    {
+        System.out.println("AI TRYING TO EDIT ROOM");
+
+        //currentBrush.UpdateModifiers(event);
+//				mapView.updateTile(tile, brush, event.getButton() == MouseButton.SECONDARY, lockBrush.isSelected() || event.isControlDown());
+
+        //if(!currentBrush.possibleToDraw() || (currentBrush.GetModifierValue("Lock") && checkInfeasibleLockedRoom(tile, editedRoomCanvas)))
+        //    return;
+//
+        //if(currentBrush.GetModifierValue("Lock"))
+        //{
+        //    InformativePopupManager.getInstance().requestPopup(editedRoomCanvas, InformativePopupManager.PresentableInformation.LOCK_RESTART, "");
+        //}
+
+        currentBrush.SetBrush(0); // WALL?  // hitta var det sätter till t.ex. wall
+        currentBrush.SetMainComponent(TileTypes.toTileType(1)); // WALL
+
+        System.out.println("currentBrush: " + currentBrush.brush.mainComponent.name().toString());
+        System.out.println("1");
+
+        ImageView tile = (ImageView) editedPane.getCell(0,0); //test
+
+        System.out.println("2");
+        editedRoomCanvas.updateTile(tile, currentBrush);
+
+        System.out.println("3");
+        editedRoom.forceReevaluation();
+
+        System.out.println("4");
+        editedRoom.getRoomXML("room\\");
+
+
+        System.out.println("5");
+        mapIsFeasible(editedPane.getMap().isIntraFeasible());
+        redrawPatterns(editedPane.getMap());
+        redrawLocks(editedPane.getMap());
+
+
+//        EventRouter.getInstance().postEvent(new InteractiveRoomEdited(self, getMap(), tile, event));
+        EventRouter.getInstance().postEvent(new UserEditedRoom(uniqueID, editedPane.getMap()));
+
+
+//       EventRouter.getInstance().postEvent(new EditedRoomRedrawCanvas(editedRoomCanvas.ownerID));
+//        EventRouter.getInstance().postEvent(new RoomEdited(editedRoom));
+        System.out.println("ROOM EDITED BY AI");
     }
 
     /**
