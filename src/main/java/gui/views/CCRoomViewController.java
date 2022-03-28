@@ -767,7 +767,7 @@ public class CCRoomViewController extends BorderPane implements Listener
 		editedRoomPane.CCRoomEdited(editedRoomPane.editedPane, editedRoomPane.editedPane.getMap());
 
 		System.out.println("UPDATE ROOM");
-		updateRoom(largeMap);
+		updateRoom(editedRoomPane.editedPane.getMap());
 	}
 
 	/**

@@ -12,6 +12,7 @@ import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
+import util.Point;
 import util.eventrouting.EventRouter;
 import util.eventrouting.Listener;
 import util.eventrouting.PCGEvent;
@@ -257,25 +258,36 @@ public class EditedRoomStackPane extends StackPane implements Listener
         //    InformativePopupManager.getInstance().requestPopup(editedRoomCanvas, InformativePopupManager.PresentableInformation.LOCK_RESTART, "");
         //}
 
-        currentBrush.SetBrush(0); // WALL?  // hitta var det sätter till t.ex. wall
+        //save brush state
+        Drawer prevBrush = new Drawer();
+        prevBrush.SetMainComponent(currentBrush.GetMainComponent());
+        prevBrush.SetBrush(currentBrush.brush);
+
+
+        // AI brush
+        currentBrush.SetBrush(0); //single tile
         currentBrush.SetMainComponent(TileTypes.toTileType(1)); // WALL
 
-        System.out.println("currentBrush: " + currentBrush.brush.mainComponent.name().toString());
-        System.out.println("1");
+        //translate cell to point coords in stackpane
+        // util.Point p = CheckTile(tile);
 
-        ImageView tile = (ImageView) editedPane.getCell(0,0); //test
+        //create tile
+        ImageView tile = (ImageView) editedPane.getCell(1,1); //test
 
-        System.out.println("2");
-        editedRoomCanvas.updateTile(tile, currentBrush);
 
-        System.out.println("3");
+
+        // from Drawer.update()
+        util.Point p = editedPane.CheckTile(tile);
+        if(p != null)
+            currentBrush.brush.UpdateDrawableTiles(p.getX(), p.getY(), editedPane.getMap());
+
+        editedPane.updateTileInARoom(editedPane.getMap(), tile, currentBrush);
+        //editedRoomCanvas.updateTile(tile, currentBrush);
+
+
+        //necessary checks and procedures
         editedRoom.forceReevaluation();
-
-        System.out.println("4");
         editedRoom.getRoomXML("room\\");
-
-
-        System.out.println("5");
         mapIsFeasible(editedPane.getMap().isIntraFeasible());
         redrawPatterns(editedPane.getMap());
         redrawLocks(editedPane.getMap());
@@ -288,6 +300,11 @@ public class EditedRoomStackPane extends StackPane implements Listener
 //       EventRouter.getInstance().postEvent(new EditedRoomRedrawCanvas(editedRoomCanvas.ownerID));
 //        EventRouter.getInstance().postEvent(new RoomEdited(editedRoom));
         System.out.println("ROOM EDITED BY AI");
+
+        // reset brush
+        currentBrush.SetMainComponent(prevBrush.GetMainComponent());
+        currentBrush.SetBrush(prevBrush.brush);
+        System.out.println("Brushed reset doesn't work");
     }
 
     /**

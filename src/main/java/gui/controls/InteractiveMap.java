@@ -103,10 +103,13 @@ public class InteractiveMap extends GridPane implements Listener {
 
 		//Safety checkup
 		Point p = coords.get(tile);
+
+
 		Tile currentTile = room.getTile(p);
-		
+
 		if(p == null)
 			return;
+
 		
 		// Let's discard any attempts at erasing the doors or the hero
 		if (!brush.GetModifierValue("No-Rules") &&
@@ -396,6 +399,7 @@ public class InteractiveMap extends GridPane implements Listener {
 
 			if (event.getTarget() instanceof ImageView) {
 				// Edit the map
+
 				ImageView tile = (ImageView) event.getTarget();
 				owner.RoomEdited(self, getMap(), tile, event);
 			}
@@ -417,6 +421,7 @@ public class InteractiveMap extends GridPane implements Listener {
 
 				ImageView tile = (ImageView) event.getTarget();
 				util.Point p = CheckTile(tile);
+
 
 //				EventRouter.getInstance().postEvent(new InteractiveRoomHovered(self, getMap(), p, event));
 				owner.RoomHovered(self, getMap(), p, event);
