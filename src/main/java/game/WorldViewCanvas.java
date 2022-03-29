@@ -95,13 +95,28 @@ public class WorldViewCanvas
 					EventRouter.getInstance().postEvent(new QuestPositionInvalid());
 				}
 			}
+			if (DungeonDrawer.getInstance().getBrush() instanceof NarrativeEntityPositionBrush){
+				currentBrushPosition =  new Point((int)( event.getX() / tileSizeWidth.get()), (int)( event.getY() / tileSizeHeight.get() ));
+				if (questBitmap.contains(Point.castToGeometry(currentBrushPosition))){
+					EventRouter.getInstance().postEvent(
+							new EntityPositionUpdate(
+									new finder.geometry.Point(
+											currentBrushPosition.getX(),
+											currentBrushPosition.getY()),
+									owner,
+									doublePos));
+				} else {
+					EventRouter.getInstance().postEvent(new EntityPositionInvalid());
+				}
+			}
 		});
 
 		EventRouter.getInstance().registerListener(this::ping, new RequestDisplayQuestTilesSelection(null));
 		EventRouter.getInstance().registerListener(this::ping, new RequestDisplayQuestTilesSelection2(null,null));
 		EventRouter.getInstance().registerListener(this::ping, new RequestDisplayQuestTilesUnselection(false));
 		EventRouter.getInstance().registerListener(this::ping, new RequestDisplayQuestTilePosition());
-		
+
+
 		rendered = false;
 		viewSizeHeight = 0;
 		viewSizeWidth = 0;

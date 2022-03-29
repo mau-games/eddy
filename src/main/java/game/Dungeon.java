@@ -16,7 +16,7 @@ import javax.xml.transform.stream.StreamResult;
 
 import game.quest.Quest;
 import game.tiles.*;
-import narrative.NarrativeBase;
+import game.narrative.NarrativeBase;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
@@ -87,7 +87,8 @@ public class Dungeon implements Listener
 	private ArrayList<QuestPositionUpdate> bountyhunterPositions;
 	private ArrayList<QuestPositionUpdate> civilianPositions;
 
-	
+	private ArrayList<EntityPositionUpdate> entityPositions;
+
 	//scale factor of the (canvas) view
 	private int scaleFactor;
 
@@ -106,7 +107,12 @@ public class Dungeon implements Listener
 		magePositions = new ArrayList<QuestPositionUpdate>();
 		bountyhunterPositions = new ArrayList<QuestPositionUpdate>();
 		civilianPositions = new ArrayList<QuestPositionUpdate>();
+
+		//narrative
+		entityPositions = new ArrayList<EntityPositionUpdate>();
 	}
+
+	public NarrativeBase getNarrative() { return narrative;}
 	
 	public Dungeon(GeneratorConfig defaultConfig, int size, int defaultWidth, int defaultHeight)
 	{
@@ -124,6 +130,9 @@ public class Dungeon implements Listener
 		magePositions = new ArrayList<QuestPositionUpdate>();
 		bountyhunterPositions = new ArrayList<QuestPositionUpdate>();
 		civilianPositions = new ArrayList<QuestPositionUpdate>();
+
+		//narrative
+		entityPositions = new ArrayList<EntityPositionUpdate>();
 
 		dPane = new DungeonPane(this);
 		pathfinding = new DungeonPathFinder(this);

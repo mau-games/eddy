@@ -272,6 +272,7 @@ public class QuestViewController extends BorderPane implements Listener {
                             DungeonDrawer.getInstance().changeBrushTo(DungeonDrawer.DungeonBrushes.QUEST_POS);
                             selectedActionType = ActionType.valueOf(((ToggleButton) toolbarAction).getId());
                             List<TileTypes> types;
+
                             if (dungeon.getQuest().toIntArray().length != 0) {
                             	types = findTileTypeByAction(dungeon.getQuest().checkIfActionIsCivilian());
 							}
@@ -481,6 +482,7 @@ public class QuestViewController extends BorderPane implements Listener {
         }
     }
 
+    //quest-feature!
     @Override
     public void ping(PCGEvent e) {
         if (e instanceof RequestQuestView) {
@@ -520,7 +522,8 @@ public class QuestViewController extends BorderPane implements Listener {
                 calculateAndPaintQuestPath();
             }
             initGeneratorPane();
-        } else if (e instanceof QuestPositionUpdate) {
+        }
+        else if (e instanceof QuestPositionUpdate) {
             doublePosition = ((QuestPositionUpdate) e).isSecondPosition();
             AtomicBoolean replace = new AtomicBoolean(false);
             if (doublePosition) {
@@ -551,7 +554,8 @@ public class QuestViewController extends BorderPane implements Listener {
                             globalQuestIndex = dungeon.getQuest().getActions().size();
                             updateIndexToGenerator();
                         });
-            } else {
+            }
+            else {
                 if (toggleHelp.isSelected()) {
                     InformativePopupManager.getInstance().requestPopup(dungeon.dPane, PresentableInformation.PLACE_TWO_POSITIONS, "");
                 }
@@ -562,15 +566,19 @@ public class QuestViewController extends BorderPane implements Listener {
                         "The action can be added!\n " +
                                 "Click the plus button below");
             }
+
+
             router.postEvent(new RequestDisplayQuestTilesUnselection(doublePosition));
-        } else if (e instanceof QuestPositionInvalid) {
+        }
+        else if (e instanceof QuestPositionInvalid) {
             if (toggleHelp.isSelected()) {
                 if (dungeon != null) {
                     InformativePopupManager.getInstance()
                             .requestPopup(dungeon.dPane, PresentableInformation.INVALID_QUEST_POSITION, "");
                 }
             }
-        } else if (e instanceof QuestActionSuggestionUpdate) {
+        }
+        else if (e instanceof QuestActionSuggestionUpdate) {
             AtomicBoolean unique = new AtomicBoolean(true);
             List<Action> actions = ((QuestActionSuggestionUpdate) e).getActions();
             suggestedActions.forEach(action -> unique.set(actions.stream()

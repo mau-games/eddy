@@ -1,11 +1,21 @@
-package narrative;
+package game.narrative;
+
+import game.narrative.entity.Entity;
 
 import java.util.List;
-import narrative.entity.Entity;
 
 public class Defines {
+    public enum AttributeTypes{
+        Name,
+        Age,
+        Gender,
+        Race,
+        Class,
+        Relationship
+    }
+
     public enum RelationshipType{
-        Locked,
+        LOCKED,
         Hate,
         Love,
         Family,
@@ -13,7 +23,7 @@ public class Defines {
     }
 
     public enum ItemType{
-        Locked,
+        LOCKED,
         Weapon,
         Armour,
         Potion,
@@ -21,7 +31,7 @@ public class Defines {
     }
 
     public enum Element{
-        Locked,
+        LOCKED,
         Fire,
         Water,
         Earth,
@@ -30,14 +40,14 @@ public class Defines {
     }
 
     public enum Gender{
-        Locked,
+        LOCKED,
         Female,
         Male,
         Other
     }
 
     public enum Race{
-        Locked,
+        LOCKED,
         Orc,
         Human,
         Elf,
@@ -45,7 +55,7 @@ public class Defines {
     }
 
     public enum Class{
-        Locked,
+        LOCKED,
         Mage,
         Soldier,
         Civilian,
@@ -53,18 +63,19 @@ public class Defines {
     }
 
     public enum AttributeType{
-        Race,
-        Element,
-        Age,
-        NpcClass,
-        Gender,
         Name,
+        Age,
+        Gender,
+        Race,
+        NpcClass,
+        Relationship,
+
+        Element,
         NameSecond,
         HomeTown,
         EyeColour,
         SkinColour,
         HairColour,
-        Relationship
     }
 
     public class Relationship{

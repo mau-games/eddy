@@ -20,6 +20,7 @@ public class DungeonDrawer
 		INITIAL_ROOM,
 		END_ROOM,
 		QUEST_POS,
+		NarrativeEntity_POS,
 		NONE
 	}
 	
@@ -105,6 +106,9 @@ public class DungeonDrawer
 				break;
 			case QUEST_POS:
 				brush = new QuestPositionBrush();
+				break;
+			case NarrativeEntity_POS:
+				brush = new NarrativeEntityPositionBrush();
 				break;
 			case NONE:
 				brush = null;

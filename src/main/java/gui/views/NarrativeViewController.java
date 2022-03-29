@@ -3,54 +3,42 @@ package gui.views;
 import finder.geometry.Point;
 import game.ApplicationConfig;
 import game.Dungeon;
-import game.DungeonPane;
 import game.Room;
-import game.Tile;
 import game.TileTypes;
+import game.narrative.NarrativeBase;
+import game.narrative.entity.Entity;
 import game.quest.Action;
 import game.quest.ActionType;
-import game.quest.ActionWithSecondPosition;
-import game.quest.Quest;
 import game.quest.actions.*;
 import game.tiles.*;
-import generator.algorithm.grammar.QuestGrammar;
-import generator.algorithm.grammar.QuestGrammar.QuestMotives;
-import gui.controls.LabeledCanvas;
 import gui.utils.DungeonDrawer;
-import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
-import javafx.geometry.Insets;
 import javafx.geometry.Pos;
-import javafx.scene.Node;
 import javafx.scene.control.*;
+import javafx.scene.control.Button;
+import javafx.scene.control.Label;
+import javafx.scene.control.MenuItem;
+import javafx.scene.control.ScrollPane;
+import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.input.KeyCode;
-import javafx.scene.input.KeyEvent;
-import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
-import javafx.scene.text.TextAlignment;
-import narrative.Defines;
-import narrative.NarrativeBase;
-import narrative.entity.NPC;
-import org.checkerframework.checker.units.qual.A;
+import game.narrative.Defines;
+import game.narrative.entity.NPC;
 import util.config.MissingConfigurationException;
 import util.eventrouting.EventRouter;
 import util.eventrouting.Listener;
 import util.eventrouting.PCGEvent;
 import util.eventrouting.events.*;
-import gui.utils.InformativePopupManager;
-import gui.utils.InformativePopupManager.PresentableInformation;
 
 import java.io.IOException;
-import java.math.RoundingMode;
-import java.text.DecimalFormat;
 import java.util.*;
+import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
@@ -64,6 +52,7 @@ public class NarrativeViewController extends BorderPane implements Listener {
     private ApplicationConfig config;
     private boolean isActive = false;
     private Dungeon dungeon;
+
     private boolean doublePosition = false;
     private boolean firstTime = true;
 
@@ -86,14 +75,19 @@ public class NarrativeViewController extends BorderPane implements Listener {
     private Button questPlaceholder;
     @FXML
     private VBox parameterVBox;
+    @FXML
+    private ScrollPane questScrollPane;
+    @FXML
+    private BorderPane borderPane;
+    @FXML
+    private Label entityLabel;
 
-    private NarrativeBase narrativeBase;
-    private Defines.AttributeType attributeType;
-
+    private Defines.AttributeTypes attributeType;
+    private int questPaneH_AddedPanelsCounter;
     private String raceStr;
     //Tillägg
-    private QuestPositionUpdate updatedPosition = null;
-    private QuestPositionUpdate secondUpdatedPosition = null;
+    private EntityPositionUpdate updatedPosition = null;
+    private EntityPositionUpdate secondUpdatedPosition = null;
 
     public NarrativeViewController() {
         super();
@@ -109,10 +103,9 @@ public class NarrativeViewController extends BorderPane implements Listener {
         }
 
         router.registerListener(this, new MapUpdate(null));
-        router.registerListener(this, new RequestQuestView());
-        router.registerListener(this, new QuestPositionUpdate(null, null, false));
-        router.registerListener(this, new QuestPositionInvalid());
-        router.registerListener(this, new QuestActionSuggestionUpdate());
+        router.registerListener(this, new RequestNarrativeView());
+        router.registerListener(this, new EntityPositionUpdate(null, null, false));
+        router.registerListener(this, new EntityPositionInvalid());
 
         initNarrativeView();
         initAttributeToolbar();
@@ -120,6 +113,19 @@ public class NarrativeViewController extends BorderPane implements Listener {
         stackNpc = new Stack<NPC>();
         npcPosition = new Stack<finder.geometry.Point>();
         roomsNpc = new Stack<Room>();
+
+        questPaneH.setPrefWidth(1300); // got easier with hard coding....
+
+        for (Defines.AttributeTypes at : Defines.AttributeTypes.values()) {
+            hiddenVBOXes.add(new VBox());   // create a dummy vbox for the specifiq attribute to use when disabled
+            hiddenVBOXes.get(hiddenVBOXes.size() - 1).setPrefSize(0,0);
+
+            CreateNarrativeGUI(at); // create the main GUI interaction
+
+            attributeGUIArray.add(hiddenVBOXes.get(hiddenVBOXes.size() - 1)); // add the corresponding hidden vbox to the right place (attribute) in the attributeGUIArray
+            questPaneH.getChildren().add(attributeGUIArray.get(attributeGUIArray.size() - 1)); //add the attribute to the panel (currently the hidden vbox)
+        }
+
     }
 
     //displayar alla entities
@@ -128,8 +134,9 @@ public class NarrativeViewController extends BorderPane implements Listener {
         router.postEvent(new RequestDisplayQuestTilesSelection(types));
     }
 
-    //kallas när en togglebutton toolbaren klickas på.. men hur??
+    //kallas när en togglebutton toolbaren klickas på
     private void initNarrativeView() {
+
         tbNarrativeTools.getItems()
                 .forEach(toolbarAction -> {
                     toolbarAction.addEventHandler(MouseEvent.MOUSE_CLICKED, event -> {
@@ -138,20 +145,34 @@ public class NarrativeViewController extends BorderPane implements Listener {
                             DungeonDrawer.getInstance().changeBrushTo(DungeonDrawer.DungeonBrushes.NONE);
                             //selectedActionType = ActionType.valueOf(((ToggleButton) toolbarAction).getId());
                             List<TileTypes> types = findTileTypes();
-                            attributeType = Defines.AttributeType.valueOf(((ToggleButton)toolbarAction).getId());
+                            attributeType = Defines.AttributeTypes.valueOf(((ToggleButton)toolbarAction).getId());
 
-                            router.postEvent(new RequestDisplayQuestTilesSelection(types));
-                            //Test3(); // skapar labels på rätt ställen
-                            CreateAttributePaneAttribute(attributeType.toString());
+                            //router.postEvent(new RequestDisplayQuestTilesSelection(types));
 
-                            int paneCount = narrativePaneH.getChildren().size();
-                            //AddPaneNarrativeAttribute(paneCount + 1);
+                            for (Defines.AttributeTypes at : Defines.AttributeTypes.values()) {
+                                if(at == attributeType){
+                                    //questPaneH.getChildren().add(questPaneH.getChildren().get(at.ordinal()));
+                                    //questPaneH.getChildren().add(narrativeAttributeGUI.get(at.ordinal()));
+                                    questPaneH.getChildren().set(at.ordinal(),narrativeAttributeGUI.get(at.ordinal())); // set the attribute to show the corresponding GUI in narrativeAttributeGUI
+                                    //attributeGUIArray.set(at.ordinal(), narrativeAttributeGUI.get(at.ordinal()));
+                                    break;
+                                }
+                            }
                         }
                         else {
+                            attributeType = Defines.AttributeTypes.valueOf(((ToggleButton)toolbarAction).getId());
+
+                            for (Defines.AttributeTypes at : Defines.AttributeTypes.values()) {
+                                if(at == attributeType){
+                                    //attributeGUIArray.set(at.ordinal(), hiddenVBOX);
+                                    questPaneH.getChildren().set(at.ordinal(), hiddenVBOXes.get(at.ordinal())); // set the right attribute to use the corresponding hiddenVbox in the hiddenVBox array
+                                    break;
+                                }
+                            }
+
                             DungeonDrawer.getInstance().changeBrushTo(DungeonDrawer.DungeonBrushes.NONE);
                             router.postEvent(
                                     new RequestDisplayQuestTilesUnselection(false));
-                            //selectedActionType = ActionType.NONE;
                         }
                     });
                 });
@@ -163,126 +184,17 @@ public class NarrativeViewController extends BorderPane implements Listener {
 
                         if (((ToggleButton) toolbarAction).isSelected()) {
                             ((ToggleButton) toolbarAction).setText("LOCKED");
-
-                            ((ToggleButton) toolbarAction).setStyle("-fx-background-color: red; -fx-text-fill: black;");
+                            ((ToggleButton) toolbarAction).setStyle("-fx-background-color: yellow; -fx-text-fill: black;");
                         }
                         else {
                             ((ToggleButton) toolbarAction).setText("LOCK");
-                            ((ToggleButton) toolbarAction).setStyle("-fx-background-color: transparent; -fx-text-fill: white;");
+                            ((ToggleButton) toolbarAction).setStyle("-fx-background-color: black; -fx-text-fill: white;");
                             ((ToggleButton) toolbarAction).setSelected(false);
                             ((ToggleButton) toolbarAction).setFocusTraversable(false);
 
                         }
                     });
                 });
-    }
-
-    //Borde skapa en Vbox i questPaneH som attribut med labels och textinput
-    private void Test3(){
-        Label arrow = new Label("=>");
-        arrow.setTextFill(Color.WHITE);
-        arrow.setFont(Font.font(22.0));
-        arrow.setStyle("-fx-background-color: transparent;");
-        int temp = questPaneH.getChildren().size();
-        questPaneH.getChildren().add(temp, arrow);
-    }
-
-    private void CreateAttributePaneAttribute(String labelText){
-        //vBox
-        parameterVBox = new VBox();
-        parameterVBox.setStyle("-fx-border-radius: 10; -fx-border-color: #666;");
-        parameterVBox.setAlignment(Pos.TOP_CENTER);
-        parameterVBox.setPrefWidth(75);
-
-        //label
-        Label atrLbl = new Label(labelText);
-        atrLbl.setFont(Font.font(18.0));
-        atrLbl.setTextFill(Color.WHITE);
-        atrLbl.setStyle("-fx-background-color: transparent;");
-
-        //textField
-        //TextField tf = new TextField();
-        //tf.setStyle("-fx-text-inner-color: white;");
-
-        //if the button click was Race -> create menu bar instead of textField
-        Label raceLbl = new Label("");
-        raceLbl.setFont(Font.font(14.0));
-        raceLbl.setTextFill(Color.WHITE);
-        raceLbl.setStyle("-fx-background-color: transparent;");
-        raceLbl.setId("raceID");
-
-
-        parameterVBox.getChildren().add(parameterVBox.getChildren().size(), atrLbl);
-        parameterVBox.getChildren().add(parameterVBox.getChildren().size(), raceLbl);
-
-
-        MenuButton mb = new MenuButton();
-        for (int i = 0; i < 3; i++){
-            MenuItem mi = new MenuItem();
-            String temp = "";
-            if(i == 0) // temporärt
-                temp = "Orc";
-            if(i == 1)
-                temp = "Elf";
-            if(i == 2)
-                temp = "Dwarf";
-            mi.setText(temp);
-
-            raceLbl.setText("ORC");
-            mb.getItems().add(mi);
-        }
-
-        parameterVBox.getChildren().add(parameterVBox.getChildren().size(), mb);
-        parameterVBox.setMaxWidth(140.0);
-        questPaneH.getChildren().add(questPaneH.getChildren().size(), parameterVBox);
-
-
-
-
-
-
-
-        //seperation arrow, added after the attribute pane
-        Label arrow = new Label("=>");
-        arrow.setTextFill(Color.WHITE);
-        arrow.setFont(Font.font(22.0));
-        arrow.setStyle("-fx-background-color: transparent;");
-        int temp = questPaneH.getChildren().size();
-        questPaneH.getChildren().add(temp, arrow);
-
-    }
-
-    private void Test2(){
-
-        questPaneH.getChildren().stream().filter(node -> node.getId().equals("questPlaceholder")).forEach(node -> {
-            node.addEventHandler(MouseEvent.MOUSE_CLICKED,
-                    event -> {
-                        AtomicBoolean added = new AtomicBoolean(false);
-                        int paneCount = questPaneH.getChildren().size();
-                        tbNarrativeTools.getItems().stream()
-                                .filter(action -> ((ToggleButton) action).isSelected())
-                                .forEach(selected -> {
-                                    ToggleButton toggleButton = (ToggleButton) selected;
-                                    int questCount = dungeon.getQuest().getActions().size();
-
-                                    if (!doublePosition && updatedPosition != null) {
-                                        Action action = AddAction(toggleButton, questCount);
-                                        Tile tile = action.getRoom().getTile(action.getPosition().getX(), action.getPosition().getY());
-                                        AddPaneNarrativeAttribute(action, paneCount - 1);
-                                        toggleButton.setSelected(false);
-                                        RefreshPanel();
-                                    }
-                                });
-                    });
-        });
-
-    }
-
-
-    @FXML
-    public void Test(){
-        int paneCount = questPaneH.getChildren().size();
-        //AddPaneNarrativeAttribute(paneCount + 1);
     }
 
     //Borde skapa en Vbox i questPaneH som attribut med labels och textinput
@@ -316,15 +228,100 @@ public class NarrativeViewController extends BorderPane implements Listener {
         router.postEvent(new RequestWorldView());
     }
 
+    //NARRATIVE
     @Override
     public void ping(PCGEvent e) {
 
+        if (e instanceof RequestNarrativeView) {
+            DungeonDrawer.getInstance().changeBrushTo(DungeonDrawer.DungeonBrushes.NarrativeEntity_POS);
+            List<TileTypes> types = findTileTypes();
+            router.postEvent(new RequestDisplayQuestTilesSelection(types));
+
+            if (firstTime) {
+                Alert alert = new Alert(Alert.AlertType.INFORMATION, "Welcome to the Narrative-Creation!\n"
+                        + "To the left you have the available attributes\n"
+                        + "To the right you the generated narrative!\n"
+                        + "The map shows your dungeon\n"
+                        + "Click on a entity in the dungeon you wish to create a narrative for\n"
+                        + "Add attributes for the entity and you can start designing a narrative with the AI \n"
+                        + "Lock the attributes to not generate towards that attribute \n",
+                        ButtonType.OK);
+
+                alert.setTitle("Quest editor");
+                Image image = new Image("graphics/mesopatterns/ambush.png");
+                ImageView imageview = new ImageView(image);
+                imageview.setFitWidth(100);
+                imageview.setFitHeight(100);
+                alert.setGraphic(imageview);
+                alert.setHeaderText("");
+                alert.showAndWait();
+            }
+
+            firstTime = false;
+            //DungeonDrawer.getInstance().changeBrushTo(DungeonDrawer.DungeonBrushes.NONE);
+
+            //RefreshPanel();
+
+            //check the validity of each action
+/*            questPaneH.getChildren().filtered(node -> node instanceof ToggleButton).forEach(node -> {
+                if (dungeon.getQuest().getAction(UUID.fromString(node.getId())).isPreconditionMet()){
+                    node.getStyleClass().remove("danger");
+                } else {
+                    node.getStyleClass().add("danger");
+                }
+            });*/
+
+        }
+
+        else if (e instanceof EntityPositionUpdate) {
+            doublePosition = ((EntityPositionUpdate) e).isSecondPosition();
+            AtomicBoolean replace = new AtomicBoolean(false);
+            if (doublePosition) {
+                secondUpdatedPosition = (EntityPositionUpdate) e;
+
+                entityLabel.setText(e.getPayload().toString());
+                doublePosition = false;
+            } else {
+                updatedPosition = (EntityPositionUpdate) e;
+                doublePosition = false;
+            }
+            if (!doublePosition) {
+                DungeonDrawer.getInstance().changeBrushTo(DungeonDrawer.DungeonBrushes.NONE);
+            }
+
+            router.postEvent(new RequestDisplayQuestTilesUnselection(doublePosition));
+        }
+
+    }
+
+    private void FindEntity(){
+
+    }
+
+    private List<Point> findEntityTilePositions() {
+        List<finder.geometry.Point> narrativeEntities = new LinkedList<finder.geometry.Point>();
+
+        for (QuestPositionUpdate enemyEntity: dungeon.getEnemies()) {
+            narrativeEntities.add(enemyEntity.getPoint());
+        }
+        for (QuestPositionUpdate itemEntity: dungeon.getItems()) {
+            narrativeEntities.add(itemEntity.getPoint());
+        }
+        for (BossEnemyTile bossEntity: dungeon.getBosses()) { //
+            for (Point p : bossEntity.GetPositions()){
+                narrativeEntities.add(p);
+            }
+        }
+        for (QuestPositionUpdate npc :   dungeon.getNpcs()){
+            narrativeEntities.add(npc.getPoint());
+        }
+
+        return narrativeEntities;
     }
 
     public void setActive(boolean active) {
         this.isActive = active;
     }
-
 
     private void initNarrativeToolbar(){
 
@@ -434,5 +431,236 @@ public class NarrativeViewController extends BorderPane implements Listener {
         }
 
         return action;
+    }
+
+
+
+
+
+
+    //-------------------------------------------------------------------------
+
+    private List<VBox> narrativeAttributeGUI = new ArrayList<VBox>();
+    private List<VBox> attributeGUIArray = new ArrayList<VBox>();
+    private List<VBox> hiddenVBOXes = new ArrayList<VBox>();
+
+    private void CreateNarrativeGUI(Defines.AttributeTypes atr){
+
+        narrativeAttributeGUI.add(new VBox());
+
+        VBox attributeGUI = narrativeAttributeGUI.get(narrativeAttributeGUI.size() - 1);
+        attributeGUI.setPrefWidth(140);
+        attributeGUI.setMaxWidth(200);
+        attributeGUI.setMaxHeight(80);
+
+        //label
+        Label atrLbl = new Label(atr.toString());
+        atrLbl.setFont(Font.font(18.0));
+        atrLbl.setTextFill(Color.WHITE);
+        atrLbl.setStyle("-fx-background-color: transparent;");
+        if(atr == Defines.AttributeTypes.Relationship){
+            atrLbl.setText("Relation to other entities");
+        }
+        attributeGUI.getChildren().add(atrLbl);
+
+        switch(atr){
+            case Name:
+                //textField
+                TextField tf = new TextField();
+                tf.setPrefWidth(80);
+                tf.setMaxWidth(90);
+                tf.setStyle("-fx-text-inner-color: white;");
+                attributeGUI.getChildren().add( tf);
+                break;
+            case Age:
+                //textfield
+                TextField tf2 = new TextField();
+                tf2.setPrefWidth(80);
+                tf2.setMaxWidth(90);
+                tf2.setStyle("-fx-text-inner-color: white;");
+                attributeGUI.getChildren().add(tf2);
+                break;
+            case Gender:
+                attributeGUI.getChildren().add(CreateGenderMenuGUI());
+                break;
+            case Race:
+                attributeGUI.getChildren().add(CreateRaceMenuGUI());
+                break;
+            case Class:
+                attributeGUI.getChildren().add(CreateClassMenuGUI());
+                break;
+            case Relationship:
+
+                CreateRelationGUI(attributeGUI);
+                break;
+            default:
+                break;
+        }
+
+        attributeGUI.setStyle("-fx-border-radius: 10; -fx-border-color: #666;");
+        attributeGUI.setAlignment(Pos.TOP_CENTER);
+    }
+
+    private MenuButton CreateGenderMenuGUI(){
+        MenuButton mb = new MenuButton();
+        mb.setPrefWidth(100);
+        mb.setMaxWidth(120);
+
+        mb.setText("gender");
+        mb.setStyle("-fx-background-color: white;");
+
+        for (Defines.Gender g : Defines.Gender.values()){
+            if(g.toString() == "LOCKED")
+                continue;
+
+            MenuItem mi = new MenuItem();
+            mi.setText(g.toString());
+
+            mb.getItems().add(mi);
+        }
+
+        return mb;
+    }
+
+    private MenuButton CreateRaceMenuGUI(){
+        MenuButton mb = new MenuButton();
+        mb.setPrefWidth(100);
+        mb.setMaxWidth(120);
+
+        mb.setText("race");
+        mb.setStyle("-fx-background-color: white;");
+
+
+        for (Defines.Race r : Defines.Race.values()){
+            if(r.toString() == "LOCKED")
+                continue;
+
+            MenuItem mi = new MenuItem();
+            mi.setText(r.toString());
+            mb.getItems().add(mi);
+        }
+
+        return mb;
+    }
+
+    private MenuButton CreateClassMenuGUI(){
+        MenuButton mb = new MenuButton();
+        mb.setPrefWidth(100);
+        mb.setMaxWidth(120);
+
+        mb.setText("class");
+        mb.setStyle("-fx-background-color: white;");
+
+        for (Defines.Class c : Defines.Class.values()){
+            if(c.toString() == "LOCKED")
+                continue;
+
+            MenuItem mi = new MenuItem();
+            mi.setText(c.toString());
+            mb.getItems().add(mi);
+        }
+
+        return mb;
+    }
+
+    private HBox CreateHBoxInRelationGUI(){
+        HBox hbox = new HBox();
+        hbox.setSpacing(6);
+        MenuButton mb = new MenuButton();
+        mb.setPrefWidth(100);
+        mb.setMaxWidth(120);
+
+
+        for (Defines.RelationshipType r : Defines.RelationshipType.values()){
+            if(r.toString() == "LOCKED")
+                continue;
+
+            MenuItem mi = new MenuItem();
+            mi.setText(r.toString());
+            mi.setId(r.toString());
+
+            mi.setOnAction(event ->
+            {
+                if (hbox.getChildren().size() >= 3) {
+                    return;
+                }
+                Label arrow = new Label("=>");
+                arrow.setTextFill(Color.WHITE);
+                arrow.setFont(Font.font(14.0));
+                arrow.setStyle("-fx-background-color: transparent;");
+                hbox.getChildren().add(hbox.getChildren().size() -1, arrow);
+
+                if (mi.getId() == "Phobia") {
+                    MenuButton mb2 = new MenuButton();
+                    for (Defines.Element e : Defines.Element.values()) {
+                        if (e.toString() == "LOCKED" || e.toString() == "NONE")
+                            continue;
+
+                        MenuItem mi2 = new MenuItem();
+                        mi2.setText(e.toString());
+                        mi2.setId(e.toString());
+
+                        mb2.getItems().add(mi2);
+                    }
+                    mb2.setPrefWidth(70);
+                    hbox.getChildren().add(hbox.getChildren().size() -1, mb2);
+                }
+                else {
+                    ToggleButton entityBtn = new ToggleButton("select entity");
+                    entityBtn.addEventHandler(MouseEvent.MOUSE_CLICKED, event2 -> {
+                        if(entityBtn.isSelected()){
+                            List<TileTypes> alltypes = findTileTypes();
+                            DungeonDrawer.getInstance().changeBrushTo(DungeonDrawer.DungeonBrushes.NarrativeEntity_POS);
+                            router.postEvent(new RequestDisplayQuestTilesSelection(alltypes));
+                        }
+                        else {
+                            router.postEvent(new RequestDisplayQuestTilesUnselection(true));
+                        }
+                    });
+
+                    hbox.getChildren().add(hbox.getChildren().size() -1, entityBtn);
+
+/*                    Label lbl = new Label('"' + "insert Enitity" + '"');
+                    hbox.getChildren().add(hbox.getChildren().size() -1, lbl);*/
+                }
+            });
+            mb.getItems().add(mi);
+        }
+
+        hbox.getChildren().add(mb);
+
+        Button btn = new Button("-");
+        btn.prefWidth(30);
+        btn.prefHeight(30);
+        btn.setStyle("-fx-background-color: red;");
+
+        btn.setOnAction(event -> narrativeAttributeGUI.get(Defines.AttributeTypes.Relationship.ordinal()).getChildren().remove(hbox));
+        hbox.getChildren().add(btn);
+
+        return hbox;
+    }
+
+    private void CreateRelationGUI(VBox vbox){
+        vbox.setAlignment(Pos.CENTER_LEFT);
+        vbox.setMaxHeight(500);
+        vbox.setPrefWidth(300);
+        vbox.setPrefHeight(100);
+        vbox.setMaxWidth(350);
+
+        vbox.setSpacing(15);
+        //Image image = new Image()
+        //ImageView iv = new ImageView();
+        HBox hbox = CreateHBoxInRelationGUI();
+
+        vbox.getChildren().add(hbox);
+
+        //javafx.scene.control.Button btn = new javafx.scene.control.Button("Add Relation");
+        javafx.scene.control.Button btn = new javafx.scene.control.Button("+");
+        btn.setStyle("-fx-background-color: green;");
+        btn.addEventHandler(MouseEvent.MOUSE_CLICKED, event -> {
+            vbox.getChildren().add(vbox.getChildren().size() - 1,   CreateHBoxInRelationGUI());
+        });
+
+        vbox.getChildren().add( btn);
     }
 }

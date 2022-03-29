@@ -6,6 +6,7 @@
 <?import javafx.scene.control.MenuButton?>
 <?import javafx.scene.control.MenuItem?>
 <?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.TextArea?>
 <?import javafx.scene.control.ToggleButton?>
 <?import javafx.scene.control.ToolBar?>
 <?import javafx.scene.image.Image?>
@@ -19,7 +20,7 @@
 
 <fx:root fx:id="rootWorldViewPane" stylesheets="@../styling.css" type="javafx.scene.layout.BorderPane" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1">
     <center>
-        <BorderPane style="-fx-border-color: transparent lightgray transparent lightgray; -fx-border-width: 2px;">
+        <BorderPane fx:id="borderPane" style="-fx-border-color: transparent lightgray transparent lightgray; -fx-border-width: 2px;">
             <center>
                 <StackPane fx:id="mapPane" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" />
             </center>
@@ -41,8 +42,8 @@
                             <content>
                                 <VBox fx:id="questPaneV" alignment="TOP_LEFT" maxWidth="1.7976931348623157E308" prefHeight="200.0">
                                     <children>
-                                        <HBox fx:id="questPaneH" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefHeight="76.0" spacing="2.0" BorderPane.alignment="CENTER_LEFT">
-                                            <VBox fx:id="parameterVBox" />
+                                        <HBox fx:id="questPaneH" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefHeight="120.0" spacing="20.0" style="-fx-background-color: black;" BorderPane.alignment="CENTER_LEFT">
+                                            <!--<VBox fx:id="parameterVBox" style="-fx-background-color: black;" prefWidth="150.0" prefHeight="40"/> -->
                                             <padding>
                                                 <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
                                             </padding>
@@ -54,6 +55,9 @@
                                             </image>
                                         </ImageView> -->
                                     </children>
+                           <padding>
+                              <Insets left="15.0" />
+                           </padding>
                                 </VBox>
                             </content>
                         </ScrollPane>
@@ -82,17 +86,18 @@
 
 
                <top>
-                   <ScrollPane fx:id="narrativeScrollPane" prefHeight="80.0" prefWidth="120.0" style="-fx-border-color: lightgray transparent;">
+                   <ScrollPane fx:id="narrativeScrollPane" prefHeight="80.0" prefWidth="320.0" style="-fx-border-color: lightgray transparent;">
                      <content>
-                        <VBox fx:id="narrativePaneV" prefHeight="74.0" prefWidth="100.0">
+                        <VBox fx:id="narrativePaneV" prefHeight="74.0">
                            <children>
-                              <HBox fx:id="narrativePaneH" prefHeight="100.0" prefWidth="35.0">
+                              <HBox fx:id="narrativePaneH" prefHeight="100.0">
                                  <children>
                                      <ImageView fitWidth="40.0" pickOnBounds="true" preserveRatio="true">
                                          <image>
                                              <Image url="@../../graphics/tiles/enemy.png" />
                                          </image>
                                      </ImageView>
+                                    <Label fx:id="entityLabel" prefHeight="17.0" text="Adam" textFill="WHITE" />
                                     <MenuButton mnemonicParsing="false" text="MenuButton">
                                       <items>
                                         <MenuItem mnemonicParsing="false" text="Hejsan" />
@@ -132,7 +137,7 @@
                         <ToggleButton fx:id="Age" maxWidth="150.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="150.0" text="Age" />
                         <ToggleButton fx:id="Gender" maxWidth="150.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="150.0" text="Gender" />
                         <ToggleButton fx:id="Race" maxWidth="150.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="150.0" text="Race" />
-                        <ToggleButton fx:id="NpcClass" maxWidth="150.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="150.0" text="Class" />
+                        <ToggleButton fx:id="Class" maxWidth="150.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="150.0" text="Class" />
                         <ToggleButton fx:id="Relationship" maxWidth="150.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="150.0" text="Relationship" />
                     </items>
                 </ToolBar>
@@ -147,6 +152,11 @@
                     <padding>
                         <Insets top="50" />
                     </padding>
+               <children>
+                  <TextArea prefHeight="120.0" prefWidth="220.0" text="massa text" />
+                  <TextArea prefHeight="115.0" prefWidth="220.0" text="mer text" />
+                  <TextArea layoutX="10.0" layoutY="185.0" prefHeight="115.0" prefWidth="220.0" text="ännu mer text" />
+               </children>
                 </FlowPane>
             </center>
             <padding>

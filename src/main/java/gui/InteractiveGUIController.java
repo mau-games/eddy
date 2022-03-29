@@ -18,7 +18,6 @@ import collectors.DataSaverLoader;
 import game.ApplicationConfig;
 import game.Dungeon;
 
-import narrative.NarrativeBase;
 import game.Game;
 import game.Room;
 import game.RoomEdge;
@@ -571,7 +570,6 @@ public class InteractiveGUIController implements Initializable, Listener {
 		narrativeView.initWorldMap(dungeonMap);
 
 		dungeonMap.narrativeCreateEntities(); // Vet inte varför den skulle kallas därifrån...
-		narrativeView.DrawSelectableEntities();
 		suggestionsView.setActive(false);
 		roomView.setActive(false);
 		worldView.setActive(false);

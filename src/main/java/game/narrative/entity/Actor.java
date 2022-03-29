@@ -1,7 +1,7 @@
-package narrative.entity;
-import narrative.Defines;
+package game.narrative.entity;
+import game.narrative.Defines;
 
-public class Actor implements Entity {
+public abstract class Actor extends Entity {
     Defines.Race m_race;
     Defines.Gender m_gender;
     String m_nameSecond = "";
