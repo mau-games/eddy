@@ -268,6 +268,7 @@ public class InteractiveGUIController implements Initializable, Listener {
 			showQuestView();
 		 }
 		 else if(e instanceof RequestNarrativeView){
+			 dungeonMap.getNarrative().CreateEntities();
 			showNarrativeView();
 		 }
 
@@ -569,7 +570,10 @@ public class InteractiveGUIController implements Initializable, Listener {
 
 		narrativeView.initWorldMap(dungeonMap);
 
+		//Test, detta funkar endast förtsa gången, nästa gång man går in i narrativeView görs nya entities.....
 		dungeonMap.narrativeCreateEntities(); // Vet inte varför den skulle kallas därifrån...
+
+
 		suggestionsView.setActive(false);
 		roomView.setActive(false);
 		worldView.setActive(false);

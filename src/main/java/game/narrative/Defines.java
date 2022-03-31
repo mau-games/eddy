@@ -80,7 +80,20 @@ public class Defines {
 
     public class Relationship{
         RelationshipType m_relationshipType;
-        List<Entity> m_relationshipTarget;
-        AttributeType m_phobiaTarget;
+        Entity m_relationshipTarget;
+        Element m_phobiaTarget;
+
+        public Relationship(RelationshipType relType, Entity target ){
+            this.m_relationshipType = relType;
+            this.m_relationshipTarget = target;
+        }
+
+        public Relationship(Element element ){
+            this.m_relationshipType = RelationshipType.Phobia;
+            this.m_phobiaTarget = element;
+        }
+
+        public String GetName(){ return m_relationshipTarget.GetNameOrID();}
+        public RelationshipType GetRelation(){ return m_relationshipType;}
     };
 }

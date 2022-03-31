@@ -237,6 +237,7 @@ public class QuestViewController extends BorderPane implements Listener {
                         .filter(questAction -> questAction instanceof ToggleButton)
                         .filter(questAction -> ((ToggleButton) questAction).isSelected())
                         .forEach(questAction -> {
+
                             Platform.runLater(() -> {
                                 removeQuestAction((ToggleButton) questAction);
                                 globalQuestIndex = dungeon.getQuest().getActions().size();

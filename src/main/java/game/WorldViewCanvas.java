@@ -103,8 +103,8 @@ public class WorldViewCanvas
 									new finder.geometry.Point(
 											currentBrushPosition.getX(),
 											currentBrushPosition.getY()),
-									owner,
-									doublePos));
+									owner, false
+									));
 				} else {
 					EventRouter.getInstance().postEvent(new EntityPositionInvalid());
 				}
@@ -115,7 +115,6 @@ public class WorldViewCanvas
 		EventRouter.getInstance().registerListener(this::ping, new RequestDisplayQuestTilesSelection2(null,null));
 		EventRouter.getInstance().registerListener(this::ping, new RequestDisplayQuestTilesUnselection(false));
 		EventRouter.getInstance().registerListener(this::ping, new RequestDisplayQuestTilePosition());
-
 
 		rendered = false;
 		viewSizeHeight = 0;
@@ -513,6 +512,10 @@ public class WorldViewCanvas
 	            		tileCanvas.setVisible(true);
 	            		drawTiles(Color.GREEN);
 					}
+					else if(brush instanceof NarrativeEntityPositionBrush){
+						tileCanvas.setVisible(true);
+						drawTiles(Color.GREEN);
+					}
 	            	else
 	            	{
 	            		highlight(true);
@@ -540,6 +543,10 @@ public class WorldViewCanvas
 					} else if (brush instanceof QuestPositionBrush){
 	            		tileCanvas.setVisible(true);
 	            		drawTiles(Color.GREEN);
+					}
+					else if (brush instanceof NarrativeEntityPositionBrush){
+						tileCanvas.setVisible(true);
+						drawTiles(Color.GREEN);
 					}
 	            }
 	        });

@@ -172,7 +172,6 @@ public class Room {
 	public List<Point> getNPCs(){
 		return npcList;
 	}
-
 	public List<Point> getItems(){
 		return itemList;
 	}

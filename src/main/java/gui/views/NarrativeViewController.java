@@ -12,7 +12,9 @@ import game.quest.ActionType;
 import game.quest.actions.*;
 import game.tiles.*;
 import gui.utils.DungeonDrawer;
+import gui.utils.MapRenderer;
 import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Pos;
@@ -24,6 +26,8 @@ import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
@@ -52,6 +56,8 @@ public class NarrativeViewController extends BorderPane implements Listener {
     private ApplicationConfig config;
     private boolean isActive = false;
     private Dungeon dungeon;
+    private boolean isSelectNewNarrativeEntity;
+    private MapRenderer renderer = MapRenderer.getInstance();
 
     private boolean doublePosition = false;
     private boolean firstTime = true;
@@ -81,10 +87,18 @@ public class NarrativeViewController extends BorderPane implements Listener {
     private BorderPane borderPane;
     @FXML
     private Label entityLabel;
+    @FXML
+    private Image entityImageGUI;
+    @FXML
+    private ToggleButton newEntityButton;
+    @FXML
+    private ImageView entityImageViewGUI;
 
+    private ToggleButton relationEntitySelectionButton;
     private Defines.AttributeTypes attributeType;
     private int questPaneH_AddedPanelsCounter;
     private String raceStr;
+    private Defines.RelationshipType selectedRelationType;
     //Tillägg
     private EntityPositionUpdate updatedPosition = null;
     private EntityPositionUpdate secondUpdatedPosition = null;
@@ -101,7 +115,6 @@ public class NarrativeViewController extends BorderPane implements Listener {
         } catch (IOException | MissingConfigurationException ex) {
             ex.printStackTrace();
         }
-
         router.registerListener(this, new MapUpdate(null));
         router.registerListener(this, new RequestNarrativeView());
         router.registerListener(this, new EntityPositionUpdate(null, null, false));
@@ -125,7 +138,6 @@ public class NarrativeViewController extends BorderPane implements Listener {
             attributeGUIArray.add(hiddenVBOXes.get(hiddenVBOXes.size() - 1)); // add the corresponding hidden vbox to the right place (attribute) in the attributeGUIArray
             questPaneH.getChildren().add(attributeGUIArray.get(attributeGUIArray.size() - 1)); //add the attribute to the panel (currently the hidden vbox)
         }
-
     }
 
     //displayar alla entities
@@ -142,19 +154,13 @@ public class NarrativeViewController extends BorderPane implements Listener {
                     toolbarAction.addEventHandler(MouseEvent.MOUSE_CLICKED, event -> {
 
                         if (((ToggleButton) toolbarAction).isSelected()) {
-                            DungeonDrawer.getInstance().changeBrushTo(DungeonDrawer.DungeonBrushes.NONE);
-                            //selectedActionType = ActionType.valueOf(((ToggleButton) toolbarAction).getId());
-                            List<TileTypes> types = findTileTypes();
+                            //DungeonDrawer.getInstance().changeBrushTo(DungeonDrawer.DungeonBrushes.NONE);
+                            //List<TileTypes> types = findTileTypes();
                             attributeType = Defines.AttributeTypes.valueOf(((ToggleButton)toolbarAction).getId());
-
-                            //router.postEvent(new RequestDisplayQuestTilesSelection(types));
 
                             for (Defines.AttributeTypes at : Defines.AttributeTypes.values()) {
                                 if(at == attributeType){
-                                    //questPaneH.getChildren().add(questPaneH.getChildren().get(at.ordinal()));
-                                    //questPaneH.getChildren().add(narrativeAttributeGUI.get(at.ordinal()));
                                     questPaneH.getChildren().set(at.ordinal(),narrativeAttributeGUI.get(at.ordinal())); // set the attribute to show the corresponding GUI in narrativeAttributeGUI
-                                    //attributeGUIArray.set(at.ordinal(), narrativeAttributeGUI.get(at.ordinal()));
                                     break;
                                 }
                             }
@@ -233,9 +239,9 @@ public class NarrativeViewController extends BorderPane implements Listener {
     public void ping(PCGEvent e) {
 
         if (e instanceof RequestNarrativeView) {
-            DungeonDrawer.getInstance().changeBrushTo(DungeonDrawer.DungeonBrushes.NarrativeEntity_POS);
+/*            DungeonDrawer.getInstance().changeBrushTo(DungeonDrawer.DungeonBrushes.NarrativeEntity_POS);
             List<TileTypes> types = findTileTypes();
-            router.postEvent(new RequestDisplayQuestTilesSelection(types));
+            router.postEvent(new RequestDisplayQuestTilesSelection(types));*/
 
             if (firstTime) {
                 Alert alert = new Alert(Alert.AlertType.INFORMATION, "Welcome to the Narrative-Creation!\n"
@@ -258,38 +264,63 @@ public class NarrativeViewController extends BorderPane implements Listener {
             }
 
             firstTime = false;
-            //DungeonDrawer.getInstance().changeBrushTo(DungeonDrawer.DungeonBrushes.NONE);
-
-            //RefreshPanel();
-
-            //check the validity of each action
-/*            questPaneH.getChildren().filtered(node -> node instanceof ToggleButton).forEach(node -> {
-                if (dungeon.getQuest().getAction(UUID.fromString(node.getId())).isPreconditionMet()){
-                    node.getStyleClass().remove("danger");
-                } else {
-                    node.getStyleClass().add("danger");
-                }
-            });*/
-
         }
 
         else if (e instanceof EntityPositionUpdate) {
-            doublePosition = ((EntityPositionUpdate) e).isSecondPosition();
-            AtomicBoolean replace = new AtomicBoolean(false);
-            if (doublePosition) {
+            if(newEntityButton.isSelected()){
+                dungeon.getNarrative().SetSelectedEntityFromPoint(((EntityPositionUpdate) e).getPoint());
+                LoadNewEntityGUI(dungeon.getNarrative().GetSelectedEntity());
+                newEntityButton.setSelected(false);
+                newEntityButton.setFocusTraversable(false);
+                DungeonDrawer.getInstance().changeBrushTo(DungeonDrawer.DungeonBrushes.NONE);
+            }
+            else if(relationEntitySelectionButton != null && relationEntitySelectionButton.isSelected() && dungeon.getNarrative().GetSelectedEntity() != null){
+                Entity selectedEntity = dungeon.getNarrative().GetEntityFromPoint(((EntityPositionUpdate) e).getPoint());
+                HBox tempBox = ((HBox)relationEntitySelectionButton.getParent()); // temp holder for the Hbox parent
+                tempBox.getChildren().remove(tempBox.getChildren().size() - 2); // removes the selectEntity button
+                dungeon.getNarrative().GetSelectedEntity().AddRelation(new Defines().new Relationship(selectedRelationType, selectedEntity)); //adds the relation to the entity
+                selectedRelationType = null;
+
+                //Updated entity Name GUI
+                Label newLabel = new Label(selectedEntity.GetNameOrID());
+                newLabel.setTextFill(Color.WHITE);
+                newLabel.setStyle("-fx-border-radius: 10; -fx-border-color: white;");
+                newLabel.setFont(Font.font(18.0));
+                newLabel.setPrefWidth(90);
+                newLabel.setPrefHeight(40);
+                tempBox.getChildren().add(tempBox.getChildren().size() - 1, newLabel);
+                relationEntitySelectionButton.setSelected(false);
+                relationEntitySelectionButton = null;
+
+                DungeonDrawer.getInstance().changeBrushTo(DungeonDrawer.DungeonBrushes.NONE);
+            }
+            else{
+                DungeonDrawer.getInstance().changeBrushTo(DungeonDrawer.DungeonBrushes.NONE);
+                newEntityButton.setSelected(false);
+                newEntityButton.setFocusTraversable(false);
+            }
+
+
+/*            if (doublePosition) {
                 secondUpdatedPosition = (EntityPositionUpdate) e;
 
-                entityLabel.setText(e.getPayload().toString());
+                if(dungeon.getNarrative().GetSelectedEntity() != null && newEntityButton.isSelected()){
+                    dungeon.getNarrative().SetSelectedEntityFromPoint(((EntityPositionUpdate) e).getPoint());
+                    LoadNewEntityGUI(dungeon.getNarrative().GetSelectedEntity());
+                }
                 doublePosition = false;
-            } else {
+            }
+            else {
                 updatedPosition = (EntityPositionUpdate) e;
                 doublePosition = false;
             }
             if (!doublePosition) {
                 DungeonDrawer.getInstance().changeBrushTo(DungeonDrawer.DungeonBrushes.NONE);
-            }
+                newEntityButton.setSelected(false);
+                newEntityButton.setFocusTraversable(false);
+            }*/
 
-            router.postEvent(new RequestDisplayQuestTilesUnselection(doublePosition));
+            router.postEvent(new RequestDisplayQuestTilesUnselection(false));
         }
 
     }
@@ -439,12 +470,27 @@ public class NarrativeViewController extends BorderPane implements Listener {
 
 
     //-------------------------------------------------------------------------
+    @FXML
+    private void SelectNewEntity(){
+        if(newEntityButton.isSelected()){
+            List<TileTypes> alltypes = findTileTypes();
+            DungeonDrawer.getInstance().changeBrushTo(DungeonDrawer.DungeonBrushes.NarrativeEntity_POS);
+            router.postEvent(new RequestDisplayQuestTilesSelection(alltypes));
+        }
+        else{
+            DungeonDrawer.getInstance().changeBrushTo(DungeonDrawer.DungeonBrushes.NONE);
+            newEntityButton.setSelected(false);
+            newEntityButton.setFocusTraversable(false);
+            router.postEvent(new RequestDisplayQuestTilesUnselection(false));
+        }
+    }
 
     private List<VBox> narrativeAttributeGUI = new ArrayList<VBox>();
     private List<VBox> attributeGUIArray = new ArrayList<VBox>();
     private List<VBox> hiddenVBOXes = new ArrayList<VBox>();
 
     private void CreateNarrativeGUI(Defines.AttributeTypes atr){
+
 
         narrativeAttributeGUI.add(new VBox());
 
@@ -469,6 +515,17 @@ public class NarrativeViewController extends BorderPane implements Listener {
                 TextField tf = new TextField();
                 tf.setPrefWidth(80);
                 tf.setMaxWidth(90);
+                tf.setOnKeyPressed(new EventHandler<KeyEvent>() {
+                    @Override
+                    public void handle(KeyEvent ke) {
+                        if (ke.getCode().equals(KeyCode.ENTER)) {
+                            entityLabel.setText(tf.getText());
+                            dungeon.getNarrative().SetEntityName(tf.getText());
+                        }
+                    }
+                });
+
+
                 tf.setStyle("-fx-text-inner-color: white;");
                 attributeGUI.getChildren().add( tf);
                 break;
@@ -478,6 +535,14 @@ public class NarrativeViewController extends BorderPane implements Listener {
                 tf2.setPrefWidth(80);
                 tf2.setMaxWidth(90);
                 tf2.setStyle("-fx-text-inner-color: white;");
+                tf2.setOnKeyPressed(new EventHandler<KeyEvent>() {
+                    @Override
+                    public void handle(KeyEvent ke) {
+                        if (ke.getCode().equals(KeyCode.ENTER)) {
+                            dungeon.getNarrative().GetSelectedEntity().SetAge(Integer.parseInt(tf2.getText()));
+                        }
+                    }
+                });
                 attributeGUI.getChildren().add(tf2);
                 break;
             case Gender:
@@ -487,7 +552,7 @@ public class NarrativeViewController extends BorderPane implements Listener {
                 attributeGUI.getChildren().add(CreateRaceMenuGUI());
                 break;
             case Class:
-                attributeGUI.getChildren().add(CreateClassMenuGUI());
+                attributeGUI.getChildren().add(CreateClassMenuGUI(""));
                 break;
             case Relationship:
 
@@ -517,6 +582,14 @@ public class NarrativeViewController extends BorderPane implements Listener {
             mi.setText(g.toString());
 
             mb.getItems().add(mi);
+
+            mi.setOnAction(event ->{
+                mb.setText(mi.getText());
+
+                if(dungeon.getNarrative().GetSelectedEntity() != null){
+                    dungeon.getNarrative().GetSelectedEntity().SetGender( Defines.Gender.valueOf(mi.getText()));
+                }
+            });
         }
 
         return mb;
@@ -538,13 +611,26 @@ public class NarrativeViewController extends BorderPane implements Listener {
             MenuItem mi = new MenuItem();
             mi.setText(r.toString());
             mb.getItems().add(mi);
+
+            mi.setOnAction(event ->{
+                mb.setText(mi.getText());
+
+                if(dungeon.getNarrative().GetSelectedEntity() != null){
+                    dungeon.getNarrative().GetSelectedEntity().SetRace( Defines.Race.valueOf(mi.getText()));
+                }
+            });
         }
 
         return mb;
     }
 
-    private MenuButton CreateClassMenuGUI(){
+    private MenuButton CreateClassMenuGUI(String hasValue){
+
         MenuButton mb = new MenuButton();
+
+        if(hasValue != "")
+            mb.setText(hasValue);
+
         mb.setPrefWidth(100);
         mb.setMaxWidth(120);
 
@@ -558,9 +644,54 @@ public class NarrativeViewController extends BorderPane implements Listener {
             MenuItem mi = new MenuItem();
             mi.setText(c.toString());
             mb.getItems().add(mi);
+            mi.setOnAction(event ->{
+                mb.setText(mi.getText());
+
+                if(dungeon.getNarrative().GetSelectedEntity() != null){
+                    dungeon.getNarrative().GetSelectedEntity().SetClass( Defines.Class.valueOf(mi.getText()));
+                }
+            });
         }
 
         return mb;
+    }
+
+    private HBox LoadHBoxinRelationGUI(Defines.RelationshipType relationType, String targetName){
+        HBox hbox = new HBox();
+        Label relationLabel = new Label(relationType.toString());
+        relationLabel.setTextFill(Color.WHITE);
+        relationLabel.setStyle("-fx-border-radius: 10; -fx-border-color: white;");
+        relationLabel.setFont(Font.font(18.0));
+        relationLabel.setPrefWidth(90);
+        relationLabel.setPrefHeight(40);
+
+        Label arrow = new Label("=>");
+        arrow.setTextFill(Color.WHITE);
+        arrow.setFont(Font.font(24.0));
+
+        Label targetLabel = new Label(targetName);
+        targetLabel.setTextFill(Color.WHITE);
+        targetLabel.setStyle("-fx-border-radius: 10; -fx-border-color: white;");
+        targetLabel.setFont(Font.font(18.0));
+        targetLabel.setPrefWidth(90);
+        targetLabel.setPrefHeight(40);
+
+        hbox.getChildren().add(relationLabel);
+        hbox.getChildren().add(arrow);
+        hbox.getChildren().add(targetLabel);
+
+        Button btn = new Button("-");
+        btn.prefWidth(30);
+        btn.prefHeight(30);
+        btn.setStyle("-fx-background-color: red;");
+
+        btn.setOnAction(event -> {
+            int index = ((VBox)hbox.getParent()).getChildren().indexOf(hbox);
+            narrativeAttributeGUI.get(Defines.AttributeTypes.Relationship.ordinal()).getChildren().remove(hbox);
+            dungeon.getNarrative().GetSelectedEntity().RemoveRelation(index - 1);
+        });
+        hbox.getChildren().add(btn);
+        return hbox;
     }
 
     private HBox CreateHBoxInRelationGUI(){
@@ -569,7 +700,7 @@ public class NarrativeViewController extends BorderPane implements Listener {
         MenuButton mb = new MenuButton();
         mb.setPrefWidth(100);
         mb.setMaxWidth(120);
-
+        mb.setStyle("-fx-background-color: white;");
 
         for (Defines.RelationshipType r : Defines.RelationshipType.values()){
             if(r.toString() == "LOCKED")
@@ -593,37 +724,44 @@ public class NarrativeViewController extends BorderPane implements Listener {
                 if (mi.getId() == "Phobia") {
                     MenuButton mb2 = new MenuButton();
                     for (Defines.Element e : Defines.Element.values()) {
-                        if (e.toString() == "LOCKED" || e.toString() == "NONE")
+                        if (e.toString() == "LOCKED" || e.toString() == "None")
                             continue;
 
                         MenuItem mi2 = new MenuItem();
                         mi2.setText(e.toString());
                         mi2.setId(e.toString());
-
+                        mb2.setStyle("-fx-background-color: white;");
+                        mi2.setOnAction(event2 ->{
+                            mb2.setText(mi2.getText());
+                            dungeon.getNarrative().GetSelectedEntity().AddRelation(new Defines().new Relationship(e));
+                        });
                         mb2.getItems().add(mi2);
                     }
-                    mb2.setPrefWidth(70);
+                    mb2.setPrefWidth(100);
                     hbox.getChildren().add(hbox.getChildren().size() -1, mb2);
                 }
                 else {
-                    ToggleButton entityBtn = new ToggleButton("select entity");
-                    entityBtn.addEventHandler(MouseEvent.MOUSE_CLICKED, event2 -> {
-                        if(entityBtn.isSelected()){
+                    relationEntitySelectionButton = new ToggleButton("select entity");
+                    relationEntitySelectionButton.addEventHandler(MouseEvent.MOUSE_CLICKED, event2 -> {
+                        if(relationEntitySelectionButton.isSelected()){
+                            selectedRelationType = r;
                             List<TileTypes> alltypes = findTileTypes();
                             DungeonDrawer.getInstance().changeBrushTo(DungeonDrawer.DungeonBrushes.NarrativeEntity_POS);
                             router.postEvent(new RequestDisplayQuestTilesSelection(alltypes));
                         }
                         else {
-                            router.postEvent(new RequestDisplayQuestTilesUnselection(true));
+                            //List<TileTypes> alltypes = findTileTypes();
+                            //router.postEvent(new RequestDisplayQuestTilesUnselection(false));
                         }
                     });
 
-                    hbox.getChildren().add(hbox.getChildren().size() -1, entityBtn);
-
-/*                    Label lbl = new Label('"' + "insert Enitity" + '"');
-                    hbox.getChildren().add(hbox.getChildren().size() -1, lbl);*/
+                    hbox.getChildren().add(hbox.getChildren().size() -1, relationEntitySelectionButton);
                 }
+
+                mb.setText(mi.getText());
+                mb.setDisable(true);
             });
+
             mb.getItems().add(mi);
         }
 
@@ -634,7 +772,11 @@ public class NarrativeViewController extends BorderPane implements Listener {
         btn.prefHeight(30);
         btn.setStyle("-fx-background-color: red;");
 
-        btn.setOnAction(event -> narrativeAttributeGUI.get(Defines.AttributeTypes.Relationship.ordinal()).getChildren().remove(hbox));
+        btn.setOnAction(event -> {
+            int index = ((VBox)hbox.getParent()).getChildren().indexOf(hbox);
+            narrativeAttributeGUI.get(Defines.AttributeTypes.Relationship.ordinal()).getChildren().remove(hbox);
+            dungeon.getNarrative().GetSelectedEntity().RemoveRelation(index - 1);
+        });
         hbox.getChildren().add(btn);
 
         return hbox;
@@ -650,9 +792,9 @@ public class NarrativeViewController extends BorderPane implements Listener {
         vbox.setSpacing(15);
         //Image image = new Image()
         //ImageView iv = new ImageView();
-        HBox hbox = CreateHBoxInRelationGUI();
+        //HBox hbox = CreateHBoxInRelationGUI();
 
-        vbox.getChildren().add(hbox);
+        //vbox.getChildren().add(hbox);
 
         //javafx.scene.control.Button btn = new javafx.scene.control.Button("Add Relation");
         javafx.scene.control.Button btn = new javafx.scene.control.Button("+");
@@ -662,5 +804,95 @@ public class NarrativeViewController extends BorderPane implements Listener {
         });
 
         vbox.getChildren().add( btn);
+    }
+
+    public void LoadNewEntityGUI(Entity entity){
+        narrativeAttributeGUI.clear();
+        for (Defines.AttributeTypes at : Defines.AttributeTypes.values()) {
+            CreateNarrativeGUI(at); // create the main GUI interaction
+        }
+
+        //clear pane
+        for (int i = 0; i < questPaneH.getChildren().size(); i++){
+            questPaneH.getChildren().set(i, hiddenVBOXes.get(i));
+        }
+        tbNarrativeTools.getItems() // set the buttons on the buttons panel to unselected
+                .forEach(toolbarAction -> {
+                    ((ToggleButton)toolbarAction).setSelected(false);
+
+                        });
+
+        //Name
+        if(entity.GetName() != ""){
+            entityLabel.setText(dungeon.getNarrative().GetSelectedEntity().GetName()); // set the entity info label name
+            questPaneH.getChildren().set(Defines.AttributeTypes.Name.ordinal(), narrativeAttributeGUI.get(Defines.AttributeTypes.Name.ordinal()));
+
+            ((VBox)narrativeAttributeGUI.get(Defines.AttributeTypes.Name.ordinal())).getChildren().stream()
+                    .filter(tf -> tf instanceof TextField).forEach( tf -> {
+                        ((TextField) tf).setText(entity.GetName());
+                    });
+
+            ((ToggleButton)tbNarrativeTools.getItems().get(Defines.AttributeTypes.Name.ordinal())).setSelected(true);
+        }
+        else
+            entityLabel.setText(dungeon.getNarrative().GetSelectedEntity().GetID());
+
+        //Age
+        if(!"0".equals(entity.GetAge())){
+            questPaneH.getChildren().set(Defines.AttributeTypes.Age.ordinal(), narrativeAttributeGUI.get(Defines.AttributeTypes.Age.ordinal()));
+
+            ((VBox)narrativeAttributeGUI.get(Defines.AttributeTypes.Age.ordinal())).getChildren().stream()
+                    .filter(tf -> tf instanceof TextField).forEach( tf -> {
+                        ((TextField) tf).setText(entity.GetAge());
+                    });
+
+            ((ToggleButton)tbNarrativeTools.getItems().get(Defines.AttributeTypes.Age.ordinal())).setSelected(true);
+        }
+        //Gender
+        if(entity.GetGender() != null){
+            questPaneH.getChildren().set(Defines.AttributeTypes.Gender.ordinal(), narrativeAttributeGUI.get(Defines.AttributeTypes.Gender.ordinal()));
+
+            ((VBox)narrativeAttributeGUI.get(Defines.AttributeTypes.Gender.ordinal())).getChildren().stream()
+                    .filter(mb -> mb instanceof MenuButton).forEach( mb -> {
+                        ((MenuButton) mb).setText(entity.GetGender().toString());
+                    });
+
+            ((ToggleButton)tbNarrativeTools.getItems().get(Defines.AttributeTypes.Gender.ordinal())).setSelected(true);
+        }
+        //Race
+        if(entity.GetRace() != null){
+            questPaneH.getChildren().set(Defines.AttributeTypes.Race.ordinal(), narrativeAttributeGUI.get(Defines.AttributeTypes.Race.ordinal()));
+
+            ((VBox)narrativeAttributeGUI.get(Defines.AttributeTypes.Race.ordinal())).getChildren().stream()
+                    .filter(mb -> mb instanceof MenuButton).forEach( mb -> {
+                        ((MenuButton) mb).setText(entity.GetRace().toString());
+                    });
+
+            ((ToggleButton)tbNarrativeTools.getItems().get(Defines.AttributeTypes.Race.ordinal())).setSelected(true);
+        }
+        //Class
+        if(entity.GetClass() != null){
+            questPaneH.getChildren().set(Defines.AttributeTypes.Class.ordinal(), narrativeAttributeGUI.get(Defines.AttributeTypes.Class.ordinal()));
+
+            ((VBox)narrativeAttributeGUI.get(Defines.AttributeTypes.Class.ordinal())).getChildren().stream()
+                    .filter(tf -> tf instanceof MenuButton).forEach( tf -> {
+                        ((MenuButton) tf).setText(entity.GetClass().toString());
+                    });
+
+            ((ToggleButton)tbNarrativeTools.getItems().get(Defines.AttributeTypes.Class.ordinal())).setSelected(true);
+        }
+        //Relationships
+        if(entity.GetRelations().size() != 0){
+            questPaneH.getChildren().set(Defines.AttributeTypes.Relationship.ordinal(), narrativeAttributeGUI.get(Defines.AttributeTypes.Relationship.ordinal()));
+            for (Defines.Relationship relation : entity.GetRelations()) {
+                int index = ((VBox)questPaneH.getChildren().get(Defines.AttributeTypes.Relationship.ordinal())).getChildren().size() - 1;
+                ((VBox)questPaneH.getChildren().get(Defines.AttributeTypes.Relationship.ordinal())).getChildren().add( index ,LoadHBoxinRelationGUI(relation.GetRelation(), relation.GetName()));
+            }
+            ((ToggleButton)tbNarrativeTools.getItems().get(Defines.AttributeTypes.Relationship.ordinal())).setSelected(true);
+        }
+
+        //Show Entity Image
+        entityImageGUI = new Image(entity.getURL());
+        entityImageViewGUI.setImage(entityImageGUI);
     }
 }
