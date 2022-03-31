@@ -207,83 +207,80 @@ public class EditedRoomStackPane extends StackPane implements Listener
 
     public void RoomEdited(InteractiveMap editedRoomCanvas, Room editedRoom, ImageView tile, MouseEvent event)
     {
-        System.out.println("ROOM EDITED");
+        // p and if statement added by Tinea
+        util.Point p = editedPane.CheckTile(tile);
 
-        currentBrush.UpdateModifiers(event);
+        if(editedRoom.getTile(p.getX(), p.getY()).getEditable())
+        {
+            System.out.println("ROOM EDITED");
+
+            currentBrush.UpdateModifiers(event);
 //				mapView.updateTile(tile, brush, event.getButton() == MouseButton.SECONDARY, lockBrush.isSelected() || event.isControlDown());
 
-        if(!currentBrush.possibleToDraw() || (currentBrush.GetModifierValue("Lock") && checkInfeasibleLockedRoom(tile, editedRoomCanvas)))
-            return;
+            if(!currentBrush.possibleToDraw() || (currentBrush.GetModifierValue("Lock") && checkInfeasibleLockedRoom(tile, editedRoomCanvas)))
+                return;
 
-        if(currentBrush.GetModifierValue("Lock"))
-        {
-            InformativePopupManager.getInstance().requestPopup(editedRoomCanvas, InformativePopupManager.PresentableInformation.LOCK_RESTART, "");
-        }
+            if(currentBrush.GetModifierValue("Lock"))
+            {
+                InformativePopupManager.getInstance().requestPopup(editedRoomCanvas, InformativePopupManager.PresentableInformation.LOCK_RESTART, "");
+            }
 
-        editedRoomCanvas.updateTile(tile, currentBrush);
+            editedRoomCanvas.updateTile(tile, currentBrush);
 
 
-        editedRoom.forceReevaluation();
-        editedRoom.getRoomXML("room\\");
+            editedRoom.forceReevaluation();
+            editedRoom.getRoomXML("room\\");
 
-        mapIsFeasible(editedPane.getMap().isIntraFeasible());
-        redrawPatterns(editedPane.getMap());
-        redrawLocks(editedPane.getMap());
+            mapIsFeasible(editedPane.getMap().isIntraFeasible());
+            redrawPatterns(editedPane.getMap());
+            redrawLocks(editedPane.getMap());
 
 //        EventRouter.getInstance().postEvent(new InteractiveRoomEdited(self, getMap(), tile, event));
-        EventRouter.getInstance().postEvent(new UserEditedRoom(uniqueID, editedPane.getMap()));
+            EventRouter.getInstance().postEvent(new UserEditedRoom(uniqueID, editedPane.getMap()));
 
 
 //        EventRouter.getInstance().postEvent(new EditedRoomRedrawCanvas(editedRoomCanvas.ownerID));
 //        EventRouter.getInstance().postEvent(new RoomEdited(editedRoom));
-
+        }
+        else
+        {
+            System.out.println("COULD NOT EDIT AI PLACED TILE");
+        }
     }
 
     /***
      * The Method that AI uses to edit the room , called in CCRoomViewController.endTurn()
      * @param
      */
+    //temp variable for test
+    int counter = 0;
+
     public void CCRoomEdited(InteractiveMap editedRoomCanvas, Room editedRoom)
     {
         System.out.println("AI TRYING TO EDIT ROOM");
 
-        //currentBrush.UpdateModifiers(event);
-//				mapView.updateTile(tile, brush, event.getButton() == MouseButton.SECONDARY, lockBrush.isSelected() || event.isControlDown());
-
-        //if(!currentBrush.possibleToDraw() || (currentBrush.GetModifierValue("Lock") && checkInfeasibleLockedRoom(tile, editedRoomCanvas)))
-        //    return;
-//
-        //if(currentBrush.GetModifierValue("Lock"))
-        //{
-        //    InformativePopupManager.getInstance().requestPopup(editedRoomCanvas, InformativePopupManager.PresentableInformation.LOCK_RESTART, "");
-        //}
-
-        //save brush state
-        Drawer prevBrush = new Drawer();
-        prevBrush.SetMainComponent(currentBrush.GetMainComponent());
-        prevBrush.SetBrush(currentBrush.brush);
-
+        //temporary brush
+        Drawer tempbrush = new Drawer();
+        tempbrush.SetMainComponent(currentBrush.GetMainComponent());
+        tempbrush.SetBrush(currentBrush.brush);
 
         // AI brush
-        currentBrush.SetBrush(0); //single tile
-        currentBrush.SetMainComponent(TileTypes.toTileType(1)); // WALL
-
-        //translate cell to point coords in stackpane
-        // util.Point p = CheckTile(tile);
+        tempbrush.SetBrush(0); //single tile
+        tempbrush.SetMainComponent(TileTypes.toTileType(1)); // WALL
 
         //create tile
-        ImageView tile = (ImageView) editedPane.getCell(1,1); //test
-
-
+        ImageView tile = (ImageView) editedPane.getCell(counter++,1); //test
 
         // from Drawer.update()
         util.Point p = editedPane.CheckTile(tile);
+
         if(p != null)
-            currentBrush.brush.UpdateDrawableTiles(p.getX(), p.getY(), editedPane.getMap());
+            tempbrush.brush.UpdateDrawableTiles(p.getX(), p.getY(), editedPane.getMap());
 
-        editedPane.updateTileInARoom(editedPane.getMap(), tile, currentBrush);
-        //editedRoomCanvas.updateTile(tile, currentBrush);
+        editedPane.updateTileInARoom(editedPane.getMap(), tile, tempbrush);
 
+        // set tile as not editable
+        editedRoom.getTile(p.getX(), p.getY()).setEditable(false);
 
         //necessary checks and procedures
         editedRoom.forceReevaluation();
@@ -292,19 +289,9 @@ public class EditedRoomStackPane extends StackPane implements Listener
         redrawPatterns(editedPane.getMap());
         redrawLocks(editedPane.getMap());
 
-
-//        EventRouter.getInstance().postEvent(new InteractiveRoomEdited(self, getMap(), tile, event));
         EventRouter.getInstance().postEvent(new UserEditedRoom(uniqueID, editedPane.getMap()));
 
-
-//       EventRouter.getInstance().postEvent(new EditedRoomRedrawCanvas(editedRoomCanvas.ownerID));
-//        EventRouter.getInstance().postEvent(new RoomEdited(editedRoom));
         System.out.println("ROOM EDITED BY AI");
-
-        // reset brush
-        currentBrush.SetMainComponent(prevBrush.GetMainComponent());
-        currentBrush.SetBrush(prevBrush.brush);
-        System.out.println("Brushed reset doesn't work");
     }
 
     /**
