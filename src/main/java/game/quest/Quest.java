@@ -174,7 +174,6 @@ public class Quest {
     }
 
     public void pings(PCGEvent e) {
-
     	
         //TODO: get any update from dungeon that might affect any quest artifact
         if (e instanceof MapQuestUpdate){

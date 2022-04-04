@@ -87,14 +87,14 @@ public class NarrativeViewController extends BorderPane implements Listener {
     private BorderPane borderPane;
     @FXML
     private Label entityLabel;
-    @FXML
-    private Image entityImageGUI;
+/*    @FXML
+    private Image entityImageGUI;*/
     @FXML
     private ToggleButton newEntityButton;
     @FXML
     private ImageView entityImageViewGUI;
 
-    private ToggleButton relationEntitySelectionButton;
+    private ToggleButton relationEntitySelectionButton; // the button from the relation GUI menu
     private Defines.AttributeTypes attributeType;
     private int questPaneH_AddedPanelsCounter;
     private String raceStr;
@@ -275,6 +275,7 @@ public class NarrativeViewController extends BorderPane implements Listener {
                 DungeonDrawer.getInstance().changeBrushTo(DungeonDrawer.DungeonBrushes.NONE);
             }
             else if(relationEntitySelectionButton != null && relationEntitySelectionButton.isSelected() && dungeon.getNarrative().GetSelectedEntity() != null){
+
                 Entity selectedEntity = dungeon.getNarrative().GetEntityFromPoint(((EntityPositionUpdate) e).getPoint());
                 HBox tempBox = ((HBox)relationEntitySelectionButton.getParent()); // temp holder for the Hbox parent
                 tempBox.getChildren().remove(tempBox.getChildren().size() - 2); // removes the selectEntity button
@@ -892,7 +893,7 @@ public class NarrativeViewController extends BorderPane implements Listener {
         }
 
         //Show Entity Image
-        entityImageGUI = new Image(entity.getURL());
+        Image entityImageGUI = new Image(entity.getURL());
         entityImageViewGUI.setImage(entityImageGUI);
     }
 }

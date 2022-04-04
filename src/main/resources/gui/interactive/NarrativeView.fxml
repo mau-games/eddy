@@ -7,7 +7,6 @@
 <?import javafx.scene.control.TextArea?>
 <?import javafx.scene.control.ToggleButton?>
 <?import javafx.scene.control.ToolBar?>
-<?import javafx.scene.image.Image?>
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.FlowPane?>
@@ -84,24 +83,36 @@
                            <children>
                               <HBox fx:id="narrativePaneH" prefHeight="60.0">
                                  <children>
-                                     <ImageView fx:id="entityImageViewGUI" fitHeight="60" fitWidth="60.0" pickOnBounds="true" preserveRatio="true">
-                                         <image>
-                                             <Image fx:id="entityImageGUI" url="@../../graphics/tiles/enemy.png" />
-                                         </image>
-                                     </ImageView>
-                                    <Label fx:id="entityLabel" prefHeight="30.0" text="Adam" textFill="WHITE">
+                                     <ImageView fx:id="entityImageViewGUI" fitHeight="60" fitWidth="60.0" pickOnBounds="true" preserveRatio="true" />
+                                     
+                                    <Label fx:id="entityLabel" prefHeight="30.0" text="" textFill="WHITE">
                                        <font>
                                           <Font name="System Bold" size="18.0" />
-                                       </font></Label>
+                                       </font>
+                                    </Label>
                                  </children>
                               </HBox>
-                              <HBox alignment="CENTER_RIGHT" HBox.hgrow="ALWAYS" prefWidth="600">
+                              <HBox alignment="CENTER_RIGHT" prefWidth="600" HBox.hgrow="ALWAYS">
                                  <children>
-                                    <ToggleButton fx:id="newEntityButton" mnemonicParsing="false" text="Select New Entity" onAction="#SelectNewEntity">
+                                    <ToggleButton fx:id="newEntityButton" mnemonicParsing="false" onAction="#SelectNewEntity" style="-fx-font-weight: bold; -fx-font-size: 14;" text="Select New Entity" textFill="black">
                                        <font>
-                                          <Font size="13.0" />
+                                          <Font name="System Bold" size="14.0" />
                                        </font>
+                                       <HBox.margin>
+                                          <Insets />
+                                       </HBox.margin>
                                     </ToggleButton>
+                                    <Button mnemonicParsing="false" prefWidth="154.0" style="-fx-background-color: lime; -fx-text-fill: black; -fx-font-weight: bold; -fx-font-size: 14; -fx-border-color: black;" text="Generate Narrative" textFill="black">
+                                       <opaqueInsets>
+                                          <Insets />
+                                       </opaqueInsets>
+                                       <HBox.margin>
+                                          <Insets left="250.0" />
+                                       </HBox.margin>
+                                       <font>
+                                          <Font name="System Bold" size="14.0" />
+                                       </font>
+                                    </Button>
                                  </children>
                               </HBox>
                            </children>
@@ -119,6 +130,11 @@
             <right>
                 <ToolBar fx:id="tbNarrativeLocks" orientation="VERTICAL" prefHeight="555.0" prefWidth="150.0" style="-fx-background-color: black;" BorderPane.alignment="TOP_LEFT">
                     <items>
+<!--                  <Label alignment="CENTER" contentDisplay="CENTER" prefHeight="27.0" prefWidth="150.0" text="Locks" textFill="WHITE">
+                     <font>
+                        <Font name="System Bold" size="18.0" />
+                     </font>
+                  </Label>-->
                         <ToggleButton fx:id="nameLock" maxWidth="75.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="75.0" text="Lock" />
                         <ToggleButton fx:id="ageLock" maxWidth="75.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="75.0" text="Lock" />
                         <ToggleButton fx:id="GenderLock" maxWidth="75.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="75.0" text="Lock" />
@@ -131,6 +147,11 @@
          <center>
                 <ToolBar fx:id="tbNarrativeTools" orientation="VERTICAL" prefHeight="555.0" prefWidth="120.0" style="-fx-background-color: black;" BorderPane.alignment="CENTER">
                     <items>
+<!--                  <Label alignment="CENTER" contentDisplay="CENTER" prefHeight="27.0" prefWidth="150.0" text="Attributes" textFill="WHITE">
+                     <font>
+                        <Font name="System Bold" size="18.0" />
+                     </font>
+                  </Label>-->
                         <ToggleButton fx:id="Name" maxWidth="150.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="150.0" text="Name" />
                         <ToggleButton fx:id="Age" maxWidth="150.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="150.0" text="Age" />
                         <ToggleButton fx:id="Gender" maxWidth="150.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="150.0" text="Gender" />

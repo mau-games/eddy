@@ -97,6 +97,7 @@ public class Dungeon implements Listener
 		dPane = new DungeonPane(this);
 		pathfinding = new DungeonPathFinder(this);
 		quest = new Quest(this);
+
 		bosses = new ArrayList<BossEnemyTile>();
 		bossesPositions = new ArrayList<QuestPositionUpdate>();
 		enemiesPositions = new ArrayList<QuestPositionUpdate>();
@@ -137,7 +138,8 @@ public class Dungeon implements Listener
 		dPane = new DungeonPane(this);
 		pathfinding = new DungeonPathFinder(this);
 		network = NetworkBuilder.undirected().allowsParallelEdges(true).build();
-		
+		narrative = new NarrativeBase(this);
+
 		//Listening to events
 		EventRouter.getInstance().registerListener(this, new FocusRoom(null, null));
 		EventRouter.getInstance().registerListener(this, new RequestWorldView());
@@ -150,7 +152,6 @@ public class Dungeon implements Listener
 		this.scaleFactor = defaultScaleFactor;
 
 		quest = new Quest(this);
-		narrative = new NarrativeBase(this);
 		//Create rooms
 		rooms = new ArrayList<Room>();
 		selectedRoom = null;
@@ -543,6 +544,7 @@ public class Dungeon implements Listener
 	{
 		room.enemyTiles.addPoint(enemyTile.GetCenterPosition());
 		enemiesPositions.add(new QuestPositionUpdate(enemyTile.GetCenterPosition(),room, false));
+		//narrative.AddEntity(enemyTile.GetType(), enemyTile.GetCenterPosition());
 	}
 
 	public void removeEnemy(Tile tile, Room room)
@@ -562,6 +564,7 @@ public class Dungeon implements Listener
 	{
 		room.civilianTiles.addPoint(civilianTile.GetCenterPosition());
 		civilianPositions.add(new QuestPositionUpdate(civilianTile.GetCenterPosition(),room, false));
+		//narrative.AddEntity(civilianTile.GetType(), civilianTile.GetCenterPosition());
 	}
 	
 	public void removeCivilian(Tile tile, Room room)
@@ -591,6 +594,7 @@ public class Dungeon implements Listener
 	{
 		room.bountyhunterTiles.addPoint(bountyhunterTile.GetCenterPosition());
 		bountyhunterPositions.add(new QuestPositionUpdate(bountyhunterTile.GetCenterPosition(),room, false));
+		//narrative.AddEntity(bountyhunterTile.GetType(), bountyhunterTile.GetCenterPosition());
 	}
 	
 	public void removeBountyhunter(Tile tile, Room room)
@@ -620,6 +624,7 @@ public class Dungeon implements Listener
 	{
 		room.mageTiles.addPoint(mageTile.GetCenterPosition());
 		magePositions.add(new QuestPositionUpdate(mageTile.GetCenterPosition(),room, false));
+		//narrative.AddEntity(mageTile.GetType(), mageTile.GetCenterPosition());
 	}
 	
 	public void removeMage(Tile tile, Room room)
@@ -649,6 +654,7 @@ public class Dungeon implements Listener
 	{
 		room.soldierTiles.addPoint(soldierTile.GetCenterPosition());
 		soldierPositions.add(new QuestPositionUpdate(soldierTile.GetCenterPosition(),room, false));
+		//narrative.AddEntity(soldierTile.GetType(), soldierTile.GetCenterPosition());
 	}
 	
 	public void removeSoldier(Tile tile, Room room)
@@ -678,6 +684,7 @@ public class Dungeon implements Listener
 	{
 		room.npcTiles.addPoint(npcTile.GetCenterPosition());
 		npcsPositions.add(new QuestPositionUpdate(npcTile.GetCenterPosition(),room, false));
+		//narrative.AddEntity(npcTile.GetType(), npcTile.GetCenterPosition());
 	}
 
 	public void removeNpc(Tile tile, Room room)
@@ -699,6 +706,7 @@ public class Dungeon implements Listener
 		System.out.println("item added");
 		room.itemTiles.addPoint(itemTile.GetCenterPosition());
 		itemsPositions.add(new QuestPositionUpdate(itemTile.GetCenterPosition(),room,false));
+		//narrative.AddEntity(itemTile.GetType(), itemTile.GetCenterPosition());
 	}
 
 	public void removeItem(Tile tile, Room room)
@@ -929,11 +937,6 @@ public class Dungeon implements Listener
 	public Quest getQuest() {
 		return quest;
 	}
-
-	public void narrativeCreateEntities() {
-		narrative.CreateEntities();
-	}
-
 	///////////////////////// TESTING TRAVERSAL AND RETRIEVAL OF ALL THE PATHS FROM A ROOM TO ANOTHER ROOM ///////////////////////////
 
 }
