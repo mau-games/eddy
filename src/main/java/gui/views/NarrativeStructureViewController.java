@@ -336,8 +336,8 @@ public class NarrativeStructureViewController extends BorderPane implements List
 		AlgorithmSetup.getInstance().setFakeNarrativeConstraints();
 		AlgorithmSetup.getInstance().setConstraintNarrativeStruct(true);
 
-		//Testing how the narrative structure components work:
-		grammar.getNarrativeComponents().evaluate_collect_components();
+		//Testing how the narrative structure components work: /FIXME!
+		//grammar.getNarrativeComponents().evaluate_collect_components();
 
 		//important distinction so you can use the graph for MAP-Elites and edit at the same time
 		this.editedGraph = new GrammarGraph(grammar);
@@ -489,6 +489,14 @@ public class NarrativeStructureViewController extends BorderPane implements List
 	private void RunMAPElites(GrammarGraph target_graph, GrammarGraph ax)
 	{
 		narrativeGraphMAPE = new GrammarMAPEliteAlgorithm(target_graph, ax);
+		currentDimensions = new MAPEDimensionGrammarFXML[]{
+				new MAPEDimensionGrammarFXML(GADimensionGrammar.GrammarDimensionTypes.INTERESTING, 5),
+				new MAPEDimensionGrammarFXML(GADimensionGrammar.GrammarDimensionTypes.STEP, 5),
+				new MAPEDimensionGrammarFXML(GADimensionGrammar.GrammarDimensionTypes.DIVERSITY, 5),
+				new MAPEDimensionGrammarFXML(GADimensionGrammar.GrammarDimensionTypes.CONFLICT, 5),
+				new MAPEDimensionGrammarFXML(GADimensionGrammar.GrammarDimensionTypes.PLOT_DEVICES, 5),
+				new MAPEDimensionGrammarFXML(GADimensionGrammar.GrammarDimensionTypes.PLOT_POINTS, 5),
+				new MAPEDimensionGrammarFXML(GADimensionGrammar.GrammarDimensionTypes.PLOT_TWISTS, 5)};
 		((GrammarMAPEliteAlgorithm)narrativeGraphMAPE).initPopulations(currentDimensions);
 		narrativeGraphMAPE.start();
 	}
@@ -565,6 +573,9 @@ public class NarrativeStructureViewController extends BorderPane implements List
 //				Room room = (Room) ((MapUpdate) e).getPayload();
 //				UUID uuid = ((MapUpdate) e).getID();
 				LabeledCanvas canvas;
+
+				//Commenting this line because I am running the evaluation with all dimensions
+				//FIXME
 				synchronized (narrativeStructureDisplays) {
 
 					renderCell(filled_cells, currentDimensions.length - 1,

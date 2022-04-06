@@ -160,8 +160,10 @@ public class NarrativeStructureComponents
             if(found)
                 continue;
 
+            //ESTOY AQUI!
             if(contained_plotpoint.core_pattern instanceof ActivePlotDevice) //This one is also relevant!
             {
+                //OrderedPlotEvent ope = new OrderedPlotEvent(seq, order, np, null, null, null);
 
             }
             else if(contained_plotpoint.core_pattern instanceof RevealPattern)

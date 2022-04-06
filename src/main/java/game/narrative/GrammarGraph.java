@@ -28,7 +28,7 @@ public class GrammarGraph
         nodes = new ArrayList<GrammarNode>();
         nPane = new NarrativePane(this);
         pattern_finder = new NarrativeStructPatternFinder(this);
-        narrative_components = new NarrativeStructureComponents(this);
+        //narrative_components = new NarrativeStructureComponents(this); //FIXME
     }
 
     //Copy constructor.
@@ -54,7 +54,7 @@ public class GrammarGraph
 
         nPane = new NarrativePane(this);
         pattern_finder = new NarrativeStructPatternFinder(this);
-        narrative_components = new NarrativeStructureComponents(this);
+        //narrative_components = new NarrativeStructureComponents(this); //FIXME
     }
 
     public GrammarNode addNode(TVTropeType nodeType)
