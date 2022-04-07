@@ -912,8 +912,6 @@ public class CCRoomViewController extends BorderPane implements Listener
 
 				router.postEvent(new StartMapMutate(room, MapMutationType.Preserving, AlgorithmTypes.Native, 1, true));
 
-
-
 				break;
 			case MAP_ELITES:
 				if(currentDimensions.length > 1)
