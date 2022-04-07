@@ -920,7 +920,6 @@ public class CCRoomViewController extends BorderPane implements Listener
 				{
 					router.postEvent(new StartGA_MAPE(room, currentDimensions));
 
-
 				}
 
 				break;
