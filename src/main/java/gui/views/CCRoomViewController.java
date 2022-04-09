@@ -22,7 +22,6 @@ import javafx.scene.canvas.Canvas;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.*;
 import org.apache.commons.io.FileUtils;
 import util.config.ConfigurationUtility;
@@ -152,6 +151,8 @@ public class CCRoomViewController extends BorderPane implements Listener
 
 	private MAPEDimensionFXML[] currentDimensions = new MAPEDimensionFXML[] {};
 
+	public AICoCreator aiCC;
+	public HumanCoCreator humanCC;
 
 	//PROVISIONAL FIX!
 	public enum EvoState
@@ -244,7 +245,8 @@ public class CCRoomViewController extends BorderPane implements Listener
 
 
 		saveGenBtn.setDisable(false);
-		
+
+
 
 	}
 	
@@ -274,6 +276,7 @@ public class CCRoomViewController extends BorderPane implements Listener
 		mapHeight = 420;
 //		initMapView();
 		initLegend();
+
 
 	}
 	
@@ -313,13 +316,12 @@ public class CCRoomViewController extends BorderPane implements Listener
 
 		initButtons();
 		initLegend();
+		initAICoCreator(roomToBe);
 		resetView();
 		roomToBe.forceReevaluation();
 		updateRoom(roomToBe);
 
-
 		generateNewMaps();
-
 	}
 
 	/**
@@ -358,7 +360,7 @@ public class CCRoomViewController extends BorderPane implements Listener
 	}
 
 	/**
-	 * Initialises the legend view.
+	 * Initialises the AI Co-Creator
 	 */
 	private void initLegend() {
 		ConfigurationUtility c = config.getInternalConfig();
@@ -426,6 +428,12 @@ public class CCRoomViewController extends BorderPane implements Listener
 		Label lock = new Label("Lock tile");
 		lock.setStyle("-fx-text-fill: white;");
 		legend.add(lock, 1, 11);
+	}
+
+	public void initAICoCreator(Room roomToBe)
+	{
+		// Create the AICoCreator
+		aiCC = new AICoCreator(roomToBe.getColCount(), roomToBe.getRowCount());
 	}
 	
 	public void renderCell(List<Room> generatedRooms, int dimension, float [] dimensionSizes, int[] indices)
@@ -756,18 +764,19 @@ public class CCRoomViewController extends BorderPane implements Listener
 	@FXML
 	private void endTurn()
 	{
-		System.out.println("TRYCKT PÅ END TURN");
+		System.out.println("END TURN PRESSED");
 
-		// add the tile to the map
-		//newRoom.setTile(4,4, new Tile(4,4, 1)); //test
-		//Tile t = new Tile(4,4,1);
 
-		//Room roomCopy = new Room(largeMap);
+		System.out.println("AICC PREPARE TURN");
+		aiCC.prepareTurn();
 
 		editedRoomPane.CCRoomEdited(editedRoomPane.editedPane, editedRoomPane.editedPane.getMap());
 
 		System.out.println("UPDATE ROOM");
 		updateRoom(editedRoomPane.editedPane.getMap());
+
+		System.out.println("HUMAN'S TURN AGAIN");
+		HumanCoCreator.getInstance().resetRound();
 	}
 
 	/**

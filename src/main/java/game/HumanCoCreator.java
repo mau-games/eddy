@@ -4,10 +4,19 @@ import java.util.*;
 
 public class HumanCoCreator {
 
+    private static HumanCoCreator singleton = null;
+
     private int amountOfTilesPlaced;
     private List<Tile> tilesPlaced;
 
-    public HumanCoCreator()
+    public static HumanCoCreator getInstance()
+    {
+        if(singleton == null)
+            singleton = new HumanCoCreator();
+        return singleton;
+    }
+
+    private HumanCoCreator()
     {
         amountOfTilesPlaced = 0;
         tilesPlaced = new ArrayList<Tile>();

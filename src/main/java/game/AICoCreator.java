@@ -1,9 +1,10 @@
 package game;
 
-import gui.views.CCRoomViewController;
-import util.Point;
+import finder.geometry.Point;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 public class AICoCreator {
@@ -19,9 +20,8 @@ public class AICoCreator {
     int locationMargin = 2; // how many tiles bigger than the human's area the contribution area will be
     int roomWidth, roomHeight;
 
-    public AICoCreator(HumanCoCreator humanCoCreator, int roomWidth, int roomHeight)
+    public AICoCreator(int roomWidth, int roomHeight)
     {
-        this.humanCoCreator = humanCoCreator;
         tilesPositions = new ArrayList<>();
         permutations = new ArrayList<>();
 
@@ -33,7 +33,9 @@ public class AICoCreator {
     {
         tilesPositions.clear();
         permutations.clear();
-        amountOfTiles = CalculateAmountOfTilesToContributeWith(humanCoCreator.getAmountOfTilesPlaced());
+
+        amountOfTiles = CalculateAmountOfTilesToContributeWith(HumanCoCreator.getInstance().getAmountOfTilesPlaced());
+        tilesPositions = CalculateContributionArea(HumanCoCreator.getInstance().getTilesPlaced());
     }
 
     // Rename to something better
@@ -50,12 +52,52 @@ public class AICoCreator {
 
     private List<Point> CalculateContributionArea(List<Tile> tilesPlaced)
     {
-        List<Point> temp = new ArrayList<>();
+        List<Point> resultingPositions = new ArrayList<>();
+        Point minPoint, maxPoint;
 
-        //loop through the humans contributions
-        //if the tile is within the current area, ignore
-        //if not, expand the area accordingly
+        List<Point> points = new ArrayList<>();
 
-        return temp;
+        for (Tile t: tilesPlaced) {
+            points.add(t.GetCenterPosition());
+        }
+
+        //add the first position
+        minPoint = points.get(0);
+        maxPoint = points.get(0);
+
+        //calculate minPoint and maxPoint
+        for(int i=1; i<points.size();i++)
+        {
+            if(points.get(i).getX() < minPoint.getX() || points.get(i).getY() < minPoint.getY())
+            {
+                minPoint = points.get(i);
+            }
+            else if(points.get(i).getX() > maxPoint.getX() || points.get(i).getY() > maxPoint.getY())
+            {
+                maxPoint = points.get(i);
+            }
+        }
+
+        System.out.println("minPoint: " + minPoint.toString());
+        System.out.println("maxPoint: " + maxPoint.toString());
+        System.out.println("roomHeight: " + roomHeight);
+        System.out.println("roomWidth: " + roomWidth);
+
+        //add all tiles between min and max to list, including margins
+        for(int x = minPoint.getX()-locationMargin; x<maxPoint.getX()+locationMargin; x++)
+        {
+            for(int y=minPoint.getY()-locationMargin; y<maxPoint.getY()+locationMargin; y++)
+            {
+                if(x >= 0 && y >= 0 && x < roomWidth && y < roomHeight)
+                    resultingPositions.add(new Point(x,y));
+            }
+        }
+
+
+        System.out.println("resultingPositions: " + resultingPositions.toString());
+        return resultingPositions;
     }
+
+
+
 }

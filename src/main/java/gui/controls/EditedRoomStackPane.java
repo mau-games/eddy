@@ -1,7 +1,7 @@
 package gui.controls;
 
+import game.HumanCoCreator;
 import game.Room;
-import game.Tile;
 import game.TileTypes;
 import gui.utils.InformativePopupManager;
 import gui.utils.MapRenderer;
@@ -12,15 +12,11 @@ import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
-import util.Point;
 import util.eventrouting.EventRouter;
 import util.eventrouting.Listener;
 import util.eventrouting.PCGEvent;
-import util.eventrouting.events.RoomEdited;
-import util.eventrouting.events.SaveDisplayedCells;
 import util.eventrouting.events.intraview.*;
 
-import java.awt.*;
 import java.util.UUID;
 
 public class EditedRoomStackPane extends StackPane implements Listener
@@ -41,6 +37,7 @@ public class EditedRoomStackPane extends StackPane implements Listener
     private MapRenderer renderer = MapRenderer.getInstance();
 
     private boolean initialized = false;
+
 
     /**
      * Creates an empty instance of InteractiveMap.
@@ -227,7 +224,6 @@ public class EditedRoomStackPane extends StackPane implements Listener
 
             editedRoomCanvas.updateTile(tile, currentBrush);
 
-
             editedRoom.forceReevaluation();
             editedRoom.getRoomXML("room\\");
 
@@ -241,6 +237,9 @@ public class EditedRoomStackPane extends StackPane implements Listener
 
 //        EventRouter.getInstance().postEvent(new EditedRoomRedrawCanvas(editedRoomCanvas.ownerID));
 //        EventRouter.getInstance().postEvent(new RoomEdited(editedRoom));
+
+            //register contribution to HumanCoCreator class
+            HumanCoCreator.getInstance().RegisterContributionInfo(editedRoom.getTile(p));
         }
         else
         {
