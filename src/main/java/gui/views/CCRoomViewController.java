@@ -501,7 +501,7 @@ public class CCRoomViewController extends BorderPane implements Listener
 				//THIS NEEDS TO BE IMPROVED!
 				List<Room> generatedRooms = ((MAPElitesDone) e).GetRooms();
 //				Room room = (Room) ((MapUpdate) e).getPayload();
-//				UUID uuid = ((MapUpdate) e).getID();
+//				UUID uuid = ((MapUpdate) e).getID();                       
 				LabeledCanvas canvas;
 				synchronized (roomDisplays) {
 

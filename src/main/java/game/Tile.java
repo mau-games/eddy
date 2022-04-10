@@ -18,7 +18,7 @@ public class Tile
 	protected Point center;
 	private boolean m_immutable;
 	public boolean canDraw = true;
-	private boolean editable = true; // tinea
+	private boolean editable = true; // for Co-Creation
 	public int maxAmountPerRoom;
 	public int width = 1; //tile size
 	public int height = 1; //tile size
