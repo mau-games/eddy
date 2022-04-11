@@ -4,6 +4,7 @@ import torch
 import threading
 import keyboard
 import sys
+import os
 
 from transformers import GPT2Tokenizer, GPTNeoForCausalLM, pipeline
 
@@ -14,34 +15,31 @@ from transformers import GPT2Tokenizer, GPTNeoForCausalLM, pipeline
 # ========== Vars ==========
 
 shouldRun = True
-prompt = "I saw an orc"
+prompt = "I saw an orc and instantly froze. "
+# prompt = None
 max_length = 100
 teamName = "EleutherAI/"
 modelName = "gpt-neo-1.3B"
 model_save_directory = "./" + modelName
 hasReceivedInput = False
+shouldSaveOutputToDisk = False
+model = None
+tokenizer = None
+device = 0
 
 # ========== Init ==========
 
 # setting device on GPU if available, else CPU
-device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-print('Using device:', device)
+deviceName = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+print('Using device:', deviceName)
 print()
 
+
 # Attempt to load model from disk
-# if Path(model_save_directory).exists() and exists(model_save_directory + "/pytorch_model.bin"):
+print("Searching for model...", end=" ")
 
-
-print("Attempting to load model...", end=" ")
-lStartTime = time.perf_counter()
-model = GPTNeoForCausalLM.from_pretrained(model_save_directory)
-
-# Model loaded successfully
-if model:
-    lEndTime = time.perf_counter()
-    print(f"Completed after {lEndTime - lStartTime:0.2f} sec.\n")
-# Download and save model
-else:
+# Model not present on disk. Download and save.
+if not os.path.isfile(model_save_directory + "/pytorch_model.bin"):
     print(f"Failed. Model not found, proceeding to download.\n")
     print("Downloading model...", end=" ")
     lStartTime = time.perf_counter()
@@ -49,24 +47,41 @@ else:
     lEndTime = time.perf_counter()
     print(f"Completed after {lEndTime - lStartTime:0.2f} sec.\n")
 
-# Attempt to load tokenizer from disk
-print("Attempting to load tokenizer...", end=" ")
-lStartTime = time.perf_counter()
-tokenizer = GPT2Tokenizer.from_pretrained(model_save_directory, output_attentions=True)
-
-# Tokenizer loaded successfully
-if tokenizer:
-    lEndTime = time.perf_counter()
-    print(f"Completed after {lEndTime - lStartTime:0.2f} sec.\n")
-
-# Download and save model
+# Model is present on disk, don't download!
 else:
+    print("Found! ")
+
+# Load model into RAM
+print("Loading model...", end=" ")
+lStartTime = time.perf_counter()
+model = GPTNeoForCausalLM.from_pretrained(model_save_directory)
+lEndTime = time.perf_counter()
+print(f"Completed after {lEndTime - lStartTime:0.2f} sec.\n")
+
+
+# Attempt to load tokenizer from disk
+print("Searching for tokenizer...", end=" ")
+
+# Tokenizer not present on disk. Download and save.
+if not os.path.isfile(model_save_directory + "/tokenizer_config.json"):
     print(f"Failed. Tokenizer not found, proceeding to download.\n")
     print("Downloading tokenizer...", end=" ")
     lStartTime = time.perf_counter()
     GPT2Tokenizer.from_pretrained(teamName + modelName).save_pretrained(model_save_directory)
     lEndTime = time.perf_counter()
     print(f"Completed after {lEndTime - lStartTime:0.2f} sec.\n")
+
+# Tokenizer is present on disk, don't download!
+else:
+    print("Found! ")
+
+# Load tokenizer into RAM
+print("Loading tokenizer...", end=" ")
+lStartTime = time.perf_counter()
+tokenizer = GPT2Tokenizer.from_pretrained(model_save_directory, output_attentions=True)
+lEndTime = time.perf_counter()
+print(f"Completed after {lEndTime - lStartTime:0.2f} sec.\n")
+
 
 print("Creating pipeline...", end=" ")
 lStartTime = time.perf_counter()
@@ -118,19 +133,23 @@ def check_quit_button():
 
 
 t = threading.Thread(target=background_task)
-q = threading.Thread(target=check_quit_button)
+# q = threading.Thread(target=check_quit_button)
 
 t.start()
-q.start()
+# q.start()
 
 
-def set_prompt(new_prompt):
-    global prompt
+def receive_request(new_prompt, new_length, new_should_save):
+    global prompt, max_length, shouldSaveOutputToDisk
     prompt = new_prompt
+    max_length = new_length
+    shouldSaveOutputToDisk = new_should_save
 
 
-def reset_wait():
-    global prompt, evt, t
+def reset():
+    global prompt, evt, t, shouldRun
+    sys.exit()
+
     prompt = None
     evt.clear()
     t = threading.Thread(target=background_task).start()
@@ -138,9 +157,6 @@ def reset_wait():
 
 while shouldRun:
     time.sleep(0.1)
-    # optional timeout
-    # timeout = 0.1
-    # evt.wait(timeout=timeout)
 
     if evt.is_set() and prompt:  # Proceed to generation if prompt has been found and isn't empty
         print("Prompt: " + str(result))
@@ -163,11 +179,12 @@ while shouldRun:
         # ========== Print and Save Output ==========
         print("Output: " + output[0]["generated_text"])
 
-        # File_object = open(modelName + r".txt", "a")
-        # File_object.write(output[0]["generated_text"] + f" - Generation took {endTime - startTime:0.2f} sec.\n\n")
-        # File_object.write("\n\n======================================================\n\n")
-        # File_object.close()
+        if shouldSaveOutputToDisk:
+            File_object = open(modelName + r".txt", "a")
+            File_object.write(output[0]["generated_text"] + f" - Generation took {endTime - startTime:0.2f} sec.\n\n")
+            File_object.write("\n\n======================================================\n\n")
+            File_object.close()
 
         # Reset prompt and event
-        reset_wait()
+        reset()
 
