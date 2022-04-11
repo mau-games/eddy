@@ -189,12 +189,12 @@ public class NarrativeViewController extends BorderPane implements Listener {
                     toolbarAction.addEventHandler(MouseEvent.MOUSE_CLICKED, event -> {
 
                         if (((ToggleButton) toolbarAction).isSelected()) {
-                            ((ToggleButton) toolbarAction).setText("LOCKED");
-                            ((ToggleButton) toolbarAction).setStyle("-fx-background-color: yellow; -fx-text-fill: black;");
+                            ((ToggleButton) toolbarAction).setText("Generate");
+                            ((ToggleButton) toolbarAction).setStyle("-fx-background-color: lime; -fx-text-fill: black;");
                         }
                         else {
-                            ((ToggleButton) toolbarAction).setText("LOCK");
-                            ((ToggleButton) toolbarAction).setStyle("-fx-background-color: black; -fx-text-fill: white;");
+                            ((ToggleButton) toolbarAction).setText("Locked");
+                            ((ToggleButton) toolbarAction).setStyle("-fx-background-color: #E34234; -fx-text-fill: black;");
                             ((ToggleButton) toolbarAction).setSelected(false);
                             ((ToggleButton) toolbarAction).setFocusTraversable(false);
 
@@ -556,16 +556,81 @@ public class NarrativeViewController extends BorderPane implements Listener {
                 attributeGUI.getChildren().add(CreateClassMenuGUI(""));
                 break;
             case Relationship:
-
                 CreateRelationGUI(attributeGUI);
                 break;
+            case Likes:
+                CreateListAttributeGUI(atr, attributeGUI);
+                break;
+            case Dislikes:
+                CreateListAttributeGUI(atr, attributeGUI);
+                break;
+            case Appearance:
+                attributeGUI.setMaxWidth(250);
+                attributeGUI.setPrefWidth(200);
+                attributeGUI.setMaxHeight(250);
+                attributeGUI.setPrefHeight(250);
+
+
+                TextArea tf3 = new TextArea();
+                tf3.setPrefWidth(200);
+                tf3.setWrapText(true);
+                tf3.setStyle("-fx-text-inner-color: white;");
+                attributeGUI.getChildren().add( tf3);
+                break;
             default:
+
                 break;
         }
 
         attributeGUI.setStyle("-fx-border-radius: 10; -fx-border-color: #666;");
         attributeGUI.setAlignment(Pos.TOP_CENTER);
     }
+
+    private void CreateListAttributeGUI(Defines.AttributeTypes atr, VBox atrGUI){
+        Button addBtn = new Button("+");
+        addBtn.setStyle("-fx-background-color: green;");
+        addBtn.addEventHandler(MouseEvent.MOUSE_CLICKED, event -> { // add a object
+            HBox hbox = new HBox();
+            hbox.setSpacing(20);
+
+            TextField tf = new TextField();
+            tf.setPrefSize(160, 80);
+            tf.setStyle("-fx-text-inner-color: white;");
+            tf.setOnKeyPressed(new EventHandler<KeyEvent>() {
+                @Override
+                public void handle(KeyEvent ke) {
+                    if (ke.getCode().equals(KeyCode.ENTER)) { // finalise the input to a label, the object is created for the entity
+                        Label LBL = new Label(tf.getText());
+                        LBL.setTextFill(Color.WHITE);
+                        LBL.setFont(Font.font(14.0));
+                        hbox.getChildren().add(0, LBL);
+                        hbox.getChildren().remove(tf);
+                    }
+                }
+            });
+
+            Button btn = new Button("-");
+            btn.prefWidth(30);
+            btn.prefHeight(30);
+            btn.setStyle("-fx-background-color: red;");
+
+            btn.setOnAction(event2 -> { // remove the object
+                int index = ((VBox)hbox.getParent()).getChildren().indexOf(hbox);
+                narrativeAttributeGUI.get(atr.ordinal()).getChildren().remove(hbox);
+                dungeon.getNarrative().GetSelectedEntity().RemoveRelation(index - 1);
+            });
+
+            hbox.getChildren().add(tf);
+            hbox.getChildren().add(btn);
+
+            atrGUI.getChildren().add(atrGUI.getChildren().size() - 1, hbox);
+        });
+
+
+        atrGUI.getChildren().add(addBtn);
+
+    }
+
 
     private MenuButton CreateGenderMenuGUI(){
         MenuButton mb = new MenuButton();

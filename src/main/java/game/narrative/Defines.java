@@ -11,6 +11,9 @@ public class Defines {
         Gender,
         Race,
         Class,
+        Appearance,
+        Likes,
+        Dislikes,
         Relationship
     }
 
@@ -83,12 +86,12 @@ public class Defines {
         Entity m_relationshipTarget;
         Element m_phobiaTarget;
 
-        public Relationship(RelationshipType relType, Entity target ){
+        public Relationship(RelationshipType relType, Entity target ){ // Love, Hate, Family constructor
             this.m_relationshipType = relType;
             this.m_relationshipTarget = target;
         }
 
-        public Relationship(Element element ){
+        public Relationship(Element element ){ // Phobia constructor
             this.m_relationshipType = RelationshipType.Phobia;
             this.m_phobiaTarget = element;
         }
