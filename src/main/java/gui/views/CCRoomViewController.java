@@ -5,11 +5,14 @@ import collectors.ActionLogger.ActionType;
 import collectors.ActionLogger.TargetPane;
 import collectors.ActionLogger.View;
 import game.*;
+import game.CoCreativity.AICoCreator;
+import game.CoCreativity.HumanCoCreator;
 import game.Game.MapMutationType;
 import game.tiles.*;
 import generator.algorithm.Algorithm.AlgorithmTypes;
 import generator.algorithm.MAPElites.Dimensions.GADimension.DimensionTypes;
 import generator.algorithm.MAPElites.Dimensions.MAPEDimensionFXML;
+import generator.algorithm.MAPElites.MAPEliteAlgorithm;
 import gui.controls.*;
 import gui.utils.MapRenderer;
 import javafx.application.Platform;
@@ -495,37 +498,45 @@ public class CCRoomViewController extends BorderPane implements Listener
 			currentDimensions = ((MAPEGridUpdate) e).getDimensions();
 			OnChangeTab();
 		}
-		else if(e instanceof MAPElitesDone)
+		else if(e instanceof MAPElitesDone) // change here to what the AI will do which is calculate his turn
 		{
 			if (isActive) {
 				//THIS NEEDS TO BE IMPROVED!
+
+				System.out.println("MAP-ELITES DONE");
+
 				List<Room> generatedRooms = ((MAPElitesDone) e).GetRooms();
+
+				System.out.println("generatedRooms: " + generatedRooms.size());
+				System.out.println("currentDimensions: " + currentDimensions.length);
+				System.out.println();
+
 //				Room room = (Room) ((MapUpdate) e).getPayload();
 //				UUID uuid = ((MapUpdate) e).getID();                       
-				LabeledCanvas canvas;
-				synchronized (roomDisplays) {
+				//LabeledCanvas canvas;
+				//synchronized (roomDisplays) {
+//
+				//	renderCell(generatedRooms, currentDimensions.length - 1,
+				//			new float [] {currentDimensions[0].getGranularity(), currentDimensions[1].getGranularity()}, new int[] {0,0});
+				//}
 
-					renderCell(generatedRooms, currentDimensions.length - 1,
-							new float [] {currentDimensions[0].getGranularity(), currentDimensions[1].getGranularity()}, new int[] {0,0});
-				}
-
-				Platform.runLater(() -> {
-					int i = 0;
-					for(SuggestionRoom sugRoom : roomDisplays)
-					{
-						if(sugRoom.getSuggestedRoom() != null)
-						{
-							sugRoom.getRoomCanvas().draw(renderer.renderMiniSuggestedRoom(sugRoom.getSuggestedRoom(), i));
-						}
-						else
-						{
-							sugRoom.getRoomCanvas().draw(null);
-						}
-						i++;
-					}
-
-//					System.out.println("CANVAS WIDTH: " + canvas.getWidth() + ", CANVAS HEIGHT: " + canvas.getHeight());
-				});
+				//Platform.runLater(() -> {
+				//	int i = 0;
+				//	for(SuggestionRoom sugRoom : roomDisplays)
+				//	{
+				//		if(sugRoom.getSuggestedRoom() != null)
+				//		{
+				//			sugRoom.getRoomCanvas().draw(renderer.renderMiniSuggestedRoom(sugRoom.getSuggestedRoom(), i));
+				//		}
+				//		else
+				//		{
+				//			sugRoom.getRoomCanvas().draw(null);
+				//		}
+				//		i++;
+				//	}
+//
+//				//	System.out.println("CANVAS WIDTH: " + canvas.getWidth() + ", CANVAS HEIGHT: " + canvas.getHeight());
+				//});
 
 			}
 		}
@@ -766,11 +777,18 @@ public class CCRoomViewController extends BorderPane implements Listener
 	{
 		System.out.println("END TURN PRESSED");
 
-
 		System.out.println("AICC PREPARE TURN");
-		aiCC.prepareTurn();
+		aiCC.prepareTurn(editedRoomPane.editedPane.getMap());
 
-		editedRoomPane.CCRoomEdited(editedRoomPane.editedPane, editedRoomPane.editedPane.getMap());
+		generateNewMaps(editedRoomPane.editedPane.getMap());
+		//System.out.println("AICC CALCULATE CONTRIBUTIONS");
+		//aiCC.CalculateContribution();
+		//aiCC.GetContributions() (Tiles in a list)
+		//place them down one by one (with 0.1-0.5 seconds between for visibility)
+
+		System.out.println("AICC EDIT ROOM");
+		editedRoomPane.CCRoomEdited(editedRoomPane.editedPane, editedRoomPane.editedPane.getMap()); //this would be replaced by for loop for each contribution
+		// switch case with aiCC.getControlLevel for placing or displaying
 
 		System.out.println("UPDATE ROOM");
 		updateRoom(editedRoomPane.editedPane.getMap());
@@ -925,8 +943,11 @@ public class CCRoomViewController extends BorderPane implements Listener
 			case MAP_ELITES:
 				if(currentDimensions.length > 1)
 				{
-					router.postEvent(new StartGA_MAPE(room, currentDimensions));
 
+					System.out.println("generateNewMaps called");
+					System.out.println("currentDimensions: " + currentDimensions.length);
+					//router.postEvent(new StartGA_MAPE(room, currentDimensions));
+					router.postEvent(new StartGA_MAPE(room));
 				}
 
 				break;

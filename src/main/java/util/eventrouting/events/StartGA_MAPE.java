@@ -20,6 +20,12 @@ public class StartGA_MAPE extends PCGEvent
 		this.dimensions = dimensions;
 	}
 
+	public StartGA_MAPE(Room room){
+		setPayload(room);
+		mutationType = MapMutationType.OriginalConfig;
+		randomiseConfig = false;
+	}
+
 	public StartGA_MAPE(Room room, MapMutationType mutationType, MAPEDimensionFXML[] dimensions , boolean randomiseConfig) {
 		setPayload(room);
 		this.mutationType = mutationType;

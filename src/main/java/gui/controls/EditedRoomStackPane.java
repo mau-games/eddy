@@ -1,6 +1,6 @@
 package gui.controls;
 
-import game.HumanCoCreator;
+import game.CoCreativity.HumanCoCreator;
 import game.Room;
 import game.TileTypes;
 import gui.utils.InformativePopupManager;
@@ -207,7 +207,7 @@ public class EditedRoomStackPane extends StackPane implements Listener
         // p and if statement added by Tinea
         util.Point p = editedPane.CheckTile(tile);
 
-        if(editedRoom.getTile(p.getX(), p.getY()).getEditable())
+        if(editedRoom.getTile(p.getX(), p.getY()).getEditable() && HumanCoCreator.getInstance().getAmountOfTilesPlaced() < HumanCoCreator.getInstance().getMaxTilesPerRound())
         {
             System.out.println("ROOM EDITED");
 
@@ -240,6 +240,10 @@ public class EditedRoomStackPane extends StackPane implements Listener
 
             //register contribution to HumanCoCreator class
             HumanCoCreator.getInstance().RegisterContributionInfo(editedRoom.getTile(p));
+        }
+        else if(HumanCoCreator.getInstance().getAmountOfTilesPlaced() >= HumanCoCreator.getInstance().getMaxTilesPerRound())
+        {
+            System.out.println("COULD NOT EDIT - MAX AMOUNT OF THIS ROUND PLACED");
         }
         else
         {

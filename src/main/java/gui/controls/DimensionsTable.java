@@ -74,12 +74,12 @@ public class DimensionsTable extends TableView<MAPEDimensionFXML>
         	//This is jävla creisi - but it works :P 
         	if(data.size() >= 2)
         	{
+                // data.get(0), data.get(1), data.get(2), data.get(3), data.get(4), data.get(5), data.get(6)
         		EventRouter.getInstance().postEvent(new MAPEGridUpdate(new MAPEDimensionFXML[] {data.get(0), data.get(1)}));
         	}
         	
             while (c.next()) {
-            	
-            	
+
                 if (c.wasAdded()) {
                     System.out.println("Added:");
                     c.getAddedSubList().forEach(System.out::println);

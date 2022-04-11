@@ -82,6 +82,14 @@ public class Game implements Listener{
 		ga.start();
     }
 
+	private void RunMAPElites(Room room)
+	{
+		Algorithm ga = new MAPEliteAlgorithm(room, AlgorithmTypes.Native);
+		runs.add(ga);
+		((MAPEliteAlgorithm)ga).initPopulations(room);
+		ga.start();
+	}
+
     private void mutateFromMap(Room room, int mutations, MapMutationType mutationType, AlgorithmTypes algorithmType, boolean randomise){
 
     	
@@ -249,7 +257,8 @@ public class Game implements Listener{
 			StartGA_MAPE MAPEinfo = (StartGA_MAPE)e;
 
 			
-			RunMAPElites((Room)e.getPayload(), MAPEinfo.getDimensions());
+			//RunMAPElites((Room)e.getPayload(), MAPEinfo.getDimensions());
+			RunMAPElites((Room)e.getPayload());
 		}
 		else if(e instanceof RequestSuggestionsView){ 
 			readConfiguration();

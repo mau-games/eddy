@@ -24,6 +24,7 @@ import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
 import game.AlgorithmSetup;
+import generator.algorithm.MAPElites.Dimensions.*;
 import org.apache.commons.io.FileUtils;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -37,12 +38,6 @@ import generator.algorithm.Algorithm;
 import generator.algorithm.ZoneGenotype;
 import generator.algorithm.ZoneIndividual;
 import generator.algorithm.ZonePhenotype;
-import generator.algorithm.MAPElites.Dimensions.CharacteristicSimilarityGADimension;
-import generator.algorithm.MAPElites.Dimensions.GADimension;
-import generator.algorithm.MAPElites.Dimensions.MAPEDimensionFXML;
-import generator.algorithm.MAPElites.Dimensions.NPatternGADimension;
-import generator.algorithm.MAPElites.Dimensions.SimilarityGADimension;
-import generator.algorithm.MAPElites.Dimensions.SymmetryGADimension;
 import generator.algorithm.MAPElites.Dimensions.GADimension.DimensionTypes;
 import generator.algorithm.Algorithm.AlgorithmTypes;
 import generator.config.GeneratorConfig;
@@ -63,7 +58,7 @@ public class MAPEliteAlgorithm extends Algorithm implements Listener {
 	int cellAmounts = 1;
 	private ArrayList<GADimension> MAPElitesDimensions;
 	private Random rnd = new Random();
-	private int iterationsToPublish = 50; //CHANGED FOR TESTING
+	private int iterationsToPublish = 100; //CHANGED FOR TESTING //change to 100
 	private int breedingGenerations = 5; //this relates to how many generations will it breed 
 	private int realCurrentGen = 0;
 	private int currentGen = 0;
@@ -146,15 +141,30 @@ public class MAPEliteAlgorithm extends Algorithm implements Listener {
 	
 	public void initPopulations(Room room, MAPEDimensionFXML[] dimensions){
 		broadcastStatusUpdate("Initialising...");
+		//Add manually seven dimensions // was two before (Similarity and Symmetry)
+		MAPElitesDimensions = new ArrayList<GADimension>();
+
+		float dimension = 5.0f; //This should be sent when calling the algorithm!
+
+		MAPElitesDimensions.add(new SymmetryGADimension(dimension));
+		MAPElitesDimensions.add(new SimilarityGADimension(dimension));
+		MAPElitesDimensions.add(new LeniencyGADimension(dimension));
+		MAPElitesDimensions.add(new LinearityGADimension(dimension));
+		MAPElitesDimensions.add(new CharacteristicSimilarityGADimension(dimension));
+		MAPElitesDimensions.add(new NMesoPatternGADimension(dimension));
+		MAPElitesDimensions.add(new NPatternGADimension(dimension));
+
 		EventRouter.getInstance().registerListener(this, new MAPEGridUpdate(null));
 		EventRouter.getInstance().registerListener(this, new UpdatePreferenceModel(null));
 		EventRouter.getInstance().registerListener(this, new SaveCurrentGeneration());
 		EventRouter.getInstance().registerListener(this, new RoomEdited(null));
-		
+
 		this.dimensions = dimensions;
+
 		initCells(dimensions);
+
 		room.SetDimensionValues(MAPElitesDimensions);
-		
+
 		int i = 0;
 		int j = 0;
 		
@@ -171,7 +181,9 @@ public class MAPEliteAlgorithm extends Algorithm implements Listener {
 		//TODO: THIS IS CREISI!mutate
 //		System.out.println(mutationProbability);
 //		mutationProbability = 0.3f;
-		
+
+
+
 		while((i + j) < populationSize){
 			ZoneIndividual ind = new ZoneIndividual(room, mutationProbability);
 			ind.mutateAll(0.7, roomWidth, roomHeight);
@@ -205,28 +217,121 @@ public class MAPEliteAlgorithm extends Algorithm implements Listener {
 				}
 			}
 		}
-		
+
+		System.out.println("-------------------------- MapElitesDimensions: " + MAPElitesDimensions.size());
+		System.out.println("-------------------------- populationsize: " + populationSize);
+
+		broadcastStatusUpdate("Population generated.");
+	}
+
+	public void initPopulations(Room room){
+		broadcastStatusUpdate("Initialising...");
+		//Add manually seven dimensions // was two before (Similarity and Symmetry)
+		MAPElitesDimensions = new ArrayList<GADimension>();
+
+		float dimension = 5.0f; //This should be sent when calling the algorithm!
+
+		MAPElitesDimensions.add(new SymmetryGADimension(dimension));
+		MAPElitesDimensions.add(new SimilarityGADimension(dimension));
+		MAPElitesDimensions.add(new LeniencyGADimension(dimension));
+		MAPElitesDimensions.add(new LinearityGADimension(dimension));
+		MAPElitesDimensions.add(new CharacteristicSimilarityGADimension(dimension));
+		MAPElitesDimensions.add(new NMesoPatternGADimension(dimension));
+		MAPElitesDimensions.add(new NPatternGADimension(dimension));
+
+		EventRouter.getInstance().registerListener(this, new MAPEGridUpdate(null));
+		EventRouter.getInstance().registerListener(this, new UpdatePreferenceModel(null));
+		EventRouter.getInstance().registerListener(this, new SaveCurrentGeneration());
+		EventRouter.getInstance().registerListener(this, new RoomEdited(null));
+
+		//this.dimensions = dimensions;
+
+		initCells();
+
+		room.SetDimensionValues(MAPElitesDimensions);
+
+		int i = 0;
+		int j = 0;
+
+		populationSize = 500;
+		feasibleAmount = 250;
+		this.config = room.getCalculatedConfig();
+
+		//initialize the data storage variables
+		uniqueRoomsData = new StringBuilder();
+		uniqueRoomsSinceData = new StringBuilder();
+		uniqueRoomsData.append("Leniency;Linearity;Similarity;NMesoPatterns;NSpatialPatterns;Symmetry;Inner Similarity;Fitness;Score;DIM X;DIM Y;STEP;Gen;Type;Room" + System.lineSeparator());
+		uniqueRoomsSinceData.append("Leniency;Linearity;Similarity;NMesoPatterns;NSpatialPatterns;Symmetry;Inner Similarity;Fitness;Score;DIM X;DIM Y;STEP;Gen;Type;Room" + System.lineSeparator());
+
+		//TODO: THIS IS CREISI!mutate
+//		System.out.println(mutationProbability);
+//		mutationProbability = 0.3f;
+
+
+
+		while((i + j) < populationSize){
+			ZoneIndividual ind = new ZoneIndividual(room, mutationProbability);
+			ind.mutateAll(0.7, roomWidth, roomHeight);
+
+			if(checkZoneIndividual(ind)){
+				if(i < feasibleAmount){
+					evaluateFeasibleZoneIndividual(ind);
+					ind.SetDimensionValues(MAPElitesDimensions, room);
+
+					for(GACell cell : cells)
+					{
+						if(cell.BelongToCell(ind, true))
+							break;
+					}
+
+					i++;
+				}
+			}
+			else {
+				if(j < populationSize - feasibleAmount){
+					evaluateInfeasibleZoneIndividual(ind);
+					ind.SetDimensionValues(MAPElitesDimensions, room);
+
+					for(GACell cell : cells)
+					{
+						if(cell.BelongToCell(ind, false))
+							break;
+					}
+
+					j++;
+				}
+			}
+		}
+
+		System.out.println("-------------------------- MapElitesDimensions: " + MAPElitesDimensions.size());
+		System.out.println("-------------------------- populationsize: " + populationSize);
+
 		broadcastStatusUpdate("Population generated.");
 	}
 	
 	/**
 	 * Creates lists for the valid and invalid populations and populates them with ZoneIndividuals.
 	 */
-	public void initPopulations(){
+	public void initPopulations(){  //Tinea: Dimensions are not set here
 		broadcastStatusUpdate("Initialising...");
 		
 		feasiblePool = new ArrayList<ZoneIndividual>();
 		infeasiblePool = new ArrayList<ZoneIndividual>();
 		feasiblePopulation = new ArrayList<ZoneIndividual>();
 		infeasiblePopulation = new ArrayList<ZoneIndividual>();
-		
+
 		MAPElitesDimensions = new ArrayList<GADimension>();
-		
-		float dimension = 5.0f;//This should be sent when calling the algorithm!
-		
-		//Add manually two dimensions
+
+		float dimension = 5.0f; //This should be sent when calling the algorithm!
+
+		//Add manually seven dimensions // was two before (Similarity and Symmetry)
 		MAPElitesDimensions.add(new SymmetryGADimension(dimension));
 		MAPElitesDimensions.add(new SimilarityGADimension(dimension));
+		MAPElitesDimensions.add(new LeniencyGADimension(dimension));
+		MAPElitesDimensions.add(new LinearityGADimension(dimension));
+		MAPElitesDimensions.add(new CharacteristicSimilarityGADimension(dimension));
+		MAPElitesDimensions.add(new NMesoPatternGADimension(dimension));
+		MAPElitesDimensions.add(new NPatternGADimension(dimension));
 
 		//Initialize all the cells!
 		this.cells = new ArrayList<GACell>();
@@ -236,7 +341,8 @@ public class MAPEliteAlgorithm extends Algorithm implements Listener {
 		
 		int i = 0;
 		int j = 0;
-		
+
+
 			
 		while((i + j) < populationSize){
 			ZoneIndividual ind = new ZoneIndividual(config, roomWidth * roomHeight, mutationProbability);
@@ -278,7 +384,48 @@ public class MAPEliteAlgorithm extends Algorithm implements Listener {
 		broadcastStatusUpdate("Population generated.");
 	
 	}
-	
+
+	private void initCells()
+	{
+		//Initialize cells
+		MAPElitesDimensions = new ArrayList<GADimension>();
+
+		float dimension = 5.0f; //This should be sent when calling the algorithm!
+
+		//Add manually seven dimensions // was two before (Similarity and Symmetry)
+		MAPElitesDimensions.add(new SymmetryGADimension(dimension));
+		MAPElitesDimensions.add(new SimilarityGADimension(dimension));
+		MAPElitesDimensions.add(new LeniencyGADimension(dimension));
+		MAPElitesDimensions.add(new LinearityGADimension(dimension));
+		MAPElitesDimensions.add(new CharacteristicSimilarityGADimension(dimension));
+		MAPElitesDimensions.add(new NMesoPatternGADimension(dimension));
+		MAPElitesDimensions.add(new NPatternGADimension(dimension));
+
+		//Helper variables to create the cells
+		float[] dimensionsGranularity = new float[7];
+		int counter = 0;
+
+		for(GADimension d : MAPElitesDimensions)
+		{
+			//MAPElitesDimensions.add(GADimension.CreateDimension(dimension.getDimension(), dimension.getGranularity(), dimension.getMetricInterpreter()));
+			dimensionsGranularity[counter++] = (float)(d.GetGranularity());
+		}
+
+		//Initialize all the cells!
+		this.cells = new ArrayList<GACell>();
+		CreateCellsOpposite(MAPElitesDimensions.size() - 1, dimensionsGranularity, new int[7]);
+		cellAmounts = this.cells.size();
+
+		//New addition
+		currentRendered.clear();
+
+		for(int i = 0; i < cellAmounts; i++)
+		{
+			currentRendered.add(null);
+		}
+
+	}
+
 	
 	private void initCells(MAPEDimensionFXML[] dimensions)
 	{
@@ -1088,7 +1235,7 @@ public class MAPEliteAlgorithm extends Algorithm implements Listener {
 //        		ev.addRoom(currentRendered.get(cellIndex).getPhenotype().getMap(-1, -1, null, null, null));
         		ev.addRoom(cell.GetFeasiblePopulation().get(0).getPhenotype().getMap(-1, -1, null, null, null)); 
         		//Uncomment top to get previous result!
-        		
+
 //        		cell.GetFeasiblePopulation().get(0).BroadcastIndividualDimensions();
         		evaluateFeasibleZoneIndividual(cell.GetFeasiblePopulation().get(0));
 //        		System.out.println("FIT ROOM Fitness: " + cell.GetFeasiblePopulation().get(0).getFitness() + 
