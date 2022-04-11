@@ -53,3 +53,4 @@ public abstract class Entity {
     public List<Defines.Relationship> GetRelations(){ return relationshipList;}
 
 }
+

@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<java version="17.0.2" class="java.beans.XMLDecoder">
+ <object class="game.narrative.entity.XML_Entity_Save_Object">
+  <void property="age">
+   <string>56</string>
+  </void>
+  <void property="name">
+   <string>Firesword</string>
+  </void>
+ </object>
+</java>

@@ -73,7 +73,7 @@
                                           <Insets />
                                        </HBox.margin>
                                     </TextField>
-                                    <Button mnemonicParsing="false" prefWidth="154.0" style="-fx-background-color: lime; -fx-text-fill: black; -fx-font-weight: bold; -fx-font-size: 14; -fx-border-color: black;" text="Generate Narrative" textFill="black">
+                                    <Button fx:id="generateButton" mnemonicParsing="false" prefWidth="154.0" style="-fx-background-color: lime; -fx-text-fill: black; -fx-font-weight: bold; -fx-font-size: 14; -fx-border-color: black;" text="Generate Narrative" textFill="black">
                                        <opaqueInsets>
                                           <Insets />
                                        </opaqueInsets>

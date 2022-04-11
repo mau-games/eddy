@@ -5,6 +5,7 @@ import game.ApplicationConfig;
 import game.Dungeon;
 import game.Room;
 import game.TileTypes;
+import game.narrative.CreateEntityFileXML;
 import game.narrative.NarrativeBase;
 import game.narrative.entity.Entity;
 import game.quest.Action;
@@ -87,6 +88,9 @@ public class NarrativeViewController extends BorderPane implements Listener {
     private BorderPane borderPane;
     @FXML
     private Label entityLabel;
+    @FXML
+    private Button generateButton;
+
 /*    @FXML
     private Image entityImageGUI;*/
     @FXML
@@ -148,14 +152,15 @@ public class NarrativeViewController extends BorderPane implements Listener {
 
     //kallas när en togglebutton toolbaren klickas på
     private void initNarrativeView() {
-
+        generateButton.addEventHandler(MouseEvent.MOUSE_CLICKED, event -> {
+            if(dungeon.getNarrative().GetSelectedEntity() != null)
+                CreateEntityFileXML.NewEntityFile(dungeon.getNarrative().GetSelectedEntity());
+        });
         tbNarrativeTools.getItems()
                 .forEach(toolbarAction -> {
                     toolbarAction.addEventHandler(MouseEvent.MOUSE_CLICKED, event -> {
 
                         if (((ToggleButton) toolbarAction).isSelected()) {
-                            //DungeonDrawer.getInstance().changeBrushTo(DungeonDrawer.DungeonBrushes.NONE);
-                            //List<TileTypes> types = findTileTypes();
                             attributeType = Defines.AttributeTypes.valueOf(((ToggleButton)toolbarAction).getId());
 
                             for (Defines.AttributeTypes at : Defines.AttributeTypes.values()) {
@@ -170,7 +175,6 @@ public class NarrativeViewController extends BorderPane implements Listener {
 
                             for (Defines.AttributeTypes at : Defines.AttributeTypes.values()) {
                                 if(at == attributeType){
-                                    //attributeGUIArray.set(at.ordinal(), hiddenVBOX);
                                     questPaneH.getChildren().set(at.ordinal(), hiddenVBOXes.get(at.ordinal())); // set the right attribute to use the corresponding hiddenVbox in the hiddenVBox array
                                     break;
                                 }
