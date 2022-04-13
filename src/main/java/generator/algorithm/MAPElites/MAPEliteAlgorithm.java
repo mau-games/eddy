@@ -312,7 +312,7 @@ public class MAPEliteAlgorithm extends Algorithm implements Listener {
 	/**
 	 * Creates lists for the valid and invalid populations and populates them with ZoneIndividuals.
 	 */
-	public void initPopulations(){  //Tinea: Dimensions are not set here
+	public void initPopulations(){
 		broadcastStatusUpdate("Initialising...");
 		
 		feasiblePool = new ArrayList<ZoneIndividual>();

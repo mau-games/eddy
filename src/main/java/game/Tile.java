@@ -4,9 +4,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 import finder.geometry.Point;
+import game.CoCreativity.AICoCreator;
 import gui.controls.Brush;
 import gui.controls.Drawer;
 import gui.controls.InteractiveMap;
+import gui.controls.TileBrush;
 import javafx.scene.canvas.GraphicsContext;
 import gui.controls.Brush.BrushUsage;
 import javafx.scene.image.Image;
@@ -158,7 +160,63 @@ public class Tile
 	/*** Tinea CC boolean ***/
 	public boolean getEditable() { return editable; }
 
-	public void ToggleEditable() { editable = !editable; }
+	//public void ToggleEditable() { editable = !editable; }
 
-	public void setEditable(boolean b) { editable = b; }
+	//public void setEditable(boolean b) { editable = b; }
+
+	public Drawer GetTypeAsBrush()
+	{
+		Drawer brush = new Drawer();
+
+		switch(m_type)
+		{
+			case FLOOR:
+				brush.SetBrush(0); //single tile
+				brush.SetMainComponent(TileTypes.toTileType(0));
+				break;
+			case WALL:
+				brush.SetBrush(0); //single tile
+				brush.SetMainComponent(TileTypes.toTileType(1));
+				break;
+			case TREASURE:
+				brush.SetBrush(0); //single tile
+				brush.SetMainComponent(TileTypes.toTileType(2));
+				break;
+			case ENEMY:
+				brush.SetBrush(0); //single tile
+				brush.SetMainComponent(TileTypes.toTileType(3));
+				break;
+			case DOOR:
+				brush.SetBrush(0); //single tile
+				brush.SetMainComponent(TileTypes.toTileType(4));
+				break;
+			case ENEMY_BOSS:
+				brush.SetBrush(1); //
+				brush.SetMainComponent(TileTypes.toTileType(5));
+				break;
+			case HERO:
+				brush.SetBrush(0); //single tile
+				brush.SetMainComponent(TileTypes.toTileType(6));
+				break;
+			case NONE:
+				brush.SetBrush(0); //single tile
+				brush.SetMainComponent(TileTypes.toTileType(7));
+				break;
+
+			default:
+				brush.SetBrush(0); //single tile
+				brush.SetMainComponent(TileTypes.toTileType(7));
+		}
+
+		return brush;
+	}
+
+	public void setEditable(AICoCreator aiCC)
+	{
+		if(aiCC.getControlLevel() == AICoCreator.ControlLevel.LOW || aiCC.getControlLevel() == AICoCreator.ControlLevel.MEDIUM)
+			editable = true;
+		else
+			editable = false;
+
+	}
 }

@@ -7,6 +7,7 @@ import game.Room;
 import game.Tile;
 import game.TileTypes;
 import gui.utils.MapRenderer;
+import javafx.application.Platform;
 import javafx.event.EventHandler;
 import javafx.geometry.Pos;
 import javafx.scene.image.Image;
@@ -213,6 +214,8 @@ public class InteractiveMap extends GridPane implements Listener {
 		scale = Math.min(width, height);
 
 		getChildren().clear();
+
+
 		coords.clear();
 
 		for (int j = 0; j < rows; j++)

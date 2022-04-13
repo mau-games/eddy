@@ -5,6 +5,7 @@ import collectors.ActionLogger.ActionType;
 import collectors.ActionLogger.TargetPane;
 import collectors.ActionLogger.View;
 import game.*;
+import game.CoCreativity.AICalculateContributionsDone;
 import game.CoCreativity.AICoCreator;
 import game.CoCreativity.HumanCoCreator;
 import game.Game.MapMutationType;
@@ -190,6 +191,7 @@ public class CCRoomViewController extends BorderPane implements Listener
 
 		router.registerListener(this, new MAPEGridUpdate(null));
 		router.registerListener(this, new MAPElitesDone());
+		router.registerListener(this, new AICalculateContributionsDone());
 		router.registerListener(this, new MapUpdate(null));
 		router.registerListener(this, new ApplySuggestion(0));                  //
 		router.registerListener(this, new SuggestedMapsDone());
@@ -319,7 +321,7 @@ public class CCRoomViewController extends BorderPane implements Listener
 
 		initButtons();
 		initLegend();
-		initAICoCreator(roomToBe);
+		AICoCreator.getInstance().initAiCoCreator(roomToBe.getColCount(), roomToBe.getRowCount());
 		resetView();
 		roomToBe.forceReevaluation();
 		updateRoom(roomToBe);
@@ -433,11 +435,7 @@ public class CCRoomViewController extends BorderPane implements Listener
 		legend.add(lock, 1, 11);
 	}
 
-	public void initAICoCreator(Room roomToBe)
-	{
-		// Create the AICoCreator
-		aiCC = new AICoCreator(roomToBe.getColCount(), roomToBe.getRowCount());
-	}
+
 	
 	public void renderCell(List<Room> generatedRooms, int dimension, float [] dimensionSizes, int[] indices)
 	{
@@ -511,6 +509,9 @@ public class CCRoomViewController extends BorderPane implements Listener
 				System.out.println("currentDimensions: " + currentDimensions.length);
 				System.out.println();
 
+				AICoCreator.getInstance().CalculateContribution(generatedRooms);
+
+
 //				Room room = (Room) ((MapUpdate) e).getPayload();
 //				UUID uuid = ((MapUpdate) e).getID();                       
 				//LabeledCanvas canvas;
@@ -538,6 +539,27 @@ public class CCRoomViewController extends BorderPane implements Listener
 //				//	System.out.println("CANVAS WIDTH: " + canvas.getWidth() + ", CANVAS HEIGHT: " + canvas.getHeight());
 				//});
 
+			}
+		}
+		else if(e instanceof AICalculateContributionsDone)
+		{
+			if(isActive)
+			{
+				System.out.println("AI Contributions are ready");
+
+				System.out.println("AICC EDIT ROOM STARTED");
+				//editedRoomPane.CCRoomEdited(editedRoomPane.editedPane, editedRoomPane.editedPane.getMap()); //this would be replaced by for loop for each contribution
+				// switch case with aiCC.getControlLevel for placing or displaying
+
+				editedRoomPane.CCRoomEdited(editedRoomPane.editedPane, editedRoomPane.editedPane.getMap(), AICoCreator.getInstance().GetContributions());
+
+				System.out.println("UPDATE ROOM");
+				Platform.runLater(() -> {
+					updateRoom(editedRoomPane.editedPane.getMap());
+				});
+
+				System.out.println("HUMAN'S TURN AGAIN");
+				HumanCoCreator.getInstance().resetRound();
 			}
 		}
 		else if (e instanceof MapUpdate) {
@@ -641,6 +663,7 @@ public class CCRoomViewController extends BorderPane implements Listener
 	 * 
 	 * @param room The new map.
 	 */
+	@FXML
 	public void updateRoom(Room room) {
 
 		editedRoomPane.editedPane.updateMap(room);
@@ -778,23 +801,23 @@ public class CCRoomViewController extends BorderPane implements Listener
 		System.out.println("END TURN PRESSED");
 
 		System.out.println("AICC PREPARE TURN");
-		aiCC.prepareTurn(editedRoomPane.editedPane.getMap());
+		AICoCreator.getInstance().prepareTurn(editedRoomPane.editedPane.getMap());
 
 		generateNewMaps(editedRoomPane.editedPane.getMap());
+
 		//System.out.println("AICC CALCULATE CONTRIBUTIONS");
 		//aiCC.CalculateContribution();
 		//aiCC.GetContributions() (Tiles in a list)
 		//place them down one by one (with 0.1-0.5 seconds between for visibility)
 
-		System.out.println("AICC EDIT ROOM");
-		editedRoomPane.CCRoomEdited(editedRoomPane.editedPane, editedRoomPane.editedPane.getMap()); //this would be replaced by for loop for each contribution
-		// switch case with aiCC.getControlLevel for placing or displaying
+		//System.out.println("AICC EDIT ROOM");
+		//editedRoomPane.CCRoomEdited(editedRoomPane.editedPane, editedRoomPane.editedPane.getMap()); //this would be replaced by for loop for each contribution
+		//// switch case with aiCC.getControlLevel for placing or displaying
+//
 
-		System.out.println("UPDATE ROOM");
-		updateRoom(editedRoomPane.editedPane.getMap());
-
-		System.out.println("HUMAN'S TURN AGAIN");
-		HumanCoCreator.getInstance().resetRound();
+//
+		//System.out.println("HUMAN'S TURN AGAIN");
+		//HumanCoCreator.getInstance().resetRound();
 	}
 
 	/**

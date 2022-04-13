@@ -13,7 +13,9 @@ public class AICoCreator {
     private static EventRouter router = EventRouter.getInstance();
     private static HumanCoCreator humanCC = HumanCoCreator.getInstance(); // needed to see how they used their round
 
-    enum ControlLevel {low, medium, high};
+    private static AICoCreator singleton = null;
+
+    public enum ControlLevel {LOW, MEDIUM, HIGH};
     ControlLevel controlLevel; // the degree of control this agent has
 
     int amountOfTiles; // the amount of tiles to contribute with this turn
@@ -25,14 +27,28 @@ public class AICoCreator {
     Room currentTargetRoom;
     private List<Room> kNearestElites; // contains the elites that are the K-nearest neighbours to the targetroom
 
-    public AICoCreator(int roomWidth, int roomHeight)
+    public static AICoCreator getInstance()
     {
+        if(singleton == null)
+            singleton = new AICoCreator(0, 0);
+        return singleton;
+    }
+
+    private AICoCreator(int roomWidth, int roomHeight)
+    {
+        setControlLevel(ControlLevel.LOW);
+
         tilesPositions = new ArrayList<>();
         permutations = new ArrayList<>();
         contributions = new ArrayList<>();
 
         this.roomHeight = roomHeight;
         this.roomWidth = roomWidth;
+    }
+
+    public void initAiCoCreator(int roomWidth, int roomHeight)
+    {
+        singleton = new AICoCreator(roomWidth, roomHeight);
     }
 
     /***
@@ -62,7 +78,7 @@ public class AICoCreator {
     /***
      * Does the calculation of what tiles to contribute with
      ***/
-    public void CalculateContribution()
+    public void CalculateContribution(List<Room> elites)
     {
         /***
          * Step 2: Calculate what specific tiles are the best
@@ -72,17 +88,33 @@ public class AICoCreator {
 
         List<TileTypes>[] blah = new List[tilesPositions.size()]; // this is an array containing a list of tiles for each position in the area
 
-        //for each elite
-        for(int i = 0; i < kNearestElites.size(); i++)
-        {
-            //for each tile that is in the contribution area
-            for (int j=0; j < tilesPositions.size(); j++)
-            {
-                HashMap<String, Integer> tileTypeAndOccurance = new HashMap<>();
+        int elitesThatAReNull = 0;
+        int totalAMountOfElites = elites.size();
 
-                blah[j].add(kNearestElites.get(i).getTile(tilesPositions.get(j).getX(), tilesPositions.get(j).getY()).GetType());
+        //for each elite
+        for(int i = 0; i < elites.size(); i++) //kNearestElites
+        {
+            if(elites.get(i) == null) // .getTile(tilesPositions.get(j).getX(), tilesPositions.get(j).getY()).GetType()
+            {
+                elitesThatAReNull++;
+            }
+            else
+            {
+                //for each tile that is in the contribution area
+                for (int j=0; j < tilesPositions.size(); j++)
+                {
+                    if(blah[j] == null)
+                    {
+                        blah[j] = new ArrayList<TileTypes>();
+                    }
+
+                    blah[j].add(elites.get(i).getTile(tilesPositions.get(j).getX(), tilesPositions.get(j).getY()).GetType()); // kNearestElites
+                }
             }
         }
+
+        System.out.println("Elites That Are Null: " + elitesThatAReNull + " / " + totalAMountOfElites + " = " + String.format("%."+3+"f",(float)elitesThatAReNull / (float)totalAMountOfElites *100)+"%");
+
 
         Tile[] bestContributions = new Tile[amountOfTiles];
         int[] maxAmounts = new int[amountOfTiles];
@@ -98,20 +130,27 @@ public class AICoCreator {
             int max = mostCommon.getValue();
 
             //update contributions if any of the current ones has a lower frequency
-            for(int m=0; m<maxAmounts.length;m++)
+            for(int n=0; n<maxAmounts.length;n++)
             {
-                if(max > maxAmounts[m])
+                if(max > maxAmounts[n])
                 {
-                    bestContributions[m] = new Tile(pos, TileTypes.valueOf(maxType));
-                    maxAmounts[m] = max;
+                    bestContributions[n] = new Tile(pos, TileTypes.getTypeByName(maxType)); // TileTypes.valueOf(maxType)
+                    maxAmounts[n] = max;
                     break;
                 }
             }
-
         }
 
         // contributions for this round
+        System.out.println("contributions this run: ");
+        for(Tile t : bestContributions)
+        {
+            System.out.println(t.GetCenterPosition() + " " + t.GetType().name());
+        }
+
+        System.out.println("");
         contributions = Arrays.asList(bestContributions);
+        router.postEvent(new AICalculateContributionsDone());
     }
 
     static Map.Entry<String, Integer> getMostFrequentElement(List<TileTypes> inputArray)
@@ -124,12 +163,14 @@ public class AICoCreator {
 
         for (TileTypes i : inputArray)
         {
-            if (elementCountMap.containsKey(i))
+            if (elementCountMap.containsKey(i.name()))
             {
                 //If an element is present, incrementing its count by 1
-                elementCountMap.put(i.name(), elementCountMap.get(i)+1);
+                int newValue = elementCountMap.get(i.name())+1;
+
+                elementCountMap.put(i.name(), newValue);
             }
-            else
+            else if(!elementCountMap.containsKey(i.name()) && i != TileTypes.FLOOR && i != TileTypes.NONE && i != TileTypes.DOOR && i != TileTypes.HERO)// ignore NONE, FLOOR, HERO and DOOR
             {
                 //If an element is not present, put that element with 1 as its value
                 elementCountMap.put(i.name(), 1);
@@ -138,22 +179,21 @@ public class AICoCreator {
 
         String element = "";
 
-        int frequency = 1;
+        int frequency = 0;
 
         //Iterating through elementCountMap to get the most frequent element and its frequency
-
-        Set<Map.Entry<String, Integer>> entrySet = elementCountMap.entrySet();
-
-        for (Map.Entry<String, Integer> entry : entrySet)
+        for (Map.Entry<String, Integer> entry : elementCountMap.entrySet())
         {
+            //System.out.println("entry.GetKey() " + entry.getKey());
             if(entry.getValue() > frequency)
             {
                 element = entry.getKey();
-
                 frequency = entry.getValue();
+
             }
         }
 
+        //System.out.println("MOST COMMON KEY: "+ element + " VALUE " + frequency);
         Map.Entry<String, Integer> temp = new AbstractMap.SimpleEntry<String, Integer>(element, frequency);
         return temp;
     }
@@ -193,59 +233,44 @@ public class AICoCreator {
                                 resultingPositions.add(p);
                             }
                         }
-
                     }
                 }
             }
         }
 
-        System.out.println("CONTRIBUTION AREA: " + resultingPositions.toString());
-        return resultingPositions;
+        List<Point> finalList = removeDuplicates(resultingPositions);
 
-        /**
-         * OTHER VERSION
-         * **/
-        //List<Point> resultingPositions = new ArrayList<>();
-        //Point minPoint, maxPoint;
-//
-        //List<Point> points = new ArrayList<>();
-//
-        //for (Tile t: tilesPlaced) {
-        //    points.add(t.GetCenterPosition());
-        //}
-//
-        ////add the first position
-        //minPoint = points.get(0);
-        //maxPoint = points.get(0);
-//
-        ////calculate minPoint and maxPoint
-        //for(int i=1; i<points.size();i++)
-        //{
-        //    if(points.get(i).getX() < minPoint.getX() || points.get(i).getY() < minPoint.getY())
-        //    {
-        //        minPoint = points.get(i);
-        //    }
-        //    else if(points.get(i).getX() > maxPoint.getX() || points.get(i).getY() > maxPoint.getY())
-        //    {
-        //        maxPoint = points.get(i);
-        //    }
-        //}
-//
-        //System.out.println("minPoint: " + minPoint.toString());
-        //System.out.println("maxPoint: " + maxPoint.toString());
-//
-        ////add all tiles between min and max to list, including margins
-        //for(int x = minPoint.getX()-locationMargin; x<maxPoint.getX()+locationMargin; x++)
-        //{
-        //    for(int y=minPoint.getY()-locationMargin; y<maxPoint.getY()+locationMargin; y++)
-        //    {
-        //        if(x >= 0 && y >= 0 && x < roomWidth && y < roomHeight)
-        //            resultingPositions.add(new Point(x,y));
-        //    }
-        //}
-//
-        //System.out.println("resultingPositions: " + resultingPositions.toString());
-        //return resultingPositions;
+        //IF HUMAN CONTRIBUTION IS NOT EDITABLE, REMOVE POSITION FROM CONTRIBUTION AREA
+        for(Tile ti:tilesPlaced)
+        {
+            if(!ti.getEditable() && finalList.contains(ti.GetCenterPosition()))
+                System.out.println("EXCLUDES UNEDITABLE TILES");
+                finalList.remove(ti.GetCenterPosition());
+        }
+
+        System.out.println("CONTRIBUTION AREA: " + finalList.toString());
+        return finalList;
+
+    }
+
+    public static <T> List<T> removeDuplicates(List<T> list)
+    {
+        // Create a new ArrayList
+        List<T> newList = new ArrayList<T>();
+
+        // Traverse through the first list
+        for (T element : list) {
+
+            // If this element is not present in newList
+            // then add it
+            if (!newList.contains(element)) {
+
+                newList.add(element);
+            }
+        }
+
+        // return the new list
+        return newList;
     }
 
     public List<Tile> GetContributions() { return contributions; }
@@ -253,4 +278,6 @@ public class AICoCreator {
     public ControlLevel getControlLevel() { return controlLevel; }
 
     public void setControlLevel(ControlLevel controlLevel) { this.controlLevel = controlLevel; }
+
+
 }

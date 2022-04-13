@@ -24,9 +24,10 @@ public class HumanCoCreator {
         tilesPlaced = new ArrayList<Tile>();
     }
 
-    public void RegisterContributionInfo(Tile t)
+    public void RegisterContributionInfo(Tile t, AICoCreator aiCC)
     {
         amountOfTilesPlaced++;
+        t.setEditable(aiCC);
         tilesPlaced.add(t);
     }
 

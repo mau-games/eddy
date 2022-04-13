@@ -86,4 +86,46 @@ public enum TileTypes {
 		
 		return tile;
 	}
+
+	/**
+	 * Creates a TileType out of a string name.
+	 *
+	 * @param name The string to be converted.
+	 * @return A TileType object.
+	 */
+	public static TileTypes getTypeByName(String name)
+	{
+		TileTypes tile = null;
+
+		switch(name) {
+			case "FLOOR":
+				tile = TileTypes.FLOOR;
+				break;
+			case "WALL":
+				tile = TileTypes.WALL;
+				break;
+			case "TREASURE":
+				tile = TileTypes.TREASURE;
+				break;
+			case "ENEMY":
+				tile = TileTypes.ENEMY;
+				break;
+			case "DOOR":
+				tile = TileTypes.DOOR;
+				break;
+			case "ENEMY_BOSS":
+				tile = TileTypes.ENEMY_BOSS;
+				break;
+			case "HERO":
+				tile = TileTypes.HERO;
+				break;
+			case "NONE":
+				tile = TileTypes.NONE;
+				break;
+			default:
+				tile = TileTypes.NONE;
+		}
+
+		return tile;
+	}
 }

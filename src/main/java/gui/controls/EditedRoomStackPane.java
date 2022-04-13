@@ -1,10 +1,14 @@
 package gui.controls;
 
+import game.CoCreativity.AICoCreator;
 import game.CoCreativity.HumanCoCreator;
 import game.Room;
+import game.Tile;
 import game.TileTypes;
 import gui.utils.InformativePopupManager;
 import gui.utils.MapRenderer;
+import gui.views.CCRoomViewController;
+import javafx.fxml.FXML;
 import javafx.geometry.Pos;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
@@ -17,6 +21,7 @@ import util.eventrouting.Listener;
 import util.eventrouting.PCGEvent;
 import util.eventrouting.events.intraview.*;
 
+import java.util.List;
 import java.util.UUID;
 
 public class EditedRoomStackPane extends StackPane implements Listener
@@ -239,7 +244,7 @@ public class EditedRoomStackPane extends StackPane implements Listener
 //        EventRouter.getInstance().postEvent(new RoomEdited(editedRoom));
 
             //register contribution to HumanCoCreator class
-            HumanCoCreator.getInstance().RegisterContributionInfo(editedRoom.getTile(p));
+            HumanCoCreator.getInstance().RegisterContributionInfo(editedRoom.getTile(p), AICoCreator.getInstance());
         }
         else if(HumanCoCreator.getInstance().getAmountOfTilesPlaced() >= HumanCoCreator.getInstance().getMaxTilesPerRound())
         {
@@ -258,43 +263,39 @@ public class EditedRoomStackPane extends StackPane implements Listener
     //temp variable for test
     int counter = 0;
 
-    public void CCRoomEdited(InteractiveMap editedRoomCanvas, Room editedRoom)
+    @FXML
+    public void CCRoomEdited(InteractiveMap editedRoomCanvas, Room editedRoom, List<Tile> tiles)
     {
-        System.out.println("AI TRYING TO EDIT ROOM");
+        for(Tile t:tiles)
+        {
+            Drawer tempbrush = (t.GetTypeAsBrush());
 
-        //temporary brush
-        Drawer tempbrush = new Drawer();
-        tempbrush.SetMainComponent(currentBrush.GetMainComponent());
-        tempbrush.SetBrush(currentBrush.brush);
+            // from Drawer.update()
+            ImageView tImgView = (ImageView) editedPane.getCell(t.GetCenterPosition().getX(), t.GetCenterPosition().getY());
+            util.Point p = editedPane.CheckTile(tImgView);
 
-        // AI brush
-        tempbrush.SetBrush(0); //single tile
-        tempbrush.SetMainComponent(TileTypes.toTileType(1)); // WALL
-
-        //create tile
-        ImageView tile = (ImageView) editedPane.getCell(counter++,1); //test
-
-        // from Drawer.update()
-        util.Point p = editedPane.CheckTile(tile);
-
-        if(p != null)
+            System.out.println("P: " + p);
             tempbrush.brush.UpdateDrawableTiles(p.getX(), p.getY(), editedPane.getMap());
 
-        editedPane.updateTileInARoom(editedPane.getMap(), tile, tempbrush);
+            editedPane.updateTileInARoom(editedPane.getMap(), tImgView, tempbrush);
 
-        // set tile as not editable
-        editedRoom.getTile(p.getX(), p.getY()).setEditable(false);
+            editedRoom.getTile(p.getX(), p.getY()).setEditable(AICoCreator.getInstance());
 
-        //necessary checks and procedures
-        editedRoom.forceReevaluation();
-        editedRoom.getRoomXML("room\\");
-        mapIsFeasible(editedPane.getMap().isIntraFeasible());
-        redrawPatterns(editedPane.getMap());
-        redrawLocks(editedPane.getMap());
+            //necessary checks and procedures
+            editedRoom.forceReevaluation();
+            editedRoom.getRoomXML("room\\");
+            mapIsFeasible(editedPane.getMap().isIntraFeasible());
+            redrawPatterns(editedPane.getMap());
+            redrawLocks(editedPane.getMap());
 
-        EventRouter.getInstance().postEvent(new UserEditedRoom(uniqueID, editedPane.getMap()));
 
-        System.out.println("ROOM EDITED BY AI");
+
+            //EventRouter.getInstance().postEvent(new UserEditedRoom(uniqueID, editedPane.getMap()));
+
+            System.out.println("ROOM EDITED BY AI " + t.GetType().name() + " " + p.toString()); // error
+        }
+
+
     }
 
     /**
