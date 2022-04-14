@@ -637,7 +637,7 @@ public class MapRenderer implements Listener {
 		double pWidth = Math.max(ctx.getCanvas().getWidth(), ctx.getCanvas().getHeight()) / (double)Math.max(width, height);
 		patternOpacity = config.getPatternOpacity();
 		
-		drawBitmapProperly(ctx, brush.GetDrawableTiles(), c, pWidth);
+		drawBitmapProperly(ctx, brush.GetDrawableTiles(), c, pWidth); //tinea
 	}
 	
 	public synchronized void drawGraph(GraphicsContext ctx, int[][] matrix, Graph<Pattern> patternGraph){

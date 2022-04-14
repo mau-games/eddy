@@ -223,10 +223,9 @@ public class CCRoomViewController extends BorderPane implements Listener
 			roomDisplays.add(suggestion);
 		}
 
-//		suggestionsPane.setVisible(false);
+		//suggestionsPane.setVisible(false);
 
 		MAPElitesPane.init(roomDisplays, "","",0,0);
-
 		MainTable.setup(2);
 		MainTable.InitMainTable(MAPElitesPane);
 		MainTable.setEventListeners();
@@ -551,7 +550,7 @@ public class CCRoomViewController extends BorderPane implements Listener
 				//editedRoomPane.CCRoomEdited(editedRoomPane.editedPane, editedRoomPane.editedPane.getMap()); //this would be replaced by for loop for each contribution
 				// switch case with aiCC.getControlLevel for placing or displaying
 
-				editedRoomPane.CCRoomEdited(editedRoomPane.editedPane, editedRoomPane.editedPane.getMap(), AICoCreator.getInstance().GetContributions());
+				editedRoomPane.CCRoomEdited(editedRoomPane.editedPane.getMap(), AICoCreator.getInstance().GetContributions());
 
 				System.out.println("UPDATE ROOM");
 				Platform.runLater(() -> {
@@ -564,6 +563,7 @@ public class CCRoomViewController extends BorderPane implements Listener
 		}
 		else if (e instanceof MapUpdate) {
 			//FIXME: I REALLY HAVE TO GO BACK HERE TO FIX THIS TO BE ABLE TO CREATEROOMS THE OLD WAY
+
 			if (isActive) {
 				//System.out.println(nextMap);
 				Room room = (Room) ((MapUpdate) e).getPayload();
@@ -803,7 +803,7 @@ public class CCRoomViewController extends BorderPane implements Listener
 		System.out.println("AICC PREPARE TURN");
 		AICoCreator.getInstance().prepareTurn(editedRoomPane.editedPane.getMap());
 
-		generateNewMaps(editedRoomPane.editedPane.getMap());
+		//generateNewMaps(editedRoomPane.editedPane.getMap());
 
 		//System.out.println("AICC CALCULATE CONTRIBUTIONS");
 		//aiCC.CalculateContribution();

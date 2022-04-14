@@ -8,6 +8,7 @@ import game.TileTypes;
 import gui.utils.InformativePopupManager;
 import gui.utils.MapRenderer;
 import gui.views.CCRoomViewController;
+import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.geometry.Pos;
 import javafx.scene.canvas.Canvas;
@@ -29,7 +30,7 @@ public class EditedRoomStackPane extends StackPane implements Listener
     public UUID uniqueID;
 
     public InteractiveMap editedPane;
-    public Canvas patternCanvas;
+    public Canvas patternCanvas; //create a AIplacedTilesCanvas
     public Canvas warningCanvas;
     public Canvas lockCanvas;
     public Canvas brushCanvas;
@@ -257,14 +258,10 @@ public class EditedRoomStackPane extends StackPane implements Listener
     }
 
     /***
-     * The Method that AI uses to edit the room , called in CCRoomViewController.endTurn()
+     * The Method that AI uses to edit the room
      * @param
      */
-    //temp variable for test
-    int counter = 0;
-
-    @FXML
-    public void CCRoomEdited(InteractiveMap editedRoomCanvas, Room editedRoom, List<Tile> tiles)
+    public void CCRoomEdited(Room editedRoom, List<Tile> tiles)
     {
         for(Tile t:tiles)
         {
@@ -284,15 +281,28 @@ public class EditedRoomStackPane extends StackPane implements Listener
             //necessary checks and procedures
             editedRoom.forceReevaluation();
             editedRoom.getRoomXML("room\\");
-            mapIsFeasible(editedPane.getMap().isIntraFeasible());
-            redrawPatterns(editedPane.getMap());
-            redrawLocks(editedPane.getMap());
+
+            Platform.runLater(() -> {
+                mapIsFeasible(editedPane.getMap().isIntraFeasible());
+                redrawPatterns(editedPane.getMap());
+                redrawLocks(editedPane.getMap());
+            });
 
 
 
             //EventRouter.getInstance().postEvent(new UserEditedRoom(uniqueID, editedPane.getMap()));
 
-            System.out.println("ROOM EDITED BY AI " + t.GetType().name() + " " + p.toString()); // error
+            System.out.println("ROOM EDITED BY AI " + t.GetType().name() + " " + p.toString());
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+
+            //System.out.println("UPDATE ROOM");
+            //Platform.runLater(() -> {
+            //    updateRoom(editedRoomPane.editedPane.getMap());
+            //});
         }
 
 

@@ -4,6 +4,7 @@ import finder.geometry.Point;
 import game.Room;
 import game.Tile;
 import game.TileTypes;
+import generator.algorithm.MAPElites.Dimensions.GADimension;
 import util.eventrouting.EventRouter;
 
 import java.util.*;
@@ -280,4 +281,19 @@ public class AICoCreator {
     public void setControlLevel(ControlLevel controlLevel) { this.controlLevel = controlLevel; }
 
 
+    public List<Room> KNNelites(List<Room> elites)
+    {
+        List<Room> newList = new ArrayList<>();
+
+        int k = 25; //
+
+        // currentTargetRoom ->
+
+        for(Room r:elites)
+        {
+            r.getDimensionValue(GADimension.DimensionTypes.SYMMETRY); // så här hittar jag VärdenA
+        }
+
+        return newList;
+    }
 }

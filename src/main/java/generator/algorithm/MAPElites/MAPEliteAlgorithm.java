@@ -218,9 +218,6 @@ public class MAPEliteAlgorithm extends Algorithm implements Listener {
 			}
 		}
 
-		System.out.println("-------------------------- MapElitesDimensions: " + MAPElitesDimensions.size());
-		System.out.println("-------------------------- populationsize: " + populationSize);
-
 		broadcastStatusUpdate("Population generated.");
 	}
 
