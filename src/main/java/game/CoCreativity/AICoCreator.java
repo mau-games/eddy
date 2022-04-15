@@ -134,7 +134,8 @@ public class AICoCreator {
         System.out.println("contributions this run: ");
         for(Tile t : bestContributions)
         {
-            System.out.println(t.GetCenterPosition() + " " + t.GetType().name());
+            if(t != null)
+                System.out.println(t.GetCenterPosition() + " " + t.GetType().name());
         }
 
         System.out.println("");

@@ -221,6 +221,8 @@ public class CCRoomViewController extends BorderPane implements Listener
 		{
 			SuggestionRoom suggestion = new SuggestionRoom();
 			roomDisplays.add(suggestion);
+
+
 		}
 
 		//suggestionsPane.setVisible(false);
@@ -363,9 +365,7 @@ public class CCRoomViewController extends BorderPane implements Listener
 		map = this.map;
 	}
 
-	/**
-	 * Initialises the AI Co-Creator
-	 */
+
 	private void initLegend() {
 		ConfigurationUtility c = config.getInternalConfig();
 
@@ -550,12 +550,12 @@ public class CCRoomViewController extends BorderPane implements Listener
 				//editedRoomPane.CCRoomEdited(editedRoomPane.editedPane, editedRoomPane.editedPane.getMap()); //this would be replaced by for loop for each contribution
 				// switch case with aiCC.getControlLevel for placing or displaying
 
-				editedRoomPane.CCRoomEdited(editedRoomPane.editedPane.getMap(), AICoCreator.getInstance().GetContributions());
+				editedRoomPane.CCRoomEdited(editedRoomPane.editedPane.getMap(), AICoCreator.getInstance().GetContributions(), this);
 
-				System.out.println("UPDATE ROOM");
-				Platform.runLater(() -> {
-					updateRoom(editedRoomPane.editedPane.getMap());
-				});
+				//System.out.println("UPDATE ROOM");
+				//Platform.runLater(() -> {
+				//	updateRoom(editedRoomPane.editedPane.getMap());
+				//});
 
 				System.out.println("HUMAN'S TURN AGAIN");
 				HumanCoCreator.getInstance().resetRound();

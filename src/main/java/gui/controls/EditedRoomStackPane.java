@@ -245,7 +245,7 @@ public class EditedRoomStackPane extends StackPane implements Listener
 //        EventRouter.getInstance().postEvent(new RoomEdited(editedRoom));
 
             //register contribution to HumanCoCreator class
-            HumanCoCreator.getInstance().RegisterContributionInfo(editedRoom.getTile(p), AICoCreator.getInstance());
+            HumanCoCreator.getInstance().RegisterContributionInfo(editedRoom.getTile(p));
         }
         else if(HumanCoCreator.getInstance().getAmountOfTilesPlaced() >= HumanCoCreator.getInstance().getMaxTilesPerRound())
         {
@@ -261,7 +261,7 @@ public class EditedRoomStackPane extends StackPane implements Listener
      * The Method that AI uses to edit the room
      * @param
      */
-    public void CCRoomEdited(Room editedRoom, List<Tile> tiles)
+    public void CCRoomEdited(Room editedRoom, List<Tile> tiles, CCRoomViewController ccRoomViewController)
     {
         for(Tile t:tiles)
         {
@@ -286,26 +286,19 @@ public class EditedRoomStackPane extends StackPane implements Listener
                 mapIsFeasible(editedPane.getMap().isIntraFeasible());
                 redrawPatterns(editedPane.getMap());
                 redrawLocks(editedPane.getMap());
+                System.out.println("UPDATE ROOM");
+                ccRoomViewController.updateRoom(editedPane.getMap());
             });
-
-
 
             //EventRouter.getInstance().postEvent(new UserEditedRoom(uniqueID, editedPane.getMap()));
 
             System.out.println("ROOM EDITED BY AI " + t.GetType().name() + " " + p.toString());
-            try {
-                Thread.sleep(1000);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-
-            //System.out.println("UPDATE ROOM");
-            //Platform.runLater(() -> {
-            //    updateRoom(editedRoomPane.editedPane.getMap());
-            //});
+            //try {
+            //    Thread.sleep(1000);
+            //} catch (InterruptedException e) {
+            //    e.printStackTrace();
+            //}
         }
-
-
     }
 
     /**

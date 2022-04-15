@@ -162,7 +162,7 @@ public class Tile
 
 	//public void ToggleEditable() { editable = !editable; }
 
-	//public void setEditable(boolean b) { editable = b; }
+	public void setEditable(boolean b) { editable = b; }
 
 	public Drawer GetTypeAsBrush()
 	{
