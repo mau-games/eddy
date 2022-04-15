@@ -89,33 +89,21 @@ public class AICoCreator {
 
         List<TileTypes>[] blah = new List[tilesPositions.size()]; // this is an array containing a list of tiles for each position in the area
 
-        int elitesThatAReNull = 0;
-        int totalAMountOfElites = elites.size();
+        List<Room> kNearestElites = getInstance().KNNelites(elites, 25); // REMEMBER TO ADJUST K
 
         //for each elite
-        for(int i = 0; i < elites.size(); i++) //kNearestElites
+        for(int i = 0; i < kNearestElites.size(); i++) //kNearestElites
         {
-            if(elites.get(i) == null) // .getTile(tilesPositions.get(j).getX(), tilesPositions.get(j).getY()).GetType()
+            //for each tile that is in the contribution area
+            for (int j=0; j < tilesPositions.size(); j++)
             {
-                elitesThatAReNull++;
-            }
-            else
-            {
-                //for each tile that is in the contribution area
-                for (int j=0; j < tilesPositions.size(); j++)
+                if(blah[j] == null)
                 {
-                    if(blah[j] == null)
-                    {
-                        blah[j] = new ArrayList<TileTypes>();
-                    }
-
-                    blah[j].add(elites.get(i).getTile(tilesPositions.get(j).getX(), tilesPositions.get(j).getY()).GetType()); // kNearestElites
+                    blah[j] = new ArrayList<TileTypes>();
                 }
+                blah[j].add(kNearestElites.get(i).getTile(tilesPositions.get(j).getX(), tilesPositions.get(j).getY()).GetType()); // kNearestElites
             }
         }
-
-        System.out.println("Elites That Are Null: " + elitesThatAReNull + " / " + totalAMountOfElites + " = " + String.format("%."+3+"f",(float)elitesThatAReNull / (float)totalAMountOfElites *100)+"%");
-
 
         Tile[] bestContributions = new Tile[amountOfTiles];
         int[] maxAmounts = new int[amountOfTiles];
@@ -281,19 +269,62 @@ public class AICoCreator {
     public void setControlLevel(ControlLevel controlLevel) { this.controlLevel = controlLevel; }
 
 
-    public List<Room> KNNelites(List<Room> elites)
+    public List<Room> KNNelites(List<Room> elites, int k)
     {
         List<Room> newList = new ArrayList<>();
 
-        int k = 25; //
+        Map<Room, Double> roomDoubleMap = new HashMap<>();
 
-        // currentTargetRoom ->
+        double p1 = currentTargetRoom.getDimensionValue(GADimension.DimensionTypes.SYMMETRY);
+        double p2 = currentTargetRoom.getDimensionValue(GADimension.DimensionTypes.SIMILARITY);
+        double p3 = currentTargetRoom.getDimensionValue(GADimension.DimensionTypes.LINEARITY);
+        double p4 = currentTargetRoom.getDimensionValue(GADimension.DimensionTypes.LENIENCY);
+        double p5 = currentTargetRoom.getDimensionValue(GADimension.DimensionTypes.NUMBER_MESO_PATTERN);
+        double p6 = currentTargetRoom.getDimensionValue(GADimension.DimensionTypes.NUMBER_PATTERNS);
+        double p7 = currentTargetRoom.getDimensionValue(GADimension.DimensionTypes.INNER_SIMILARITY);
+
 
         for(Room r:elites)
         {
-            r.getDimensionValue(GADimension.DimensionTypes.SYMMETRY); // så här hittar jag VärdenA
+            if(r != null)
+            {
+                double q1 = r.getDimensionValue(GADimension.DimensionTypes.SYMMETRY);
+                double q2 = r.getDimensionValue(GADimension.DimensionTypes.SIMILARITY);
+                double q3 = r.getDimensionValue(GADimension.DimensionTypes.LINEARITY);
+                double q4 = r.getDimensionValue(GADimension.DimensionTypes.LENIENCY);
+                double q5 = r.getDimensionValue(GADimension.DimensionTypes.NUMBER_MESO_PATTERN);
+                double q6 = r.getDimensionValue(GADimension.DimensionTypes.NUMBER_PATTERNS);
+                double q7 = r.getDimensionValue(GADimension.DimensionTypes.INNER_SIMILARITY);
+
+                double distance = Math.sqrt(
+                        Math.pow((p1-q1),2) +
+                                Math.pow((p2-q2),2) +
+                                Math.pow((p3-q3),2) +
+                                Math.pow((p4-q4),2) +
+                                Math.pow((p5-q5),2) +
+                                Math.pow((p6-q6),2) +
+                                Math.pow((p7-q7),2)
+                );
+
+                roomDoubleMap.put(r, distance);
+            }
+        }
+
+        // sort roomDoubleMap
+
+        List<Map.Entry<Room, Double>> list = new ArrayList<>(roomDoubleMap.entrySet());
+        list.sort(Map.Entry.comparingByValue());
+
+        //pick k first elements
+        for(int i=0;i<k;i++)
+        {
+            newList.add(list.get(i).getKey());
         }
 
         return newList;
     }
+
+
 }
+
+
