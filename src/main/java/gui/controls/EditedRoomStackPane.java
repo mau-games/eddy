@@ -17,11 +17,13 @@ import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
+import util.Point;
 import util.eventrouting.EventRouter;
 import util.eventrouting.Listener;
 import util.eventrouting.PCGEvent;
 import util.eventrouting.events.intraview.*;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -31,6 +33,8 @@ public class EditedRoomStackPane extends StackPane implements Listener
 
     public InteractiveMap editedPane;
     public Canvas aiPlacedTintCanvas;
+    public Canvas aiSuggestionCanvas;
+    public Canvas aiSuggestionTintCanvas;
     public Canvas patternCanvas;
     public Canvas warningCanvas;
     public Canvas lockCanvas;
@@ -82,7 +86,21 @@ public class EditedRoomStackPane extends StackPane implements Listener
         this.getChildren().add(aiPlacedTintCanvas);
         aiPlacedTintCanvas.setVisible(false);
         aiPlacedTintCanvas.setMouseTransparent(true);
-        aiPlacedTintCanvas.setOpacity(0.2f);
+        aiPlacedTintCanvas.setOpacity(0.3f);
+
+        aiSuggestionCanvas = new Canvas(mapWidth, mapHeight);
+        StackPane.setAlignment(aiSuggestionCanvas, Pos.CENTER);
+        this.getChildren().add(aiSuggestionCanvas);
+        aiSuggestionCanvas.setVisible(false);
+        aiSuggestionCanvas.setMouseTransparent(true);
+        aiSuggestionCanvas.setOpacity(1.0);
+
+        aiSuggestionTintCanvas = new Canvas(mapWidth, mapHeight);
+        StackPane.setAlignment(aiSuggestionTintCanvas, Pos.CENTER);
+        this.getChildren().add(aiSuggestionTintCanvas);
+        aiSuggestionTintCanvas.setVisible(false);
+        aiSuggestionTintCanvas.setMouseTransparent(true);
+        aiSuggestionTintCanvas.setOpacity(0.3f);
 
         brushCanvas = new Canvas(mapWidth, mapHeight);
         StackPane.setAlignment(brushCanvas, Pos.CENTER);
@@ -187,7 +205,6 @@ public class EditedRoomStackPane extends StackPane implements Listener
 
     private void drawTintAiPlacedTiles(Room room)
     {
-
         aiPlacedTintCanvas.getGraphicsContext2D().clearRect(0,0, mapWidth, mapHeight);
         aiPlacedTintCanvas.setVisible(true);
 
@@ -197,7 +214,6 @@ public class EditedRoomStackPane extends StackPane implements Listener
             {
                 if(room.getTile(j, i).getPlacedByAI())
                 {
-                    System.out.println("TRYING TO TINT A TILE");
                     Drawer brush = new Drawer();
                     brush.SetMainComponent(room.getTile(j, i).GetType());
 
@@ -210,6 +226,34 @@ public class EditedRoomStackPane extends StackPane implements Listener
                 }
             }
         }
+    }
+
+    private void drawSuggestionsTiles(InteractiveMap map, Room room, List<Tile> tiles)
+    {
+        aiSuggestionCanvas.getGraphicsContext2D().clearRect(0,0, mapWidth, mapHeight);
+        aiSuggestionCanvas.setVisible(true);
+        aiSuggestionTintCanvas.getGraphicsContext2D().clearRect(0,0, mapWidth, mapHeight);
+        aiSuggestionTintCanvas.setVisible(true);
+
+        for(Tile t: tiles)
+        {
+            //get position
+            int x = t.GetCenterPosition().getX();
+            int y = t.GetCenterPosition().getY();
+
+            //Draw image for tiletype
+            aiSuggestionCanvas.getGraphicsContext2D().drawImage(renderer.renderTile(t.GetType(), editedPane.scale, editedPane.scale),x * editedPane.scale , y * editedPane.scale );
+
+            //draw tint
+            aiSuggestionTintCanvas.getGraphicsContext2D().drawImage(renderer.GetSuggestionTint(editedPane.scale, editedPane.scale),x * editedPane.scale, y * editedPane.scale);
+
+        }
+    }
+
+    public void clearAISuggestionView()
+    {
+        aiSuggestionCanvas.setVisible(false);
+        aiSuggestionTintCanvas.setVisible(false);
     }
 
     //TODO: CHECK THIS!
@@ -293,6 +337,8 @@ public class EditedRoomStackPane extends StackPane implements Listener
         }
     }
 
+
+
     /***
      * The Method that AI uses to edit the room
      * @param
@@ -301,47 +347,63 @@ public class EditedRoomStackPane extends StackPane implements Listener
     {
         for(Tile t:tiles)
         {
-            Drawer tempbrush = (t.GetTypeAsBrush());
+            if(t != null)
+            {
+                Drawer tempbrush = (t.GetTypeAsBrush());
 
-            // from Drawer.update()
-            ImageView tImgView = (ImageView) editedPane.getCell(t.GetCenterPosition().getX(), t.GetCenterPosition().getY());
-            util.Point p = editedPane.CheckTile(tImgView);
+                // from Drawer.update()
+                ImageView tImgView = (ImageView) editedPane.getCell(t.GetCenterPosition().getX(), t.GetCenterPosition().getY());
+                util.Point p = editedPane.CheckTile(tImgView);
 
-            System.out.println("P: " + p);
-            tempbrush.brush.UpdateDrawableTiles(p.getX(), p.getY(), editedPane.getMap());
+                System.out.println("P: " + p);
+                tempbrush.brush.UpdateDrawableTiles(p.getX(), p.getY(), editedPane.getMap());
 
-            editedPane.updateTileInARoom(editedPane.getMap(), tImgView, tempbrush);
+                editedPane.updateTileInARoom(editedPane.getMap(), tImgView, tempbrush);
 
-            editedRoom.getTile(p.getX(), p.getY()).setEditable(true); //
-            editedRoom.getTile(p.getX(), p.getY()).setPlacedByAI(true); //
+                editedRoom.getTile(p.getX(), p.getY()).setEditable(true); //
+                editedRoom.getTile(p.getX(), p.getY()).setPlacedByAI(true); //
 
-            //necessary checks and procedures
-            editedRoom.forceReevaluation();
-            editedRoom.getRoomXML("room\\");
+                //necessary checks and procedures
+                editedRoom.forceReevaluation();
+                editedRoom.getRoomXML("room\\");
 
-            Platform.runLater(() -> {
-                mapIsFeasible(editedPane.getMap().isIntraFeasible());
-                redrawPatterns(editedPane.getMap());
-                redrawLocks(editedPane.getMap());
-                drawTintAiPlacedTiles(editedPane.getMap());
-            });
+                Platform.runLater(() -> {
+                    mapIsFeasible(editedPane.getMap().isIntraFeasible());
+                    redrawPatterns(editedPane.getMap());
+                    redrawLocks(editedPane.getMap());
+                    drawTintAiPlacedTiles(editedPane.getMap());
+                    ccRoomViewController.updateRoom(editedPane.getMap());
+                });
 
-
+                System.out.println("ROOM EDITED BY AI " + t.GetType().name() + " " + p.toString());
+            }
 
             //EventRouter.getInstance().postEvent(new UserEditedRoom(uniqueID, editedPane.getMap()));
 
-            System.out.println("ROOM EDITED BY AI " + t.GetType().name() + " " + p.toString());
-            //try {
-            //    Thread.sleep(1000);
-            //} catch (InterruptedException e) {
-            //    e.printStackTrace();
-            //}
         }
 
         Platform.runLater(() -> {
             System.out.println("UPDATE ROOM");
             ccRoomViewController.updateRoom(editedPane.getMap());
         });
+    }
+
+    /***
+     * The Method that AI uses to display Suggestions in the room
+     * @param
+     */
+    public void displaySuggestions(List<Tile> tiles, CCRoomViewController ccRoomViewController)
+    {
+        drawSuggestionsTiles(editedPane, editedPane.getMap(), tiles);
+
+        Platform.runLater(() -> {
+            mapIsFeasible(editedPane.getMap().isIntraFeasible());
+            redrawPatterns(editedPane.getMap());
+            redrawLocks(editedPane.getMap());
+            drawTintAiPlacedTiles(editedPane.getMap());
+            //ccRoomViewController.updateRoom(editedPane.getMap());
+        });
+
     }
 
     /**

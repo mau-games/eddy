@@ -266,6 +266,10 @@
                             mnemonicParsing="false" wrapText="true" textAlignment="CENTER"
                             text="End Turn" onAction="#endTurn" />
 
+                    <Button fx:id="continueBtn" contentDisplay="TOP"
+                            mnemonicParsing="false" wrapText="true" textAlignment="CENTER"
+                            text="Continue" onAction="#aiContinue" />
+
                     <Button fx:id="worldGridBtn" contentDisplay="TOP"
                             mnemonicParsing="false" wrapText="true" textAlignment="CENTER"
                             text="Go To World Grid" onAction="#backWorldView">

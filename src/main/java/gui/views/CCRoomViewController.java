@@ -5,16 +5,12 @@ import collectors.ActionLogger.ActionType;
 import collectors.ActionLogger.TargetPane;
 import collectors.ActionLogger.View;
 import game.*;
-import game.CoCreativity.AICalculateContributionsDone;
-import game.CoCreativity.AICoCreator;
-import game.CoCreativity.AIPrepareContributionsDone;
-import game.CoCreativity.HumanCoCreator;
+import game.CoCreativity.*;
 import game.Game.MapMutationType;
 import game.tiles.*;
 import generator.algorithm.Algorithm.AlgorithmTypes;
 import generator.algorithm.MAPElites.Dimensions.GADimension.DimensionTypes;
 import generator.algorithm.MAPElites.Dimensions.MAPEDimensionFXML;
-import generator.algorithm.MAPElites.MAPEliteAlgorithm;
 import gui.controls.*;
 import gui.utils.MapRenderer;
 import javafx.application.Platform;
@@ -116,7 +112,8 @@ public class CCRoomViewController extends BorderPane implements Listener
 	@FXML private Button worldGridBtn; //ok
 	@FXML private Button genSuggestionsBtn; //bra
 	@FXML private Button appSuggestionsBtn; //bra
-	@FXML private Button endTurnBtn; // tinea
+	@FXML private Button endTurnBtn; //
+	@FXML private Button continueBtn; //
 	@FXML private Button flowControlBtn; //bra
 	@FXML private Button stopEABtn; //bra
 	@FXML private Button saveGenBtn;
@@ -197,6 +194,7 @@ public class CCRoomViewController extends BorderPane implements Listener
 		router.registerListener(this, new MAPElitesDone());
 		router.registerListener(this, new AIPrepareContributionsDone());
 		router.registerListener(this, new AICalculateContributionsDone());
+		router.registerListener(this, new AITurnDone());
 		router.registerListener(this, new MapUpdate(null));
 		router.registerListener(this, new ApplySuggestion(0));                  //
 		router.registerListener(this, new SuggestedMapsDone());
@@ -367,6 +365,48 @@ public class CCRoomViewController extends BorderPane implements Listener
 		getAppSuggestionsBtn().setTooltip(new Tooltip("Change the current map view with your selected generated map"));
 
 		getPatternButton().setTooltip(new Tooltip("Toggle the game design patterns for the current map"));
+
+		disableSuggestionView();
+
+
+	}
+
+	/**
+	 * Displays the continue button and label
+	 */
+	private void enableSuggestionView()
+	{
+		continueBtn.setVisible(true);
+
+		continueBtn.setTooltip(new Tooltip("Continue to human's turn"));
+	}
+
+	/**
+	 * Hides the continue button and label
+	 */
+	private void disableSuggestionView()
+	{
+		continueBtn.setVisible(false);
+		editedRoomPane.clearAISuggestionView();
+	}
+
+	/**
+	 * Displays the End Turn Button and label
+	 */
+	private void enableTurnBasedView()
+	{
+		endTurnBtn.setVisible(true);
+
+		continueBtn.setTooltip(new Tooltip("Continue to human's turn"));
+	}
+
+	/**
+	 * Hides the continue button and label
+	 */
+	private void disableTurnBasedView()
+	{
+		endTurnBtn.setVisible(false);
+
 	}
 
 	public void resetView()
@@ -565,6 +605,7 @@ public class CCRoomViewController extends BorderPane implements Listener
 		}
 		else if(e instanceof AIPrepareContributionsDone)
 		{
+			AICoCreator.getInstance().setActive(true);
 			AICoCreator.getInstance().CalculateContribution();
 		}
 		else if(e instanceof AICalculateContributionsDone)
@@ -573,21 +614,34 @@ public class CCRoomViewController extends BorderPane implements Listener
 			{
 				System.out.println("AI Contributions are ready");
 
-				System.out.println("AICC EDIT ROOM STARTED");
-				//editedRoomPane.CCRoomEdited(editedRoomPane.editedPane, editedRoomPane.editedPane.getMap()); //this would be replaced by for loop for each contribution
-				// switch case with aiCC.getControlLevel for placing or displaying
+				switch(AICoCreator.getInstance().getControlLevel())
+				{
+					case LOW:
+						// Suggest
+						System.out.println("AICC SUGGESTIONS STARTED");
+						disableTurnBasedView();
+						enableSuggestionView();
+						editedRoomPane.displaySuggestions(AICoCreator.getInstance().GetContributions(), this);
+						break;
 
-				editedRoomPane.CCRoomEdited(editedRoomPane.editedPane.getMap(), AICoCreator.getInstance().GetContributions(), this);
-
-				//System.out.println("UPDATE ROOM");
-				//Platform.runLater(() -> {
-				//	updateRoom(editedRoomPane.editedPane.getMap());
-				//});
-
-				System.out.println("HUMAN'S TURN AGAIN");
-				HumanCoCreator.getInstance().resetRound();
-				AICoCreator.getInstance().resetRound();
+					case MEDIUM:
+					case HIGH:
+						//place
+						System.out.println("AICC EDIT ROOM STARTED");
+						editedRoomPane.CCRoomEdited(editedRoomPane.editedPane.getMap(), AICoCreator.getInstance().GetContributions(), this);
+						router.postEvent(new AITurnDone());
+						break;
+				}
 			}
+		}
+		else if(e instanceof AITurnDone)
+		{
+			System.out.println("AI FINISHED - HUMAN'S TURN AGAIN");
+			disableSuggestionView();
+			enableTurnBasedView();
+			AICoCreator.getInstance().setActive(false);
+			HumanCoCreator.getInstance().resetRound();
+			//AICoCreator.getInstance().resetRound(); //
 		}
 		else if (e instanceof MapUpdate) {
 			//FIXME: I REALLY HAVE TO GO BACK HERE TO FIX THIS TO BE ABLE TO CREATEROOMS THE OLD WAY
@@ -849,6 +903,17 @@ public class CCRoomViewController extends BorderPane implements Listener
 //
 		//System.out.println("HUMAN'S TURN AGAIN");
 		//HumanCoCreator.getInstance().resetRound();
+	}
+
+	/**
+	 * Function connected to Continue button
+	 *
+	 * "Why is this public?",  you ask. Because of FXML's method binding.
+	 */
+	@FXML
+	private void aiContinue()
+	{
+		router.postEvent(new AITurnDone());
 	}
 
 	/**

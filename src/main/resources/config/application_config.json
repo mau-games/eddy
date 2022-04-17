@@ -10,7 +10,6 @@
             "door": "graphics/tiles/door.png",
             "lock": "graphics/tiles/lock.png",
             "hero": "graphics/tiles/heroTile.png"
-
         },
         "mesopatterns": {
             "ambush": "graphics/mesopatterns/ambush.png",

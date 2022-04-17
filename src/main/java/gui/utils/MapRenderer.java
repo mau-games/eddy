@@ -192,7 +192,12 @@ public class MapRenderer implements Listener {
 
 	public synchronized Image GetTint(double width, double height)
 	{
-		return new Image(MapRenderer.class.getResourceAsStream("/raw-graphics/tint.png"), width, height, false, true);
+		return new Image(getClass().getResource("/graphics/tiles/tint.png").toExternalForm(), width, height, false, true);
+	}
+
+	public synchronized Image GetSuggestionTint(double width, double height)
+	{
+		return new Image(getClass().getResource("/graphics/tiles/suggestiontint.png").toExternalForm(), width, height, false, true);
 	}
 
 	/**
@@ -643,7 +648,7 @@ public class MapRenderer implements Listener {
 		double pWidth = Math.max(ctx.getCanvas().getWidth(), ctx.getCanvas().getHeight()) / (double)Math.max(width, height);
 		patternOpacity = config.getPatternOpacity();
 		
-		drawBitmapProperly(ctx, brush.GetDrawableTiles(), c, pWidth); //tinea
+		drawBitmapProperly(ctx, brush.GetDrawableTiles(), c, pWidth);
 	}
 	
 	public synchronized void drawGraph(GraphicsContext ctx, int[][] matrix, Graph<Pattern> patternGraph){

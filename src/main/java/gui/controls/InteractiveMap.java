@@ -3,6 +3,7 @@ package gui.controls;
 import java.util.HashMap;
 import java.util.UUID;
 
+import game.CoCreativity.AICoCreator;
 import game.Room;
 import game.Tile;
 import game.TileTypes;
@@ -104,7 +105,6 @@ public class InteractiveMap extends GridPane implements Listener {
 
 		//Safety checkup
 		Point p = coords.get(tile);
-
 
 		Tile currentTile = room.getTile(p);
 
@@ -399,13 +399,34 @@ public class InteractiveMap extends GridPane implements Listener {
 		@Override
 		public void handle(MouseEvent event)
 		{
+			if(AICoCreator.getInstance().getActive()) // AI is active and human can not edit
+			{
+				switch(AICoCreator.getInstance().getControlLevel())
+				{
+					case LOW:
+						System.out.println();
+						System.out.println("WOAH THERE, I am suggesting stuff");
+						System.out.println();
+						break;
 
-			if (event.getTarget() instanceof ImageView) {
-				// Edit the map
-
-				ImageView tile = (ImageView) event.getTarget();
-				owner.RoomEdited(self, getMap(), tile, event);
+					case MEDIUM:
+					case HIGH:
+						System.out.println();
+						System.out.println("WOAH THERE, I am doing stuff");
+						System.out.println();
+						break;
+				}
 			}
+			else // Human can edit
+			{
+				if (event.getTarget() instanceof ImageView) {
+					// Edit the map
+
+					ImageView tile = (ImageView) event.getTarget();
+					owner.RoomEdited(self, getMap(), tile, event);
+				}
+			}
+
 		}
 
 	}

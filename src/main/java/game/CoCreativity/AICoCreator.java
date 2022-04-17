@@ -28,6 +28,8 @@ public class AICoCreator {
     Room currentTargetRoom;
     private List<Room> generatedElites;
 
+    private boolean isActive;
+
     public static AICoCreator getInstance()
     {
         if(singleton == null)
@@ -347,6 +349,14 @@ public class AICoCreator {
     public void resetRound()
     {
         generatedElites = new ArrayList<>();
+    }
+
+    public boolean getActive() {
+        return isActive;
+    }
+
+    public void setActive(boolean active) {
+        isActive = active;
     }
 }
 
