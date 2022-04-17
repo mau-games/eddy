@@ -276,7 +276,7 @@ public class EditedRoomStackPane extends StackPane implements Listener
 
             editedPane.updateTileInARoom(editedPane.getMap(), tImgView, tempbrush);
 
-            editedRoom.getTile(p.getX(), p.getY()).setEditable(AICoCreator.getInstance());
+            editedRoom.getTile(p.getX(), p.getY()).setEditable(true); //
 
             //necessary checks and procedures
             editedRoom.forceReevaluation();
@@ -286,9 +286,9 @@ public class EditedRoomStackPane extends StackPane implements Listener
                 mapIsFeasible(editedPane.getMap().isIntraFeasible());
                 redrawPatterns(editedPane.getMap());
                 redrawLocks(editedPane.getMap());
-                System.out.println("UPDATE ROOM");
-                ccRoomViewController.updateRoom(editedPane.getMap());
             });
+
+
 
             //EventRouter.getInstance().postEvent(new UserEditedRoom(uniqueID, editedPane.getMap()));
 
@@ -299,6 +299,11 @@ public class EditedRoomStackPane extends StackPane implements Listener
             //    e.printStackTrace();
             //}
         }
+
+        Platform.runLater(() -> {
+            System.out.println("UPDATE ROOM");
+            ccRoomViewController.updateRoom(editedPane.getMap());
+        });
     }
 
     /**

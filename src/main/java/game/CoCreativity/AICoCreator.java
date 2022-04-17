@@ -21,7 +21,6 @@ public class AICoCreator {
 
     int amountOfTiles; // the amount of tiles to contribute with this turn
     List<Point> tilesPositions; //the positions of the tiles that will be contributed to this turn
-    List<Room> permutations; // the permutations to run MAP-Elites on
     int locationMargin = 1; // how many tiles bigger than the human's area the contribution area will be // maybe dynamic of room size?
     int roomWidth, roomHeight;
     List<Tile> contributions; // the contributions for the round
@@ -40,7 +39,6 @@ public class AICoCreator {
         setControlLevel(ControlLevel.LOW);
 
         tilesPositions = new ArrayList<>();
-        permutations = new ArrayList<>();
         contributions = new ArrayList<>();
 
         this.roomHeight = roomHeight;
@@ -57,23 +55,37 @@ public class AICoCreator {
      ***/
     public void prepareTurn(Room room)
     {
-        tilesPositions.clear();
-        permutations.clear();
+        if(HumanCoCreator.getInstance().getAmountOfTilesPlaced() > 0)
+        {
+            tilesPositions.clear();
+            tilesPositions = CalculateContributionArea(humanCC.getInstance().getTilesPlaced());
+            amountOfTiles = CalculateAmountOfTilesToContributeWith(humanCC.getInstance().getAmountOfTilesPlaced());
+        }
+        else
+        {
+            //if the human did not place anything last round, favor contributing to positions in the previous area that has not been edited yet
+
+            List<Point> newPoints = tilesPositions;
+            for(Tile t : contributions)
+            {
+                if(tilesPositions.contains(t.GetCenterPosition()))
+                {
+                    newPoints.remove(t.GetCenterPosition());
+                }
+            }
+
+            if(newPoints.size() > 0)
+            {
+                tilesPositions = newPoints;
+            }
+        }
 
         currentTargetRoom = room;
-        amountOfTiles = CalculateAmountOfTilesToContributeWith(humanCC.getInstance().getAmountOfTilesPlaced());
-        tilesPositions = CalculateContributionArea(humanCC.getInstance().getTilesPlaced());
 
         /***
          * Step 1: Run MAP-Elites for 100 generations to get the best candidates of rooms
          ***/
         List<Room> elites = new ArrayList<>();
-
-        // get the K-nearest elites to the target room
-        // able to edit human contributions? I think yes, but might result in the human deleting what the human made over and over. Maybe add a queue of actions so that it's never repeated ?
-        // all dimensions
-
-        // result should be put into kNearestElites
     }
 
     /***
@@ -111,10 +123,11 @@ public class AICoCreator {
         // for each position that we can contribute to
         for(int k=0; k<blah.length;k++)
         {
-            //calculate what tileType was the most common on this position
-            Map.Entry<String, Integer> mostCommon = getMostFrequentElement(blah[k]);
-
             Point pos = tilesPositions.get(k);
+
+            //calculate what tileType was the most common on this position
+            Map.Entry<String, Integer> mostCommon = getMostFrequentElement(blah[k], pos);
+
             String maxType = mostCommon.getKey();
             int max = mostCommon.getValue();
 
@@ -130,20 +143,16 @@ public class AICoCreator {
             }
         }
 
-        // contributions for this round
-        System.out.println("contributions this run: ");
-        for(Tile t : bestContributions)
-        {
-            if(t != null)
-                System.out.println(t.GetCenterPosition() + " " + t.GetType().name());
-        }
-
-        System.out.println("");
         contributions = Arrays.asList(bestContributions);
         router.postEvent(new AICalculateContributionsDone());
     }
 
-    static Map.Entry<String, Integer> getMostFrequentElement(List<TileTypes> inputArray)
+    private boolean TileIsSameAsInTargetRoom(TileTypes tt, Point p)
+    {
+        return (currentTargetRoom.getTile(p.getX(), p.getY()).GetType() == tt);
+    }
+
+    static Map.Entry<String, Integer> getMostFrequentElement(List<TileTypes> inputArray, Point p)
     {
         //Creating HashMap object with elements as keys and their occurrences as values
 
@@ -153,17 +162,20 @@ public class AICoCreator {
 
         for (TileTypes i : inputArray)
         {
-            if (elementCountMap.containsKey(i.name()))
+            if(!getInstance().TileIsSameAsInTargetRoom(i, p))
             {
-                //If an element is present, incrementing its count by 1
-                int newValue = elementCountMap.get(i.name())+1;
+                if (elementCountMap.containsKey(i.name()))
+                {
+                    //If an element is present, incrementing its count by 1
+                    int newValue = elementCountMap.get(i.name())+1;
 
-                elementCountMap.put(i.name(), newValue);
-            }
-            else if(!elementCountMap.containsKey(i.name()) && i != TileTypes.FLOOR && i != TileTypes.NONE && i != TileTypes.DOOR && i != TileTypes.HERO)// ignore NONE, FLOOR, HERO and DOOR
-            {
-                //If an element is not present, put that element with 1 as its value
-                elementCountMap.put(i.name(), 1);
+                    elementCountMap.put(i.name(), newValue);
+                }
+                else if(!elementCountMap.containsKey(i.name()) && i != TileTypes.FLOOR && i != TileTypes.NONE && i != TileTypes.DOOR && i != TileTypes.HERO)// ignore NONE, FLOOR, HERO and DOOR
+                {
+                    //If an element is not present, put that element with 1 as its value
+                    elementCountMap.put(i.name(), 1);
+                }
             }
         }
 
@@ -193,9 +205,6 @@ public class AICoCreator {
     // returns a number between 1 and parameter+1
     private int CalculateAmountOfTilesToContributeWith(int humanContribution)
     {
-        if(humanContribution == 0)
-            return 1;
-
         int max = humanContribution + 1;
         int min = Math.max(humanContribution - 1, 1);
         return (int)(Math.random() * ((max-min)) + min);
@@ -218,10 +227,7 @@ public class AICoCreator {
                         if(t.GetCenterPosition().getY()+y >= 0 && t.GetCenterPosition().getY()+y < roomHeight)
                         {
                             Point p = new Point (t.GetCenterPosition().getX()+x, t.GetCenterPosition().getY()+y);
-                            if(!resultingPositions.contains(p))
-                            {
-                                resultingPositions.add(p);
-                            }
+                            resultingPositions.add(p);
                         }
                     }
                 }
@@ -234,8 +240,10 @@ public class AICoCreator {
         for(Tile ti:tilesPlaced)
         {
             if(!ti.getEditable() && finalList.contains(ti.GetCenterPosition()))
+            {
                 System.out.println("EXCLUDES UNEDITABLE TILES");
                 finalList.remove(ti.GetCenterPosition());
+            }
         }
 
         System.out.println("CONTRIBUTION AREA: " + finalList.toString());
@@ -312,7 +320,6 @@ public class AICoCreator {
         }
 
         // sort roomDoubleMap
-
         List<Map.Entry<Room, Double>> list = new ArrayList<>(roomDoubleMap.entrySet());
         list.sort(Map.Entry.comparingByValue());
 
@@ -324,8 +331,6 @@ public class AICoCreator {
 
         return newList;
     }
-
-
 }
 
 

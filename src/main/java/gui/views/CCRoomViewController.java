@@ -110,6 +110,8 @@ public class CCRoomViewController extends BorderPane implements Listener
 	@FXML private Label treasureSafety;
 	@FXML private Label treasureSafety2;
 
+	@FXML private Label ccLabel;
+
 	@FXML private Button worldGridBtn; //ok
 	@FXML private Button genSuggestionsBtn; //bra
 	@FXML private Button appSuggestionsBtn; //bra
@@ -322,12 +324,27 @@ public class CCRoomViewController extends BorderPane implements Listener
 
 		initButtons();
 		initLegend();
+		initCCLAbel();
+
 		AICoCreator.getInstance().initAiCoCreator(roomToBe.getColCount(), roomToBe.getRowCount());
 		resetView();
 		roomToBe.forceReevaluation();
 		updateRoom(roomToBe);
 
 		generateNewMaps();
+	}
+
+	private void initCCLAbel()
+	{
+		//ccLabel.setText("Tinea");
+		//ccLabel.setStyle("-fx-font-weight: bold");
+		//ccLabel.setStyle("-fx-text-fill: white;");
+
+	}
+
+	private void updateCCLAbel(String s)
+	{
+		ccLabel.setText(s);
 	}
 
 	/**

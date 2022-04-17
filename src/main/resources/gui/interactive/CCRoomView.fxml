@@ -51,6 +51,8 @@
         <Insets top="0" right="15" bottom="0" left="0" />
     </padding>
 
+
+
     <left>
         <fx:define>
             <ToggleGroup fx:id="brushes" />
@@ -59,7 +61,7 @@
                  prefHeight="400.0" prefWidth="135.0"
                  BorderPane.alignment="TOP_CENTER">
             <items>
-                <Label text="TINEA TEST" fx:id="editorToolsLbl" />
+                <Label text="Editor's Tools" fx:id="editorToolsLbl" />
                 <ToggleButton contentDisplay="TOP" prefWidth="75.0"
                               mnemonicParsing="false" text="Floor" toggleGroup="$brushes"
                               onAction="#selectBrush" fx:id="floorBtn">
@@ -160,8 +162,13 @@
         </ToolBar>
     </left>
     <center>
-        <!--		<StackPane alignment="CENTER" fx:id="mapPane" />-->
+
         <EditedRoomStackPane fx:id="editedRoomPane" prefHeight="122.0" prefWidth="309.0" BorderPane.alignment="CENTER" />
+
+        <!--		<StackPane alignment="CENTER" fx:id="mapPane" />-->
+
+
+
     </center>
 
     <right>
