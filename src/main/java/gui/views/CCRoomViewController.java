@@ -7,6 +7,7 @@ import collectors.ActionLogger.View;
 import game.*;
 import game.CoCreativity.AICalculateContributionsDone;
 import game.CoCreativity.AICoCreator;
+import game.CoCreativity.AIPrepareContributionsDone;
 import game.CoCreativity.HumanCoCreator;
 import game.Game.MapMutationType;
 import game.tiles.*;
@@ -159,6 +160,7 @@ public class CCRoomViewController extends BorderPane implements Listener
 
 	public AICoCreator aiCC;
 	public HumanCoCreator humanCC;
+	boolean AIsTurnToContribute;
 
 	//PROVISIONAL FIX!
 	public enum EvoState
@@ -193,6 +195,7 @@ public class CCRoomViewController extends BorderPane implements Listener
 
 		router.registerListener(this, new MAPEGridUpdate(null));
 		router.registerListener(this, new MAPElitesDone());
+		router.registerListener(this, new AIPrepareContributionsDone());
 		router.registerListener(this, new AICalculateContributionsDone());
 		router.registerListener(this, new MapUpdate(null));
 		router.registerListener(this, new ApplySuggestion(0));                  //
@@ -525,7 +528,10 @@ public class CCRoomViewController extends BorderPane implements Listener
 				System.out.println("currentDimensions: " + currentDimensions.length);
 				System.out.println();
 
-				AICoCreator.getInstance().CalculateContribution(generatedRooms);
+				AICoCreator.getInstance().setGeneratedElites(generatedRooms);
+
+				generateNewMaps(editedRoomPane.editedPane.getMap());
+
 
 
 //				Room room = (Room) ((MapUpdate) e).getPayload();
@@ -557,6 +563,10 @@ public class CCRoomViewController extends BorderPane implements Listener
 
 			}
 		}
+		else if(e instanceof AIPrepareContributionsDone)
+		{
+			AICoCreator.getInstance().CalculateContribution();
+		}
 		else if(e instanceof AICalculateContributionsDone)
 		{
 			if(isActive)
@@ -576,6 +586,7 @@ public class CCRoomViewController extends BorderPane implements Listener
 
 				System.out.println("HUMAN'S TURN AGAIN");
 				HumanCoCreator.getInstance().resetRound();
+				AICoCreator.getInstance().resetRound();
 			}
 		}
 		else if (e instanceof MapUpdate) {
@@ -815,10 +826,13 @@ public class CCRoomViewController extends BorderPane implements Listener
 	@FXML
 	private void endTurn()
 	{
+		AIsTurnToContribute = true;
 		System.out.println("END TURN PRESSED");
 
 		System.out.println("AICC PREPARE TURN");
 		AICoCreator.getInstance().prepareTurn(editedRoomPane.editedPane.getMap());
+
+
 
 		//generateNewMaps(editedRoomPane.editedPane.getMap());
 

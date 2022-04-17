@@ -21,6 +21,7 @@ public class Tile
 	private boolean m_immutable;
 	public boolean canDraw = true;
 	private boolean editable = true; // for Co-Creation
+	private boolean placedByAI = false; //for Co-Creation
 	public int maxAmountPerRoom;
 	public int width = 1; //tile size
 	public int height = 1; //tile size
@@ -218,5 +219,15 @@ public class Tile
 		else
 			editable = false;
 
+	}
+
+	public void setPlacedByAI(boolean b)
+	{
+		placedByAI = b;
+	}
+
+	public boolean getPlacedByAI()
+	{
+		return placedByAI;
 	}
 }

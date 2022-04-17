@@ -163,7 +163,9 @@
     </left>
     <center>
 
-        <EditedRoomStackPane fx:id="editedRoomPane" prefHeight="122.0" prefWidth="309.0" BorderPane.alignment="CENTER" />
+        <EditedRoomStackPane fx:id="editedRoomPane" prefHeight="122.0" prefWidth="309.0" BorderPane.alignment="CENTER"/>
+
+
 
         <!--		<StackPane alignment="CENTER" fx:id="mapPane" />-->
 

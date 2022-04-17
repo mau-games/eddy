@@ -30,7 +30,8 @@ public class EditedRoomStackPane extends StackPane implements Listener
     public UUID uniqueID;
 
     public InteractiveMap editedPane;
-    public Canvas patternCanvas; //create a AIplacedTilesCanvas
+    public Canvas aiPlacedTintCanvas;
+    public Canvas patternCanvas;
     public Canvas warningCanvas;
     public Canvas lockCanvas;
     public Canvas brushCanvas;
@@ -75,6 +76,13 @@ public class EditedRoomStackPane extends StackPane implements Listener
         this.getChildren().add(editedPane);
         editedPane.updateMap(room);
 
+
+        aiPlacedTintCanvas = new Canvas(mapWidth, mapHeight);
+        StackPane.setAlignment(aiPlacedTintCanvas, Pos.CENTER);
+        this.getChildren().add(aiPlacedTintCanvas);
+        aiPlacedTintCanvas.setVisible(false);
+        aiPlacedTintCanvas.setMouseTransparent(true);
+        aiPlacedTintCanvas.setOpacity(0.2f);
 
         brushCanvas = new Canvas(mapWidth, mapHeight);
         StackPane.setAlignment(brushCanvas, Pos.CENTER);
@@ -177,6 +185,33 @@ public class EditedRoomStackPane extends StackPane implements Listener
         }
     }
 
+    private void drawTintAiPlacedTiles(Room room)
+    {
+
+        aiPlacedTintCanvas.getGraphicsContext2D().clearRect(0,0, mapWidth, mapHeight);
+        aiPlacedTintCanvas.setVisible(true);
+
+        for(int i = 0; i < room.getRowCount(); ++i)
+        {
+            for(int j = 0; j < room.getColCount(); ++j)
+            {
+                if(room.getTile(j, i).getPlacedByAI())
+                {
+                    System.out.println("TRYING TO TINT A TILE");
+                    Drawer brush = new Drawer();
+                    brush.SetMainComponent(room.getTile(j, i).GetType());
+
+                    aiPlacedTintCanvas.getGraphicsContext2D().drawImage(renderer.GetTint(editedPane.scale, editedPane.scale),
+                            j * editedPane.scale, i * editedPane.scale);
+
+                    //renderer.drawBrush(aiPlacedTintCanvas.getGraphicsContext2D(),
+                    //        room.toMatrix(), brush,
+                    //        Color.BLUE);
+                }
+            }
+        }
+    }
+
     //TODO: CHECK THIS!
     public boolean checkInfeasibleLockedRoom(ImageView tile, InteractiveMap editedRoomCanvas)
     {
@@ -236,6 +271,7 @@ public class EditedRoomStackPane extends StackPane implements Listener
             mapIsFeasible(editedPane.getMap().isIntraFeasible());
             redrawPatterns(editedPane.getMap());
             redrawLocks(editedPane.getMap());
+            drawTintAiPlacedTiles(editedPane.getMap());
 
 //        EventRouter.getInstance().postEvent(new InteractiveRoomEdited(self, getMap(), tile, event));
             EventRouter.getInstance().postEvent(new UserEditedRoom(uniqueID, editedPane.getMap()));
@@ -277,6 +313,7 @@ public class EditedRoomStackPane extends StackPane implements Listener
             editedPane.updateTileInARoom(editedPane.getMap(), tImgView, tempbrush);
 
             editedRoom.getTile(p.getX(), p.getY()).setEditable(true); //
+            editedRoom.getTile(p.getX(), p.getY()).setPlacedByAI(true); //
 
             //necessary checks and procedures
             editedRoom.forceReevaluation();
@@ -286,6 +323,7 @@ public class EditedRoomStackPane extends StackPane implements Listener
                 mapIsFeasible(editedPane.getMap().isIntraFeasible());
                 redrawPatterns(editedPane.getMap());
                 redrawLocks(editedPane.getMap());
+                drawTintAiPlacedTiles(editedPane.getMap());
             });
 
 

@@ -16,6 +16,7 @@ public class AICoCreator {
 
     private static AICoCreator singleton = null;
 
+
     public enum ControlLevel {LOW, MEDIUM, HIGH};
     ControlLevel controlLevel; // the degree of control this agent has
 
@@ -25,7 +26,7 @@ public class AICoCreator {
     int roomWidth, roomHeight;
     List<Tile> contributions; // the contributions for the round
     Room currentTargetRoom;
-    private List<Room> kNearestElites; // contains the elites that are the K-nearest neighbours to the targetroom
+    private List<Room> generatedElites;
 
     public static AICoCreator getInstance()
     {
@@ -40,6 +41,7 @@ public class AICoCreator {
 
         tilesPositions = new ArrayList<>();
         contributions = new ArrayList<>();
+        generatedElites = new ArrayList<>();
 
         this.roomHeight = roomHeight;
         this.roomWidth = roomWidth;
@@ -53,8 +55,20 @@ public class AICoCreator {
     /***
      * Prepares for a new turn
      ***/
-    public void prepareTurn(Room room)
-    {
+    public void prepareTurn(Room room){
+
+        int clock = 0;
+        while(generatedElites.size() <= 0)
+        {
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            clock++;
+            System.out.print(clock + " ");
+        }
+
         if(HumanCoCreator.getInstance().getAmountOfTilesPlaced() > 0)
         {
             tilesPositions.clear();
@@ -81,27 +95,17 @@ public class AICoCreator {
         }
 
         currentTargetRoom = room;
-
-        /***
-         * Step 1: Run MAP-Elites for 100 generations to get the best candidates of rooms
-         ***/
-        List<Room> elites = new ArrayList<>();
+        router.postEvent(new AIPrepareContributionsDone());
     }
 
     /***
      * Does the calculation of what tiles to contribute with
      ***/
-    public void CalculateContribution(List<Room> elites)
+    public void CalculateContribution()
     {
-        /***
-         * Step 2: Calculate what specific tiles are the best
-         *
-         * The best tile = the most reoccurring tile at each position within the contribution area in the elites
-         ***/
+        List<TileTypes>[] blah = new List[tilesPositions.size()]; // contains a list of tiles for each position in the area
 
-        List<TileTypes>[] blah = new List[tilesPositions.size()]; // this is an array containing a list of tiles for each position in the area
-
-        List<Room> kNearestElites = getInstance().KNNelites(elites, 25); // REMEMBER TO ADJUST K
+        List<Room> kNearestElites = getInstance().KNNelites(generatedElites, 25); // REMEMBER TO ADJUST K
 
         //for each elite
         for(int i = 0; i < kNearestElites.size(); i++) //kNearestElites
@@ -330,6 +334,19 @@ public class AICoCreator {
         }
 
         return newList;
+    }
+
+    public List<Room> getGeneratedElites() {
+        return generatedElites;
+    }
+
+    public void setGeneratedElites(List<Room> generatedElites) {
+        this.generatedElites = generatedElites;
+    }
+
+    public void resetRound()
+    {
+        generatedElites = new ArrayList<>();
     }
 }
 

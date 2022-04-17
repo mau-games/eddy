@@ -1,6 +1,7 @@
 package gui.utils;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.util.*;
 import java.util.Map.Entry;
 import java.util.stream.Collectors;
@@ -183,12 +184,17 @@ public class MapRenderer implements Listener {
 	public synchronized Image renderTile(TileTypes tile, double width, double height, boolean searchingInmutable) {
 		return getTileImage(tile.getValue(), width, height);
 	}
-	
+
 	public synchronized Image GetLock(double width, double height)
 	{
 		return new Image("/" + config.getInternalConfig().getString("map.tiles.lock"), width, height, false, true);
 	}
-	
+
+	public synchronized Image GetTint(double width, double height)
+	{
+		return new Image(MapRenderer.class.getResourceAsStream("/raw-graphics/tint.png"), width, height, false, true);
+	}
+
 	/**
 	 * Renders a single tile.
 	 * 
