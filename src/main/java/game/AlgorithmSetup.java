@@ -70,6 +70,21 @@ public class AlgorithmSetup {
 		narrativeConstraints.testConstraints();
 	}
 
+	public void setMarioConstraints()
+	{
+		narrativeConstraints.fakeConstraintsMario();
+	}
+
+	public void setZTempleConstraints()
+	{
+		narrativeConstraints.fakeConstraintsZeldaTemple();
+	}
+
+	public void setOcarinaConstraints()
+	{
+		narrativeConstraints.fakeConstraintsOcarina();
+	}
+
 	/**
 	 * To be accessed by the FI-2Pop algorithm!
 	 * @param otherGraph

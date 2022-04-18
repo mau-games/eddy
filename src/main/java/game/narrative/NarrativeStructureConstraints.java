@@ -27,8 +27,35 @@ public class NarrativeStructureConstraints
         resetConstraints();
         this.heroes = 2;
         this.villains = 2;
+        this.quest_items = 1;
+        this.treasures = 1;
+    }
+
+    public void fakeConstraintsMario()
+    {
+        resetConstraints();
+        this.heroes = 2;
+        this.villains = 2;
+        this.quest_items = 1;
+        this.treasures = 1;
+    }
+
+    public void fakeConstraintsZeldaTemple()
+    {
+        resetConstraints();
+        this.heroes = 2;
+        this.villains = 2;
         this.quest_items = 2;
         this.treasures = 1;
+    }
+
+    public void fakeConstraintsOcarina()
+    {
+        resetConstraints();
+        this.heroes = 4;
+        this.villains = 1;
+        this.quest_items = 1;
+        this.treasures = 0;
     }
 
     public void setConstraintsFromDungeon(Dungeon current_dungeon)

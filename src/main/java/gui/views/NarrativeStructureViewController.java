@@ -11,6 +11,7 @@ import generator.algorithm.MAPElites.grammarDimensions.MAPEDimensionGrammarFXML;
 import gui.controls.*;
 import gui.utils.DungeonDrawer;
 import gui.utils.InterRoomBrush;
+import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
@@ -333,8 +334,12 @@ public class NarrativeStructureViewController extends BorderPane implements List
 		//Set the narrative constraints!
 		narrativeConstraints.setConstraintsFromDungeon(currentDungeon);
 		AlgorithmSetup.getInstance().setNarrativeConstraints(currentDungeon);
-		AlgorithmSetup.getInstance().setFakeNarrativeConstraints();
-		AlgorithmSetup.getInstance().setConstraintNarrativeStruct(true);
+		//AlgorithmSetup.getInstance().setFakeNarrativeConstraints();
+		AlgorithmSetup.getInstance().setMarioConstraints();
+//		AlgorithmSetup.getInstance().setZTempleConstraints();
+//		AlgorithmSetup.getInstance().setOcarinaConstraints();
+
+		AlgorithmSetup.getInstance().setConstraintNarrativeStruct(false);
 
 		//Testing how the narrative structure components work: /FIXME!
 		//grammar.getNarrativeComponents().evaluate_collect_components();
@@ -491,12 +496,12 @@ public class NarrativeStructureViewController extends BorderPane implements List
 		narrativeGraphMAPE = new GrammarMAPEliteAlgorithm(target_graph, ax);
 		currentDimensions = new MAPEDimensionGrammarFXML[]{
 				new MAPEDimensionGrammarFXML(GADimensionGrammar.GrammarDimensionTypes.INTERESTING, 5),
-				new MAPEDimensionGrammarFXML(GADimensionGrammar.GrammarDimensionTypes.STEP, 5),
-				new MAPEDimensionGrammarFXML(GADimensionGrammar.GrammarDimensionTypes.DIVERSITY, 5),
-				new MAPEDimensionGrammarFXML(GADimensionGrammar.GrammarDimensionTypes.CONFLICT, 5),
-				new MAPEDimensionGrammarFXML(GADimensionGrammar.GrammarDimensionTypes.PLOT_DEVICES, 5),
-				new MAPEDimensionGrammarFXML(GADimensionGrammar.GrammarDimensionTypes.PLOT_POINTS, 5),
-				new MAPEDimensionGrammarFXML(GADimensionGrammar.GrammarDimensionTypes.PLOT_TWISTS, 5)};
+				new MAPEDimensionGrammarFXML(GADimensionGrammar.GrammarDimensionTypes.STEP, 5)};
+//				new MAPEDimensionGrammarFXML(GADimensionGrammar.GrammarDimensionTypes.DIVERSITY, 5),
+//				new MAPEDimensionGrammarFXML(GADimensionGrammar.GrammarDimensionTypes.CONFLICT, 5),
+//				new MAPEDimensionGrammarFXML(GADimensionGrammar.GrammarDimensionTypes.PLOT_DEVICES, 5),
+//				new MAPEDimensionGrammarFXML(GADimensionGrammar.GrammarDimensionTypes.PLOT_POINTS, 5),
+//				new MAPEDimensionGrammarFXML(GADimensionGrammar.GrammarDimensionTypes.PLOT_TWISTS, 5)};
 		((GrammarMAPEliteAlgorithm)narrativeGraphMAPE).initPopulations(currentDimensions);
 		narrativeGraphMAPE.start();
 	}
@@ -557,7 +562,8 @@ public class NarrativeStructureViewController extends BorderPane implements List
 
 		if(e instanceof AlgorithmDone)       //Only for this evaluations!
 		{
-			RunMAPElites(editedGraph, axiom_graph); //This one is the one to run!
+			//FIXME:
+			//RunMAPElites(editedGraph, axiom_graph); //This one is the one to run!
 		}
 		else if(e instanceof MAPENarrativeGridUpdate)
 		{
@@ -570,6 +576,7 @@ public class NarrativeStructureViewController extends BorderPane implements List
 			if (isActive) {
 				//THIS NEED TO BE IMPROVED!
 				List<GrammarGACell> filled_cells = ((NarrativeStructMAPElitesDone) e).getCells();
+				System.out.println(filled_cells.size());
 //				Room room = (Room) ((MapUpdate) e).getPayload();
 //				UUID uuid = ((MapUpdate) e).getID();
 				LabeledCanvas canvas;
@@ -665,6 +672,10 @@ public class NarrativeStructureViewController extends BorderPane implements List
 			//TODO: This actually needs to be checked
 			if(((NarrativeStructEdited)e).replaced_graph)
 			{
+				Platform.runLater(() -> {
+
+//					System.out.println("CANVAS WIDTH: " + canvas.getWidth() + ", CANVAS HEIGHT: " + canvas.getHeight());
+
 				renderedGraph = (GrammarGraph) e.getPayload();
 
 				worldPane.getChildren().clear();
@@ -696,6 +707,7 @@ public class NarrativeStructureViewController extends BorderPane implements List
 
 				renderedGraph.nPane.setTranslateX(Math.abs(renderedGraph.nPane.getBoundsInLocal().getMinX()) + old_bounds.getMinX());
 				renderedGraph.nPane.setTranslateY(Math.abs(renderedGraph.nPane.getBoundsInLocal().getMinY()) + old_bounds.getMinY());
+				});
 			}
 
 			//TODO: Setting and testing Narrative Structure Constraints

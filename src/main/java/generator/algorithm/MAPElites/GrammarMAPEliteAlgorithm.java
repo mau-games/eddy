@@ -38,7 +38,7 @@ public class GrammarMAPEliteAlgorithm extends Algorithm implements Listener {
 	int cellAmounts = 1;
 	private ArrayList<GADimensionGrammar> MAPElitesDimensions;
 	private Random rnd = new Random();
-	private int iterationsToPublish = 20;
+	private int iterationsToPublish = 25;
 	private int breedingGenerations = 5; //this relates to how many generations will it breed
 	private int realCurrentGen = 0;
 	private int currentGen = 0;
@@ -1143,6 +1143,7 @@ public class GrammarMAPEliteAlgorithm extends Algorithm implements Listener {
     	{
     		//TODO: For next evaluation
     		saveIterations--;
+			currentGen = 0; //FIXME
     		
     		//Uncomment to save everytime we publish
     		if(saveIterations == 0)
@@ -1160,10 +1161,11 @@ public class GrammarMAPEliteAlgorithm extends Algorithm implements Listener {
     					cellsFilled++;
     			}
     			System.out.println("cells filled: " + cellsFilled + "; cell count: " + cells.size() + "; CurrentGEN: " + realCurrentGen);
-    		}
+				publishGeneration();
+			}
     		
 //    		System.out.println(realCurrentGen);
-    		publishGeneration();
+    		//publishGeneration(); //FIXME
     	}
     	else {
     		currentGen++;
@@ -1409,8 +1411,15 @@ public class GrammarMAPEliteAlgorithm extends Algorithm implements Listener {
         		noSaveRunNoInterbreedingApplElites();
         	}
 
-        	if(realCurrentGen > 570) //Close to 500
-        		stop=true;
+			//TODO: This is only for the evaluation of the Story Designer paper!
+			//270 = step by step
+			//320 for all the dimensions
+			//570 for pair of dimensions
+//        	if(realCurrentGen > 270) //Close to 500 (570)
+//        		stop=true;
+
+//			if(realCurrentGen > 320) //Close to 500 (570)
+//				stop=true;
         	
 //        	runNoInterbreedingApplElites(); //This is actually the good one!! 2019-04-23
 //        	runInterbreedingApplElites();

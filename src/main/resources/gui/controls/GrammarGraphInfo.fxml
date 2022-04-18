@@ -40,7 +40,7 @@
 			</HBox>
 			<HBox alignment="CENTER" prefHeight="100.0" prefWidth="200.0" spacing="5.0">
 				<children>
-					<Text fill="WHITE" strokeType="OUTSIDE" strokeWidth="0.0" text="Interesting Fitness:" />
+					<Text fill="WHITE" strokeType="OUTSIDE" strokeWidth="0.0" text="Interestingness:" />
 					<Text fx:id="intFitnessText" fill="#5cbf51" strokeType="OUTSIDE" strokeWidth="0.0" text="Text" />
 				</children>
 				<padding>
@@ -49,7 +49,7 @@
 			</HBox>
 			<HBox alignment="CENTER" prefHeight="100.0" prefWidth="200.0" spacing="5.0">
 				<children>
-					<Text fill="WHITE" strokeType="OUTSIDE" strokeWidth="0.0" text="Coherence Fitness:" />
+					<Text fill="WHITE" strokeType="OUTSIDE" strokeWidth="0.0" text="Coherence:" />
 					<Text fx:id="cohFitnessText" fill="#5cbf51" strokeType="OUTSIDE" strokeWidth="0.0" text="Text" />
 				</children>
 				<padding>

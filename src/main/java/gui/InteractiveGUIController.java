@@ -113,6 +113,8 @@ public class InteractiveGUIController implements Initializable, Listener {
 	private GrammarGraph graph;
 
 	public static UUID runID;
+
+	public int _step = 0;
 	
 
 	@Override
@@ -147,7 +149,8 @@ public class InteractiveGUIController implements Initializable, Listener {
 		router.registerListener(this, new RequestGrammarNodeConnectionRemoval(null));
 		router.registerListener(this, new NarrativeSuggestionApplied(null));
 		router.registerListener(this, new RequestReplacementGrammarStructureNode(null, null));
-
+		router.registerListener(this, new NarrativeStructMAPElitesDone());
+		//router.registerListener(this, new AlgorithmDone(null, null, ""));
 		router.registerListener(this, new RequestQuestView());	//feature-quest
 
 		suggestionsView = new SuggestionsViewController();
@@ -202,6 +205,95 @@ public class InteractiveGUIController implements Initializable, Listener {
 
 	}
 
+	private void graphGrammarStep(int step)
+	{
+		graph = new GrammarGraph();
+
+		if(step == 0)
+		{
+			GrammarNode hero = new GrammarNode(0, TVTropeType.HERO);
+			GrammarNode conflict = new GrammarNode(1, TVTropeType.CONFLICT);
+			GrammarNode enemy = new GrammarNode(2, TVTropeType.ENEMY);
+
+			hero.addConnection(conflict, 1);
+			conflict.addConnection(enemy, 1);
+
+			graph.nodes.add(hero);
+			graph.nodes.add(conflict);
+			graph.nodes.add(enemy);
+		}
+		else if(step == 1)
+		{
+			GrammarNode hero = new GrammarNode(0, TVTropeType.HERO);
+			GrammarNode conflict = new GrammarNode(1, TVTropeType.CONFLICT);
+			GrammarNode enemy = new GrammarNode(2, TVTropeType.BAD);
+
+			hero.addConnection(conflict, 1);
+			conflict.addConnection(enemy, 1);
+
+			graph.nodes.add(hero);
+			graph.nodes.add(conflict);
+			graph.nodes.add(enemy);
+		}
+		else if(step == 2)
+		{
+			GrammarNode hero = new GrammarNode(0, TVTropeType.HERO);
+			GrammarNode conflict = new GrammarNode(1, TVTropeType.CONFLICT);
+			GrammarNode enemy = new GrammarNode(2, TVTropeType.BAD);
+			GrammarNode mcg = new GrammarNode(3, TVTropeType.MCG);
+
+			hero.addConnection(conflict, 1);
+			hero.addConnection(mcg, 1);
+			conflict.addConnection(enemy, 1);
+
+			graph.nodes.add(hero);
+			graph.nodes.add(conflict);
+			graph.nodes.add(enemy);
+			graph.nodes.add(mcg);
+		}
+		else if(step == 3)
+		{
+			GrammarNode hero = new GrammarNode(0, TVTropeType.HERO);
+			GrammarNode conflict = new GrammarNode(1, TVTropeType.CONFLICT);
+			GrammarNode enemy = new GrammarNode(2, TVTropeType.BAD);
+			GrammarNode mcg = new GrammarNode(3, TVTropeType.MCG);
+			GrammarNode drake = new GrammarNode(4, TVTropeType.DRA);
+
+			hero.addConnection(conflict, 1);
+			hero.addConnection(mcg, 1);
+			conflict.addConnection(enemy, 1);
+			conflict.addConnection(drake, 1);
+
+			graph.nodes.add(hero);
+			graph.nodes.add(conflict);
+			graph.nodes.add(enemy);
+			graph.nodes.add(mcg);
+			graph.nodes.add(drake);
+		}
+		else
+		{
+			GrammarNode hero = new GrammarNode(0, TVTropeType.HERO);
+			GrammarNode conflict = new GrammarNode(1, TVTropeType.CONFLICT);
+			GrammarNode enemy = new GrammarNode(2, TVTropeType.BAD);
+			GrammarNode mcg = new GrammarNode(3, TVTropeType.MCG);
+			GrammarNode drake = new GrammarNode(4, TVTropeType.DRA);
+
+			hero.addConnection(conflict, 1);
+			hero.addConnection(mcg, 1);
+			conflict.addConnection(enemy, 1);
+			conflict.addConnection(drake, 1);
+			drake.addConnection(mcg, 0);
+
+			graph.nodes.add(hero);
+			graph.nodes.add(conflict);
+			graph.nodes.add(enemy);
+			graph.nodes.add(mcg);
+			graph.nodes.add(drake);
+		}
+		graph.pattern_finder.findNarrativePatterns(null);
+		router.postEvent(new NarrativeStructEdited(graph, true));
+	}
+
 	private void initializeGraphGrammar()
 	{
 		graph = new GrammarGraph();
@@ -217,26 +309,45 @@ public class InteractiveGUIController implements Initializable, Listener {
 		graph.nodes.add(conflict);
 		graph.nodes.add(enemy);
 
+		//THIS IS ANOTHER TEST (EXPERIMENT 4)
+//		GrammarNode hero = new GrammarNode(0, TVTropeType.HERO);
+//		GrammarNode conflict = new GrammarNode(1, TVTropeType.CONFLICT);
+//		GrammarNode enemy = new GrammarNode(2, TVTropeType.BAD);
+//		GrammarNode mcg = new GrammarNode(3, TVTropeType.MCG);
+//		GrammarNode drake = new GrammarNode(4, TVTropeType.DRA);
+//
+//		hero.addConnection(conflict, 1);
+//		hero.addConnection(mcg, 1);
+//		conflict.addConnection(enemy, 1);
+//		conflict.addConnection(drake, 1);
+//		drake.addConnection(mcg, 0);
+//
+//		graph.nodes.add(hero);
+//		graph.nodes.add(conflict);
+//		graph.nodes.add(enemy);
+//		graph.nodes.add(mcg);
+//		graph.nodes.add(drake);
+
 		//Mario
-		graph = new GrammarGraph();
-
-		GrammarNode mario = graph.addNode(TVTropeType.HERO);
-		GrammarNode conf = graph.addNode(TVTropeType.CONFLICT);
-		GrammarNode empire = graph.addNode(TVTropeType.EMP);
-		GrammarNode fake_bowser = graph.addNode(TVTropeType.DRA);
-		GrammarNode bowser = graph.addNode(TVTropeType.BAD);
-		GrammarNode quest_item = graph.addNode(TVTropeType.MCG);
-		GrammarNode peach = graph.addNode(TVTropeType.HERO);
-
-		mario.addConnection(conf, 1);
-		mario.addConnection(quest_item, 1);
-		conf.addConnection(empire, 1);
-
-		empire.addConnection(fake_bowser, 0);
-		fake_bowser.addConnection(bowser, 0);
-		bowser.addConnection(quest_item, 0);
-
-		quest_item.addConnection(peach, 1);
+//		graph = new GrammarGraph();
+//
+//		GrammarNode mario = graph.addNode(TVTropeType.HERO);
+//		GrammarNode conf = graph.addNode(TVTropeType.CONFLICT);
+//		GrammarNode empire = graph.addNode(TVTropeType.EMP);
+//		GrammarNode fake_bowser = graph.addNode(TVTropeType.DRA);
+//		GrammarNode bowser = graph.addNode(TVTropeType.BAD);
+//		GrammarNode quest_item = graph.addNode(TVTropeType.MCG);
+//		GrammarNode peach = graph.addNode(TVTropeType.HERO);
+//
+//		mario.addConnection(conf, 1);
+//		mario.addConnection(quest_item, 1);
+//		conf.addConnection(empire, 1);
+//
+//		empire.addConnection(fake_bowser, 0);
+//		fake_bowser.addConnection(bowser, 0);
+//		bowser.addConnection(quest_item, 0);
+//
+//		quest_item.addConnection(peach, 1);
 
 		//ZELDA temple
 //		graph = new GrammarGraph();
@@ -290,7 +401,7 @@ public class InteractiveGUIController implements Initializable, Listener {
 //		a_link.addConnection(good_conf, 1);
 //		sheik.addConnection(good_conf, 1);
 //		good_conf.addConnection(gannon, 1);
-
+//
 		graph.pattern_finder.findNarrativePatterns(null);
 
 	}
@@ -471,6 +582,18 @@ public class InteractiveGUIController implements Initializable, Listener {
 		else if(e instanceof RequestQuestView)
 		{
 			showQuestView();
+		}
+		else if(e instanceof NarrativeStructMAPElitesDone) // THESE TWO ARE FOR EXPERIMENT 4
+		{
+
+//			_step++;
+//			graphGrammarStep(_step);
+		}
+		else if(e instanceof AlgorithmDone)
+		{
+//			_step =0;
+//			initializeGraphGrammar();
+//			initNarrativeView();
 		}
 	}
 
@@ -696,24 +819,27 @@ public class InteractiveGUIController implements Initializable, Listener {
 	 */
 
 	private void initNarrativeView() {
-		mainPane.getChildren().clear();
-		AnchorPane.setTopAnchor(narrativeView, 0.0);
-		AnchorPane.setRightAnchor(narrativeView, 0.0);
-		AnchorPane.setBottomAnchor(narrativeView, 0.0);
-		AnchorPane.setLeftAnchor(narrativeView, 0.0);
-		mainPane.getChildren().add(narrativeView);
 
-		narrativeView.initNarrative(graph, dungeonMap.getSelectedRoom(), dungeonMap);
+		Platform.runLater(() -> {
+			mainPane.getChildren().clear();
+			AnchorPane.setTopAnchor(narrativeView, 0.0);
+			AnchorPane.setRightAnchor(narrativeView, 0.0);
+			AnchorPane.setBottomAnchor(narrativeView, 0.0);
+			AnchorPane.setLeftAnchor(narrativeView, 0.0);
+			mainPane.getChildren().add(narrativeView);
 
-//		saveItem.setDisable(false);
-//		saveAsItem.setDisable(false);
-//		exportItem.setDisable(false);
+			narrativeView.initNarrative(graph, dungeonMap.getSelectedRoom(), dungeonMap);
 
-		suggestionsView.setActive(false);
-		roomView.setActive(false);
-		worldView.setActive(false);
-		launchView.setActive(false);
-		narrativeView.setActive(true);
+			//		saveItem.setDisable(false);
+			//		saveAsItem.setDisable(false);
+			//		exportItem.setDisable(false);
+
+			suggestionsView.setActive(false);
+			roomView.setActive(false);
+			worldView.setActive(false);
+			launchView.setActive(false);
+			narrativeView.setActive(true);
+		});
 	}
 
 
