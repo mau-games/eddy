@@ -5,6 +5,7 @@ import game.Room;
 import game.Tile;
 import game.TileTypes;
 import generator.algorithm.MAPElites.Dimensions.GADimension;
+import gui.views.CCRoomViewController;
 import util.eventrouting.EventRouter;
 
 import java.util.*;
@@ -27,17 +28,18 @@ public class AICoCreator {
     List<Tile> contributions; // the contributions for the round
     Room currentTargetRoom;
     private List<Room> generatedElites;
+    private CCRoomViewController ccRoomViewController;
 
     private boolean isActive;
 
     public static AICoCreator getInstance()
     {
         if(singleton == null)
-            singleton = new AICoCreator(0, 0);
+            singleton = new AICoCreator(0, 0, null);
         return singleton;
     }
 
-    private AICoCreator(int roomWidth, int roomHeight)
+    private AICoCreator(int roomWidth, int roomHeight, CCRoomViewController ccRoomViewController)
     {
         setControlLevel(ControlLevel.LOW);
 
@@ -47,11 +49,12 @@ public class AICoCreator {
 
         this.roomHeight = roomHeight;
         this.roomWidth = roomWidth;
+        this.ccRoomViewController = ccRoomViewController;
     }
 
-    public void initAiCoCreator(int roomWidth, int roomHeight)
+    public void initAiCoCreator(int roomWidth, int roomHeight, CCRoomViewController cc)
     {
-        singleton = new AICoCreator(roomWidth, roomHeight);
+        singleton = new AICoCreator(roomWidth, roomHeight, cc);
     }
 
     /***
@@ -357,6 +360,27 @@ public class AICoCreator {
 
     public void setActive(boolean active) {
         isActive = active;
+    }
+
+    public CCRoomViewController getCcRoomViewController() {
+        return ccRoomViewController;
+    }
+
+    public void setCcRoomViewController(CCRoomViewController ccRoomViewController) {
+        this.ccRoomViewController = ccRoomViewController;
+    }
+
+    public void removeTileFromContributions(Tile t)
+    {
+        List<Tile> newList = new ArrayList<>();
+
+        for(Tile tile: contributions)
+        {
+            if(tile.GetCenterPosition() != t.GetCenterPosition() && tile.GetType() != t.GetType())
+                newList.add(tile);
+        }
+
+        contributions = newList;
     }
 }
 

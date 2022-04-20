@@ -289,7 +289,6 @@ public class EditedRoomStackPane extends StackPane implements Listener
 
     public void RoomEdited(InteractiveMap editedRoomCanvas, Room editedRoom, ImageView tile, MouseEvent event)
     {
-        // p and if statement added by Tinea
         util.Point p = editedPane.CheckTile(tile);
 
         if(editedRoom.getTile(p.getX(), p.getY()).getEditable() && HumanCoCreator.getInstance().getAmountOfTilesPlaced() < HumanCoCreator.getInstance().getMaxTilesPerRound())
@@ -343,7 +342,7 @@ public class EditedRoomStackPane extends StackPane implements Listener
      * The Method that AI uses to edit the room
      * @param
      */
-    public void CCRoomEdited(Room editedRoom, List<Tile> tiles, CCRoomViewController ccRoomViewController)
+    public void CCRoomEdited(Room editedRoom, List<Tile> tiles)
     {
         for(Tile t:tiles)
         {
@@ -372,19 +371,66 @@ public class EditedRoomStackPane extends StackPane implements Listener
                     redrawPatterns(editedPane.getMap());
                     redrawLocks(editedPane.getMap());
                     drawTintAiPlacedTiles(editedPane.getMap());
-                    ccRoomViewController.updateRoom(editedPane.getMap());
+                    AICoCreator.getInstance().getCcRoomViewController().updateRoom(editedPane.getMap());
                 });
 
                 System.out.println("ROOM EDITED BY AI " + t.GetType().name() + " " + p.toString());
             }
-
             //EventRouter.getInstance().postEvent(new UserEditedRoom(uniqueID, editedPane.getMap()));
-
         }
 
         Platform.runLater(() -> {
             System.out.println("UPDATE ROOM");
-            ccRoomViewController.updateRoom(editedPane.getMap());
+            AICoCreator.getInstance().getCcRoomViewController().updateRoom(editedPane.getMap());
+        });
+    }
+
+    public void PlaceSuggestion(Room editedRoom, List<Tile> tiles, MouseEvent event)
+    {
+        // Point of where you clicked
+        ImageView imgView = (ImageView) event.getTarget();
+
+        util.Point p = editedPane.CheckTile(imgView);
+        int i=0;
+
+        for(; i<tiles.size();i++)
+        {
+            Point tp = new Point(tiles.get(i).GetCenterPosition().getX(), tiles.get(i).GetCenterPosition().getY());
+
+            if(tp.getX() == p.getX() && tp.getY() == p.getY()) //if tile was clicked
+            {
+                //create a brush
+                Drawer tempbrush = (tiles.get(i).GetTypeAsBrush());
+                //update the map with the brsh
+                tempbrush.brush.UpdateDrawableTiles(p.getX(), p.getY(), editedPane.getMap());
+
+                editedPane.updateTileInARoom(editedPane.getMap(), imgView, tempbrush);
+
+                editedRoom.getTile(p.getX(), p.getY()).setEditable(true); //
+                editedRoom.getTile(p.getX(), p.getY()).setPlacedByAI(true); //
+
+                //necessary checks and procedures
+                editedRoom.forceReevaluation();
+                editedRoom.getRoomXML("room\\");
+
+                AICoCreator.getInstance().removeTileFromContributions(tiles.get(i));
+
+                System.out.println("SUGGESTION PLACED: " + tiles.get(i).GetType().name() + " " + p.toString());
+
+                break;
+            }
+        }
+
+
+
+        Platform.runLater(() -> {
+            mapIsFeasible(editedPane.getMap().isIntraFeasible());
+            redrawPatterns(editedPane.getMap());
+            redrawLocks(editedPane.getMap());
+            drawSuggestionsTiles(editedPane, editedRoom, AICoCreator.getInstance().GetContributions());
+            drawTintAiPlacedTiles(editedPane.getMap());
+            System.out.println("UPDATE ROOM");
+            AICoCreator.getInstance().getCcRoomViewController().updateRoom(editedPane.getMap());
         });
     }
 

@@ -327,7 +327,7 @@ public class CCRoomViewController extends BorderPane implements Listener
 		initLegend();
 		initCCLAbel();
 
-		AICoCreator.getInstance().initAiCoCreator(roomToBe.getColCount(), roomToBe.getRowCount());
+		AICoCreator.getInstance().initAiCoCreator(roomToBe.getColCount(), roomToBe.getRowCount(), this);
 		resetView();
 		roomToBe.forceReevaluation();
 		updateRoom(roomToBe);
@@ -628,7 +628,7 @@ public class CCRoomViewController extends BorderPane implements Listener
 					case HIGH:
 						//place
 						System.out.println("AICC EDIT ROOM STARTED");
-						editedRoomPane.CCRoomEdited(editedRoomPane.editedPane.getMap(), AICoCreator.getInstance().GetContributions(), this);
+						editedRoomPane.CCRoomEdited(editedRoomPane.editedPane.getMap(), AICoCreator.getInstance().GetContributions());
 						router.postEvent(new AITurnDone());
 						break;
 				}

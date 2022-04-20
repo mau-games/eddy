@@ -8,6 +8,7 @@ import game.Room;
 import game.Tile;
 import game.TileTypes;
 import gui.utils.MapRenderer;
+import gui.views.CCRoomViewController;
 import javafx.application.Platform;
 import javafx.event.EventHandler;
 import javafx.geometry.Pos;
@@ -399,14 +400,12 @@ public class InteractiveMap extends GridPane implements Listener {
 		@Override
 		public void handle(MouseEvent event)
 		{
-			if(AICoCreator.getInstance().getActive()) // AI is active and human can not edit
+			if(AICoCreator.getInstance().getActive() && event.getTarget() instanceof ImageView) // AI is active and human can not edit
 			{
 				switch(AICoCreator.getInstance().getControlLevel())
 				{
 					case LOW:
-						System.out.println();
-						System.out.println("WOAH THERE, I am suggesting stuff");
-						System.out.println();
+						owner.PlaceSuggestion(getMap(), AICoCreator.getInstance().GetContributions(), event);
 						break;
 
 					case MEDIUM:
