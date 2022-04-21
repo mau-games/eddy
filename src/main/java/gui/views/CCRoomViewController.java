@@ -4,6 +4,7 @@ import collectors.ActionLogger;
 import collectors.ActionLogger.ActionType;
 import collectors.ActionLogger.TargetPane;
 import collectors.ActionLogger.View;
+import collectors.DataSaverLoader;
 import game.*;
 import game.CoCreativity.*;
 import game.Game.MapMutationType;
@@ -26,6 +27,8 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
 import javafx.scene.text.Font;
 import org.apache.commons.io.FileUtils;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 import util.config.ConfigurationUtility;
 import util.config.MissingConfigurationException;
 import util.eventrouting.EventRouter;
@@ -37,14 +40,22 @@ import util.eventrouting.events.intraview.EditedRoomTogglePatterns;
 import util.eventrouting.events.intraview.InteractiveRoomBrushUpdated;
 import util.eventrouting.events.intraview.UserEditedRoom;
 
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.OutputKeys;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerException;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.UUID;
+import java.sql.Timestamp;
+import java.util.*;
 
 /**
  * This class controls the Co-Creative Room edit view
@@ -157,6 +168,8 @@ public class CCRoomViewController extends BorderPane implements Listener
 
 	private MAPEDimensionFXML[] currentDimensions = new MAPEDimensionFXML[] {};
 
+	private String file_name;
+
 	//PROVISIONAL FIX!
 	public enum EvoState
 	{
@@ -251,6 +264,8 @@ public class CCRoomViewController extends BorderPane implements Listener
 		currentState = EvoState.RUNNING;
 
 		saveGenBtn.setDisable(false);
+
+		file_name = generateNewFileName();
 	}
 	
 	@FXML
@@ -1390,6 +1405,19 @@ public class CCRoomViewController extends BorderPane implements Listener
 	}
 
 
+	private String generateNewFileName()
+	{
+		String filename = "";
+		long millis = System.currentTimeMillis();
+		String datetime = new Date().toGMTString();
+		datetime = datetime.replace(" ", "");
+		datetime = datetime.replace(":", "");
+
+		int i = (int)(Math.random() * 100);
+		String rndchars = "" + i;
+		filename = rndchars + "_" + datetime + "_" + millis;
+		return filename;
+	}
 
 	/**
 	 * Saving data from Co-Creation
@@ -1404,6 +1432,109 @@ public class CCRoomViewController extends BorderPane implements Listener
 		// if prev_tile is floor it is human placed
 
 		// if
+
+
+
+		Document dom;
+		Element e = null;
+		Element next = null;
+
+		String fileString = DataSaverLoader.projectPath + "\\cc-data-collection\\" + AICoCreator.getInstance().getControlLevel().name() +"\\"+ file_name;
+		System.out.println("Writing to: " + fileString);
+
+		//File file = new File(DataSaverLoader.projectPath + "\\" + direction + "\\room\\" + room_id);
+
+		File file = new File(fileString);
+		if (!file.exists()) {
+			file.mkdirs();
+		}
+//
+		//String xml = System.getProperty("user.dir") + "\\my-data\\" + direction + "\\room\\" + room_id + "\\room-" + room_id + "_" + indexEditionStep + ".xml";
+//
+		//// instance of a DocumentBuilderFactory
+		//DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+		//try {
+		//	// use factory to get an instance of document builder
+		//	DocumentBuilder db = dbf.newDocumentBuilder();
+		//	// create instance of DOM
+		//	dom = db.newDocument();
+//
+		//	// create the root element
+		//	Element rootEle = dom.createElement("Room");
+		//	rootEle.setAttribute("ID", this.toString());
+		//	rootEle.setAttribute("width", Integer.toString(this.getColCount()));
+		//	rootEle.setAttribute("height", Integer.toString(this.getRowCount()));
+		//	rootEle.setAttribute("time", new Timestamp(System.currentTimeMillis()).toString());
+//	    //    rootEle.setAttribute("type", "SUGGESTIONS OR MAIN");
+//
+		//	// create data elements and place them under root
+		//	e = dom.createElement("Dimensions");
+		//	rootEle.appendChild(e);
+//
+		//	//DIMENSIONS --> THIS IS IMPORTANT TO CHANGE!! TODO:!!
+		//	next = dom.createElement("Dimension");
+		//	next.setAttribute("name", DimensionTypes.SIMILARITY.toString());
+		//	next.setAttribute("value", Double.toString(getDimensionValue(DimensionTypes.SIMILARITY)));
+		//	e.appendChild(next);
+//
+		//	next = dom.createElement("Dimension");
+		//	next.setAttribute("name", DimensionTypes.SYMMETRY.toString());
+		//	next.setAttribute("value", Double.toString(getDimensionValue(DimensionTypes.SYMMETRY)));
+		//	e.appendChild(next);
+//
+		//	//TILES
+		//	e = dom.createElement("Tiles");
+		//	rootEle.appendChild(e);
+//
+		//	for (int j = 0; j < height; j++)
+		//	{
+		//		for (int i = 0; i < width; i++)
+		//		{
+		//			next = dom.createElement("Tile");
+		//			next.setAttribute("value", getTile(i, j).GetType().toString());
+		//			next.setAttribute("immutable", Boolean.toString(getTile(i, j).GetImmutable()));
+		//			next.setAttribute("PosX", Integer.toString(i));
+		//			next.setAttribute("PosY", Integer.toString(j));
+		//			e.appendChild(next);
+		//		}
+		//	}
+//
+		//	e = dom.createElement("Customs");
+		//	rootEle.appendChild(e);
+//
+		//	for(Tile custom : customTiles)
+		//	{
+		//		next = dom.createElement("Custom");
+		//		next.setAttribute("value", custom.GetType().toString());
+		//		next.setAttribute("immutable", Boolean.toString(custom.GetImmutable()));
+		//		next.setAttribute("centerX", Integer.toString(custom.GetCenterPosition().getX()));
+		//		next.setAttribute("centerY", Integer.toString(custom.GetCenterPosition().getY()));
+		//		e.appendChild(next);
+		//	}
+//
+		//	dom.appendChild(rootEle);
+//
+		//	try {
+		//		Transformer tr = TransformerFactory.newInstance().newTransformer();
+		//		tr.setOutputProperty(OutputKeys.INDENT, "yes");
+		//		tr.setOutputProperty(OutputKeys.METHOD, "xml");
+		//		tr.setOutputProperty(OutputKeys.ENCODING, "UTF-8");
+		//		tr.setOutputProperty(OutputKeys.DOCTYPE_SYSTEM, "room.dtd");
+		//		tr.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "4");
+//
+		//		// send DOM to file
+		//		tr.transform(new DOMSource(dom),
+		//				new StreamResult(new FileOutputStream(xml)));
+//
+		//	} catch (TransformerException te) {
+		//		System.out.println(te.getMessage());
+		//	} catch (IOException ioe) {
+		//		System.out.println(ioe.getMessage());
+		//	}
+		//} catch (ParserConfigurationException pce) {
+		//	System.out.println("UsersXML: Error trying to instantiate DocumentBuilder " + pce);
+		//}
+
 	}
 
 	public void someRoomHovered(Room room)

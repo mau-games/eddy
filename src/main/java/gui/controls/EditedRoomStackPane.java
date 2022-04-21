@@ -295,6 +295,8 @@ public class EditedRoomStackPane extends StackPane implements Listener
         {
             System.out.println("ROOM EDITED");
 
+            Tile prev_tile = editedRoom.getTile(p.getX(), p.getY());
+
             currentBrush.UpdateModifiers(event);
 //				mapView.updateTile(tile, brush, event.getButton() == MouseButton.SECONDARY, lockBrush.isSelected() || event.isControlDown());
 
@@ -308,6 +310,8 @@ public class EditedRoomStackPane extends StackPane implements Listener
 
             editedRoomCanvas.updateTile(tile, currentBrush);
 
+            Tile new_tile = editedRoom.getTile(p.getX(), p.getY());
+
             editedRoom.forceReevaluation();
             editedRoom.getRoomXML("room\\");
 
@@ -317,6 +321,7 @@ public class EditedRoomStackPane extends StackPane implements Listener
             drawTintAiPlacedTiles(editedPane.getMap());
 
             HumanCoCreator.getInstance().RegisterContributionInfo(editedRoom.getTile(p));
+            AICoCreator.getInstance().getCcRoomViewController().saveActionData(prev_tile, new_tile);
 
 
 //        EventRouter.getInstance().postEvent(new InteractiveRoomEdited(self, getMap(), tile, event));
@@ -351,6 +356,9 @@ public class EditedRoomStackPane extends StackPane implements Listener
         {
             if(t != null)
             {
+                Point old_p = new Point(t.GetCenterPosition().getX(), t.GetCenterPosition().getY());
+                Tile prev_tile = editedRoom.getTile(old_p);
+
                 Drawer tempbrush = (t.GetTypeAsBrush());
 
                 // from Drawer.update()
@@ -377,6 +385,8 @@ public class EditedRoomStackPane extends StackPane implements Listener
                     AICoCreator.getInstance().getCcRoomViewController().updateRoom(editedPane.getMap());
                 });
 
+                AICoCreator.getInstance().getCcRoomViewController().saveActionData(prev_tile, t);
+
                 System.out.println("ROOM EDITED BY AI " + t.GetType().name() + " " + p.toString());
             }
             //EventRouter.getInstance().postEvent(new UserEditedRoom(uniqueID, editedPane.getMap()));
@@ -385,6 +395,7 @@ public class EditedRoomStackPane extends StackPane implements Listener
         Platform.runLater(() -> {
             System.out.println("UPDATE ROOM");
             AICoCreator.getInstance().getCcRoomViewController().updateRoom(editedPane.getMap());
+
         });
     }
 
@@ -402,6 +413,8 @@ public class EditedRoomStackPane extends StackPane implements Listener
 
             if(tp.getX() == p.getX() && tp.getY() == p.getY()) //if tile was clicked
             {
+                Tile prev_tile = editedRoom.getTile(tp);
+
                 //create a brush
                 Drawer tempbrush = (tiles.get(i).GetTypeAsBrush());
                 //update the map with the brsh
@@ -420,6 +433,8 @@ public class EditedRoomStackPane extends StackPane implements Listener
 
                 System.out.println("suggestions after remove: " +AICoCreator.getInstance().GetContributions().toString());
                 System.out.println("SUGGESTION PLACED: " + tiles.get(i).GetType().name() + " " + p.toString());
+
+                AICoCreator.getInstance().getCcRoomViewController().saveActionData(prev_tile, tiles.get(i));
 
                 break;
             }
