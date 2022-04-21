@@ -24,6 +24,7 @@ import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
+import javafx.scene.text.Font;
 import org.apache.commons.io.FileUtils;
 import util.config.ConfigurationUtility;
 import util.config.MissingConfigurationException;
@@ -107,7 +108,8 @@ public class CCRoomViewController extends BorderPane implements Listener
 	@FXML private Label treasureSafety;
 	@FXML private Label treasureSafety2;
 
-	@FXML private Label ccLabel;
+	@FXML private Label turnLabel;
+	@FXML private Label tilesLeftLabel;
 
 	@FXML private Button worldGridBtn; //ok
 	@FXML private Button genSuggestionsBtn; //bra
@@ -154,10 +156,6 @@ public class CCRoomViewController extends BorderPane implements Listener
 	private int suggestionAmount = 101; //TODO: Probably this value should be from the application config!!
 
 	private MAPEDimensionFXML[] currentDimensions = new MAPEDimensionFXML[] {};
-
-	public AICoCreator aiCC;
-	public HumanCoCreator humanCC;
-	boolean AIsTurnToContribute;
 
 	//PROVISIONAL FIX!
 	public enum EvoState
@@ -252,11 +250,7 @@ public class CCRoomViewController extends BorderPane implements Listener
 		
 		currentState = EvoState.RUNNING;
 
-
 		saveGenBtn.setDisable(false);
-
-
-
 	}
 	
 	@FXML
@@ -285,8 +279,6 @@ public class CCRoomViewController extends BorderPane implements Listener
 		mapHeight = 420;
 //		initMapView();
 		initLegend();
-
-
 	}
 	
 	private void ProduceVerticalLabel()
@@ -325,7 +317,7 @@ public class CCRoomViewController extends BorderPane implements Listener
 
 		initButtons();
 		initLegend();
-		initCCLAbel();
+		initCCLabels();
 
 		AICoCreator.getInstance().initAiCoCreator(roomToBe.getColCount(), roomToBe.getRowCount(), this);
 		resetView();
@@ -335,17 +327,43 @@ public class CCRoomViewController extends BorderPane implements Listener
 		generateNewMaps();
 	}
 
-	private void initCCLAbel()
+	private void initCCLabels()
 	{
-		//ccLabel.setText("Tinea");
-		//ccLabel.setStyle("-fx-font-weight: bold");
-		//ccLabel.setStyle("-fx-text-fill: white;");
+		turnLabel.setStyle("-fx-font-weight: bold");
+		turnLabel.setStyle("-fx-text-fill: white;");
+		turnLabel.setFont(Font.font("Arial", 16));
 
+		tilesLeftLabel.setStyle("-fx-font-weight: bold");
+		tilesLeftLabel.setStyle("-fx-text-fill: white;");
+		tilesLeftLabel.setFont(Font.font("Arial", 16));
+
+		updateLabels();
 	}
 
-	private void updateCCLAbel(String s)
+	public void updateLabels()
 	{
-		ccLabel.setText(s);
+		if(AICoCreator.getInstance().getActive())
+		{
+			System.out.println("INNE I UPDATE AI ACTIVE");
+			turnLabel.setVisible(false);
+			turnLabel.setText("AI's Turn");
+			turnLabel.setVisible(true);
+
+			tilesLeftLabel.setVisible(false);
+		}
+		else
+		{
+			turnLabel.setVisible(false);
+			turnLabel.setText("Your Turn");
+			turnLabel.setVisible(true);
+
+			int max = HumanCoCreator.getInstance().getMaxTilesPerRound();
+			int num = HumanCoCreator.getInstance().getAmountOfTilesPlaced();
+
+			tilesLeftLabel.setVisible(false);
+			tilesLeftLabel.setText("Tiles left this round: " + (max-num) +"/" + max);
+			tilesLeftLabel.setVisible(true);
+		}
 	}
 
 	/**
@@ -367,8 +385,6 @@ public class CCRoomViewController extends BorderPane implements Listener
 		getPatternButton().setTooltip(new Tooltip("Toggle the game design patterns for the current map"));
 
 		disableSuggestionView();
-
-
 	}
 
 	/**
@@ -531,6 +547,7 @@ public class CCRoomViewController extends BorderPane implements Listener
 		if(e instanceof UserEditedRoom)
 		{
 			UserEditedRoom(((UserEditedRoom) e).uniqueCanvasID, ((UserEditedRoom) e).editedRoom);
+			updateLabels();
 		}
 		else if(e instanceof MAPEGridUpdate)
 		{
@@ -605,7 +622,8 @@ public class CCRoomViewController extends BorderPane implements Listener
 		}
 		else if(e instanceof AIPrepareContributionsDone)
 		{
-			AICoCreator.getInstance().setActive(true);
+
+			System.out.println("AICOCREATOR.GETACTIVE: " + AICoCreator.getInstance().getActive());
 			AICoCreator.getInstance().CalculateContribution();
 		}
 		else if(e instanceof AICalculateContributionsDone)
@@ -642,6 +660,7 @@ public class CCRoomViewController extends BorderPane implements Listener
 			AICoCreator.getInstance().setActive(false);
 			HumanCoCreator.getInstance().resetRound();
 			//AICoCreator.getInstance().resetRound(); //
+			updateLabels();
 		}
 		else if (e instanceof MapUpdate) {
 			//FIXME: I REALLY HAVE TO GO BACK HERE TO FIX THIS TO BE ABLE TO CREATEROOMS THE OLD WAY
@@ -880,10 +899,11 @@ public class CCRoomViewController extends BorderPane implements Listener
 	@FXML
 	private void endTurn()
 	{
-		AIsTurnToContribute = true;
 		System.out.println("END TURN PRESSED");
 
 		System.out.println("AICC PREPARE TURN");
+		AICoCreator.getInstance().setActive(true);
+		updateLabels();
 		AICoCreator.getInstance().prepareTurn(editedRoomPane.editedPane.getMap());
 
 
@@ -950,9 +970,6 @@ public class CCRoomViewController extends BorderPane implements Listener
 	{
 		resetSuggestedRooms();
 		generateNewMaps(editedRoomPane.editedPane.getMap()); //Don't know about this
-
-
-
 	}
 
 	/***

@@ -26,7 +26,7 @@ public class HumanCoCreator {
 
     public void RegisterContributionInfo(Tile t)
     {
-        amountOfTilesPlaced++;
+        amountOfTilesPlaced += 1;
         t.setEditable(true); //setEditable(AICoCreator.getInstance());
         tilesPlaced.add(t);
     }

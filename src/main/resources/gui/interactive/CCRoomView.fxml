@@ -163,7 +163,20 @@
     </left>
     <center>
 
-        <EditedRoomStackPane fx:id="editedRoomPane" prefHeight="122.0" prefWidth="309.0" BorderPane.alignment="CENTER"/>
+        <HBox alignment="CENTER">
+
+            <VBox alignment="CENTER" spacing="50">
+                <children>
+                    <Label text="HALLÅ!!!!!!!!" fx:id="turnLabel" alignment="CENTER"/>
+                    <EditedRoomStackPane fx:id="editedRoomPane" prefHeight="122.0" prefWidth="309.0" alignment="CENTER"/>
+                    <Label text="HALLÅ!!!!!!!!" fx:id="tilesLeftLabel" alignment="CENTER"/>
+
+                </children>
+            </VBox>
+
+
+        </HBox>
+
 
 
 

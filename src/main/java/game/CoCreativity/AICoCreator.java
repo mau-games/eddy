@@ -1,5 +1,6 @@
 package game.CoCreativity;
 
+import com.sun.deploy.security.SelectableSecurityManager;
 import finder.geometry.Point;
 import game.Room;
 import game.Tile;
@@ -376,7 +377,7 @@ public class AICoCreator {
 
         for(Tile tile: contributions)
         {
-            if(tile.GetCenterPosition() != t.GetCenterPosition() && tile.GetType() != t.GetType())
+            if(!(tile.GetCenterPosition().getX() == t.GetCenterPosition().getX() && tile.GetCenterPosition().getY() == t.GetCenterPosition().getY()))
                 newList.add(tile);
         }
 

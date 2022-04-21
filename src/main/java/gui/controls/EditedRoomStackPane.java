@@ -316,6 +316,9 @@ public class EditedRoomStackPane extends StackPane implements Listener
             redrawLocks(editedPane.getMap());
             drawTintAiPlacedTiles(editedPane.getMap());
 
+            HumanCoCreator.getInstance().RegisterContributionInfo(editedRoom.getTile(p));
+
+
 //        EventRouter.getInstance().postEvent(new InteractiveRoomEdited(self, getMap(), tile, event));
             EventRouter.getInstance().postEvent(new UserEditedRoom(uniqueID, editedPane.getMap()));
 
@@ -324,7 +327,7 @@ public class EditedRoomStackPane extends StackPane implements Listener
 //        EventRouter.getInstance().postEvent(new RoomEdited(editedRoom));
 
             //register contribution to HumanCoCreator class
-            HumanCoCreator.getInstance().RegisterContributionInfo(editedRoom.getTile(p));
+
         }
         else if(HumanCoCreator.getInstance().getAmountOfTilesPlaced() >= HumanCoCreator.getInstance().getMaxTilesPerRound())
         {
@@ -415,13 +418,12 @@ public class EditedRoomStackPane extends StackPane implements Listener
 
                 AICoCreator.getInstance().removeTileFromContributions(tiles.get(i));
 
+                System.out.println("suggestions after remove: " +AICoCreator.getInstance().GetContributions().toString());
                 System.out.println("SUGGESTION PLACED: " + tiles.get(i).GetType().name() + " " + p.toString());
 
                 break;
             }
         }
-
-
 
         Platform.runLater(() -> {
             mapIsFeasible(editedPane.getMap().isIntraFeasible());
