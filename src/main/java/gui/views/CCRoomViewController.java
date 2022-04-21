@@ -1389,6 +1389,23 @@ public class CCRoomViewController extends BorderPane implements Listener
 
 	}
 
+
+
+	/**
+	 * Saving data from Co-Creation
+	 * */
+	public void saveActionData(Tile prev_tile, Tile new_tile)
+	{
+		//open file
+
+		//if file doesn't exist, create it
+
+		//write the action
+		// if prev_tile is floor it is human placed
+
+		// if
+	}
+
 	public void someRoomHovered(Room room)
 	{
 
