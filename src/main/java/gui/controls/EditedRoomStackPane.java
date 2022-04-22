@@ -291,11 +291,16 @@ public class EditedRoomStackPane extends StackPane implements Listener
     {
         util.Point p = editedPane.CheckTile(tile);
 
-        if(editedRoom.getTile(p.getX(), p.getY()).getEditable() && HumanCoCreator.getInstance().getAmountOfTilesPlaced() < HumanCoCreator.getInstance().getMaxTilesPerRound())
+        if(editedRoom.getTile(p.getX(), p.getY()).getEditable() &&
+                HumanCoCreator.getInstance().getAmountOfTilesPlaced() < HumanCoCreator.getInstance().getMaxTilesPerRound() &&
+                !(AICoCreator.getInstance().getControlLevel() == AICoCreator.ControlLevel.HIGH && editedRoom.getTile(p.getX(), p.getY()).getPlacedByAI())
+        )
         {
             System.out.println("ROOM EDITED");
 
             Tile prev_tile = editedRoom.getTile(p.getX(), p.getY());
+
+            //if AICoCreator.getInstance().GetControlLevel() == HIGH
 
             currentBrush.UpdateModifiers(event);
 //				mapView.updateTile(tile, brush, event.getButton() == MouseButton.SECONDARY, lockBrush.isSelected() || event.isControlDown());
@@ -431,7 +436,6 @@ public class EditedRoomStackPane extends StackPane implements Listener
 
                 AICoCreator.getInstance().removeTileFromContributions(tiles.get(i));
 
-                System.out.println("suggestions after remove: " +AICoCreator.getInstance().GetContributions().toString());
                 System.out.println("SUGGESTION PLACED: " + tiles.get(i).GetType().name() + " " + p.toString());
 
                 AICoCreator.getInstance().getCcRoomViewController().saveActionData(prev_tile, tiles.get(i));

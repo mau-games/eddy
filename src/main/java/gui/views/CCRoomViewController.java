@@ -49,12 +49,12 @@ import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
+import java.io.*;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.sql.Timestamp;
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 /**
@@ -919,6 +919,7 @@ public class CCRoomViewController extends BorderPane implements Listener
 		System.out.println("AICC PREPARE TURN");
 		AICoCreator.getInstance().setActive(true);
 		updateLabels();
+
 		AICoCreator.getInstance().prepareTurn(editedRoomPane.editedPane.getMap());
 
 
@@ -1419,6 +1420,61 @@ public class CCRoomViewController extends BorderPane implements Listener
 		return filename;
 	}
 
+	private void writeToCCFile(String fileName, String time, String tilePos, String prevType, String newType, String prevPlacedByAI, String newPlacedByAI)
+	{
+		/**
+		 * If file does not exist, create it
+		 * */
+		File file = new File(fileName);
+		if (!file.exists())
+		{
+			try(PrintWriter writer = new PrintWriter(fileName))
+			{
+				StringBuilder sb = new StringBuilder();
+				sb.append("TIME");
+				sb.append(',');
+				sb.append("POSITION");
+				sb.append(',');
+				sb.append("PREV_TYPE");
+				sb.append(',');
+				sb.append("NEW_TYPE");
+				sb.append(',');
+				sb.append("AI_PLACED");
+				sb.append('\n');
+				writer.write(sb.toString());
+
+			} catch (FileNotFoundException ex)
+			{
+				System.out.println(ex.getMessage());
+			}
+		}
+
+		try(PrintWriter writer = new PrintWriter(fileName))
+		{
+			StringBuilder sb = new StringBuilder();
+
+			sb.append(time);
+			sb.append(',');
+			sb.append(tilePos);
+			sb.append(',');
+			sb.append(prevType);
+			sb.append(',');
+			sb.append(newType);
+			sb.append(',');
+			sb.append(prevPlacedByAI);
+			sb.append(',');
+			sb.append(newPlacedByAI);
+			sb.append('\n');
+
+			writer.write(sb.toString());
+
+		} catch (FileNotFoundException ex)
+		{
+			System.out.println(ex.getMessage());
+		}
+
+	}
+
 	/**
 	 * Saving data from Co-Creation
 	 * */
@@ -1433,107 +1489,27 @@ public class CCRoomViewController extends BorderPane implements Listener
 
 		// if
 
-
-
 		Document dom;
 		Element e = null;
 		Element next = null;
 
-		String fileString = DataSaverLoader.projectPath + "\\cc-data-collection\\" + AICoCreator.getInstance().getControlLevel().name() +"\\"+ file_name;
-		System.out.println("Writing to: " + fileString);
+		String fileString = DataSaverLoader.projectPath + "\\cc-data-collection\\" + AICoCreator.getInstance().getControlLevel().name() +"\\"+ file_name + ".csv";
+		//System.out.println("Writing to: " + fileString);
 
 		//File file = new File(DataSaverLoader.projectPath + "\\" + direction + "\\room\\" + room_id);
 
-		File file = new File(fileString);
-		if (!file.exists()) {
-			file.mkdirs();
-		}
-//
-		//String xml = System.getProperty("user.dir") + "\\my-data\\" + direction + "\\room\\" + room_id + "\\room-" + room_id + "_" + indexEditionStep + ".xml";
-//
-		//// instance of a DocumentBuilderFactory
-		//DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
-		//try {
-		//	// use factory to get an instance of document builder
-		//	DocumentBuilder db = dbf.newDocumentBuilder();
-		//	// create instance of DOM
-		//	dom = db.newDocument();
-//
-		//	// create the root element
-		//	Element rootEle = dom.createElement("Room");
-		//	rootEle.setAttribute("ID", this.toString());
-		//	rootEle.setAttribute("width", Integer.toString(this.getColCount()));
-		//	rootEle.setAttribute("height", Integer.toString(this.getRowCount()));
-		//	rootEle.setAttribute("time", new Timestamp(System.currentTimeMillis()).toString());
-//	    //    rootEle.setAttribute("type", "SUGGESTIONS OR MAIN");
-//
-		//	// create data elements and place them under root
-		//	e = dom.createElement("Dimensions");
-		//	rootEle.appendChild(e);
-//
-		//	//DIMENSIONS --> THIS IS IMPORTANT TO CHANGE!! TODO:!!
-		//	next = dom.createElement("Dimension");
-		//	next.setAttribute("name", DimensionTypes.SIMILARITY.toString());
-		//	next.setAttribute("value", Double.toString(getDimensionValue(DimensionTypes.SIMILARITY)));
-		//	e.appendChild(next);
-//
-		//	next = dom.createElement("Dimension");
-		//	next.setAttribute("name", DimensionTypes.SYMMETRY.toString());
-		//	next.setAttribute("value", Double.toString(getDimensionValue(DimensionTypes.SYMMETRY)));
-		//	e.appendChild(next);
-//
-		//	//TILES
-		//	e = dom.createElement("Tiles");
-		//	rootEle.appendChild(e);
-//
-		//	for (int j = 0; j < height; j++)
-		//	{
-		//		for (int i = 0; i < width; i++)
-		//		{
-		//			next = dom.createElement("Tile");
-		//			next.setAttribute("value", getTile(i, j).GetType().toString());
-		//			next.setAttribute("immutable", Boolean.toString(getTile(i, j).GetImmutable()));
-		//			next.setAttribute("PosX", Integer.toString(i));
-		//			next.setAttribute("PosY", Integer.toString(j));
-		//			e.appendChild(next);
-		//		}
-		//	}
-//
-		//	e = dom.createElement("Customs");
-		//	rootEle.appendChild(e);
-//
-		//	for(Tile custom : customTiles)
-		//	{
-		//		next = dom.createElement("Custom");
-		//		next.setAttribute("value", custom.GetType().toString());
-		//		next.setAttribute("immutable", Boolean.toString(custom.GetImmutable()));
-		//		next.setAttribute("centerX", Integer.toString(custom.GetCenterPosition().getX()));
-		//		next.setAttribute("centerY", Integer.toString(custom.GetCenterPosition().getY()));
-		//		e.appendChild(next);
-		//	}
-//
-		//	dom.appendChild(rootEle);
-//
-		//	try {
-		//		Transformer tr = TransformerFactory.newInstance().newTransformer();
-		//		tr.setOutputProperty(OutputKeys.INDENT, "yes");
-		//		tr.setOutputProperty(OutputKeys.METHOD, "xml");
-		//		tr.setOutputProperty(OutputKeys.ENCODING, "UTF-8");
-		//		tr.setOutputProperty(OutputKeys.DOCTYPE_SYSTEM, "room.dtd");
-		//		tr.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "4");
-//
-		//		// send DOM to file
-		//		tr.transform(new DOMSource(dom),
-		//				new StreamResult(new FileOutputStream(xml)));
-//
-		//	} catch (TransformerException te) {
-		//		System.out.println(te.getMessage());
-		//	} catch (IOException ioe) {
-		//		System.out.println(ioe.getMessage());
-		//	}
-		//} catch (ParserConfigurationException pce) {
-		//	System.out.println("UsersXML: Error trying to instantiate DocumentBuilder " + pce);
+		//File file = new File(fileString);
+		//if (!file.exists()) {
+		//	file.mkdirs();
 		//}
+
+		//String time = LocalTime.now().toString();
+
+		//writeToCCFile(fileString, );
+
+
+
+
 
 	}
 

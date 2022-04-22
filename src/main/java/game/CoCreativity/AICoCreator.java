@@ -5,7 +5,9 @@ import finder.geometry.Point;
 import game.Room;
 import game.Tile;
 import game.TileTypes;
+import generator.algorithm.MAPElites.Dimensions.CharacteristicSimilarityGADimension;
 import generator.algorithm.MAPElites.Dimensions.GADimension;
+import generator.algorithm.MAPElites.Dimensions.SimilarityGADimension;
 import gui.views.CCRoomViewController;
 import util.eventrouting.EventRouter;
 
@@ -42,7 +44,7 @@ public class AICoCreator {
 
     private AICoCreator(int roomWidth, int roomHeight, CCRoomViewController ccRoomViewController)
     {
-        setControlLevel(ControlLevel.LOW);
+        setControlLevel(ControlLevel.MEDIUM);
 
         tilesPositions = new ArrayList<>();
         contributions = new ArrayList<>();
@@ -294,6 +296,8 @@ public class AICoCreator {
 
         Map<Room, Double> roomDoubleMap = new HashMap<>();
 
+        currentTargetRoom.calculateAllDimensionalValues();
+
         double p1 = currentTargetRoom.getDimensionValue(GADimension.DimensionTypes.SYMMETRY);
         double p2 = currentTargetRoom.getDimensionValue(GADimension.DimensionTypes.SIMILARITY);
         double p3 = currentTargetRoom.getDimensionValue(GADimension.DimensionTypes.LINEARITY);
@@ -302,11 +306,16 @@ public class AICoCreator {
         double p6 = currentTargetRoom.getDimensionValue(GADimension.DimensionTypes.NUMBER_PATTERNS);
         double p7 = currentTargetRoom.getDimensionValue(GADimension.DimensionTypes.INNER_SIMILARITY);
 
-
         for(Room r:elites)
         {
             if(r != null)
             {
+                r.calculateAllDimensionalValues();
+                r.setSpeficidDimensionValue(GADimension.DimensionTypes.SIMILARITY,
+                        SimilarityGADimension.calculateValueIndependently(r, currentTargetRoom));
+                r.setSpeficidDimensionValue(GADimension.DimensionTypes.INNER_SIMILARITY,
+                        CharacteristicSimilarityGADimension.calculateValueIndependently(r, currentTargetRoom));
+
                 double q1 = r.getDimensionValue(GADimension.DimensionTypes.SYMMETRY);
                 double q2 = r.getDimensionValue(GADimension.DimensionTypes.SIMILARITY);
                 double q3 = r.getDimensionValue(GADimension.DimensionTypes.LINEARITY);
