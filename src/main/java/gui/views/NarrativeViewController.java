@@ -1,5 +1,7 @@
 package gui.views;
 
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
 import finder.geometry.Point;
 import game.ApplicationConfig;
 import game.Dungeon;
@@ -41,10 +43,18 @@ import util.eventrouting.Listener;
 import util.eventrouting.PCGEvent;
 import util.eventrouting.events.*;
 
-import java.io.IOException;
+import java.io.*;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.*;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
+import org.jdom2.Attribute;
+import org.jdom2.Document;
+import org.jdom2.Element;
+import org.jdom2.JDOMException;
+import org.jdom2.input.SAXBuilder;
 
 /**
  * @author Adam Ovilius
@@ -488,6 +498,11 @@ public class NarrativeViewController extends BorderPane implements Listener {
             newEntityButton.setFocusTraversable(false);
             router.postEvent(new RequestDisplayQuestTilesUnselection(false));
         }
+    }
+
+    @FXML
+    private void GenerateNarrative(){
+        QueryLM("Just to be clear this text was requested from EDDy! ", 120);
     }
 
     private List<VBox> narrativeAttributeGUI = new ArrayList<VBox>();
@@ -965,4 +980,70 @@ public class NarrativeViewController extends BorderPane implements Listener {
         Image entityImageGUI = new Image(entity.getURL());
         entityImageViewGUI.setImage(entityImageGUI);
     }
+
+
+    public synchronized String QueryLM(String aPrompt, int aMaxLength)
+    {
+        BufferedReader reader;
+        String line;
+        StringBuilder responseContent = new StringBuilder();
+
+        try {
+            if (Objects.equals(aPrompt, "HelloTest"))
+            {
+                URL url = new URL("http://127.0.0.1:5000/hello/");
+                HttpURLConnection http = (HttpURLConnection) url.openConnection();
+
+                //Request setup
+                http.setRequestMethod("GET");
+                http.setConnectTimeout(5000);
+                http.setReadTimeout(5000);
+
+                http.disconnect();
+            }
+            else
+            {
+                URL url = new URL("http://127.0.0.1:5000/generate_narrative/");
+
+                //String urlParameters = "message=" + "max_length=" + aMaxLength;
+
+                HttpURLConnection http = (HttpURLConnection) url.openConnection();
+                http.setDoOutput(true);
+                http.setRequestMethod("POST");
+                //http.setRequestProperty("Content-Type","application/x-www-form-urlencoded");
+                //http.setRequestProperty("charset", "utf-8");
+                //http.setRequestProperty("Content-Length","" + Integer.toString(urlParameters.getBytes().length));
+                http.addRequestProperty("message", aPrompt);
+                http.addRequestProperty("max_length", String.valueOf(aMaxLength));
+
+                //DataOutputStream os = new DataOutputStream(http.getOutputStream());
+                //os.writeBytes(urlParameters);
+
+                //int code = http.getResponseCode();
+                //System.out.println(code);
+                //os.flush();
+                //os.close();
+
+                reader = new BufferedReader(new InputStreamReader(http.getInputStream()));
+
+                while ((line = reader.readLine()) != null)
+                {
+                    responseContent.append(line);
+                }
+                reader.close();
+
+                http.disconnect();
+            }
+
+        }
+        catch (MalformedURLException e) {
+            e.printStackTrace();
+        }catch (IOException e){
+            e.printStackTrace();
+        }
+
+        System.out.println(responseContent.toString());
+        return responseContent.toString();
+    }
+
 }
