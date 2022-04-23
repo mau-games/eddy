@@ -356,6 +356,9 @@ public class EditedRoomStackPane extends StackPane implements Listener
                 AICoCreator.getInstance().getCcRoomViewController().unableToEditLabel();
             });
         }
+
+
+
     }
 
 
@@ -412,8 +415,8 @@ public class EditedRoomStackPane extends StackPane implements Listener
         Platform.runLater(() -> {
             System.out.println("UPDATE ROOM");
             AICoCreator.getInstance().getCcRoomViewController().updateRoom(editedPane.getMap());
-
         });
+
     }
 
     public void PlaceSuggestion(Room editedRoom, List<Tile> tiles, MouseEvent event)

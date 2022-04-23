@@ -193,9 +193,8 @@
             <VBox spacing="15" fx:id="rightSidePane">
 
 
-                <StackPane alignment="CENTER" fx:id="generatedMapsLabel"
-                           id="generatedMapsLabel">
-                    <Label text="Generated Suggestions" />
+                <StackPane alignment="CENTER" fx:id="generatedMapsPane">
+                    <Label text="" id="generatedMapsLabel" />
                 </StackPane>
                 <AnchorPane>
                     <children>
@@ -273,7 +272,8 @@
                     </children>
                 </AnchorPane>
 
-                <Popup text="Drag dimensions from available to current (Max. 2). To see your locked tiles, you must press Restart!" width="150" height="100" image="FALSE"/>
+                <Popup text="Use the brushes on the left to edit the room. " width="150" height="100" image="FALSE"/>
+                <Popup text="Press 'End Turn' below to let AI contribute. " width="150" height="100" image="FALSE"/>
 
                 <HBox spacing="10">
                     <Button fx:id="endTurnBtn" contentDisplay="TOP"

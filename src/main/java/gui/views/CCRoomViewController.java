@@ -122,6 +122,7 @@ public class CCRoomViewController extends BorderPane implements Listener
 	@FXML private Label entranceSafety2;
 	@FXML private Label treasureSafety;
 	@FXML private Label treasureSafety2;
+	@FXML private Label generatedMapsLabel;
 
 	@FXML private Label turnLabel;
 	@FXML private Label tilesLeftLabel;
@@ -269,7 +270,7 @@ public class CCRoomViewController extends BorderPane implements Listener
 		
 		currentState = EvoState.RUNNING;
 
-		saveGenBtn.setDisable(false);
+		//saveGenBtn.setDisable(false);
 
 		file_name = generateNewFileName();
 	}
@@ -346,6 +347,19 @@ public class CCRoomViewController extends BorderPane implements Listener
 		updateRoom(roomToBe);
 
 		generateNewMaps();
+
+		// unabling UIelements for suggesting MAPElites
+		MAPElitesPane.setVisible(false);
+
+		MainTable.setVisible(false);
+		secondaryTable.setVisible(false);
+
+		genSuggestionsBtn.setVisible(false);
+		appSuggestionsBtn.setVisible(false);
+		//flowControlBtn.setVisible(false);
+		//stopEABtn.setVisible(false);
+		saveGenBtn.setVisible(false);
+		//generatedMapsLabel.setVisible(false);
 	}
 
 	private void initCCLabels()
@@ -402,6 +416,11 @@ public class CCRoomViewController extends BorderPane implements Listener
 				ccInfoLabel.setText("Max amount of tiles placed this round.");
 				ccInfoLabel.setVisible(true);
 			}
+			else if(AICoCreator.getInstance().AICanContribute() == false)
+				noContributionAreaLabel();
+			else
+				ccInfoLabel.setVisible(false);
+
 		}
 	}
 
@@ -411,6 +430,15 @@ public class CCRoomViewController extends BorderPane implements Listener
 		ccInfoLabel.setText("Unable to edit an AI-placed tile.");
 		ccInfoLabel.setVisible(true);
 	}
+
+	public void noContributionAreaLabel()
+	{
+		ccInfoLabel.setVisible(false);
+		ccInfoLabel.setText("Place a new tile for the AI to be able to contribute.");
+		ccInfoLabel.setVisible(true);
+	}
+
+
 
 	/**
 	 * Initialises the map view and creates canvases for pattern drawing and
@@ -457,9 +485,24 @@ public class CCRoomViewController extends BorderPane implements Listener
 	private void enableTurnBasedView()
 	{
 		endTurnBtn.setVisible(true);
-
 		continueBtn.setTooltip(new Tooltip("Continue to human's turn"));
 	}
+
+	public void updateCCButtons()
+	{
+		if(AICoCreator.getInstance().AICanContribute() == false && HumanCoCreator.getInstance().getAmountOfTilesPlaced() <= 0)
+		{
+			endTurnBtn.setVisible(false);
+		}
+		else
+		{
+			endTurnBtn.setVisible(true);
+		}
+
+	}
+
+
+
 
 	/**
 	 * Hides the continue button and label
@@ -594,6 +637,7 @@ public class CCRoomViewController extends BorderPane implements Listener
 			UserEditedRoom(((UserEditedRoom) e).uniqueCanvasID, ((UserEditedRoom) e).editedRoom);
 			Platform.runLater(() -> {
 				updateLabels();
+				updateCCButtons();
 			});
 		}
 		else if(e instanceof MAPEGridUpdate)
@@ -714,6 +758,10 @@ public class CCRoomViewController extends BorderPane implements Listener
 		else if(e instanceof AITurnDone)
 		{
 			System.out.println("AI FINISHED - HUMAN'S TURN AGAIN");
+
+			if(AICoCreator.getInstance().getFirstContributionsMade())
+				AICoCreator.getInstance().setFirstContributionsMade();
+
 			disableSuggestionView();
 			enableTurnBasedView();
 			AICoCreator.getInstance().setActive(false);
@@ -722,6 +770,7 @@ public class CCRoomViewController extends BorderPane implements Listener
 
 			Platform.runLater(() -> {
 				updateLabels();
+				updateCCButtons();
 			});
 
 		}

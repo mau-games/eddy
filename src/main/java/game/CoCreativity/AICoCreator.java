@@ -34,6 +34,7 @@ public class AICoCreator {
     private CCRoomViewController ccRoomViewController;
 
     private boolean isActive;
+    private boolean firstContributionsMade;
 
     public static AICoCreator getInstance()
     {
@@ -44,7 +45,7 @@ public class AICoCreator {
 
     private AICoCreator(int roomWidth, int roomHeight, CCRoomViewController ccRoomViewController)
     {
-        setControlLevel(ControlLevel.LOW);
+        setControlLevel(ControlLevel.MEDIUM);
 
         tilesPositions = new ArrayList<>();
         contributions = new ArrayList<>();
@@ -63,10 +64,8 @@ public class AICoCreator {
     /***
      * Prepares for a new turn
      ***/
-    public void prepareTurn(Room room){
-
-
-
+    public void prepareTurn(Room room)
+    {
         if(HumanCoCreator.getInstance().getAmountOfTilesPlaced() > 0)
         {
             tilesPositions.clear();
@@ -78,11 +77,15 @@ public class AICoCreator {
             //if the human did not place anything last round, favor contributing to positions in the previous area that has not been edited yet
 
             List<Point> newPoints = tilesPositions;
-            for(Tile t : contributions)
+
+            if(tilesPositions.size() > 0)
             {
-                if(tilesPositions.contains(t.GetCenterPosition()))
+                for(Tile t : contributions)
                 {
-                    newPoints.remove(t.GetCenterPosition());
+                    if(tilesPositions.contains(t.GetCenterPosition()))
+                    {
+                        newPoints.remove(t.GetCenterPosition());
+                    }
                 }
             }
 
@@ -391,6 +394,21 @@ public class AICoCreator {
         }
 
         contributions = newList;
+    }
+
+    public void setFirstContributionsMade()
+    {
+        firstContributionsMade = true;
+    }
+
+    public boolean getFirstContributionsMade()
+    {
+        return firstContributionsMade;
+    }
+
+    public boolean AICanContribute()
+    {
+        return tilesPositions.size() > 0 || HumanCoCreator.getInstance().getAmountOfTilesPlaced() > 0;
     }
 }
 
