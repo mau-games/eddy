@@ -167,9 +167,10 @@
 
             <VBox alignment="CENTER" spacing="50">
                 <children>
-                    <Label text="HALLÅ!!!!!!!!" fx:id="turnLabel" alignment="CENTER"/>
+                    <Label fx:id="ccInfoLabel" alignment="CENTER"/>
+                    <Label fx:id="turnLabel" alignment="CENTER"/>
                     <EditedRoomStackPane fx:id="editedRoomPane" prefHeight="122.0" prefWidth="309.0" alignment="CENTER"/>
-                    <Label text="HALLÅ!!!!!!!!" fx:id="tilesLeftLabel" alignment="CENTER"/>
+                    <Label fx:id="tilesLeftLabel" alignment="CENTER"/>
 
                 </children>
             </VBox>

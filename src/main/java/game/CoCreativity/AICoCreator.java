@@ -44,7 +44,7 @@ public class AICoCreator {
 
     private AICoCreator(int roomWidth, int roomHeight, CCRoomViewController ccRoomViewController)
     {
-        setControlLevel(ControlLevel.MEDIUM);
+        setControlLevel(ControlLevel.LOW);
 
         tilesPositions = new ArrayList<>();
         contributions = new ArrayList<>();
@@ -65,17 +65,7 @@ public class AICoCreator {
      ***/
     public void prepareTurn(Room room){
 
-        int clock = 0;
-        while(generatedElites.size() <= 0)
-        {
-            try {
-                Thread.sleep(1000);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-            clock++;
-            System.out.print(clock + " ");
-        }
+
 
         if(HumanCoCreator.getInstance().getAmountOfTilesPlaced() > 0)
         {
@@ -356,7 +346,17 @@ public class AICoCreator {
     }
 
     public void setGeneratedElites(List<Room> generatedElites) {
-        this.generatedElites = generatedElites;
+
+        if(this.generatedElites.size() <= 0)
+        {
+            this.generatedElites = generatedElites;
+            router.postEvent(new FirstMAPElitesDone());
+        }
+        else
+        {
+            this.generatedElites = generatedElites;
+        }
+
     }
 
     public void resetRound()

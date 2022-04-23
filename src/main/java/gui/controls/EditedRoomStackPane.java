@@ -298,7 +298,7 @@ public class EditedRoomStackPane extends StackPane implements Listener
         {
             System.out.println("ROOM EDITED");
 
-            Tile prev_tile = editedRoom.getTile(p.getX(), p.getY());
+            Tile prev_tile = new Tile(editedRoom.getTile(p.getX(), p.getY()));
 
             //if AICoCreator.getInstance().GetControlLevel() == HIGH
 
@@ -313,9 +313,12 @@ public class EditedRoomStackPane extends StackPane implements Listener
                 InformativePopupManager.getInstance().requestPopup(editedRoomCanvas, InformativePopupManager.PresentableInformation.LOCK_RESTART, "");
             }
 
-            editedRoomCanvas.updateTile(tile, currentBrush);
 
-            Tile new_tile = editedRoom.getTile(p.getX(), p.getY());
+            editedRoomCanvas.updateTile(tile, currentBrush);
+            editedRoom.getTile(p.getX(), p.getY()).setPlacedByAI(false);
+
+            Tile new_tile = new Tile(editedRoom.getTile(p.getX(), p.getY()));
+            new_tile.setPlacedByAI(false);
 
             editedRoom.forceReevaluation();
             editedRoom.getRoomXML("room\\");
@@ -324,6 +327,8 @@ public class EditedRoomStackPane extends StackPane implements Listener
             redrawPatterns(editedPane.getMap());
             redrawLocks(editedPane.getMap());
             drawTintAiPlacedTiles(editedPane.getMap());
+
+
 
             HumanCoCreator.getInstance().RegisterContributionInfo(editedRoom.getTile(p));
             AICoCreator.getInstance().getCcRoomViewController().saveActionData(prev_tile, new_tile);
@@ -341,11 +346,15 @@ public class EditedRoomStackPane extends StackPane implements Listener
         }
         else if(HumanCoCreator.getInstance().getAmountOfTilesPlaced() >= HumanCoCreator.getInstance().getMaxTilesPerRound())
         {
-            System.out.println("COULD NOT EDIT - MAX AMOUNT OF THIS ROUND PLACED");
+            Platform.runLater(() -> {
+                AICoCreator.getInstance().getCcRoomViewController().updateLabels();
+            });
         }
         else
         {
-            System.out.println("COULD NOT EDIT AI PLACED TILE");
+            Platform.runLater(() -> {
+                AICoCreator.getInstance().getCcRoomViewController().unableToEditLabel();
+            });
         }
     }
 
@@ -362,7 +371,7 @@ public class EditedRoomStackPane extends StackPane implements Listener
             if(t != null)
             {
                 Point old_p = new Point(t.GetCenterPosition().getX(), t.GetCenterPosition().getY());
-                Tile prev_tile = editedRoom.getTile(old_p);
+                Tile prev_tile = new Tile(editedRoom.getTile(old_p));
 
                 Drawer tempbrush = (t.GetTypeAsBrush());
 
@@ -390,7 +399,10 @@ public class EditedRoomStackPane extends StackPane implements Listener
                     AICoCreator.getInstance().getCcRoomViewController().updateRoom(editedPane.getMap());
                 });
 
-                AICoCreator.getInstance().getCcRoomViewController().saveActionData(prev_tile, t);
+                Tile new_tile = new Tile(editedRoom.getTile(p.getX(), p.getY()));
+                new_tile.setPlacedByAI(true);
+
+                AICoCreator.getInstance().getCcRoomViewController().saveActionData(prev_tile, new_tile);
 
                 System.out.println("ROOM EDITED BY AI " + t.GetType().name() + " " + p.toString());
             }
@@ -418,7 +430,7 @@ public class EditedRoomStackPane extends StackPane implements Listener
 
             if(tp.getX() == p.getX() && tp.getY() == p.getY()) //if tile was clicked
             {
-                Tile prev_tile = editedRoom.getTile(tp);
+                Tile prev_tile = new Tile(editedRoom.getTile(tp));
 
                 //create a brush
                 Drawer tempbrush = (tiles.get(i).GetTypeAsBrush());
@@ -436,9 +448,11 @@ public class EditedRoomStackPane extends StackPane implements Listener
 
                 AICoCreator.getInstance().removeTileFromContributions(tiles.get(i));
 
-                System.out.println("SUGGESTION PLACED: " + tiles.get(i).GetType().name() + " " + p.toString());
+                Tile new_tile = new Tile(editedRoom.getTile(p.getX(), p.getY()));
+                new_tile.setPlacedByAI(true);
+                //System.out.println("SUGGESTION PLACED: " + tiles.get(i).GetType().name() + " " + p.toString());
 
-                AICoCreator.getInstance().getCcRoomViewController().saveActionData(prev_tile, tiles.get(i));
+                AICoCreator.getInstance().getCcRoomViewController().saveActionData(prev_tile, new_tile);
 
                 break;
             }

@@ -53,8 +53,12 @@ import java.io.*;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.sql.Timestamp;
+import java.text.Format;
+import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
+import java.time.format.FormatStyle;
 import java.util.*;
 
 /**
@@ -121,6 +125,7 @@ public class CCRoomViewController extends BorderPane implements Listener
 
 	@FXML private Label turnLabel;
 	@FXML private Label tilesLeftLabel;
+	@FXML private Label ccInfoLabel;
 
 	@FXML private Button worldGridBtn; //ok
 	@FXML private Button genSuggestionsBtn; //bra
@@ -202,6 +207,7 @@ public class CCRoomViewController extends BorderPane implements Listener
 		}
 
 		router.registerListener(this, new MAPEGridUpdate(null));
+		router.registerListener(this, new FirstMAPElitesDone());
 		router.registerListener(this, new MAPElitesDone());
 		router.registerListener(this, new AIPrepareContributionsDone());
 		router.registerListener(this, new AICalculateContributionsDone());
@@ -352,6 +358,10 @@ public class CCRoomViewController extends BorderPane implements Listener
 		tilesLeftLabel.setStyle("-fx-text-fill: white;");
 		tilesLeftLabel.setFont(Font.font("Arial", 16));
 
+		ccInfoLabel.setStyle("-fx-font-weight: bold");
+		ccInfoLabel.setStyle("-fx-text-fill: white;");
+		ccInfoLabel.setFont(Font.font("Arial", 20));
+
 		updateLabels();
 	}
 
@@ -359,12 +369,19 @@ public class CCRoomViewController extends BorderPane implements Listener
 	{
 		if(AICoCreator.getInstance().getActive())
 		{
-			System.out.println("INNE I UPDATE AI ACTIVE");
 			turnLabel.setVisible(false);
 			turnLabel.setText("AI's Turn");
 			turnLabel.setVisible(true);
 
 			tilesLeftLabel.setVisible(false);
+
+			if(AICoCreator.getInstance().getGeneratedElites().size() <= 0)
+			{
+				tilesLeftLabel.setText("calculating...");
+				tilesLeftLabel.setVisible(true);
+			}
+
+			ccInfoLabel.setVisible(false);
 		}
 		else
 		{
@@ -378,7 +395,21 @@ public class CCRoomViewController extends BorderPane implements Listener
 			tilesLeftLabel.setVisible(false);
 			tilesLeftLabel.setText("Tiles left this round: " + (max-num) +"/" + max);
 			tilesLeftLabel.setVisible(true);
+
+			ccInfoLabel.setVisible(false);
+			if(num >= max)
+			{
+				ccInfoLabel.setText("Max amount of tiles placed this round.");
+				ccInfoLabel.setVisible(true);
+			}
 		}
+	}
+
+	public void unableToEditLabel()
+	{
+		ccInfoLabel.setVisible(false);
+		ccInfoLabel.setText("Unable to edit an AI-placed tile.");
+		ccInfoLabel.setVisible(true);
 	}
 
 	/**
@@ -408,7 +439,6 @@ public class CCRoomViewController extends BorderPane implements Listener
 	private void enableSuggestionView()
 	{
 		continueBtn.setVisible(true);
-
 		continueBtn.setTooltip(new Tooltip("Continue to human's turn"));
 	}
 
@@ -562,7 +592,9 @@ public class CCRoomViewController extends BorderPane implements Listener
 		if(e instanceof UserEditedRoom)
 		{
 			UserEditedRoom(((UserEditedRoom) e).uniqueCanvasID, ((UserEditedRoom) e).editedRoom);
-			updateLabels();
+			Platform.runLater(() -> {
+				updateLabels();
+			});
 		}
 		else if(e instanceof MAPEGridUpdate)
 		{
@@ -600,9 +632,13 @@ public class CCRoomViewController extends BorderPane implements Listener
 				System.out.println("currentDimensions: " + currentDimensions.length);
 				System.out.println();
 
+
 				AICoCreator.getInstance().setGeneratedElites(generatedRooms);
 
-				generateNewMaps(editedRoomPane.editedPane.getMap());
+
+
+
+				//generateNewMaps(editedRoomPane.editedPane.getMap());
 
 
 
@@ -635,11 +671,19 @@ public class CCRoomViewController extends BorderPane implements Listener
 
 			}
 		}
+		else if(e instanceof FirstMAPElitesDone)
+		{
+			System.out.println("First Maps done");
+
+			if(AICoCreator.getInstance().getActive())
+				AICoCreator.getInstance().prepareTurn(editedRoomPane.editedPane.getMap());
+		}
 		else if(e instanceof AIPrepareContributionsDone)
 		{
-
-			System.out.println("AICOCREATOR.GETACTIVE: " + AICoCreator.getInstance().getActive());
 			AICoCreator.getInstance().CalculateContribution();
+			Platform.runLater(() -> {
+				updateLabels();
+			});
 		}
 		else if(e instanceof AICalculateContributionsDone)
 		{
@@ -675,7 +719,11 @@ public class CCRoomViewController extends BorderPane implements Listener
 			AICoCreator.getInstance().setActive(false);
 			HumanCoCreator.getInstance().resetRound();
 			//AICoCreator.getInstance().resetRound(); //
-			updateLabels();
+
+			Platform.runLater(() -> {
+				updateLabels();
+			});
+
 		}
 		else if (e instanceof MapUpdate) {
 			//FIXME: I REALLY HAVE TO GO BACK HERE TO FIX THIS TO BE ABLE TO CREATEROOMS THE OLD WAY
@@ -918,9 +966,14 @@ public class CCRoomViewController extends BorderPane implements Listener
 
 		System.out.println("AICC PREPARE TURN");
 		AICoCreator.getInstance().setActive(true);
+
+		disableSuggestionView();
+		disableTurnBasedView();
+
 		updateLabels();
 
-		AICoCreator.getInstance().prepareTurn(editedRoomPane.editedPane.getMap());
+		if(AICoCreator.getInstance().getGeneratedElites().size() > 0)
+			AICoCreator.getInstance().prepareTurn(editedRoomPane.editedPane.getMap());
 
 
 
@@ -1411,68 +1464,75 @@ public class CCRoomViewController extends BorderPane implements Listener
 		String filename = "";
 		long millis = System.currentTimeMillis();
 		String datetime = new Date().toGMTString();
-		datetime = datetime.replace(" ", "");
-		datetime = datetime.replace(":", "");
+		datetime = datetime.replace(" ", "_");
+		datetime = datetime.replace(":", "-");
 
-		int i = (int)(Math.random() * 100);
-		String rndchars = "" + i;
-		filename = rndchars + "_" + datetime + "_" + millis;
+		//int i = (int)(Math.random() * 100);
+		//String rndchars = "" + i;
+		filename = datetime + "_" + millis;
 		return filename;
 	}
 
 	private void writeToCCFile(String fileName, String time, String tilePos, String prevType, String newType, String prevPlacedByAI, String newPlacedByAI)
 	{
-		/**
-		 * If file does not exist, create it
-		 * */
 		File file = new File(fileName);
 		if (!file.exists())
 		{
-			try(PrintWriter writer = new PrintWriter(fileName))
-			{
-				StringBuilder sb = new StringBuilder();
-				sb.append("TIME");
-				sb.append(',');
-				sb.append("POSITION");
-				sb.append(',');
-				sb.append("PREV_TYPE");
-				sb.append(',');
-				sb.append("NEW_TYPE");
-				sb.append(',');
-				sb.append("AI_PLACED");
-				sb.append('\n');
-				writer.write(sb.toString());
-
-			} catch (FileNotFoundException ex)
-			{
-				System.out.println(ex.getMessage());
+			try {
+				initiateCCFile(file, fileName);
+			} catch (IOException e) {
+				e.printStackTrace();
 			}
 		}
 
-		try(PrintWriter writer = new PrintWriter(fileName))
-		{
-			StringBuilder sb = new StringBuilder();
+		try {
+			FileWriter fw = new FileWriter(fileName, true);
+			BufferedWriter bw = new BufferedWriter(fw);
 
-			sb.append(time);
-			sb.append(',');
-			sb.append(tilePos);
-			sb.append(',');
-			sb.append(prevType);
-			sb.append(',');
-			sb.append(newType);
-			sb.append(',');
-			sb.append(prevPlacedByAI);
-			sb.append(',');
-			sb.append(newPlacedByAI);
-			sb.append('\n');
+			fw.append(time);
+			fw.append(',');
+			fw.append(tilePos);
+			fw.append(',');
+			fw.append(prevType);
+			fw.append(',');
+			fw.append(newType);
+			fw.append(',');
+			fw.append(prevPlacedByAI);
+			fw.append(',');
+			fw.append(newPlacedByAI);
+			fw.append('\n');
 
-			writer.write(sb.toString());
+			//bw.write(fw.toString());
+			bw.close();
+			fw.close();
 
-		} catch (FileNotFoundException ex)
-		{
-			System.out.println(ex.getMessage());
+		} catch (IOException e) {
+			e.printStackTrace();
 		}
 
+	}
+
+	public void initiateCCFile(File file, String fileName)
+	throws IOException
+	{
+		FileWriter fw = new FileWriter(fileName, true);
+		BufferedWriter bw = new BufferedWriter(fw);
+		fw.append("TIME");
+		fw.append(',');
+		fw.append("POSITION");
+		fw.append(',');
+		fw.append("PREV_TYPE");
+		fw.append(',');
+		fw.append("NEW_TYPE");
+		fw.append(',');
+		fw.append("PREV_AI_PLACED");
+		fw.append(',');
+		fw.append("NEW_AI_PLACED");
+		fw.append('\n');
+
+		//bw.write(fw.toString());
+		bw.close();
+		fw.close();
 	}
 
 	/**
@@ -1480,37 +1540,17 @@ public class CCRoomViewController extends BorderPane implements Listener
 	 * */
 	public void saveActionData(Tile prev_tile, Tile new_tile)
 	{
-		//open file
-
-		//if file doesn't exist, create it
-
-		//write the action
-		// if prev_tile is floor it is human placed
-
-		// if
-
-		Document dom;
-		Element e = null;
-		Element next = null;
-
 		String fileString = DataSaverLoader.projectPath + "\\cc-data-collection\\" + AICoCreator.getInstance().getControlLevel().name() +"\\"+ file_name + ".csv";
-		//System.out.println("Writing to: " + fileString);
 
-		//File file = new File(DataSaverLoader.projectPath + "\\" + direction + "\\room\\" + room_id);
+		Format f = new SimpleDateFormat("hh:mm:ss");
+		String time = f.format(new Date());
+		String pos = prev_tile.GetCenterPosition().getX() + " " + prev_tile.GetCenterPosition().getY();
+		String p_type = prev_tile.GetType().name();
+		String n_type = new_tile.GetType().name();
+		String p_placed = new Boolean(prev_tile.getPlacedByAI()).toString();
+		String n_placed = new Boolean(new_tile.getPlacedByAI()).toString();
 
-		//File file = new File(fileString);
-		//if (!file.exists()) {
-		//	file.mkdirs();
-		//}
-
-		//String time = LocalTime.now().toString();
-
-		//writeToCCFile(fileString, );
-
-
-
-
-
+		writeToCCFile(fileString, time, pos, p_type, n_type, p_placed, n_placed);
 	}
 
 	public void someRoomHovered(Room room)

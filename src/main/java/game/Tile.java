@@ -146,6 +146,7 @@ public class Tile
 		this.positions = new ArrayList<Point>();
 		this.positions.addAll(copyTile.GetPositions());
 		this.m_immutable = copyTile.GetImmutable();
+		this.setPlacedByAI(copyTile.getPlacedByAI());
 	}
 	
 	public Tile copy()
