@@ -388,15 +388,20 @@ public class CCRoomViewController extends BorderPane implements Listener
 			turnLabel.setText("AI's Turn");
 			turnLabel.setVisible(true);
 
+
 			tilesLeftLabel.setVisible(false);
+			ccInfoLabel.setVisible(false);
 
 			if(AICoCreator.getInstance().getGeneratedElites().size() <= 0)
 			{
 				tilesLeftLabel.setText("calculating...");
 				tilesLeftLabel.setVisible(true);
 			}
-
-			ccInfoLabel.setVisible(false);
+			else if(AICoCreator.getInstance().getControlLevel() == AICoCreator.ControlLevel.LOW)
+			{
+				ccInfoLabel.setText("Click a green tinted tile for the AI to place it.");
+				ccInfoLabel.setVisible(true);
+			}
 		}
 		else
 		{
