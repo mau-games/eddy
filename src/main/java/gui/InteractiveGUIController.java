@@ -20,6 +20,7 @@ import collectors.ActionLogger.TargetPane;
 import collectors.ActionLogger.View;
 import finder.PatternFinder;
 import game.ApplicationConfig;
+import game.CoCreativity.AICoCreator;
 import game.Dungeon;
 import game.Game;
 import game.Room;
@@ -779,6 +780,7 @@ public class InteractiveGUIController implements Initializable, Listener {
 
 
 		CCroomView.initializeView(map.getMap());
+
 //		roomView.roomMouseEvents();
 
 

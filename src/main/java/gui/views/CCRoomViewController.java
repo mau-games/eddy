@@ -337,11 +337,12 @@ public class CCRoomViewController extends BorderPane implements Listener
 
 		editedRoomPane.init(mapWidth, mapHeight, roomToBe);
 
+		AICoCreator.getInstance().setRoomAiCoCreator(roomToBe.getColCount(), roomToBe.getRowCount(), this); // set map and xxController
+
 		initButtons();
 		initLegend();
 		initCCLabels();
 
-		AICoCreator.getInstance().initAiCoCreator(roomToBe.getColCount(), roomToBe.getRowCount(), this);
 		resetView();
 		roomToBe.forceReevaluation();
 		updateRoom(roomToBe);
@@ -678,8 +679,6 @@ public class CCRoomViewController extends BorderPane implements Listener
 
 
 				AICoCreator.getInstance().setGeneratedElites(generatedRooms);
-
-
 
 
 				//generateNewMaps(editedRoomPane.editedPane.getMap());

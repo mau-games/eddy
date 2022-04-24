@@ -53,18 +53,20 @@
 					fx:id="programTitle" />
 					<Button fx:id="createWorldBtn" text="Create Your World" minWidth="400"
 						onAction="#createWorld" />
-						
+
+					<Label textFill="WHITE" text="Choose the level of control of the AI:" minWidth="400"
+						   fx:id="titleLabel"/>
 					<HBox spacing="15">
-						<Label textFill="WHITE" text="Academic:" fx:id="launchLabel"> </Label>
-						<CheckBox prefWidth="15.0" mnemonicParsing="false" onAction="#toggleAcademic" fx:id="academicBtn"></CheckBox>
+						<Label textFill="WHITE" text="Low:" fx:id="launchLabel"> </Label>
+						<CheckBox prefWidth="15.0" mnemonicParsing="false" onAction="#toggleLowAIControl" fx:id="lowCheckBox"></CheckBox>
 					</HBox>
 					<HBox spacing="15">
-						<Label textFill="WHITE" text="Industry:" fx:id="launchLabel"> </Label>
-						<CheckBox prefWidth="15.0" mnemonicParsing="false" onAction="#toggleIndustry" fx:id="industryBtn"></CheckBox>
+						<Label textFill="WHITE" text="Medium:" fx:id="launchLabel"> </Label>
+						<CheckBox prefWidth="15.0" mnemonicParsing="false" onAction="#toggleMediumAIControl" fx:id="mediumCheckBox"></CheckBox>
 					</HBox>
 					<HBox spacing="15">
-						<Label textFill="WHITE" text="Other:" fx:id="launchLabel"> </Label>
-						<CheckBox prefWidth="15.0" mnemonicParsing="false" onAction="#toggleOther" fx:id="otherBtn"></CheckBox>
+						<Label textFill="WHITE" text="High:" fx:id="launchLabel"> </Label>
+						<CheckBox prefWidth="15.0" mnemonicParsing="false" onAction="#toggleHighAIControl" fx:id="highCheckBox"></CheckBox>
 					</HBox>
 					
 				</VBox>

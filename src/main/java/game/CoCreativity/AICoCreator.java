@@ -39,26 +39,29 @@ public class AICoCreator {
     public static AICoCreator getInstance()
     {
         if(singleton == null)
-            singleton = new AICoCreator(0, 0, null);
+            singleton = new AICoCreator(null);
         return singleton;
     }
 
-    private AICoCreator(int roomWidth, int roomHeight, CCRoomViewController ccRoomViewController)
+    private AICoCreator(ControlLevel cLevel)
     {
-        setControlLevel(ControlLevel.MEDIUM);
+        this.setControlLevel(cLevel);
+    }
 
+    public void setRoomAiCoCreator(int roomWidth, int roomHeight, CCRoomViewController cc)
+    {
         tilesPositions = new ArrayList<>();
         contributions = new ArrayList<>();
         generatedElites = new ArrayList<>();
 
         this.roomHeight = roomHeight;
         this.roomWidth = roomWidth;
-        this.ccRoomViewController = ccRoomViewController;
+        this.ccRoomViewController = cc;
     }
 
-    public void initAiCoCreator(int roomWidth, int roomHeight, CCRoomViewController cc)
+    public void initAiCoCreator(ControlLevel cLevel)
     {
-        singleton = new AICoCreator(roomWidth, roomHeight, cc);
+        singleton = new AICoCreator(cLevel);
     }
 
     /***
