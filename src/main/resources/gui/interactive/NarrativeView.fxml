@@ -68,7 +68,7 @@
                                           <Font size="14.0" />
                                        </font>
                                     </Label>
-                                    <TextField prefHeight="25.0" prefWidth="102.0" promptText="size" style="-fx-background-color: white;">
+                                    <TextField fx:id="maxLengthTextField" prefHeight="25.0" prefWidth="102.0" promptText="size" style="-fx-background-color: white;">
                                        <HBox.margin>
                                           <Insets />
                                        </HBox.margin>

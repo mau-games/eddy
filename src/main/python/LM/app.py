@@ -66,13 +66,26 @@ def generate_narrative():
         # Create a generator and generate output text
         print(f"Starting text generation with max length {ModelData.max_length}...", end=" ")
         start_time = time.perf_counter()
-        output = ModelData.generator(request_prompt, do_sample=True, max_length=ModelData.max_length)
+        while True:
+            output = generate(request_prompt)
+            if output[0]["generated_text"].index("</entry>") != output[0]["generated_text"].rindex("</entry>"):
+                break
+            else:
+                print("Output invalid, trying again... ")
+
         end_time = time.perf_counter()
         print(f"Completed after {end_time - start_time:0.2f} sec.\n")
 
         ModelData.is_locked = False
-        return output[0]["generated_text"]
 
+        ret_string = "<?xml version = \"1.0\" encoding = \"UTF-8\"?>\n<entries>" + output[0]["generated_text"]
+        # ret_string find last occurrence of </entry> and paste </entries> after it
+        ret_string = ret_string[:ret_string.rindex("</entry>") + len("</entry>")] + "</entries>"
+        return ret_string
+
+
+def generate(prompt):
+    return ModelData.generator(prompt, do_sample=True, max_length=ModelData.max_length)
 
 def init():
     # setting device on GPU if available, else CPU

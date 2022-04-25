@@ -1,19 +1,19 @@
 package gui.views;
 
-import com.google.gson.JsonArray;
-import com.google.gson.JsonObject;
 import finder.geometry.Point;
 import game.ApplicationConfig;
 import game.Dungeon;
 import game.Room;
 import game.TileTypes;
 import game.narrative.CreateEntityFileXML;
-import game.narrative.NarrativeBase;
+import game.narrative.Defines;
 import game.narrative.entity.Entity;
+import game.narrative.entity.ExtractedEntityData;
+import game.narrative.entity.NPC;
 import game.quest.Action;
 import game.quest.ActionType;
-import game.quest.actions.*;
-import game.tiles.*;
+import game.quest.actions.DamageAction;
+import game.tiles.BossEnemyTile;
 import gui.utils.DungeonDrawer;
 import gui.utils.MapRenderer;
 import javafx.event.ActionEvent;
@@ -22,39 +22,37 @@ import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Pos;
 import javafx.scene.control.*;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.control.MenuItem;
-import javafx.scene.control.ScrollPane;
-import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
-import javafx.scene.layout.*;
+import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.StackPane;
+import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
-import game.narrative.Defines;
-import game.narrative.entity.NPC;
+import org.jdom2.Attribute;
+import org.jdom2.Document;
+import org.jdom2.Element;
+import org.jdom2.JDOMException;
+import org.jdom2.input.SAXBuilder;
+import org.w3c.dom.NodeList;
 import util.config.MissingConfigurationException;
 import util.eventrouting.EventRouter;
 import util.eventrouting.Listener;
 import util.eventrouting.PCGEvent;
 import util.eventrouting.events.*;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.StringReader;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.*;
-import java.util.List;
-import java.util.concurrent.atomic.AtomicBoolean;
-import org.jdom2.Attribute;
-import org.jdom2.Document;
-import org.jdom2.Element;
-import org.jdom2.JDOMException;
-import org.jdom2.input.SAXBuilder;
 
 /**
  * @author Adam Ovilius
@@ -100,6 +98,8 @@ public class NarrativeViewController extends BorderPane implements Listener {
     private Label entityLabel;
     @FXML
     private Button generateButton;
+    @FXML
+    private TextField maxLengthTextField;
 
 /*    @FXML
     private Image entityImageGUI;*/
@@ -502,7 +502,18 @@ public class NarrativeViewController extends BorderPane implements Listener {
 
     @FXML
     private void GenerateNarrative(){
-        QueryLM("Just to be clear this text was requested from EDDy! ", 120);
+        int maxLength = 500;
+        if (!Objects.equals(maxLengthTextField.getText(), ""))
+        {
+            if (Integer.parseInt(maxLengthTextField.getText()) > 0)
+            {
+                maxLength = Integer.parseInt(maxLengthTextField.getText());
+            }
+        }
+
+        String output = QueryLM("<entry><name>Alfredo Tattaglia</name><age>62</age><gender>M</gender><race>Gnome</race><class>Mage</class><appearance>Fair skin, salt & pepper hair with a lush full but well kept beard</appearance><loves>Work, His Job, Peace and quiet, Normality, Order, Coffee, Papers, Punctuality</loves><hates>Downtime, vacation, social interaction, disorder, chaos, loud people, Lateness</hates><phobias>Change</phobias><narrative>Alfredo \"Fredo\" Tattaglia is an intern at his dream company Magical Enforcement of Temporal Anomalies or META for short. As an accomplished wizard himself he hopes to impress the higher ups with a job in the field, traversing time and space to keep the continuum on the right track.</narrative></entry>", maxLength);
+        ExtractedEntityData lmOutput = ParseLMOutput(output);
+        System.out.println("");
     }
 
     private List<VBox> narrativeAttributeGUI = new ArrayList<VBox>();
@@ -1005,24 +1016,11 @@ public class NarrativeViewController extends BorderPane implements Listener {
             {
                 URL url = new URL("http://127.0.0.1:5000/generate_narrative/");
 
-                //String urlParameters = "message=" + "max_length=" + aMaxLength;
-
                 HttpURLConnection http = (HttpURLConnection) url.openConnection();
                 http.setDoOutput(true);
                 http.setRequestMethod("POST");
-                //http.setRequestProperty("Content-Type","application/x-www-form-urlencoded");
-                //http.setRequestProperty("charset", "utf-8");
-                //http.setRequestProperty("Content-Length","" + Integer.toString(urlParameters.getBytes().length));
                 http.addRequestProperty("message", aPrompt);
                 http.addRequestProperty("max_length", String.valueOf(aMaxLength));
-
-                //DataOutputStream os = new DataOutputStream(http.getOutputStream());
-                //os.writeBytes(urlParameters);
-
-                //int code = http.getResponseCode();
-                //System.out.println(code);
-                //os.flush();
-                //os.close();
 
                 reader = new BufferedReader(new InputStreamReader(http.getInputStream()));
 
@@ -1046,4 +1044,86 @@ public class NarrativeViewController extends BorderPane implements Listener {
         return responseContent.toString();
     }
 
+    public ExtractedEntityData ParseLMOutput(String aOutput)
+    {
+        String temp = aOutput.replace("&", "&amp;");
+        ExtractedEntityData retVal = null;
+
+        SAXBuilder saxBuilder = new SAXBuilder();
+        try {
+            Document doc = saxBuilder.build(new StringReader(temp));
+            Element classElement = doc.getRootElement();
+            List<Element> entries = classElement.getChildren();
+
+            Element entry = entries.get(1);
+            System.out.println("----------------------------\n");
+            System.out.println("Name: "
+                    + entry.getChild("name").getText());
+            String name = entry.getChild("name").getText();
+            System.out.println("Age: "
+                    + entry.getChild("age").getText());
+            int age = Integer.parseInt(entry.getChild("age").getText());
+            System.out.println("Gender: "
+                    + entry.getChild("gender").getText());
+            String gender = entry.getChild("gender").getText();
+            System.out.println("Race: "
+                    + entry.getChild("race").getText());
+            String race = entry.getChild("race").getText();
+            System.out.println("Class: "
+                    + entry.getChild("class").getText());
+            String characterClass = entry.getChild("class").getText();
+            System.out.println("Appearance: "
+                    + entry.getChild("appearance").getText());
+            String appearance = entry.getChild("appearance").getText();
+            System.out.println("Likes: "
+                    + entry.getChild("loves").getText());
+            String loves = entry.getChild("loves").getText();
+            System.out.println("Dislikes: "
+                    + entry.getChild("hates").getText());
+            String hates = entry.getChild("hates").getText();
+            System.out.println("Fears: "
+                    + entry.getChild("phobias").getText());
+            String phobias = entry.getChild("phobias").getText();
+            System.out.println("Narrative: "
+                    + entry.getChild("narrative").getText());
+            String narrative = entry.getChild("narrative").getText();
+            System.out.println("----------------------------\n");
+
+            retVal = new ExtractedEntityData(name, age, gender, race, characterClass, appearance, loves, hates, phobias, narrative);
+
+            /*for (Element entry : entries) {
+                if (entry == entries.get(0))
+                {
+                    continue;
+                }
+                System.out.println("----------------------------\n");
+                System.out.println("Name: "
+                        + entry.getChild("name").getText());
+                System.out.println("Age: "
+                        + entry.getChild("age").getText());
+                System.out.println("Gender: "
+                        + entry.getChild("gender").getText());
+                System.out.println("Race: "
+                        + entry.getChild("race").getText());
+                System.out.println("Class: "
+                        + entry.getChild("class").getText());
+                System.out.println("Appearance: "
+                        + entry.getChild("appearance").getText());
+                System.out.println("Likes: "
+                        + entry.getChild("loves").getText());
+                System.out.println("Dislikes: "
+                        + entry.getChild("hates").getText());
+                System.out.println("Fears: "
+                        + entry.getChild("phobias").getText());
+                System.out.println("Narrative: "
+                        + entry.getChild("narrative").getText());
+                System.out.println("\n");
+            }*/
+        } catch (JDOMException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return retVal;
+    }
 }
