@@ -179,7 +179,7 @@ public class MAPEliteAlgorithm extends Algorithm implements Listener {
 			ZoneIndividual ind = new ZoneIndividual(room, mutationProbability);
 			ind.mutateAll(0.7, roomWidth, roomHeight);
 			
-			if(checkZoneIndividual(ind)){
+			if(checkZoneIndividual(ind, true)){
 				if(i < feasibleAmount){
 					evaluateFeasibleZoneIndividual(ind);
 					ind.SetDimensionValues(MAPElitesDimensions, room);
@@ -245,7 +245,7 @@ public class MAPEliteAlgorithm extends Algorithm implements Listener {
 			ZoneIndividual ind = new ZoneIndividual(config, roomWidth * roomHeight, mutationProbability);
 			ind.initialize();
 			
-			if(checkZoneIndividual(ind)){
+			if(checkZoneIndividual(ind, true)){
 				if(i < feasibleAmount){
 					feasiblePool.add(ind);
 					ind.SetDimensionValues(MAPElitesDimensions, null);
@@ -859,7 +859,7 @@ public class MAPEliteAlgorithm extends Algorithm implements Listener {
 		{
 			ZoneIndividual ind = new ZoneIndividual(this.relativeRoom, mutationProbability);
 			ind.SetDimensionValues(MAPElitesDimensions, this.relativeRoom);
-			if(checkZoneIndividual(ind))
+			if(checkZoneIndividual(ind, true))
 			{
 				feasibleChildren.add(ind);
 			}
@@ -1126,6 +1126,11 @@ public class MAPEliteAlgorithm extends Algorithm implements Listener {
 			individual_rooms[i++] = individual.getPhenotype().getMap(roomWidth, roomHeight, roomDoorPositions, roomCustomTiles, roomOwner);
 		}
 
+		System.out.println("REQUEST STYLE");
+
+		if(individuals.size() == 0)
+			System.out.println("WHAT IS HAPPENING HERE?");
+
 		EventRouter.getInstance().postEvent(new BatchDesPersEvaluation(id, individual_rooms));
 	}
 
@@ -1134,6 +1139,9 @@ public class MAPEliteAlgorithm extends Algorithm implements Listener {
 	public void SetStyleToIndividuals(int[] styles)
 	{
 		int a = 0;
+
+		if(styles.length == 0)
+			System.out.println("WHAT IS HAPPENING HERE?");
 
 		for(int i = 0; i < evaluated_individuals.size(); i++)
 		{
@@ -1155,7 +1163,7 @@ public class MAPEliteAlgorithm extends Algorithm implements Listener {
 			if(infeasible)
 				individual.setChildOfInfeasibles(true);
 
-			if(checkZoneIndividual(individual))
+			if(checkZoneIndividual(individual, false))
 			{
 				if(infeasible)
 					infeasiblesMoved++;

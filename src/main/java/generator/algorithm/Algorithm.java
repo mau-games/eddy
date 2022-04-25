@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map.Entry;
 import java.util.stream.Collectors;
 
+import designerModeling.DesignerModel;
 import org.apache.commons.io.FileUtils;
 
 import finder.PatternFinder;
@@ -336,7 +337,7 @@ public class Algorithm extends Thread implements Listener {
 			ZoneIndividual ind = new ZoneIndividual(room, mutationProbability);
 			ind.mutateAll(0.4, roomWidth, roomHeight);
 			
-			if(checkZoneIndividual(ind)){
+			if(checkZoneIndividual(ind, true)){
 				if(i < feasibleAmount){
 					feasiblePool.add(ind);
 					i++;
@@ -370,7 +371,7 @@ public class Algorithm extends Thread implements Listener {
 			ZoneIndividual ind = new ZoneIndividual(config, roomWidth * roomHeight, mutationProbability);
 			ind.initialize();
 			
-			if(checkZoneIndividual(ind)){
+			if(checkZoneIndividual(ind, true)){
 				if(i < feasibleAmount){
 					feasiblePool.add(ind);
 					i++;
@@ -600,7 +601,7 @@ public class Algorithm extends Thread implements Listener {
 			{
 				ZoneIndividual ind = new ZoneIndividual(this.relativeRoom, mutationProbability);
 
-				if(checkZoneIndividual(ind)){
+				if(checkZoneIndividual(ind, false)){
 					feasiblePool.add(ind);
 				}
 				else {
@@ -665,7 +666,7 @@ public class Algorithm extends Thread implements Listener {
 			{
 				ZoneIndividual ind = new ZoneIndividual(this.relativeRoom, mutationProbability);
 
-				if(checkZoneIndividual(ind)){
+				if(checkZoneIndividual(ind, false)){
 					feasiblePool.add(ind);
 				}
 				else {
@@ -828,20 +829,37 @@ public class Algorithm extends Thread implements Listener {
 	}
 	
 	/**
+	 * We will also check the designer persona here? or maybe in the fitness function?
+	 *
+	 *
 	 * Checks if an ZoneIndividual is valid (feasible), that is:
 	 * 1. There exist paths between the entrance and all other doors
 	 * 2. There exist paths between the entrance and all enemies
 	 * 3. There exist paths between the entrance and all treasures
 	 * 4. There is at least one enemy
 	 * 5. There is at least one treasure
-	 * 
+	 *
+	 *
 	 * @param ind The ZoneIndividual to check
 	 * @return Return true if ZoneIndividual is valid, otherwise return false
     */
-	protected boolean checkZoneIndividual(ZoneIndividual ind){
+	protected boolean checkZoneIndividual(ZoneIndividual ind, boolean initial){
 		Room room = ind.getPhenotype().getMap(roomWidth, roomHeight, roomDoorPositions, roomCustomTiles, roomOwner);
 //		return room.isFeasible();
-		return room.isIntraFeasible();
+
+		boolean feasible = false;
+		boolean correct_persona = true;
+		boolean intra_feasible = room.isIntraFeasible();
+
+		if(!initial && AlgorithmSetup.getInstance().isUsingDesignerPersona())
+		{
+			int target_style = DesignerModel.getInstance().designer_persona.specificArchetypicalPathCluster(this.relativeRoom);
+			correct_persona = target_style == room.room_style.current_style;
+			//if(target_style == room.room_style.current_style)
+
+		}
+
+		return intra_feasible && correct_persona;
 	}
 
 	/**
@@ -1334,7 +1352,7 @@ public class Algorithm extends Thread implements Listener {
         {
         	if(infeasible)
         		son.setChildOfInfeasibles(true);
-            if(checkZoneIndividual(son))
+            if(checkZoneIndividual(son, false))
             {
             	if(infeasible)
             		infeasiblesMoved++;

@@ -221,6 +221,8 @@ public class EditedRoomStackPane extends StackPane implements Listener
         editedRoomCanvas.updateTile(tile, currentBrush);
         editedRoom.forceReevaluation();
         editedRoom.getRoomXML("room" + File.separator + File.separator);
+        //TODO: Check if this adds up!
+        editedRoom.addEdition();
 
         mapIsFeasible(editedPane.getMap().isIntraFeasible());
         redrawPatterns(editedPane.getMap());

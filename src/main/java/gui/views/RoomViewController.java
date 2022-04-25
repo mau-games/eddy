@@ -11,6 +11,7 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.Map.Entry;
 
+import designerModeling.ScikitLearnConnection;
 import game.*;
 import gui.controls.*;
 import org.apache.commons.io.FileUtils;
@@ -821,9 +822,9 @@ public class RoomViewController extends BorderPane implements Listener
 	@FXML
 	private void saveCurrentGeneration() //TODO: some changes here!
 	{
-		//TODO: Check here!
-		AlgorithmSetup.getInstance().setDesignerPersonaUse(!AlgorithmSetup.getInstance().isUsingDesignerPersona());
-
+		//TODO: Check here! fast to deactivate!
+		//AlgorithmSetup.getInstance().setDesignerPersonaUse(!AlgorithmSetup.getInstance().isUsingDesignerPersona());
+		ScikitLearnConnection.getInstance().printLabels(editedRoomPane.editedPane.getMap().getEditionSequence());
 
 //		switch(currentState)
 //		{

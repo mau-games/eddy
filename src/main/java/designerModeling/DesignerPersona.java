@@ -1,7 +1,6 @@
 package designerModeling;
 
-import designerModeling.archetypicalPaths.ArchetypicalPath;
-import designerModeling.archetypicalPaths.ArchitecturalFocus;
+import designerModeling.archetypicalPaths.*;
 import game.Room;
 import util.eventrouting.EventRouter;
 import util.eventrouting.Listener;
@@ -22,7 +21,9 @@ class RoomDesignerPersona
     public ArrayList<Integer> key_path;
 
     public ArchetypicalPath.ArchetypicalPathTypes persona;
-    float[] persona_percentages = new float[5];
+    SubsetPath[] persona_percentages = new SubsetPath[5];
+
+    SubsetPath current_persona = new SubsetPath(-1, -1, -1, null);
 
     public RoomDesignerPersona(Room room)
     {
@@ -40,11 +41,11 @@ class RoomDesignerPersona
         System.out.println("reduced path: " + reduced_path);
         System.out.println("key path: " + key_path);
 
-        System.out.println("architectural_focus: " + persona_percentages[0]);
-        System.out.println("goal oriented: " + persona_percentages[1]);
-        System.out.println("split central focus: " + persona_percentages[2]);
-        System.out.println("complex balance: " + persona_percentages[3]);
-        System.out.println("null: " + persona_percentages[4]);
+        System.out.println("architectural_focus: " + persona_percentages[0].path_percentage);
+        System.out.println("goal oriented: " + persona_percentages[1].path_percentage);
+        System.out.println("split central focus: " + persona_percentages[2].path_percentage);
+        System.out.println("complex balance: " + persona_percentages[3].path_percentage);
+        System.out.println("null: " + persona_percentages[4].path_percentage);
 
 
         System.out.println("-----------");
@@ -106,34 +107,103 @@ class RoomDesignerPersona
         persona_percentages[1] = ArchetypicalPath.calculatePath(ArchetypicalPath.ArchetypicalPathTypes.GOAL_ORIENTED, key_path);
         persona_percentages[2] = ArchetypicalPath.calculatePath(ArchetypicalPath.ArchetypicalPathTypes.SPLIT_CENTRAL_FOCUS, key_path);
         persona_percentages[3] = ArchetypicalPath.calculatePath(ArchetypicalPath.ArchetypicalPathTypes.COMPLEX_BALANCE, key_path);
+        persona_percentages[4] = null;
 
         float null_sum = 0.0f;
 //        boolean not_null = false;
 
-        for(float persona_percentage : persona_percentages)
+        for(SubsetPath persona_percentage : persona_percentages)
         {
+            if(persona_percentage == null)
+                continue;
+
+
 //            if(persona_percentage == 1.0f)
 //            {
 //                not_null = true;
 //                break;
 //            }
 
-            null_sum += persona_percentage;
+            null_sum += persona_percentage.path_percentage;
         }
 
-        persona_percentages[4] = null_sum/4.0f;
+        persona_percentages[4] = new SubsetPath(-1, -1, -1, null);
+        persona_percentages[4].path_percentage = (1.0f - null_sum/4.0f);
 
 
-//        if(!not_null)
-//        {
-//            //This is the null, it needs to be in the case another persona is not
-//            persona_percentages[4] = null_sum/4.0f;
-//        }
-//        else
+        //Here now we decide which persona is the current one!
+        //all the following code is to know which one we are!
+        int index_persona = -1;
+        SubsetPath sp_persona = null;
+        float max_perc = -10000f;
+        int index = 0;
 
+        for(int i = 0; i < 4; i++) //4 because we dont care about the null one! that is for us!
+        {
+            if(persona_percentages[i].path_percentage > max_perc)
+            {
+                sp_persona = persona_percentages[i];
+                max_perc = persona_percentages[i].path_percentage;
+                index_persona = i;
+            }
+        }
 
-//        persona_percentages[4] =
+        current_persona = sp_persona;
+
+        switch(index_persona)
+        {
+            case 0:
+                persona = ArchetypicalPath.ArchetypicalPathTypes.ARCHITECTURAL_FOCUS;
+                break;
+            case 1:
+                persona = ArchetypicalPath.ArchetypicalPathTypes.GOAL_ORIENTED;
+                break;
+            case 2:
+                persona = ArchetypicalPath.ArchetypicalPathTypes.SPLIT_CENTRAL_FOCUS;
+                break;
+            case 3:
+                persona = ArchetypicalPath.ArchetypicalPathTypes.COMPLEX_BALANCE;
+                break;
+            default:
+                persona = ArchetypicalPath.ArchetypicalPathTypes.ARCHITECTURAL_FOCUS;
+                break;
+        }
     }
+
+//    public void checkPersona()
+//    {
+//        persona_percentages[0] = ArchetypicalPath.calculatePath(ArchetypicalPath.ArchetypicalPathTypes.ARCHITECTURAL_FOCUS, key_path);
+//        persona_percentages[1] = ArchetypicalPath.calculatePath(ArchetypicalPath.ArchetypicalPathTypes.GOAL_ORIENTED, key_path);
+//        persona_percentages[2] = ArchetypicalPath.calculatePath(ArchetypicalPath.ArchetypicalPathTypes.SPLIT_CENTRAL_FOCUS, key_path);
+//        persona_percentages[3] = ArchetypicalPath.calculatePath(ArchetypicalPath.ArchetypicalPathTypes.COMPLEX_BALANCE, key_path);
+//
+//        float null_sum = 0.0f;
+////        boolean not_null = false;
+//
+//        for(float persona_percentage : persona_percentages)
+//        {
+////            if(persona_percentage == 1.0f)
+////            {
+////                not_null = true;
+////                break;
+////            }
+//
+//            null_sum += persona_percentage;
+//        }
+//
+//        persona_percentages[4] = null_sum/4.0f;
+//
+//
+////        if(!not_null)
+////        {
+////            //This is the null, it needs to be in the case another persona is not
+////            persona_percentages[4] = null_sum/4.0f;
+////        }
+////        else
+//
+//
+////        persona_percentages[4] =
+//    }
 
     public ArrayList<Integer> getFullSteps()
     {
@@ -225,6 +295,117 @@ public class DesignerPersona implements Listener
         else if(e instanceof RoomStyleEvaluated)
         {
             styleAdded(((RoomStyleEvaluated) e).room_style, ((RoomStyleEvaluated) e).room_id);
+        }
+    }
+
+    /***
+     * Return the subset path related to the persona that scored the highests!
+     * @param currentRoom
+     * @return
+     */
+    public SubsetPath currentPersona(Room currentRoom)
+    {
+        for(RoomDesignerPersona rdp : roomPersonas)
+        {
+            if(rdp.room.specificID.equals(currentRoom.specificID))
+            {
+                return rdp.current_persona;
+            }
+        }
+
+        return null;
+    }
+
+    /***
+     * Return all the persona calculations.
+     * @param currentRoom
+     * @return
+     */
+    public SubsetPath[] getAllPersonaCalculations(Room currentRoom)
+    {
+        for(RoomDesignerPersona rdp : roomPersonas)
+        {
+            if(rdp.room.specificID.equals(currentRoom.specificID))
+            {
+                return rdp.persona_percentages;
+            }
+        }
+
+        return null;
+    }
+
+    /***
+     *  Get is the final step that has been taken by the most correct persona!
+     * @param currentRoom
+     * @return
+     */
+    public int currentPersonaSpecificCluster(Room currentRoom)
+    {
+        ArchetypicalPath.ArchetypicalPathTypes current_persona = ArchetypicalPath.ArchetypicalPathTypes.NULL;
+
+        SubsetPath currentPersonaPath = null;
+
+        for(RoomDesignerPersona rdp : roomPersonas)
+        {
+            if(rdp.room.specificID.equals(currentRoom.specificID))
+            {
+                currentPersonaPath = rdp.current_persona;
+            }
+        }
+
+        return currentPersonaPath.path.get(currentPersonaPath.path.size() - 1);
+    }
+
+
+    /***
+     * Get the soecific archetypical path connected to the closest subsetpath
+     * @param currentRoom
+     * @return
+     */
+    public ArchetypicalPath.ArchetypicalPathTypes specificArchetypicalPath(Room currentRoom)
+    {
+        for(RoomDesignerPersona rdp : roomPersonas)
+        {
+            if(rdp.room.specificID.equals(currentRoom.specificID))
+            {
+                return rdp.persona;
+            }
+        }
+
+        return null;
+    }
+
+    /***
+     * Get the cluster associated with the current archetypical path!
+     * The issue I see here, is that there are 3 that are simply 7! How to differentiate??
+     * @param currentRoom
+     * @return
+     */
+    public int specificArchetypicalPathCluster(Room currentRoom)
+    {
+        ArchetypicalPath.ArchetypicalPathTypes current_persona = ArchetypicalPath.ArchetypicalPathTypes.NULL;
+
+        for(RoomDesignerPersona rdp : roomPersonas)
+        {
+            if(rdp.room.specificID.equals(currentRoom.specificID))
+            {
+                current_persona = rdp.persona;
+            }
+        }
+
+        switch(current_persona) {
+            case ARCHITECTURAL_FOCUS:
+                return 3;
+            case GOAL_ORIENTED:
+                return 7;
+            case SPLIT_CENTRAL_FOCUS:
+                return 7;
+            case COMPLEX_BALANCE:
+                return 7;
+            case NULL:
+                return 7;
+            default:
+                return -1;
         }
     }
 

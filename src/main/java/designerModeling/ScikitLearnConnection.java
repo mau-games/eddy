@@ -31,6 +31,8 @@ public class ScikitLearnConnection implements Listener {
     private static ScikitLearnConnection instance = null;
     private static EventRouter router = EventRouter.getInstance();
 
+    private static boolean stop = false;
+
     private ScikitLearnConnection()
     {
 //        router.registerListener(this, new AlgorithmDone(null, null, null));
@@ -51,22 +53,33 @@ public class ScikitLearnConnection implements Listener {
         return instance;
     }
 
+//    public void run()
+//    {
+//        //continuously run this thread!
+//        while(!stop)
+//        {
+//
+//        }
+//    }
+
     @Override
     public void ping(PCGEvent e)
     {
         if(e instanceof RoomEdited)
         {
-            int[] resulting_styles = getCluster(((RoomEdited) e).editedRoom);
+//            int[] resulting_styles = getCluster(((RoomEdited) e).editedRoom);
+            int[] resulting_styles = getClusters(new ArrayList<Room>(List.of(((RoomEdited) e).editedRoom)), true);
             ((RoomEdited) e).editedRoom.room_style.setCurrentStyle(resulting_styles[0]);
             router.postEvent(new RoomStyleEvaluated(resulting_styles[0], ((RoomEdited) e).editedRoom.specificID ));
         }
         else if(e instanceof  DesPersEvaluation)
         {
-            int[] resulting_styles = getClusters(((DesPersEvaluation) e).rooms);
+            int[] resulting_styles = getClusters(((DesPersEvaluation) e).rooms, false);
         }
         else if(e instanceof BatchDesPersEvaluation)
         {
-            int[] resulting_styles = getClusters(((BatchDesPersEvaluation) e).rooms);
+            int[] resulting_styles = getClusters(((BatchDesPersEvaluation) e).rooms, false);
+//            System.out.println(Arrays.toString(resulting_styles));
             router.postEvent(new BatchRoomStyleEvaluated(resulting_styles, ((BatchDesPersEvaluation) e).requester_id));
         }
     }
@@ -503,6 +516,8 @@ public class ScikitLearnConnection implements Listener {
 
     public static synchronized int[] getCluster(Room room)
     {
+
+        //System.out.println("cluster!");
 //        JsonObject to_send = new JsonObject();
 //        JsonArray json_rooms = new JsonArray();
 //        json_rooms.add(room.getXML());
@@ -587,8 +602,13 @@ public class ScikitLearnConnection implements Listener {
         return null;
     }
 
-    public static synchronized int[] getClusters(ArrayList<Room> rooms)
+    public static synchronized int[] getClusters(ArrayList<Room> rooms, boolean individual_room)
     {
+        if(individual_room)
+            return getCluster(rooms.get(0));
+
+        //System.out.println("clusters!");
+
         JsonObject to_send = new JsonObject();
         JsonArray json_rooms = new JsonArray();
         JsonArray json_rooms_id = new JsonArray();
@@ -636,6 +656,9 @@ public class ScikitLearnConnection implements Listener {
 
             OutputStream stream = http.getOutputStream();
             stream.write(out);
+
+            if(http.getResponseCode() == 403)
+                System.out.println("why this!");
 
             System.out.println(http.getResponseCode() + " " + http.getResponseMessage());
 

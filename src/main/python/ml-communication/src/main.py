@@ -1,4 +1,4 @@
-from flask import Flask, jsonify, request
+from flask import Flask, jsonify, request, abort
 import json
 import pandas as pd
 import numpy as np
@@ -111,6 +111,10 @@ def get_rooms_fake():
     # print("GET ROOM IS CALLED!")
     # We collect the json from EDD, and the possible rooms
     json_ = request.json
+
+    if json_ is None:
+        abort(404, description="Resource not found")
+
     json_rooms = json_["rooms"]
     json_rooms_id = json_["rooms_id"]
     json_rooms_width = json_["rooms_width"]
@@ -145,10 +149,15 @@ def get_rooms():
     # print("GET ROOM IS CALLED!")
 
     json_ = request.json
+
+    # if json_ is None:
+    #     abort(403, description="Resource not found")
+
     json_rooms = json_["rooms"]
     json_rooms_id = json_["rooms_id"]
     json_rooms_width = json_["rooms_width"]
     json_rooms_height = json_["rooms_height"]
+
 
     # Create the rooms from the xmls
 
@@ -163,6 +172,12 @@ def get_rooms():
     # Convert to Numpy array and squeeze dim, so it can be used by the scikit model.
     rooms = np.array(rooms)
     rooms = rooms.squeeze(axis=1)
+
+    # pred = []
+    # for i in range(len(json_rooms)):
+    #     pred.append(i)
+    #
+    # return jsonify({'prediction': pred})
 
     # Pass the room array to get predictions
     predictions = designer_persona.transform_predict(rooms)
