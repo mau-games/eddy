@@ -2,6 +2,7 @@ package gui.views;
 
 import java.io.IOException;
 
+import collectors.DataSaverLoader;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 
@@ -16,17 +17,13 @@ import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
-import javafx.scene.control.Button;
-import javafx.scene.control.CheckBox;
-import javafx.scene.control.ComboBox;
-import javafx.scene.control.ToggleButton;
-import javafx.scene.control.ToggleGroup;
-import javafx.scene.control.Tooltip;
+import javafx.scene.control.*;
 import javafx.scene.layout.BorderPane;
 import util.config.MissingConfigurationException;
 import util.eventrouting.EventRouter;
 import util.eventrouting.Listener;
 import util.eventrouting.PCGEvent;
+import util.eventrouting.events.StartTask2;
 import util.eventrouting.events.StartWorld;
 
 /*  
@@ -45,7 +42,9 @@ public class LaunchViewController extends BorderPane implements Listener{
 	
 	@FXML public CheckBox academicBtn;
 	@FXML public CheckBox industryBtn;
-	@FXML public CheckBox otherBtn;
+	//@FXML public CheckBox otherBtn;
+
+	@FXML public TextField subject_id;
 
 	@Override
 	public void ping(PCGEvent e) {
@@ -85,8 +84,10 @@ public class LaunchViewController extends BorderPane implements Listener{
 	@FXML
 	private void createWorld(ActionEvent event) throws IOException {
 		
-		if(academicBtn.isSelected() || industryBtn.isSelected() || otherBtn.isSelected())
+		if(academicBtn.isSelected() || industryBtn.isSelected())
 		{
+			DataSaverLoader.SUBJECT_ID = subject_id.getText();
+
 			if(academicBtn.isSelected())
 			{
 				ActionLogger.getInstance().storeAction(ActionType.CLICK, 
@@ -95,6 +96,8 @@ public class LaunchViewController extends BorderPane implements Listener{
 						false, 
 						"ACADEMIC",
 						academicBtn.isSelected() );
+
+				router.postEvent(new StartTask2());
 			}
 			else if(industryBtn.isSelected())
 			{
@@ -104,15 +107,8 @@ public class LaunchViewController extends BorderPane implements Listener{
 						false, 
 						"INDUSTRY",
 						industryBtn.isSelected() );
-			}
-			else
-			{
-				ActionLogger.getInstance().storeAction(ActionType.CLICK, 
-						View.LAUNCH, 
-						TargetPane.BUTTON_PANE, 
-						false, 
-						"OTHER",
-						otherBtn.isSelected() );
+
+				router.postEvent(new StartWorld(1));
 			}
 			
 			ActionLogger.getInstance().storeAction(ActionType.CLICK, 
@@ -122,7 +118,7 @@ public class LaunchViewController extends BorderPane implements Listener{
 					createWorldBtn.getText());
 			
 			
-			router.postEvent(new StartWorld(1));
+
 		}		
 	}
 	
@@ -136,7 +132,7 @@ public class LaunchViewController extends BorderPane implements Listener{
 			createWorldBtn.setDisable(true);
 		}
 		academicBtn.setSelected(false);
-		otherBtn.setSelected(false);
+		//otherBtn.setSelected(false);
 
 	}
 	
@@ -153,11 +149,7 @@ public class LaunchViewController extends BorderPane implements Listener{
 		{
 			industryBtn.setSelected(false);
 		}
-		
-		if(otherBtn != null)
-		{
-			otherBtn.setSelected(false);
-		}
+
 //		if(academicBtn.isSelected())
 //		workBtn.setSelected(false);
 //		otherBtn.setSelected(false);
@@ -167,11 +159,6 @@ public class LaunchViewController extends BorderPane implements Listener{
 	public void toggleOther()
 	{
 		createWorldBtn.setDisable(false);
-		
-		if(!otherBtn.isSelected())
-		{
-			createWorldBtn.setDisable(true);
-		}
 		
 		
 		

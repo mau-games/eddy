@@ -823,8 +823,8 @@ public class RoomViewController extends BorderPane implements Listener
 	private void saveCurrentGeneration() //TODO: some changes here!
 	{
 		//TODO: Check here! fast to deactivate!
-		//AlgorithmSetup.getInstance().setDesignerPersonaUse(!AlgorithmSetup.getInstance().isUsingDesignerPersona());
-		ScikitLearnConnection.getInstance().printLabels(editedRoomPane.editedPane.getMap().getEditionSequence());
+		AlgorithmSetup.getInstance().setDesignerPersonaUse(!AlgorithmSetup.getInstance().isUsingDesignerPersona());
+		//ScikitLearnConnection.getInstance().printLabels(editedRoomPane.editedPane.getMap().getEditionSequence());
 
 //		switch(currentState)
 //		{
@@ -1455,6 +1455,18 @@ public class RoomViewController extends BorderPane implements Listener
 
 	public void setPatternButton(ToggleButton patternButton) {
 		this.patternButton = patternButton;
+	}
+
+	public void destructor()
+	{
+		router.unregisterListener(this, new MAPEGridUpdate(null));
+		router.unregisterListener(this, new MAPElitesDone());
+		router.unregisterListener(this, new MapUpdate(null));
+		router.unregisterListener(this, new ApplySuggestion(0));
+		router.unregisterListener(this, new SuggestedMapsDone());
+		router.unregisterListener(this, new SuggestedMapSelected(null));
+		router.unregisterListener(this, new UserEditedRoom(null, null));
+		router.unregisterListener(this, new MetricUpdate());
 	}
 
 //	/*

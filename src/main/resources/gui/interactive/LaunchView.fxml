@@ -20,9 +20,10 @@
 <?import javafx.scene.control.ComboBox?>
 <?import javafx.scene.control.CheckBox?>
 
+<?import javafx.scene.control.TextField?>
 <fx:root type="javafx.scene.layout.BorderPane"
-	stylesheets="@../styling.css" fx:id="mainBorderPane"
-	xmlns:fx="http://javafx.com/fxml/1">
+		 stylesheets="@../styling.css" fx:id="mainBorderPane"
+		 xmlns:fx="http://javafx.com/fxml/1">
 
 	<center>
 		<BorderPane fx:id="buttonPane2">
@@ -53,18 +54,19 @@
 					fx:id="programTitle" />
 					<Button fx:id="createWorldBtn" text="Create Your World" minWidth="400"
 						onAction="#createWorld" />
-						
+					<HBox prefHeight="21.0" prefWidth="376.0" spacing="10.0">
+						<children>
+							<Label textFill="WHITE" text="Subject ID:" textAlignment="CENTER" />
+							<TextField style="-fx-text-fill: #BA55D3;" fx:id="subject_id" />
+						</children>
+					</HBox>
 					<HBox spacing="15">
-						<Label textFill="WHITE" text="Academic:" fx:id="launchLabel"> </Label>
+						<Label textFill="WHITE" text="Task 2: Recreation" fx:id="launchLabel"> </Label>
 						<CheckBox prefWidth="15.0" mnemonicParsing="false" onAction="#toggleAcademic" fx:id="academicBtn"></CheckBox>
 					</HBox>
 					<HBox spacing="15">
-						<Label textFill="WHITE" text="Industry:" fx:id="launchLabel"> </Label>
+						<Label textFill="WHITE" text="Task 3: Normal system" fx:id="launchLabel"> </Label>
 						<CheckBox prefWidth="15.0" mnemonicParsing="false" onAction="#toggleIndustry" fx:id="industryBtn"></CheckBox>
-					</HBox>
-					<HBox spacing="15">
-						<Label textFill="WHITE" text="Other:" fx:id="launchLabel"> </Label>
-						<CheckBox prefWidth="15.0" mnemonicParsing="false" onAction="#toggleOther" fx:id="otherBtn"></CheckBox>
 					</HBox>
 					
 				</VBox>

@@ -135,14 +135,14 @@ public class WorldViewController extends BorderPane implements Listener
 
 		router.registerListener(this, new MapUpdate(null));
 
-		initWorldView();
+		//initWorldView();
 	}
 
 	public void setActive(boolean state) {
 		isActive = state;
 	}
 
-	private void initWorldView() 
+	public void initWorldView()
 	{
 		//setup visual line
 		auxLine = new Line();
@@ -160,9 +160,31 @@ public class WorldViewController extends BorderPane implements Listener
 		//Don't allow children to pass over the pane!
 		clipChildren(worldPane, 12);
 		worldButtonEvents();
-		initOptions();	
+		initOptions();
 	}
-	
+
+	public void initWorldViewTask2()
+	{
+		//setup visual line
+		auxLine = new Line();
+		auxLine.setStrokeWidth(2.0f);
+		auxLine.setStroke(Color.PINK);
+		auxLine.setMouseTransparent(true);
+
+		buttonPane = new StackPane();
+
+		//setting the parts of the border pane
+		setCenter(worldPane);
+		setRight(buttonPane);
+		worldPane.addEventHandler(MouseEvent.MOUSE_PRESSED, new MouseEventWorldPane());
+
+		//Don't allow children to pass over the pane!
+		clipChildren(worldPane, 12);
+		//worldButtonEvents();
+		//initOptions();
+	}
+
+
 	public void initWorldMap(Dungeon dungeon) 
 	{
 		//CHECK THE PROPERTY
@@ -214,6 +236,54 @@ public class WorldViewController extends BorderPane implements Listener
 		{
 			child.setLayoutX(child.getLayoutX() + (200));
 			child.setLayoutY(child.getLayoutY() + 200); 
+		}
+	}
+
+
+	/**
+	 * Hard coded but necessary as it is initial setup!
+	 */
+	public void task2InitialSetup()
+	{
+		ArrayList<Room> initRooms = dungeon.getAllRooms();
+
+		initRooms.get(1).localConfig.getWorldCanvas().getCanvas().setTranslateX(
+				initRooms.get(1).localConfig.getWorldCanvas().viewSizeWidth +
+						initRooms.get(1).localConfig.getWorldCanvas().viewSizeWidth / 2.0);
+
+		initRooms.get(2).localConfig.getWorldCanvas().getCanvas().setTranslateX(
+				initRooms.get(2).localConfig.getWorldCanvas().viewSizeWidth + initRooms.get(2).localConfig.getWorldCanvas().viewSizeWidth +
+						initRooms.get(2).localConfig.getWorldCanvas().viewSizeWidth / 2.0 + initRooms.get(2).localConfig.getWorldCanvas().viewSizeWidth / 2.0);
+
+//		initRooms.get(2).localConfig.getWorldCanvas().getCanvas().setTranslateX(
+//						initRooms.get(2).localConfig.getWorldCanvas().viewSizeWidth / 2.0);
+
+//		initRooms.get(2).localConfig.getWorldCanvas().getCanvas().setTranslateY(
+//				initRooms.get(2).localConfig.getWorldCanvas().viewSizeHeight);
+
+		//ROOM 1
+		EventRouter.getInstance().postEvent(new RequestConnection(null,
+				-1,
+				initRooms.get(0), initRooms.get(1),
+				new Point(initRooms.get(0).getColCount() -1, initRooms.get(0).getRowCount()/2),
+				new Point(0, 1)));
+
+		EventRouter.getInstance().postEvent(new RequestConnection(null,
+				-1,
+				initRooms.get(0), initRooms.get(1),
+				new Point(initRooms.get(0).getColCount()/2, 0),
+				new Point(4, initRooms.get(1).getRowCount()-1)));
+
+		EventRouter.getInstance().postEvent(new RequestConnection(null,
+				-1,
+				initRooms.get(0), initRooms.get(2),
+				new Point(0, initRooms.get(0).getRowCount()/2),
+				new Point(initRooms.get(2).getColCount() -1, initRooms.get(2).getRowCount()/2)));
+
+		for(Node child : worldPane.getChildren())
+		{
+			child.setLayoutX(child.getLayoutX() + (200));
+			child.setLayoutY(child.getLayoutY() + 200);
 		}
 	}
 	

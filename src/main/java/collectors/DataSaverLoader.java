@@ -11,6 +11,7 @@ public class DataSaverLoader {
 	
 	public static final String DIRECTORY= System.getProperty("user.dir") + File.separator + File.separator + "my-data" + File.separator + File.separator ;
 	public static String projectPath = System.getProperty("user.dir") + File.separator + File.separator + "my-data";
+    public static String SUBJECT_ID = "";
 	
 	public static boolean saveFile(String directoryName, String fileName,String data,boolean append)
 	{

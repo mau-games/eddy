@@ -85,6 +85,7 @@ public class InteractiveGUIController implements Initializable, Listener {
 	SuggestionsViewController suggestionsView = null;
 //	RoomViewController roomView = null;
 	RoomViewController roomView = null;
+	Base2DesignViewController task2View = null;
 
 	WorldViewController worldView = null;
 	LaunchViewController launchView = null;
@@ -116,7 +117,10 @@ public class InteractiveGUIController implements Initializable, Listener {
 	private GrammarGraph graph;
 	
 	public static UUID runID;
-	
+
+	boolean task2 = false;
+
+	int[] activated_persona = {2, 3, 5, 7, 9};
 
 	@Override
 	public void initialize(URL location, ResourceBundle resources) {
@@ -150,6 +154,7 @@ public class InteractiveGUIController implements Initializable, Listener {
 		router.registerListener(this, new RequestGrammarNodeConnectionRemoval(null));
 		router.registerListener(this, new NarrativeSuggestionApplied(null));
 		router.registerListener(this, new RequestReplacementGrammarStructureNode(null, null));
+		router.registerListener(this, new StartTask2());
 
 		DesignerModel designer_model = DesignerModel.getInstance();
 		AlgorithmSetup algorithm_setup = AlgorithmSetup.getInstance();
@@ -157,6 +162,8 @@ public class InteractiveGUIController implements Initializable, Listener {
 		algorithm_setup.setDesignerPersonaUse(true);
 		ScikitLearnConnection python_connection = ScikitLearnConnection.getInstance();
 
+		//task 2 view.
+		task2View = new Base2DesignViewController();
 
 		suggestionsView = new SuggestionsViewController();
 //		roomView = new RoomViewController();
@@ -316,6 +323,7 @@ public class InteractiveGUIController implements Initializable, Listener {
 			
 			dungeonMap.setInitialRoom(initRoom.getPickedRoom(), initRoom.getRoomPos());
 			worldView.restoreBrush();
+			//worldView.initWorldView();
 			worldView.initWorldMap(dungeonMap);
 		}
 		else if(e instanceof RequestPathFinding)
@@ -332,6 +340,7 @@ public class InteractiveGUIController implements Initializable, Listener {
 			RequestConnection rC = (RequestConnection)e;
 			//TODO: Here you should check for which dungeon
 			dungeonMap.addConnection(rC.getFromRoom(), rC.getToRoom(), rC.getFromPos(), rC.getToPos());
+			//worldView.initWorldView();
 			worldView.initWorldMap(dungeonMap);
 		}
 		else if(e instanceof RequestNewRoom)
@@ -339,14 +348,21 @@ public class InteractiveGUIController implements Initializable, Listener {
 			RequestNewRoom rNR = (RequestNewRoom)e;
 			//TODO: Here you should check for which dungeon
 			dungeonMap.addRoom(rNR.getWidth(), rNR.getHeight());
+			//worldView.initWorldView();
 			worldView.initWorldMap(dungeonMap);
 		}
 		else if (e instanceof RequestRoomView) {
 			
 			//Yeah dont care about matrix but we do care about doors!
-			
-			if(((MapContainer) e.getPayload()).getMap().getDoorCount() > 0)
-				initRoomView((MapContainer) e.getPayload());
+
+			if(task2)
+			{
+				initTask2View((MapContainer) e.getPayload());
+			}
+			else {
+				if (((MapContainer) e.getPayload()).getMap().getDoorCount() > 0)
+					initRoomView((MapContainer) e.getPayload());
+			}
 
 		} else if (e instanceof RequestSuggestionsView) 
 		{
@@ -373,6 +389,10 @@ public class InteractiveGUIController implements Initializable, Listener {
 				initWorldView();
 				worldView.initialSetup();
 			}
+
+			worldView.initWorldView();
+
+			System.out.println("SUBJECT_ID: " + DataSaverLoader.SUBJECT_ID);
 
 		}
 		 else if (e instanceof RequestRoomRemoval) {
@@ -470,6 +490,33 @@ public class InteractiveGUIController implements Initializable, Listener {
 			if(graph.fullyConnectedGraph() == 0)
 				router.postEvent(new NarrativeStructEdited(graph, false));
 		}
+		else if(e instanceof StartTask2)
+		{
+			task2 = true;
+			size = 1;
+
+			System.out.println("SUBJECT_ID: " + DataSaverLoader.SUBJECT_ID);
+
+			mainPane.getChildren().clear();
+			AnchorPane.setTopAnchor(worldView, 0.0);
+			AnchorPane.setRightAnchor(worldView, 0.0);
+			AnchorPane.setBottomAnchor(worldView, 0.0);
+			AnchorPane.setLeftAnchor(worldView, 0.0);
+			mainPane.getChildren().add(worldView);
+
+			worldView.initWorldViewTask2();
+			worldView.initWorldMap(initTask2Dungeon());
+
+			suggestionsView.setActive(false);
+			roomView.setActive(false);
+			worldView.setActive(true);
+			launchView.setActive(false);
+			narrativeView.setActive(false);
+			task2View.setActive(false);
+
+			//initWorldView();
+			worldView.task2InitialSetup();
+		}
 	}
 
 	/*
@@ -478,14 +525,20 @@ public class InteractiveGUIController implements Initializable, Listener {
 
 	public void startNewFlow() {
 		//TODO: There is mucho more than this, a lot of things need to be redone!
-		
+
+		task2 = false;
 		ActionLogger.getInstance().saveNFlush();
 		InformativePopupManager.getInstance().restartPopups();
+
+		//add destructors for the rest!
+		roomView.destructor();
+
 		
 		suggestionsView = new SuggestionsViewController();
 		roomView = new RoomViewController();
 		worldView = new WorldViewController();
-		launchView = new LaunchViewController();
+		//launchView = new LaunchViewController();
+		task2View = new Base2DesignViewController();
 		dungeonMap = null;
 		
 		runID = UUID.randomUUID();
@@ -641,8 +694,6 @@ public class InteractiveGUIController implements Initializable, Listener {
 		launchView.setActive(false);
 		narrativeView.setActive(false);
 
-
-
 		suggestionsView.initialise(room);
 	}
 
@@ -741,6 +792,32 @@ public class InteractiveGUIController implements Initializable, Listener {
 	/**
 	 * Initialises the edit view and starts a new generation run.
 	 */
+	private void initTask2View(MapContainer map) {
+		mainPane.getChildren().clear();
+		AnchorPane.setTopAnchor(task2View, 0.0);
+		AnchorPane.setRightAnchor(task2View, 0.0);
+		AnchorPane.setBottomAnchor(task2View, 0.0);
+		AnchorPane.setLeftAnchor(task2View, 0.0);
+		mainPane.getChildren().add(task2View);
+//		roomView.updateRoom(map.getMap());
+		setCurrentQuadMap(map);
+
+
+
+		task2View.initializeView(map.getMap());
+
+		worldView.setActive(false);
+		roomView.setActive(false);
+		launchView.setActive(false);
+		suggestionsView.setActive(false);
+		narrativeView.setActive(false);
+		task2View.setActive(true);
+
+	}
+
+	/**
+	 * Initialises the edit view and starts a new generation run.
+	 */
 	private void initRoomView(MapContainer map) {
 		mainPane.getChildren().clear();
 		AnchorPane.setTopAnchor(roomView, 0.0);
@@ -775,7 +852,6 @@ public class InteractiveGUIController implements Initializable, Listener {
 		suggestionsView.setActive(false);
 		narrativeView.setActive(false);
 
-
 	}
 
 	/*
@@ -797,6 +873,25 @@ public class InteractiveGUIController implements Initializable, Listener {
 		
 		dungeonMap = new Dungeon(gc, 2, width, height);
 		
+		return dungeonMap;
+	}
+
+	private Dungeon initTask2Dungeon()
+	{
+		int width = Game.defaultWidth;
+		int height = Game.defaultHeight;
+
+		GeneratorConfig gc = null;
+		try {
+			gc = new GeneratorConfig();
+
+		} catch (MissingConfigurationException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+		dungeonMap = new Dungeon(gc, 3, width, height);
+
 		return dungeonMap;
 	}
 
