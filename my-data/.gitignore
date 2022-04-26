@@ -4,5 +4,5 @@
 #Except this file
 !*/
 !.gitignore
-!/expressive-range/
+!/expressive-range/**
 !/cc-data-collection/**
