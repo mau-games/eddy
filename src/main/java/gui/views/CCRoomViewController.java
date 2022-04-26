@@ -387,8 +387,7 @@ public class CCRoomViewController extends BorderPane implements Listener
 			turnLabel.setVisible(false);
 			turnLabel.setText("AI's Turn");
 			turnLabel.setVisible(true);
-
-
+			
 			tilesLeftLabel.setVisible(false);
 			ccInfoLabel.setVisible(false);
 
