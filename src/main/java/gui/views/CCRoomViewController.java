@@ -1527,6 +1527,7 @@ public class CCRoomViewController extends BorderPane implements Listener
 
 	private void writeToCCFile(String fileName, String time, String tilePos, String prevType, String newType, String prevPlacedByAI, String newPlacedByAI)
 	{
+
 		File file = new File(fileName);
 		if (!file.exists())
 		{
@@ -1593,6 +1594,12 @@ public class CCRoomViewController extends BorderPane implements Listener
 	public void saveActionData(Tile prev_tile, Tile new_tile)
 	{
 		String fileString = DataSaverLoader.projectPath + "\\cc-data-collection\\" + AICoCreator.getInstance().getControlLevel().name() +"\\"+ file_name + ".csv";
+
+		File directory = new File(DataSaverLoader.projectPath + "\\cc-data-collection\\" + AICoCreator.getInstance().getControlLevel().name());
+		if(!directory.exists())
+		{
+			directory.mkdirs();
+		}
 
 		Format f = new SimpleDateFormat("hh:mm:ss");
 		String time = f.format(new Date());
