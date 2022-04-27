@@ -476,7 +476,7 @@ public class CCRoomViewController extends BorderPane implements Listener
 		brushes.selectToggle(null);
 		selectBrush();
 
-		continueBtn.setVisible(true);
+		continueBtn.setDisable(false);
 
 		floorBtn.setDisable(true);
 		wallBtn.setDisable(true);
@@ -494,7 +494,7 @@ public class CCRoomViewController extends BorderPane implements Listener
 	 */
 	private void disableSuggestionView()
 	{
-		continueBtn.setVisible(false);
+		continueBtn.setDisable(true);
 
 		floorBtn.setDisable(false);
 		wallBtn.setDisable(false);
@@ -511,7 +511,7 @@ public class CCRoomViewController extends BorderPane implements Listener
 	 */
 	private void enableTurnBasedView()
 	{
-		endTurnBtn.setVisible(true);
+		endTurnBtn.setDisable(false);
 		continueBtn.setTooltip(new Tooltip("Continue to human's turn"));
 	}
 
@@ -520,21 +520,31 @@ public class CCRoomViewController extends BorderPane implements Listener
 		//can't go back to World Grid if the room is infeasible
 		if(editedRoomPane.editedPane.getMap().isIntraFeasible() == false)
 		{
-			worldGridBtn.setVisible(false);
+			worldGridBtn.setDisable(true);
 		}
 		else
 		{
-			worldGridBtn.setVisible(true);
+			worldGridBtn.setDisable(false);
 		}
 
 		//can't end turn if the contribution area is full
 		if(AICoCreator.getInstance().AICanContribute() == false && HumanCoCreator.getInstance().getAmountOfTilesPlaced() <= 0)
 		{
-			endTurnBtn.setVisible(false);
+			endTurnBtn.setDisable(true);
 		}
 		else
 		{
-			endTurnBtn.setVisible(true);
+			endTurnBtn.setDisable(false);
+		}
+
+		if(AICoCreator.getInstance().getActive())
+		{
+			worldGridBtn.setDisable(true);
+			endTurnBtn.setDisable(true);
+		}
+		else
+		{
+			worldGridBtn.setDisable(false);
 		}
 	}
 
@@ -546,7 +556,7 @@ public class CCRoomViewController extends BorderPane implements Listener
 	 */
 	private void disableTurnBasedView()
 	{
-		endTurnBtn.setVisible(false);
+		endTurnBtn.setDisable(true);
 
 	}
 
@@ -1055,6 +1065,7 @@ public class CCRoomViewController extends BorderPane implements Listener
 		disableTurnBasedView();
 
 		updateLabels();
+		updateCCButtons();
 
 		if(AICoCreator.getInstance().getGeneratedElites().size() > 0)
 			AICoCreator.getInstance().prepareTurn(editedRoomPane.editedPane.getMap());
