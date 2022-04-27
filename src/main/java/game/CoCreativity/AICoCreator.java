@@ -144,9 +144,14 @@ public class AICoCreator {
             {
                 if(max > maxAmounts[n])
                 {
-                    bestContributions[n] = new Tile(pos, TileTypes.getTypeByName(maxType)); // TileTypes.valueOf(maxType)
-                    maxAmounts[n] = max;
-                    break;
+                    Tile t = new Tile(pos, TileTypes.getTypeByName(maxType));
+                    //try to see if it results in a feasible room
+                    if(TilePlacementResultsInFeasibleRoom(t, currentTargetRoom))
+                    {
+                        bestContributions[n] = t; // TileTypes.valueOf(maxType)
+                        maxAmounts[n] = max;
+                        break;
+                    }
                 }
             }
         }
@@ -158,6 +163,14 @@ public class AICoCreator {
     private boolean TileIsSameAsInTargetRoom(TileTypes tt, Point p)
     {
         return (currentTargetRoom.getTile(p.getX(), p.getY()).GetType() == tt);
+    }
+
+    private boolean TilePlacementResultsInFeasibleRoom(Tile t, Room r)
+    {
+        Room tempR = new Room(r);
+        tempR.setTile(t.GetCenterPosition().getX(), t.GetCenterPosition().getY(), t.GetType());
+
+        return tempR.isIntraFeasible();
     }
 
     static Map.Entry<String, Integer> getMostFrequentElement(List<TileTypes> inputArray, Point p)
@@ -179,7 +192,7 @@ public class AICoCreator {
 
                     elementCountMap.put(i.name(), newValue);
                 }
-                else if(!elementCountMap.containsKey(i.name()) && i != TileTypes.FLOOR && i != TileTypes.NONE && i != TileTypes.DOOR && i != TileTypes.HERO)// ignore NONE, FLOOR, HERO and DOOR
+                else if(!elementCountMap.containsKey(i.name()) && i != TileTypes.NONE && i != TileTypes.ENEMY_BOSS && i != TileTypes.DOOR && i != TileTypes.HERO)// ignore NONE, BOSS, HERO and DOOR
                 {
                     //If an element is not present, put that element with 1 as its value
                     elementCountMap.put(i.name(), 1);
@@ -392,8 +405,11 @@ public class AICoCreator {
 
         for(Tile tile: contributions)
         {
-            if(!(tile.GetCenterPosition().getX() == t.GetCenterPosition().getX() && tile.GetCenterPosition().getY() == t.GetCenterPosition().getY()))
-                newList.add(tile);
+            if(tile != null)
+            {
+                if(!(tile.GetCenterPosition().getX() == t.GetCenterPosition().getX() && tile.GetCenterPosition().getY() == t.GetCenterPosition().getY()))
+                    newList.add(tile);
+            }
         }
 
         contributions = newList;

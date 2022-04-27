@@ -13,6 +13,7 @@ import javafx.fxml.FXML;
 import javafx.geometry.Pos;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.control.ToggleGroup;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.StackPane;
@@ -237,16 +238,18 @@ public class EditedRoomStackPane extends StackPane implements Listener
 
         for(Tile t: tiles)
         {
-            //get position
-            int x = t.GetCenterPosition().getX();
-            int y = t.GetCenterPosition().getY();
+            if(t != null)
+            {
+                //get position
+                int x = t.GetCenterPosition().getX();
+                int y = t.GetCenterPosition().getY();
 
-            //Draw image for tiletype
-            aiSuggestionCanvas.getGraphicsContext2D().drawImage(renderer.renderTile(t.GetType(), editedPane.scale, editedPane.scale),x * editedPane.scale , y * editedPane.scale );
+                //Draw image for tiletype
+                aiSuggestionCanvas.getGraphicsContext2D().drawImage(renderer.renderTile(t.GetType(), editedPane.scale, editedPane.scale),x * editedPane.scale , y * editedPane.scale );
 
-            //draw tint
-            aiSuggestionTintCanvas.getGraphicsContext2D().drawImage(renderer.GetSuggestionTint(editedPane.scale, editedPane.scale),x * editedPane.scale, y * editedPane.scale);
-
+                //draw tint
+                aiSuggestionTintCanvas.getGraphicsContext2D().drawImage(renderer.GetSuggestionTint(editedPane.scale, editedPane.scale),x * editedPane.scale, y * editedPane.scale);
+            }
         }
     }
 
@@ -285,6 +288,9 @@ public class EditedRoomStackPane extends StackPane implements Listener
         renderer.drawBrush(((EditedRoomStackPane)editedRoomCanvas.owner).brushCanvas.getGraphicsContext2D(),
                 hoveredRoom.toMatrix(), currentBrush,
                 currentBrush.possibleToDraw() ? Color.WHITE : Color.RED);
+
+
+
     }
 
     public void RoomEdited(InteractiveMap editedRoomCanvas, Room editedRoom, ImageView tile, MouseEvent event)
@@ -377,10 +383,14 @@ public class EditedRoomStackPane extends StackPane implements Listener
                 Tile prev_tile = new Tile(editedRoom.getTile(old_p));
 
                 Drawer tempbrush = (t.GetTypeAsBrush());
-
-                // from Drawer.update()
                 ImageView tImgView = (ImageView) editedPane.getCell(t.GetCenterPosition().getX(), t.GetCenterPosition().getY());
                 util.Point p = editedPane.CheckTile(tImgView);
+
+
+                //if(prev_tile.GetType() == TileTypes.ENEMY_BOSS)
+                //{
+                //
+                //}
 
                 System.out.println("P: " + p);
                 tempbrush.brush.UpdateDrawableTiles(p.getX(), p.getY(), editedPane.getMap());
@@ -419,7 +429,7 @@ public class EditedRoomStackPane extends StackPane implements Listener
 
     }
 
-    public void PlaceSuggestion(Room editedRoom, List<Tile> tiles, MouseEvent event)
+    public void PlaceSuggestion(InteractiveMap editedRoomCanvas, Room editedRoom, List<Tile> tiles, MouseEvent event)
     {
         // Point of where you clicked
         ImageView imgView = (ImageView) event.getTarget();
@@ -435,8 +445,30 @@ public class EditedRoomStackPane extends StackPane implements Listener
             {
                 Tile prev_tile = new Tile(editedRoom.getTile(tp));
 
+                // if there was a boss tile, fill that area with floor first
+                if(prev_tile.GetType() == TileTypes.ENEMY_BOSS)
+                {
+                    for(finder.geometry.Point pos : prev_tile.GetPositions())
+                    {
+                        currentBrush.SetMainComponent(TileTypes.FLOOR);
+                        currentBrush.SetBrushSize(1);
+
+                        Tile newFloorTile = new Tile(pos, TileTypes.FLOOR);
+                        editedRoom.setTile(pos.getX(), pos.getY(), newFloorTile);
+                        ImageView img = editedPane.getCell(pos.getX(), pos.getY());
+
+                        editedRoomCanvas.updateTile(img, currentBrush);
+                    }
+
+                    //update imageView to the new size
+                    imgView = editedPane.getCell(tp.getX(), tp.getY());
+                }
+
+
+
                 //create a brush
                 Drawer tempbrush = (tiles.get(i).GetTypeAsBrush());
+
                 //update the map with the brsh
                 tempbrush.brush.UpdateDrawableTiles(p.getX(), p.getY(), editedPane.getMap());
 
@@ -471,6 +503,7 @@ public class EditedRoomStackPane extends StackPane implements Listener
             AICoCreator.getInstance().getCcRoomViewController().updateRoom(editedPane.getMap());
         });
     }
+
 
     /***
      * The Method that AI uses to display Suggestions in the room

@@ -405,7 +405,7 @@ public class InteractiveMap extends GridPane implements Listener {
 				switch(AICoCreator.getInstance().getControlLevel())
 				{
 					case LOW:
-						owner.PlaceSuggestion(getMap(), AICoCreator.getInstance().GetContributions(), event);
+						owner.PlaceSuggestion(self, getMap(), AICoCreator.getInstance().GetContributions(), event);
 						break;
 
 					case MEDIUM:

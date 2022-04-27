@@ -455,6 +455,7 @@ public class CCRoomViewController extends BorderPane implements Listener
 		wallBtn.setMinWidth(75);
 		enemyBtn.setMinWidth(75);
 		bossEnemyBtn.setMinWidth(75);
+		//bossEnemyBtn.setVisible(false); // Enemy Boss is disabled for this version
 		treasureBtn.setMinWidth(75);
 
 		getWorldGridBtn().setTooltip(new Tooltip("View your world map"));
@@ -471,7 +472,20 @@ public class CCRoomViewController extends BorderPane implements Listener
 	 */
 	private void enableSuggestionView()
 	{
+		//set default brush
+		brushes.selectToggle(null);
+		selectBrush();
+
 		continueBtn.setVisible(true);
+
+		floorBtn.setDisable(true);
+		wallBtn.setDisable(true);
+		enemyBtn.setDisable(true);
+		treasureBtn.setDisable(true);
+		bossEnemyBtn.setDisable(true);
+
+		//editedRoomPane.SetSuggestionBrush();
+
 		continueBtn.setTooltip(new Tooltip("Continue to human's turn"));
 	}
 
@@ -481,6 +495,14 @@ public class CCRoomViewController extends BorderPane implements Listener
 	private void disableSuggestionView()
 	{
 		continueBtn.setVisible(false);
+
+		floorBtn.setDisable(false);
+		wallBtn.setDisable(false);
+		enemyBtn.setDisable(false);
+		treasureBtn.setDisable(false);
+		bossEnemyBtn.setDisable(false);
+
+
 		editedRoomPane.clearAISuggestionView();
 	}
 
@@ -495,6 +517,17 @@ public class CCRoomViewController extends BorderPane implements Listener
 
 	public void updateCCButtons()
 	{
+		//can't go back to World Grid if the room is infeasible
+		if(editedRoomPane.editedPane.getMap().isIntraFeasible() == false)
+		{
+			worldGridBtn.setVisible(false);
+		}
+		else
+		{
+			worldGridBtn.setVisible(true);
+		}
+
+		//can't end turn if the contribution area is full
 		if(AICoCreator.getInstance().AICanContribute() == false && HumanCoCreator.getInstance().getAmountOfTilesPlaced() <= 0)
 		{
 			endTurnBtn.setVisible(false);
@@ -503,7 +536,6 @@ public class CCRoomViewController extends BorderPane implements Listener
 		{
 			endTurnBtn.setVisible(true);
 		}
-
 	}
 
 
