@@ -373,7 +373,7 @@ public class EditedRoomStackPane extends StackPane implements Listener
      * The Method that AI uses to edit the room
      * @param
      */
-    public void CCRoomEdited(Room editedRoom, List<Tile> tiles)
+    public void CCRoomEdited(InteractiveMap editedRoomCanvas, Room editedRoom, List<Tile> tiles)
     {
         for(Tile t:tiles)
         {
@@ -381,18 +381,35 @@ public class EditedRoomStackPane extends StackPane implements Listener
             {
                 Point old_p = new Point(t.GetCenterPosition().getX(), t.GetCenterPosition().getY());
                 Tile prev_tile = new Tile(editedRoom.getTile(old_p));
+                ImageView tImgView = (ImageView) editedPane.getCell(t.GetCenterPosition().getX(), t.GetCenterPosition().getY());
+
+                // if there was a boss tile, fill that area with floor first
+                if(prev_tile.GetType() == TileTypes.ENEMY_BOSS)
+                {
+                    for(finder.geometry.Point pos : prev_tile.GetPositions())
+                    {
+                        Tile newFloorTile = new Tile(pos, TileTypes.FLOOR);
+                        Drawer tempbrush = (newFloorTile.GetTypeAsBrush());
+
+                        tempbrush.brush.UpdateDrawableTiles(pos.getX(), pos.getY(), editedPane.getMap());
+
+                        ImageView img = editedPane.getCell(pos.getX(), pos.getY());
+
+                        editedRoomCanvas.updateTile(img, tempbrush);
+                        editedPane.updateTileInARoom(editedPane.getMap(), img, tempbrush);
+
+                        editedRoom.getTile(pos.getX(), pos.getY()).setEditable(true); //
+                    }
+
+                    //update imageView to the new size
+                    tImgView = editedPane.getCell(old_p.getX(), old_p.getY());
+
+                }
 
                 Drawer tempbrush = (t.GetTypeAsBrush());
-                ImageView tImgView = (ImageView) editedPane.getCell(t.GetCenterPosition().getX(), t.GetCenterPosition().getY());
+
                 util.Point p = editedPane.CheckTile(tImgView);
 
-
-                //if(prev_tile.GetType() == TileTypes.ENEMY_BOSS)
-                //{
-                //
-                //}
-
-                System.out.println("P: " + p);
                 tempbrush.brush.UpdateDrawableTiles(p.getX(), p.getY(), editedPane.getMap());
 
                 editedPane.updateTileInARoom(editedPane.getMap(), tImgView, tempbrush);

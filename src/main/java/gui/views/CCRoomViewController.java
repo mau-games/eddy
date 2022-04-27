@@ -784,7 +784,7 @@ public class CCRoomViewController extends BorderPane implements Listener
 					case HIGH:
 						//place
 						System.out.println("AICC EDIT ROOM STARTED");
-						editedRoomPane.CCRoomEdited(editedRoomPane.editedPane.getMap(), AICoCreator.getInstance().GetContributions());
+						editedRoomPane.CCRoomEdited(editedRoomPane.editedPane, editedRoomPane.editedPane.getMap(), AICoCreator.getInstance().GetContributions());
 						router.postEvent(new AITurnDone());
 						break;
 				}
