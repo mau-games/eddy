@@ -85,7 +85,7 @@ public class AICoCreator {
             {
                 for(Tile t : contributions)
                 {
-                    if(tilesPositions.contains(t.GetCenterPosition()))
+                    if(t != null && tilesPositions.contains(t.GetCenterPosition()))
                     {
                         newPoints.remove(t.GetCenterPosition());
                     }
