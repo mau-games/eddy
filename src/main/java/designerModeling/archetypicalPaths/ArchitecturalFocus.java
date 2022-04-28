@@ -1,9 +1,7 @@
 package designerModeling.archetypicalPaths;
 
 import java.lang.reflect.Array;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
+import java.util.*;
 
 public class ArchitecturalFocus extends ArchetypicalPath
 {
@@ -12,6 +10,8 @@ public class ArchitecturalFocus extends ArchetypicalPath
     public static ArrayList<Integer> branches = new ArrayList<Integer>(Arrays.asList(5,4));
 
     public static ArrayList<SpecialPath> tree_path = new ArrayList<SpecialPath>();
+
+    public static HashMap<Integer, Integer> path_distances = new HashMap<>();
 
     public ArchitecturalFocus()
     {
@@ -55,6 +55,17 @@ public class ArchitecturalFocus extends ArchetypicalPath
         SpecialPath b2 = new SpecialPath(s3, 4, true, true);
 
         tree_path.addAll(Arrays.asList(s0, s1, s2, s3, b1, b2));
+
+        path_distances.clear();
+
+        path_distances.put(0, 3);
+        path_distances.put(1, 2);
+        path_distances.put(2, 1);
+        path_distances.put(3, 0);
+
+        //don't know about this
+        path_distances.put(5, 2);
+        path_distances.put(4, 2);
     }
 
     public static SubsetPath checkMatchingPath(ArrayList<Integer> other_path)
@@ -111,6 +122,32 @@ public class ArchitecturalFocus extends ArchetypicalPath
         //FIXME½
         return bestPath(resulting_subsets);
 
+    }
+
+    public static float checkDistanceToPath(int test_style)
+    {
+        float dist = 0.0f;
+        SpecialPath style_step = null;
+        int style_step_index = 0;
+        for(SpecialPath sp :  tree_path)
+        {
+            if(sp.isThisPoint(test_style))
+            {
+                style_step = sp;
+                break;
+            }
+            style_step_index++;
+        }
+
+        if(style_step == null)
+            return 0.0f;
+
+        if(style_step.branch ) //special one
+        {
+            return 0.2f;
+        }
+
+        return 1.0f - (path_distances.get(test_style)/4.0f);
     }
 
 //    public static int traverseTreePath(SpecialPath s_path, int index, int counter, SubsetPath subsetPath )

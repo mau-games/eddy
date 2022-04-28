@@ -51,6 +51,11 @@ class SpecialPath
 
         return next_node;
     }
+
+    public boolean isThisPoint(int test_style)
+    {
+        return step == test_style;
+    }
 }
 
 public abstract class ArchetypicalPath
@@ -116,6 +121,29 @@ public abstract class ArchetypicalPath
                 return ArchitecturalFocus.checkMatchingPath(path_to_test);
             default:
                 return new SubsetPath(-1, -1, -1, null);
+        }
+    }
+
+    public static float distanceToFinalPath(ArchetypicalPathTypes archetypical_path, int test_style)
+    {
+        switch(archetypical_path) {
+            case ARCHITECTURAL_FOCUS:
+                ArchitecturalFocus.createTree();
+                return ArchitecturalFocus.checkDistanceToPath(test_style);
+            case GOAL_ORIENTED:
+                GoalOriented.createTree();
+                return GoalOriented.checkDistanceToPath(test_style);
+            case SPLIT_CENTRAL_FOCUS:
+                SplitCentralFocus.createTree();
+                return SplitCentralFocus.checkDistanceToPath(test_style);
+            case COMPLEX_BALANCE:
+                ComplexBalance.createTree();
+                return ComplexBalance.checkDistanceToPath(test_style);
+            case NULL:
+                ArchitecturalFocus.createTree();
+                return ArchitecturalFocus.checkDistanceToPath(test_style);
+            default:
+                return 0.0f;
         }
     }
 

@@ -8,6 +8,8 @@ import java.util.Map.Entry;
 import java.util.stream.Collectors;
 
 import designerModeling.DesignerModel;
+import designerModeling.archetypicalPaths.ArchetypicalPath;
+import designerModeling.archetypicalPaths.SubsetPath;
 import org.apache.commons.io.FileUtils;
 
 import finder.PatternFinder;
@@ -149,7 +151,8 @@ public class Algorithm extends Thread implements Listener {
 		
 		//Set info of the original room
 		this.originalRoom = room;
-		this.relativeRoom = new Room(room);
+//		this.relativeRoom = new Room(room);
+		this.relativeRoom = room;
 
 		this.roomWidth = relativeRoom.getColCount();
 		this.roomHeight = relativeRoom.getRowCount();
@@ -187,7 +190,8 @@ public class Algorithm extends Thread implements Listener {
 	{
 		//Set info of the original room
 		this.originalRoom = room;
-		this.relativeRoom = new Room(room);
+//		this.relativeRoom = new Room(room);
+		this.relativeRoom = room;
 
 		this.roomWidth = relativeRoom.getColCount();
 		this.roomHeight = relativeRoom.getRowCount();
@@ -236,7 +240,8 @@ public class Algorithm extends Thread implements Listener {
 	{
 		//Set info of the original room
 		this.originalRoom = room;
-		this.relativeRoom = new Room(room);
+//		this.relativeRoom = new Room(room);
+		this.relativeRoom = room;
 
 		this.roomWidth = relativeRoom.getColCount();
 		this.roomHeight = relativeRoom.getRowCount();
@@ -420,7 +425,8 @@ public class Algorithm extends Thread implements Listener {
 			if(AlgorithmSetup.getInstance().isAdaptive())
 			{
 				//Only if we are adapting!
-				this.relativeRoom = new Room(originalRoom);
+//				this.relativeRoom = new Room(originalRoom);
+				this.relativeRoom = originalRoom;
 
 				this.config = relativeRoom.getCalculatedConfig();
 				roomTarget = config.getRoomProportion();
@@ -851,13 +857,13 @@ public class Algorithm extends Thread implements Listener {
 		boolean correct_persona = true;
 		boolean intra_feasible = room.isIntraFeasible();
 
-		if(!initial && AlgorithmSetup.getInstance().isUsingDesignerPersona())
-		{
-			int target_style = DesignerModel.getInstance().designer_persona.specificArchetypicalPathCluster(this.relativeRoom);
-			correct_persona = target_style == room.room_style.current_style;
-			//if(target_style == room.room_style.current_style)
-
-		}
+		//TODO: This is the old way, to check based on feasibility! (now I am trying to do it with the fitness!)
+//		if(!initial && AlgorithmSetup.getInstance().isUsingDesignerPersona())
+//		{
+//			int target_style = DesignerModel.getInstance().designer_persona.specificArchetypicalPathCluster(this.relativeRoom);
+//			correct_persona = target_style == room.room_style.current_style;
+//			//if(target_style == room.room_style.current_style)
+//		}
 
 		return intra_feasible && correct_persona;
 	}
@@ -959,6 +965,18 @@ public class Algorithm extends Thread implements Listener {
     public void evaluateFeasibleZoneIndividual(ZoneIndividual ind)
     {
         Room room = ind.getPhenotype().getMap(roomWidth, roomHeight, roomDoorPositions, roomCustomTiles, roomOwner);
+		//SubsetPath target_style = DesignerModel.getInstance().designer_persona.specificArchetypicalPathCluster(this.relativeRoom);
+//		DesignerModel.getInstance().designer_persona.getRoomsDesignerPersona(this.relativeRoom);
+//		float distance_target = DesignerModel.getInstance(). DesignerModel.getInstance().designer_persona.specificArchetypicalPath(this.relativeRoom)
+
+		float persona_weight = 1.0f;
+
+		if(AlgorithmSetup.getInstance().isUsingDesignerPersona()) {
+			persona_weight = ArchetypicalPath.distanceToFinalPath(
+					DesignerModel.getInstance().designer_persona.specificArchetypicalPath(this.relativeRoom),
+					room.room_style.current_style);
+		}
+
         PatternFinder finder = room.getPatternFinder();
         List<Enemy> enemies = new ArrayList<Enemy>();
         List<Boss> bosses = new ArrayList<Boss>();
@@ -1120,7 +1138,9 @@ public class Algorithm extends Thread implements Listener {
 
     	//Now that we have everything, calculate the fitness!
     	double fitness = (0.5 * treasureAndEnemyFitness)
-    			+  0.5 * (0.3 * roomFitness + 0.7 * corridorFitness); 
+    			+  0.5 * (0.3 * roomFitness + 0.7 * corridorFitness);
+
+		fitness = fitness * persona_weight;
     	
     	if(userPreferences != null)
     	{

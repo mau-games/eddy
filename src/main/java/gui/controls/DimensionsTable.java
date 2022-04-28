@@ -99,7 +99,7 @@ public class DimensionsTable extends TableView<MAPEDimensionFXML>
          });
         
         data.addAll(
-                new MAPEDimensionFXML(DimensionTypes.SIMILARITY, 5),
+                new MAPEDimensionFXML(DimensionTypes.LENIENCY, 5),
                 new MAPEDimensionFXML(DimensionTypes.SYMMETRY, 5)
         );
         

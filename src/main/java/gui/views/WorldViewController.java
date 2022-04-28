@@ -430,15 +430,15 @@ public class WorldViewController extends BorderPane implements Listener
 //			ani.getView().setFitHeight(50);
 		//Arrange the controls
 		
-		arrangeControls(widthLabel, 90, -310, 50, 50);
-		arrangeControls(heightLabel, 90, -260, 50, 50);
-		arrangeControls(widthField, 140, -310, 50, 30);
-		arrangeControls(heightField, 140, -260, 50, 30);
+		//arrangeControls(widthLabel, 90, -310, 50, 50);
+		//arrangeControls(heightLabel, 90, -260, 50, 50);
+		//arrangeControls(widthField, 140, -310, 50, 30);
+		//arrangeControls(heightField, 140, -260, 50, 30);
 		arrangeControls(createNewRoomBtn, -50, -300, -1, -1);
-		arrangeControls(removeRoomBtn, 0, -150, -1, -1);
-		arrangeControls(getSuggestionsBtn(), -30, 50, 200, 50);
-		arrangeControls(tropetwistBtn, -30, 100, 200, 35);
-		arrangeControls(toggleFilterButton, 120, 50, 50, 50);
+		//arrangeControls(removeRoomBtn, 0, -150, -1, -1);
+		//arrangeControls(getSuggestionsBtn(), -30, 50, 200, 50);
+		//arrangeControls(tropetwistBtn, -30, 100, 200, 35);
+		//arrangeControls(toggleFilterButton, 120, 50, 50, 50);
 //		arrangeControls(getPickInitBtn(), 0, 200, 300, 50);
 //		arrangeControls(mView, 0, 200, 50, 50);
 
@@ -494,12 +494,12 @@ public class WorldViewController extends BorderPane implements Listener
 //        });
 		
 		//REMOVE ROOM
-		brushBtnImage = new ImageView(new Image(c.getString("map.dungeonbrushes.removeRoom"), 200, 200, true, true));
-		removeRoomBtn.setGraphic(brushBtnImage);
-		removeRoomBtn.setStyle("-fx-background-color: transparent; -fx-padding: 5;\r\n" + 
-				"    -fx-border-style: none;\r\n" + 
-				"    -fx-border-width: 0;\r\n" + 
-				"    -fx-border-insets: 0;");
+//		brushBtnImage = new ImageView(new Image(c.getString("map.dungeonbrushes.removeRoom"), 200, 200, true, true));
+//		removeRoomBtn.setGraphic(brushBtnImage);
+//		removeRoomBtn.setStyle("-fx-background-color: transparent; -fx-padding: 5;\r\n" +
+//				"    -fx-border-style: none;\r\n" +
+//				"    -fx-border-width: 0;\r\n" +
+//				"    -fx-border-insets: 0;");
 		//MOVE
 		brushBtnImage = new ImageView(new Image(c.getString("map.dungeonbrushes.move"), 40, 40, true, true));
 		brushBtns.get(0).setGraphic(brushBtnImage);
@@ -520,17 +520,17 @@ public class WorldViewController extends BorderPane implements Listener
 //		widthLabel.setTextFill(Paint);
 
 		//Add everything to the button pane!
-		buttonPane.getChildren().add(getSuggestionsBtn());
-		buttonPane.getChildren().add(tropetwistBtn);
+		//buttonPane.getChildren().add(getSuggestionsBtn());
+		//buttonPane.getChildren().add(tropetwistBtn);
 //		buttonPane.getChildren().add(getPickInitBtn());
 		buttonPane.getChildren().add(createNewRoomBtn);
-		buttonPane.getChildren().add(removeRoomBtn);
-		buttonPane.getChildren().add(heightField);
-		buttonPane.getChildren().add(widthField);
-		buttonPane.getChildren().add(widthLabel);
-		buttonPane.getChildren().add(heightLabel);
+		//buttonPane.getChildren().add(removeRoomBtn);
+		//buttonPane.getChildren().add(heightField);
+		//buttonPane.getChildren().add(widthField);
+		//buttonPane.getChildren().add(widthLabel);
+		//buttonPane.getChildren().add(heightLabel);
 		buttonPane.getChildren().add(restartProgram);
-		buttonPane.getChildren().add(toggleFilterButton);
+		//buttonPane.getChildren().add(toggleFilterButton);
 		
 //		buttonPane.getChildren().add(pathTypeComboBox);
 //		buttonPane.getChildren().add(ani.getView());

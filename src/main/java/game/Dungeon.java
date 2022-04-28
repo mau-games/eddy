@@ -222,6 +222,11 @@ public class Dungeon implements Listener {
 		return rooms.get(index);
 	}
 
+	public int getIndexByRoom(Room target_room)
+	{
+		return rooms.indexOf(target_room);
+	}
+
 	public Room addRoom(int width, int height) {
 		Room auxR = new Room(this, defaultConfig, height < 0 ? defaultHeight : height, width < 0 ? defaultWidth : width,
 				scaleFactor);

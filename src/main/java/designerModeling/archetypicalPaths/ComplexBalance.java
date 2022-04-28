@@ -13,6 +13,8 @@ public class ComplexBalance extends ArchetypicalPath
 
     public static ArrayList<SpecialPath> tree_path = new ArrayList<SpecialPath>();
 
+    public static HashMap<Integer, Integer> path_distances = new HashMap<>();
+
     public ComplexBalance()
     {
         archetype = ArchetypicalPathTypes.COMPLEX_BALANCE;
@@ -57,8 +59,18 @@ public class ComplexBalance extends ArchetypicalPath
         SpecialPath b2 = new SpecialPath(s2, 9, true, true);
         SpecialPath b3 = new SpecialPath(b2, 11, true, true);
 
-
         tree_path.addAll(Arrays.asList(s0, s1, s2, b1, b2, b3));
+
+        path_distances.clear();
+
+        path_distances.put(1, 2);
+        path_distances.put(2, 1);
+        path_distances.put(7, 0);
+
+        //Don't know about this.
+        path_distances.put(6, 2);
+        path_distances.put(9, 2);
+//        path_distances.put(11, 3);
     }
 
     public static SubsetPath checkMatchingPath(ArrayList<Integer> other_path)
@@ -115,5 +127,31 @@ public class ComplexBalance extends ArchetypicalPath
         //FIXME½
         return bestPath(resulting_subsets);
 
+    }
+
+    public static float checkDistanceToPath(int test_style)
+    {
+        float dist = 0.0f;
+        SpecialPath style_step = null;
+        int style_step_index = 0;
+        for(SpecialPath sp :  tree_path)
+        {
+            if(sp.isThisPoint(test_style))
+            {
+                style_step = sp;
+                break;
+            }
+            style_step_index++;
+        }
+
+        if(style_step == null)
+            return 0.0f;
+
+        if(style_step.branch ) //special one
+        {
+            return 0.2f;
+        }
+
+        return 1.0f - (path_distances.get(test_style)/3.0f);
     }
 }

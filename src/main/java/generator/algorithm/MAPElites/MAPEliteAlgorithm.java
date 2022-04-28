@@ -23,6 +23,7 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
+import designerModeling.ScikitLearnConnection;
 import game.AlgorithmSetup;
 import org.apache.commons.io.FileUtils;
 import org.w3c.dom.Document;
@@ -178,6 +179,11 @@ public class MAPEliteAlgorithm extends Algorithm implements Listener {
 		while((i + j) < populationSize){
 			ZoneIndividual ind = new ZoneIndividual(room, mutationProbability);
 			ind.mutateAll(0.7, roomWidth, roomHeight);
+
+			//FIXME: CHECK THIS!
+			Room ind_room = ind.getPhenotype().getMap(roomWidth, roomHeight, roomDoorPositions, roomCustomTiles, roomOwner);
+			int[] resulting_styles = ScikitLearnConnection.getClusters(new ArrayList<Room>(List.of(ind_room)), true);
+			ind_room.room_style.setCurrentStyle(resulting_styles[0]);
 			
 			if(checkZoneIndividual(ind, true)){
 				if(i < feasibleAmount){
@@ -365,7 +371,9 @@ public class MAPEliteAlgorithm extends Algorithm implements Listener {
 			if(AlgorithmSetup.getInstance().isAdaptive())
 			{
 				//Only if we are adapting!
+				//Why do we create a copy?
 				this.relativeRoom = new Room(originalRoom);
+				this.relativeRoom = this.originalRoom;
 
 				this.config = relativeRoom.getCalculatedConfig();
 				roomTarget = config.getRoomProportion();

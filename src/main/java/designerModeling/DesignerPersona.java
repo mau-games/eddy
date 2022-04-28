@@ -298,6 +298,19 @@ public class DesignerPersona implements Listener
         }
     }
 
+    public RoomDesignerPersona getRoomsDesignerPersona(Room currentRoom)
+    {
+        for(RoomDesignerPersona rdp : roomPersonas)
+        {
+            if(rdp.room.specificID.equals(currentRoom.specificID))
+            {
+                return rdp;
+            }
+        }
+
+        return null;
+    }
+
     /***
      * Return the subset path related to the persona that scored the highests!
      * @param currentRoom

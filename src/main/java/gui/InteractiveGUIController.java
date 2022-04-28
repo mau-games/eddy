@@ -8,6 +8,7 @@ import java.net.URL;
 import java.nio.file.Files;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Arrays;
 import java.util.ResourceBundle;
 import java.util.UUID;
 
@@ -120,6 +121,7 @@ public class InteractiveGUIController implements Initializable, Listener {
 
 	boolean task2 = false;
 
+	//These are the rooms that will have the designer persona activated!
 	int[] activated_persona = {2, 3, 5, 7, 9};
 
 	@Override
@@ -360,6 +362,25 @@ public class InteractiveGUIController implements Initializable, Listener {
 				initTask2View((MapContainer) e.getPayload());
 			}
 			else {
+
+				int room_id = dungeonMap.getIndexByRoom(((MapContainer)e.getPayload()).getMap());
+
+				//System.out.println("ROOM INDEX IS: " + room_id);
+				boolean activate_persona = false;
+
+				for(int activated_persona_id : activated_persona)
+				{
+					if(activated_persona_id == room_id)
+					{
+						//System.out.println("WE ACTIVATE THE PERSONA");
+						activate_persona = true;
+						break;
+					}
+				}
+
+				AlgorithmSetup.getInstance().setDesignerModelUse(activate_persona);
+				AlgorithmSetup.getInstance().setDesignerPersonaUse(activate_persona);
+
 				if (((MapContainer) e.getPayload()).getMap().getDoorCount() > 0)
 					initRoomView((MapContainer) e.getPayload());
 			}

@@ -295,9 +295,10 @@ public class RoomViewController extends BorderPane implements Listener
 		
 		for(DimensionTypes dimension : DimensionTypes.values())
         {
-        	if(dimension != DimensionTypes.SIMILARITY && dimension != DimensionTypes.SYMMETRY
+        	if(dimension != DimensionTypes.LENIENCY && dimension != DimensionTypes.SYMMETRY
         			&& dimension != DimensionTypes.DIFFICULTY
-        			&& dimension != DimensionTypes.GEOM_COMPLEXITY && dimension != DimensionTypes.REWARD)
+        			&& dimension != DimensionTypes.GEOM_COMPLEXITY && dimension != DimensionTypes.REWARD
+			&& dimension != DimensionTypes.CUSTOM)
         	{
         		secondaryTable.getItems().add(new MAPEDimensionFXML(dimension, 5));
         	}
@@ -1158,7 +1159,6 @@ public class RoomViewController extends BorderPane implements Listener
 	@FXML
 	public void displayStats() 
 	{
-
 		Room original = editedRoomPane.editedPane.getMap();
 		Room toCompare = selectedSuggestion.getSuggestedRoom();
 		
