@@ -7,7 +7,7 @@ public class HumanCoCreator {
 
     private static HumanCoCreator singleton = null;
 
-    private int maxTilesPerRound = 8;
+    private int maxTilesPerRound = 12;
     private int amountOfTilesPlaced;
     private List<Tile> tilesPlaced;
 

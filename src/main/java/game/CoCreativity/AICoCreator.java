@@ -226,9 +226,17 @@ public class AICoCreator {
     // returns a number between 1 and parameter+1
     private int CalculateAmountOfTilesToContributeWith(int humanContribution)
     {
-        int max = humanContribution + 1;
-        int min = Math.max(humanContribution - 1, 1);
-        return (int)(Math.random() * ((max-min)) + min);
+        int min = humanContribution - (humanContribution/2);
+        int max = humanContribution;
+
+        int newAmount = (int)(Math.random() * ((max-min)) + min);
+
+        return newAmount;
+
+        //int max = humanContribution + 1;
+        //int min = Math.max(humanContribution - 1, 1);
+        //return (int)(Math.random() * ((max-min)) + min);
+
     }
 
     private List<Point> CalculateContributionArea(List<Tile> tilesPlaced)
@@ -308,12 +316,12 @@ public class AICoCreator {
         currentTargetRoom.calculateAllDimensionalValues();
 
         double p1 = currentTargetRoom.getDimensionValue(GADimension.DimensionTypes.SYMMETRY);
-        double p2 = currentTargetRoom.getDimensionValue(GADimension.DimensionTypes.SIMILARITY);
+        double p2 = 1.0;
         double p3 = currentTargetRoom.getDimensionValue(GADimension.DimensionTypes.LINEARITY);
         double p4 = currentTargetRoom.getDimensionValue(GADimension.DimensionTypes.LENIENCY);
         double p5 = currentTargetRoom.getDimensionValue(GADimension.DimensionTypes.NUMBER_MESO_PATTERN);
         double p6 = currentTargetRoom.getDimensionValue(GADimension.DimensionTypes.NUMBER_PATTERNS);
-        double p7 = currentTargetRoom.getDimensionValue(GADimension.DimensionTypes.INNER_SIMILARITY);
+        double p7 = 1.0;
 
         for(Room r:elites)
         {

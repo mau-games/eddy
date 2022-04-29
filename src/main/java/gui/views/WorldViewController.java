@@ -161,7 +161,13 @@ public class WorldViewController extends BorderPane implements Listener
 		//Don't allow children to pass over the pane!
 		clipChildren(worldPane, 12);
 		worldButtonEvents();
-		initOptions();	
+		initOptions();
+
+
+		//disabled as these functions are not implemented in this branch
+		suggestionsBtn.setDisable(true);
+		tropetwistBtn.setDisable(true);
+
 	}
 	
 	public void initWorldMap(Dungeon dungeon) 

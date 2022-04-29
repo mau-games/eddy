@@ -362,12 +362,7 @@ public class EditedRoomStackPane extends StackPane implements Listener
                 AICoCreator.getInstance().getCcRoomViewController().unableToEditLabel();
             });
         }
-
-
-
     }
-
-
 
     /***
      * The Method that AI uses to edit the room
@@ -421,14 +416,6 @@ public class EditedRoomStackPane extends StackPane implements Listener
                 editedRoom.forceReevaluation();
                 editedRoom.getRoomXML("room\\");
 
-                Platform.runLater(() -> {
-                    mapIsFeasible(editedPane.getMap().isIntraFeasible());
-                    redrawPatterns(editedPane.getMap());
-                    redrawLocks(editedPane.getMap());
-                    drawTintAiPlacedTiles(editedPane.getMap());
-                    AICoCreator.getInstance().getCcRoomViewController().updateRoom(editedPane.getMap());
-                });
-
                 Tile new_tile = new Tile(editedRoom.getTile(p.getX(), p.getY()));
                 new_tile.setPlacedByAI(true);
 
@@ -438,6 +425,14 @@ public class EditedRoomStackPane extends StackPane implements Listener
             }
             //EventRouter.getInstance().postEvent(new UserEditedRoom(uniqueID, editedPane.getMap()));
         }
+
+        Platform.runLater(() -> {
+            mapIsFeasible(editedPane.getMap().isIntraFeasible());
+            redrawPatterns(editedPane.getMap());
+            redrawLocks(editedPane.getMap());
+            drawTintAiPlacedTiles(editedPane.getMap());
+            AICoCreator.getInstance().getCcRoomViewController().updateRoom(editedPane.getMap());
+        });
 
         Platform.runLater(() -> {
             System.out.println("UPDATE ROOM");
