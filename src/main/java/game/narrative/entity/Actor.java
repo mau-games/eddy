@@ -4,7 +4,6 @@ import game.narrative.Defines;
 public abstract class Actor extends Entity {
     static int actorCounter = 0;
 
-
     Defines.Race m_race;
     Defines.Gender m_gender;
     String m_nameSecond = "";

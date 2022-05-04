@@ -3,10 +3,7 @@ import game.Dungeon;
 import game.Room;
 import game.Tile;
 import game.TileTypes;
-import game.narrative.entity.Enemy;
-import game.narrative.entity.Entity;
-import game.narrative.entity.Item;
-import game.narrative.entity.NPC;
+import game.narrative.entity.*;
 //import narrative.entity.*;
 
 import java.util.ArrayList;
@@ -25,23 +22,23 @@ public class NarrativeBase extends Dungeon {
 
     private ArrayList<Entity> entities; //ändras till entity
     private ArrayList<NarrativeAttribute> narrativeAttributes;
+    private ArrayList<Entity> generatedEntities;
 
     public ArrayList<NarrativeAttribute> getAttributeList() { return narrativeAttributes;}
     public ArrayList<Entity> getEntities() { return  entities;}
 
     private Entity selectedEntity;
     public Entity GetSelectedEntity(){ return  selectedEntity;}
-
-/*    public NarrativeBase(){
-        this.entities = new ArrayList<Entity>();
-        this.narrativeAttributes = new ArrayList<NarrativeAttribute>();
-        CreateEntities();
-    }*/
-
+    public Entity GetGeneratedCharacter(int at){ return generatedEntities.get(at);}
+    public void ClearGeneratedEntities(){
+        generatedEntities.clear();
+    }
     public NarrativeBase(Dungeon owner) {
         this.entities = new ArrayList<Entity>();
         this.narrativeAttributes = new ArrayList<NarrativeAttribute>();
         this.owner = owner;
+        this.generatedEntities = new ArrayList<Entity>();
+
         EventRouter.getInstance().registerListener(this::pings, new MapQuestUpdate());
     }
 
@@ -54,6 +51,14 @@ public class NarrativeBase extends Dungeon {
                 break;
             }
         }
+    }
+
+    public void AddGeneratedEntity(Entity _generateEntity){
+        generatedEntities.add(_generateEntity);
+    }
+
+    public void ResetGeneratedEntityList(){
+        generatedEntities.clear();
     }
 
     public Entity GetEntityFromPoint(finder.geometry.Point _selectedTilePoint){
