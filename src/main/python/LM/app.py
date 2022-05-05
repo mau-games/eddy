@@ -25,6 +25,7 @@ class ModelData:
     hasInitialized = False
     enable_model = True
     is_locked = False
+    num_runs = 1
 
 
 @app.route('/hello/')
@@ -45,9 +46,11 @@ def parameter_test():
 @app.route('/generate_narrative/', methods=['GET', 'POST'])
 def generate_narrative():
     if not ModelData.is_locked:
+        full_output = ""
         ModelData.is_locked = True
         request_prompt = request.headers.get("message")
         m_len = int(request.headers.get("max_length"))
+        ModelData.num_runs = int(request.headers.get("num_runs"))
         if m_len and m_len > 0:
             ModelData.max_length = m_len
             print("Changed max length to " + str(ModelData.max_length))
@@ -62,22 +65,24 @@ def generate_narrative():
         end_time = time.perf_counter()
         print(f"Completed after {end_time - start_time:0.2f} sec.\n")
 
-        # Create a generator and generate output text
-        print(f"Starting text generation with max length {ModelData.max_length}...", end=" ")
-        start_time = time.perf_counter()
-        while True:
-            output = generate(request_prompt)
-            if output[0]["generated_text"].index("</entry>") != output[0]["generated_text"].rindex("</entry>"):
-                break
-            else:
-                print("Output invalid, trying again... ")
+        for x in range(ModelData.num_runs):
+            # Create a generator and generate output text
+            print(f"Starting text generation with max length {ModelData.max_length}...", end=" ")
+            start_time = time.perf_counter()
+            while True:
+                output = generate(request_prompt)
+                if output[0]["generated_text"].index("</entry>") != output[0]["generated_text"].rindex("</entry>"):
+                    full_output += output[0]["generated_text"]
+                    break
+                else:
+                    print("Output invalid, trying again... ")
 
         end_time = time.perf_counter()
         print(f"Completed after {end_time - start_time:0.2f} sec.\n")
 
         ModelData.is_locked = False
 
-        ret_string = "<?xml version = \"1.0\" encoding = \"UTF-8\"?>\n<entries>" + output[0]["generated_text"]
+        ret_string = "<?xml version = \"1.0\" encoding = \"UTF-8\"?>\n<entries>" + full_output
         # ret_string find last occurrence of </entry> and paste </entries> after it
         ret_string = ret_string[:ret_string.rindex("</entry>") + len("</entry>")] + "</entries>"
         return ret_string

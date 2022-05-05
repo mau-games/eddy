@@ -565,15 +565,10 @@ public class NarrativeViewController extends BorderPane implements Listener {
         //String output = QueryLM("<entry><name>Alfredo Tattaglia</name><age>62</age><gender>M</gender><race>Gnome</race><class>Mage</class><appearance>Fair skin, salt & pepper hair with a lush full but well kept beard</appearance><loves>Work, His Job, Peace and quiet, Normality, Order, Coffee, Papers, Punctuality</loves><hates>Downtime, vacation, social interaction, disorder, chaos, loud people, Lateness</hates><phobias>Change</phobias><narrative>Alfredo \"Fredo\" Tattaglia is an intern at his dream company Magical Enforcement of Temporal Anomalies or META for short. As an accomplished wizard himself he hopes to impress the higher ups with a job in the field, traversing time and space to keep the continuum on the right track.</narrative></entry>", maxLength);
         //ExtractedGeneratedEntity lmOutput = ParseLMOutput(output);
 
-        for (int i = 0; i < 4; i++){
-            if(generatedEntitiesCount >= maxGenerateEntities)
-                break;
-
-            String output = QueryLM("<entry><name>Alfredo Tattaglia</name><age>62</age><gender>M</gender><race>Gnome</race><class>Mage</class><appearance>Fair skin, salt & pepper hair with a lush full but well kept beard</appearance><loves>Work, His Job, Peace and quiet, Normality, Order, Coffee, Papers, Punctuality</loves><hates>Downtime, vacation, social interaction, disorder, chaos, loud people, Lateness</hates><phobias>Change</phobias><narrative>Alfredo \"Fredo\" Tattaglia is an intern at his dream company Magical Enforcement of Temporal Anomalies or META for short. As an accomplished wizard himself he hopes to impress the higher ups with a job in the field, traversing time and space to keep the continuum on the right track.</narrative></entry>", maxLength);
-            ExtractedGeneratedEntity lmOutput = ParseLMOutput(output);
-            dungeon.getNarrative().AddGeneratedEntity(lmOutput);
-
-            generatedEntitiesCount++;
+        String output = QueryLM("<entry><name>Alfredo Tattaglia</name><age>62</age><gender>M</gender><race>Gnome</race><class>Mage</class><appearance>Fair skin, salt & pepper hair with a lush full but well kept beard</appearance><loves>Work, His Job, Peace and quiet, Normality, Order, Coffee, Papers, Punctuality</loves><hates>Downtime, vacation, social interaction, disorder, chaos, loud people, Lateness</hates><phobias>Change</phobias><narrative>Alfredo \"Fredo\" Tattaglia is an intern at his dream company Magical Enforcement of Temporal Anomalies or META for short. As an accomplished wizard himself he hopes to impress the higher ups with a job in the field, traversing time and space to keep the continuum on the right track.</narrative></entry>", maxLength, 4);
+        List<ExtractedGeneratedEntity> lmOutput = ParseLMOutput(output);
+        for (ExtractedGeneratedEntity e: lmOutput) {
+            dungeon.getNarrative().AddGeneratedEntity(e);
         }
 
         System.out.println("");
@@ -1130,7 +1125,7 @@ public class NarrativeViewController extends BorderPane implements Listener {
     }
 
 
-    public synchronized String QueryLM(String aPrompt, int aMaxLength)
+    public synchronized String QueryLM(String aPrompt, int aMaxLength, int aNumRuns)
     {
         BufferedReader reader;
         String line;
@@ -1158,6 +1153,7 @@ public class NarrativeViewController extends BorderPane implements Listener {
                 http.setRequestMethod("POST");
                 http.addRequestProperty("message", aPrompt);
                 http.addRequestProperty("max_length", String.valueOf(aMaxLength));
+                http.addRequestProperty("num_runs", String.valueOf(aNumRuns));
 
                 reader = new BufferedReader(new InputStreamReader(http.getInputStream()));
 
@@ -1181,11 +1177,12 @@ public class NarrativeViewController extends BorderPane implements Listener {
         return responseContent.toString();
     }
 
-    public ExtractedGeneratedEntity ParseLMOutput(String aOutput)
+    public List<ExtractedGeneratedEntity> ParseLMOutput(String aOutput)
     {
         //Fixa formateringsproblem med &-tecken
         String temp = aOutput.replace("&", "&amp;");
         ExtractedGeneratedEntity retVal = null;
+        List<ExtractedGeneratedEntity> entities = new ArrayList<ExtractedGeneratedEntity>();
 
         SAXBuilder saxBuilder = new SAXBuilder();
         try {
@@ -1195,26 +1192,30 @@ public class NarrativeViewController extends BorderPane implements Listener {
             List<Element> entries = classElement.getChildren();
 
             //Ignorera första entriet då det är det som skickades till modellen
-            Element entry = entries.get(1);
-            String name = entry.getChild("name").getText();
-            int age = Integer.parseInt(entry.getChild("age").getText());
-            String gender = entry.getChild("gender").getText();
-            String race = entry.getChild("race").getText();
-            String characterClass = entry.getChild("class").getText();
-            String appearance = entry.getChild("appearance").getText();
-            String loves = entry.getChild("loves").getText();
-            String hates = entry.getChild("hates").getText();
-            String phobias = entry.getChild("phobias").getText();
-            String narrative = entry.getChild("narrative").getText();
 
-            retVal = new ExtractedGeneratedEntity(name, age, gender, race, characterClass, appearance, loves, hates, phobias, narrative);
+            for (int i = 1; i < entries.size(); i++)
+            {
+                Element entry = entries.get(i);
+                String name = entry.getChild("name").getText();
+                int age = Integer.parseInt(entry.getChild("age").getText());
+                String gender = entry.getChild("gender").getText();
+                String race = entry.getChild("race").getText();
+                String characterClass = entry.getChild("class").getText();
+                String appearance = entry.getChild("appearance").getText();
+                String loves = entry.getChild("loves").getText();
+                String hates = entry.getChild("hates").getText();
+                String phobias = entry.getChild("phobias").getText();
+                String narrative = entry.getChild("narrative").getText();
+
+                entities.add(new ExtractedGeneratedEntity(name, age, gender, race, characterClass, appearance, loves, hates, phobias, narrative));
+            }
 
         } catch (JDOMException e) {
             e.printStackTrace();
         } catch (IOException e) {
             e.printStackTrace();
         }
-        return retVal;
+        return entities;
     }
 
     public void UpdateEntityInfoGUI(){
