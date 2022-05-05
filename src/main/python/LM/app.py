@@ -71,20 +71,42 @@ def generate_narrative():
             start_time = time.perf_counter()
             while True:
                 output = generate(request_prompt)
-                if output[0]["generated_text"].index("</entry>") != output[0]["generated_text"].rindex("</entry>"):
-                    full_output += output[0]["generated_text"]
-                    break
-                else:
+                start_index = output[0]["generated_text"].index("</entry>") + len("</entry>")
+                end_index = output[0]["generated_text"].rindex("</entry>") + len("</entry>")
+
+                print("Start: " + str(start_index) + " || End: " + str(end_index))
+
+                if start_index == end_index:
                     print("Output invalid, trying again... ")
+                else:
+                    full_output += output[0]["generated_text"][start_index:end_index]
+                    break
 
         end_time = time.perf_counter()
         print(f"Completed after {end_time - start_time:0.2f} sec.\n")
 
         ModelData.is_locked = False
 
-        ret_string = "<?xml version = \"1.0\" encoding = \"UTF-8\"?>\n<entries>" + full_output
+        # ret_string = "<?xml version = \"1.0\" encoding = \"UTF-8\"?>\n<entries>" + full_output
+        ret_string = "<?xml version = \"1.0\" encoding = \"UTF-8\"?>\n<entries>"
+
+        final_index = full_output.rindex("</entry>") + len("</entry>")
+        start_index = full_output.index("<entry>")
+        end_index = full_output.index("</entry>") + len("</entry>")
+
+        while True: # Add every (hopefully) complete xml entry
+            if end_index == final_index:
+                break
+
+            ret_string += full_output[start_index:end_index]
+
+            start_index = end_index
+            end_index = full_output.index("</entry>", start_index) + len("</entry>")
+
+        # full_output
         # ret_string find last occurrence of </entry> and paste </entries> after it
-        ret_string = ret_string[:ret_string.rindex("</entry>") + len("</entry>")] + "</entries>"
+        # ret_string = ret_string[:(ret_string.rindex("</entry>") + len("</entry>"))]
+        ret_string += "</entries>"
         return ret_string
 
 
