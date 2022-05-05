@@ -1213,7 +1213,7 @@ public class NarrativeViewController extends BorderPane implements Listener {
 
             //Ignorera första entriet då det är det som skickades till modellen
 
-            for (int i = 1; i < entries.size(); i++)
+            for (int i = 0; i < entries.size(); i++)
             {
                 Element entry = entries.get(i);
                 String name = entry.getChild("name").getText();

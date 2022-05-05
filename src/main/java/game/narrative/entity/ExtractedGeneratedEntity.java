@@ -8,7 +8,7 @@ public class ExtractedGeneratedEntity extends Entity{
     Defines.Race m_race = Defines.Race.LOCKED;
     Defines.Class m_class = Defines.Class.LOCKED;
 
-    public ExtractedGeneratedEntity(String aName, int aAge, int aGenderIndex, int aRaceIndex, int aClassIndex, String aLikes, String aDislikes, String aPhobias, String aAppearance, String aNarrative)
+    public ExtractedGeneratedEntity(String aName, int aAge, int aGenderIndex, int aRaceIndex, int aClassIndex, String aAppearance, String aLikes, String aDislikes, String aPhobias, String aNarrative)
     {
         m_name = aName;
         m_age = aAge;
@@ -21,7 +21,7 @@ public class ExtractedGeneratedEntity extends Entity{
         m_appearance = aAppearance;
         m_narrative = aNarrative;
     }
-    public ExtractedGeneratedEntity(String aName, int aAge, String aGender, String aRace, String aClass, String aLikes, String aDislikes, String aPhobias, String aAppearance, String aNarrative)
+    public ExtractedGeneratedEntity(String aName, int aAge, String aGender, String aRace, String aClass, String aAppearance, String aLikes, String aDislikes, String aPhobias, String aNarrative)
     {
         m_name = aName;
         m_age = aAge;
