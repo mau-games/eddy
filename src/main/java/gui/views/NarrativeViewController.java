@@ -7,7 +7,6 @@ import game.Room;
 import game.TileTypes;
 import game.narrative.CreateEntityFileXML;
 import game.narrative.Defines;
-import game.narrative.NarrativeBase;
 import game.narrative.entity.Entity;
 import game.narrative.entity.ExtractedGeneratedEntity;
 import game.narrative.entity.NPC;
@@ -99,6 +98,8 @@ public class NarrativeViewController extends BorderPane implements Listener {
     private Button generateButton;
     @FXML
     private TextField maxLengthTextField;
+    @FXML
+    private Label generateStatusLbl;
 
 
     @FXML
@@ -123,6 +124,9 @@ public class NarrativeViewController extends BorderPane implements Listener {
     private Label genAppearance;
     @FXML
     private TextArea generatedNarrativeTA;
+
+    @FXML
+    private Label genRelation;
 
     @FXML
     private Label EntityInforCounterLbl;
@@ -306,6 +310,9 @@ public class NarrativeViewController extends BorderPane implements Listener {
 /*            DungeonDrawer.getInstance().changeBrushTo(DungeonDrawer.DungeonBrushes.NarrativeEntity_POS);
             List<TileTypes> types = findTileTypes();
             router.postEvent(new RequestDisplayQuestTilesSelection(types));*/
+
+            generateStatusLbl.setText("WAITING");
+            generateStatusLbl.setTextFill(Color.web("#f6ff00")); //yellow
 
             if (firstTime) {
                 Alert alert = new Alert(Alert.AlertType.INFORMATION, "Welcome to the Narrative-Creation!\n"
@@ -549,6 +556,7 @@ public class NarrativeViewController extends BorderPane implements Listener {
         }
     }
 
+    private List<ExtractedGeneratedEntity> lmOutputEntities = new ArrayList<ExtractedGeneratedEntity>();
     @FXML
     private void GenerateNarrative(){
         dungeon.getNarrative().ClearGeneratedEntities();
@@ -562,13 +570,25 @@ public class NarrativeViewController extends BorderPane implements Listener {
             }
         }
 
-        //String output = QueryLM("<entry><name>Alfredo Tattaglia</name><age>62</age><gender>M</gender><race>Gnome</race><class>Mage</class><appearance>Fair skin, salt & pepper hair with a lush full but well kept beard</appearance><loves>Work, His Job, Peace and quiet, Normality, Order, Coffee, Papers, Punctuality</loves><hates>Downtime, vacation, social interaction, disorder, chaos, loud people, Lateness</hates><phobias>Change</phobias><narrative>Alfredo \"Fredo\" Tattaglia is an intern at his dream company Magical Enforcement of Temporal Anomalies or META for short. As an accomplished wizard himself he hopes to impress the higher ups with a job in the field, traversing time and space to keep the continuum on the right track.</narrative></entry>", maxLength);
-        //ExtractedGeneratedEntity lmOutput = ParseLMOutput(output);
+        EntityInforCounterLbl.setText( String.valueOf(characterToShow + 1) + "/" + lmOutputEntities.size());
 
-        String output = QueryLM("<entry><name>Alfredo Tattaglia</name><age>62</age><gender>M</gender><race>Gnome</race><class>Mage</class><appearance>Fair skin, salt & pepper hair with a lush full but well kept beard</appearance><loves>Work, His Job, Peace and quiet, Normality, Order, Coffee, Papers, Punctuality</loves><hates>Downtime, vacation, social interaction, disorder, chaos, loud people, Lateness</hates><phobias>Change</phobias><narrative>Alfredo \"Fredo\" Tattaglia is an intern at his dream company Magical Enforcement of Temporal Anomalies or META for short. As an accomplished wizard himself he hopes to impress the higher ups with a job in the field, traversing time and space to keep the continuum on the right track.</narrative></entry>", maxLength, 4);
-        List<ExtractedGeneratedEntity> lmOutput = ParseLMOutput(output);
-        for (ExtractedGeneratedEntity e: lmOutput) {
-            dungeon.getNarrative().AddGeneratedEntity(e);
+        if(dungeon.getNarrative().GetSelectedEntity() != null){
+            generateStatusLbl.setText("GENERATING...");
+            generateStatusLbl.setTextFill(Color.web("#00eeff")); //blue
+
+            String output = QueryLM(dungeon.getNarrative().GetSelectedEntity().ToModellString(), maxLength, 4);
+            List<ExtractedGeneratedEntity> lmOutputEntities = ParseLMOutput(output);
+
+            for (ExtractedGeneratedEntity e: lmOutputEntities) {
+                dungeon.getNarrative().AddGeneratedEntity(e);
+            }
+
+            UpdateGeneratedEntityGUI(lmOutputEntities.get(0));
+            characterToShow = 0;
+            EntityInforCounterLbl.setText( String.valueOf(characterToShow + 1) + "/" + lmOutputEntities.size());
+
+            generateStatusLbl.setText("DONE");
+            generateStatusLbl.setTextFill(Color.web("#00ff40")); //green
         }
 
         System.out.println("");
@@ -1234,17 +1254,19 @@ public class NarrativeViewController extends BorderPane implements Listener {
     }
 
     private int characterToShow = 0;
-    public void UpdateGeneratedEntityGUI(int at){
-        Entity temp = dungeon.getNarrative().GetGeneratedCharacter(at);
-        genName.setText(temp.GetName());
-        genAge.setText(temp.GetAge());
-        genGender.setText(temp.GetGenderStr());
-        genRace.setText(temp.GetRaceStr());
-        genClass.setText(temp.GetClassStr());
-        genLikes.setText(temp.GetLikes());
-        genDislikes.setText(temp.GetDislikes());
-        genAppearance.setText(temp.GetAppearance());
-        generatedNarrativeTA.setText(temp.GetNarrative());
+    public void UpdateGeneratedEntityGUI(Entity entity){
+        genName.setText(entity.GetName());
+        genAge.setText(entity.GetAge());
+        genGender.setText(entity.GetGenderStr());
+        genRace.setText(entity.GetRaceStr());
+        genClass.setText(entity.GetClassStr());
+        genLikes.setText(entity.GetLikes());
+        genDislikes.setText(entity.GetDislikes());
+        genAppearance.setText(entity.GetAppearance());
+        generatedNarrativeTA.setText(entity.GetNarrative());
+
+        //if(entity.GetRelationStringAt(0) != null)
+        //    genRelation.setText(entity.GetRelationStringAt(0));
     }
 
     @FXML
@@ -1263,6 +1285,8 @@ public class NarrativeViewController extends BorderPane implements Listener {
     private Button dislikesBtn;
     @FXML
     private Button appearanceBtn;
+    @FXML
+    private Button relationshipBtn;
 
     public void initializeGeneratedEntityButtonEvents() {
         nameBtn.setOnAction(e -> ApplyAttribute(Defines.AttributeTypes.Name));
@@ -1273,6 +1297,8 @@ public class NarrativeViewController extends BorderPane implements Listener {
         likesBtn.setOnAction(e -> ApplyAttribute(Defines.AttributeTypes.Likes));
         dislikesBtn.setOnAction(e -> ApplyAttribute(Defines.AttributeTypes.Dislikes));
         appearanceBtn.setOnAction(e -> ApplyAttribute(Defines.AttributeTypes.Appearance));
+
+        relationshipBtn.setOnAction(e -> ApplyAttribute(Defines.AttributeTypes.Relationship));
     }
 
     public void ApplyAttribute(Defines.AttributeTypes atr){
@@ -1283,6 +1309,10 @@ public class NarrativeViewController extends BorderPane implements Listener {
         Entity generatedEntity = dungeon.getNarrative().GetGeneratedCharacter(characterToShow);
 
         switch (atr){
+            case Relationship:
+                if(generatedEntity.GetRelations().size() != 0)
+                    selectedEntity.AddRelation(generatedEntity.GetRelations().get(0));
+                break;
             case Name:
                 selectedEntity.SetName(generatedEntity.GetName());
                 break;
@@ -1317,16 +1347,22 @@ public class NarrativeViewController extends BorderPane implements Listener {
     private int maxGenerateEntities = 10;
     @FXML
     private void OnNextGeneratedEntity(){
-        if(characterToShow < generatedEntitiesCount - 1)
+        if(characterToShow < lmOutputEntities.size() - 1)
             characterToShow++;
-        else if(generatedEntitiesCount < maxGenerateEntities){
-            GenerateNarrative();
-            characterToShow++;
+        else {
+            return;
         }
 
-        UpdateGeneratedEntityGUI(characterToShow);
-
-        EntityInforCounterLbl.setText( String.valueOf(characterToShow + 1) + "/" + generatedEntitiesCount);
+        UpdateGeneratedEntityGUI(lmOutputEntities.get(characterToShow));
+        EntityInforCounterLbl.setText( String.valueOf(characterToShow + 1) + "/" + lmOutputEntities.size());
+    }
+    @FXML
+    private void OnApplyAll(){
+        if(dungeon.getNarrative().GetSelectedEntity() != null && dungeon.getNarrative().GetGeneratedCharacter(characterToShow) != null){
+            dungeon.getNarrative().GetSelectedEntity().Copy(dungeon.getNarrative().GetGeneratedCharacter(characterToShow));
+            LoadNewEntityGUI(dungeon.getNarrative().GetSelectedEntity());
+            UpdateEntityInfoGUI();
+        }
     }
 
     @FXML
@@ -1340,11 +1376,11 @@ public class NarrativeViewController extends BorderPane implements Listener {
 
     @FXML
     private void OnPrevGeneratedEntity(){
-        if(characterToShow > 0)
+        if(characterToShow > 0 && lmOutputEntities.size() > 0)
             characterToShow--;
 
-        UpdateGeneratedEntityGUI(characterToShow);
+        UpdateGeneratedEntityGUI(lmOutputEntities.get(characterToShow));
 
-        EntityInforCounterLbl.setText( String.valueOf(characterToShow + 1) + "/" + generatedEntitiesCount);
+        EntityInforCounterLbl.setText( String.valueOf(characterToShow + 1) + "/" + lmOutputEntities.size());
     }
 }

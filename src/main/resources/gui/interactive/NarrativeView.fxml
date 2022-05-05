@@ -495,12 +495,29 @@
                         <Insets />
                      </opaqueInsets>
                   </HBox>
+                  <HBox alignment="CENTER" prefHeight="41.0" prefWidth="283.0">
+                     <children>
+                        <Label text="STATUS:" textFill="#f2ff00">
+                           <HBox.margin>
+                              <Insets right="20.0" />
+                           </HBox.margin>
+                           <font>
+                              <Font name="System Bold" size="18.0" />
+                           </font>
+                        </Label>
+                        <Label fx:id="generateStatusLbl" text="WAITING" textFill="#f6ff00">
+                           <font>
+                              <Font name="System Bold" size="18.0" />
+                           </font>
+                        </Label>
+                     </children>
+                  </HBox>
                   <Label text="Generated Narrative" textFill="WHITE">
                      <font>
                         <Font name="System Bold" size="16.0" />
                      </font>
                   </Label>
-                  <TextArea fx:id="generatedNarrativeTA" prefHeight="321.0" prefWidth="258.0" style="-fx-background-color: white; -fx-text-inner-color: white;" text="massa text" wrapText="true">
+                  <TextArea fx:id="generatedNarrativeTA" prefHeight="277.0" prefWidth="263.0" style="-fx-background-color: white; -fx-text-inner-color: white;" text="massa text" wrapText="true">
                      <FlowPane.margin>
                         <Insets right="20.0" />
                      </FlowPane.margin></TextArea>
@@ -516,7 +533,7 @@
                         </Button>
                         <HBox alignment="CENTER" prefHeight="40.0" prefWidth="82.0">
                            <children>
-                              <Label fx:id="EntityInforCounterLbl" text="1/4" textFill="WHITE">
+                              <Label fx:id="EntityInforCounterLbl" text="-/-" textFill="WHITE">
                                  <font>
                                     <Font size="23.0" />
                                  </font>
@@ -530,8 +547,8 @@
                         </Button>
                      </children>
                   </HBox>
-                  <Region prefHeight="29.0" prefWidth="283.0" />
-                  <Button mnemonicParsing="false" prefHeight="34.0" prefWidth="95.0" text="Apply all">
+                  <Region prefHeight="19.0" prefWidth="283.0" />
+                  <Button onAction="#OnApplyAll" mnemonicParsing="false" prefHeight="34.0" prefWidth="95.0" text="Apply all">
                      <font>
                         <Font name="System Bold" size="12.0" />
                      </font>

@@ -96,6 +96,7 @@ public class Defines {
             this.m_phobiaTarget = element;
         }
 
+        public String GetRelationString() { return m_relationshipType.toString() + " " + m_relationshipTarget.GetNameOrID();}
         public String GetName(){ return m_relationshipTarget.GetNameOrID();}
         public RelationshipType GetRelation(){ return m_relationshipType;}
     };

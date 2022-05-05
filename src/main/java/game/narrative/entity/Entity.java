@@ -72,6 +72,11 @@ public abstract class Entity {
     public Defines.Race GetRace() { return m_raceENUM;}
     public Defines.Class GetClass() { return m_classENUM;}
     public List<Defines.Relationship> GetRelations(){ return relationshipList;}
+    public String GetRelationStringAt(int at) {
+        if(relationshipList.get(at) == null)
+            return null;
+        return relationshipList.get(at).GetRelationString();
+    }
 
     public void ResetEntity(){
         m_name = "";
@@ -89,6 +94,42 @@ public abstract class Entity {
         m_genderENUM = null;
         m_raceENUM = null;
         relationshipList.clear();
+    }
+
+    public void Copy(Entity other){
+        this. m_name = other.m_name;
+        this. m_age = other.m_age;
+        this. m_genderStr = other.m_genderStr;
+        this. m_raceStr = other.m_raceStr;
+        this. m_classStr = other.m_classStr;
+        this. m_loves = other.m_loves;
+        this. m_hates = other.m_hates;
+        this. m_phobias = other.m_phobias;
+        this. m_appearance = other.m_appearance;
+        this. m_narrative = other.m_narrative;
+
+        //ENUMS
+        this.m_genderENUM = other.m_genderENUM;
+        this.m_raceENUM = other.m_raceENUM;
+        this.m_classENUM = other.m_classENUM;
+        this.relationshipList = other.relationshipList;
+    }
+    public String ToModellString(){
+        String modellStr = "" +
+               "<entry>" +
+                    "<name>" + m_name + "</name>" +
+                    "<age>" + m_age + "</age>" +
+                    "<gender>" + m_genderStr + "</gender>" +
+                    "<race>" + m_raceStr + "</race>" +
+                    "<class>" + m_classStr + "</class>" +
+                    "<appearance>" + m_appearance + "</appearance>" +
+                    "<loves>" + m_loves + "</loves>" +
+                    "<hates>" + m_hates + "</hates>" +
+                    "<phobias>" + m_phobias + "</phobias>" +
+                    "<narrative>" + m_narrative + "</narrative>" +
+                "</entry>";
+
+        return modellStr;
     }
 }
 

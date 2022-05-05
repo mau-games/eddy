@@ -1,21 +1,18 @@
 package game.narrative;
 import game.Dungeon;
-import game.Room;
 import game.Tile;
 import game.TileTypes;
 import game.narrative.entity.*;
 //import narrative.entity.*;
 
 import java.util.ArrayList;
-import java.util.List;
+import java.util.Random;
 
 
-import game.tiles.*;
 import util.Point;
 import util.eventrouting.EventRouter;
 import util.eventrouting.PCGEvent;
 import util.eventrouting.events.MapQuestUpdate;
-import util.eventrouting.events.QuestPositionUpdate;
 
 public class NarrativeBase extends Dungeon {
     private Dungeon owner;
@@ -33,6 +30,7 @@ public class NarrativeBase extends Dungeon {
     public void ClearGeneratedEntities(){
         generatedEntities.clear();
     }
+
     public NarrativeBase(Dungeon owner) {
         this.entities = new ArrayList<Entity>();
         this.narrativeAttributes = new ArrayList<NarrativeAttribute>();
@@ -51,6 +49,10 @@ public class NarrativeBase extends Dungeon {
                 break;
             }
         }
+    }
+
+    public void CopyGeneratedEntity(Entity entity){
+
     }
 
     public void AddGeneratedEntity(Entity _generateEntity){
@@ -116,36 +118,6 @@ public class NarrativeBase extends Dungeon {
 
     }
 
-/*    public void CreateEntities(){
-        entities.clear();
-
-        for (QuestPositionUpdate enemyEntity: owner.getEnemies()) {
-            entities.add(new Enemy(new Point(enemyEntity.getPoint().getX(),enemyEntity.getPoint().getY())));
-        }
-        for (QuestPositionUpdate itemEntity: owner.getItems()) {
-            entities.add(new Item(new Point(itemEntity.getPoint().getX(),itemEntity.getPoint().getY())));
-        }
-
-        //NPCS...--------------
-        for (QuestPositionUpdate npcBountyHunter: owner.getBountyHunters()) {
-            entities.add(new NPC(new Point(npcBountyHunter.getPoint().getX(),npcBountyHunter.getPoint().getY()), TileTypes.BOUNTYHUNTER));
-        }
-        for (QuestPositionUpdate npcCivilian: owner.getCivilians()) {
-            entities.add(new NPC(new Point(npcCivilian.getPoint().getX(),npcCivilian.getPoint().getY()), TileTypes.CIVILIAN));
-        }
-        for (QuestPositionUpdate npcSoldier: owner.getSoldiers()) {
-            entities.add(new NPC(new Point(npcSoldier.getPoint().getX(),npcSoldier.getPoint().getY()), TileTypes.SOLDIER));
-        }
-        for (QuestPositionUpdate npcMage: owner.getMages()) {
-            entities.add(new NPC(new Point(npcMage.getPoint().getX(),npcMage.getPoint().getY()), TileTypes.MAGE));
-        }
-        for (QuestPositionUpdate npc: owner.getNpcs()) {
-            //if(owner.getNpcs().)
-                entities.add(new NPC(new Point(npc.getPoint().getX(),npc.getPoint().getY()), TileTypes.NPC));
-        }
-
-    }*/
-
     public void pings(PCGEvent e) {
 
         //TODO: get any update from dungeon that might affect any quest artifact
@@ -169,6 +141,39 @@ public class NarrativeBase extends Dungeon {
     public void SetEntityName(String nameInput){
         if(selectedEntity != null){
             selectedEntity.SetName(nameInput);
+        }
+    }
+
+    public void CreateEntityRelationship(Entity entity){
+        if(entities.size() == 0)
+            return;
+
+        Random rnd = new Random();
+        double random = 0 + rnd.nextDouble() * (1 - 0);
+
+        float relationChance = 0.05f * entities.size();
+
+        int maxPossibleRelatoins = 4;
+
+        for (int i = 0; i < maxPossibleRelatoins; i++){
+            //chance for a relationship
+            if(0 + rnd.nextDouble() * (1 - 0) < relationChance/maxPossibleRelatoins){
+                //chance for relation type, Love,Hate,Phobia,Family
+                double relationType = 0 + rnd.nextDouble() * (1 - 0);
+                int randomEntity = rnd.nextInt((entities.size() - 0));
+                if(relationType <= 0.25f){
+                    entity.AddRelation(new Defines().new Relationship(Defines.RelationshipType.Family, entities.get(randomEntity)));
+                }
+                else if(relationType <= 0.5f){
+                    entity.AddRelation(new Defines().new Relationship(Defines.RelationshipType.Hate, entities.get(randomEntity)));
+                }
+                else if(relationType <= 0.75f){
+                    entity.AddRelation(new Defines().new Relationship(Defines.RelationshipType.Love, entities.get(randomEntity)));
+                }
+                else if(relationType <= 1f){
+                    entity.AddRelation(new Defines().new Relationship(Defines.Element.Fire));
+                }
+            }
         }
     }
 }
