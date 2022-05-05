@@ -1,6 +1,5 @@
 from flask import Flask, request
 from transformers import GPT2Tokenizer, GPTNeoForCausalLM, pipeline
-from werkzeug.datastructures import ImmutableMultiDict
 
 import time
 
@@ -17,7 +16,7 @@ class ModelData:
     model = None
     tokenizer = None
     generator = None
-    prompt = "I saw a big orc "
+    prompt = None
     max_length = 100
     teamName = "EleutherAI/"
     modelName = "gpt-neo-1.3B"
@@ -86,6 +85,7 @@ def generate_narrative():
 
 def generate(prompt):
     return ModelData.generator(prompt, do_sample=True, max_length=ModelData.max_length)
+
 
 def init():
     # setting device on GPU if available, else CPU

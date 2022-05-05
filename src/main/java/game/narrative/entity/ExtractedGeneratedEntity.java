@@ -34,9 +34,25 @@ public class ExtractedGeneratedEntity extends Entity{
         m_appearance = aAppearance;
         m_narrative = aNarrative;
     }
-
     public String getURL(){ return ""; };
     public Entity GetEntityType(){ return this;}
     public Point GetPoint(){return null;}
     public void SetID(){}
+
+    public void Print()
+    {
+
+        System.out.println("\n----------------------------\n");
+        System.out.println("Name: " + m_name);
+        System.out.println("Age: " + m_age);
+        System.out.println("Gender: " + m_genderStr);
+        System.out.println("Race: " + m_raceStr);
+        System.out.println("Class: " + m_classStr);
+        System.out.println("Likes: " + m_loves);
+        System.out.println("Dislikes: " + m_hates);
+        System.out.println("Fears: " + m_phobias);
+        System.out.println("Appearance: " + m_appearance);
+        System.out.println("Narrative: " + m_narrative);
+        System.out.println("\n----------------------------\n");
+    }
 }

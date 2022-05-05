@@ -554,9 +554,9 @@ public class NarrativeViewController extends BorderPane implements Listener {
         dungeon.getNarrative().ClearGeneratedEntities();
 
         int maxLength = 500;
-        if (!Objects.equals(maxLengthTextField.getText(), ""))
+        if (!Objects.equals(maxLengthTextField.getText(), "")) //Om textfältet inte är tomt
         {
-            if (Integer.parseInt(maxLengthTextField.getText()) > 0)
+            if (Integer.parseInt(maxLengthTextField.getText()) > 0) //Om textfältets värde är över noll
             {
                 maxLength = Integer.parseInt(maxLengthTextField.getText());
             }
@@ -1137,7 +1137,7 @@ public class NarrativeViewController extends BorderPane implements Listener {
         StringBuilder responseContent = new StringBuilder();
 
         try {
-            if (Objects.equals(aPrompt, "HelloTest"))
+            if (Objects.equals(aPrompt, "HelloTest")) //Hello world-test
             {
                 URL url = new URL("http://127.0.0.1:5000/hello/");
                 HttpURLConnection http = (HttpURLConnection) url.openConnection();
@@ -1183,79 +1183,32 @@ public class NarrativeViewController extends BorderPane implements Listener {
 
     public ExtractedGeneratedEntity ParseLMOutput(String aOutput)
     {
+        //Fixa formateringsproblem med &-tecken
         String temp = aOutput.replace("&", "&amp;");
         ExtractedGeneratedEntity retVal = null;
 
         SAXBuilder saxBuilder = new SAXBuilder();
         try {
+            //Konvertera strängen från LMen till ett XML-dokument som kan tolkas
             Document doc = saxBuilder.build(new StringReader(temp));
             Element classElement = doc.getRootElement();
             List<Element> entries = classElement.getChildren();
 
+            //Ignorera första entriet då det är det som skickades till modellen
             Element entry = entries.get(1);
-            System.out.println("----------------------------\n");
-            System.out.println("Name: "
-                    + entry.getChild("name").getText());
             String name = entry.getChild("name").getText();
-            System.out.println("Age: "
-                    + entry.getChild("age").getText());
             int age = Integer.parseInt(entry.getChild("age").getText());
-            System.out.println("Gender: "
-                    + entry.getChild("gender").getText());
             String gender = entry.getChild("gender").getText();
-            System.out.println("Race: "
-                    + entry.getChild("race").getText());
             String race = entry.getChild("race").getText();
-            System.out.println("Class: "
-                    + entry.getChild("class").getText());
             String characterClass = entry.getChild("class").getText();
-            System.out.println("Appearance: "
-                    + entry.getChild("appearance").getText());
             String appearance = entry.getChild("appearance").getText();
-            System.out.println("Likes: "
-                    + entry.getChild("loves").getText());
             String loves = entry.getChild("loves").getText();
-            System.out.println("Dislikes: "
-                    + entry.getChild("hates").getText());
             String hates = entry.getChild("hates").getText();
-            System.out.println("Fears: "
-                    + entry.getChild("phobias").getText());
             String phobias = entry.getChild("phobias").getText();
-            System.out.println("Narrative: "
-                    + entry.getChild("narrative").getText());
             String narrative = entry.getChild("narrative").getText();
-            System.out.println("----------------------------\n");
 
             retVal = new ExtractedGeneratedEntity(name, age, gender, race, characterClass, appearance, loves, hates, phobias, narrative);
 
-            /*for (Element entry : entries) {
-                if (entry == entries.get(0))
-                {
-                    continue;
-                }
-                System.out.println("----------------------------\n");
-                System.out.println("Name: "
-                        + entry.getChild("name").getText());
-                System.out.println("Age: "
-                        + entry.getChild("age").getText());
-                System.out.println("Gender: "
-                        + entry.getChild("gender").getText());
-                System.out.println("Race: "
-                        + entry.getChild("race").getText());
-                System.out.println("Class: "
-                        + entry.getChild("class").getText());
-                System.out.println("Appearance: "
-                        + entry.getChild("appearance").getText());
-                System.out.println("Likes: "
-                        + entry.getChild("loves").getText());
-                System.out.println("Dislikes: "
-                        + entry.getChild("hates").getText());
-                System.out.println("Fears: "
-                        + entry.getChild("phobias").getText());
-                System.out.println("Narrative: "
-                        + entry.getChild("narrative").getText());
-                System.out.println("\n");
-            }*/
         } catch (JDOMException e) {
             e.printStackTrace();
         } catch (IOException e) {
