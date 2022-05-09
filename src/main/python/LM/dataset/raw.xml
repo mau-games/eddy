@@ -1,0 +1,94 @@
+<?xml version = "1.0" encoding = "UTF-8"?>
+<entries>
+	<entry>
+		<name>Alfredo Tattaglia</name>
+		<age>62</age>
+		<gender>M</gender>
+		<race>Gnome</race>
+		<appearance>Fair skin, salt &amp; pepper hair with a lush full but well kept beard</appearance>
+		<loves>Work, His Job, Peace and quiet, Normality, Order, Coffee, Papers, Punctuality</loves>
+		<hates>Downtime, vacation, social interaction, disorder, chaos, loud people, Lateness</hates>
+		<narrative>Alfredo "Fredo" Tattaglia is an intern at his dream company Magical Enforcement of Temporal Anomalies or META for short. As an accomplished wizard himself he hopes to impress the higher ups with a job in the field, traversing time and space to keep the continuum on the right track.</narrative>
+	</entry> 
+	<entry>
+		<name>Evelyn Yollendrii</name>
+		<age>50</age>
+		<gender>F</gender>
+		<race>Elf</race>
+		<appearance>White hair, purple eyes, fair skin, tall, slim thicc</appearance>
+		<loves>Nature, peace, spirituality</loves>
+		<hates>Arrogance, anger, close mindedness, most men</hates>
+		<narrative>Evelyn was raised by her two loving parents in a cabin in the woods. They taught her everything she knows about how to use all the resources around her to her advantage while still respecting the earth. She was a happy child and lived the best life she could think of until she was 14, when her parents died in a storm. She knew her parents would want her to live on and find happiness. She’s been living in that cabin since then, traveling often and searching, as she’s made it her personal mission to understand the meaning of life.</narrative>
+	</entry> 
+	<entry>
+		<name>Naomi Clarke</name>
+		<age>24</age>
+		<gender>F</gender>
+		<race>Gnome</race>
+		<appearance>Short, Dark skin, Afro, Honey Brown eyes, Pretty features, Big shield and epic green sword with ivy growing on it</appearance>
+		<loves>Working out, Flowers, Friendly Competition, Food, Cats</loves>
+		<hates>Orcs</hates>
+		<narrative>Naomi grew up with her parents in a small village who were later killed by orcs. She is very religious and found that she finds her true connection to god while pumping mad iron. She eventually found two elven companions to stick around with. Who, whether they like it or not, have become her new family on Naomi's everlasting journey to avenge her parents.</narrative>
+	</entry> 
+	<entry>
+		<name>Ruth Boneshank</name>
+		<age>18</age>
+		<gender>F</gender>
+		<race>Triton</race>
+		<appearance>Blue skin with teal hair, wears a pirate hat and open oilskin coat</appearance>
+		<loves>Material goods, collects anything shiny or unique, her crew</loves>
+		<hates>Unfair work practices, people who try to take anything she’s collected</hates>
+		<narrative>She was a part of a triton village, she started to collect things that fell down from the world above and ventured to see where they came from. She began to amass a collection of things and nowhere to put them so she saved up to buy a ship and named it the Crispy Salmon. She and her crew now sail the seas collecting coin and treasure.</narrative>
+	</entry>
+	<entry>
+		<name>James Verca</name>
+		<age>23</age>
+		<gender>M</gender>
+		<race>Human</race>
+		<appearance>Dark complexion with gold highlights</appearance>
+		<loves>Exercise, Social interaction</loves>
+		<hates>Vacations, Work</hates>
+		<narrative>James Verca is an intern at the Unseen University. He likes working with the wizards, being a part of a group, but is often at odds with his coworkers.</narrative>
+	</entry>
+	<entry>
+		<name>Yasmina Khan</name>
+		<age>54</age>
+		<gender>F</gender>
+		<race>Elf</race>
+		<appearance>Brown - long hair and brown eyes, black nails</appearance>
+		<loves>Friends and family, Peace and quiet, Order</loves>
+		<hates>Travel, Work</hates>
+		<narrative>Yasmina Khan is a wizard in the Magical Enforcement of Temporal Anomalies or META. Her job is to ensure the continuum is moving towards the right direction.</narrative>
+	</entry>
+	<entry>
+		<name>Mallory Lillis</name>
+		<age>38</age>
+		<gender>F</gender>
+		<race>Orc</race>
+		<appearance>Blonde, Long Hair, Brown Eyes, Dark Brown</appearance>
+		<loves>Work, Sport</loves>
+		<hates>Love, Sleep, Rest</hates>
+		<narrative>Mallory is a a high risk specialist looking for a bit of a challenge. Her job is to keep up with the new, changing times and ensure the job gets done. </narrative>
+	</entry>
+	<entry>
+		<name>Max McCrae</name>
+		<age>32</age>
+		<gender>M</gender>
+		<race>Halfling</race>
+		<appearance>Dark Brown, Brown Eyes, Red Hair, Large Black Sweater</appearance>
+		<loves>Work, Exercise</loves>
+		<hates>Worries, Heartbreak</hates>
+		<narrative>Max is a young man of action. He's always ready to do whatever it takes to help his friends, in fact there isn't much he can't do, especially after meeting Mallory. He's a brilliant tactical fighter with quick reactions and fast thinking skills.</narrative>
+	</entry>
+	<entry>
+		<name>Catherine D'Bouscou</name>
+		<age>26</age>
+		<gender>F</gender>
+		<race>Orc</race>
+		<appearance>White, Short Hair, Red, Brown Eyes, Black</appearance>
+		<loves>Dancing, Singing</loves>
+		<hates>Love, Sleep</hates>
+		<narrative>Catherine’s hobbies are the ones you would least expect: dancing and singing. She has had a rough life and loves a challenge. </narrative>
+	</entry>
+	
+</entries>

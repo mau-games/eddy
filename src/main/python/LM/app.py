@@ -1,5 +1,6 @@
 from flask import Flask, request
 from transformers import GPT2Tokenizer, GPTNeoForCausalLM, pipeline
+from datasets import load_dataset
 
 import time
 
@@ -26,6 +27,7 @@ class ModelData:
     enable_model = True
     is_locked = False
     num_runs = 1
+    temperature = 0.9
 
 
 @app.route('/hello/')
@@ -50,20 +52,26 @@ def generate_narrative():
         ModelData.is_locked = True
         request_prompt = request.headers.get("message")
         m_len = int(request.headers.get("max_length"))
-        ModelData.num_runs = int(request.headers.get("num_runs"))
         if m_len and m_len > 0:
             ModelData.max_length = m_len
             print("Changed max length to " + str(ModelData.max_length))
+        else:
+            ModelData.max_length = 500
+        req_temp = float(request.headers.get("temperature"))
+        if req_temp and req_temp > 0:
+            ModelData.temperature = req_temp
+        else:
+            ModelData.temperature = 0.9
+        req_runs = int(request.headers.get("num_runs"))
+        if req_runs and req_runs > 0:
+            ModelData.num_runs = req_runs
+        else:
+            ModelData.num_runs = 1
         print("generate_narrative called with prompt: " + request_prompt + "!")
         if not ModelData.hasInitialized:
             init()
 
-        print("Sending input to GPU...", end=" ")
         start_time = time.perf_counter()
-        inputs = ModelData.tokenizer(request_prompt, return_tensors="pt").to(ModelData.device)
-        outputs = ModelData.model(**inputs)
-        end_time = time.perf_counter()
-        print(f"Completed after {end_time - start_time:0.2f} sec.\n")
 
         for x in range(ModelData.num_runs):
             # Create a generator and generate output text
@@ -71,19 +79,18 @@ def generate_narrative():
             start_time = time.perf_counter()
             while True:
                 output = generate(request_prompt)
-                start_index = output[0]["generated_text"].index("</entry>") + len("</entry>")
-                end_index = output[0]["generated_text"].rindex("</entry>") + len("</entry>")
+                start_index = output.index("</entry>") + len("</entry>")
+                end_index = output.rindex("</entry>") + len("</entry>")
 
                 print("Start: " + str(start_index) + " || End: " + str(end_index))
 
                 if start_index == end_index:
                     print("Output invalid, trying again... ")
                 else:
-                    full_output += output[0]["generated_text"][start_index:end_index]
+                    full_output += output[start_index:end_index]
+                    end_time = time.perf_counter()
+                    print(f"Completed after {end_time - start_time:0.2f} sec.\n")
                     break
-
-        end_time = time.perf_counter()
-        print(f"Completed after {end_time - start_time:0.2f} sec.\n")
 
         ModelData.is_locked = False
 
@@ -111,7 +118,15 @@ def generate_narrative():
 
 
 def generate(prompt):
-    return ModelData.generator(prompt, do_sample=True, max_length=ModelData.max_length)
+    input_ids = ModelData.tokenizer(prompt, return_tensors="pt").to(ModelData.device).input_ids
+    gen_tokens = ModelData.model.generate(
+        input_ids,
+        do_sample=True,
+        temperature=ModelData.temperature,
+        min_length=(len(prompt) * 2),
+        max_length=ModelData.max_length
+    ).to(ModelData.device)
+    return ModelData.tokenizer.batch_decode(gen_tokens)[0]
 
 
 def init():
