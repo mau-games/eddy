@@ -13,6 +13,10 @@ import util.eventrouting.EventRouter;
 
 import java.util.*;
 
+
+/***
+ * @author Tinea Larsson, Malmö Univeristy
+ */
 public class AICoCreator {
 
     private static EventRouter router = EventRouter.getInstance();
@@ -109,7 +113,7 @@ public class AICoCreator {
     {
         List<TileTypes>[] blah = new List[tilesPositions.size()]; // contains a list of tiles for each position in the area
 
-        List<Room> kNearestElites = getInstance().KNNelites(generatedElites, 25); // REMEMBER TO ADJUST K
+        List<Room> kNearestElites = getInstance().KNNelites(generatedElites, 20); // REMEMBER TO ADJUST K
 
         //for each elite
         for(int i = 0; i < kNearestElites.size(); i++) //kNearestElites

@@ -302,53 +302,49 @@ public class EditedRoomStackPane extends StackPane implements Listener
                 !(AICoCreator.getInstance().getControlLevel() == AICoCreator.ControlLevel.HIGH && editedRoom.getTile(p.getX(), p.getY()).getPlacedByAI())
         )
         {
-            System.out.println("ROOM EDITED");
+            if(currentBrush.brush.mainComponent != null)
+            {
+                Tile prev_tile = new Tile(editedRoom.getTile(p.getX(), p.getY()));
 
-            Tile prev_tile = new Tile(editedRoom.getTile(p.getX(), p.getY()));
-
-            //if AICoCreator.getInstance().GetControlLevel() == HIGH
-
-            currentBrush.UpdateModifiers(event);
+                currentBrush.UpdateModifiers(event);
 //				mapView.updateTile(tile, brush, event.getButton() == MouseButton.SECONDARY, lockBrush.isSelected() || event.isControlDown());
 
-            if(!currentBrush.possibleToDraw() || (currentBrush.GetModifierValue("Lock") && checkInfeasibleLockedRoom(tile, editedRoomCanvas)))
-                return;
+                if(!currentBrush.possibleToDraw() || (currentBrush.GetModifierValue("Lock") && checkInfeasibleLockedRoom(tile, editedRoomCanvas)))
+                    return;
 
-            if(currentBrush.GetModifierValue("Lock"))
-            {
-                InformativePopupManager.getInstance().requestPopup(editedRoomCanvas, InformativePopupManager.PresentableInformation.LOCK_RESTART, "");
-            }
-
-
-            editedRoomCanvas.updateTile(tile, currentBrush);
-            editedRoom.getTile(p.getX(), p.getY()).setPlacedByAI(false);
-
-            Tile new_tile = new Tile(editedRoom.getTile(p.getX(), p.getY()));
-            new_tile.setPlacedByAI(false);
-
-            editedRoom.forceReevaluation();
-            editedRoom.getRoomXML("room\\");
-
-            mapIsFeasible(editedPane.getMap().isIntraFeasible());
-            redrawPatterns(editedPane.getMap());
-            redrawLocks(editedPane.getMap());
-            drawTintAiPlacedTiles(editedPane.getMap());
+                if(currentBrush.GetModifierValue("Lock"))
+                {
+                    InformativePopupManager.getInstance().requestPopup(editedRoomCanvas, InformativePopupManager.PresentableInformation.LOCK_RESTART, "");
+                }
 
 
+                editedRoomCanvas.updateTile(tile, currentBrush);
+                editedRoom.getTile(p.getX(), p.getY()).setPlacedByAI(false);
 
-            HumanCoCreator.getInstance().RegisterContributionInfo(editedRoom.getTile(p));
-            AICoCreator.getInstance().getCcRoomViewController().saveActionData(prev_tile, new_tile);
+                Tile new_tile = new Tile(editedRoom.getTile(p.getX(), p.getY()));
+                new_tile.setPlacedByAI(false);
+
+                editedRoom.forceReevaluation();
+                editedRoom.getRoomXML("room\\");
+
+                mapIsFeasible(editedPane.getMap().isIntraFeasible());
+                redrawPatterns(editedPane.getMap());
+                redrawLocks(editedPane.getMap());
+                drawTintAiPlacedTiles(editedPane.getMap());
+
+                HumanCoCreator.getInstance().RegisterContributionInfo(editedRoom.getTile(p));
+                AICoCreator.getInstance().getCcRoomViewController().saveActionData(prev_tile, new_tile);
 
 
 //        EventRouter.getInstance().postEvent(new InteractiveRoomEdited(self, getMap(), tile, event));
-            EventRouter.getInstance().postEvent(new UserEditedRoom(uniqueID, editedPane.getMap()));
+                EventRouter.getInstance().postEvent(new UserEditedRoom(uniqueID, editedPane.getMap()));
 
 
 //        EventRouter.getInstance().postEvent(new EditedRoomRedrawCanvas(editedRoomCanvas.ownerID));
 //        EventRouter.getInstance().postEvent(new RoomEdited(editedRoom));
 
-            //register contribution to HumanCoCreator class
-
+                //register contribution to HumanCoCreator class
+            }
         }
         else if(HumanCoCreator.getInstance().getAmountOfTilesPlaced() >= HumanCoCreator.getInstance().getMaxTilesPerRound())
         {

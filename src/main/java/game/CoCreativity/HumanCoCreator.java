@@ -3,6 +3,10 @@ package game.CoCreativity;
 import game.Tile;
 import java.util.*;
 
+/***
+ * @author Tinea Larsson, Malmö Univeristy
+ */
+
 public class HumanCoCreator {
 
     private static HumanCoCreator singleton = null;

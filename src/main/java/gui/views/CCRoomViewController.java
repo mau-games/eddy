@@ -349,7 +349,7 @@ public class CCRoomViewController extends BorderPane implements Listener
 
 		generateNewMaps();
 
-		// unabling UIelements for suggesting MAPElites
+		// unabling UI elements for suggesting MAPElites
 		MAPElitesPane.setVisible(false);
 
 		MainTable.setVisible(false);
@@ -360,6 +360,8 @@ public class CCRoomViewController extends BorderPane implements Listener
 		//flowControlBtn.setVisible(false);
 		//stopEABtn.setVisible(false);
 		saveGenBtn.setVisible(false);
+		lockBrush.setDisable(true);
+		lockButton.setDisable(true);
 		//generatedMapsLabel.setVisible(false);
 	}
 
