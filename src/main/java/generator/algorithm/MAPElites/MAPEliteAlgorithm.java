@@ -66,7 +66,7 @@ public class MAPEliteAlgorithm extends Algorithm implements Listener {
 	int cellAmounts = 1;
 	private ArrayList<GADimension> MAPElitesDimensions;
 	private Random rnd = new Random();
-	private int iterationsToPublish = 50; //CHANGED FOR TESTING
+	private int iterationsToPublish = 25; //CHANGED FOR TESTING FIXME: Change back to 50 for user study and normal cases!!
 	private int breedingGenerations = 5; //this relates to how many generations will it breed 
 	private int realCurrentGen = 0;
 	private int currentGen = 0;
@@ -1163,7 +1163,11 @@ public class MAPEliteAlgorithm extends Algorithm implements Listener {
 		if(AlgorithmSetup.getInstance().isUsingDesignerPersona())
 		{
 			evaluated_individuals = individuals;
-			RequestStyleEvaluation(individuals);
+
+			if(!individuals.isEmpty()) //for precaution!
+			{
+				RequestStyleEvaluation(individuals);
+			}
 		}
 
 		 for (ZoneIndividual individual : individuals)
@@ -1318,6 +1322,13 @@ public class MAPEliteAlgorithm extends Algorithm implements Listener {
 		    uniqueRoomsData.append(dimensions[1].getDimension() + ";");
 		    uniqueRoomsData.append(currentSaveStep + ";");
 		    uniqueRoomsData.append(entry.getValue()[1] + ";");
+			uniqueRoomsData.append(entry.getValue()[2] + ";"); //style
+			uniqueRoomsData.append(entry.getValue()[3] + ";"); //Style fitness
+			uniqueRoomsData.append(entry.getValue()[4] + ";"); //no style fitness
+			uniqueRoomsData.append(entry.getValue()[5] + ";"); //Style weight
+			uniqueRoomsData.append(entry.getValue()[6] + ";"); //dimx granular
+			uniqueRoomsData.append(entry.getValue()[7] + ";"); //dimy granular
+			uniqueRoomsData.append(entry.getValue()[8] + ";"); //elite!
 //		    uniqueRoomsData.append("GR" + System.lineSeparator()); //TYPE
 			uniqueRoomsData.append("GR" + ";"); //TYPE
 			uniqueRoomsData.append(currentRoom.matrixToStringContinuous(false) + System.lineSeparator()); //ROOM
@@ -1341,7 +1352,16 @@ public class MAPEliteAlgorithm extends Algorithm implements Listener {
 	protected void storeAnyRooms() //Only feasible
 	{
 		for(GACell cell : cells) {
+			int counter = 0;
 			for (ZoneIndividual ind : cell.GetFeasiblePopulation()) {
+
+				ind.elite = -1.0;
+				if(counter == 0)
+				{
+					ind.elite = 1.0;
+				}
+				counter++;
+
 				Room individualRoom = ind.getPhenotype().getMap(roomWidth, roomHeight, roomDoorPositions, roomCustomTiles, roomOwner);
 				Room copy = individualRoom;
 				copy.calculateAllDimensionalValues();
@@ -1350,7 +1370,10 @@ public class MAPEliteAlgorithm extends Algorithm implements Listener {
 				copy.setSpeficidDimensionValue(DimensionTypes.INNER_SIMILARITY,
 						CharacteristicSimilarityGADimension.calculateValueIndependently(copy, originalRoom));
 //			uniqueGeneratedRooms.put(copy, new Double[] {ind.getFitness(), Double.valueOf(realCurrentGen)});
-				uniqueGeneratedRoomsFlush.put(copy, new Double[]{ind.getFitness(), Double.valueOf(realCurrentGen)});
+				uniqueGeneratedRoomsFlush.put(copy, new Double[]{ind.getFitness(), (double) realCurrentGen,
+						(double) ind.style, ind.style_fitness, ind.no_style_fitness, ind.style_weight,
+						cell.getDimensionGranularity(dimensions[0].getDimension()), cell.getDimensionGranularity(dimensions[1].getDimension()),
+						ind.elite});
 //				uniqueGeneratedRoomsFlush.put(copy, ind.getFitness());
 			}
 		}

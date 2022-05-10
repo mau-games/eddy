@@ -20,6 +20,7 @@ public abstract class GADimension
 		LENIENCY,
 		REWARD,
 		LINEARITY,
+		ARCHETYPICAL_PATH,
 		CUSTOM
 
 	}
@@ -81,6 +82,8 @@ public abstract class GADimension
 			return new SymmetryGADimension(granularity.floatValue());			
 		case INNER_SIMILARITY:
 			return new CharacteristicSimilarityGADimension(granularity.floatValue());
+		case ARCHETYPICAL_PATH:
+			return new ArchetypicalPathGADimension(granularity.floatValue());
 		case CUSTOM:
 			return new CustomGADimension(interpreter, granularity.floatValue());
 		default:
@@ -115,6 +118,8 @@ public abstract class GADimension
 			return CharacteristicSimilarityGADimension.getValue(individualRoom);
 		case SYMMETRY:
 			return SymmetryGADimension.getValue(individualRoom);
+		case ARCHETYPICAL_PATH:
+			return ArchetypicalPathGADimension.getValue(individualRoom);
 		case CUSTOM:
 			return CustomGADimension.getValue(individualRoom);
 		default:

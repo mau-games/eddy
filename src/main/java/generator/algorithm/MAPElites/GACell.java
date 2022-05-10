@@ -76,6 +76,11 @@ public class GACell
 		System.out.print("explored: " + exploreCounter);
 		System.out.println();
 	}
+
+	public double getDimensionGranularity(DimensionTypes dimension_name)
+	{
+		return cellDimensions.get(dimension_name).getIndex();
+	}
 	
 	/**
 	 * Test if the Individual belongs to this cell! 

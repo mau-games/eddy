@@ -281,6 +281,28 @@ public class DesignerPersona implements Listener
         }
     }
 
+    /***
+     * We reset the room
+     * @param room
+     */
+    public void resetRoomStyle(Room room)
+    {
+        int counter = -1;
+        boolean found = false;
+        for(RoomDesignerPersona rdp : roomPersonas)
+        {
+            counter++;
+            if(rdp.room.specificID.equals(room.specificID))
+            {
+                found = true;
+                break;
+            }
+        }
+
+        if(found)
+            roomPersonas.set(counter, new RoomDesignerPersona(room));
+    }
+
     @Override
     public void ping(PCGEvent e)
     {

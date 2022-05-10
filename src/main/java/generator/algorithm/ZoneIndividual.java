@@ -44,6 +44,16 @@ public class ZoneIndividual {
 	private GeneratorConfig config;
 	
 	private boolean childOfInfeasibles = false;
+
+
+	//Newly measure metrics!
+	//These are all helper metrics to be used.
+	//style is in the room not the individual.
+	public int style;
+	public double style_fitness;
+	public double no_style_fitness;
+	public double style_weight;
+	public double elite = -1.0;
 	
 	public void setTreasureAndEnemyFitness(double treasureAndEnemyFitness){
 		this.treasureAndEnemyFitness = treasureAndEnemyFitness;

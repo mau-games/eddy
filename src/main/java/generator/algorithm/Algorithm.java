@@ -126,8 +126,6 @@ public class Algorithm extends Thread implements Listener {
 	ArrayList<ZoneIndividual> novelty_archive = new ArrayList<ZoneIndividual>();
 	private int l = 5;
 
-
-
 	public enum AlgorithmTypes //TODO: This needs to change
 	{
 		Native,
@@ -135,7 +133,9 @@ public class Algorithm extends Thread implements Listener {
 		Similarity,
 		SymmetryAndSimilarity
 	}
-	
+
+	public String final_filename = "expressive_range-feasibility_finalgoal";
+
 	public Algorithm()
 	{
 		//I do nothing! :D 
@@ -503,7 +503,7 @@ public class Algorithm extends Thread implements Listener {
 
 //		File file = new File(DIRECTORY + "expressive_range-" + dimensions[0].getDimension() + "_" + dimensions[1].getDimension() + ".csv");
 //		File file = new File(DIRECTORY + "custom-unique-overtime_" + id + ".csv");
-		File file = new File(DIRECTORY + "expressive_range-noveltysearch_" + id + ".csv");
+		File file = new File(DIRECTORY + final_filename + id + ".csv");
 		try {
 			FileUtils.write(file, uniqueRoomsData, true);
 		} catch (IOException e) {
@@ -562,7 +562,8 @@ public class Algorithm extends Thread implements Listener {
 			copy.setSpeficidDimensionValue(DimensionTypes.INNER_SIMILARITY,
 					CharacteristicSimilarityGADimension.calculateValueIndependently(copy, originalRoom));
 //			uniqueGeneratedRooms.put(copy, new Double[] {ind.getFitness(), Double.valueOf(realCurrentGen)});
-			uniqueGeneratedRoomsFlush.put(copy, new Double[] {ind.getFitness(), Double.valueOf(realCurrentGen)});
+			uniqueGeneratedRoomsFlush.put(copy, new Double[] {ind.getFitness(), (double) realCurrentGen,
+					(double) ind.style, ind.style_fitness, ind.no_style_fitness, ind.style_weight}); //FIXME: Check this for the future
 //				uniqueGeneratedRoomsFlush.put(copy, ind.getFitness());
 		}
 	}
@@ -858,6 +859,25 @@ public class Algorithm extends Thread implements Listener {
 		boolean intra_feasible = room.isIntraFeasible();
 
 		//TODO: This is the old way, to check based on feasibility! (now I am trying to do it with the fitness!)
+		if(!initial && AlgorithmSetup.getInstance().isUsingDesignerPersona())
+		{
+
+			if(AlgorithmSetup.getInstance().DesPersEvaluation == AlgorithmSetup.EvaluateDesignerPersonas.FEASIBILITY_GRADUAL)
+			{
+				float persona_weight = ArchetypicalPath.distanceToFinalPath(
+						DesignerModel.getInstance().designer_persona.specificArchetypicalPath(this.relativeRoom),
+						room.room_style.current_style);
+
+				correct_persona = persona_weight > 0.0f;
+			}
+			else if(AlgorithmSetup.getInstance().DesPersEvaluation == AlgorithmSetup.EvaluateDesignerPersonas.FEASIBILITY_GOAL)
+			{
+				int target_style = DesignerModel.getInstance().designer_persona.specificArchetypicalPathCluster(this.relativeRoom);
+				correct_persona = target_style == room.room_style.current_style;
+			}
+
+
+		}
 //		if(!initial && AlgorithmSetup.getInstance().isUsingDesignerPersona())
 //		{
 //			int target_style = DesignerModel.getInstance().designer_persona.specificArchetypicalPathCluster(this.relativeRoom);
@@ -972,9 +992,22 @@ public class Algorithm extends Thread implements Listener {
 		float persona_weight = 1.0f;
 
 		if(AlgorithmSetup.getInstance().isUsingDesignerPersona()) {
-			persona_weight = ArchetypicalPath.distanceToFinalPath(
-					DesignerModel.getInstance().designer_persona.specificArchetypicalPath(this.relativeRoom),
-					room.room_style.current_style);
+
+			if(AlgorithmSetup.getInstance().DesPersEvaluation == AlgorithmSetup.EvaluateDesignerPersonas.FITNESS_GRADUAL)
+			{
+				persona_weight = ArchetypicalPath.distanceToFinalPath(
+						DesignerModel.getInstance().designer_persona.specificArchetypicalPath(this.relativeRoom),
+						room.room_style.current_style);
+			}
+			else if(AlgorithmSetup.getInstance().DesPersEvaluation == AlgorithmSetup.EvaluateDesignerPersonas.FITNESS_GOAL)
+			{
+				//If it is not the goal, then te individual is evaluated very bad (0.0 sounds massive, lets say 0.5)
+				int target_style = DesignerModel.getInstance().designer_persona.specificArchetypicalPathCluster(this.relativeRoom);
+				persona_weight = target_style == room.room_style.current_style ? 1.0f : 0.5f;
+			}
+
+			ind.style = room.room_style.current_style;
+
 		}
 
         PatternFinder finder = room.getPatternFinder();
@@ -1135,12 +1168,18 @@ public class Algorithm extends Thread implements Listener {
     	double roomFitness = roomArea/passableTiles;
     	roomFitness = 1 - Math.abs(roomFitness - roomTarget)/Math.max(roomTarget, 1.0 - roomTarget);
 
-
     	//Now that we have everything, calculate the fitness!
     	double fitness = (0.5 * treasureAndEnemyFitness)
     			+  0.5 * (0.3 * roomFitness + 0.7 * corridorFitness);
 
+
+		ind.no_style_fitness = fitness;
+		ind.style_weight = persona_weight;
+		ind.style_fitness = fitness * persona_weight;
+
+		//Persona weight will be one if not doing path in objective!
 		fitness = fitness * persona_weight;
+
     	
     	if(userPreferences != null)
     	{

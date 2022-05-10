@@ -171,6 +171,9 @@ def get_rooms():
 
     # Convert to Numpy array and squeeze dim, so it can be used by the scikit model.
     rooms = np.array(rooms)
+
+    if rooms.ndim == 1:
+        print("this should never happen!")
     rooms = rooms.squeeze(axis=1)
 
     # pred = []
