@@ -1,0 +1,153 @@
+<?xml version = "1.0" encoding = "UTF-8"?>
+<entries>
+	<entry>
+		<name>Alfredo Tattaglia</name>
+		<age>62</age>
+		<gender>M</gender>
+		<race>Gnome</race>
+		<appearance>Fair skin, salt &amp; pepper hair with a lush full but well kept beard</appearance>
+		<loves>Work, His Job, Peace and quiet, Normality, Order, Coffee, Papers, Punctuality</loves>
+		<hates>Downtime, vacation, social interaction, disorder, chaos, loud people, Lateness</hates>
+		<narrative>Alfredo \"Fredo\" Tattaglia is an intern at his dream company Magical Enforcement of Temporal Anomalies or META for short. As an accomplished wizard himself he hopes to impress the higher ups with a job in the field, traversing time and space to keep the continuum on the right track.</narrative>
+	</entry> 
+	<entry>
+		<name>Evelyn Yollendrii</name>
+		<age>50</age>
+		<gender>F</gender>
+		<race>Elf</race>
+		<appearance>White hair, purple eyes, fair skin, tall, slim</appearance>
+		<loves>Nature, peace, spirituality</loves>
+		<hates>Arrogance, anger, close mindedness, most men</hates>
+		<narrative>Evelyn was raised by her two loving parents in a cabin in the woods. They taught her everything she knows about how to use all the resources around her to her advantage while still respecting the earth. She was a happy child and lived the best life she could think of until she was 14, when her parents died in a storm. She knew her parents would want her to live on and find happiness. She's been living in that cabin since then, traveling often and searching, as she's made it her personal mission to understand the meaning of life.</narrative>
+	</entry> 
+	<entry>
+		<name>Naomi Clarke</name>
+		<age>24</age>
+		<gender>F</gender>
+		<race>Gnome</race>
+		<appearance>Short, Dark skin, Afro, Honey Brown eyes, Pretty features, Big shield and epic green sword with ivy growing on it</appearance>
+		<loves>Working out, Flowers, Friendly Competition, Food, Cats</loves>
+		<hates>Orcs</hates>
+		<narrative>Naomi grew up with her parents in a small village who were later killed by orcs. She is very religious and found that she finds her true connection to god while pumping mad iron. She eventually found two elven companions to stick around with. Who, whether they like it or not, have become her new family on Naomi's everlasting journey to avenge her parents.</narrative>
+	</entry> 
+	<entry>
+		<name>Ruth Boneshank</name>
+		<age>18</age>
+		<gender>F</gender>
+		<race>Triton</race>
+		<appearance>Blue skin with teal hair, wears a pirate hat and open oilskin coat</appearance>
+		<loves>Material goods, collects anything shiny or unique, her crew</loves>
+		<hates>Unfair work practices, people who try to take anything she's collected</hates>
+		<narrative>She was a part of a triton village, she started to collect things that fell down from the world above and ventured to see where they came from. She began to amass a collection of things and nowhere to put them so she saved up to buy a ship and named it the Crispy Salmon. She and her crew now sail the seas collecting coin and treasure.</narrative>
+	</entry>
+	<entry>
+		<name>James Verca</name>
+		<age>23</age>
+		<gender>M</gender>
+		<race>Human</race>
+		<appearance>Dark complexion with gold highlights</appearance>
+		<loves>Exercise, Social interaction</loves>
+		<hates>Vacations, Work</hates>
+		<narrative>James Verca is an intern at the Unseen University. He likes working with the wizards, being a part of a group, but is often at odds with his coworkers.</narrative>
+	</entry>
+	<entry>
+		<name>Yasmina Khan</name>
+		<age>54</age>
+		<gender>F</gender>
+		<race>Elf</race>
+		<appearance>Brown - long hair and brown eyes, black nails</appearance>
+		<loves>Friends and family, Peace and quiet, Order</loves>
+		<hates>Travel, Work</hates>
+		<narrative>Yasmina Khan is a wizard in the Magical Enforcement of Temporal Anomalies or META. Her job is to ensure the continuum is moving towards the right direction.</narrative>
+	</entry>
+	<entry>
+		<name>Mallory Lillis</name>
+		<age>38</age>
+		<gender>F</gender>
+		<race>Orc</race>
+		<appearance>Blonde, Long Hair, Brown Eyes, Dark Brown</appearance>
+		<loves>Work, Sport</loves>
+		<hates>Love, Sleep, Rest</hates>
+		<narrative>Mallory is a a high risk specialist looking for a bit of a challenge. Her job is to keep up with the new, changing times and ensure the job gets done. </narrative>
+	</entry>
+	<entry>
+		<name>Max McCrae</name>
+		<age>32</age>
+		<gender>M</gender>
+		<race>Halfling</race>
+		<appearance>Dark Brown, Brown Eyes, Red Hair, Large Black Sweater</appearance>
+		<loves>Work, Exercise</loves>
+		<hates>Worries, Heartbreak</hates>
+		<narrative>Max is a young man of action. He's always ready to do whatever it takes to help his friends, in fact there isn't much he can't do, especially after meeting Mallory. He's a brilliant tactical fighter with quick reactions and fast thinking skills.</narrative>
+	</entry>
+	<entry>
+		<name>Catherine D'Bouscou</name>
+		<age>26</age>
+		<gender>F</gender>
+		<race>Orc</race>
+		<appearance>White, Short Hair, Red, Brown Eyes, Black</appearance>
+		<loves>Dancing, Singing</loves>
+		<hates>Love, Sleep</hates>
+		<narrative>Catherine's hobbies are the ones you would least expect: dancing and singing. She has had a rough life and loves a challenge. </narrative>
+	</entry>
+	<entry>
+        <name>Bruno DeFilippi</name>
+        <age>54</age>
+        <gender>M</gender>
+        <race>Dwarf</race>
+        <appearance>Pale skin, black hair with a lush beard</appearance>
+        <loves>Work, His Job, Peace and quiet</loves>
+        <hates>Downtime, vacation, social interaction, loud people</hates>
+        <narrative>Bruno is working on a paper to convince the Higher Ups to accept him into a research position. He is not an experienced scientist and wants to prove to them he can solve their problems. He was not going to let his paper slide as they were asking too much of a research assistant and a newbie by the name of Gio.</narrative>
+    </entry>
+	<entry>
+        <name>Jade Gee</name>
+        <age>21</age>
+        <gender>F</gender>
+        <race>Human</race>
+        <appearance>White hair, brown eyes, slim, with long brown hair and brown lipstick</appearance>
+        <loves>Peace, nature, music, art</loves>
+        <hates>Aberrations, men</hates>
+        <narrative>Jade has been raised mostly by her parents in their cabin in the woods. She grew up learning the ways of nature and the woods, knowing that any harm she did to anything else would be quickly and easily repaid with a simple trip to the creek. She has since made it her life's mission to understand the ways of nature, and the forest herself. She hasn't seen the woods in awhile, but she knows the importance of her mission by the way she's been teaching others.</narrative>
+    </entry>
+	<entry>
+        <name>Frook Warg</name>
+        <age>60</age>
+        <gender>M</gender>
+        <race>Warg</race>
+        <appearance>White hair</appearance>
+        <loves>Animals, the wilderness</loves>
+        <hates>Fate, anger</hates>
+        <narrative>Frook has lived in this world for years. He just moved in this week and fell in love with this beautiful and mysterious girl, Evelyn. They are both lost in the wilderness looking for a fresh start somewhere else. Evelyn has the advantage of being a mage, but she's not very good at it. She is a lot more like Frook than she thinks and always seems to have something to say.</narrative>
+    </entry>
+	<entry>
+        <name>James Yollender</name>
+        <age>51</age>
+        <gender>M</gender>
+        <race>Elf</race>
+        <appearance>White hair, purple eyes, fair skin, tall, slim thicc</appearance>
+        <loves>Nature, peace, spirituality</loves>
+        <hates>Arrogance, anger, close mindedness</hates>
+        <narrative>James was raised by his parents in a forest cabin. He's still in the woods, however, searching for his missing mother and father. He's in charge of setting up a new camp for the search party to live in. However, with his family gone and the new people starting to stay in the cabin, he still has his nose in a book. He doesn't like it at all and doesn't know where he can turn for help when it comes to his family's disappearance.</narrative>
+    </entry>
+	<entry>
+        <name>Maddox Ricks</name>
+        <age>51</age>
+        <gender>M</gender>
+        <race>Elf</race>
+        <appearance>White hair, violet eyes, fair skin, tall, thin</appearance>
+        <loves>Nature, peace, spirituality</loves>
+        <hates>Arrogance, loneliness</hates>
+        <narrative>Maddox is a hunter, a warrior, and a friend of the Wood Elves. He has been searching in the forest and around the world, on missions for the Wood Elves since he was 16. After his parents died, his father left him in an orphanage and never gave him a home. The only other people who have ever cared for him are a group of Wood Elves who have been helping with his training. He's been out in the forest for 35 years trying to locate his parents' grave and come to terms with his fate!</narrative>
+    </entry>
+	<entry>
+        <name>Martha Gentry</name>
+        <age>27</age>
+        <gender>F</gender>
+        <race>Human</race>
+        <appearance>Hair of wheat, long hair, fair, green eyes, brown skin</appearance>
+        <loves>Peace, love</loves>
+        <hates>Easiness, fear, anger</hates>
+        <narrative>The Gentry family is one of the oldest in the forest. Martha and her siblings have always been on the move, finding new hiding places whenever someone tried to hunt them down. She was in fifth grade when she lost her parents and was raised by her aunt and uncle as one of their daughters. She's lived in the Gentry house since then, traveling to the north on her trips.</narrative>
+    </entry>
+</entries>

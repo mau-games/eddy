@@ -1,5 +1,8 @@
 import copy
 import xml.etree.ElementTree as ET
+from github import Github
+from github import InputGitTreeElement
+import shutil
 
 
 def increment_index(array, i):
@@ -14,7 +17,7 @@ def increment_index(array, i):
                 array[n] = 0
 
 
-tree = ET.parse("./dataset/raw.xml")
+tree = ET.parse("./datasets/nardat/raw.xml")
 root = tree.getroot()
 
 output = "{\n\t\"data\": [\n"
@@ -41,7 +44,7 @@ for child in root:
         j += 1
     output_str = ET.tostring(entry, encoding="unicode")
     output_str = output_str.replace("> <", "><")
-    output += "\t\t\t\t{\n\t\t\t\t\t\"input\": " + output_str + "\n\t\t\t\t}"
+    output += "\t\t\t\t{\n\t\t\t\t\t\"input\": \"" + output_str + "\"\n\t\t\t\t}"
 
     while elem_arr != [1] * 8:
         increment_index(elem_arr, elem_arr.__len__() - 1)
@@ -56,13 +59,37 @@ for child in root:
             j += 1
         output_str = ET.tostring(entry, encoding="unicode")
         output_str = output_str.replace("> <", "><")
-        output += ",\n\t\t\t\t{\n\t\t\t\t\t\"input\": " + output_str + "\n\t\t\t\t}"
+        output += ",\n\t\t\t\t{\n\t\t\t\t\t\"input\": \"" + output_str + "\"\n\t\t\t\t}"
 
     output += "\n\t\t\t]\n\t\t}"
     i += 1
 
 output += "\n\t]\n}"
 
-with open('./dataset/data.json', 'w') as output_file:
+with open('./datasets/nardat/data.json', 'w') as output_file:
+    output = output.replace('\t', '')
+    output = output.replace('\n', '')
     output_file.write(output)
+
+
+token = "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"
+g = Github(token)
+repo = g.get_user().get_repo('nardat')  # repo name
+file_list = [
+    './datasets/nardat/data.json',
+    './datasets/nardat/dev.json',
+    './datasets/nardat/test.json',
+    './datasets/nardat/train.json'
+]
+file_names = [
+    'data.json',
+    'dev.json',
+    'test.json',
+    'train.json'
+]
+commit_message = 'python commit'
+for f in file_names:
+    contents = repo.get_contents(f)
+    print("Updating " + f)
+    repo.update_file(contents.path, commit_message, output, contents.sha)
 
