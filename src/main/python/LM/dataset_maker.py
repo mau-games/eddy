@@ -40,6 +40,7 @@ for child in root:
         e.text = " "
         j += 1
     output_str = ET.tostring(entry, encoding="unicode")
+    output_str = output_str.replace("> <", "><")
     output += "\t\t\t\t{\n\t\t\t\t\t\"input\": " + output_str + "\n\t\t\t\t}"
 
     while elem_arr != [1] * 8:
@@ -54,6 +55,7 @@ for child in root:
                 e.text = " "
             j += 1
         output_str = ET.tostring(entry, encoding="unicode")
+        output_str = output_str.replace("> <", "><")
         output += ",\n\t\t\t\t{\n\t\t\t\t\t\"input\": " + output_str + "\n\t\t\t\t}"
 
     output += "\n\t\t\t]\n\t\t}"

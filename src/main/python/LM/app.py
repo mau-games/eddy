@@ -122,7 +122,7 @@ def generate(prompt):
     gen_tokens = ModelData.model.generate(
         input_ids,
         do_sample=True,
-        temperature=ModelData.temperature,
+        # temperature=ModelData.temperature,
         min_length=(len(prompt) * 2),
         max_length=ModelData.max_length
     ).to(ModelData.device)
