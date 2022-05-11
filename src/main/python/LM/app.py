@@ -1,16 +1,21 @@
+import tokenizers
 from flask import Flask, request
-from transformers import GPT2Tokenizer, GPTNeoForCausalLM, pipeline
-from datasets import load_dataset
+from transformers import GPT2Tokenizer, GPTNeoForCausalLM, pipeline, TrainingArguments, Trainer
+from datasets import load_dataset, load_metric
+import random
 
 import time
 
 import torch
+import numpy as np
 
 import os
 import os.path
 
 
 app = Flask(__name__)
+
+metric = load_metric("accuracy")
 
 
 class ModelData:
@@ -28,6 +33,20 @@ class ModelData:
     is_locked = False
     num_runs = 1
     temperature = 0.9
+    dataset = load_dataset("./datasets/nardat")
+
+
+def tokenize_function(examples):
+    inputs = [""] * len(examples["output"])
+    for i in range(len(examples["output"])):
+        inputs[i] = random.choice(examples["inputs"][i]["input"])
+    return ModelData.tokenizer(examples["output"], inputs, padding="max_length", truncation=True)
+
+
+def compute_metrics(eval_pred):
+    logits, labels = eval_pred
+    predictions = np.argmax(logits, axis=-1)
+    return metric.compute(predictions=predictions, references=labels)
 
 
 @app.route('/hello/')
@@ -43,6 +62,39 @@ def parameter_test():
     m_len = request.headers.get("max_length")
     print(m_len)
     return message + str(m_len)
+
+
+def pack_tensor(new_tensor, packed_tensor, max_seq_len):
+    if packed_tensor is None:
+        return new_tensor, True, None
+    if new_tensor.size()[1] + packed_tensor.size()[1] > max_seq_len:
+        return packed_tensor, False, new_tensor
+    else:
+        packed_tensor = torch.cat([new_tensor, packed_tensor[:, 1:]], dim=1)
+        return packed_tensor, True, None
+
+
+@app.route('/train/', methods=['GET', 'POST'])
+def train():
+
+    tokenized_datasets = ModelData.dataset.map(tokenize_function, batched=True)
+    tokenized_datasets = tokenized_datasets.remove_columns(["id", "output", "inputs"])
+    tokenized_datasets = tokenized_datasets.with_format("torch")
+    training_args = TrainingArguments(output_dir="test_trainer")
+    torch.cuda.empty_cache()
+    trainer = Trainer(
+        model=ModelData.model.cuda(),
+        args=training_args,
+        train_dataset=tokenized_datasets["train"],
+        compute_metrics=compute_metrics,
+    )
+    trainer.train()
+
+    # ModelData.dataset = ModelData.dataset.map(lambda e: ModelData.tokenizer(e['output'], truncation=True), batched=True)
+    # ModelData.dataset.set_format(type='torch', columns=['id', 'output', 'inputs'])
+    # dataloader = torch.utils.data.DataLoader(ModelData.dataset, batch_size=32)
+    # next(iter(dataloader))
+    return "Success"
 
 
 @app.route('/generate_narrative/', methods=['GET', 'POST'])
@@ -169,7 +221,6 @@ def init():
         GPT2Tokenizer.from_pretrained(ModelData.teamName + ModelData.modelName).save_pretrained(ModelData.model_save_directory)
         end_time = time.perf_counter()
         print(f"Completed after {end_time - start_time:0.2f} sec.\n")
-
     # Tokenizer is present on disk, don't download!
     else:
         print("Found! ")
@@ -181,19 +232,21 @@ def init():
     end_time = time.perf_counter()
     print(f"Completed after {end_time - start_time:0.2f} sec.\n")
 
+    ModelData.tokenizer.pad_token = ModelData.tokenizer.eos_token
+
     print("Creating pipeline...", end=" ")
     start_time = time.perf_counter()
     ModelData.generator = pipeline('text-generation', model=ModelData.model, tokenizer=ModelData.tokenizer, device=ModelData.device)
     ModelData.generator.model.config.pad_token_id = ModelData.generator.model.config.eos_token_id
     end_time = time.perf_counter()
     print(f"Completed after {end_time - start_time:0.2f} sec.\n")
-
-    print("Sending model to GPU...", end=" ")
-    start_time = time.perf_counter()
-    ModelData.model = ModelData.model.to(ModelData.device)
-    end_time = time.perf_counter()
-    print(f"Completed after {end_time - start_time:0.2f} sec.\n")
-    ModelData.hasInitialized = True
+#
+    # print("Sending model to GPU...", end=" ")
+    # start_time = time.perf_counter()
+    # ModelData.model = ModelData.model.to(ModelData.device)
+    # end_time = time.perf_counter()
+    # print(f"Completed after {end_time - start_time:0.2f} sec.\n")
+    # ModelData.hasInitialized = True
 
 
 if __name__ == '__main__':

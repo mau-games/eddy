@@ -13,3 +13,4 @@ buildNumber.properties
 src/python/gpt-neo-1.3B/pytorch_model.bin
 src/main/python/LM/gpt-neo-1.3B/pytorch_model.bin
 src/main/python/LM/datasets/github/
+src/main/python/LM/gpt-neo-125M/pytorch_model.bin
