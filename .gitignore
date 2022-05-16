@@ -14,3 +14,15 @@ src/python/gpt-neo-1.3B/pytorch_model.bin
 src/main/python/LM/gpt-neo-1.3B/pytorch_model.bin
 src/main/python/LM/datasets/github/
 src/main/python/LM/gpt-neo-125M/pytorch_model.bin
+*.HisHighnessKingBob
+src/main/python/LM/gpt-neo-125M_fine-tuned/pytorch_model.bin
+src/main/python/LM/gpt-neo-125M_fine-tuned/training_args.bin
+src/main/python/LM/test_trainer-ds/checkpoint-500/config.json
+src/main/python/LM/test_trainer-ds/checkpoint-500/optimizer.pt
+src/main/python/LM/test_trainer-ds/checkpoint-500/pytorch_model.bin
+src/main/python/LM/gpt-neo-125M_fine-tuned/config.json
+src/main/python/LM/gpt-neo-125M/training_args.bin
+src/main/python/LM/test_trainer-ds/checkpoint-500/rng_state.pth
+src/main/python/LM/test_trainer-ds/checkpoint-500/scheduler.pt
+src/main/python/LM/test_trainer-ds/checkpoint-500/trainer_state.json
+src/main/python/LM/test_trainer-ds/checkpoint-500/training_args.bin

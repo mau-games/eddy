@@ -25,28 +25,15 @@ class ModelData:
     prompt = None
     max_length = 100
     teamName = "EleutherAI/"
-    modelName = "gpt-neo-1.3B"
+    modelName = "gpt-neo-125M"
     model_save_directory = "./" + modelName
+    fine_tuned_model_directory = model_save_directory + "_fine-tuned"
     device = 0
     hasInitialized = False
     enable_model = True
     is_locked = False
     num_runs = 1
     temperature = 0.9
-    dataset = load_dataset("./datasets/nardat")
-
-
-def tokenize_function(examples):
-    inputs = [""] * len(examples["output"])
-    for i in range(len(examples["output"])):
-        inputs[i] = random.choice(examples["inputs"][i]["input"])
-    return ModelData.tokenizer(examples["output"], inputs, padding="max_length", truncation=True)
-
-
-def compute_metrics(eval_pred):
-    logits, labels = eval_pred
-    predictions = np.argmax(logits, axis=-1)
-    return metric.compute(predictions=predictions, references=labels)
 
 
 @app.route('/hello/')
@@ -62,39 +49,6 @@ def parameter_test():
     m_len = request.headers.get("max_length")
     print(m_len)
     return message + str(m_len)
-
-
-def pack_tensor(new_tensor, packed_tensor, max_seq_len):
-    if packed_tensor is None:
-        return new_tensor, True, None
-    if new_tensor.size()[1] + packed_tensor.size()[1] > max_seq_len:
-        return packed_tensor, False, new_tensor
-    else:
-        packed_tensor = torch.cat([new_tensor, packed_tensor[:, 1:]], dim=1)
-        return packed_tensor, True, None
-
-
-@app.route('/train/', methods=['GET', 'POST'])
-def train():
-
-    tokenized_datasets = ModelData.dataset.map(tokenize_function, batched=True)
-    tokenized_datasets = tokenized_datasets.remove_columns(["id", "output", "inputs"])
-    tokenized_datasets = tokenized_datasets.with_format("torch")
-    training_args = TrainingArguments(output_dir="test_trainer")
-    torch.cuda.empty_cache()
-    trainer = Trainer(
-        model=ModelData.model.cuda(),
-        args=training_args,
-        train_dataset=tokenized_datasets["train"],
-        compute_metrics=compute_metrics,
-    )
-    trainer.train()
-
-    # ModelData.dataset = ModelData.dataset.map(lambda e: ModelData.tokenizer(e['output'], truncation=True), batched=True)
-    # ModelData.dataset.set_format(type='torch', columns=['id', 'output', 'inputs'])
-    # dataloader = torch.utils.data.DataLoader(ModelData.dataset, batch_size=32)
-    # next(iter(dataloader))
-    return "Success"
 
 
 @app.route('/generate_narrative/', methods=['GET', 'POST'])
@@ -131,6 +85,7 @@ def generate_narrative():
             start_time = time.perf_counter()
             while True:
                 output = generate(request_prompt)
+                print("Output: ", output)
                 start_index = output.index("</entry>") + len("</entry>")
                 end_index = output.rindex("</entry>") + len("</entry>")
 
@@ -191,24 +146,32 @@ def init():
     print("Searching for model...", end=" ")
 
     # Model not present on disk. Download and save.
-    if not os.path.isfile(ModelData.model_save_directory + "/pytorch_model.bin"):
-        print(f"Failed. Model not found, proceeding to download.\n")
-        print("Downloading model...", end=" ")
+    if not os.path.isfile(ModelData.fine_tuned_model_directory + "/pytorch_model.bin"):
+        if not os.path.isfile(ModelData.model_save_directory + "/pytorch_model.bin"):
+            print(f"Failed. Model not found, proceeding to download.\n")
+            print("Downloading model...", end=" ")
+            start_time = time.perf_counter()
+            GPTNeoForCausalLM.from_pretrained(ModelData.teamName + ModelData.modelName).save_pretrained(
+                ModelData.model_save_directory)
+            end_time = time.perf_counter()
+            print(f"Completed after {end_time - start_time:0.2f} sec.\n")
+        # Model is present on disk, don't download!
+        else:
+            print("Found! ")
+            # Load model into RAM
+            print("Loading model...", end=" ")
+            start_time = time.perf_counter()
+            ModelData.model = GPTNeoForCausalLM.from_pretrained(ModelData.model_save_directory)
+            end_time = time.perf_counter()
+            print(f"Completed after {end_time - start_time:0.2f} sec.\n")
+    else:
+        print("Found fine-tuned version! ")
+        # Load model into RAM
+        print("Loading model...", end=" ")
         start_time = time.perf_counter()
-        GPTNeoForCausalLM.from_pretrained(ModelData.teamName + ModelData.modelName).save_pretrained(ModelData.model_save_directory)
+        ModelData.model = GPTNeoForCausalLM.from_pretrained(ModelData.fine_tuned_model_directory)
         end_time = time.perf_counter()
         print(f"Completed after {end_time - start_time:0.2f} sec.\n")
-
-    # Model is present on disk, don't download!
-    else:
-        print("Found! ")
-
-    # Load model into RAM
-    print("Loading model...", end=" ")
-    start_time = time.perf_counter()
-    ModelData.model = GPTNeoForCausalLM.from_pretrained(ModelData.model_save_directory)
-    end_time = time.perf_counter()
-    print(f"Completed after {end_time - start_time:0.2f} sec.\n")
 
     # Attempt to load tokenizer from disk
     print("Searching for tokenizer...", end=" ")
@@ -241,12 +204,12 @@ def init():
     end_time = time.perf_counter()
     print(f"Completed after {end_time - start_time:0.2f} sec.\n")
 #
-    # print("Sending model to GPU...", end=" ")
-    # start_time = time.perf_counter()
-    # ModelData.model = ModelData.model.to(ModelData.device)
-    # end_time = time.perf_counter()
-    # print(f"Completed after {end_time - start_time:0.2f} sec.\n")
-    # ModelData.hasInitialized = True
+    print("Sending model to GPU...", end=" ")
+    start_time = time.perf_counter()
+    ModelData.model = ModelData.model.to(ModelData.device)
+    end_time = time.perf_counter()
+    print(f"Completed after {end_time - start_time:0.2f} sec.\n")
+    ModelData.hasInitialized = True
 
 
 if __name__ == '__main__':
