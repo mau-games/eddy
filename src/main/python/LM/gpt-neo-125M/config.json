@@ -1,5 +1,5 @@
 {
-  "_name_or_path": "./gpt-neo-125M",
+  "_name_or_path": "EleutherAI/gpt-neo-125M",
   "activation_function": "gelu_new",
   "architectures": [
     "GPTNeoForCausalLM"

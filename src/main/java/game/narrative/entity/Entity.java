@@ -5,6 +5,7 @@ import util.Point;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 public abstract class Entity {
     public abstract String getURL(); // image location
@@ -114,20 +115,73 @@ public abstract class Entity {
         this.m_classENUM = other.m_classENUM;
         this.relationshipList = other.relationshipList;
     }
-    public String ToModellString(){
-        String modellStr = "" +
-               "<entry>" +
-                    "<name>" + m_name + "</name>" +
-                    "<age>" + m_age + "</age>" +
-                    "<gender>" + m_genderStr + "</gender>" +
-                    "<race>" + m_raceStr + "</race>" +
-                    "<class>" + m_classStr + "</class>" +
-                    "<appearance>" + m_appearance + "</appearance>" +
-                    "<loves>" + m_loves + "</loves>" +
-                    "<hates>" + m_hates + "</hates>" +
-                    "<phobias>" + m_phobias + "</phobias>" +
-                    "<narrative>" + m_narrative + "</narrative>" +
-                "</entry>";
+    public String ToModellString(String aName, String aAge, String aGender, String aRace, String aAppearance, String aLoves, String aHates, String aNarrative){
+        String modellStr = "<entry>";
+        if(!Objects.equals(m_name, ""))
+        {
+            modellStr += "<name>" + m_name +"</name>";
+        }
+        else
+        {
+            modellStr += "<name>" + aName +"</name>";
+        }
+        if(!Objects.equals(String.valueOf(m_age), "0"))
+        {
+            modellStr += "<age>" + m_age +"</age>";
+        }
+        else
+        {
+            modellStr += "<age>" + aAge +"</age>";
+        }
+        if(!Objects.equals(m_genderStr, ""))
+        {
+            modellStr += "<gender>" + m_genderStr +"</gender>";
+        }
+        else
+        {
+            modellStr += "<gender>" + aGender +"</gender>";
+        }
+        if(!Objects.equals(m_raceStr, ""))
+        {
+            modellStr += "<race>" + m_raceStr +"</race>";
+        }
+        else
+        {
+            modellStr += "<race>" + aRace +"</race>";
+        }
+        if(!Objects.equals(m_appearance, ""))
+        {
+            modellStr += "<appearance>" + m_appearance +"</appearance>";
+        }
+        else
+        {
+            modellStr += "<appearance>" + aAppearance +"</appearance>";
+        }
+        if(!Objects.equals(m_loves, ""))
+        {
+            modellStr += "<loves>" + m_loves +"</loves>";
+        }
+        else
+        {
+            modellStr += "<loves>" + aLoves +"</loves>";
+        }
+        if(!Objects.equals(m_hates, ""))
+        {
+            modellStr += "<hates>" + m_loves +"</hates>";
+        }
+        else
+        {
+            modellStr += "<hates>" + aHates +"</hates>";
+        }
+        if(!Objects.equals(m_narrative, ""))
+        {
+            modellStr += "<narrative>" + m_narrative +"</narrative>";
+        }
+        else
+        {
+            modellStr += "<narrative>" + aNarrative +"</narrative>";
+        }
+        modellStr += "</entry>";
 
         return modellStr;
     }

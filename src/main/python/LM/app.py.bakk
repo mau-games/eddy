@@ -1,13 +1,9 @@
-import tokenizers
 from flask import Flask, request
-from transformers import GPT2Tokenizer, GPTNeoForCausalLM, pipeline, TrainingArguments, Trainer
-from datasets import load_dataset, load_metric
-import random
+from transformers import GPT2Tokenizer, GPTNeoForCausalLM, pipeline
 
 import time
 
 import torch
-import numpy as np
 
 import os
 import os.path
@@ -23,15 +19,14 @@ class ModelData:
     prompt = None
     max_length = 100
     teamName = "EleutherAI/"
+    # modelName = "gpt-neo-125M"
     modelName = "gpt-neo-1.3B"
     model_save_directory = "./" + modelName
-    fine_tuned_model_directory = model_save_directory + "_fine-tuned"
     device = 0
     hasInitialized = False
     enable_model = True
     is_locked = False
     num_runs = 1
-    temperature = 0.9
 
 
 @app.route('/hello/')
@@ -77,6 +72,7 @@ def generate_narrative():
             start_time = time.perf_counter()
             while True:
                 output = generate(request_prompt)
+                print(output)
                 start_index = output[0]["generated_text"].index("</entry>") + len("</entry>")
                 end_index = output[0]["generated_text"].rindex("</entry>") + len("</entry>")
 
@@ -100,7 +96,7 @@ def generate_narrative():
         start_index = full_output.index("<entry>")
         end_index = full_output.index("</entry>") + len("</entry>")
 
-        while True:  # Add every (hopefully) complete xml entry
+        while True: # Add every (hopefully) complete xml entry
             if end_index == final_index:
                 break
 
@@ -117,15 +113,6 @@ def generate_narrative():
 
 
 def generate(prompt):
-    # input_ids = ModelData.tokenizer(prompt, return_tensors="pt").to(ModelData.device).input_ids
-    # gen_tokens = ModelData.model.generate(
-    #     input_ids,
-    #     do_sample=True,
-    #     # temperature=ModelData.temperature,
-    #     min_length=(len(prompt) * 2),
-    #     max_length=ModelData.max_length
-    # ).to(ModelData.device)
-    # return ModelData.tokenizer.batch_decode(gen_tokens)[0]
     return ModelData.generator(prompt, do_sample=True, max_length=ModelData.max_length)
 
 
@@ -139,32 +126,24 @@ def init():
     print("Searching for model...", end=" ")
 
     # Model not present on disk. Download and save.
-    if not os.path.isfile(ModelData.fine_tuned_model_directory + "/pytorch_model.bin"):
-        if not os.path.isfile(ModelData.model_save_directory + "/pytorch_model.bin"):
-            print(f"Failed. Model not found, proceeding to download.\n")
-            print("Downloading model...", end=" ")
-            start_time = time.perf_counter()
-            GPTNeoForCausalLM.from_pretrained(ModelData.teamName + ModelData.modelName).save_pretrained(
-                ModelData.model_save_directory)
-            end_time = time.perf_counter()
-            print(f"Completed after {end_time - start_time:0.2f} sec.\n")
-        # Model is present on disk, don't download!
-        else:
-            print("Found! ")
-            # Load model into RAM
-            print("Loading model...", end=" ")
-            start_time = time.perf_counter()
-            ModelData.model = GPTNeoForCausalLM.from_pretrained(ModelData.model_save_directory)
-            end_time = time.perf_counter()
-            print(f"Completed after {end_time - start_time:0.2f} sec.\n")
-    else:
-        print("Found fine-tuned version! ")
-        # Load model into RAM
-        print("Loading model...", end=" ")
+    if not os.path.isfile(ModelData.model_save_directory + "/pytorch_model.bin"):
+        print(f"Failed. Model not found, proceeding to download.\n")
+        print("Downloading model...", end=" ")
         start_time = time.perf_counter()
-        ModelData.model = GPTNeoForCausalLM.from_pretrained(ModelData.fine_tuned_model_directory)
+        GPTNeoForCausalLM.from_pretrained(ModelData.teamName + ModelData.modelName).save_pretrained(ModelData.model_save_directory)
         end_time = time.perf_counter()
         print(f"Completed after {end_time - start_time:0.2f} sec.\n")
+
+    # Model is present on disk, don't download!
+    else:
+        print("Found! ")
+
+    # Load model into RAM
+    print("Loading model...", end=" ")
+    start_time = time.perf_counter()
+    ModelData.model = GPTNeoForCausalLM.from_pretrained(ModelData.model_save_directory)
+    end_time = time.perf_counter()
+    print(f"Completed after {end_time - start_time:0.2f} sec.\n")
 
     # Attempt to load tokenizer from disk
     print("Searching for tokenizer...", end=" ")
@@ -177,6 +156,7 @@ def init():
         GPT2Tokenizer.from_pretrained(ModelData.teamName + ModelData.modelName).save_pretrained(ModelData.model_save_directory)
         end_time = time.perf_counter()
         print(f"Completed after {end_time - start_time:0.2f} sec.\n")
+
     # Tokenizer is present on disk, don't download!
     else:
         print("Found! ")
@@ -188,15 +168,13 @@ def init():
     end_time = time.perf_counter()
     print(f"Completed after {end_time - start_time:0.2f} sec.\n")
 
-    ModelData.tokenizer.pad_token = ModelData.tokenizer.eos_token
-
     print("Creating pipeline...", end=" ")
     start_time = time.perf_counter()
     ModelData.generator = pipeline('text-generation', model=ModelData.model, tokenizer=ModelData.tokenizer, device=ModelData.device)
     ModelData.generator.model.config.pad_token_id = ModelData.generator.model.config.eos_token_id
     end_time = time.perf_counter()
     print(f"Completed after {end_time - start_time:0.2f} sec.\n")
-#
+
     print("Sending model to GPU...", end=" ")
     start_time = time.perf_counter()
     ModelData.model = ModelData.model.to(ModelData.device)

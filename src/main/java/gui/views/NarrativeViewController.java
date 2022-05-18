@@ -576,7 +576,16 @@ public class NarrativeViewController extends BorderPane implements Listener {
             generateStatusLbl.setText("GENERATING...");
             generateStatusLbl.setTextFill(Color.web("#00eeff")); //blue
 
-            String output = QueryLM(dungeon.getNarrative().GetSelectedEntity().ToModellString(), maxLength, 4);
+            String qName = "Naomi Clarke";
+            String qAge = "24";
+            String qGender = "F";
+            String qRace = "Gnome";
+            String qAppearance = "Short, Dark skin, Afro, Honey Brown eyes, Pretty features, Big shield and epic green sword with ivy growing on it";
+            String qLoves = "Working out, Flowers, Friendly Competition, Food, Cats";
+            String qHates = "Orcs";
+            String qNarrative = "Naomi grew up with her parents in a small village who were later killed by orcs. She is very religious and found that she finds her true connection to god while pumping mad iron. She eventually found two elven companions to stick around with. Who, whether they like it or not, have become her new family on Naomi's everlasting journey to avenge her parents.";
+
+            String output = QueryLM(dungeon.getNarrative().GetSelectedEntity().ToModellString(qName, qAge, qGender, qRace, qAppearance, qLoves, qHates, qNarrative), maxLength, 1);
             List<ExtractedGeneratedEntity> lmOutputEntities = ParseLMOutput(output);
 
             for (ExtractedGeneratedEntity e: lmOutputEntities) {
