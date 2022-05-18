@@ -585,27 +585,20 @@ public class NarrativeViewController extends BorderPane implements Listener {
             }
         }
 
-        // List<ExtractedGeneratedEntity> test = ParseLMOutput("<entry><name>Alfredo Tattaglia</name><age>62</age><gender>M</gender><race>Gnome</race><class>Mage</class><appearance>Fair skin, salt & pepper hair with a lush full but well kept beard</appearance><loves>Work, His Job, Peace and quiet, Normality, Order, Coffee, Papers, Punctuality</loves><hates>Downtime, vacation, social interaction, disorder, chaos, loud people, Lateness</hates><phobias>Change</phobias><narrative></narrative></entry>");
-        ExtractedGeneratedEntity aa = new ExtractedGeneratedEntity("Alfredo Tattaglia", 62, "Male", "Gnome","Downtime, vacation, social interaction, disorder, chaos, loud people, Lateness", "Work, His Job, Peace and quiet, Normality, Order, Coffee, Papers, Punctuality", "Fair skin, salt & pepper hair with a lush full but well kept beard","Alfredo \"Fredo\" Tattaglia is an intern at his dream company Magical Enforcement of Temporal Anomalies or META for short. As an accomplished wizard himself he hopes to impress the higher ups with a job in the field, traversing time and space to keep the continuum on the right track." );
-
-
-        characterToShow = 0;
-        EntityInforCounterLbl.setText( String.valueOf(characterToShow + 1) + "/" + 4);
-        //dungeon.getNarrative().CreateEntityRelationship(aa);
-        aa.AddRelation(new Defines().new Relationship(Defines.RelationshipType.Love, dungeon.getNarrative().GetEntityAt(0)));
-        aa.AddRelation(new Defines().new Relationship(Defines.RelationshipType.Love, dungeon.getNarrative().GetEntityAt(0)));
-        aa.AddRelation(new Defines().new Relationship(Defines.RelationshipType.Love, dungeon.getNarrative().GetEntityAt(0)));
-        aa.AddRelation(new Defines().new Relationship(Defines.RelationshipType.Love, dungeon.getNarrative().GetEntityAt(0)));
-        aa.AddRelation(new Defines().new Relationship(Defines.RelationshipType.Love, dungeon.getNarrative().GetEntityAt(0)));
-        dungeon.getNarrative().AddGeneratedEntity(aa);
-        UpdateGeneratedEntityGUI(aa);
-
-        /*try{
+        try{
             if(dungeon.getNarrative().GetSelectedEntity() != null){
                 generateStatusLbl.setText("GENERATING...");
                 generateStatusLbl.setTextFill(Color.web("#00eeff")); //blue
 
-                String output = QueryLM(dungeon.getNarrative().GetSelectedEntity().ToModellString(), maxLength, 4);
+                String qName = "Naomi Clarke";
+                String qAge = "24";
+                String qGender = "F";
+                String qRace = "Gnome";
+                String qAppearance = "Short, Dark skin, Afro, Honey Brown eyes, Pretty features, Big shield and epic green sword with ivy growing on it";
+                String qLoves = "Working out, Flowers, Friendly Competition, Food, Cats";
+                String qHates = "Orcs, gnomes, evil, taxes";
+                String qNarrative = "Naomi grew up with her parents in a small village who were later killed by orcs. She is very religious and found that she finds her true connection to god while pumping mad iron. She eventually found two elven companions to stick around with. Who, whether they like it or not, have become her new family on Naomi's everlasting journey to avenge her parents.";
+                String output = QueryLM(dungeon.getNarrative().GetSelectedEntity().ToModellString(qName, qAge, qGender, qRace, qAppearance, qLoves, qHates, qNarrative), maxLength, 1);
                 List<ExtractedGeneratedEntity> lmOutputEntities = ParseLMOutput(output);
 
                 for (ExtractedGeneratedEntity e: lmOutputEntities) {
@@ -624,7 +617,7 @@ public class NarrativeViewController extends BorderPane implements Listener {
         catch (Exception e){
             generateStatusLbl.setText("FAILED");
             generateStatusLbl.setTextFill(Color.RED); //green
-        }*/
+        }
 
         System.out.println("");
     }
@@ -849,7 +842,7 @@ public class NarrativeViewController extends BorderPane implements Listener {
                 mb.setText(mi.getText());
 
                 if(dungeon.getNarrative().GetSelectedEntity() != null){
-                    dungeon.getNarrative().GetSelectedEntity().SetGender( Defines.Gender.valueOf(mi.getText()));
+                    dungeon.getNarrative().GetSelectedEntity().SetGender( mi.getText());
                     UpdateEntityInfoGUI();
                 }
             });
@@ -1271,12 +1264,12 @@ public class NarrativeViewController extends BorderPane implements Listener {
                 int age = Integer.parseInt(entry.getChild("age").getText());
                 String gender = entry.getChild("gender").getText();
                 String race = entry.getChild("race").getText();
-                String appearance = entry.getChild("appearance").getText();
                 String loves = entry.getChild("loves").getText();
                 String hates = entry.getChild("hates").getText();
+                String appearance = entry.getChild("appearance").getText();
                 String narrative = entry.getChild("narrative").getText();
 
-                entities.add(new ExtractedGeneratedEntity(name, age, gender, race, appearance, loves, hates, narrative));
+                entities.add(new ExtractedGeneratedEntity(name, age, gender, race, loves, hates, appearance, narrative));
             }
 
         } catch (JDOMException e) {
@@ -1406,7 +1399,7 @@ public class NarrativeViewController extends BorderPane implements Listener {
                 selectedEntity.SetAge(Integer.parseInt(generatedEntity.GetAge()));
                 break;
             case Gender:
-                selectedEntity.SetGender(generatedEntity.GetGender());
+                selectedEntity.SetGender(generatedEntity.GetGenderStr());
                 break;
             case Race:
                 selectedEntity.SetRace(generatedEntity.GetRace());
@@ -1460,6 +1453,8 @@ public class NarrativeViewController extends BorderPane implements Listener {
 
     @FXML
     private void OnPrevGeneratedEntity(){
+        if (lmOutputEntities.size()  == 1)
+            return;
         if(characterToShow > 0 && lmOutputEntities.size() > 0)
             characterToShow--;
 
