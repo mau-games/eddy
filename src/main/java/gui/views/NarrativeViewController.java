@@ -381,6 +381,7 @@ public class NarrativeViewController extends BorderPane implements Listener {
                                 dungeon.getNarrative().GetSelectedEntity().RemoveRelation2(relation);
                             });
                         });
+                UpdateEntityInfoGUI();
             }
             else{
                 DungeonDrawer.getInstance().changeBrushTo(DungeonDrawer.DungeonBrushes.NONE);
