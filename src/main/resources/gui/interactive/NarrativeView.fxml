@@ -43,7 +43,7 @@
                            <children>
                               <HBox fx:id="narrativePaneH" prefHeight="60.0">
                                  <children>
-                                     <ImageView fx:id="entityImageViewGUI" fitHeight="60" fitWidth="60.0" pickOnBounds="true" preserveRatio="true" />
+                                     <ImageView fx:id="entityImageViewGUI" fitHeight="60" fitWidth="165.0" pickOnBounds="true" preserveRatio="true" />
                                      
                                     <Label fx:id="entityLabel" prefHeight="30.0" text="" textFill="WHITE">
                                        <font>
@@ -73,7 +73,7 @@
                                           <Insets />
                                        </HBox.margin>
                                     </TextField>
-                                    <Button fx:id="generateButton" mnemonicParsing="false" onAction="#GenerateNarrative" prefWidth="154.0" style="-fx-background-color: lime; -fx-text-fill: black; -fx-font-weight: bold; -fx-font-size: 14; -fx-border-color: black;" text="Generate Narrative" textFill="black">
+                                    <Button fx:id="generateButton" mnemonicParsing="false" onAction="#GenerateNarrative" prefHeight="32.0" prefWidth="184.0" style="-fx-background-color: lime; -fx-text-fill: black; -fx-font-weight: bold; -fx-font-size: 14; -fx-border-color: black;" text="Generate Narrative" textFill="black">
                                        <opaqueInsets>
                                           <Insets />
                                        </opaqueInsets>
@@ -150,428 +150,423 @@
                               <ToggleButton fx:id="Age" maxWidth="150.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="150.0" text="Age" />
                               <ToggleButton fx:id="Gender" maxWidth="150.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="150.0" text="Gender" />
                               <ToggleButton fx:id="Race" maxWidth="150.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="150.0" text="Race" />
-                              <ToggleButton fx:id="Class" maxWidth="150.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="150.0" text="Class" />
-                        <ToggleButton fx:id="Likes" layoutX="10.0" layoutY="10.0" maxWidth="150.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="150.0" text="Likes" />
-                        <ToggleButton fx:id="Dislikes" layoutX="10.0" layoutY="155.0" maxWidth="150.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="150.0" text="Dislikes" />
-                        <ToggleButton fx:id="Appearance" layoutX="10.0" layoutY="184.0" maxWidth="150.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="150.0" text="Appearance" />
-                              <ToggleButton fx:id="Relationship" maxWidth="150.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="150.0" text="Relationship" />
-                          </items>
-                      </ToolBar>
-               </left>
-               <right>
-                      <ToolBar fx:id="tbNarrativeLocks" orientation="VERTICAL" prefHeight="555.0" prefWidth="150.0" style="-fx-background-color: black;" BorderPane.alignment="CENTER">
-                          <items>
-      <!--                  <Label alignment="CENTER" contentDisplay="CENTER" prefHeight="27.0" prefWidth="150.0" text="Locks" textFill="WHITE">
-                           <font>
-                                    <Font name="System Bold" size="18.0" />
-                                 </font>
-                              </Label>-->
+                             <!--<ToggleButton fx:id="Class" maxWidth="150.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="150.0" text="Class" />-->
+                       <ToggleButton fx:id="Likes" layoutX="10.0" layoutY="10.0" maxWidth="150.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="150.0" text="Likes" />
+                       <ToggleButton fx:id="Dislikes" layoutX="10.0" layoutY="155.0" maxWidth="150.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="150.0" text="Dislikes" />
+                       <ToggleButton fx:id="Appearance" layoutX="10.0" layoutY="184.0" maxWidth="150.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="150.0" text="Appearance" />
+                             <ToggleButton fx:id="Relationship" maxWidth="150.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="150.0" text="Relationship" />
+                         </items>
+                     </ToolBar>
+              </left>
+              <right>
+                     <ToolBar fx:id="tbNarrativeLocks" orientation="VERTICAL" prefHeight="555.0" prefWidth="150.0" style="-fx-background-color: black;" BorderPane.alignment="CENTER">
+                         <items>
+     <!--                  <Label alignment="CENTER" contentDisplay="CENTER" prefHeight="27.0" prefWidth="150.0" text="Locks" textFill="WHITE">
+                          <font>
+                                   <Font name="System Bold" size="18.0" />
+                                </font>
+                             </Label>-->
                               <ToggleButton fx:id="nameLock" maxWidth="75.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="75.0" style="-fx-background-color: #E34234; -fx-text-fill: black;" text="Locked" />
                               <ToggleButton fx:id="ageLock" maxWidth="75.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="75.0" style="-fx-background-color: #E34234; -fx-text-fill: black;" text="Locked" />
                               <ToggleButton fx:id="GenderLock" maxWidth="75.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="75.0" style="-fx-background-color: #E34234; -fx-text-fill: black;" text="Locked" />
                               <ToggleButton fx:id="RaceLock" maxWidth="75.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="75.0" style="-fx-background-color: #E34234; -fx-text-fill: black;" text="Locked" />
-                              <ToggleButton fx:id="classLock" maxWidth="75.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="75.0" style="-fx-background-color: #E34234; -fx-text-fill: black;" text="Locked">
-                           <opaqueInsets>
-                              <Insets />
-                           </opaqueInsets>
-                        </ToggleButton>
-                              <ToggleButton fx:id="likesLock" maxWidth="75.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="75.0" style="-fx-background-color: #E34234; -fx-text-fill: black;" text="Locked" />
-                              <ToggleButton fx:id="dislikesLock" maxWidth="75.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="75.0" style="-fx-background-color: #E34234; -fx-text-fill: black;" text="Locked" />
-                              <ToggleButton fx:id="appearanceLock" maxWidth="75.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="75.0" style="-fx-background-color: #E34234; -fx-text-fill: black;" text="Locked" />
-                              <ToggleButton fx:id="relationLock" maxWidth="75.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="75.0" style="-fx-background-color: #E34234; -fx-text-fill: black;" text="Locked" />
-                          </items>
-                      </ToolBar>
-               </right>
-            </BorderPane>
-         </top>
-         <bottom>
-            <BorderPane prefHeight="602.0" prefWidth="316.0" style="-fx-background-color: black; -fx-border-color: lightgray; -fx-border-width: 1px;" BorderPane.alignment="CENTER">
-               <center>
-                  <ScrollPane prefHeight="342.0" prefWidth="245.0" BorderPane.alignment="CENTER">
-                    <content>
-                      <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="559.0" prefWidth="307.0" style="-fx-background-color: black;">
-                           <children>
-                              <VBox prefHeight="558.0" prefWidth="287.0">
-                                 <children>
-                                    <HBox prefHeight="27.0" prefWidth="272.0">
-                                       <children>
-                                          <Label prefHeight="25.0" text="Name:" textFill="WHITE">
-                                             <font>
-                                                <Font size="15.0" />
-                                             </font>
-                                             <opaqueInsets>
-                                                <Insets />
-                                             </opaqueInsets>
-                                             <HBox.margin>
-                                                <Insets right="20.0" />
-                                             </HBox.margin>
-                                          </Label>
-                                          <Label fx:id="EntityNameLbl" textFill="WHITE">
-                                             <font>
-                                                <Font size="15.0" />
-                                             </font>
-                                          </Label>
-                                       </children>
-                                    </HBox>
-                                    <HBox layoutX="25.0" layoutY="10.0" prefHeight="27.0" prefWidth="272.0">
-                                       <children>
-                                          <Label prefHeight="25.0" text="Age:" textFill="WHITE">
-                                             <font>
-                                                <Font size="15.0" />
-                                             </font>
-                                             <opaqueInsets>
-                                                <Insets />
-                                             </opaqueInsets>
-                                             <HBox.margin>
-                                                <Insets right="20.0" />
-                                             </HBox.margin>
-                                          </Label>
-                                          <Label fx:id="EntityAgeLbl" textFill="WHITE">
-                                             <font>
-                                                <Font size="15.0" />
-                                             </font>
-                                          </Label>
-                                       </children>
-                                    </HBox>
-                                    <HBox layoutX="25.0" layoutY="37.0" prefHeight="27.0" prefWidth="272.0">
-                                       <children>
-                                          <Label prefHeight="25.0" text="Gender:" textFill="WHITE">
-                                             <font>
-                                                <Font size="15.0" />
-                                             </font>
-                                             <opaqueInsets>
-                                                <Insets />
-                                             </opaqueInsets>
-                                             <HBox.margin>
-                                                <Insets right="20.0" />
-                                             </HBox.margin>
-                                          </Label>
-                                          <Label fx:id="EntityGenderLbl" textFill="WHITE">
-                                             <font>
-                                                <Font size="15.0" />
-                                             </font>
-                                          </Label>
-                                       </children>
-                                    </HBox>
-                                    <HBox layoutX="25.0" layoutY="37.0" prefHeight="27.0" prefWidth="272.0">
-                                       <children>
-                                          <Label prefHeight="25.0" text="Race:" textFill="WHITE">
-                                             <font>
-                                                <Font size="15.0" />
-                                             </font>
-                                             <opaqueInsets>
-                                                <Insets />
-                                             </opaqueInsets>
-                                             <HBox.margin>
-                                                <Insets right="20.0" />
-                                             </HBox.margin>
-                                          </Label>
-                                          <Label fx:id="EntityRaceLbl" textFill="WHITE">
-                                             <font>
-                                                <Font size="15.0" />
-                                             </font>
-                                          </Label>
-                                       </children>
-                                    </HBox>
-                                    <HBox layoutX="25.0" layoutY="91.0" prefHeight="27.0" prefWidth="272.0">
-                                       <children>
-                                          <Label prefHeight="25.0" text="Class:" textFill="WHITE">
-                                             <font>
-                                                <Font size="15.0" />
-                                             </font>
-                                             <opaqueInsets>
-                                                <Insets />
-                                             </opaqueInsets>
-                                             <HBox.margin>
-                                                <Insets right="20.0" />
-                                             </HBox.margin>
-                                          </Label>
-                                          <Label fx:id="EntityClassLbl" textFill="WHITE">
-                                             <font>
-                                                <Font size="15.0" />
-                                             </font>
-                                          </Label>
-                                       </children>
-                                    </HBox>
-                                    <Label prefHeight="25.0" text="Likes:" textFill="WHITE">
-                                       <font>
-                                          <Font size="15.0" />
-                                       </font>
-                                    </Label>
-                                    <TextArea fx:id="EntityLikesTA" editable="false" layoutX="25.0" layoutY="210.0" prefHeight="0.0" prefWidth="265.0" style="-fx-background-color: black; -fx-text-inner-color: white;" />
-                                    <Label prefHeight="25.0" text="Dislikes" textFill="WHITE">
-                                       <font>
-                                          <Font size="15.0" />
-                                       </font>
-                                    </Label>
-                                    <TextArea fx:id="EntityDislikesTA" editable="false" layoutX="25.0" layoutY="160.0" prefHeight="0.0" prefWidth="265.0" style="-fx-background-color: black; -fx-text-inner-color: white;" />
-                                    <Label prefHeight="25.0" text="Appearance" textFill="WHITE">
-                                       <font>
-                                          <Font size="15.0" />
-                                       </font>
-                                    </Label>
-                                    <TextArea fx:id="EntityAppearanceTA" editable="false" prefHeight="62.0" prefWidth="279.0" style="-fx-background-color: black; -fx-text-inner-color: white;" />
-                                    <Label prefHeight="25.0" text="Relationship:" textFill="WHITE">
-                                       <font>
-                                          <Font size="15.0" />
-                                       </font>
-                                    </Label>
-                                    <Label prefHeight="21.0" prefWidth="91.0" text="Narrative:" textFill="WHITE">
-                                       <font>
-                                          <Font size="15.0" />
-                                       </font>
-                                    </Label>
-                                    <TextArea fx:id="EntityNarrativeTA" prefHeight="171.0" prefWidth="278.0" style="-fx-text-inner-color: white;" wrapText="true" VBox.vgrow="ALWAYS" />
-                                 </children>
-                                 <padding>
-                                    <Insets left="15.0" />
-                                 </padding>
-                              </VBox>
-                           </children>
-                        </AnchorPane>
-                    </content>
-                  </ScrollPane>
-               </center>
-               <top>
-                  <AnchorPane prefHeight="31.0" prefWidth="310.0" BorderPane.alignment="CENTER">
-                     <children>
-                        <Label layoutX="14.0" layoutY="5.0" prefHeight="25.0" prefWidth="133.0" text="Entity" textFill="WHITE">
-                           <font>
-                              <Font name="System Bold" size="33.0" />
-                           </font>
-                        </Label>
-                        <Button layoutX="194.0" layoutY="15.0" mnemonicParsing="false" onAction="#ResetEntityBtn" prefHeight="25.0" prefWidth="88.0" text="Reset" />
-                     </children>
-                  </AnchorPane>
-               </top>
-            </BorderPane>
-         </bottom>
-        </BorderPane>
-    </left>
+                            <!-- <ToggleButton fx:id="classLock" maxWidth="75.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="75.0" style="-fx-background-color: #E34234; -fx-text-fill: black;" text="Locked"></ToggleButton>-->
+                             <ToggleButton fx:id="likesLock" maxWidth="75.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="75.0" style="-fx-background-color: #E34234; -fx-text-fill: black;" text="Locked" />
+                             <ToggleButton fx:id="dislikesLock" maxWidth="75.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="75.0" style="-fx-background-color: #E34234; -fx-text-fill: black;" text="Locked" />
+                             <ToggleButton fx:id="appearanceLock" maxWidth="75.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="75.0" style="-fx-background-color: #E34234; -fx-text-fill: black;" text="Locked" />
+                             <ToggleButton fx:id="relationLock" maxWidth="75.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="75.0" style="-fx-background-color: #E34234; -fx-text-fill: black;" text="Locked" />
+                         </items>
+                     </ToolBar>
+              </right>
+           </BorderPane>
+        </top>
+        <bottom>
+           <BorderPane prefHeight="602.0" prefWidth="316.0" style="-fx-background-color: black; -fx-border-color: lightgray; -fx-border-width: 1px;" BorderPane.alignment="CENTER">
+              <center>
+                 <ScrollPane prefHeight="342.0" prefWidth="245.0" BorderPane.alignment="CENTER">
+                   <content>
+                     <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="559.0" prefWidth="307.0" style="-fx-background-color: black;">
+                          <children>
+                             <VBox prefHeight="558.0" prefWidth="287.0">
+                                <children>
+                                   <HBox prefHeight="27.0" prefWidth="272.0">
+                                      <children>
+                                         <Label prefHeight="25.0" text="Name:" textFill="WHITE">
+                                            <font>
+                                               <Font size="15.0" />
+                                            </font>
+                                            <opaqueInsets>
+                                               <Insets />
+                                            </opaqueInsets>
+                                            <HBox.margin>
+                                               <Insets right="20.0" />
+                                            </HBox.margin>
+                                         </Label>
+                                         <Label fx:id="EntityNameLbl" textFill="WHITE">
+                                            <font>
+                                               <Font size="15.0" />
+                                            </font>
+                                         </Label>
+                                      </children>
+                                   </HBox>
+                                   <HBox layoutX="25.0" layoutY="10.0" prefHeight="27.0" prefWidth="272.0">
+                                      <children>
+                                         <Label prefHeight="25.0" text="Age:" textFill="WHITE">
+                                            <font>
+                                               <Font size="15.0" />
+                                            </font>
+                                            <opaqueInsets>
+                                               <Insets />
+                                            </opaqueInsets>
+                                            <HBox.margin>
+                                               <Insets right="20.0" />
+                                            </HBox.margin>
+                                         </Label>
+                                         <Label fx:id="EntityAgeLbl" textFill="WHITE">
+                                            <font>
+                                               <Font size="15.0" />
+                                            </font>
+                                         </Label>
+                                      </children>
+                                   </HBox>
+                                   <HBox layoutX="25.0" layoutY="37.0" prefHeight="27.0" prefWidth="272.0">
+                                      <children>
+                                         <Label prefHeight="25.0" text="Gender:" textFill="WHITE">
+                                            <font>
+                                               <Font size="15.0" />
+                                            </font>
+                                            <opaqueInsets>
+                                               <Insets />
+                                            </opaqueInsets>
+                                            <HBox.margin>
+                                               <Insets right="20.0" />
+                                            </HBox.margin>
+                                         </Label>
+                                         <Label fx:id="EntityGenderLbl" textFill="WHITE">
+                                            <font>
+                                               <Font size="15.0" />
+                                            </font>
+                                         </Label>
+                                      </children>
+                                   </HBox>
+                                   <HBox layoutX="25.0" layoutY="37.0" prefHeight="27.0" prefWidth="272.0">
+                                      <children>
+                                         <Label prefHeight="25.0" text="Race:" textFill="WHITE">
+                                            <font>
+                                               <Font size="15.0" />
+                                            </font>
+                                            <opaqueInsets>
+                                               <Insets />
+                                            </opaqueInsets>
+                                            <HBox.margin>
+                                               <Insets right="20.0" />
+                                            </HBox.margin>
+                                         </Label>
+                                         <Label fx:id="EntityRaceLbl" textFill="WHITE">
+                                            <font>
+                                               <Font size="15.0" />
+                                            </font>
+                                         </Label>
+                                      </children>
+                                   </HBox>
+                                   <!--<HBox layoutX="25.0" layoutY="91.0" prefHeight="27.0" prefWidth="272.0">
+                                      <children>
+                                         <Label prefHeight="25.0" text="Class:" textFill="WHITE">
+                                            <font>
+                                               <Font size="15.0" />
+                                            </font>
+                                            <opaqueInsets>
+                                               <Insets />
+                                            </opaqueInsets>
+                                            <HBox.margin>
+                                               <Insets right="20.0" />
+                                            </HBox.margin>
+                                         </Label>
+                                         <Label fx:id="EntityClassLbl" textFill="WHITE">
+                                            <font>
+                                               <Font size="15.0" />
+                                            </font>
+                                         </Label>
+                                      </children>
+                                   </HBox>-->
+                                   <Label prefHeight="25.0" text="Likes:" textFill="WHITE">
+                                      <font>
+                                         <Font size="15.0" />
+                                      </font>
+                                   </Label>
+                                   <TextArea fx:id="EntityLikesTA" editable="false" layoutX="25.0" layoutY="210.0" prefHeight="0.0" prefWidth="265.0" style="-fx-background-color: black; -fx-text-inner-color: white;" />
+                                   <Label prefHeight="25.0" text="Dislikes" textFill="WHITE">
+                                      <font>
+                                         <Font size="15.0" />
+                                      </font>
+                                   </Label>
+                                   <TextArea fx:id="EntityDislikesTA" editable="false" layoutX="25.0" layoutY="160.0" prefHeight="0.0" prefWidth="265.0" style="-fx-background-color: black; -fx-text-inner-color: white;" />
+                                   <Label prefHeight="25.0" text="Appearance" textFill="WHITE">
+                                      <font>
+                                         <Font size="15.0" />
+                                      </font>
+                                   </Label>
+                                   <TextArea fx:id="EntityAppearanceTA" editable="false" prefHeight="62.0" prefWidth="279.0" style="-fx-background-color: black; -fx-text-inner-color: white;" />
+                                   <Label prefHeight="25.0" text="Relationship:" textFill="WHITE">
+                                      <font>
+                                         <Font size="15.0" />
+                                      </font>
+                                   </Label>
+                                    <VBox fx:id="entityRelationVBox" prefHeight="60.0" prefWidth="272.0" />
+                                   <Label prefHeight="21.0" prefWidth="91.0" text="Narrative:" textFill="WHITE">
+                                      <font>
+                                         <Font size="15.0" />
+                                      </font>
+                                   </Label>
+                                   <TextArea fx:id="EntityNarrativeTA" prefHeight="171.0" prefWidth="278.0" style="-fx-text-inner-color: white;" wrapText="true" VBox.vgrow="ALWAYS" />
+                                </children>
+                                <padding>
+                                   <Insets left="15.0" />
+                                </padding>
+                             </VBox>
+                          </children>
+                       </AnchorPane>
+                   </content>
+                 </ScrollPane>
+              </center>
+              <top>
+                 <AnchorPane prefHeight="31.0" prefWidth="310.0" BorderPane.alignment="CENTER">
+                    <children>
+                       <Label layoutX="14.0" layoutY="5.0" prefHeight="25.0" prefWidth="133.0" text="Entity" textFill="WHITE">
+                          <font>
+                             <Font name="System Bold" size="33.0" />
+                          </font>
+                       </Label>
+                       <Button layoutX="194.0" layoutY="15.0" mnemonicParsing="false" onAction="#ResetEntityBtn" prefHeight="25.0" prefWidth="88.0" text="Reset" />
+                    </children>
+                 </AnchorPane>
+              </top>
+           </BorderPane>
+        </bottom>
+       </BorderPane>
+   </left>
 
-    <right>
-        <BorderPane maxWidth="1.7976931348623157E308" style="-fx-background-color: black;">
-            <center>
-                <FlowPane fx:id="generatorPane" alignment="TOP_CENTER" columnHalignment="CENTER" maxWidth="300.0" orientation="VERTICAL" prefWidth="300.0" prefWrapLength="900.0" vgap="5.0" StackPane.alignment="CENTER">
-               <children>
-                  <Label layoutX="82.0" layoutY="351.0" text="Generated Attributes" textFill="WHITE">
+   <right>
+       <BorderPane maxWidth="1500.0" style="-fx-background-color: black;">
+           <center>
+               <FlowPane fx:id="generatorPane" alignment="TOP_CENTER" columnHalignment="CENTER" maxHeight="1000.0" maxWidth="300.0" orientation="VERTICAL" prefWidth="300.0" prefWrapLength="900.0" vgap="5.0" StackPane.alignment="CENTER">
+              <children>
+                 <Label layoutX="82.0" layoutY="351.0" text="Generated Attributes" textFill="WHITE">
+                    <font>
+                       <Font name="System Bold" size="16.0" />
+                    </font>
+                 </Label>
+                 <HBox prefHeight="294.0" prefWidth="283.0">
+                    <children>
+                       <VBox prefHeight="230.0" prefWidth="100.0" spacing="15.0">
+                          <children>
+                             <Label prefHeight="25.0" text="Name:" textFill="WHITE">
+                                <font>
+                                   <Font size="15.0" />
+                                </font>
+                             </Label>
+                             <Label layoutX="39.0" layoutY="15.0" prefHeight="25.0" text="Age:" textFill="WHITE">
+                                <font>
+                                   <Font size="15.0" />
+                                </font>
+                             </Label>
+                             <Label layoutX="39.0" layoutY="36.0" prefHeight="25.0" text="Gender:" textFill="WHITE">
+                                <font>
+                                   <Font size="15.0" />
+                                </font>
+                             </Label>
+                             <Label layoutX="39.0" layoutY="57.0" prefHeight="25.0" text="Race:" textFill="WHITE">
+                                <font>
+                                   <Font size="15.0" />
+                                </font>
+                             </Label>
+                             <!--<Label layoutX="39.0" layoutY="78.0" prefHeight="25.0" text="Class:" textFill="WHITE">
+                                <font>
+                                   <Font size="15.0" />
+                                </font>
+                             </Label>-->
+                             <Label layoutX="39.0" layoutY="104.0" prefHeight="25.0" text="Likes:" textFill="WHITE">
+                                <font>
+                                   <Font size="15.0" />
+                                </font>
+                             </Label>
+                             <Label layoutX="40.0" layoutY="125.0" prefHeight="25.0" text="Dislikes" textFill="WHITE">
+                                <font>
+                                   <Font size="15.0" />
+                                </font>
+                             </Label>
+                             <Label layoutX="33.0" layoutY="146.0" prefHeight="25.0" text="Appearance" textFill="WHITE">
+                                <font>
+                                   <Font size="15.0" />
+                                </font>
+                             </Label>
+                          </children>
+                          <padding>
+                             <Insets bottom="5.0" left="5.0" right="10.0" top="15.0" />
+                          </padding>
+                          <HBox.margin>
+                             <Insets />
+                          </HBox.margin>
+                          <opaqueInsets>
+                             <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+                          </opaqueInsets>
+                       </VBox>
+                       <VBox layoutX="10.0" layoutY="10.0" prefHeight="295.0" prefWidth="83.0" spacing="15.0">
+                          <children>
+                             <Label fx:id="genName" prefHeight="25.0" text="holder" textFill="WHITE">
+                                <font>
+                                   <Font size="15.0" />
+                                </font>
+                             </Label>
+                             <Label fx:id="genAge" prefHeight="25.0" text="holder" textFill="WHITE">
+                                <font>
+                                   <Font size="15.0" />
+                                </font>
+                             </Label>
+                             <Label fx:id="genGender" prefHeight="25.0" text="holder" textFill="WHITE">
+                                <font>
+                                   <Font size="15.0" />
+                                </font>
+                             </Label>
+                             <Label fx:id="genRace" prefHeight="25.0" text="holder" textFill="WHITE">
+                                <font>
+                                   <Font size="15.0" />
+                                </font>
+                             </Label>
+                             <!--<Label fx:id="genClass" prefHeight="25.0" text="holder" textFill="WHITE">
+                                <font>
+                                   <Font size="15.0" />
+                                </font>
+                             </Label>-->
+                             <Label fx:id="genLikes" prefHeight="25.0" text="holder" textFill="WHITE">
+                                <font>
+                                   <Font size="15.0" />
+                                </font>
+                             </Label>
+                             <Label fx:id="genDislikes" prefHeight="25.0" text="holder" textFill="WHITE">
+                                <font>
+                                   <Font size="15.0" />
+                                </font>
+                             </Label>
+                             <Label fx:id="genAppearance" prefHeight="25.0" text="holder" textFill="WHITE">
+                                <font>
+                                   <Font size="15.0" />
+                                </font>
+                             </Label>
+                          </children>
+                          <padding>
+                             <Insets bottom="5.0" left="5.0" right="10.0" top="15.0" />
+                          </padding>
+                          <opaqueInsets>
+                             <Insets />
+                          </opaqueInsets>
+                       </VBox>
+                       <VBox prefHeight="324.0" prefWidth="89.0" spacing="7.0">
+                          <children>
+                             <Button fx:id="nameBtn" mnemonicParsing="false" prefHeight="25.0" prefWidth="68.0" text="Apply" />
+                             <Button fx:id="ageBtn" layoutX="15.0" layoutY="20.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="68.0" style="" text="Apply" />
+                             <Button fx:id="genderBtn" layoutX="15.0" layoutY="50.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="68.0" style="" text="Apply" />
+                             <Button fx:id="raceBtn" layoutX="15.0" layoutY="80.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="68.0" style="" text="Apply" />
+                             <!--<Button fx:id="classBtn" layoutX="15.0" layoutY="110.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="68.0" style="" text="Apply" />-->
+                             <Button fx:id="likesBtn" layoutX="15.0" layoutY="140.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="68.0" style="" text="Apply" />
+                             <Button fx:id="dislikesBtn" layoutX="15.0" layoutY="170.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="68.0" style="" text="Apply" />
+                             <Button fx:id="appearanceBtn" layoutX="15.0" layoutY="200.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="68.0" style="" text="Apply" />
+                          </children>
+                          <padding>
+                             <Insets bottom="5.0" left="5.0" right="10.0" top="10.0" />
+                          </padding>
+                       </VBox>
+                    </children>
+                    <opaqueInsets>
+                       <Insets />
+                    </opaqueInsets>
+                 </HBox>
+                  <Label alignment="CENTER" contentDisplay="CENTER" prefHeight="18.0" prefWidth="108.0" text="Relationships:" textAlignment="CENTER" textFill="WHITE">
                      <font>
-                        <Font name="System Bold" size="16.0" />
+                        <Font size="16.0" />
                      </font>
                   </Label>
-                  <HBox prefHeight="324.0" prefWidth="278.0">
-                     <children>
-                        <VBox prefHeight="230.0" prefWidth="100.0" spacing="15.0">
-                           <children>
-                              <Label prefHeight="25.0" text="Name:" textFill="WHITE">
-                                 <font>
-                                    <Font size="15.0" />
-                                 </font>
-                              </Label>
-                              <Label layoutX="39.0" layoutY="15.0" prefHeight="25.0" text="Age:" textFill="WHITE">
-                                 <font>
-                                    <Font size="15.0" />
-                                 </font>
-                              </Label>
-                              <Label layoutX="39.0" layoutY="36.0" prefHeight="25.0" text="Gender:" textFill="WHITE">
-                                 <font>
-                                    <Font size="15.0" />
-                                 </font>
-                              </Label>
-                              <Label layoutX="39.0" layoutY="57.0" prefHeight="25.0" text="Race:" textFill="WHITE">
-                                 <font>
-                                    <Font size="15.0" />
-                                 </font>
-                              </Label>
-                              <Label layoutX="39.0" layoutY="78.0" prefHeight="25.0" text="Class:" textFill="WHITE">
-                                 <font>
-                                    <Font size="15.0" />
-                                 </font>
-                              </Label>
-                              <Label layoutX="39.0" layoutY="104.0" prefHeight="25.0" text="Likes:" textFill="WHITE">
-                                 <font>
-                                    <Font size="15.0" />
-                                 </font>
-                              </Label>
-                              <Label layoutX="40.0" layoutY="125.0" prefHeight="25.0" text="Dislikes" textFill="WHITE">
-                                 <font>
-                                    <Font size="15.0" />
-                                 </font>
-                              </Label>
-                              <Label layoutX="33.0" layoutY="146.0" prefHeight="25.0" text="Appearance" textFill="WHITE">
-                                 <font>
-                                    <Font size="15.0" />
-                                 </font>
-                              </Label>
-                              <Label layoutX="18.0" layoutY="167.0" prefHeight="25.0" text="Relationship:" textFill="WHITE">
-                                 <font>
-                                    <Font size="15.0" />
-                                 </font>
-                              </Label>
-                           </children>
-                           <padding>
-                              <Insets bottom="5.0" left="5.0" right="10.0" top="15.0" />
-                           </padding>
-                           <HBox.margin>
-                              <Insets />
-                           </HBox.margin>
-                           <opaqueInsets>
-                              <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
-                           </opaqueInsets>
-                        </VBox>
-                        <VBox layoutX="10.0" layoutY="10.0" prefHeight="286.0" prefWidth="83.0" spacing="15.0">
-                           <children>
-                              <Label fx:id="genName" prefHeight="25.0" text="holder" textFill="WHITE">
-                                 <font>
-                                    <Font size="15.0" />
-                                 </font>
-                              </Label>
-                              <Label fx:id="genAge" prefHeight="25.0" text="holder" textFill="WHITE">
-                                 <font>
-                                    <Font size="15.0" />
-                                 </font>
-                              </Label>
-                              <Label fx:id="genGender" prefHeight="25.0" text="holder" textFill="WHITE">
-                                 <font>
-                                    <Font size="15.0" />
-                                 </font>
-                              </Label>
-                              <Label fx:id="genRace" prefHeight="25.0" text="holder" textFill="WHITE">
-                                 <font>
-                                    <Font size="15.0" />
-                                 </font>
-                              </Label>
-                              <Label fx:id="genClass" prefHeight="25.0" text="holder" textFill="WHITE">
-                                 <font>
-                                    <Font size="15.0" />
-                                 </font>
-                              </Label>
-                              <Label fx:id="genLikes" prefHeight="25.0" text="holder" textFill="WHITE">
-                                 <font>
-                                    <Font size="15.0" />
-                                 </font>
-                              </Label>
-                              <Label fx:id="genDislikes" prefHeight="25.0" text="holder" textFill="WHITE">
-                                 <font>
-                                    <Font size="15.0" />
-                                 </font>
-                              </Label>
-                              <Label fx:id="genAppearance" prefHeight="25.0" text="holder" textFill="WHITE">
-                                 <font>
-                                    <Font size="15.0" />
-                                 </font>
-                              </Label>
-                              <Label id="genRelationship" prefHeight="25.0" text="holder" textFill="WHITE">
-                                 <font>
-                                    <Font size="15.0" />
-                                 </font>
-                              </Label>
-                           </children>
-                           <padding>
-                              <Insets bottom="5.0" left="5.0" right="10.0" top="15.0" />
-                           </padding>
-                           <opaqueInsets>
-                              <Insets />
-                           </opaqueInsets>
-                        </VBox>
-                        <VBox prefHeight="324.0" prefWidth="89.0" spacing="7.0">
-                           <children>
-                              <Button fx:id="nameBtn" mnemonicParsing="false" prefHeight="25.0" prefWidth="68.0" text="Apply" />
-                              <Button fx:id="ageBtn" layoutX="15.0" layoutY="20.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="68.0" style="" text="Apply" />
-                              <Button fx:id="genderBtn" layoutX="15.0" layoutY="50.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="68.0" style="" text="Apply" />
-                              <Button fx:id="raceBtn" layoutX="15.0" layoutY="80.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="68.0" style="" text="Apply" />
-                              <Button fx:id="classBtn" layoutX="15.0" layoutY="110.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="68.0" style="" text="Apply" />
-                              <Button fx:id="likesBtn" layoutX="15.0" layoutY="140.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="68.0" style="" text="Apply" />
-                              <Button fx:id="dislikesBtn" layoutX="15.0" layoutY="170.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="68.0" style="" text="Apply" />
-                              <Button fx:id="appearanceBtn" layoutX="15.0" layoutY="200.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="68.0" style="" text="Apply" />
-                              <Button fx:id="relationshipBtn" layoutX="15.0" layoutY="230.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="68.0" style="" text="Apply" />
-                           </children>
-                           <padding>
-                              <Insets bottom="5.0" left="5.0" right="10.0" top="10.0" />
-                           </padding>
-                        </VBox>
-                     </children>
-                     <opaqueInsets>
-                        <Insets />
-                     </opaqueInsets>
-                  </HBox>
-                  <HBox alignment="CENTER" prefHeight="41.0" prefWidth="283.0">
-                     <children>
-                        <Label text="STATUS:" textFill="#f2ff00">
-                           <HBox.margin>
-                              <Insets right="20.0" />
-                           </HBox.margin>
-                           <font>
-                              <Font name="System Bold" size="18.0" />
-                           </font>
-                        </Label>
-                        <Label fx:id="generateStatusLbl" text="WAITING" textFill="#f6ff00">
-                           <font>
-                              <Font name="System Bold" size="18.0" />
-                           </font>
-                        </Label>
-                     </children>
-                  </HBox>
-                  <Label text="Generated Narrative" textFill="WHITE">
-                     <font>
-                        <Font name="System Bold" size="16.0" />
-                     </font>
-                  </Label>
-                  <TextArea fx:id="generatedNarrativeTA" prefHeight="277.0" prefWidth="263.0" style="-fx-background-color: white; -fx-text-inner-color: white;" text="massa text" wrapText="true">
-                     <FlowPane.margin>
-                        <Insets right="20.0" />
-                     </FlowPane.margin></TextArea>
-                  <HBox prefHeight="39.0" prefWidth="258.0">
-                     <FlowPane.margin>
-                        <Insets left="15.0" right="10.0" top="30.0" />
-                     </FlowPane.margin>
-                     <children>
-                        <Button fx:id="GeneratePrevBtn" contentDisplay="CENTER" mnemonicParsing="false" onAction="#OnPrevGeneratedEntity" prefHeight="34.0" prefWidth="73.0" style="-fx-background-color: lime; -fx-text-fill: black;" text="PREV">
-                           <font>
-                              <Font name="System Bold" size="19.0" />
-                           </font>
-                        </Button>
-                        <HBox alignment="CENTER" prefHeight="40.0" prefWidth="82.0">
-                           <children>
-                              <Label fx:id="EntityInforCounterLbl" text="-/-" textFill="WHITE">
-                                 <font>
-                                    <Font size="23.0" />
-                                 </font>
-                              </Label>
-                           </children>
-                        </HBox>
-                        <Button fx:id="GenerateNextBtn" mnemonicParsing="false" onAction="#OnNextGeneratedEntity" prefHeight="35.0" prefWidth="76.0" style="-fx-background-color: lime; -fx-text-fill: black;" text="NEXT">
-                           <font>
-                              <Font name="System Bold" size="19.0" />
-                           </font>
-                        </Button>
-                     </children>
-                  </HBox>
-                  <Region prefHeight="19.0" prefWidth="283.0" />
-                  <Button onAction="#OnApplyAll" mnemonicParsing="false" prefHeight="34.0" prefWidth="95.0" text="Apply all">
-                     <font>
-                        <Font name="System Bold" size="12.0" />
-                     </font>
-                  </Button>
-               </children>
-                </FlowPane>
-            </center>
-            <padding>
-                <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
-            </padding>
-            <top>
-                <VBox alignment="TOP_CENTER" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefWidth="132.0" BorderPane.alignment="CENTER">
-                    <Label alignment="CENTER" contentDisplay="CENTER" maxWidth="1.7976931348623157E308" text="Generated character" textAlignment="CENTER" textFill="white" underline="true" wrapText="true" xmlns="http://javafx.com/javafx/10.0.2-internal" xmlns:fx="http://javafx.com/fxml/1">
-                        <font>
-                            <Font size="24.0" />
-                        </font>
-                    </Label>
-                </VBox>
-            </top>
-         <bottom>
-                  <Button fx:id="btnBackToWorld" alignment="BASELINE_CENTER" maxHeight="1.7976931348623157E308" mnemonicParsing="false" onAction="#backWorldView" text="Back To World View" textAlignment="CENTER" wrapText="true" BorderPane.alignment="CENTER">
-                        </Button>
-         </bottom>
-        </BorderPane>
-    </right>
+                  <ScrollPane prefHeight="82.0" prefWidth="258.0" style="-fx-background-color: black;">
+                     <content>
+                        <VBox fx:id="genRelationVBox" prefHeight="80.0" prefWidth="272.0" style="-fx-background-color: #282828;" />
+                     </content>
+                  </ScrollPane>
+                 <HBox alignment="CENTER" prefHeight="0.0" prefWidth="283.0">
+                    <children>
+                       <Label text="STATUS:" textFill="#f2ff00">
+                          <HBox.margin>
+                             <Insets right="20.0" />
+                          </HBox.margin>
+                          <font>
+                             <Font name="System Bold" size="18.0" />
+                          </font>
+                       </Label>
+                       <Label fx:id="generateStatusLbl" text="WAITING" textFill="#f6ff00">
+                          <font>
+                             <Font name="System Bold" size="18.0" />
+                          </font>
+                       </Label>
+                    </children>
+                 </HBox>
+                 <Label text="Generated Narrative" textFill="WHITE">
+                    <font>
+                       <Font name="System Bold" size="16.0" />
+                    </font>
+                 </Label>
+                 <TextArea fx:id="generatedNarrativeTA" prefHeight="277.0" prefWidth="263.0" style="-fx-background-color: white; -fx-text-inner-color: white;" text="massa text" wrapText="true">
+                    <FlowPane.margin>
+                       <Insets right="20.0" />
+                    </FlowPane.margin></TextArea>
+                 <HBox prefHeight="39.0" prefWidth="258.0">
+                    <FlowPane.margin>
+                       <Insets left="15.0" right="10.0" top="30.0" />
+                    </FlowPane.margin>
+                    <children>
+                       <Button fx:id="GeneratePrevBtn" contentDisplay="CENTER" mnemonicParsing="false" onAction="#OnPrevGeneratedEntity" prefHeight="34.0" prefWidth="73.0" style="-fx-background-color: lime; -fx-text-fill: black;" text="PREV">
+                          <font>
+                             <Font name="System Bold" size="19.0" />
+                          </font>
+                       </Button>
+                       <HBox alignment="CENTER" prefHeight="40.0" prefWidth="82.0">
+                          <children>
+                             <Label fx:id="EntityInforCounterLbl" text="-/-" textFill="WHITE">
+                                <font>
+                                   <Font size="23.0" />
+                                </font>
+                             </Label>
+                          </children>
+                       </HBox>
+                       <Button fx:id="GenerateNextBtn" mnemonicParsing="false" onAction="#OnNextGeneratedEntity" prefHeight="35.0" prefWidth="76.0" style="-fx-background-color: lime; -fx-text-fill: black;" text="NEXT">
+                          <font>
+                             <Font name="System Bold" size="19.0" />
+                          </font>
+                       </Button>
+                    </children>
+                 </HBox>
+                 <Button mnemonicParsing="false" onAction="#OnApplyAll" prefHeight="34.0" prefWidth="95.0" text="Apply all">
+                    <font>
+                       <Font name="System Bold" size="12.0" />
+                    </font>
+                 </Button>
+              </children>
+               </FlowPane>
+           </center>
+           <padding>
+               <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+           </padding>
+           <top>
+               <VBox alignment="TOP_CENTER" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefWidth="132.0" BorderPane.alignment="CENTER">
+                   <Label alignment="CENTER" contentDisplay="CENTER" maxWidth="1.7976931348623157E308" text="Generated character" textAlignment="CENTER" textFill="white" underline="true" wrapText="true" xmlns="http://javafx.com/javafx/10.0.2-internal" xmlns:fx="http://javafx.com/fxml/1">
+                       <font>
+                           <Font size="24.0" />
+                       </font>
+                   </Label>
+               </VBox>
+           </top>
+        <bottom>
+                 <Button fx:id="btnBackToWorld" alignment="BASELINE_CENTER" maxHeight="1.7976931348623157E308" mnemonicParsing="false" onAction="#backWorldView" text="Back To World View" textAlignment="CENTER" wrapText="true" BorderPane.alignment="CENTER">
+                       </Button>
+        </bottom>
+       </BorderPane>
+   </right>
 </fx:root>

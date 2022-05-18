@@ -10,7 +10,6 @@ public class Defines {
         Age,
         Gender,
         Race,
-        Class,
         Appearance,
         Likes,
         Dislikes,

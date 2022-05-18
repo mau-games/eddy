@@ -30,6 +30,7 @@ public class NarrativeBase extends Dungeon {
     public void ClearGeneratedEntities(){
         generatedEntities.clear();
     }
+    public Entity GetEntityAt(int at){ return entities.get(at);}
 
     public NarrativeBase(Dungeon owner) {
         this.entities = new ArrayList<Entity>();
@@ -128,12 +129,12 @@ public class NarrativeBase extends Dungeon {
 
 
                 Tile prev = update.getPrev();
-                    RemoveEntity(prev.GetCenterPosition());
+                RemoveEntity(prev.GetCenterPosition());
 
                 Tile next = update.getNext();
                 if(next.GetType() == TileTypes.NPC || next.GetType() == TileTypes.ENEMY || next.GetType() == TileTypes.ITEM
-                || next.GetType() == TileTypes.MAGE || next.GetType() == TileTypes.SOLDIER || next.GetType() == TileTypes.CIVILIAN
-                || next.GetType() == TileTypes.BOUNTYHUNTER)
+                        || next.GetType() == TileTypes.MAGE || next.GetType() == TileTypes.SOLDIER || next.GetType() == TileTypes.CIVILIAN
+                        || next.GetType() == TileTypes.BOUNTYHUNTER)
                     AddEntity(next.GetType(), next.GetPositions().get(0));
             }
         }
@@ -145,13 +146,13 @@ public class NarrativeBase extends Dungeon {
     }
 
     public void CreateEntityRelationship(Entity entity){
-        if(entities.size() == 0)
+        if(entities.size() <= 1)
             return;
 
         Random rnd = new Random();
         double random = 0 + rnd.nextDouble() * (1 - 0);
 
-        float relationChance = 0.05f * entities.size();
+        float relationChance = 0.08f * entities.size();
 
         int maxPossibleRelatoins = 4;
 
@@ -161,17 +162,19 @@ public class NarrativeBase extends Dungeon {
                 //chance for relation type, Love,Hate,Phobia,Family
                 double relationType = 0 + rnd.nextDouble() * (1 - 0);
                 int randomEntity = rnd.nextInt((entities.size() - 0));
-                if(relationType <= 0.25f){
+
+                while(entities.get(randomEntity) == entity){
+                    randomEntity = rnd.nextInt((entities.size() - 0));
+                }
+
+                if(relationType <= 0.33f){
                     entity.AddRelation(new Defines().new Relationship(Defines.RelationshipType.Family, entities.get(randomEntity)));
                 }
-                else if(relationType <= 0.5f){
+                else if(relationType <= 0.66f){
                     entity.AddRelation(new Defines().new Relationship(Defines.RelationshipType.Hate, entities.get(randomEntity)));
                 }
-                else if(relationType <= 0.75f){
-                    entity.AddRelation(new Defines().new Relationship(Defines.RelationshipType.Love, entities.get(randomEntity)));
-                }
                 else if(relationType <= 1f){
-                    entity.AddRelation(new Defines().new Relationship(Defines.Element.Fire));
+                    entity.AddRelation(new Defines().new Relationship(Defines.RelationshipType.Love, entities.get(randomEntity)));
                 }
             }
         }
