@@ -48,6 +48,7 @@ import generator.algorithm.MAPElites.Dimensions.GADimension.DimensionTypes;
 import generator.algorithm.Algorithm.AlgorithmTypes;
 import generator.config.GeneratorConfig;
 import gui.InteractiveGUIController;
+import org.w3c.dom.events.Event;
 import util.Util;
 import util.eventrouting.EventRouter;
 import util.eventrouting.Listener;
@@ -597,6 +598,7 @@ public class MAPEliteAlgorithm extends Algorithm implements Listener {
     	{
     		publishGeneration();
     		currentGen = 0;
+			EventRouter.getInstance().postEvent(new NextStepSequenceExperiment());
     	}
     	else {
     		currentGen++;

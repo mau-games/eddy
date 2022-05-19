@@ -21,7 +21,7 @@ public class AlgorithmSetup {
 	private static AlgorithmSetup instance = null;
 
 	//This will simply say where and how the designer persona will be evaluated!
-	public EvaluateDesignerPersonas DesPersEvaluation = EvaluateDesignerPersonas.FITNESS_GRADUAL;
+	public EvaluateDesignerPersonas DesPersEvaluation = EvaluateDesignerPersonas.FEASIBILITY_GOAL;
 
 	public AlgorithmType algorithm_type = AlgorithmType.MAP_ELITES;
 
