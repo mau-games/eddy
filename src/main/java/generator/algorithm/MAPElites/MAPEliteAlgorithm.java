@@ -170,8 +170,9 @@ public class MAPEliteAlgorithm extends Algorithm implements Listener {
 		//initialize the data storage variables
 		uniqueRoomsData = new StringBuilder();
 		uniqueRoomsSinceData = new StringBuilder();
-		uniqueRoomsData.append("Leniency;Linearity;Similarity;NMesoPatterns;NSpatialPatterns;Symmetry;Inner Similarity;Fitness;Score;DIM X;DIM Y;STEP;Gen;Type;Room" + System.lineSeparator());
-		uniqueRoomsSinceData.append("Leniency;Linearity;Similarity;NMesoPatterns;NSpatialPatterns;Symmetry;Inner Similarity;Fitness;Score;DIM X;DIM Y;STEP;Gen;Type;Room" + System.lineSeparator());
+		uniqueRoomsData.append("Leniency;Linearity;Similarity;NMesoPatterns;NSpatialPatterns;Symmetry;Inner Similarity;Fitness;Score;DIM X;DIM Y;STEP;Gen;RoomStyle;RoomStyleFitness;NoRoomStyleFitness;RoomStyleWeight;CellDimX;CellDimY;Elite;Type;Room" + System.lineSeparator());
+		uniqueRoomsSinceData.append("Leniency;Linearity;Similarity;NMesoPatterns;NSpatialPatterns;Symmetry;Inner Similarity;Fitness;Score;DIM X;DIM Y;STEP;Gen;RoomStyle;RoomStyleFitness;NoRoomStyleFitness;RoomStyleWeight;CellDimX;CellDimY;Elite;Type;Room" + System.lineSeparator());
+
 
 		//TODO: THIS IS CREISI!mutate
 //		System.out.println(mutationProbability);
@@ -1335,7 +1336,7 @@ public class MAPEliteAlgorithm extends Algorithm implements Listener {
 			uniqueRoomsData.append("GR" + ";"); //TYPE
 			uniqueRoomsData.append(currentRoom.matrixToStringContinuous(false) + System.lineSeparator()); //ROOM
 		}
-		
+
 
 //		File file = new File(DIRECTORY + "expressive_range-" + dimensions[0].getDimension() + "_" + dimensions[1].getDimension() + ".csv");
 		File file = new File(DIRECTORY + "custom-unique-overtime_" + id + ".csv");

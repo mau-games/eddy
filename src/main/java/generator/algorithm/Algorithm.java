@@ -333,8 +333,8 @@ public class Algorithm extends Thread implements Listener {
 		//initialize the data storage variables
 		uniqueRoomsData = new StringBuilder();
 		uniqueRoomsSinceData = new StringBuilder();
-		uniqueRoomsData.append("Leniency;Linearity;Similarity;NMesoPatterns;NSpatialPatterns;Symmetry;Inner Similarity;Fitness;Score;DIM X;DIM Y;STEP;Gen;Type;Room" + System.lineSeparator());
-		uniqueRoomsSinceData.append("Leniency;Linearity;Similarity;NMesoPatterns;NSpatialPatterns;Symmetry;Inner Similarity;Fitness;Score;DIM X;DIM Y;STEP;Gen;Type;Room" + System.lineSeparator());
+		uniqueRoomsData.append("Leniency;Linearity;Similarity;NMesoPatterns;NSpatialPatterns;Symmetry;Inner Similarity;Fitness;Score;DIM X;DIM Y;STEP;Gen;RoomStyle;RoomStyleFitness;NoRoomStyleFitness;RoomStyleWeight;CellDimX;CellDimY;Elite;Type;Room" + System.lineSeparator());
+		uniqueRoomsSinceData.append("Leniency;Linearity;Similarity;NMesoPatterns;NSpatialPatterns;Symmetry;Inner Similarity;Fitness;Score;DIM X;DIM Y;STEP;Gen;RoomStyle;RoomStyleFitness;NoRoomStyleFitness;RoomStyleWeight;CellDimX;CellDimY;Elite;Type;Room" + System.lineSeparator());
 
 		int i = 0;
 		int j = 0;
