@@ -91,7 +91,11 @@ public class InteractiveGUIController implements Initializable, Listener {
 	WorldViewController worldView = null;
 	LaunchViewController launchView = null;
 	NarrativeStructureViewController narrativeView = null;
+	ChooseOwnAdventureViewController ownAdventureView = null;
+
+
 	EventHandler<MouseEvent> mouseEventHandler = null;
+
 
 //	final static Logger logger = LoggerFactory.getLogger(InteractiveGUIController.class);
 	private static EventRouter router = EventRouter.getInstance();
@@ -173,6 +177,7 @@ public class InteractiveGUIController implements Initializable, Listener {
 		worldView = new WorldViewController();
 		launchView = new LaunchViewController();
 		narrativeView = new NarrativeStructureViewController();
+		ownAdventureView = new ChooseOwnAdventureViewController();
 		initializeGraphGrammar();
 
 		mainPane.sceneProperty().addListener((observableScene, oldScene, newScene) -> {
@@ -408,10 +413,10 @@ public class InteractiveGUIController implements Initializable, Listener {
 			size = ((StartWorld) e).getSize();
 			if (size != 0) {
 				initWorldView();
-				worldView.initialSetup();
+				//worldView.initialSetup();
 			}
 
-			worldView.initWorldView();
+			//worldView.initWorldView();
 
 			System.out.println("SUBJECT_ID: " + DataSaverLoader.SUBJECT_ID);
 
@@ -728,19 +733,20 @@ public class InteractiveGUIController implements Initializable, Listener {
 		AnchorPane.setRightAnchor(worldView, 0.0);
 		AnchorPane.setBottomAnchor(worldView, 0.0);
 		AnchorPane.setLeftAnchor(worldView, 0.0);
-		mainPane.getChildren().add(worldView);
+		//mainPane.getChildren().add(worldView);
+		mainPane.getChildren().add(ownAdventureView);
 
-		worldView.initWorldMap(initDungeon());
+		//worldView.initWorldMap(initDungeon());
 
 //		saveItem.setDisable(false);
 //		saveAsItem.setDisable(false);
 //		exportItem.setDisable(false);
 
-		suggestionsView.setActive(false);
-		roomView.setActive(false);
-		worldView.setActive(true);
-		launchView.setActive(false);
-		narrativeView.setActive(false);
+//		suggestionsView.setActive(false);
+//		roomView.setActive(false);
+//		worldView.setActive(true);
+//		launchView.setActive(false);
+//		narrativeView.setActive(false);
 
 
 	}
@@ -794,19 +800,20 @@ public class InteractiveGUIController implements Initializable, Listener {
 		AnchorPane.setRightAnchor(worldView, 0.0);
 		AnchorPane.setBottomAnchor(worldView, 0.0);
 		AnchorPane.setLeftAnchor(worldView, 0.0);
-		mainPane.getChildren().add(worldView);
+		//mainPane.getChildren().add(worldView);
+		mainPane.getChildren().add(ownAdventureView);
 
-		worldView.initWorldMap(dungeonMap);
+		//worldView.initWorldMap(dungeonMap);
 
 //		saveItem.setDisable(false);
 //		saveAsItem.setDisable(false);
 //		exportItem.setDisable(false);
 
-		suggestionsView.setActive(false);
-		roomView.setActive(false);
-		worldView.setActive(true);
-		launchView.setActive(false);
-		narrativeView.setActive(false);
+//		suggestionsView.setActive(false);
+//		roomView.setActive(false);
+//		worldView.setActive(true);
+//		launchView.setActive(false);
+//		narrativeView.setActive(false);
 
 	}
 
