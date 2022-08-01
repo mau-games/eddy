@@ -70,7 +70,7 @@ public class NSEvolutionarySystemEvaluator
 //        System.out.println("interest_fitness: " + interest_fitness);
 
         fitness = (weights[0] * interest_fitness) + (weights[1] * coherence_fitness);
-
+        System.out.println("int: " + interest_fitness + ", fitness: " + coherence_fitness + ", combined: " + fitness);
         return new double[]{interest_fitness, coherence_fitness, fitness};
     }
 
@@ -81,7 +81,7 @@ public class NSEvolutionarySystemEvaluator
         LinkedHashMap<Integer, Integer> best_recipe = null;
         double best_fitness = Double.NEGATIVE_INFINITY;
         double final_fitness = 0.0;
-        double[] weights = new double[]{0.0, 1.0};
+        double[] weights = new double[]{0.0, 1.0}; //This is how I am making that interest is not really important. Menos mal...
         double fitness = 0.0;
         GrammarGraph nStructure = null;
 
@@ -470,7 +470,7 @@ public class NSEvolutionarySystemEvaluator
         /**
          * Cohesion is the ratio between broken links and nothing patterns, and micro-patterns, and nodes
          */
-        double[] weights = new double[]{0.7, 0.3};
+        double[] weights = new double[]{1.0, 0.3}; //Actually, this needs to be changed?
         double hero_quality = 0.0;
         double villain_quality = 0.0;
         double struct_quality = 0.0;
@@ -509,7 +509,7 @@ public class NSEvolutionarySystemEvaluator
         double micropat_quality = micros.isEmpty() ?  0.0 :
                 weights[0] * ((hero_quality + villain_quality + struct_quality + plot_device_quality)/micros.size());
 
-        double consistency_fitness = micropat_quality;
+        double consistency_fitness = micropat_quality; //At this point the maximum would be 0.7? that seems problematic
         consistency_fitness -= (weights[1] * conflict_balance); //The more fake the worst!
 
         return consistency_fitness;

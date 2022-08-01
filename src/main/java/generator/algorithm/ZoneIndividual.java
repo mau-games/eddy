@@ -54,6 +54,8 @@ public class ZoneIndividual {
 	public double no_style_fitness;
 	public double style_weight;
 	public double elite = -1.0;
+
+	public double style_selection_pressure = 0.0;
 	
 	public void setTreasureAndEnemyFitness(double treasureAndEnemyFitness){
 		this.treasureAndEnemyFitness = treasureAndEnemyFitness;

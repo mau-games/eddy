@@ -42,6 +42,16 @@ public class ComplexBalance extends ArchetypicalPath
 
 
         tree_path.addAll(Arrays.asList(s0, s1, s2, b1, b2, b3));
+
+        path_distances.clear();
+
+        path_distances.put(1, 2);
+        path_distances.put(2, 1);
+        path_distances.put(7, 0);
+
+        //Don't know about this.
+        path_distances.put(6, 2);
+        path_distances.put(9, 2);
     }
 
     public static void createTree()

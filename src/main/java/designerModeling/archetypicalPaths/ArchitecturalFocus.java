@@ -40,6 +40,17 @@ public class ArchitecturalFocus extends ArchetypicalPath
 //        s0.addChild(s1);
 //        s1.addChild(s2);
 
+        path_distances.clear();
+
+        path_distances.put(0, 3);
+        path_distances.put(1, 2);
+        path_distances.put(2, 1);
+        path_distances.put(3, 0);
+
+        //don't know about this
+        path_distances.put(5, 2);
+        path_distances.put(4, 2);
+
     }
 
     public static void createTree()
@@ -145,6 +156,11 @@ public class ArchitecturalFocus extends ArchetypicalPath
         if(style_step.branch ) //special one
         {
             return 0.2f;
+        }
+
+        if(path_distances == null)
+        {
+            System.out.println("where am i? Why is path distances null!");
         }
 
         return 1.0f - (path_distances.get(test_style)/4.0f);

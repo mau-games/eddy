@@ -282,7 +282,7 @@ public class ExperimentsGUIController implements Initializable, Listener {
 		evolutionPane = new EvolutionMAPEPane();
 		router.postEvent(new RoomEditionStarted(currentEditRoom));
 
-		//feas goal
+		//COMBO!
 		possibleCombinations.add(new MAPEDimensionFXML[]{new MAPEDimensionFXML(DimensionTypes.SYMMETRY, 5),
 				new MAPEDimensionFXML(DimensionTypes.LENIENCY, 5)});
 		possibleCombinations.add(new MAPEDimensionFXML[]{new MAPEDimensionFXML(DimensionTypes.NUMBER_MESO_PATTERN, 5),
@@ -311,7 +311,6 @@ public class ExperimentsGUIController implements Initializable, Listener {
 		possibleCombinations.add(new MAPEDimensionFXML[]{new MAPEDimensionFXML(DimensionTypes.SIMILARITY, 5),
 				new MAPEDimensionFXML(DimensionTypes.INNER_SIMILARITY, 5)});
 
-		//feas granular
 		possibleCombinations.add(new MAPEDimensionFXML[]{new MAPEDimensionFXML(DimensionTypes.SYMMETRY, 5),
 				new MAPEDimensionFXML(DimensionTypes.LENIENCY, 5)});
 		possibleCombinations.add(new MAPEDimensionFXML[]{new MAPEDimensionFXML(DimensionTypes.NUMBER_MESO_PATTERN, 5),
@@ -319,121 +318,222 @@ public class ExperimentsGUIController implements Initializable, Listener {
 		possibleCombinations.add(new MAPEDimensionFXML[]{new MAPEDimensionFXML(DimensionTypes.SIMILARITY, 5),
 				new MAPEDimensionFXML(DimensionTypes.INNER_SIMILARITY, 5)});
 
-		possibleCombinations.add(new MAPEDimensionFXML[]{new MAPEDimensionFXML(DimensionTypes.SYMMETRY, 5),
-				new MAPEDimensionFXML(DimensionTypes.LENIENCY, 5)});
-		possibleCombinations.add(new MAPEDimensionFXML[]{new MAPEDimensionFXML(DimensionTypes.NUMBER_MESO_PATTERN, 5),
-				new MAPEDimensionFXML(DimensionTypes.NUMBER_PATTERNS, 5)});
-		possibleCombinations.add(new MAPEDimensionFXML[]{new MAPEDimensionFXML(DimensionTypes.SIMILARITY, 5),
-				new MAPEDimensionFXML(DimensionTypes.INNER_SIMILARITY, 5)});
-
-		possibleCombinations.add(new MAPEDimensionFXML[]{new MAPEDimensionFXML(DimensionTypes.SYMMETRY, 5),
-				new MAPEDimensionFXML(DimensionTypes.LENIENCY, 5)});
-		possibleCombinations.add(new MAPEDimensionFXML[]{new MAPEDimensionFXML(DimensionTypes.NUMBER_MESO_PATTERN, 5),
-				new MAPEDimensionFXML(DimensionTypes.NUMBER_PATTERNS, 5)});
-		possibleCombinations.add(new MAPEDimensionFXML[]{new MAPEDimensionFXML(DimensionTypes.SIMILARITY, 5),
-				new MAPEDimensionFXML(DimensionTypes.INNER_SIMILARITY, 5)});
-
-		possibleCombinations.add(new MAPEDimensionFXML[]{new MAPEDimensionFXML(DimensionTypes.SYMMETRY, 5),
-				new MAPEDimensionFXML(DimensionTypes.LENIENCY, 5)});
-		possibleCombinations.add(new MAPEDimensionFXML[]{new MAPEDimensionFXML(DimensionTypes.NUMBER_MESO_PATTERN, 5),
-				new MAPEDimensionFXML(DimensionTypes.NUMBER_PATTERNS, 5)});
-		possibleCombinations.add(new MAPEDimensionFXML[]{new MAPEDimensionFXML(DimensionTypes.SIMILARITY, 5),
-				new MAPEDimensionFXML(DimensionTypes.INNER_SIMILARITY, 5)});
-
-		//fit goal
-		possibleCombinations.add(new MAPEDimensionFXML[]{new MAPEDimensionFXML(DimensionTypes.SYMMETRY, 5),
-				new MAPEDimensionFXML(DimensionTypes.LENIENCY, 5)});
-		possibleCombinations.add(new MAPEDimensionFXML[]{new MAPEDimensionFXML(DimensionTypes.NUMBER_MESO_PATTERN, 5),
-				new MAPEDimensionFXML(DimensionTypes.NUMBER_PATTERNS, 5)});
-		possibleCombinations.add(new MAPEDimensionFXML[]{new MAPEDimensionFXML(DimensionTypes.SIMILARITY, 5),
-				new MAPEDimensionFXML(DimensionTypes.INNER_SIMILARITY, 5)});
-
-		possibleCombinations.add(new MAPEDimensionFXML[]{new MAPEDimensionFXML(DimensionTypes.SYMMETRY, 5),
-				new MAPEDimensionFXML(DimensionTypes.LENIENCY, 5)});
-		possibleCombinations.add(new MAPEDimensionFXML[]{new MAPEDimensionFXML(DimensionTypes.NUMBER_MESO_PATTERN, 5),
-				new MAPEDimensionFXML(DimensionTypes.NUMBER_PATTERNS, 5)});
-		possibleCombinations.add(new MAPEDimensionFXML[]{new MAPEDimensionFXML(DimensionTypes.SIMILARITY, 5),
-				new MAPEDimensionFXML(DimensionTypes.INNER_SIMILARITY, 5)});
-
-		possibleCombinations.add(new MAPEDimensionFXML[]{new MAPEDimensionFXML(DimensionTypes.SYMMETRY, 5),
-				new MAPEDimensionFXML(DimensionTypes.LENIENCY, 5)});
-		possibleCombinations.add(new MAPEDimensionFXML[]{new MAPEDimensionFXML(DimensionTypes.NUMBER_MESO_PATTERN, 5),
-				new MAPEDimensionFXML(DimensionTypes.NUMBER_PATTERNS, 5)});
-		possibleCombinations.add(new MAPEDimensionFXML[]{new MAPEDimensionFXML(DimensionTypes.SIMILARITY, 5),
-				new MAPEDimensionFXML(DimensionTypes.INNER_SIMILARITY, 5)});
-
-		possibleCombinations.add(new MAPEDimensionFXML[]{new MAPEDimensionFXML(DimensionTypes.SYMMETRY, 5),
-				new MAPEDimensionFXML(DimensionTypes.LENIENCY, 5)});
-		possibleCombinations.add(new MAPEDimensionFXML[]{new MAPEDimensionFXML(DimensionTypes.NUMBER_MESO_PATTERN, 5),
-				new MAPEDimensionFXML(DimensionTypes.NUMBER_PATTERNS, 5)});
-		possibleCombinations.add(new MAPEDimensionFXML[]{new MAPEDimensionFXML(DimensionTypes.SIMILARITY, 5),
-				new MAPEDimensionFXML(DimensionTypes.INNER_SIMILARITY, 5)});
-
-		//fit gradual
-		possibleCombinations.add(new MAPEDimensionFXML[]{new MAPEDimensionFXML(DimensionTypes.SYMMETRY, 5),
-				new MAPEDimensionFXML(DimensionTypes.LENIENCY, 5)});
-		possibleCombinations.add(new MAPEDimensionFXML[]{new MAPEDimensionFXML(DimensionTypes.NUMBER_MESO_PATTERN, 5),
-				new MAPEDimensionFXML(DimensionTypes.NUMBER_PATTERNS, 5)});
-		possibleCombinations.add(new MAPEDimensionFXML[]{new MAPEDimensionFXML(DimensionTypes.SIMILARITY, 5),
-				new MAPEDimensionFXML(DimensionTypes.INNER_SIMILARITY, 5)});
-
-		possibleCombinations.add(new MAPEDimensionFXML[]{new MAPEDimensionFXML(DimensionTypes.SYMMETRY, 5),
-				new MAPEDimensionFXML(DimensionTypes.LENIENCY, 5)});
-		possibleCombinations.add(new MAPEDimensionFXML[]{new MAPEDimensionFXML(DimensionTypes.NUMBER_MESO_PATTERN, 5),
-				new MAPEDimensionFXML(DimensionTypes.NUMBER_PATTERNS, 5)});
-		possibleCombinations.add(new MAPEDimensionFXML[]{new MAPEDimensionFXML(DimensionTypes.SIMILARITY, 5),
-				new MAPEDimensionFXML(DimensionTypes.INNER_SIMILARITY, 5)});
-
-		possibleCombinations.add(new MAPEDimensionFXML[]{new MAPEDimensionFXML(DimensionTypes.SYMMETRY, 5),
-				new MAPEDimensionFXML(DimensionTypes.LENIENCY, 5)});
-		possibleCombinations.add(new MAPEDimensionFXML[]{new MAPEDimensionFXML(DimensionTypes.NUMBER_MESO_PATTERN, 5),
-				new MAPEDimensionFXML(DimensionTypes.NUMBER_PATTERNS, 5)});
-		possibleCombinations.add(new MAPEDimensionFXML[]{new MAPEDimensionFXML(DimensionTypes.SIMILARITY, 5),
-				new MAPEDimensionFXML(DimensionTypes.INNER_SIMILARITY, 5)});
-
-		possibleCombinations.add(new MAPEDimensionFXML[]{new MAPEDimensionFXML(DimensionTypes.SYMMETRY, 5),
-				new MAPEDimensionFXML(DimensionTypes.LENIENCY, 5)});
-		possibleCombinations.add(new MAPEDimensionFXML[]{new MAPEDimensionFXML(DimensionTypes.NUMBER_MESO_PATTERN, 5),
-				new MAPEDimensionFXML(DimensionTypes.NUMBER_PATTERNS, 5)});
-		possibleCombinations.add(new MAPEDimensionFXML[]{new MAPEDimensionFXML(DimensionTypes.SIMILARITY, 5),
-				new MAPEDimensionFXML(DimensionTypes.INNER_SIMILARITY, 5)});
-
-		//All the combinations I want
-		possibleCombinations.add(new MAPEDimensionFXML[]{new MAPEDimensionFXML(DimensionTypes.ARCHETYPICAL_PATH, 5),
-				new MAPEDimensionFXML(DimensionTypes.LENIENCY, 5)});
-
-		possibleCombinations.add(new MAPEDimensionFXML[]{new MAPEDimensionFXML(DimensionTypes.ARCHETYPICAL_PATH, 5),
-				new MAPEDimensionFXML(DimensionTypes.SYMMETRY, 5)});
-
-		possibleCombinations.add(new MAPEDimensionFXML[]{new MAPEDimensionFXML(DimensionTypes.ARCHETYPICAL_PATH, 5),
-				new MAPEDimensionFXML(DimensionTypes.NUMBER_MESO_PATTERN, 5)});
-
-		possibleCombinations.add(new MAPEDimensionFXML[]{new MAPEDimensionFXML(DimensionTypes.ARCHETYPICAL_PATH, 5),
-				new MAPEDimensionFXML(DimensionTypes.LENIENCY, 5)});
-
-		possibleCombinations.add(new MAPEDimensionFXML[]{new MAPEDimensionFXML(DimensionTypes.ARCHETYPICAL_PATH, 5),
-				new MAPEDimensionFXML(DimensionTypes.SYMMETRY, 5)});
-
-		possibleCombinations.add(new MAPEDimensionFXML[]{new MAPEDimensionFXML(DimensionTypes.ARCHETYPICAL_PATH, 5),
-				new MAPEDimensionFXML(DimensionTypes.NUMBER_MESO_PATTERN, 5)});
-
-		possibleCombinations.add(new MAPEDimensionFXML[]{new MAPEDimensionFXML(DimensionTypes.ARCHETYPICAL_PATH, 5),
-				new MAPEDimensionFXML(DimensionTypes.LENIENCY, 5)});
-
-		possibleCombinations.add(new MAPEDimensionFXML[]{new MAPEDimensionFXML(DimensionTypes.ARCHETYPICAL_PATH, 5),
-				new MAPEDimensionFXML(DimensionTypes.SYMMETRY, 5)});
-
-		possibleCombinations.add(new MAPEDimensionFXML[]{new MAPEDimensionFXML(DimensionTypes.ARCHETYPICAL_PATH, 5),
-				new MAPEDimensionFXML(DimensionTypes.NUMBER_MESO_PATTERN, 5)});
-
-		possibleCombinations.add(new MAPEDimensionFXML[]{new MAPEDimensionFXML(DimensionTypes.ARCHETYPICAL_PATH, 5),
-				new MAPEDimensionFXML(DimensionTypes.LENIENCY, 5)});
-
-		possibleCombinations.add(new MAPEDimensionFXML[]{new MAPEDimensionFXML(DimensionTypes.ARCHETYPICAL_PATH, 5),
-				new MAPEDimensionFXML(DimensionTypes.SYMMETRY, 5)});
-
-		possibleCombinations.add(new MAPEDimensionFXML[]{new MAPEDimensionFXML(DimensionTypes.ARCHETYPICAL_PATH, 5),
-				new MAPEDimensionFXML(DimensionTypes.NUMBER_MESO_PATTERN, 5)});
+		// NOT USING THE MODEL AT ALL!
+//		possibleCombinations.add(new MAPEDimensionFXML[]{new MAPEDimensionFXML(DimensionTypes.SYMMETRY, 5),
+//				new MAPEDimensionFXML(DimensionTypes.LENIENCY, 5)});
+//		possibleCombinations.add(new MAPEDimensionFXML[]{new MAPEDimensionFXML(DimensionTypes.NUMBER_MESO_PATTERN, 5),
+//				new MAPEDimensionFXML(DimensionTypes.NUMBER_PATTERNS, 5)});
+//		possibleCombinations.add(new MAPEDimensionFXML[]{new MAPEDimensionFXML(DimensionTypes.SIMILARITY, 5),
+//				new MAPEDimensionFXML(DimensionTypes.INNER_SIMILARITY, 5)});
+//
+//		possibleCombinations.add(new MAPEDimensionFXML[]{new MAPEDimensionFXML(DimensionTypes.SYMMETRY, 5),
+//				new MAPEDimensionFXML(DimensionTypes.LENIENCY, 5)});
+//		possibleCombinations.add(new MAPEDimensionFXML[]{new MAPEDimensionFXML(DimensionTypes.NUMBER_MESO_PATTERN, 5),
+//				new MAPEDimensionFXML(DimensionTypes.NUMBER_PATTERNS, 5)});
+//		possibleCombinations.add(new MAPEDimensionFXML[]{new MAPEDimensionFXML(DimensionTypes.SIMILARITY, 5),
+//				new MAPEDimensionFXML(DimensionTypes.INNER_SIMILARITY, 5)});
+//
+//		possibleCombinations.add(new MAPEDimensionFXML[]{new MAPEDimensionFXML(DimensionTypes.SYMMETRY, 5),
+//				new MAPEDimensionFXML(DimensionTypes.LENIENCY, 5)});
+//		possibleCombinations.add(new MAPEDimensionFXML[]{new MAPEDimensionFXML(DimensionTypes.NUMBER_MESO_PATTERN, 5),
+//				new MAPEDimensionFXML(DimensionTypes.NUMBER_PATTERNS, 5)});
+//		possibleCombinations.add(new MAPEDimensionFXML[]{new MAPEDimensionFXML(DimensionTypes.SIMILARITY, 5),
+//				new MAPEDimensionFXML(DimensionTypes.INNER_SIMILARITY, 5)});
+//
+//		possibleCombinations.add(new MAPEDimensionFXML[]{new MAPEDimensionFXML(DimensionTypes.SYMMETRY, 5),
+//				new MAPEDimensionFXML(DimensionTypes.LENIENCY, 5)});
+//		possibleCombinations.add(new MAPEDimensionFXML[]{new MAPEDimensionFXML(DimensionTypes.NUMBER_MESO_PATTERN, 5),
+//				new MAPEDimensionFXML(DimensionTypes.NUMBER_PATTERNS, 5)});
+//		possibleCombinations.add(new MAPEDimensionFXML[]{new MAPEDimensionFXML(DimensionTypes.SIMILARITY, 5),
+//				new MAPEDimensionFXML(DimensionTypes.INNER_SIMILARITY, 5)});
+//
+//		possibleCombinations.add(new MAPEDimensionFXML[]{new MAPEDimensionFXML(DimensionTypes.SYMMETRY, 5),
+//				new MAPEDimensionFXML(DimensionTypes.LENIENCY, 5)});
+//		possibleCombinations.add(new MAPEDimensionFXML[]{new MAPEDimensionFXML(DimensionTypes.NUMBER_MESO_PATTERN, 5),
+//				new MAPEDimensionFXML(DimensionTypes.NUMBER_PATTERNS, 5)});
+//		possibleCombinations.add(new MAPEDimensionFXML[]{new MAPEDimensionFXML(DimensionTypes.SIMILARITY, 5),
+//				new MAPEDimensionFXML(DimensionTypes.INNER_SIMILARITY, 5)});
+//
+//		//feas goal
+//		possibleCombinations.add(new MAPEDimensionFXML[]{new MAPEDimensionFXML(DimensionTypes.SYMMETRY, 5),
+//				new MAPEDimensionFXML(DimensionTypes.LENIENCY, 5)});
+//		possibleCombinations.add(new MAPEDimensionFXML[]{new MAPEDimensionFXML(DimensionTypes.NUMBER_MESO_PATTERN, 5),
+//				new MAPEDimensionFXML(DimensionTypes.NUMBER_PATTERNS, 5)});
+//		possibleCombinations.add(new MAPEDimensionFXML[]{new MAPEDimensionFXML(DimensionTypes.SIMILARITY, 5),
+//				new MAPEDimensionFXML(DimensionTypes.INNER_SIMILARITY, 5)});
+//
+//		possibleCombinations.add(new MAPEDimensionFXML[]{new MAPEDimensionFXML(DimensionTypes.SYMMETRY, 5),
+//				new MAPEDimensionFXML(DimensionTypes.LENIENCY, 5)});
+//		possibleCombinations.add(new MAPEDimensionFXML[]{new MAPEDimensionFXML(DimensionTypes.NUMBER_MESO_PATTERN, 5),
+//				new MAPEDimensionFXML(DimensionTypes.NUMBER_PATTERNS, 5)});
+//		possibleCombinations.add(new MAPEDimensionFXML[]{new MAPEDimensionFXML(DimensionTypes.SIMILARITY, 5),
+//				new MAPEDimensionFXML(DimensionTypes.INNER_SIMILARITY, 5)});
+//
+//		possibleCombinations.add(new MAPEDimensionFXML[]{new MAPEDimensionFXML(DimensionTypes.SYMMETRY, 5),
+//				new MAPEDimensionFXML(DimensionTypes.LENIENCY, 5)});
+//		possibleCombinations.add(new MAPEDimensionFXML[]{new MAPEDimensionFXML(DimensionTypes.NUMBER_MESO_PATTERN, 5),
+//				new MAPEDimensionFXML(DimensionTypes.NUMBER_PATTERNS, 5)});
+//		possibleCombinations.add(new MAPEDimensionFXML[]{new MAPEDimensionFXML(DimensionTypes.SIMILARITY, 5),
+//				new MAPEDimensionFXML(DimensionTypes.INNER_SIMILARITY, 5)});
+//
+//		possibleCombinations.add(new MAPEDimensionFXML[]{new MAPEDimensionFXML(DimensionTypes.SYMMETRY, 5),
+//				new MAPEDimensionFXML(DimensionTypes.LENIENCY, 5)});
+//		possibleCombinations.add(new MAPEDimensionFXML[]{new MAPEDimensionFXML(DimensionTypes.NUMBER_MESO_PATTERN, 5),
+//				new MAPEDimensionFXML(DimensionTypes.NUMBER_PATTERNS, 5)});
+//		possibleCombinations.add(new MAPEDimensionFXML[]{new MAPEDimensionFXML(DimensionTypes.SIMILARITY, 5),
+//				new MAPEDimensionFXML(DimensionTypes.INNER_SIMILARITY, 5)});
+//
+//		possibleCombinations.add(new MAPEDimensionFXML[]{new MAPEDimensionFXML(DimensionTypes.SYMMETRY, 5),
+//				new MAPEDimensionFXML(DimensionTypes.LENIENCY, 5)});
+//		possibleCombinations.add(new MAPEDimensionFXML[]{new MAPEDimensionFXML(DimensionTypes.NUMBER_MESO_PATTERN, 5),
+//				new MAPEDimensionFXML(DimensionTypes.NUMBER_PATTERNS, 5)});
+//		possibleCombinations.add(new MAPEDimensionFXML[]{new MAPEDimensionFXML(DimensionTypes.SIMILARITY, 5),
+//				new MAPEDimensionFXML(DimensionTypes.INNER_SIMILARITY, 5)});
+////
+////		//feas granular
+//		possibleCombinations.add(new MAPEDimensionFXML[]{new MAPEDimensionFXML(DimensionTypes.SYMMETRY, 5),
+//				new MAPEDimensionFXML(DimensionTypes.LENIENCY, 5)});
+//		possibleCombinations.add(new MAPEDimensionFXML[]{new MAPEDimensionFXML(DimensionTypes.NUMBER_MESO_PATTERN, 5),
+//				new MAPEDimensionFXML(DimensionTypes.NUMBER_PATTERNS, 5)});
+//		possibleCombinations.add(new MAPEDimensionFXML[]{new MAPEDimensionFXML(DimensionTypes.SIMILARITY, 5),
+//				new MAPEDimensionFXML(DimensionTypes.INNER_SIMILARITY, 5)});
+//
+//		possibleCombinations.add(new MAPEDimensionFXML[]{new MAPEDimensionFXML(DimensionTypes.SYMMETRY, 5),
+//				new MAPEDimensionFXML(DimensionTypes.LENIENCY, 5)});
+//		possibleCombinations.add(new MAPEDimensionFXML[]{new MAPEDimensionFXML(DimensionTypes.NUMBER_MESO_PATTERN, 5),
+//				new MAPEDimensionFXML(DimensionTypes.NUMBER_PATTERNS, 5)});
+//		possibleCombinations.add(new MAPEDimensionFXML[]{new MAPEDimensionFXML(DimensionTypes.SIMILARITY, 5),
+//				new MAPEDimensionFXML(DimensionTypes.INNER_SIMILARITY, 5)});
+//
+//		possibleCombinations.add(new MAPEDimensionFXML[]{new MAPEDimensionFXML(DimensionTypes.SYMMETRY, 5),
+//				new MAPEDimensionFXML(DimensionTypes.LENIENCY, 5)});
+//		possibleCombinations.add(new MAPEDimensionFXML[]{new MAPEDimensionFXML(DimensionTypes.NUMBER_MESO_PATTERN, 5),
+//				new MAPEDimensionFXML(DimensionTypes.NUMBER_PATTERNS, 5)});
+//		possibleCombinations.add(new MAPEDimensionFXML[]{new MAPEDimensionFXML(DimensionTypes.SIMILARITY, 5),
+//				new MAPEDimensionFXML(DimensionTypes.INNER_SIMILARITY, 5)});
+//
+//		possibleCombinations.add(new MAPEDimensionFXML[]{new MAPEDimensionFXML(DimensionTypes.SYMMETRY, 5),
+//				new MAPEDimensionFXML(DimensionTypes.LENIENCY, 5)});
+//		possibleCombinations.add(new MAPEDimensionFXML[]{new MAPEDimensionFXML(DimensionTypes.NUMBER_MESO_PATTERN, 5),
+//				new MAPEDimensionFXML(DimensionTypes.NUMBER_PATTERNS, 5)});
+//		possibleCombinations.add(new MAPEDimensionFXML[]{new MAPEDimensionFXML(DimensionTypes.SIMILARITY, 5),
+//				new MAPEDimensionFXML(DimensionTypes.INNER_SIMILARITY, 5)});
+//
+//		possibleCombinations.add(new MAPEDimensionFXML[]{new MAPEDimensionFXML(DimensionTypes.SYMMETRY, 5),
+//				new MAPEDimensionFXML(DimensionTypes.LENIENCY, 5)});
+//		possibleCombinations.add(new MAPEDimensionFXML[]{new MAPEDimensionFXML(DimensionTypes.NUMBER_MESO_PATTERN, 5),
+//				new MAPEDimensionFXML(DimensionTypes.NUMBER_PATTERNS, 5)});
+//		possibleCombinations.add(new MAPEDimensionFXML[]{new MAPEDimensionFXML(DimensionTypes.SIMILARITY, 5),
+//				new MAPEDimensionFXML(DimensionTypes.INNER_SIMILARITY, 5)});
+//
+//		//fit goal
+//		possibleCombinations.add(new MAPEDimensionFXML[]{new MAPEDimensionFXML(DimensionTypes.SYMMETRY, 5),
+//				new MAPEDimensionFXML(DimensionTypes.LENIENCY, 5)});
+//		possibleCombinations.add(new MAPEDimensionFXML[]{new MAPEDimensionFXML(DimensionTypes.NUMBER_MESO_PATTERN, 5),
+//				new MAPEDimensionFXML(DimensionTypes.NUMBER_PATTERNS, 5)});
+//		possibleCombinations.add(new MAPEDimensionFXML[]{new MAPEDimensionFXML(DimensionTypes.SIMILARITY, 5),
+//				new MAPEDimensionFXML(DimensionTypes.INNER_SIMILARITY, 5)});
+//
+//		possibleCombinations.add(new MAPEDimensionFXML[]{new MAPEDimensionFXML(DimensionTypes.SYMMETRY, 5),
+//				new MAPEDimensionFXML(DimensionTypes.LENIENCY, 5)});
+//		possibleCombinations.add(new MAPEDimensionFXML[]{new MAPEDimensionFXML(DimensionTypes.NUMBER_MESO_PATTERN, 5),
+//				new MAPEDimensionFXML(DimensionTypes.NUMBER_PATTERNS, 5)});
+//		possibleCombinations.add(new MAPEDimensionFXML[]{new MAPEDimensionFXML(DimensionTypes.SIMILARITY, 5),
+//				new MAPEDimensionFXML(DimensionTypes.INNER_SIMILARITY, 5)});
+//
+//		possibleCombinations.add(new MAPEDimensionFXML[]{new MAPEDimensionFXML(DimensionTypes.SYMMETRY, 5),
+//				new MAPEDimensionFXML(DimensionTypes.LENIENCY, 5)});
+//		possibleCombinations.add(new MAPEDimensionFXML[]{new MAPEDimensionFXML(DimensionTypes.NUMBER_MESO_PATTERN, 5),
+//				new MAPEDimensionFXML(DimensionTypes.NUMBER_PATTERNS, 5)});
+//		possibleCombinations.add(new MAPEDimensionFXML[]{new MAPEDimensionFXML(DimensionTypes.SIMILARITY, 5),
+//				new MAPEDimensionFXML(DimensionTypes.INNER_SIMILARITY, 5)});
+//
+//		possibleCombinations.add(new MAPEDimensionFXML[]{new MAPEDimensionFXML(DimensionTypes.SYMMETRY, 5),
+//				new MAPEDimensionFXML(DimensionTypes.LENIENCY, 5)});
+//		possibleCombinations.add(new MAPEDimensionFXML[]{new MAPEDimensionFXML(DimensionTypes.NUMBER_MESO_PATTERN, 5),
+//				new MAPEDimensionFXML(DimensionTypes.NUMBER_PATTERNS, 5)});
+//		possibleCombinations.add(new MAPEDimensionFXML[]{new MAPEDimensionFXML(DimensionTypes.SIMILARITY, 5),
+//				new MAPEDimensionFXML(DimensionTypes.INNER_SIMILARITY, 5)});
+//
+//		possibleCombinations.add(new MAPEDimensionFXML[]{new MAPEDimensionFXML(DimensionTypes.SYMMETRY, 5),
+//				new MAPEDimensionFXML(DimensionTypes.LENIENCY, 5)});
+//		possibleCombinations.add(new MAPEDimensionFXML[]{new MAPEDimensionFXML(DimensionTypes.NUMBER_MESO_PATTERN, 5),
+//				new MAPEDimensionFXML(DimensionTypes.NUMBER_PATTERNS, 5)});
+//		possibleCombinations.add(new MAPEDimensionFXML[]{new MAPEDimensionFXML(DimensionTypes.SIMILARITY, 5),
+//				new MAPEDimensionFXML(DimensionTypes.INNER_SIMILARITY, 5)});
+//
+//		//fit gradual
+//		possibleCombinations.add(new MAPEDimensionFXML[]{new MAPEDimensionFXML(DimensionTypes.SYMMETRY, 5),
+//				new MAPEDimensionFXML(DimensionTypes.LENIENCY, 5)});
+//		possibleCombinations.add(new MAPEDimensionFXML[]{new MAPEDimensionFXML(DimensionTypes.NUMBER_MESO_PATTERN, 5),
+//				new MAPEDimensionFXML(DimensionTypes.NUMBER_PATTERNS, 5)});
+//		possibleCombinations.add(new MAPEDimensionFXML[]{new MAPEDimensionFXML(DimensionTypes.SIMILARITY, 5),
+//				new MAPEDimensionFXML(DimensionTypes.INNER_SIMILARITY, 5)});
+//
+//		possibleCombinations.add(new MAPEDimensionFXML[]{new MAPEDimensionFXML(DimensionTypes.SYMMETRY, 5),
+//				new MAPEDimensionFXML(DimensionTypes.LENIENCY, 5)});
+//		possibleCombinations.add(new MAPEDimensionFXML[]{new MAPEDimensionFXML(DimensionTypes.NUMBER_MESO_PATTERN, 5),
+//				new MAPEDimensionFXML(DimensionTypes.NUMBER_PATTERNS, 5)});
+//		possibleCombinations.add(new MAPEDimensionFXML[]{new MAPEDimensionFXML(DimensionTypes.SIMILARITY, 5),
+//				new MAPEDimensionFXML(DimensionTypes.INNER_SIMILARITY, 5)});
+//
+//		possibleCombinations.add(new MAPEDimensionFXML[]{new MAPEDimensionFXML(DimensionTypes.SYMMETRY, 5),
+//				new MAPEDimensionFXML(DimensionTypes.LENIENCY, 5)});
+//		possibleCombinations.add(new MAPEDimensionFXML[]{new MAPEDimensionFXML(DimensionTypes.NUMBER_MESO_PATTERN, 5),
+//				new MAPEDimensionFXML(DimensionTypes.NUMBER_PATTERNS, 5)});
+//		possibleCombinations.add(new MAPEDimensionFXML[]{new MAPEDimensionFXML(DimensionTypes.SIMILARITY, 5),
+//				new MAPEDimensionFXML(DimensionTypes.INNER_SIMILARITY, 5)});
+//
+//		possibleCombinations.add(new MAPEDimensionFXML[]{new MAPEDimensionFXML(DimensionTypes.SYMMETRY, 5),
+//				new MAPEDimensionFXML(DimensionTypes.LENIENCY, 5)});
+//		possibleCombinations.add(new MAPEDimensionFXML[]{new MAPEDimensionFXML(DimensionTypes.NUMBER_MESO_PATTERN, 5),
+//				new MAPEDimensionFXML(DimensionTypes.NUMBER_PATTERNS, 5)});
+//		possibleCombinations.add(new MAPEDimensionFXML[]{new MAPEDimensionFXML(DimensionTypes.SIMILARITY, 5),
+//				new MAPEDimensionFXML(DimensionTypes.INNER_SIMILARITY, 5)});
+//
+//		possibleCombinations.add(new MAPEDimensionFXML[]{new MAPEDimensionFXML(DimensionTypes.SYMMETRY, 5),
+//				new MAPEDimensionFXML(DimensionTypes.LENIENCY, 5)});
+//		possibleCombinations.add(new MAPEDimensionFXML[]{new MAPEDimensionFXML(DimensionTypes.NUMBER_MESO_PATTERN, 5),
+//				new MAPEDimensionFXML(DimensionTypes.NUMBER_PATTERNS, 5)});
+//		possibleCombinations.add(new MAPEDimensionFXML[]{new MAPEDimensionFXML(DimensionTypes.SIMILARITY, 5),
+//				new MAPEDimensionFXML(DimensionTypes.INNER_SIMILARITY, 5)});
+//
+//		//All the combinations I want
+//		possibleCombinations.add(new MAPEDimensionFXML[]{new MAPEDimensionFXML(DimensionTypes.ARCHETYPICAL_PATH, 5),
+//				new MAPEDimensionFXML(DimensionTypes.LENIENCY, 5)});
+//
+//		possibleCombinations.add(new MAPEDimensionFXML[]{new MAPEDimensionFXML(DimensionTypes.ARCHETYPICAL_PATH, 5),
+//				new MAPEDimensionFXML(DimensionTypes.SYMMETRY, 5)});
+//
+//		possibleCombinations.add(new MAPEDimensionFXML[]{new MAPEDimensionFXML(DimensionTypes.ARCHETYPICAL_PATH, 5),
+//				new MAPEDimensionFXML(DimensionTypes.NUMBER_MESO_PATTERN, 5)});
+//
+//		possibleCombinations.add(new MAPEDimensionFXML[]{new MAPEDimensionFXML(DimensionTypes.ARCHETYPICAL_PATH, 5),
+//				new MAPEDimensionFXML(DimensionTypes.LENIENCY, 5)});
+//
+//		possibleCombinations.add(new MAPEDimensionFXML[]{new MAPEDimensionFXML(DimensionTypes.ARCHETYPICAL_PATH, 5),
+//				new MAPEDimensionFXML(DimensionTypes.SYMMETRY, 5)});
+//
+//		possibleCombinations.add(new MAPEDimensionFXML[]{new MAPEDimensionFXML(DimensionTypes.ARCHETYPICAL_PATH, 5),
+//				new MAPEDimensionFXML(DimensionTypes.NUMBER_MESO_PATTERN, 5)});
+//
+//		possibleCombinations.add(new MAPEDimensionFXML[]{new MAPEDimensionFXML(DimensionTypes.ARCHETYPICAL_PATH, 5),
+//				new MAPEDimensionFXML(DimensionTypes.LENIENCY, 5)});
+//
+//		possibleCombinations.add(new MAPEDimensionFXML[]{new MAPEDimensionFXML(DimensionTypes.ARCHETYPICAL_PATH, 5),
+//				new MAPEDimensionFXML(DimensionTypes.SYMMETRY, 5)});
+//
+//		possibleCombinations.add(new MAPEDimensionFXML[]{new MAPEDimensionFXML(DimensionTypes.ARCHETYPICAL_PATH, 5),
+//				new MAPEDimensionFXML(DimensionTypes.NUMBER_MESO_PATTERN, 5)});
+//
+//		possibleCombinations.add(new MAPEDimensionFXML[]{new MAPEDimensionFXML(DimensionTypes.ARCHETYPICAL_PATH, 5),
+//				new MAPEDimensionFXML(DimensionTypes.LENIENCY, 5)});
+//
+//		possibleCombinations.add(new MAPEDimensionFXML[]{new MAPEDimensionFXML(DimensionTypes.ARCHETYPICAL_PATH, 5),
+//				new MAPEDimensionFXML(DimensionTypes.SYMMETRY, 5)});
+//
+//		possibleCombinations.add(new MAPEDimensionFXML[]{new MAPEDimensionFXML(DimensionTypes.ARCHETYPICAL_PATH, 5),
+//				new MAPEDimensionFXML(DimensionTypes.NUMBER_MESO_PATTERN, 5)});
 
 
 //		possibleCombinations.add(new MAPEDimensionFXML[]{new MAPEDimensionFXML(DimensionTypes.SYMMETRY, 5),
@@ -1043,23 +1143,28 @@ public class ExperimentsGUIController implements Initializable, Listener {
 					//Fixme: Ugly but it works
 					if(currentCombination == 0)
 					{
+						//FIXME: We started before with only FEAS_FIT_GRADUAL!
+						AlgorithmSetup.getInstance().DesPersEvaluation = AlgorithmSetup.EvaluateDesignerPersonas.SELECTION_GRADUAL; // change this
+					}
+					else if(currentCombination == 15)
+					{
+						AlgorithmSetup.getInstance().DesPersEvaluation = AlgorithmSetup.EvaluateDesignerPersonas.NONE;
+					}
+					else if(currentCombination == 30)
+					{
 						AlgorithmSetup.getInstance().DesPersEvaluation = AlgorithmSetup.EvaluateDesignerPersonas.FEASIBILITY_GOAL;
 					}
-					else if(currentCombination == 12)
+					else if(currentCombination == 45)
 					{
 						AlgorithmSetup.getInstance().DesPersEvaluation = AlgorithmSetup.EvaluateDesignerPersonas.FEASIBILITY_GRADUAL;
 					}
-					else if(currentCombination == 24)
+					else if(currentCombination == 60)
 					{
 						AlgorithmSetup.getInstance().DesPersEvaluation = AlgorithmSetup.EvaluateDesignerPersonas.FITNESS_GOAL;
 					}
-					else if(currentCombination == 36)
+					else if(currentCombination == 75)
 					{
 						AlgorithmSetup.getInstance().DesPersEvaluation = AlgorithmSetup.EvaluateDesignerPersonas.FITNESS_GRADUAL;
-					}
-					else if(currentCombination == 48)
-					{
-						AlgorithmSetup.getInstance().DesPersEvaluation = AlgorithmSetup.EvaluateDesignerPersonas.FEATURE_DIMENSION;
 					}
 
 					System.out.println(AlgorithmSetup.getInstance().DesPersEvaluation);

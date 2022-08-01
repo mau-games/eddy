@@ -145,11 +145,19 @@ public class NarrativeStructPatternFinder {
 		all_narrative_patterns.addAll(PlotDevicePattern.matches(narrative_graph));
 
 		//Now get all the connections of basic patterns!
+		int basic_counter = 0;
 		for(NarrativePattern np : all_narrative_patterns)
 		{
+
 			if(np instanceof BasicNarrativePattern)
+			{
 				((BasicNarrativePattern) np).storeAllConnections(narrative_graph, this);
+				basic_counter++;
+			}
+
 		}
+
+		System.out.println("micropat: " + basic_counter);
 
 		// Now lets start getting the composite ones! (i.e., meso-patterns)
 		all_narrative_patterns.addAll(SimpleConflictPattern.matches(narrative_graph, all_narrative_patterns, this));
@@ -217,6 +225,36 @@ public class NarrativeStructPatternFinder {
 //
 //		return micropatterns;
 
+		int allpats = all_narrative_patterns.size() - getAllPatternsByType(CompoundConflictPattern.class).size();
+		int all_pats_no_implicit_conflict = all_narrative_patterns.size() - getAllPatternsByType(ImplicitConflictPattern.class).size();
+		int combined_all_pats = all_narrative_patterns.size() -
+				getAllPatternsByType(CompoundConflictPattern.class).size() -
+				getAllPatternsByType(ImplicitConflictPattern.class).size();
+		int fake_conflicts = 0;
+
+		//ArrayList<ImplicitConflictPattern> nps = getAllPatternsByType(ImplicitConflictPattern.class);
+
+		for(NarrativePattern np : all_narrative_patterns)
+		{
+
+			if(np instanceof SimpleConflictPattern)
+			{
+				if(((SimpleConflictPattern) np).fake_conflict)
+					fake_conflicts++;
+			}
+
+		}
+
+		System.out.println("all: " + all_narrative_patterns.size() + ", without compounds: " + allpats +
+				", without implicit confls.: " + all_pats_no_implicit_conflict +
+				", without combined_confls.: " + combined_all_pats +
+				", conflicts: " + getAllPatternsByType(SimpleConflictPattern.class).size() +
+				", fake conflicts: " + fake_conflicts +
+				", derivatives: " + getAllPatternsByType(DerivativePattern.class).size() +
+				", reveals: " + getAllPatternsByType(RevealPattern.class).size() +
+				", APD: " + getAllPatternsByType(ActivePlotDevice.class).size() +
+				", PP: " + getAllPatternsByType(PlotPoint.class).size() +
+				", PT: " + getAllPatternsByType(PlotTwist.class).size());
 		return all_narrative_patterns;
 	}
 //

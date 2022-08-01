@@ -23,7 +23,9 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
+import designerModeling.DesignerModel;
 import designerModeling.ScikitLearnConnection;
+import designerModeling.archetypicalPaths.ArchetypicalPath;
 import game.AlgorithmSetup;
 import org.apache.commons.io.FileUtils;
 import org.w3c.dom.Document;
@@ -457,18 +459,46 @@ public class MAPEliteAlgorithm extends Algorithm implements Listener {
         {
         	//Select at least one ZoneIndividual to "fight" in the tournament
             int tournamentSize = Util.getNextInt(1, candidates.size());
-
             ZoneIndividual winner = null;
+
             for(int i = 0; i < tournamentSize; i++)
             {
                 int progenitorIndex = Util.getNextInt(0, candidates.size());
+				boolean selection_style = AlgorithmSetup.getInstance().DesPersEvaluation == AlgorithmSetup.EvaluateDesignerPersonas.SELECTION_GRADUAL;
                 ZoneIndividual ZoneIndividual = candidates.remove(progenitorIndex);
 
+				Room room = ZoneIndividual.getPhenotype().getMap(roomWidth, roomHeight, roomDoorPositions, roomCustomTiles, roomOwner);
+
+				if(AlgorithmSetup.getInstance().isUsingDesignerPersona())
+				{
+					if(AlgorithmSetup.getInstance().DesPersEvaluation == AlgorithmSetup.EvaluateDesignerPersonas.SELECTION_GRADUAL)
+					{
+					ZoneIndividual.style_selection_pressure = ArchetypicalPath.distanceToFinalPath(
+						DesignerModel.getInstance().designer_persona.specificArchetypicalPath(this.relativeRoom),
+						room.room_style.current_style);
+
+//						ZoneIndividual.style_selection_pressure = ArchetypicalPath.distanceToFinalPath(ArchetypicalPath.ArchetypicalPathTypes.ARCHITECTURAL_FOCUS,
+//								room.room_style.current_style);
+					}
+
+					ZoneIndividual.style = room.room_style.current_style;
+				}
+
                 //select the ZoneIndividual with the highest fitness
-                if(winner == null || (winner.getFitness() < ZoneIndividual.getFitness()))
-                {
-                	winner = ZoneIndividual;
-                }
+				if(selection_style)
+				{
+					if(winner == null || (winner.style_selection_pressure< ZoneIndividual.style_selection_pressure))
+					{
+						winner = ZoneIndividual;
+					}
+				}
+				else {
+					if(winner == null || (winner.getFitness() < ZoneIndividual.getFitness()))
+					{
+						winner = ZoneIndividual;
+					}
+				}
+
             }
 
             parents.add(winner);

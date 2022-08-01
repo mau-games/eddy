@@ -12,16 +12,20 @@ public class AlgorithmSetup {
 	public enum EvaluateDesignerPersonas
 	{
 		FEASIBILITY_GOAL,
-		FEASIBILITY_GRADUAL,
+		FEASIBILITY_GRADUAL, //This one is the best to use!
 		FITNESS_GOAL,
 		FITNESS_GRADUAL,
-		FEATURE_DIMENSION // how to add this?
+		FEATURE_DIMENSION, // how to add this?
+		FEAS_FIT_GRADUAL,
+
+		SELECTION_GRADUAL,
+		NONE
 	}
 
 	private static AlgorithmSetup instance = null;
 
 	//This will simply say where and how the designer persona will be evaluated!
-	public EvaluateDesignerPersonas DesPersEvaluation = EvaluateDesignerPersonas.FEASIBILITY_GOAL;
+	public EvaluateDesignerPersonas DesPersEvaluation = EvaluateDesignerPersonas.SELECTION_GRADUAL;
 
 	public AlgorithmType algorithm_type = AlgorithmType.MAP_ELITES;
 

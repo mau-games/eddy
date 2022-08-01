@@ -124,7 +124,7 @@ public abstract class ArchetypicalPath
         }
     }
 
-    public static float distanceToFinalPath(ArchetypicalPathTypes archetypical_path, int test_style)
+    public synchronized static float distanceToFinalPath(ArchetypicalPathTypes archetypical_path, int test_style)
     {
         switch(archetypical_path) {
             case ARCHITECTURAL_FOCUS:

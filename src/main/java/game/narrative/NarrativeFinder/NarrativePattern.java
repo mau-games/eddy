@@ -99,7 +99,9 @@ public class NarrativePattern
 //        te = Math.min(node_amount, 1.0)/node_amount;
 
         //FIXME: This is how this quality is calculated
-//        te = 1.0 - Math.abs(node_amount - all_same_class.size())/(double)Math.max(all_same_class.size(), node_amount);
+        //double comparative_metric = 1.0 - Math.abs(node_amount - all_same_class.size())/(double)Math.max(all_same_class.size(), node_amount);
+
+        quality = 1.0 - Math.abs(node_amount - all_same_class.size())/(double)Math.max(all_same_class.size(), node_amount);
 
         return quality;
     }

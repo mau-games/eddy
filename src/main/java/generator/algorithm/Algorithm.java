@@ -864,16 +864,37 @@ public class Algorithm extends Thread implements Listener {
 
 			if(AlgorithmSetup.getInstance().DesPersEvaluation == AlgorithmSetup.EvaluateDesignerPersonas.FEASIBILITY_GRADUAL)
 			{
-				float persona_weight = ArchetypicalPath.distanceToFinalPath(
-						DesignerModel.getInstance().designer_persona.specificArchetypicalPath(this.relativeRoom),
+//				float persona_weight = ArchetypicalPath.distanceToFinalPath(
+//						DesignerModel.getInstance().designer_persona.specificArchetypicalPath(this.relativeRoom),
+//						room.room_style.current_style);
+				float persona_weight = ArchetypicalPath.distanceToFinalPath(ArchetypicalPath.ArchetypicalPathTypes.ARCHITECTURAL_FOCUS,
 						room.room_style.current_style);
 
 				correct_persona = persona_weight > 0.0f;
 			}
 			else if(AlgorithmSetup.getInstance().DesPersEvaluation == AlgorithmSetup.EvaluateDesignerPersonas.FEASIBILITY_GOAL)
 			{
-				int target_style = DesignerModel.getInstance().designer_persona.specificArchetypicalPathCluster(this.relativeRoom);
+//				int target_style = DesignerModel.getInstance().designer_persona.specificArchetypicalPathCluster(this.relativeRoom);
+				int target_style = 3;
 				correct_persona = target_style == room.room_style.current_style;
+			}
+			else if(AlgorithmSetup.getInstance().DesPersEvaluation == AlgorithmSetup.EvaluateDesignerPersonas.FEAS_FIT_GRADUAL)
+			{
+
+//				if(DesignerModel.getInstance().designer_persona.specificArchetypicalPath(this.relativeRoom) == null &&
+//						DesignerModel.getInstance().designer_persona.specificArchetypicalPath(this.originalRoom) == null)
+//				{
+//					System.out.println("ERROR HERE without reason!!1");
+//				}
+
+				float persona_weight = ArchetypicalPath.distanceToFinalPath(ArchetypicalPath.ArchetypicalPathTypes.ARCHITECTURAL_FOCUS,
+						room.room_style.current_style);
+
+//				float persona_weight = ArchetypicalPath.distanceToFinalPath(
+//						DesignerModel.getInstance().designer_persona.specificArchetypicalPath(this.relativeRoom),
+//						room.room_style.current_style);
+
+				correct_persona = persona_weight > 0.0f;
 			}
 
 
@@ -995,15 +1016,34 @@ public class Algorithm extends Thread implements Listener {
 
 			if(AlgorithmSetup.getInstance().DesPersEvaluation == AlgorithmSetup.EvaluateDesignerPersonas.FITNESS_GRADUAL)
 			{
-				persona_weight = ArchetypicalPath.distanceToFinalPath(
-						DesignerModel.getInstance().designer_persona.specificArchetypicalPath(this.relativeRoom),
+//				persona_weight = ArchetypicalPath.distanceToFinalPath(
+//						DesignerModel.getInstance().designer_persona.specificArchetypicalPath(this.relativeRoom),
+//						room.room_style.current_style);
+
+				persona_weight = ArchetypicalPath.distanceToFinalPath(ArchetypicalPath.ArchetypicalPathTypes.ARCHITECTURAL_FOCUS,
 						room.room_style.current_style);
 			}
 			else if(AlgorithmSetup.getInstance().DesPersEvaluation == AlgorithmSetup.EvaluateDesignerPersonas.FITNESS_GOAL)
 			{
 				//If it is not the goal, then te individual is evaluated very bad (0.0 sounds massive, lets say 0.5)
-				int target_style = DesignerModel.getInstance().designer_persona.specificArchetypicalPathCluster(this.relativeRoom);
+				//int target_style = DesignerModel.getInstance().designer_persona.specificArchetypicalPathCluster(this.relativeRoom);
+				int target_style = 3;
 				persona_weight = target_style == room.room_style.current_style ? 1.0f : 0.5f;
+			}
+			else if(AlgorithmSetup.getInstance().DesPersEvaluation == AlgorithmSetup.EvaluateDesignerPersonas.FEAS_FIT_GRADUAL)
+			{
+//				if(DesignerModel.getInstance().designer_persona.specificArchetypicalPath(this.relativeRoom) == null &&
+//						DesignerModel.getInstance().designer_persona.specificArchetypicalPath(this.originalRoom) == null)
+//				{
+//					System.out.println("ERROR HERE without reason!!1");
+//				}
+
+//				persona_weight = ArchetypicalPath.distanceToFinalPath(
+//						DesignerModel.getInstance().designer_persona.specificArchetypicalPath(this.relativeRoom),
+//						room.room_style.current_style);
+
+				persona_weight = ArchetypicalPath.distanceToFinalPath(ArchetypicalPath.ArchetypicalPathTypes.ARCHITECTURAL_FOCUS,
+						room.room_style.current_style);
 			}
 
 			ind.style = room.room_style.current_style;

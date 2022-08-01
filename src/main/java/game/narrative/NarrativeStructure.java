@@ -790,19 +790,29 @@ public class NarrativeStructure implements Listener {
         e.addConnection(d, 1);
         e.addConnection(g, 1);
 
-        narrative_graph.pattern_finder.findNarrativePatterns(target_graph);
+        //narrative_graph.pattern_finder.findNarrativePatterns(target_graph);
+
+        target_graph.pattern_finder.all_narrative_patterns.clear();
+        narrative_graph.pattern_finder.all_narrative_patterns.clear();
 
         NSEvolutionarySystemEvaluator evaluator = new NSEvolutionarySystemEvaluator();
-
+        System.out.println("OCARINA!!");
         System.out.println("ORIGINAL");
-        evaluator.testEvaluation(target_graph, target_graph);
+        evaluator.testEvaluation(target_graph, null);
+        target_graph.pattern_finder.all_narrative_patterns.clear();
+        narrative_graph.pattern_finder.all_narrative_patterns.clear();
+        System.out.println();
+        System.out.println("ELITE NO TARGET");
+        evaluator.testEvaluation(narrative_graph, null);
+        target_graph.pattern_finder.all_narrative_patterns.clear();
+        narrative_graph.pattern_finder.all_narrative_patterns.clear();
         System.out.println();
         System.out.println("ELITE");
         evaluator.testEvaluation(narrative_graph, target_graph);
 
         System.out.println("");
 
-        double step = target_graph.distanceBetweenGraphs(narrative_graph);
+        double step = narrative_graph.distanceBetweenGraphs(target_graph);
 
         System.out.println("STEP: " + step);
     }
@@ -858,19 +868,29 @@ public class NarrativeStructure implements Listener {
         a.addConnection(g, 1);
         g.addConnection(f, 1);
 
-        narrative_graph.pattern_finder.findNarrativePatterns(target_graph);
+        //narrative_graph.pattern_finder.findNarrativePatterns(target_graph);
+
+        target_graph.pattern_finder.all_narrative_patterns.clear();
+        narrative_graph.pattern_finder.all_narrative_patterns.clear();
 
         NSEvolutionarySystemEvaluator evaluator = new NSEvolutionarySystemEvaluator();
-        System.out.println("TEMPLE _ ZELDA!");
+        System.out.println("TEMPLE ZELDA!");
         System.out.println("ORIGINAL");
-        evaluator.testEvaluation(target_graph, target_graph);
+        evaluator.testEvaluation(target_graph, null);
+        target_graph.pattern_finder.all_narrative_patterns.clear();
+        narrative_graph.pattern_finder.all_narrative_patterns.clear();
+        System.out.println();
+        System.out.println("ELITE NO TARGET");
+        evaluator.testEvaluation(narrative_graph, null);
+        target_graph.pattern_finder.all_narrative_patterns.clear();
+        narrative_graph.pattern_finder.all_narrative_patterns.clear();
         System.out.println();
         System.out.println("ELITE");
         evaluator.testEvaluation(narrative_graph, target_graph);
 
         System.out.println("");
 
-        double step = target_graph.distanceBetweenGraphs(narrative_graph);
+        double step = narrative_graph.distanceBetweenGraphs(target_graph);
 
         System.out.println("STEP: " + step);
     }
@@ -917,12 +937,22 @@ public class NarrativeStructure implements Listener {
         a.addConnection(e, 1);
         e.addConnection(f, 0);
 
-        narrative_graph.pattern_finder.findNarrativePatterns(target_graph);
+        //narrative_graph.pattern_finder.findNarrativePatterns(target_graph);
+
+        target_graph.pattern_finder.all_narrative_patterns.clear();
+        narrative_graph.pattern_finder.all_narrative_patterns.clear();
 
         NSEvolutionarySystemEvaluator evaluator = new NSEvolutionarySystemEvaluator();
         System.out.println("It's me MARIO!");
         System.out.println("ORIGINAL");
-        evaluator.testEvaluation(target_graph, target_graph);
+        evaluator.testEvaluation(target_graph, null);
+        target_graph.pattern_finder.all_narrative_patterns.clear();
+        narrative_graph.pattern_finder.all_narrative_patterns.clear();
+        System.out.println();
+        System.out.println("ELITE NO TARGET");
+        evaluator.testEvaluation(narrative_graph, null);
+        target_graph.pattern_finder.all_narrative_patterns.clear();
+        narrative_graph.pattern_finder.all_narrative_patterns.clear();
         System.out.println();
         System.out.println("ELITE");
         evaluator.testEvaluation(narrative_graph, target_graph);
@@ -932,6 +962,137 @@ public class NarrativeStructure implements Listener {
         double step = narrative_graph.distanceBetweenGraphs(target_graph);
 
         System.out.println("STEP: " + step);
+    }
+
+    public void TestTropeTwistPaperReviewComments()
+    {
+        GrammarGraph other_graph = new GrammarGraph();
+        GrammarNode other_hero = new GrammarNode(0, TVTropeType.HERO);
+        GrammarNode other_conflict = new GrammarNode(1, TVTropeType.CONFLICT);
+        GrammarNode other_enemy = new GrammarNode(2, TVTropeType.ENEMY);
+        GrammarNode other_hero_add = new GrammarNode(3, TVTropeType.HERO);
+        GrammarNode extra_hero = new GrammarNode(4, TVTropeType.HERO);
+        GrammarNode extra_hero_2 = new GrammarNode(5, TVTropeType.HERO);
+
+        other_hero.addConnection(other_conflict, 1);
+        other_hero_add.addConnection(other_conflict, 1);
+        extra_hero.addConnection(other_conflict, 1);
+        extra_hero_2.addConnection(other_conflict, 1);
+        other_conflict.addConnection(other_enemy, 1);
+
+        other_graph.nodes.add(other_hero);
+        other_graph.nodes.add(other_conflict);
+        other_graph.nodes.add(other_enemy);
+        other_graph.nodes.add(other_hero_add);
+        other_graph.nodes.add(extra_hero);
+        other_graph.nodes.add(extra_hero_2);
+
+        //////////// -------------------
+
+        GrammarGraph graph = new GrammarGraph();
+
+        GrammarNode hero = new GrammarNode(0, TVTropeType.HERO);
+        GrammarNode conflict = new GrammarNode(1, TVTropeType.CONFLICT);
+        GrammarNode enemy = new GrammarNode(2, TVTropeType.ENEMY);
+
+        hero.addConnection(conflict, 1);
+        conflict.addConnection(enemy, 1);
+
+        graph.nodes.add(hero);
+        graph.nodes.add(conflict);
+        graph.nodes.add(enemy);
+
+        //Mario
+//		graph = new GrammarGraph();
+//
+//		GrammarNode mario = graph.addNode(TVTropeType.HERO);
+//		GrammarNode conf = graph.addNode(TVTropeType.CONFLICT);
+//		GrammarNode empire = graph.addNode(TVTropeType.EMP);
+//		GrammarNode fake_bowser = graph.addNode(TVTropeType.DRA);
+//		GrammarNode bowser = graph.addNode(TVTropeType.BAD);
+//		GrammarNode quest_item = graph.addNode(TVTropeType.MCG);
+//		GrammarNode peach = graph.addNode(TVTropeType.HERO);
+//
+//		mario.addConnection(conf, 1);
+//		mario.addConnection(quest_item, 1);
+//		conf.addConnection(empire, 1);
+//
+//		empire.addConnection(fake_bowser, 0);
+//		fake_bowser.addConnection(bowser, 0);
+//		bowser.addConnection(quest_item, 0);
+//
+//		quest_item.addConnection(peach, 1);
+
+        //ZELDA temple
+//		graph = new GrammarGraph();
+//
+//		GrammarNode link = graph.addNode(TVTropeType.HERO);
+//		GrammarNode conf = graph.addNode(TVTropeType.CONFLICT);
+//		GrammarNode generic_en = graph.addNode(TVTropeType.ENEMY);
+////		GrammarNode drake = graph.addNode(TVTropeType.DRA);
+//		GrammarNode bow = graph.addNode(TVTropeType.MHQ);
+//		GrammarNode boss = graph.addNode(TVTropeType.BAD);
+//		GrammarNode quest_item = graph.addNode(TVTropeType.MCG);
+//		GrammarNode elder = graph.addNode(TVTropeType.HERO);
+//		GrammarNode extra_item = graph.addNode(TVTropeType.MHQ);
+//
+//		link.addConnection(conf, 1);
+//		link.addConnection(quest_item, 1);
+//		conf.addConnection(generic_en, 1);
+//
+//		generic_en.addConnection(bow, 0);
+////		drake.addConnection(bow, 0);
+//		bow.addConnection(boss, 0);
+//		boss.addConnection(quest_item, 0);
+//		quest_item.addConnection(elder, 1);
+//		elder.addConnection(extra_item, 0);
+//
+//		extra_item.addConnection(link, 1);
+//
+//		graph.pattern_finder.findNarrativePatterns(null);
+
+        //ZELDA OCARINA OF TIME
+//		graph = new GrammarGraph();
+//
+//		GrammarNode y_link = graph.addNode(TVTropeType.HERO);
+//		GrammarNode triforce = graph.addNode(TVTropeType.MCG);
+//		GrammarNode a_link = graph.addNode(TVTropeType.NEO);
+//		GrammarNode gannon = graph.addNode(TVTropeType.BAD);
+//		GrammarNode bad_conf = graph.addNode(TVTropeType.CONFLICT);
+//		GrammarNode zelda = graph.addNode(TVTropeType.HERO);
+//		GrammarNode sheik = graph.addNode(TVTropeType.SH);
+//		GrammarNode good_conf = graph.addNode(TVTropeType.CONFLICT);
+//
+//		y_link.addConnection(triforce, 1);
+//		triforce.addConnection(a_link, 1);
+//
+//		gannon.addConnection(bad_conf, 1);
+//		bad_conf.addConnection(a_link, 1);
+//		bad_conf.addConnection(zelda, 1);
+//
+//		zelda.addConnection(sheik, 1);
+//
+//		a_link.addConnection(good_conf, 1);
+//		sheik.addConnection(good_conf, 1);
+//		good_conf.addConnection(gannon, 1);
+
+        graph.pattern_finder.all_narrative_patterns.clear();
+        other_graph.pattern_finder.all_narrative_patterns.clear();
+
+        //graph.pattern_finder.findNarrativePatterns(null);
+        NSEvolutionarySystemEvaluator evaluator = new NSEvolutionarySystemEvaluator();
+
+        evaluator.testEvaluation(graph, other_graph);
+        graph.pattern_finder.all_narrative_patterns.clear();
+        other_graph.pattern_finder.all_narrative_patterns.clear();
+
+        //evaluator.testEvaluation(other_graph, null);
+        //graph.pattern_finder.all_narrative_patterns.clear();
+        //other_graph.pattern_finder.all_narrative_patterns.clear();
+
+        evaluator.testEvaluation(other_graph, graph);
+        graph.pattern_finder.all_narrative_patterns.clear();
+        other_graph.pattern_finder.all_narrative_patterns.clear();
     }
 
     public NarrativeStructure()
@@ -992,13 +1153,15 @@ public class NarrativeStructure implements Listener {
 
         EventRouter.getInstance().registerListener(this, new AlgorithmDone(null, null, ""));
 //        runExperiment();
-//        runZOOTExperiment();
-//        runMarioExperiment();
-//        runZTempleExperiment();
+        runZOOTExperiment();
+        runMarioExperiment();
+        runZTempleExperiment();
+
+ //       TestTropeTwistPaperReviewComments();
 
         analyzeZOOTElite();
-//        analyzeZTempleElite();
-//        analyzeMarioElite();
+        analyzeZTempleElite();
+        analyzeMarioElite();
 
 //        sampleTest();
 
