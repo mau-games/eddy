@@ -71,6 +71,9 @@ public class NSEvolutionarySystemEvaluator
 
         fitness = (weights[0] * interest_fitness) + (weights[1] * coherence_fitness);
 
+        //UNCOMMENT FOR FITNESS INFO!
+//        System.out.println("Interesting: " +  interest_fitness + ", coherence: " + coherence_fitness);
+
         return new double[]{interest_fitness, coherence_fitness, fitness};
     }
 
@@ -470,7 +473,7 @@ public class NSEvolutionarySystemEvaluator
         /**
          * Cohesion is the ratio between broken links and nothing patterns, and micro-patterns, and nodes
          */
-        double[] weights = new double[]{0.7, 0.3};
+        double[] weights = new double[]{1.0, 0.3}; //Actually, this needs to be changed?
         double hero_quality = 0.0;
         double villain_quality = 0.0;
         double struct_quality = 0.0;

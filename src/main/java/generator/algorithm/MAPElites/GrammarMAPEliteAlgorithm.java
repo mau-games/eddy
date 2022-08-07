@@ -1415,8 +1415,8 @@ public class GrammarMAPEliteAlgorithm extends Algorithm implements Listener {
 			//270 = step by step
 			//320 for all the dimensions
 			//570 for pair of dimensions
-//        	if(realCurrentGen > 270) //Close to 500 (570)
-//        		stop=true;
+        	if(realCurrentGen > 570) //Close to 500 (570)
+        		stop=true;
 
 //			if(realCurrentGen > 320) //Close to 500 (570)
 //				stop=true;

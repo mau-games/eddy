@@ -375,8 +375,8 @@ public class NarrativeStructureViewController extends BorderPane implements List
 
 //		RunMAPElites(core_graph);
 		//Fixme: This should happen as an event to be received by the class Game (check this!)
-		AlgorithmSetup.getInstance().setSaveData(false);
-//		AlgorithmSetup.getInstance().setSaveData(true);
+//		AlgorithmSetup.getInstance().setSaveData(false);
+		AlgorithmSetup.getInstance().setSaveData(true);
 
 		RunMAPElites(editedGraph, axiom_graph); //This one is the one to run!        \
 //		RunMAPElites(editedGraph, axiom_graph);
@@ -496,12 +496,12 @@ public class NarrativeStructureViewController extends BorderPane implements List
 		narrativeGraphMAPE = new GrammarMAPEliteAlgorithm(target_graph, ax);
 		currentDimensions = new MAPEDimensionGrammarFXML[]{
 				new MAPEDimensionGrammarFXML(GADimensionGrammar.GrammarDimensionTypes.INTERESTING, 5),
-				new MAPEDimensionGrammarFXML(GADimensionGrammar.GrammarDimensionTypes.STEP, 5)};
-//				new MAPEDimensionGrammarFXML(GADimensionGrammar.GrammarDimensionTypes.DIVERSITY, 5),
-//				new MAPEDimensionGrammarFXML(GADimensionGrammar.GrammarDimensionTypes.CONFLICT, 5),
-//				new MAPEDimensionGrammarFXML(GADimensionGrammar.GrammarDimensionTypes.PLOT_DEVICES, 5),
-//				new MAPEDimensionGrammarFXML(GADimensionGrammar.GrammarDimensionTypes.PLOT_POINTS, 5),
-//				new MAPEDimensionGrammarFXML(GADimensionGrammar.GrammarDimensionTypes.PLOT_TWISTS, 5)};
+				new MAPEDimensionGrammarFXML(GADimensionGrammar.GrammarDimensionTypes.STEP, 5),
+				new MAPEDimensionGrammarFXML(GADimensionGrammar.GrammarDimensionTypes.DIVERSITY, 5),
+				new MAPEDimensionGrammarFXML(GADimensionGrammar.GrammarDimensionTypes.CONFLICT, 5),
+				new MAPEDimensionGrammarFXML(GADimensionGrammar.GrammarDimensionTypes.PLOT_DEVICES, 5),
+				new MAPEDimensionGrammarFXML(GADimensionGrammar.GrammarDimensionTypes.PLOT_POINTS, 5),
+				new MAPEDimensionGrammarFXML(GADimensionGrammar.GrammarDimensionTypes.PLOT_TWISTS, 5)};
 		((GrammarMAPEliteAlgorithm)narrativeGraphMAPE).initPopulations(currentDimensions);
 		narrativeGraphMAPE.start();
 	}
@@ -582,12 +582,12 @@ public class NarrativeStructureViewController extends BorderPane implements List
 				LabeledCanvas canvas;
 
 				//Commenting this line because I am running the evaluation with all dimensions
-				//FIXME
-				synchronized (narrativeStructureDisplays) {
-
-					renderCell(filled_cells, currentDimensions.length - 1,
-							new float [] {currentDimensions[0].getGranularity(), currentDimensions[1].getGranularity()}, new int[] {0,0});
-				}
+				//FIXME: uncomment when not using all dimensions
+//				synchronized (narrativeStructureDisplays) {
+//
+//					renderCell(filled_cells, currentDimensions.length - 1,
+//							new float [] {currentDimensions[0].getGranularity(), currentDimensions[1].getGranularity()}, new int[] {0,0});
+//				}
 
 
 			}

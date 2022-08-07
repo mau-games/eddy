@@ -86,6 +86,8 @@ public class NarrativePattern
             quality = all_same_class.size() <= node_amount ? all_same_class.size()/node_amount : 2.0 - all_same_class.size()/node_amount;
         }
 
+        quality = 1.0 - Math.abs(node_amount - all_same_class.size())/(double)Math.max(all_same_class.size(), node_amount);
+
         return quality;
     }
 }

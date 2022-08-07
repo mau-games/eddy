@@ -40,6 +40,87 @@ public class NarrativeStructure implements Listener {
 
     private void nextElite()
     {
+        elite_counter++;
+        AlgorithmSetup.getInstance().setSaveData(true);
+
+//        if(elite_counter == 5)
+//        {
+//            counter = 0;
+//            AlgorithmSetup.getInstance().setMarioConstraints();
+//            AlgorithmSetup.getInstance().setConstraintNarrativeStruct(true);
+//            runExperiment4();
+//            return;
+//        }
+//        else if(elite_counter == 10)
+//        {
+//            possibleCombinations.clear();
+//            possibleCombinations.add(new MAPEDimensionGrammarFXML[]{
+//                    new MAPEDimensionGrammarFXML(GADimensionGrammar.GrammarDimensionTypes.INTERESTING, 5),
+//                    new MAPEDimensionGrammarFXML(GADimensionGrammar.GrammarDimensionTypes.STEP, 5),
+//                    new MAPEDimensionGrammarFXML(GADimensionGrammar.GrammarDimensionTypes.DIVERSITY, 5),
+//                    new MAPEDimensionGrammarFXML(GADimensionGrammar.GrammarDimensionTypes.CONFLICT, 5),
+//                    new MAPEDimensionGrammarFXML(GADimensionGrammar.GrammarDimensionTypes.PLOT_DEVICES, 5),
+//                    new MAPEDimensionGrammarFXML(GADimensionGrammar.GrammarDimensionTypes.PLOT_POINTS, 5),
+//                    new MAPEDimensionGrammarFXML(GADimensionGrammar.GrammarDimensionTypes.PLOT_TWISTS, 5)});
+//
+//            possibleCombinations.add(new MAPEDimensionGrammarFXML[]{
+//                    new MAPEDimensionGrammarFXML(GADimensionGrammar.GrammarDimensionTypes.INTERESTING, 5),
+//                    new MAPEDimensionGrammarFXML(GADimensionGrammar.GrammarDimensionTypes.STEP, 5),
+//                    new MAPEDimensionGrammarFXML(GADimensionGrammar.GrammarDimensionTypes.DIVERSITY, 5),
+//                    new MAPEDimensionGrammarFXML(GADimensionGrammar.GrammarDimensionTypes.CONFLICT, 5),
+//                    new MAPEDimensionGrammarFXML(GADimensionGrammar.GrammarDimensionTypes.PLOT_DEVICES, 5),
+//                    new MAPEDimensionGrammarFXML(GADimensionGrammar.GrammarDimensionTypes.PLOT_POINTS, 5),
+//                    new MAPEDimensionGrammarFXML(GADimensionGrammar.GrammarDimensionTypes.PLOT_TWISTS, 5)});
+//
+//            possibleCombinations.add(new MAPEDimensionGrammarFXML[]{
+//                    new MAPEDimensionGrammarFXML(GADimensionGrammar.GrammarDimensionTypes.INTERESTING, 5),
+//                    new MAPEDimensionGrammarFXML(GADimensionGrammar.GrammarDimensionTypes.STEP, 5),
+//                    new MAPEDimensionGrammarFXML(GADimensionGrammar.GrammarDimensionTypes.DIVERSITY, 5),
+//                    new MAPEDimensionGrammarFXML(GADimensionGrammar.GrammarDimensionTypes.CONFLICT, 5),
+//                    new MAPEDimensionGrammarFXML(GADimensionGrammar.GrammarDimensionTypes.PLOT_DEVICES, 5),
+//                    new MAPEDimensionGrammarFXML(GADimensionGrammar.GrammarDimensionTypes.PLOT_POINTS, 5),
+//                    new MAPEDimensionGrammarFXML(GADimensionGrammar.GrammarDimensionTypes.PLOT_TWISTS, 5)});
+//
+//            possibleCombinations.add(new MAPEDimensionGrammarFXML[]{
+//                    new MAPEDimensionGrammarFXML(GADimensionGrammar.GrammarDimensionTypes.INTERESTING, 5),
+//                    new MAPEDimensionGrammarFXML(GADimensionGrammar.GrammarDimensionTypes.STEP, 5),
+//                    new MAPEDimensionGrammarFXML(GADimensionGrammar.GrammarDimensionTypes.DIVERSITY, 5),
+//                    new MAPEDimensionGrammarFXML(GADimensionGrammar.GrammarDimensionTypes.CONFLICT, 5),
+//                    new MAPEDimensionGrammarFXML(GADimensionGrammar.GrammarDimensionTypes.PLOT_DEVICES, 5),
+//                    new MAPEDimensionGrammarFXML(GADimensionGrammar.GrammarDimensionTypes.PLOT_POINTS, 5),
+//                    new MAPEDimensionGrammarFXML(GADimensionGrammar.GrammarDimensionTypes.PLOT_TWISTS, 5)});
+//
+//            possibleCombinations.add(new MAPEDimensionGrammarFXML[]{
+//                    new MAPEDimensionGrammarFXML(GADimensionGrammar.GrammarDimensionTypes.INTERESTING, 5),
+//                    new MAPEDimensionGrammarFXML(GADimensionGrammar.GrammarDimensionTypes.STEP, 5),
+//                    new MAPEDimensionGrammarFXML(GADimensionGrammar.GrammarDimensionTypes.DIVERSITY, 5),
+//                    new MAPEDimensionGrammarFXML(GADimensionGrammar.GrammarDimensionTypes.CONFLICT, 5),
+//                    new MAPEDimensionGrammarFXML(GADimensionGrammar.GrammarDimensionTypes.PLOT_DEVICES, 5),
+//                    new MAPEDimensionGrammarFXML(GADimensionGrammar.GrammarDimensionTypes.PLOT_POINTS, 5),
+//                    new MAPEDimensionGrammarFXML(GADimensionGrammar.GrammarDimensionTypes.PLOT_TWISTS, 5)});
+//
+//            counter = 0;
+//            AlgorithmSetup.getInstance().setMarioConstraints();
+//            AlgorithmSetup.getInstance().setConstraintNarrativeStruct(false);
+//            runExperiment4();
+//            return;
+//        }
+//        else if(elite_counter == 15)
+//        {
+//            counter = 0;
+//            AlgorithmSetup.getInstance().setMarioConstraints();
+//            AlgorithmSetup.getInstance().setConstraintNarrativeStruct(true);
+//            runExperiment4();
+//            return;
+//        }
+
+        System.out.println("NEXT ELITE");
+        RunMAPElites(possibleCombinations.get(counter), target_graph, target_graph);
+    }
+
+    private void nextEliteFromExperiment()
+    {
+        System.out.println("NEXT ELITE FROM EXPERIMENT!");
         RunMAPElites(possibleCombinations.get(counter), target_graph, target_graph);
     }
 
@@ -73,7 +154,7 @@ public class NarrativeStructure implements Listener {
 
         AlgorithmSetup.getInstance().setSaveData(true);
 //        System.out.println(target_graph.toString());
-        nextElite();
+        nextEliteFromExperiment();
     }
 
     private void runMarioExperiment()
@@ -102,7 +183,7 @@ public class NarrativeStructure implements Listener {
 
         AlgorithmSetup.getInstance().setSaveData(true);
 //        System.out.println(target_graph.toString());
-        nextElite();
+        nextEliteFromExperiment();
     }
 
     private void runZTempleExperiment()
@@ -137,7 +218,37 @@ public class NarrativeStructure implements Listener {
 
         AlgorithmSetup.getInstance().setSaveData(true);
 //        System.out.println(target_graph.toString());
-        nextElite();
+        nextEliteFromExperiment();
+    }
+
+    private void runExperiment4()
+    {
+        //ZELDA temple
+        target_graph = new GrammarGraph();
+
+		GrammarNode hero = new GrammarNode(0, TVTropeType.HERO);
+		GrammarNode conflict = new GrammarNode(1, TVTropeType.CONFLICT);
+		GrammarNode enemy = new GrammarNode(2, TVTropeType.BAD);
+		GrammarNode mcg = new GrammarNode(3, TVTropeType.MCG);
+		GrammarNode drake = new GrammarNode(4, TVTropeType.DRA);
+
+		hero.addConnection(conflict, 1);
+		hero.addConnection(mcg, 1);
+		conflict.addConnection(enemy, 1);
+		conflict.addConnection(drake, 1);
+		drake.addConnection(mcg, 0);
+
+        target_graph.nodes.add(hero);
+        target_graph.nodes.add(conflict);
+        target_graph.nodes.add(enemy);
+        target_graph.nodes.add(mcg);
+        target_graph.nodes.add(drake);
+
+        target_graph.pattern_finder.findNarrativePatterns(null);
+
+        AlgorithmSetup.getInstance().setSaveData(true);
+//        System.out.println(target_graph.toString());
+        nextEliteFromExperiment();
     }
 
     private void runExperiment()
@@ -790,19 +901,27 @@ public class NarrativeStructure implements Listener {
         e.addConnection(d, 1);
         e.addConnection(g, 1);
 
-        narrative_graph.pattern_finder.findNarrativePatterns(target_graph);
+        target_graph.pattern_finder.all_narrative_patterns.clear();
+        narrative_graph.pattern_finder.all_narrative_patterns.clear();
 
         NSEvolutionarySystemEvaluator evaluator = new NSEvolutionarySystemEvaluator();
-
+        System.out.println("OCARINA!!");
         System.out.println("ORIGINAL");
-        evaluator.testEvaluation(target_graph, target_graph);
+        evaluator.testEvaluation(target_graph, null);
+        target_graph.pattern_finder.all_narrative_patterns.clear();
+        narrative_graph.pattern_finder.all_narrative_patterns.clear();
+        System.out.println();
+        System.out.println("ELITE NO TARGET");
+        evaluator.testEvaluation(narrative_graph, null);
+        target_graph.pattern_finder.all_narrative_patterns.clear();
+        narrative_graph.pattern_finder.all_narrative_patterns.clear();
         System.out.println();
         System.out.println("ELITE");
         evaluator.testEvaluation(narrative_graph, target_graph);
 
         System.out.println("");
 
-        double step = target_graph.distanceBetweenGraphs(narrative_graph);
+        double step = narrative_graph.distanceBetweenGraphs(target_graph);
 
         System.out.println("STEP: " + step);
     }
@@ -856,23 +975,66 @@ public class NarrativeStructure implements Listener {
         e.addConnection(f, 0);
         f.addConnection(d, 1);
         a.addConnection(g, 1);
-        g.addConnection(f, 1);
+        g.addConnection(f, 0); //this was 1 for some reason.
 
-        narrative_graph.pattern_finder.findNarrativePatterns(target_graph);
+        target_graph.pattern_finder.all_narrative_patterns.clear();
+        narrative_graph.pattern_finder.all_narrative_patterns.clear();
 
         NSEvolutionarySystemEvaluator evaluator = new NSEvolutionarySystemEvaluator();
-        System.out.println("TEMPLE _ ZELDA!");
+        System.out.println("TEMPLE ZELDA!");
         System.out.println("ORIGINAL");
-        evaluator.testEvaluation(target_graph, target_graph);
+        evaluator.testEvaluation(target_graph, null);
+        target_graph.pattern_finder.all_narrative_patterns.clear();
+        narrative_graph.pattern_finder.all_narrative_patterns.clear();
+        System.out.println();
+        System.out.println("ELITE NO TARGET");
+        evaluator.testEvaluation(narrative_graph, null);
+        target_graph.pattern_finder.all_narrative_patterns.clear();
+        narrative_graph.pattern_finder.all_narrative_patterns.clear();
         System.out.println();
         System.out.println("ELITE");
         evaluator.testEvaluation(narrative_graph, target_graph);
 
         System.out.println("");
 
-        double step = target_graph.distanceBetweenGraphs(narrative_graph);
+        double step = narrative_graph.distanceBetweenGraphs(target_graph);
 
         System.out.println("STEP: " + step);
+    }
+
+    public void analyzeExp4Info()
+    {
+        target_graph = new GrammarGraph();
+
+        GrammarNode hero = new GrammarNode(0, TVTropeType.HERO);
+        GrammarNode conflict = new GrammarNode(1, TVTropeType.CONFLICT);
+        GrammarNode enemy = new GrammarNode(2, TVTropeType.BAD);
+        GrammarNode mcg = new GrammarNode(3, TVTropeType.MCG);
+        GrammarNode drake = new GrammarNode(4, TVTropeType.DRA);
+
+        hero.addConnection(conflict, 1);
+        hero.addConnection(mcg, 1);
+        conflict.addConnection(enemy, 1);
+        conflict.addConnection(drake, 1);
+        drake.addConnection(mcg, 0);
+
+        target_graph.nodes.add(hero);
+        target_graph.nodes.add(conflict);
+        target_graph.nodes.add(enemy);
+        target_graph.nodes.add(mcg);
+        target_graph.nodes.add(drake);
+
+        target_graph.pattern_finder.findNarrativePatterns(null);
+
+
+        target_graph.pattern_finder.all_narrative_patterns.clear();
+
+        NSEvolutionarySystemEvaluator evaluator = new NSEvolutionarySystemEvaluator();
+        System.out.println("EXPERIMNT 4 TEST");
+        System.out.println("ORIGINAL");
+        evaluator.testEvaluation(target_graph, null);
+        target_graph.pattern_finder.all_narrative_patterns.clear();
+
     }
 
     public void analyzeMarioElite()
@@ -917,12 +1079,20 @@ public class NarrativeStructure implements Listener {
         a.addConnection(e, 1);
         e.addConnection(f, 0);
 
-        narrative_graph.pattern_finder.findNarrativePatterns(target_graph);
+        target_graph.pattern_finder.all_narrative_patterns.clear();
+        narrative_graph.pattern_finder.all_narrative_patterns.clear();
 
         NSEvolutionarySystemEvaluator evaluator = new NSEvolutionarySystemEvaluator();
         System.out.println("It's me MARIO!");
         System.out.println("ORIGINAL");
-        evaluator.testEvaluation(target_graph, target_graph);
+        evaluator.testEvaluation(target_graph, null);
+        target_graph.pattern_finder.all_narrative_patterns.clear();
+        narrative_graph.pattern_finder.all_narrative_patterns.clear();
+        System.out.println();
+        System.out.println("ELITE NO TARGET");
+        evaluator.testEvaluation(narrative_graph, null);
+        target_graph.pattern_finder.all_narrative_patterns.clear();
+        narrative_graph.pattern_finder.all_narrative_patterns.clear();
         System.out.println();
         System.out.println("ELITE");
         evaluator.testEvaluation(narrative_graph, target_graph);
@@ -933,6 +1103,8 @@ public class NarrativeStructure implements Listener {
 
         System.out.println("STEP: " + step);
     }
+
+    int elite_counter = 0;
 
     public NarrativeStructure()
     {
@@ -979,27 +1151,83 @@ public class NarrativeStructure implements Listener {
 //		possibleCombinations.add(new MAPEDimensionGrammarFXML[]{new MAPEDimensionGrammarFXML(GADimensionGrammar.GrammarDimensionTypes.PLOT_TWISTS, 5),
 //				new MAPEDimensionGrammarFXML(GADimensionGrammar.GrammarDimensionTypes.INTERESTING, 5)});
 
-        possibleCombinations.add(new MAPEDimensionGrammarFXML[]{new MAPEDimensionGrammarFXML(GADimensionGrammar.GrammarDimensionTypes.INTERESTING, 5),
-                new MAPEDimensionGrammarFXML(GADimensionGrammar.GrammarDimensionTypes.STEP, 5)});
-        possibleCombinations.add(new MAPEDimensionGrammarFXML[]{new MAPEDimensionGrammarFXML(GADimensionGrammar.GrammarDimensionTypes.INTERESTING, 5),
-                new MAPEDimensionGrammarFXML(GADimensionGrammar.GrammarDimensionTypes.STEP, 5)});
-        possibleCombinations.add(new MAPEDimensionGrammarFXML[]{new MAPEDimensionGrammarFXML(GADimensionGrammar.GrammarDimensionTypes.INTERESTING, 5),
-                new MAPEDimensionGrammarFXML(GADimensionGrammar.GrammarDimensionTypes.STEP, 5)});
-        possibleCombinations.add(new MAPEDimensionGrammarFXML[]{new MAPEDimensionGrammarFXML(GADimensionGrammar.GrammarDimensionTypes.INTERESTING, 5),
-                new MAPEDimensionGrammarFXML(GADimensionGrammar.GrammarDimensionTypes.STEP, 5)});
-        possibleCombinations.add(new MAPEDimensionGrammarFXML[]{new MAPEDimensionGrammarFXML(GADimensionGrammar.GrammarDimensionTypes.INTERESTING, 5),
-                new MAPEDimensionGrammarFXML(GADimensionGrammar.GrammarDimensionTypes.STEP, 5)});
+//        possibleCombinations.add(new MAPEDimensionGrammarFXML[]{new MAPEDimensionGrammarFXML(GADimensionGrammar.GrammarDimensionTypes.INTERESTING, 5),
+//                new MAPEDimensionGrammarFXML(GADimensionGrammar.GrammarDimensionTypes.STEP, 5)});
+//        possibleCombinations.add(new MAPEDimensionGrammarFXML[]{new MAPEDimensionGrammarFXML(GADimensionGrammar.GrammarDimensionTypes.INTERESTING, 5),
+//                new MAPEDimensionGrammarFXML(GADimensionGrammar.GrammarDimensionTypes.STEP, 5)});
+//        possibleCombinations.add(new MAPEDimensionGrammarFXML[]{new MAPEDimensionGrammarFXML(GADimensionGrammar.GrammarDimensionTypes.INTERESTING, 5),
+//                new MAPEDimensionGrammarFXML(GADimensionGrammar.GrammarDimensionTypes.STEP, 5)});
+//        possibleCombinations.add(new MAPEDimensionGrammarFXML[]{new MAPEDimensionGrammarFXML(GADimensionGrammar.GrammarDimensionTypes.INTERESTING, 5),
+//                new MAPEDimensionGrammarFXML(GADimensionGrammar.GrammarDimensionTypes.STEP, 5)});
+//        possibleCombinations.add(new MAPEDimensionGrammarFXML[]{new MAPEDimensionGrammarFXML(GADimensionGrammar.GrammarDimensionTypes.INTERESTING, 5),
+//                new MAPEDimensionGrammarFXML(GADimensionGrammar.GrammarDimensionTypes.STEP, 5)});
+
+        possibleCombinations.add(new MAPEDimensionGrammarFXML[]{
+                new MAPEDimensionGrammarFXML(GADimensionGrammar.GrammarDimensionTypes.INTERESTING, 5),
+                new MAPEDimensionGrammarFXML(GADimensionGrammar.GrammarDimensionTypes.STEP, 5),
+				new MAPEDimensionGrammarFXML(GADimensionGrammar.GrammarDimensionTypes.DIVERSITY, 5),
+				new MAPEDimensionGrammarFXML(GADimensionGrammar.GrammarDimensionTypes.CONFLICT, 5),
+				new MAPEDimensionGrammarFXML(GADimensionGrammar.GrammarDimensionTypes.PLOT_DEVICES, 5),
+				new MAPEDimensionGrammarFXML(GADimensionGrammar.GrammarDimensionTypes.PLOT_POINTS, 5),
+				new MAPEDimensionGrammarFXML(GADimensionGrammar.GrammarDimensionTypes.PLOT_TWISTS, 5)});
+
+        possibleCombinations.add(new MAPEDimensionGrammarFXML[]{
+                new MAPEDimensionGrammarFXML(GADimensionGrammar.GrammarDimensionTypes.INTERESTING, 5),
+                new MAPEDimensionGrammarFXML(GADimensionGrammar.GrammarDimensionTypes.STEP, 5),
+                new MAPEDimensionGrammarFXML(GADimensionGrammar.GrammarDimensionTypes.DIVERSITY, 5),
+                new MAPEDimensionGrammarFXML(GADimensionGrammar.GrammarDimensionTypes.CONFLICT, 5),
+                new MAPEDimensionGrammarFXML(GADimensionGrammar.GrammarDimensionTypes.PLOT_DEVICES, 5),
+                new MAPEDimensionGrammarFXML(GADimensionGrammar.GrammarDimensionTypes.PLOT_POINTS, 5),
+                new MAPEDimensionGrammarFXML(GADimensionGrammar.GrammarDimensionTypes.PLOT_TWISTS, 5)});
+
+        possibleCombinations.add(new MAPEDimensionGrammarFXML[]{
+                new MAPEDimensionGrammarFXML(GADimensionGrammar.GrammarDimensionTypes.INTERESTING, 5),
+                new MAPEDimensionGrammarFXML(GADimensionGrammar.GrammarDimensionTypes.STEP, 5),
+                new MAPEDimensionGrammarFXML(GADimensionGrammar.GrammarDimensionTypes.DIVERSITY, 5),
+                new MAPEDimensionGrammarFXML(GADimensionGrammar.GrammarDimensionTypes.CONFLICT, 5),
+                new MAPEDimensionGrammarFXML(GADimensionGrammar.GrammarDimensionTypes.PLOT_DEVICES, 5),
+                new MAPEDimensionGrammarFXML(GADimensionGrammar.GrammarDimensionTypes.PLOT_POINTS, 5),
+                new MAPEDimensionGrammarFXML(GADimensionGrammar.GrammarDimensionTypes.PLOT_TWISTS, 5)});
+
+        possibleCombinations.add(new MAPEDimensionGrammarFXML[]{
+                new MAPEDimensionGrammarFXML(GADimensionGrammar.GrammarDimensionTypes.INTERESTING, 5),
+                new MAPEDimensionGrammarFXML(GADimensionGrammar.GrammarDimensionTypes.STEP, 5),
+                new MAPEDimensionGrammarFXML(GADimensionGrammar.GrammarDimensionTypes.DIVERSITY, 5),
+                new MAPEDimensionGrammarFXML(GADimensionGrammar.GrammarDimensionTypes.CONFLICT, 5),
+                new MAPEDimensionGrammarFXML(GADimensionGrammar.GrammarDimensionTypes.PLOT_DEVICES, 5),
+                new MAPEDimensionGrammarFXML(GADimensionGrammar.GrammarDimensionTypes.PLOT_POINTS, 5),
+                new MAPEDimensionGrammarFXML(GADimensionGrammar.GrammarDimensionTypes.PLOT_TWISTS, 5)});
+
+        possibleCombinations.add(new MAPEDimensionGrammarFXML[]{
+                new MAPEDimensionGrammarFXML(GADimensionGrammar.GrammarDimensionTypes.INTERESTING, 5),
+                new MAPEDimensionGrammarFXML(GADimensionGrammar.GrammarDimensionTypes.STEP, 5),
+                new MAPEDimensionGrammarFXML(GADimensionGrammar.GrammarDimensionTypes.DIVERSITY, 5),
+                new MAPEDimensionGrammarFXML(GADimensionGrammar.GrammarDimensionTypes.CONFLICT, 5),
+                new MAPEDimensionGrammarFXML(GADimensionGrammar.GrammarDimensionTypes.PLOT_DEVICES, 5),
+                new MAPEDimensionGrammarFXML(GADimensionGrammar.GrammarDimensionTypes.PLOT_POINTS, 5),
+                new MAPEDimensionGrammarFXML(GADimensionGrammar.GrammarDimensionTypes.PLOT_TWISTS, 5)});
 
         EventRouter.getInstance().registerListener(this, new AlgorithmDone(null, null, ""));
+
+//        AlgorithmSetup.getInstance().setNarrativeConstraints(currentDungeon);
+        //AlgorithmSetup.getInstance().setFakeNarrativeConstraints();
+//        AlgorithmSetup.getInstance().setMarioConstraints();
+		AlgorithmSetup.getInstance().setZTempleConstraints();
+//		AlgorithmSetup.getInstance().setOcarinaConstraints();
+
+        AlgorithmSetup.getInstance().setConstraintNarrativeStruct(false);
+        AlgorithmSetup.getInstance().setSaveData(true);
+
 //        runExperiment();
-//        runZOOTExperiment();
+ //       runZOOTExperiment();
 //        runMarioExperiment();
 //        runZTempleExperiment();
+//        runExperiment4();
 
         analyzeZOOTElite();
-//        analyzeZTempleElite();
-//        analyzeMarioElite();
-
+        analyzeZTempleElite();
+        analyzeMarioElite();
+        analyzeExp4Info();
 //        sampleTest();
 
 //        runPatternFinderExperiment();
