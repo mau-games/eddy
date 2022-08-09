@@ -271,8 +271,9 @@ public class ExperimentsGUIController implements Initializable, Listener {
 		
 		//Initialize the folder to search
 		directoryChooser = new DirectoryChooser();
-        directoryChooser.setInitialDirectory(new File("my-data"));
-        
+        //directoryChooser.setInitialDirectory(new File("my-data"));
+		directoryChooser.setInitialDirectory(new File("/Users/ai5982/Documents/PhD/conferences/AIIDE/0-tineas-paper/Data for Alberto/xmls"));
+
         //Initiatilize the brush to paint the room
         myBrush = new Drawer();
 		myBrush.AddmodifierComponent("Lock", new Modifier(lockBrush));
