@@ -1,6 +1,5 @@
 package game.CoCreativity;
 
-import com.sun.deploy.security.SelectableSecurityManager;
 import finder.geometry.Point;
 import game.Room;
 import game.Tile;

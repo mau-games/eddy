@@ -1,6 +1,5 @@
 package game.narrative;
 
-import com.sun.org.apache.xerces.internal.xni.grammars.Grammar;
 import game.narrative.TVTropeType;
 import gui.controls.NarrativeShape;
 import util.Point;

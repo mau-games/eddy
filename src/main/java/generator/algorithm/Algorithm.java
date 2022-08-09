@@ -36,7 +36,6 @@ import generator.algorithm.MAPElites.Dimensions.SimilarityGADimension;
 import generator.algorithm.MAPElites.Dimensions.GADimension.DimensionTypes;
 import generator.config.GeneratorConfig;
 import machineLearning.PreferenceModel;
-import org.checkerframework.checker.units.qual.A;
 import util.Point;
 import util.Util;
 import util.eventrouting.EventRouter;

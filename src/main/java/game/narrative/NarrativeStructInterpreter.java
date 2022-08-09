@@ -1,8 +1,6 @@
 package game.narrative;
 
-import com.sun.org.apache.xerces.internal.xni.grammars.Grammar;
 import game.narrative.NarrativeFinder.NarrativePattern;
-import org.checkerframework.checker.units.qual.A;
 
 import java.util.ArrayList;
 import java.util.LinkedList;

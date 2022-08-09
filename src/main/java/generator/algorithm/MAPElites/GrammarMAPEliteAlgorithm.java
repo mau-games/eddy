@@ -1,7 +1,6 @@
 package generator.algorithm.MAPElites;
 
 import collectors.MAPECollector;
-import com.sun.org.apache.xerces.internal.xni.grammars.Grammar;
 import finder.PatternFinder;
 import game.AlgorithmSetup;
 import game.MapContainer;
