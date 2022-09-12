@@ -146,13 +146,13 @@ public class MAPEliteAlgorithm extends Algorithm implements Listener {
 
 		float dimension = 5.0f; //This should be sent when calling the algorithm!
 
-		MAPElitesDimensions.add(new SymmetryGADimension(dimension));
-		MAPElitesDimensions.add(new SimilarityGADimension(dimension));
+		//MAPElitesDimensions.add(new SymmetryGADimension(dimension));
+		//MAPElitesDimensions.add(new SimilarityGADimension(dimension));
 		MAPElitesDimensions.add(new LeniencyGADimension(dimension));
-		MAPElitesDimensions.add(new LinearityGADimension(dimension));
-		MAPElitesDimensions.add(new CharacteristicSimilarityGADimension(dimension));
+		//MAPElitesDimensions.add(new LinearityGADimension(dimension));
+		//MAPElitesDimensions.add(new CharacteristicSimilarityGADimension(dimension));
 		MAPElitesDimensions.add(new NMesoPatternGADimension(dimension));
-		MAPElitesDimensions.add(new NPatternGADimension(dimension));
+		//MAPElitesDimensions.add(new NPatternGADimension(dimension));
 
 		EventRouter.getInstance().registerListener(this, new MAPEGridUpdate(null));
 		EventRouter.getInstance().registerListener(this, new UpdatePreferenceModel(null));
@@ -226,15 +226,17 @@ public class MAPEliteAlgorithm extends Algorithm implements Listener {
 		//Add manually seven dimensions // was two before (Similarity and Symmetry)
 		MAPElitesDimensions = new ArrayList<GADimension>();
 
+		//TODO: THIS IS THE ONE CALLED!
+
 		float dimension = 5.0f; //This should be sent when calling the algorithm!
 
-		MAPElitesDimensions.add(new SymmetryGADimension(dimension));
-		MAPElitesDimensions.add(new SimilarityGADimension(dimension));
+		//MAPElitesDimensions.add(new SymmetryGADimension(dimension));
+		//MAPElitesDimensions.add(new SimilarityGADimension(dimension));
 		MAPElitesDimensions.add(new LeniencyGADimension(dimension));
-		MAPElitesDimensions.add(new LinearityGADimension(dimension));
-		MAPElitesDimensions.add(new CharacteristicSimilarityGADimension(dimension));
+		//MAPElitesDimensions.add(new LinearityGADimension(dimension));
+		//MAPElitesDimensions.add(new CharacteristicSimilarityGADimension(dimension));
 		MAPElitesDimensions.add(new NMesoPatternGADimension(dimension));
-		MAPElitesDimensions.add(new NPatternGADimension(dimension));
+		//MAPElitesDimensions.add(new NPatternGADimension(dimension));
 
 		EventRouter.getInstance().registerListener(this, new MAPEGridUpdate(null));
 		EventRouter.getInstance().registerListener(this, new UpdatePreferenceModel(null));
@@ -322,13 +324,13 @@ public class MAPEliteAlgorithm extends Algorithm implements Listener {
 		float dimension = 5.0f; //This should be sent when calling the algorithm!
 
 		//Add manually seven dimensions // was two before (Similarity and Symmetry)
-		MAPElitesDimensions.add(new SymmetryGADimension(dimension));
-		MAPElitesDimensions.add(new SimilarityGADimension(dimension));
+		//MAPElitesDimensions.add(new SymmetryGADimension(dimension));
+		//MAPElitesDimensions.add(new SimilarityGADimension(dimension));
 		MAPElitesDimensions.add(new LeniencyGADimension(dimension));
-		MAPElitesDimensions.add(new LinearityGADimension(dimension));
-		MAPElitesDimensions.add(new CharacteristicSimilarityGADimension(dimension));
+		//MAPElitesDimensions.add(new LinearityGADimension(dimension));
+		//MAPElitesDimensions.add(new CharacteristicSimilarityGADimension(dimension));
 		MAPElitesDimensions.add(new NMesoPatternGADimension(dimension));
-		MAPElitesDimensions.add(new NPatternGADimension(dimension));
+		//MAPElitesDimensions.add(new NPatternGADimension(dimension));
 
 		//Initialize all the cells!
 		this.cells = new ArrayList<GACell>();
@@ -390,16 +392,16 @@ public class MAPEliteAlgorithm extends Algorithm implements Listener {
 		float dimension = 5.0f; //This should be sent when calling the algorithm!
 
 		//Add manually seven dimensions // was two before (Similarity and Symmetry)
-		MAPElitesDimensions.add(new SymmetryGADimension(dimension));
-		MAPElitesDimensions.add(new SimilarityGADimension(dimension));
+		//MAPElitesDimensions.add(new SymmetryGADimension(dimension));
+		//MAPElitesDimensions.add(new SimilarityGADimension(dimension));
 		MAPElitesDimensions.add(new LeniencyGADimension(dimension));
-		MAPElitesDimensions.add(new LinearityGADimension(dimension));
-		MAPElitesDimensions.add(new CharacteristicSimilarityGADimension(dimension));
+		//MAPElitesDimensions.add(new LinearityGADimension(dimension));
+		//MAPElitesDimensions.add(new CharacteristicSimilarityGADimension(dimension));
 		MAPElitesDimensions.add(new NMesoPatternGADimension(dimension));
-		MAPElitesDimensions.add(new NPatternGADimension(dimension));
+		//MAPElitesDimensions.add(new NPatternGADimension(dimension));
 
 		//Helper variables to create the cells
-		float[] dimensionsGranularity = new float[7];
+		float[] dimensionsGranularity = new float[MAPElitesDimensions.size()];
 		int counter = 0;
 
 		for(GADimension d : MAPElitesDimensions)
@@ -410,7 +412,7 @@ public class MAPEliteAlgorithm extends Algorithm implements Listener {
 
 		//Initialize all the cells!
 		this.cells = new ArrayList<GACell>();
-		CreateCellsOpposite(MAPElitesDimensions.size() - 1, dimensionsGranularity, new int[7]);
+		CreateCellsOpposite(MAPElitesDimensions.size() - 1, dimensionsGranularity, new int[MAPElitesDimensions.size()]);
 		cellAmounts = this.cells.size();
 
 		//New addition

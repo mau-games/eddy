@@ -4,7 +4,12 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="460231d9-c25f-4150-a54b-efa0325c1bba" name="Changes" comment="" />
+    <list default="true" id="460231d9-c25f-4150-a54b-efa0325c1bba" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/../../java/game/CoCreativity/AICoCreator.java" beforeDir="false" afterPath="$PROJECT_DIR$/../../java/game/CoCreativity/AICoCreator.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../java/game/Room.java" beforeDir="false" afterPath="$PROJECT_DIR$/../../java/game/Room.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../java/generator/algorithm/MAPElites/MAPEliteAlgorithm.java" beforeDir="false" afterPath="$PROJECT_DIR$/../../java/generator/algorithm/MAPElites/MAPEliteAlgorithm.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -24,16 +29,17 @@
     <option name="stateVersion" value="1" />
   </component>
   <component name="ProjectId" id="2D2otSwRgh4aL8hMs7Cy0PFnQ0W" />
+  <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
   <component name="ProjectViewState">
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "RunOnceActivity.OpenProjectViewOnStart": "true",
-    "RunOnceActivity.ShowReadmeOnStart": "true"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;
   }
-}]]></component>
+}</component>
   <component name="RunManager">
     <configuration name="main" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="ml-communication" />
