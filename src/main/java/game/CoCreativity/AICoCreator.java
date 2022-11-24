@@ -130,10 +130,10 @@ public class AICoCreator {
             }
         }
 
-        //Tile[] bestContributions = new Tile[amountOfTiles];
-        //int[] maxAmounts = new int[amountOfTiles];
-        Tile[] bestContributions = new Tile[tilesPositions.size()];
-        int[] maxAmounts = new int[tilesPositions.size()];
+        Tile[] bestContributions = new Tile[amountOfTiles];
+        int[] maxAmounts = new int[amountOfTiles];
+        //Tile[] bestContributions = new Tile[tilesPositions.size()];
+        //int[] maxAmounts = new int[tilesPositions.size()];
 
         // for each position that we can contribute to
         for(int k=0; k<blah.length;k++)
@@ -151,35 +151,35 @@ public class AICoCreator {
                 System.out.println("WHY THIS KEEPS HAPPENING!");
             }
 
-            Tile t = new Tile(pos, TileTypes.getTypeByName(maxType));
-            bestContributions[k] = t; // TileTypes.valueOf(maxType)
-            maxAmounts[k] = max;
+            //Tile t = new Tile(pos, TileTypes.getTypeByName(maxType));
+            //bestContributions[k] = t; // TileTypes.valueOf(maxType)
+            //maxAmounts[k] = max;
 
 
             //update contributions if any of the current ones has a lower frequency
-//            for(int n=0; n<maxAmounts.length;n++)
-//            {
-//                if(max > maxAmounts[n])
-//                {
-//                    Tile t = new Tile(pos, TileTypes.getTypeByName(maxType));
-//                    bestContributions[n] = t; // TileTypes.valueOf(maxType)
-//                    maxAmounts[n] = max;
-//                    break;
-//                    //try to see if it results in a feasible room //FIXME: PUT THIS ON AGAIN
-////                    if(TilePlacementResultsInFeasibleRoom(t, currentTargetRoom))
-////                    {
-////                        bestContributions[n] = t; // TileTypes.valueOf(maxType)
-////                        maxAmounts[n] = max;
-////                        break;
-////                    }
-//                }
-//            }
+            for(int n=0; n<maxAmounts.length;n++)
+            {
+                if(max > maxAmounts[n])
+                {
+                    Tile t = new Tile(pos, TileTypes.getTypeByName(maxType));
+                    //bestContributions[n] = t; // TileTypes.valueOf(maxType)
+                    //maxAmounts[n] = max;
+                    //break;
+                    //try to see if it results in a feasible room //FIXME: PUT THIS ON AGAIN
+                    if(TilePlacementResultsInFeasibleRoom(t, currentTargetRoom))
+                    {
+                        bestContributions[n] = t; // TileTypes.valueOf(maxType)
+                        maxAmounts[n] = max;
+                        break;
+                    }
+                }
+            }
         }
 
-        List<Tile[]> subsets = getBestContributionConfiguration(bestContributions, amountOfTiles);
+        //List<Tile[]> subsets = getBestContributionConfiguration(bestContributions, amountOfTiles);
         //NOW I NEED TO TRY ALL THE SUBSETS TO SEE WHICH ONE GIVES BETTER FITNESS!
-        //contributions = Arrays.asList(bestContributions);
-        contributions = Arrays.asList(getBestSubset(subsets));
+        contributions = Arrays.asList(bestContributions);
+        //contributions = Arrays.asList(getBestSubset(subsets));
         router.postEvent(new AICalculateContributionsDone());
     }
 
