@@ -15,49 +15,37 @@ import javax.imageio.ImageIO;
 
 import collectors.ActionLogger;
 import collectors.DataSaverLoader;
-import collectors.ActionLogger.ActionType;
-import collectors.ActionLogger.TargetPane;
-import collectors.ActionLogger.View;
-import finder.PatternFinder;
 import game.ApplicationConfig;
 import game.Dungeon;
 import game.Game;
 import game.Room;
 import game.RoomEdge;
 import game.MapContainer;
-import game.TileTypes;
 import game.narrative.GrammarGraph;
 import game.narrative.GrammarNode;
 import game.narrative.NarrativeShapeEdge;
 import game.narrative.TVTropeType;
 import generator.config.GeneratorConfig;
 import gui.utils.InformativePopupManager;
-import gui.utils.MapRenderer;
 import gui.utils.narrativeeditor.NarrativeStructDrawer;
 import gui.views.*;
 import javafx.application.Platform;
 import javafx.embed.swing.SwingFXUtils;
-import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.geometry.Bounds;
 import javafx.geometry.Point2D;
 import javafx.scene.ImageCursor;
 import javafx.scene.Node;
-import javafx.scene.control.Button;
-import javafx.scene.control.MenuButton;
 //import javafx.scene.control.Alert;
 //import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.MenuItem;
-import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.stage.FileChooser;
 import javafx.stage.FileChooser.ExtensionFilter;
 import javafx.stage.Stage;
-import util.Point;
+import util.algorithms.ScaleAlgorithm;
 import util.config.MissingConfigurationException;
 import util.eventrouting.EventRouter;
 import util.eventrouting.Listener;
@@ -93,6 +81,7 @@ public class InteractiveGUIController implements Initializable, Listener {
 	WorldViewController worldView = null;
 	LaunchViewController launchView = null;
 	NarrativeStructureViewController narrativeView = null;
+	ScaleViewController scaleViewController = null;
 	EventHandler<MouseEvent> mouseEventHandler = null;
 
 //	final static Logger logger = LoggerFactory.getLogger(InteractiveGUIController.class);
@@ -139,6 +128,7 @@ public class InteractiveGUIController implements Initializable, Listener {
 		router.registerListener(this, new AlgorithmDone(null, null, null));
 		router.registerListener(this, new RequestRedraw());
 		router.registerListener(this, new RequestRoomView(null, 0, 0, null));
+		router.registerListener(this, new RequestScaleRoom(null, 0, 0)); //SCALE ROOM
 		router.registerListener(this, new MapLoaded(null));
 		router.registerListener(this, new RequestWorldView());
 		router.registerListener(this, new RequestEmptyRoom(null, 0, 0, null));
@@ -388,7 +378,14 @@ public class InteractiveGUIController implements Initializable, Listener {
 				//TODO: Here you should check for which dungeon
 				dungeonMap.removeEdge(edge);
 				backToWorldView();
-		 } //FOR NARRATIVE STUFF!
+		 }
+		 else if(e instanceof RequestScaleRoom){
+			 RequestScaleRoom rsR = (RequestScaleRoom)e;
+			 scaleViewController = new ScaleViewController(rsR);
+
+			 //ScaleAlgorithm scale = new ScaleAlgorithm(rsR.getHeight(), rsR.getWidth());
+		}
+		 //FOR NARRATIVE STUFF!
 		 else if(e instanceof RequestNarrativeView)
 		{
 			if(narrativeView == null)
