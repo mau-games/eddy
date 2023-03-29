@@ -239,7 +239,10 @@ public class Room {
 		root = new ZoneNode(null, this, getColCount(), getRowCount());
 		node = new finder.graph.Node<Room>(this);	
 	}
-	
+
+	public int getRoomWidth(){return width; }
+
+	public int getRoomHeight(){return height; }
 	
 	/**
 	 * Creates an instance of map.
