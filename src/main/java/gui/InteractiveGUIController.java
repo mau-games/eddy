@@ -45,7 +45,6 @@ import javafx.scene.layout.AnchorPane;
 import javafx.stage.FileChooser;
 import javafx.stage.FileChooser.ExtensionFilter;
 import javafx.stage.Stage;
-import util.algorithms.ScaleAlgorithm;
 import util.config.MissingConfigurationException;
 import util.eventrouting.EventRouter;
 import util.eventrouting.Listener;
@@ -380,10 +379,8 @@ public class InteractiveGUIController implements Initializable, Listener {
 				backToWorldView();
 		 }
 		 else if(e instanceof RequestScaleRoom){
-			 RequestScaleRoom rsR = (RequestScaleRoom)e;
-			 scaleViewController = new ScaleViewController(rsR);
-
-			 //ScaleAlgorithm scale = new ScaleAlgorithm(rsR.getHeight(), rsR.getWidth());
+			 Room scaleRoom = (Room)e.getPayload();
+			 scaleViewController = new ScaleViewController(scaleRoom);
 		}
 		 //FOR NARRATIVE STUFF!
 		 else if(e instanceof RequestNarrativeView)
