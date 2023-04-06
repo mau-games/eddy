@@ -1,47 +1,49 @@
 package util.algorithms;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
 //Nearest-neighbour interpolation in the context of scaling maps
-public class NearestNeighbour {
+public class NearestNeighbour extends ScaleMatrix{
 
     private int[][] matrix;
+    private int[][] scaledMatrix;
     private int scaleFactor;
-    private boolean isUpscale;
-    public NearestNeighbour(int[][] matrix, int scaleFactor, boolean isUpscale){
+
+    public NearestNeighbour(int[][] matrix, int scaleFactor){
         this.matrix = matrix;
         this.scaleFactor = scaleFactor;
-        this.isUpscale = isUpscale;
 
-        if(isUpscale)
-            Upcale();
-        else
-            Downscale();
+        System.out.println("Original Matrix: " + Arrays.deepToString(matrix));
     }
 
     //To upscale, have to be integer
-    private int[][] Upcale()
+    @Override
+    public int[][] Upscale()
     {
         int newRows = matrix.length * scaleFactor;
         int newCols = matrix[0].length * scaleFactor;
-        int[][] scaledMat = new int[newRows][newCols];
+        scaledMatrix = new int[newRows][newCols];
 
         for(int r = 0; r < newRows; r++)
         {
             for(int c = 0; c < newCols; c++)
             {
-                scaledMat[r][c] = matrix[r/scaleFactor][c/scaleFactor];
+                scaledMatrix[r][c] = matrix[r/scaleFactor][c/scaleFactor];
             }
         }
-        return scaledMat;
+        //System.out.println("Upscaled Matrix: " + Arrays.deepToString(scaledMatrix));
+
+        return scaledMatrix;
     }
 
     //Downscale and use the most common out of four adjacent elements when representing
+    @Override
     public int[][] Downscale() {
         int newRows = matrix.length / scaleFactor;
         int newCols = matrix[0].length / scaleFactor;
-        int[][] scaledMatrix = new int[newRows][newCols];
+        scaledMatrix = new int[newRows][newCols];
 
         for (int r = 0; r < newRows; r++) {
             for (int c = 0; c < newCols; c++) {
@@ -67,7 +69,14 @@ public class NearestNeighbour {
                 scaledMatrix[r][c] = mostFreqValue;
             }
         }
+        //System.out.println("Downscaled: " + Arrays.deepToString(scaledMatrix));
 
         return scaledMatrix;
     }
+
+    @Override
+    public int[][] getScaledMatrix(){
+        return scaledMatrix;
+    }
+
 }

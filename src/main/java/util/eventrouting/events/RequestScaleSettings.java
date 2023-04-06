@@ -19,7 +19,8 @@ public class RequestScaleSettings extends PCGEvent {
         this.firstDimType = firstDimType;
         this.secDimType = secDimType;
     }
-    public RequestScaleSettings(String strScaleType, double scaleFactor){
+    public RequestScaleSettings(String strSizeAdjType, String strScaleType, double scaleFactor){
+        this.strSizeAdjType = strSizeAdjType;
         this.strScaleType = strScaleType;
         this.scaleFactor = scaleFactor;
     }

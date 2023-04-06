@@ -1,14 +1,28 @@
 package util.algorithms;
 
 //Fibonacci sequence in the context of scaling maps
-public class ScaleFibonacci {
+public class ScaleFibonacci extends ScaleMatrix{
     private int[][] matrix;
+    private int[][] scaledMatrix;
     private double scaleFactor;
-    private boolean isUpscale;
 
-    public ScaleFibonacci(int[][] matrix, double scaleFactor, boolean isUpscale){
+    public ScaleFibonacci(int[][] matrix, double scaleFactor){
         this.matrix = matrix;
         this.scaleFactor = scaleFactor;
-        this.isUpscale = isUpscale;
+    }
+
+    @Override
+    public int[][] Upscale(){
+        return scaledMatrix;
+    }
+
+    @Override
+    public int[][] Downscale(){
+        return scaledMatrix;
+    }
+
+    @Override
+    public int[][] getScaledMatrix(){
+        return scaledMatrix;
     }
 }

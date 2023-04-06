@@ -1,5 +1,6 @@
 package gui.views;
 
+import game.Dungeon;
 import game.Room;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -11,6 +12,7 @@ import javafx.scene.control.TextField;
 import javafx.scene.paint.Color;
 import util.algorithms.ScaleFibonacci;
 import util.algorithms.NearestNeighbour;
+import util.algorithms.ScaleMatrix;
 import util.eventrouting.EventRouter;
 import util.eventrouting.Listener;
 import util.eventrouting.PCGEvent;
@@ -26,10 +28,12 @@ import javafx.scene.control.*;
 
 import java.awt.*;
 
+import java.util.Arrays;
+
 public class ScaleViewController implements Listener{
+    private Dungeon dungeon;
+    private WorldViewController worldView;
     private Room scaleRoom;
-    private NearestNeighbour nn;
-    private ScaleFibonacci fib;
     private static EventRouter router = EventRouter.getInstance();
 
     public enum ScaleType{
@@ -41,10 +45,12 @@ public class ScaleViewController implements Listener{
         Upscale,
         Downscale
     }
-    public ScaleViewController(Room scaleRoom){
+    public ScaleViewController(WorldViewController worldView, Dungeon dungeon, Room scaleRoom){
+        this.dungeon = dungeon;
+        this.worldView = worldView;
         this.scaleRoom = scaleRoom;
         router.registerListener(this, new RequestScaleSettings(null, null, -1, null, null));
-
+        router.postEvent(new RequestScaleSettings("Downscale","NearestNeighbour", 2));
         Stage window = new Stage();
 
         window.initModality(Modality.APPLICATION_MODAL);
@@ -126,17 +132,15 @@ public class ScaleViewController implements Listener{
             RequestScaleSettings rSS = (RequestScaleSettings)e;
             ScaleType scaleType = ScaleType.valueOf(rSS.getStrScaleType());
             SizeAdjustType sizeAdjustType = SizeAdjustType.valueOf(rSS.getStrSizeAdjType());
-            boolean isUpscale = false;
-
-            if(sizeAdjustType == SizeAdjustType.Upscale)
-                isUpscale = true;
+            ScaleMatrix scaleMatrix = null;
+            int[][] matrix;
 
             switch (scaleType){
                 case NearestNeighbour:
-                    nn = new NearestNeighbour(scaleRoom.toMatrix(), (int)rSS.getScaleFactor(), isUpscale);
+                    scaleMatrix = new NearestNeighbour(scaleRoom.toMatrix(), (int)rSS.getScaleFactor());
                     break;
                 case Fibonacci:
-                    fib = new ScaleFibonacci(scaleRoom.toMatrix(), rSS.getScaleFactor(), isUpscale);
+                    scaleMatrix = new ScaleFibonacci(scaleRoom.toMatrix(), rSS.getScaleFactor());
                     break;
                 case None:
                     System.out.println("None: scaletype");
@@ -144,8 +148,27 @@ public class ScaleViewController implements Listener{
                 default:
                     System.out.println("Invalid: scaletype");
                     break;
-
             }
+            System.out.println(sizeAdjustType.toString());
+
+            switch (sizeAdjustType){
+                case Upscale:
+                    matrix = scaleMatrix.Upscale();
+                    dungeon.addRoom(matrix);
+                    worldView.initWorldMap(dungeon);
+                    System.out.println(Arrays.deepToString(matrix));
+                    break;
+                case Downscale:
+                    matrix = scaleMatrix.Downscale();
+                    dungeon.addRoom(matrix);
+                    worldView.initWorldMap(dungeon);
+                    System.out.println(Arrays.deepToString(matrix));
+                    break;
+                default:
+                    System.out.println("Invalid: sizeAdjustment");
+                    break;
+            }
+
         }
     }
 }

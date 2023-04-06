@@ -246,6 +246,30 @@ public class Dungeon implements Listener {
 		return auxR;
 	}
 
+	//For calculated matrix
+	public Room addRoom(int[][] matrix) {
+		Room auxR = new Room(this, defaultConfig, matrix, scaleFactor);
+		rooms.add(auxR);
+		network.addNode(auxR);
+		dPane.addVisualRoom(auxR);
+		this.size++;
+
+		if (initialRoom == null) {
+			setInitialRoom(auxR, new Point(0, 0));
+		}
+
+		checkInterFeasible(true);
+
+		InformativePopupManager.getInstance().requestPopup(dPane, PresentableInformation.ROOMS_CONNECTED, "");
+
+		ActionLogger.getInstance().storeAction(ActionType.CREATE_ROOM, View.WORLD, TargetPane.WORLD_MAP_PANE, false,
+				auxR, matrix[0].length, matrix.length);
+
+		saveDungeonXML();
+
+		return auxR;
+	}
+
 	public void addRoom(Room alreadyCreatedRoom) {
 		alreadyCreatedRoom.setOwner(this);
 		rooms.add(alreadyCreatedRoom);

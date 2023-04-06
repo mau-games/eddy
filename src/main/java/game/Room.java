@@ -291,6 +291,31 @@ public class Room {
 		root = new ZoneNode(null, this, getColCount(), getRowCount());
 		node = new finder.graph.Node<Room>(this);
 	}
+
+	public Room(Dungeon owner, GeneratorConfig config, int matrix[][], int scaleFactor) //THIS IS CALLED WHEN ADDING ROOMS TO THE DUNGEON!
+	{
+		int rows = matrix.length;
+		int cols = matrix[0].length;
+		init(rows, cols);
+		this.owner = owner;
+		this.config = config;
+		this.matrix = matrix;
+		this.scaleFactor = scaleFactor;
+		localConfig = new RoomConfig(this, scaleFactor); //TODO: NEW ADDITION --> HAVE TO BE ADDED EVERYWHERE
+
+		for (int j = 0; j < height; j++) {
+			for (int i = 0; i < width; i++) {
+
+				tileMap[j * width + i] = new Tile(i , j, TileTypes.toTileType(matrix[j][i]));
+			}
+		}
+
+		finder = new PatternFinder(this);
+		pathfinder = new RoomPathFinder(this);
+
+		root = new ZoneNode(null, this, getColCount(), getRowCount());
+		node = new finder.graph.Node<Room>(this);
+	}
 	
 	public Room(Room copyMap) //THIS IS CALLED WHEN CREATING A ZONE IN THE TREE (TO HAVE A COPY OF THE DOORS)
 	{

@@ -380,7 +380,7 @@ public class InteractiveGUIController implements Initializable, Listener {
 		 }
 		 else if(e instanceof RequestScaleRoom){
 			 Room scaleRoom = (Room)e.getPayload();
-			 scaleViewController = new ScaleViewController(scaleRoom);
+			 scaleViewController = new ScaleViewController(worldView, this.dungeonMap, scaleRoom);
 		}
 		 //FOR NARRATIVE STUFF!
 		 else if(e instanceof RequestNarrativeView)
