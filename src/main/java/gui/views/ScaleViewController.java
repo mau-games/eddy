@@ -35,6 +35,14 @@ public class ScaleViewController implements Listener{
     private WorldViewController worldView;
     private Room scaleRoom;
     private static EventRouter router = EventRouter.getInstance();
+    private Stage window = new Stage();
+    private Label scalingLb,listLb ;
+    private ComboBox<String> updownCb, propertiesCb1, propertiesCb2;
+    private ChoiceBox<String> scalingCb;
+    private ObservableList<String> propertyList;
+    private Button scaleBtn;
+    private VBox topLayout;
+    private Scene scene;
 
     public enum ScaleType{
         None,
@@ -51,7 +59,6 @@ public class ScaleViewController implements Listener{
         this.scaleRoom = scaleRoom;
         router.registerListener(this, new RequestScaleSettings(null, null, -1, null, null));
         //router.postEvent(new RequestScaleSettings("Downscale","NearestNeighbour", 2));
-        Stage window = new Stage();
 
         window.initModality(Modality.APPLICATION_MODAL);
         window.setTitle("ScalingUI DEMO");
@@ -59,9 +66,9 @@ public class ScaleViewController implements Listener{
         window.setMinHeight(400);
 
 
-        Label scalingLb = new Label("Select a scaling function.");
+        scalingLb = new Label("Select a scaling function.");
         scalingLb.setStyle("-fx-text-fill: linear-gradient(#b9bbc9,#afafaf); -fx-font-size: 16px;");
-        ChoiceBox<String> scalingCb = new ChoiceBox<>();
+        scalingCb = new ChoiceBox<>();
 
         // opptions do not show
         // make sure that the max map width is not creating problems when scaling
@@ -72,7 +79,7 @@ public class ScaleViewController implements Listener{
                 "    -fx-border-width: 0;\r\n" +
                 "    -fx-border-insets: 0;");
 
-        ComboBox<String> updownCb = new ComboBox<>();
+        updownCb = new ComboBox<>();
         updownCb.getItems().addAll("Upscale","Downscale");
         updownCb.setPromptText("Select upscaling or downscaling");
         updownCb.setStyle("-fx-background-color: linear-gradient(#b9bbc9,#3d3d3d); -fx-padding: 5;\r\n" +
@@ -81,13 +88,13 @@ public class ScaleViewController implements Listener{
                 "    -fx-border-width: 0;\r\n" +
                 "    -fx-border-insets: 0;");
 
-        Label listLb = new Label("Select the desirable properties to be used in EA");
+        listLb = new Label("Select the desirable properties to be used in EA");
         listLb.setStyle("-fx-text-fill: linear-gradient(#b9bbc9,#afafaf); -fx-font-size: 16px;");
 
 
-        ObservableList<String> propertyList = FXCollections.observableArrayList("None","Leniency","Similarity","Symmetry","Inner_Similarity","Number_Pattern","Number_Meso_Pattern","Linearity","Custom");
+        propertyList = FXCollections.observableArrayList("None","Leniency","Similarity","Symmetry","Inner_Similarity","Number_Pattern","Number_Meso_Pattern","Linearity","Custom");
 
-        ComboBox<String> propertiesCb1 = new ComboBox<>(propertyList);
+        propertiesCb1 = new ComboBox<>(propertyList);
         propertiesCb1.setValue("None");
         propertiesCb1.setStyle("-fx-background-color: linear-gradient(#b9bbc9,#3d3d3d); -fx-padding: 5;\r\n" +
                 "    -fx-text-fill: linear-gradient (#b9bbc9,#afafaf); -fx-font-size: 16px; \r\n" +
@@ -95,7 +102,7 @@ public class ScaleViewController implements Listener{
                 "    -fx-border-width: 0;\r\n" +
                 "    -fx-border-insets: 0;");
 
-        ComboBox<String>propertiesCb2 = new ComboBox<>(propertyList);
+        propertiesCb2 = new ComboBox<>(propertyList);
         propertiesCb2.setValue("None");
         propertiesCb2.setStyle("-fx-background-color: linear-gradient(#b9bbc9,#3d3d3d); -fx-padding: 5;\r\n" +
                 "    -fx-text-fill: linear-gradient (#b9bbc9,#afafaf); -fx-font-size: 16px; \r\n" +
@@ -103,7 +110,7 @@ public class ScaleViewController implements Listener{
                 "    -fx-border-width: 0;\r\n" +
                 "    -fx-border-insets: 0;");
 
-        Button scaleBtn = new Button("Scale");
+        scaleBtn = new Button("Scale");
         scaleBtn.setStyle("-fx-background-color: linear-gradient(#dc9656,#ab4642); -fx-padding: 5;\r\n" +
         "    -fx-border-style: none;\r\n" +
                 "    -fx-border-width: 0;\r\n" +
@@ -137,30 +144,11 @@ public class ScaleViewController implements Listener{
 
 
         scaleBtn.setOnAction(e -> {
-            String scalingType, updownType,firstProp, secoundProp;
-            scalingType = scalingCb.getValue();
-            firstProp = propertiesCb1.getValue();
-            secoundProp = propertiesCb2.getValue();
-            double scalefactor;
-            if (scalingCb.getValue()=="Fibonacci") {
-                scalefactor = 1.618;
-                updownType = updownCb.getValue();
-                scalingType = "Fibonacci";
-            }else if(scalingCb.getValue()=="None"){
-                scalefactor = 1;
-                updownType = "Upscale";
-                scalingType = "None";
-            }else {
-                scalefactor = (Double.parseDouble(scalingCb.getValue().substring(0, 1).replace(':',' ')) / Double.parseDouble(scalingCb.getValue().substring(2)));
-                updownType = (scalefactor>=1)?"Upscale":"Downscale";
-                scalingType = "NearestNeighbour";
-            }
-           // router.postEvent(new RequestScaleSettings("Downscale","NearestNeighbour", 2));
-            router.postEvent(new RequestScaleSettings(updownType, scalingType, scalefactor));
+            scaleAndSend();
             window.close();
         });
 
-        VBox topLayout = new VBox(10);
+        topLayout = new VBox(10);
         topLayout.setPadding(new Insets(20,20,20,20));
         topLayout.getChildren().addAll(scalingLb,scalingCb,updownCb,listLb,propertiesCb1,propertiesCb2,scaleBtn);
         topLayout.setAlignment(Pos.TOP_CENTER);
@@ -177,12 +165,40 @@ public class ScaleViewController implements Listener{
 
 
 
-        Scene scene = new Scene(topLayout);
+        scene = new Scene(topLayout);
         scene.getStylesheets().add(this.getClass().getResource("/gui/bootstrap3.css").toExternalForm());
         window.setScene(scene);
         window.showAndWait();
 
         System.out.println("ScaleViewController: " + scaleRoom.getRoomHeight() + " height. " + scaleRoom.getRoomWidth() + " width.");
+    }
+
+    /***
+     * This method is called in the ActionEvent handler for the button, it gets the users inputs and send it to the RequestScaleSettings()
+     *
+     * rename method later?
+     */
+    public void scaleAndSend(){
+        String scalingType, updownType;
+        double scalefactor;
+        if (scalingCb.getValue()=="Fibonacci") {
+            scalefactor = 1.618;
+            updownType = updownCb.getValue();
+            scalingType = "Fibonacci";
+        }else if(scalingCb.getValue()=="None"){
+            scalefactor = 1;
+            updownType = "Upscale";
+            scalingType = "None";
+        }else {
+            scalefactor = (Double.parseDouble(scalingCb.getValue().substring(0, 1).replace(':',' ')) / Double.parseDouble(scalingCb.getValue().substring(2)));
+            updownType = (scalefactor>=1)?"Upscale":"Downscale";
+            scalingType = "NearestNeighbour";
+        }
+        router.postEvent(new RequestScaleSettings(updownType, scalingType, scalefactor));
+       /*
+       This method call below will work when the implementation of RequestScaleSettings method has full functional implementation.
+       router.postEvent(new RequestScaleSettings(updownType, scalingType, scalefactor,propertiesCb1.getValue(),propertiesCb2.getValue()));
+        */
     }
     @Override
     public synchronized void ping(PCGEvent e){
