@@ -190,8 +190,11 @@ public class ScaleViewController implements Listener{
             updownType = "Upscale";
             scalingType = "None";
         }else {
-            scalefactor = (Double.parseDouble(scalingCb.getValue().substring(0, 1).replace(':',' ')) / Double.parseDouble(scalingCb.getValue().substring(2)));
-            updownType = (scalefactor>=1)?"Upscale":"Downscale";
+            //scalefactor = (Double.parseDouble(scalingCb.getValue().substring(0, 1).replace(':',' ')) / Double.parseDouble(scalingCb.getValue().substring(2)));
+            int first = Integer.parseInt(scalingCb.getValue().substring(0, 1).replace(':',' '));
+            int secound = Integer.parseInt(scalingCb.getValue().substring(2));
+            scalefactor = (first  < secound)?secound:first;
+            updownType = (first>=secound)?"Upscale":"Downscale";
             scalingType = "NearestNeighbour";
         }
         router.postEvent(new RequestScaleSettings(updownType, scalingType, scalefactor));
