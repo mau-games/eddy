@@ -190,6 +190,6 @@ public class ScaleViewController implements Listener{
             System.out.println("Scaled: " + Arrays.deepToString(matrix));
             dungeon.addRoom(matrix);
             worldView.initWorldMap(dungeon);
-        }else if (e )
+        }
     }
 }
