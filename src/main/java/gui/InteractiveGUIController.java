@@ -15,12 +15,7 @@ import javax.imageio.ImageIO;
 
 import collectors.ActionLogger;
 import collectors.DataSaverLoader;
-import game.ApplicationConfig;
-import game.Dungeon;
-import game.Game;
-import game.Room;
-import game.RoomEdge;
-import game.MapContainer;
+import game.*;
 import game.narrative.GrammarGraph;
 import game.narrative.GrammarNode;
 import game.narrative.NarrativeShapeEdge;
@@ -106,6 +101,7 @@ public class InteractiveGUIController implements Initializable, Listener {
 	private Dungeon dungeonMap = new Dungeon();
 
 	private GrammarGraph graph;
+
 	
 	public static UUID runID;
 	
@@ -380,7 +376,8 @@ public class InteractiveGUIController implements Initializable, Listener {
 		 }
 		 else if(e instanceof RequestScaleRoom){
 			 Room scaleRoom = (Room)e.getPayload();
-			 scaleViewController = new ScaleViewController(worldView, this.dungeonMap, scaleRoom);
+
+			 scaleViewController = new ScaleViewController(worldView, dungeonMap, scaleRoom);
 		}
 		 //FOR NARRATIVE STUFF!
 		 else if(e instanceof RequestNarrativeView)

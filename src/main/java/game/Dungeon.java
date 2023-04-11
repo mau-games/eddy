@@ -4,7 +4,6 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.Stack;
@@ -30,27 +29,18 @@ import collectors.ActionLogger;
 import collectors.ActionLogger.ActionType;
 import collectors.ActionLogger.TargetPane;
 import collectors.ActionLogger.View;
-import finder.patterns.CompositePattern;
-import finder.patterns.macro.FindTreasure;
-import finder.patterns.macro.DefeatEnemies;
-import finder.patterns.macro.DefeatBoss;
-import finder.patterns.micro.Boss;
 import game.tiles.BossEnemyTile;
-import generator.algorithm.MAPElites.Dimensions.GADimension.DimensionTypes;
 import generator.config.GeneratorConfig;
 import gui.InteractiveGUIController;
 import gui.utils.InformativePopupManager;
 import gui.utils.InformativePopupManager.PresentableInformation;
-import runners.InteractiveGUI;
 import util.Point;
 import util.eventrouting.EventRouter;
 import util.eventrouting.Listener;
 import util.eventrouting.PCGEvent;
 import util.eventrouting.events.FocusRoom;
-import util.eventrouting.events.RequestConnection;
 import util.eventrouting.events.RequestRoomView;
 import util.eventrouting.events.RequestWorldView;
-import util.eventrouting.events.Stop;
 import util.eventrouting.events.ToggleObjectives;
 
 /***
@@ -450,7 +440,7 @@ public class Dungeon implements Listener {
 	 * 
 	 * @param value
 	 * @deprecated get access to internal Dungeon pane {@link #dPane} and use
-	 *             {@link #dPane.tryScale(Scale)} instead
+	 *             {@link #dPane.tryScale(RoomScale)} instead
 	 */
 	@Deprecated
 	public void scaleRoomsWorldView(int value) {

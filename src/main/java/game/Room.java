@@ -292,7 +292,7 @@ public class Room {
 		node = new finder.graph.Node<Room>(this);
 	}
 
-	public Room(Dungeon owner, GeneratorConfig config, int matrix[][], int scaleFactor) //THIS IS CALLED WHEN ADDING ROOMS TO THE DUNGEON!
+	public Room(Dungeon owner, GeneratorConfig config, int matrix[][], int scaleFactor)
 	{
 		int rows = matrix.length;
 		int cols = matrix[0].length;

@@ -8,21 +8,14 @@ public class RequestScaleSettings extends PCGEvent {
     private String strSizeAdjType;
     private String strScaleType;
     private double scaleFactor;
-    private String firstDimType;
-    private String secDimType;
+    private String[] preserveDimArr;
 
     //Used for initializing dimension types that should be preserved from the original room
-    public RequestScaleSettings(String strSizeAdjType, String strScaleType, double scaleFactor, String firstDimType, String secDimType){
+    public RequestScaleSettings(String strSizeAdjType, String strScaleType, double scaleFactor, String[] preserveDimArr){
         this.strSizeAdjType = strSizeAdjType;
         this.strScaleType = strScaleType;
         this.scaleFactor = scaleFactor;
-        this.firstDimType = firstDimType;
-        this.secDimType = secDimType;
-    }
-    public RequestScaleSettings(String strSizeAdjType, String strScaleType, double scaleFactor){
-        this.strSizeAdjType = strSizeAdjType;
-        this.strScaleType = strScaleType;
-        this.scaleFactor = scaleFactor;
+        this.preserveDimArr = preserveDimArr;
     }
 
     public String getStrSizeAdjType() {
@@ -43,16 +36,11 @@ public class RequestScaleSettings extends PCGEvent {
     public void setScaleFactor(double scaleFactor){
         this.scaleFactor = scaleFactor;
     }
-    public String getFirstDimType(){
-        return firstDimType;
+    public String[] getDimTypes(){
+        return preserveDimArr;
     }
-    public void setFirstDimType(String firstDimType) {
-        this.firstDimType = firstDimType;
+    public void setFirstDimType(String[] preserveDimArr) {
+        this.preserveDimArr = preserveDimArr;
     }
-    public String getSecDimType(){
-        return secDimType;
-    }
-    public void setSecDimType(String secDimType) {
-        this.secDimType = secDimType;
-    }
+
 }
