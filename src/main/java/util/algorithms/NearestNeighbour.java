@@ -6,10 +6,12 @@ import java.util.Map;
 
 //Nearest-neighbour interpolation in the context of scaling maps
 public class NearestNeighbour extends ScaleMatrix{
-
     private int[][] matrix;
     private int[][] scaledMatrix;
     private int scaleFactor;
+    //Replace doors with floor when upscaling
+    private static int doorVal = 4;
+    private static int floorVal = 0;
 
     public NearestNeighbour(int[][] matrix, int scaleFactor){
         this.matrix = matrix;
@@ -30,7 +32,11 @@ public class NearestNeighbour extends ScaleMatrix{
         {
             for(int c = 0; c < newCols; c++)
             {
-                scaledMatrix[r][c] = matrix[r/scaleFactor][c/scaleFactor];
+                if(matrix[r/scaleFactor][c/scaleFactor] != doorVal)
+                    scaledMatrix[r][c] = matrix[r/scaleFactor][c/scaleFactor];
+                else
+                    scaledMatrix[r][c] = floorVal;
+
             }
         }
         //System.out.println("Upscaled Matrix: " + Arrays.deepToString(scaledMatrix));

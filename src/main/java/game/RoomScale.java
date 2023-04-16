@@ -1,6 +1,8 @@
 package game;
 
 import generator.algorithm.MAPElites.Dimensions.GADimension;
+import generator.algorithm.MAPElites.Dimensions.MAPEDimensionFXML;
+import generator.algorithm.MAPElites.Dimensions.GADimension.DimensionTypes;
 import util.algorithms.NearestNeighbour;
 import util.algorithms.ScaleFibonacci;
 import util.algorithms.ScaleMatrix;
@@ -13,71 +15,67 @@ import util.eventrouting.events.RequestMatrixGeneratedRoom;
 import java.util.Arrays;
 import java.util.HashMap;
 
-public class RoomScale implements Listener{
+public class RoomScale{
     private Room origRoom;
     private int[][] origMatrix;
-    private static EventRouter router = EventRouter.getInstance();
+    private static int granularity = 5;
 
     public enum ScaleType{
-        None,
+        NONE,
         NearestNeighbour,
         Fibonacci
     }
     public enum SizeAdjustType{
-        None,
+        NONE,
         Upscale,
         Downscale
     }
     private ScaleType scaleType;
     private SizeAdjustType sizeAdjustType;
     private double scaleFactor;
-    private HashMap<String, Double> preserveDimValues;
+    private HashMap<DimensionTypes, Double> preserveDimValues;
 
     public RoomScale(Room origRoom, String sizeAdjustType, String strScaleType, double scaleFactor, String[] preserveDimArr){
-        router.registerListener(this, new PreserveDimensions());
         this.origRoom = origRoom;
         this.sizeAdjustType = SizeAdjustType.valueOf(sizeAdjustType);
         this.scaleType = ScaleType.valueOf(strScaleType);
         this.scaleFactor = scaleFactor;
-        this.preserveDimValues = new HashMap<String, Double>();
-        for(int i = 0; i< preserveDimArr.length; i++){
-            preserveDimValues.put(preserveDimArr[i], 0.0);
-        }
-        PreserveDimType();
+        this.preserveDimValues = new HashMap<DimensionTypes, Double>();
+        PreserveDimType(preserveDimArr);
     }
 
-    private void PreserveDimType(){
+    private void PreserveDimType(String[] preserveDimArr){
         origRoom.calculateAllDimensionalValues();
-        preserveDimValues.forEach((strDim, dimVal) ->{
-            switch (strDim){
-                case "None":
+        for(int i = 0; i<preserveDimArr.length; i++){
+            switch (preserveDimArr[i]){
+                case "NONE":
                 case "":
                     break;
-                case "Difficulty":
-                    preserveDimValues.put(strDim, origRoom.getDimensionValue(GADimension.DimensionTypes.LENIENCY));
+                case "LENIENCY":
+                    preserveDimValues.put(DimensionTypes.LENIENCY, origRoom.getDimensionValue(DimensionTypes.LENIENCY));
                     break;
-                case "Similarity":
-                    preserveDimValues.put(strDim, origRoom.getDimensionValue(GADimension.DimensionTypes.SIMILARITY));
+                case "SIMILARITY":
+                    preserveDimValues.put(DimensionTypes.SIMILARITY, origRoom.getDimensionValue(DimensionTypes.SIMILARITY));
                     break;
-                case "Inner-similarity":
-                    preserveDimValues.put(strDim, origRoom.getDimensionValue(GADimension.DimensionTypes.INNER_SIMILARITY));
+                case "INNER-SIMILARITY":
+                    preserveDimValues.put(DimensionTypes.INNER_SIMILARITY, origRoom.getDimensionValue(DimensionTypes.INNER_SIMILARITY));
                     break;
-                case "Symmetry":
-                    preserveDimValues.put(strDim, origRoom.getDimensionValue(GADimension.DimensionTypes.SYMMETRY));
+                case "SYMMETRY":
+                    preserveDimValues.put(DimensionTypes.SYMMETRY, origRoom.getDimensionValue(DimensionTypes.SYMMETRY));
                     break;
-                case "Number of Meso-Patterns":
-                    preserveDimValues.put(strDim, origRoom.getDimensionValue(GADimension.DimensionTypes.NUMBER_MESO_PATTERN));
+                case "NUMBER_MESO_PATTERN":
+                    preserveDimValues.put(DimensionTypes.NUMBER_MESO_PATTERN, origRoom.getDimensionValue(DimensionTypes.NUMBER_MESO_PATTERN));
                     break;
-                case "Number of Patterns":
-                    preserveDimValues.put(strDim, origRoom.getDimensionValue(GADimension.DimensionTypes.NUMBER_PATTERNS));
+                case "NUMBER_PATTERNS":
+                    preserveDimValues.put(DimensionTypes.NUMBER_MESO_PATTERN, origRoom.getDimensionValue(DimensionTypes.NUMBER_PATTERNS));
                     break;
-                case "Linearity":
-                    preserveDimValues.put(strDim, origRoom.getDimensionValue(GADimension.DimensionTypes.LINEARITY));
+                case "LINEARITY":
+                    preserveDimValues.put(DimensionTypes.LINEARITY, origRoom.getDimensionValue(DimensionTypes.LINEARITY));
                     break;
             }
-            System.out.println(strDim + " " + preserveDimValues.get(strDim) + '\n' + " ");
-        });
 
+            //System.out.println(preserveDimValues.keySet() + " " + preserveDimValues.get(DimensionTypes.valueOf(preserveDimArr[i])) + '\n' + " ");
+        }
     }
 
     public int[][] calcScaledMatrix(){
@@ -89,7 +87,7 @@ public class RoomScale implements Listener{
             case Fibonacci:
                 scaleMatrix = new ScaleFibonacci(origRoom.toMatrix(), scaleFactor);
                 break;
-            case None:
+            case NONE:
                 System.out.println("No scaletype");
                 break;
             default:
@@ -107,7 +105,7 @@ public class RoomScale implements Listener{
                 origMatrix = scaleMatrix.Downscale();
                 System.out.println(Arrays.deepToString(origMatrix));
                 return origMatrix;
-            case None:
+            case NONE:
                 System.out.println("No scaling");
                 break;
             default:
@@ -117,18 +115,34 @@ public class RoomScale implements Listener{
         return null;
     }
 
-    @Override
-    public synchronized void ping(PCGEvent e){
-        if(e instanceof PreserveDimensions){
-            System.out.println("PreserveDimensions");
-            //1. Start EA but narrow it down according to dimension types
+    public int[][] calcMatrixEa(){
+        System.out.println("PreserveDimensions");
+        //1. Start EA but narrow it down according to dimension types
 
-            //2. Receive generated matrix from EA
+        //2. Receive generated matrix from EA
 
-            //3. Create a new room from that matrix
+        //3. Create a new room from that matrix
 
-            //int[][] eaMatrix = calcMatrixEA;
-            //router.postEvent(new RequestMatrixGeneratedRoom(eaMatrix));
+        //int[][] eaMatrix = calcMatrixEA;
+        //router.postEvent(new RequestMatrixGeneratedRoom(eaMatrix));
+
+        return null;
+    }
+
+    public HashMap<GADimension.DimensionTypes, Double> getPreservedDimValues(){
+        return preserveDimValues;
+    }
+
+    public MAPEDimensionFXML[] getMAPEDimensions(){
+        MAPEDimensionFXML[] mapeDimensionFXMLS = new MAPEDimensionFXML[preserveDimValues.size()];
+        int counter = 0;
+        DimensionTypes[] dimensionTypes = preserveDimValues.keySet().toArray(new DimensionTypes[preserveDimValues.size()]);
+
+        for (DimensionTypes dimType: dimensionTypes) {
+            MAPEDimensionFXML mapeDimensionFXML = new MAPEDimensionFXML(dimType, granularity);
+            mapeDimensionFXMLS[counter] = mapeDimensionFXML;
+            counter++;
         }
+        return mapeDimensionFXMLS;
     }
 }

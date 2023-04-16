@@ -73,7 +73,7 @@ public class ScaleViewController implements Listener{
         listLb = new Label("Select the desirable properties to be used in EA");
         listLb.setStyle("-fx-text-fill: linear-gradient(#b9bbc9,#afafaf); -fx-font-size: 16px;");
 
-        propertyList = FXCollections.observableArrayList("None","Difficulty","Similarity","Symmetry","Inner-Similarity","Number of Patterns","Number of Meso_Pattern","Linearity","Custom");
+        propertyList = FXCollections.observableArrayList("NONE","LENIENCY","SIMILARITY","SYMMETRY","INNER-SIMILARITY","NUMBER_PATTERNS","NUMBER_MESO_PATTERN","LINEARITY");
 
         propertiesCb1 = new ComboBox<>(propertyList);
         propertiesCb1.setValue("None");
@@ -155,10 +155,10 @@ public class ScaleViewController implements Listener{
                 updownType = updownCb.getValue();
                 scalingType = "Fibonacci";
                 break;
-            case "None":
+            case "NONE":
                 scalefactor = 1;
-                updownType = "None";
-                scalingType = "None";
+                updownType = "NONE";
+                scalingType = "NONE";
                 break;
             default:
                 //scalefactor = (Double.parseDouble(scalingCb.getValue().substring(0, 1).replace(':',' ')) / Double.parseDouble(scalingCb.getValue().substring(2)));
@@ -172,29 +172,18 @@ public class ScaleViewController implements Listener{
         preserveDimArr[0] = propertiesCb1.getValue();
         preserveDimArr[1] = propertiesCb2.getValue();
 
-        //router.postEvent(new RequestScaleSettings(updownType, scalingType, scalefactor, preserveDimArr));
         scale = new RoomScale(room, updownType, scalingType, scalefactor, preserveDimArr);
         int[][] matrix = scale.calcScaledMatrix();
         System.out.println("ScaleViewC: " + Arrays.deepToString(matrix));
         router.postEvent(new RequestMatrixGeneratedRoom(matrix));
 
-        if(preserveDimArr!=null){
-            router.postEvent(new PreserveDimensions());
-        }
+        //@TODO For Evolutionary Algorithm?
+        //router.postEvent(new StartGA_MAPE(room, scale.getMAPEDimensions()));
+        //int[][] eaMatrix = scale.calcMatrixEa();
     }
 
     @Override
     public synchronized void ping(PCGEvent e){
-        if(e instanceof RequestScaleSettings){
-           /* RequestScaleSettings rSS = (RequestScaleSettings)e;
-            scale = new RoomScale(room, rSS.getStrSizeAdjType(), rSS.getStrScaleType(), rSS.getScaleFactor(), rSS.getDimTypes());
-            int[][] matrix = scale.calcScaledMatrix();
-            System.out.println("ScaleViewC: " + Arrays.deepToString(matrix));
-            router.postEvent(new RequestMatrixGeneratedRoom(matrix));
 
-            if(rSS.getDimTypes()!=null){
-                router.postEvent(new PreserveDimensions());
-            }*/
-        }
     }
 }
