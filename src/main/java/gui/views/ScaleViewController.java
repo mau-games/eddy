@@ -12,7 +12,7 @@ import javafx.scene.control.Label;
 import util.eventrouting.EventRouter;
 import util.eventrouting.Listener;
 import util.eventrouting.PCGEvent;
-import util.eventrouting.events.RequestScaleSettings;
+import util.eventrouting.events.*;
 
 import javafx.scene.*;
 import javafx.stage.*;
@@ -23,8 +23,6 @@ import java.lang.reflect.Array;
 import java.util.Arrays;
 
 public class ScaleViewController implements Listener{
-    private Dungeon dungeon;
-    private WorldViewController worldView;
     private Room room;
     private RoomScale scale;
     private static EventRouter router = EventRouter.getInstance();
@@ -37,13 +35,10 @@ public class ScaleViewController implements Listener{
     private VBox topLayout;
     private Scene scene;
 
-    public ScaleViewController(WorldViewController worldView, Dungeon dungeon, Room room){
-        this.dungeon = dungeon;
-        this.worldView = worldView;
+    public ScaleViewController(Room room){
         this.room = room;
-
         router.registerListener(this, new RequestScaleSettings(null, null, -1, null));
-
+        router.registerListener(this, new RequestMatrixGeneratedRoom(null));
         displayUI();
     }
 
@@ -177,19 +172,29 @@ public class ScaleViewController implements Listener{
         preserveDimArr[0] = propertiesCb1.getValue();
         preserveDimArr[1] = propertiesCb2.getValue();
 
-        router.postEvent(new RequestScaleSettings(updownType, scalingType, scalefactor, preserveDimArr));
+        //router.postEvent(new RequestScaleSettings(updownType, scalingType, scalefactor, preserveDimArr));
+        scale = new RoomScale(room, updownType, scalingType, scalefactor, preserveDimArr);
+        int[][] matrix = scale.calcScaledMatrix();
+        System.out.println("ScaleViewC: " + Arrays.deepToString(matrix));
+        router.postEvent(new RequestMatrixGeneratedRoom(matrix));
 
+        if(preserveDimArr!=null){
+            router.postEvent(new PreserveDimensions());
+        }
     }
 
     @Override
     public synchronized void ping(PCGEvent e){
         if(e instanceof RequestScaleSettings){
-            RequestScaleSettings rSS = (RequestScaleSettings)e;
+           /* RequestScaleSettings rSS = (RequestScaleSettings)e;
             scale = new RoomScale(room, rSS.getStrSizeAdjType(), rSS.getStrScaleType(), rSS.getScaleFactor(), rSS.getDimTypes());
             int[][] matrix = scale.calcScaledMatrix();
-            System.out.println("Scaled: " + Arrays.deepToString(matrix));
-            dungeon.addRoom(matrix);
-            worldView.initWorldMap(dungeon);
+            System.out.println("ScaleViewC: " + Arrays.deepToString(matrix));
+            router.postEvent(new RequestMatrixGeneratedRoom(matrix));
+
+            if(rSS.getDimTypes()!=null){
+                router.postEvent(new PreserveDimensions());
+            }*/
         }
     }
 }

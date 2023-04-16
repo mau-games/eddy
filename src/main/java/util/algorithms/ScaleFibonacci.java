@@ -21,7 +21,6 @@ public class ScaleFibonacci extends ScaleMatrix{
         return scaledMatrix;
     }
 
-    @Override
     public int[][] getScaledMatrix(){
         return scaledMatrix;
     }

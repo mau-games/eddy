@@ -8,6 +8,7 @@ import java.net.URL;
 import java.nio.file.Files;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Arrays;
 import java.util.ResourceBundle;
 import java.util.UUID;
 
@@ -124,6 +125,7 @@ public class InteractiveGUIController implements Initializable, Listener {
 		router.registerListener(this, new RequestRedraw());
 		router.registerListener(this, new RequestRoomView(null, 0, 0, null));
 		router.registerListener(this, new RequestScaleRoom(null, 0, 0)); //SCALE ROOM
+		router.registerListener(this, new RequestMatrixGeneratedRoom(null));
 		router.registerListener(this, new MapLoaded(null));
 		router.registerListener(this, new RequestWorldView());
 		router.registerListener(this, new RequestEmptyRoom(null, 0, 0, null));
@@ -324,6 +326,12 @@ public class InteractiveGUIController implements Initializable, Listener {
 			dungeonMap.addRoom(rNR.getWidth(), rNR.getHeight());
 			worldView.initWorldMap(dungeonMap);
 		}
+		else if (e instanceof RequestMatrixGeneratedRoom) {
+			RequestMatrixGeneratedRoom rMGR = (RequestMatrixGeneratedRoom)e;
+			dungeonMap.addRoom(rMGR.getMatrix());
+			System.out.println("InteractiveGUIController: "+ Arrays.deepToString(rMGR.getMatrix()));
+			worldView.initWorldMap(dungeonMap);
+		}
 		else if (e instanceof RequestRoomView) {
 			
 			//Yeah dont care about matrix but we do care about doors!
@@ -377,7 +385,7 @@ public class InteractiveGUIController implements Initializable, Listener {
 		 else if(e instanceof RequestScaleRoom){
 			 Room scaleRoom = (Room)e.getPayload();
 
-			 scaleViewController = new ScaleViewController(worldView, dungeonMap, scaleRoom);
+			 scaleViewController = new ScaleViewController(scaleRoom);
 		}
 		 //FOR NARRATIVE STUFF!
 		 else if(e instanceof RequestNarrativeView)

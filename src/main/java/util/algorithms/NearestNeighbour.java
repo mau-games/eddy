@@ -69,12 +69,10 @@ public class NearestNeighbour extends ScaleMatrix{
                 scaledMatrix[r][c] = mostFreqValue;
             }
         }
-        //System.out.println("Downscaled: " + Arrays.deepToString(scaledMatrix));
 
         return scaledMatrix;
     }
 
-    @Override
     public int[][] getScaledMatrix(){
         return scaledMatrix;
     }
