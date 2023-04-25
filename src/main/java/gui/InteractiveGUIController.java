@@ -586,14 +586,14 @@ public class InteractiveGUIController implements Initializable, Listener {
 		else if(e instanceof NarrativeStructMAPElitesDone) // THESE TWO ARE FOR EXPERIMENT 4
 		{
 
-			_step++;
-			graphGrammarStep(_step);
+			//_step++;
+			//graphGrammarStep(_step);
 		}
 		else if(e instanceof AlgorithmDone)
 		{
-			_step =0;
-			initializeGraphGrammar();
-			initNarrativeView();
+//			_step =0;
+//			initializeGraphGrammar();
+//			initNarrativeView();
 		}
 	}
 

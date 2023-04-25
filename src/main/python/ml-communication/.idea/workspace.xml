@@ -5,12 +5,6 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="93ba40fe-c9a5-4e94-86af-6e82d801d6ec" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/../../java/game/narrative/NarrativeFinder/NarrativePattern.java" beforeDir="false" afterPath="$PROJECT_DIR$/../../java/game/narrative/NarrativeFinder/NarrativePattern.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../java/game/narrative/NarrativeStructure.java" beforeDir="false" afterPath="$PROJECT_DIR$/../../java/game/narrative/NarrativeStructure.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../java/generator/algorithm/MAPElites/GrammarMAPEliteAlgorithm.java" beforeDir="false" afterPath="$PROJECT_DIR$/../../java/generator/algorithm/MAPElites/GrammarMAPEliteAlgorithm.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../java/generator/algorithm/MAPElites/NSEvolutionarySystemEvaluator.java" beforeDir="false" afterPath="$PROJECT_DIR$/../../java/generator/algorithm/MAPElites/NSEvolutionarySystemEvaluator.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../java/gui/InteractiveGUIController.java" beforeDir="false" afterPath="$PROJECT_DIR$/../../java/gui/InteractiveGUIController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../java/gui/views/NarrativeStructureViewController.java" beforeDir="false" afterPath="$PROJECT_DIR$/../../java/gui/views/NarrativeStructureViewController.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -30,12 +24,12 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "RunOnceActivity.OpenProjectViewOnStart": "true",
-    "RunOnceActivity.ShowReadmeOnStart": "true"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;
   }
-}]]></component>
+}</component>
   <component name="RunManager">
     <configuration name="main" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="ml-communication" />
