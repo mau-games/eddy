@@ -9,8 +9,5 @@
         <module name="eddy" />
       </profile>
     </annotationProcessing>
-    <bytecodeTargetLevel>
-      <module name="eddy" target="9" />
-    </bytecodeTargetLevel>
   </component>
 </project>

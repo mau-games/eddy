@@ -125,17 +125,6 @@ public class ScaleViewController extends BorderPane implements Listener
 		router.registerListener(this, new SuggestedMapSelected(null, -1));
 
 		myBrush = new Drawer();
-
-		brushSlider.valueProperty().addListener((obs, oldval, newVal) -> { 
-//			redrawPatterns(mapView.getMap());
-			myBrush.SetBrushSize((int)(brushSlider.getValue()));
-			ActionLogger.getInstance().storeAction(ActionType.CHANGE_VALUE, 
-													View.ROOM, 
-													TargetPane.BRUSH_PANE,
-													false,
-													oldval,
-													newVal); //Point 
-			});
 		
 		currentState = EvoState.RUNNING;
 		saveGenBtn.setDisable(false);
@@ -490,5 +479,23 @@ public class ScaleViewController extends BorderPane implements Listener
 
 	public void setAppSuggestionsBtn(Button appSuggestionsBtn) {
 		this.appSuggestionsBtn = appSuggestionsBtn;
+	}
+
+	@FXML
+	public void generateNewMaps()
+	{
+
+	}
+
+	@FXML
+	public void selectSuggestion()
+	{
+
+	}
+
+	@FXML
+	public void saveCurrentGeneration()
+	{
+
 	}
 }
