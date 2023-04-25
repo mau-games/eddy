@@ -74,9 +74,12 @@ public class Game implements Listener{
         EventRouter.getInstance().registerListener(this, new RequestSuggestionsView(null, 0));
 	}
 
-    private void RunMAPElites(Room room,  MAPEDimensionFXML[] dimensions)
+    private void RunMAPElites(Room room,  MAPEDimensionFXML[] dimensions, int iterationsToPublish)
     {
     	Algorithm ga = new MAPEliteAlgorithm(room, AlgorithmTypes.Native);
+		if(iterationsToPublish != 0){
+			ga.setIterationsToPublish(iterationsToPublish);
+		}
 		runs.add(ga);
 		((MAPEliteAlgorithm)ga).initPopulations(room, dimensions);
 		ga.start();
@@ -248,8 +251,8 @@ public class Game implements Listener{
 		{
 			StartGA_MAPE MAPEinfo = (StartGA_MAPE)e;
 
-			
-			RunMAPElites((Room)e.getPayload(), MAPEinfo.getDimensions());
+			RunMAPElites((Room)e.getPayload(), MAPEinfo.getDimensions(), MAPEinfo.getIterationsToPublish());
+			System.out.println("Game: " + MAPEinfo.getIterationsToPublish());
 		}
 		else if(e instanceof RequestSuggestionsView){ 
 			readConfiguration();

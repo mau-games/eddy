@@ -9,9 +9,8 @@ public class NearestNeighbour extends ScaleMatrix{
     private int[][] matrix;
     private int[][] scaledMatrix;
     private int scaleFactor;
-    //Replace doors with floor when upscaling
-    private static int doorVal = 4;
-    private static int floorVal = 0;
+    //Replace doors and charachters with floor when upscaling
+
 
     public NearestNeighbour(int[][] matrix, int scaleFactor){
         this.matrix = matrix;
@@ -27,19 +26,34 @@ public class NearestNeighbour extends ScaleMatrix{
         int newRows = matrix.length * scaleFactor;
         int newCols = matrix[0].length * scaleFactor;
         scaledMatrix = new int[newRows][newCols];
+        int doorVal = 4;
+        int floorVal = 0;
+        int charachterVal = 6;
+        int[][] doorCoords = new int[newRows][newCols];
 
         for(int r = 0; r < newRows; r++)
         {
             for(int c = 0; c < newCols; c++)
             {
-                if(matrix[r/scaleFactor][c/scaleFactor] != doorVal)
-                    scaledMatrix[r][c] = matrix[r/scaleFactor][c/scaleFactor];
-                else
+                if(matrix[r/scaleFactor][c/scaleFactor] == doorVal){
+                    doorCoords[r/scaleFactor][c/scaleFactor] = doorVal;
                     scaledMatrix[r][c] = floorVal;
+                } else if (matrix[r/scaleFactor][c/scaleFactor] == charachterVal) {
+                    scaledMatrix[r][c] = floorVal;
+                } else{
+                    scaledMatrix[r][c] = matrix[r/scaleFactor][c/scaleFactor];
 
+                }
             }
         }
-        //System.out.println("Upscaled Matrix: " + Arrays.deepToString(scaledMatrix));
+
+        /*for(int r = 0; r < newRows; r++) {
+            for (int c = 0; c < newCols; c++) {
+                if(doorCoords[r][c]==doorVal){
+                    scaledMatrix[r*scaleFactor][c*scaleFactor] = doorVal;
+                }
+            }
+        }*/
 
         return scaledMatrix;
     }

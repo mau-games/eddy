@@ -69,7 +69,6 @@ public class MAPEliteAlgorithm extends Algorithm implements Listener {
 	private int currentGen = 0;
 	MAPEDimensionFXML[] dimensions;
 	private boolean dimensionsChanged = false;
-	
 	private int saveCounter = 0;
 	
 	//For the Expressive range test
@@ -1458,5 +1457,11 @@ public class MAPEliteAlgorithm extends Algorithm implements Listener {
 	    saveCounter++;
 	}
 
-	
+	/*public int getIterationsToPublish() {
+		return iterationsToPublish;
+	}
+
+	public void setIterationsToPublish(int iterationsToPublish) {
+		this.iterationsToPublish = iterationsToPublish;
+	}*/
 }

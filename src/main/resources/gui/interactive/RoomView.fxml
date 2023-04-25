@@ -169,7 +169,6 @@
 		<HBox>
 			<VBox spacing="15" fx:id="rightSidePane">
 
-
 				<StackPane alignment="CENTER" fx:id="generatedMapsLabel"
 					id="generatedMapsLabel">
 					<Label text="Generated Suggestions" />

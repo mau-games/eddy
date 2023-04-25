@@ -10,6 +10,7 @@ public class StartGA_MAPE extends PCGEvent
 	private MapMutationType mutationType;
 	private boolean randomiseConfig;
 	static int count = 0;
+	private int iterationsToPublish;
 	//Array of dimensions in case there is more than 2 (this is for future work!!!)
 	private MAPEDimensionFXML[] dimensions;
 
@@ -18,6 +19,14 @@ public class StartGA_MAPE extends PCGEvent
 		mutationType = MapMutationType.OriginalConfig;
 		randomiseConfig = false;
 		this.dimensions = dimensions;
+	}
+
+	public StartGA_MAPE(Room room, MAPEDimensionFXML[] dimensions, int iterationsToPublish){
+		setPayload(room);
+		mutationType = MapMutationType.OriginalConfig;
+		randomiseConfig = false;
+		this.dimensions = dimensions;
+		this.iterationsToPublish = iterationsToPublish;
 	}
 
 	public StartGA_MAPE(Room room, MapMutationType mutationType, MAPEDimensionFXML[] dimensions , boolean randomiseConfig) {
@@ -48,5 +57,9 @@ public class StartGA_MAPE extends PCGEvent
 		}
 		
 		return null;
+	}
+
+	public int getIterationsToPublish(){
+		return iterationsToPublish;
 	}
 }

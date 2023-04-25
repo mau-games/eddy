@@ -1437,5 +1437,13 @@ public class Algorithm extends Thread implements Listener {
         }
     }
 
+	public int getIterationsToPublish() {
+		return iterationsToPublish;
+	}
+
+	public void setIterationsToPublish(int iterationsToPublish) {
+		this.iterationsToPublish = iterationsToPublish;
+	}
+
 
 }

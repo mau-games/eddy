@@ -38,10 +38,7 @@ import util.Point;
 import util.eventrouting.EventRouter;
 import util.eventrouting.Listener;
 import util.eventrouting.PCGEvent;
-import util.eventrouting.events.FocusRoom;
-import util.eventrouting.events.RequestRoomView;
-import util.eventrouting.events.RequestWorldView;
-import util.eventrouting.events.ToggleObjectives;
+import util.eventrouting.events.*;
 
 /***
  * Dungeon class holds a dungeon in the world of eddy, a dungeon is comprised

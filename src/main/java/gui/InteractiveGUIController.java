@@ -8,7 +8,7 @@ import java.net.URL;
 import java.nio.file.Files;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.ResourceBundle;
 import java.util.UUID;
 
@@ -72,11 +72,12 @@ public class InteractiveGUIController implements Initializable, Listener {
 	SuggestionsViewController suggestionsView = null;
 //	RoomViewController roomView = null;
 	RoomViewController roomView = null;
+	ScaleViewController scaleView = null;
 
 	WorldViewController worldView = null;
 	LaunchViewController launchView = null;
 	NarrativeStructureViewController narrativeView = null;
-	ScaleViewController scaleViewController = null;
+	ScaleOptionsViewController scaleOptionsView = null;
 	EventHandler<MouseEvent> mouseEventHandler = null;
 
 //	final static Logger logger = LoggerFactory.getLogger(InteractiveGUIController.class);
@@ -124,6 +125,7 @@ public class InteractiveGUIController implements Initializable, Listener {
 		router.registerListener(this, new AlgorithmDone(null, null, null));
 		router.registerListener(this, new RequestRedraw());
 		router.registerListener(this, new RequestRoomView(null, 0, 0, null));
+		router.registerListener(this, new RequestScaleView(null));
 		router.registerListener(this, new RequestScaleRoom(null, 0, 0)); //SCALE ROOM
 		router.registerListener(this, new RequestMatrixGeneratedRoom(null));
 		router.registerListener(this, new MapLoaded(null));
@@ -146,6 +148,7 @@ public class InteractiveGUIController implements Initializable, Listener {
 		suggestionsView = new SuggestionsViewController();
 //		roomView = new RoomViewController();
 		roomView = new RoomViewController();
+		scaleView = new ScaleViewController();
 		worldView = new WorldViewController();
 		launchView = new LaunchViewController();
 		narrativeView = new NarrativeStructureViewController();
@@ -328,8 +331,12 @@ public class InteractiveGUIController implements Initializable, Listener {
 		}
 		else if (e instanceof RequestMatrixGeneratedRoom) {
 			RequestMatrixGeneratedRoom rMGR = (RequestMatrixGeneratedRoom)e;
-			dungeonMap.addRoom(rMGR.getMatrix());
-			System.out.println("InteractiveGUIController: "+ Arrays.deepToString(rMGR.getMatrix()));
+			Room rMGRoom = dungeonMap.addRoom(rMGR.getMatrix());
+			if(!rMGR.isEaScaled()){
+				rMGR.getRoomScale().setScaledRoom(rMGRoom);
+			}else{
+				rMGR.getRoomScale().setScaledEaRoom(rMGRoom);
+			}
 			worldView.initWorldMap(dungeonMap);
 		}
 		else if (e instanceof RequestRoomView) {
@@ -339,7 +346,19 @@ public class InteractiveGUIController implements Initializable, Listener {
 			if(((MapContainer) e.getPayload()).getMap().getDoorCount() > 0)
 				initRoomView((MapContainer) e.getPayload());
 
-		} else if (e instanceof RequestSuggestionsView) 
+		}
+		else if (e instanceof RequestScaleView) {
+			boolean ok = true;
+			for(Room room: ((RequestScaleView) e).getRooms()){
+				if(room.getDoorCount() < 0){
+					ok = false;
+				}
+			}
+			if(ok){
+				initScaledRoomsView(((RequestScaleView) e).getRooms());
+			}
+		}
+		else if (e instanceof RequestSuggestionsView)
 		{
 			MapContainer container = (MapContainer) e.getPayload();
 			if(container.getMap().getDoorCount() > 0)
@@ -385,7 +404,7 @@ public class InteractiveGUIController implements Initializable, Listener {
 		 else if(e instanceof RequestScaleRoom){
 			 Room scaleRoom = (Room)e.getPayload();
 
-			 scaleViewController = new ScaleViewController(scaleRoom);
+			 scaleOptionsView = new ScaleOptionsViewController(scaleRoom);
 		}
 		 //FOR NARRATIVE STUFF!
 		 else if(e instanceof RequestNarrativeView)
@@ -481,6 +500,7 @@ public class InteractiveGUIController implements Initializable, Listener {
 		
 		suggestionsView = new SuggestionsViewController();
 		roomView = new RoomViewController();
+		//scaleView = new ScaleViewController();
 		worldView = new WorldViewController();
 		launchView = new LaunchViewController();
 		dungeonMap = null;
@@ -637,6 +657,7 @@ public class InteractiveGUIController implements Initializable, Listener {
 		worldView.setActive(false);
 		launchView.setActive(false);
 		narrativeView.setActive(false);
+		scaleView.setActive(false);
 
 
 
@@ -666,6 +687,7 @@ public class InteractiveGUIController implements Initializable, Listener {
 		worldView.setActive(true);
 		launchView.setActive(false);
 		narrativeView.setActive(false);
+		scaleView.setActive(false);
 
 
 	}
@@ -684,6 +706,7 @@ public class InteractiveGUIController implements Initializable, Listener {
 		worldView.setActive(false);
 		launchView.setActive(true);
 		narrativeView.setActive(false);
+		scaleView.setActive(false);
 
 	}
 
@@ -710,6 +733,7 @@ public class InteractiveGUIController implements Initializable, Listener {
 		worldView.setActive(false);
 		launchView.setActive(false);
 		narrativeView.setActive(true);
+		scaleView.setActive(false);
 	}
 
 
@@ -732,7 +756,7 @@ public class InteractiveGUIController implements Initializable, Listener {
 		worldView.setActive(true);
 		launchView.setActive(false);
 		narrativeView.setActive(false);
-
+		scaleView.setActive(false);
 	}
 
 	/**
@@ -771,8 +795,26 @@ public class InteractiveGUIController implements Initializable, Listener {
 		launchView.setActive(false);
 		suggestionsView.setActive(false);
 		narrativeView.setActive(false);
+		scaleView.setActive(false);
+	}
 
+	private void initScaledRoomsView(ArrayList<Room> rooms){
+		mainPane.getChildren().clear();
+		AnchorPane.setTopAnchor(scaleView, 0.0);
+		AnchorPane.setRightAnchor(scaleView, 0.0);
+		AnchorPane.setBottomAnchor(scaleView, 0.0);
+		AnchorPane.setLeftAnchor(scaleView, 0.0);
+		mainPane.getChildren().add(scaleView);
 
+		scaleView.init(rooms);
+		scaleView.renderMaps();
+
+		worldView.setActive(false);
+		roomView.setActive(false);
+		launchView.setActive(false);
+		suggestionsView.setActive(false);
+		narrativeView.setActive(false);
+		scaleView.setActive(true);
 	}
 
 	/*
