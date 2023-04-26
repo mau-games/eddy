@@ -39,7 +39,7 @@ import java.util.ArrayList;
 //@Todo: NO INTERACTIVE MAP, TWO MAPS IN SCALEDROOM (LIKE SUGGESTIONROOM)
 public class ScaleViewController extends BorderPane implements Listener
 {
-	@FXML private ScaledMapsVisualizationPane scaledMapsVisualizationPane;
+	@FXML private ScaledMapsVisualizationPane ScaledMapsPane;
 	private MapRenderer renderer = MapRenderer.getInstance();
 	//Brush Slider
 	@FXML private Slider brushSlider;
@@ -128,10 +128,10 @@ public class ScaleViewController extends BorderPane implements Listener
 			i++;
 		}
 
-		scaledMapsVisualizationPane.init(roomDisplays, 0, 0);
+		ScaledMapsPane.init(roomDisplays);
 	}
 
-	public void renderMaps(){
+	/*public void renderMaps(){
 		Platform.runLater(() -> {
 			int i = 0;
 			for (ScaledRoom scaledRoom : roomDisplays) {
@@ -143,7 +143,7 @@ public class ScaleViewController extends BorderPane implements Listener
 				i++;
 			}
 		});
-	}
+	}*/
 
 	public void setContainer(MapContainer map) {
 		map = this.map;

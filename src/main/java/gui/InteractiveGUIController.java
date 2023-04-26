@@ -807,7 +807,7 @@ public class InteractiveGUIController implements Initializable, Listener {
 		mainPane.getChildren().add(scaleView);
 
 		scaleView.init(rooms);
-		scaleView.renderMaps();
+		//scaleView.renderMaps();
 
 		worldView.setActive(false);
 		roomView.setActive(false);
