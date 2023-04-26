@@ -351,7 +351,7 @@ public class InteractiveGUIController implements Initializable, Listener {
 			boolean ok = true;
 			for(Room room: ((RequestScaleView) e).getRooms()){
 				if(room.getDoorCount() < 0){
-					ok = false;
+					//ok = false;
 				}
 			}
 			if(ok){

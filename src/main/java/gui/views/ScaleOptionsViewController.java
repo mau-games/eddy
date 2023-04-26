@@ -176,7 +176,7 @@ public class ScaleOptionsViewController implements Listener{
         int[][] matrix = scale.calculateScaledMatrix();
 
         router.postEvent(new RequestMatrixGeneratedRoom(matrix, scale, false));
-        //scale.createConnection(room, scale.getScaledRoom(), RoomScale.RoomType.Scaled);
+        scale.createConnection(room, scale.getScaledRoom(), RoomScale.RoomType.Scaled);
 
         Platform.runLater(()->{
             //Different iterations depending on nmbr of dimensions

@@ -5,6 +5,7 @@ import javafx.event.EventHandler;
 import javafx.scene.Node;
 import javafx.scene.input.MouseEvent;
 import util.eventrouting.EventRouter;
+import util.eventrouting.events.ScaledMapSelected;
 import util.eventrouting.events.SuggestedMapSelected;
 
 public class ScaledRoom {
@@ -56,7 +57,7 @@ public class ScaledRoom {
                 @Override
                 public void handle(MouseEvent event)
                 {
-                    EventRouter.getInstance().postEvent(new SuggestedMapSelected(self, -1));
+                    EventRouter.getInstance().postEvent(new ScaledMapSelected(self));
                     selected = true;
                     highlight(true);
 
@@ -93,14 +94,6 @@ public class ScaledRoom {
 
     public void setScaledRoom(Room scaledRoom) {
         this.scaledRoom = scaledRoom;
-    }
-
-    public Room getEaScaledRoom() {
-        return eaScaledRoom;
-    }
-
-    public void setEaScaledRoom(Room eaScaledRoom) {
-        this.eaScaledRoom = eaScaledRoom;
     }
 
     public void setSelected(Boolean value)

@@ -194,7 +194,7 @@ public class RoomScale implements Listener{
             setScaleEaMatrix(currTopRoom.toMatrix());
             Platform.runLater(()->{
                 router.postEvent(new RequestMatrixGeneratedRoom(getScaledEaMatrix(), this, true));
-                //createConnection(scaledRoom, scaledEaRoom, RoomType.EaScaled);
+                createConnection(scaledRoom, scaledEaRoom, RoomType.EaScaled);
                 router.postEvent(new Stop());
                 ArrayList<Room> rooms = new ArrayList<Room>();
                 rooms.add(scaledRoom);

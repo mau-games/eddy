@@ -106,14 +106,10 @@
 					<Button fx:id="worldGridBtn" contentDisplay="TOP"
 						mnemonicParsing="false" wrapText="true" textAlignment="CENTER"
 						text="Go To World Grid" onAction="#backWorldView">
-
 					</Button>
-					<Button fx:id="genSuggestionsBtn" contentDisplay="TOP"
-						mnemonicParsing="false" wrapText="true" textAlignment="CENTER"
-						text="Restart" onAction="#generateNewMaps" />
 					<Button fx:id="appSuggestionsBtn" contentDisplay="TOP"
 						mnemonicParsing="false" wrapText="true" textAlignment="CENTER"
-						text="Apply Suggestion" onAction="#selectSuggestion" />
+						text="Apply Suggestion" onAction="#selectScaledMap" />
 					<Button fx:id="saveGenBtn" contentDisplay="TOP"
 						mnemonicParsing="false" wrapText="true" textAlignment="CENTER"
 						text="Save Current" onAction="#saveCurrentGeneration" />

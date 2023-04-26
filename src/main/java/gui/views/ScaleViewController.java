@@ -5,10 +5,6 @@ import collectors.ActionLogger.ActionType;
 import collectors.ActionLogger.TargetPane;
 import collectors.ActionLogger.View;
 import game.*;
-import game.Game.MapMutationType;
-import game.tiles.*;
-import generator.algorithm.Algorithm.AlgorithmTypes;
-import generator.algorithm.MAPElites.Dimensions.GADimension.DimensionTypes;
 import generator.algorithm.MAPElites.Dimensions.MAPEDimensionFXML;
 import gui.controls.*;
 import gui.utils.MapRenderer;
@@ -16,33 +12,19 @@ import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
-import javafx.geometry.Insets;
-import javafx.scene.Cursor;
-import javafx.scene.canvas.Canvas;
 import javafx.scene.control.*;
-import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
-import org.apache.commons.io.FileUtils;
-import util.config.ConfigurationUtility;
 import util.config.MissingConfigurationException;
 import util.eventrouting.EventRouter;
 import util.eventrouting.Listener;
 import util.eventrouting.PCGEvent;
 import util.eventrouting.events.*;
-import util.eventrouting.events.intraview.EditedRoomToggleLocks;
-import util.eventrouting.events.intraview.EditedRoomTogglePatterns;
-import util.eventrouting.events.intraview.InteractiveRoomBrushUpdated;
-import util.eventrouting.events.intraview.UserEditedRoom;
 
 import java.io.File;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.UUID;
 
 /**
  * This class controls the visualization of scaled maps
@@ -57,7 +39,7 @@ import java.util.UUID;
 //@Todo: NO INTERACTIVE MAP, TWO MAPS IN SCALEDROOM (LIKE SUGGESTIONROOM)
 public class ScaleViewController extends BorderPane implements Listener
 {
-	private ScaledMapsVisualizationPane scaledMapsVisualizationPane;
+	@FXML private ScaledMapsVisualizationPane scaledMapsVisualizationPane;
 	private MapRenderer renderer = MapRenderer.getInstance();
 	//Brush Slider
 	@FXML private Slider brushSlider;
@@ -80,7 +62,8 @@ public class ScaleViewController extends BorderPane implements Listener
 	@FXML private Button genSuggestionsBtn;
 	@FXML private Button appSuggestionsBtn;
 	@FXML private Button saveGenBtn;
-	private ScaledRoom selectedSuggestion;
+	private ScaledRoom selectedMap;
+	private Room appliedRoom;
 
 	private MapContainer map;
 	private boolean isActive = false; //for having the same event listener in different views
@@ -121,8 +104,7 @@ public class ScaleViewController extends BorderPane implements Listener
 		}
 
 		router.registerListener(this, new ApplySuggestion(0));
-		router.registerListener(this, new SuggestedMapsDone());
-		router.registerListener(this, new SuggestedMapSelected(null, -1));
+		router.registerListener(this, new ScaledMapSelected(null));
 
 		myBrush = new Drawer();
 		
@@ -174,20 +156,15 @@ public class ScaleViewController extends BorderPane implements Listener
 		{
 			requestedSuggestion = (int) ((ApplySuggestion) e).getPayload();
 		}
-		else if(e instanceof SuggestedMapsDone) //All the evolutionary algorithms have finish their run and returned the best rooms!
+		else if(e instanceof ScaledMapSelected)
 		{
-			getWorldGridBtn().setDisable(false);
-			getGenSuggestionsBtn().setDisable(false);
-		}
-		else if(e instanceof SuggestedMapSelected)
-		{
-			if(selectedSuggestion != null)
-				selectedSuggestion.setSelected(false);
+			if(selectedMap != null)
+				selectedMap.setSelected(false);
 
-			selectedSuggestion = (ScaledRoom) ((SuggestedMapSelected) e).getPayload();
+			selectedMap = (ScaledRoom) ((ScaledMapSelected) e).getPayload();
 			clearStats();
 
-			if(selectedSuggestion == null || selectedSuggestion.getScaledRoom() == null)
+			if(selectedMap == null || selectedMap.getScaledRoom() == null)
 			{
 				getAppSuggestionsBtn().setDisable(true);
 				return;
@@ -199,13 +176,13 @@ public class ScaleViewController extends BorderPane implements Listener
 					false,
 					currentDimensions[0].getDimension(),
 					currentDimensions[0].getGranularity(),
-					selectedSuggestion.getScaledRoom().getDimensionValue(currentDimensions[0].getDimension()),
+					selectedMap.getScaledRoom().getDimensionValue(currentDimensions[0].getDimension()),
 					currentDimensions[1].getDimension(),
 					currentDimensions[1].getGranularity(),
-					selectedSuggestion.getScaledRoom().getDimensionValue(currentDimensions[1].getDimension()),
-					selectedSuggestion.getScaledRoom());
+					selectedMap.getScaledRoom().getDimensionValue(currentDimensions[1].getDimension()),
+					selectedMap.getScaledRoom());
 
-			selectedSuggestion.getScaledRoom().getRoomXML("clicked-suggestion" + File.separator + File.separator);
+			selectedMap.getScaledRoom().getRoomXML("clicked-suggestion" + File.separator + File.separator);
 
 			displayStats();
 			getAppSuggestionsBtn().setDisable(false);
@@ -267,7 +244,7 @@ public class ScaleViewController extends BorderPane implements Listener
 	public void displayStats() 
 	{
 		Room origRoom = roomDisplays.get(1).getScaledRoom();
-		Room selectedRoom = selectedSuggestion.getScaledRoom();
+		Room selectedRoom = selectedMap.getScaledRoom();
 		
 		int originalEnemies = 0;
 		int compareEnemies = 0;
@@ -481,6 +458,7 @@ public class ScaleViewController extends BorderPane implements Listener
 		this.appSuggestionsBtn = appSuggestionsBtn;
 	}
 
+
 	@FXML
 	public void generateNewMaps()
 	{
@@ -488,9 +466,9 @@ public class ScaleViewController extends BorderPane implements Listener
 	}
 
 	@FXML
-	public void selectSuggestion()
+	public void selectScaledMap()
 	{
-
+		appliedRoom = selectedMap.getScaledRoom();
 	}
 
 	@FXML

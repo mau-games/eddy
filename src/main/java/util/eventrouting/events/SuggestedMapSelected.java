@@ -11,8 +11,4 @@ public class SuggestedMapSelected extends PCGEvent
 		setPayload(sugRoom);
 	}
 
-	public SuggestedMapSelected(ScaledRoom scaledRoom, int index){
-		setPayload(scaledRoom);
-
-	}
 }
