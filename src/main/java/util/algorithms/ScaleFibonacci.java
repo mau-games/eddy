@@ -11,8 +11,7 @@ public class ScaleFibonacci extends ScaleMatrix{
     //Replace doors with floor when upscaling
     private static int doorVal = 4;
     private static int floorVal = 0;
-
-
+    private static int charachterVal = 6;
 
     public ScaleFibonacci(int[][] matrix, double scaleFactor){
         this.matrix = matrix;
@@ -20,23 +19,43 @@ public class ScaleFibonacci extends ScaleMatrix{
     }
 
     @Override
-    public int[][] Upscale(){
+    public int[][] Upscale()
+    {
         int newRows = (int)(matrix.length * scaleFactor);
         int newCols = (int)(matrix[0].length * scaleFactor);
         scaledMatrix = new int[newRows][newCols];
+
+        int[][] doorCoords = new int[newRows][newCols];
 
         for(int r = 0; r < newRows; r++)
         {
             for(int c = 0; c < newCols; c++)
             {
-                if(matrix[(int)(r/scaleFactor)][(int)(c/scaleFactor)] != doorVal)
-                    scaledMatrix[r][c] = matrix[(int)(r/scaleFactor)][(int)(c/scaleFactor)];
-                else
+                if(matrix[(int)(r/scaleFactor)][(int)(c/scaleFactor)] == doorVal){
+                    doorCoords[r][c] = doorVal;
                     scaledMatrix[r][c] = floorVal;
-
+                } else if (matrix[(int)(r/scaleFactor)][(int)(c/scaleFactor)] == charachterVal) {
+                    scaledMatrix[r][c] = floorVal;
+                } else{
+                    scaledMatrix[r][c] = matrix[(int)(r/scaleFactor)][(int)(c/scaleFactor)];
+                }
             }
         }
-        //System.out.println("Upscaled Matrix: " + Arrays.deepToString(scaledMatrix));
+
+        for(int r = 0; r < newRows; r++) {
+            for (int c = 0; c < newCols; c++) {
+                if(doorCoords[r][c] == doorVal && (r == 0 || c == 0 || r == scaledMatrix.length - 1 || c == scaledMatrix[r].length - 1)){
+                    try{
+                        if(doorCoords[r-1][c] != doorVal||doorCoords[r][c-1] != doorVal){
+                            scaledMatrix[r][c] = doorVal;
+                        }
+                    }catch (ArrayIndexOutOfBoundsException exception){
+                        System.out.println(exception + " OK");
+                    }
+                }
+            }
+        }
+
 
         return scaledMatrix;
     }
@@ -46,6 +65,8 @@ public class ScaleFibonacci extends ScaleMatrix{
         int newRows = (int)(matrix.length / scaleFactor);
         int newCols = (int)(matrix[0].length / scaleFactor);
         scaledMatrix = new int[newRows][newCols];
+        int[][] doorCoords = new int[newRows][newCols];
+        boolean continuing = true;
 
         for (int r = 0; r < newRows; r++) {
             for (int c = 0; c < newCols; c++) {
@@ -63,9 +84,11 @@ public class ScaleFibonacci extends ScaleMatrix{
                 int maxFreq = 0;
                 int mostFreqValue = 0;
                 for (Map.Entry<Integer, Integer> entry : freqMap.entrySet()) {
-                    if (entry.getValue() > maxFreq) {
+                    if ((entry.getValue() > maxFreq|| entry.getKey() == doorVal) && continuing ) {
                         maxFreq = entry.getValue();
                         mostFreqValue = entry.getKey();
+                        if(entry.getKey() == doorVal)
+                            continuing = false;
                     }
                 }
                 scaledMatrix[r][c] = mostFreqValue;

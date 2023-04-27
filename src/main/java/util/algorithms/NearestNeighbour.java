@@ -1,5 +1,7 @@
 package util.algorithms;
 
+import util.Point;
+
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
@@ -9,8 +11,9 @@ public class NearestNeighbour extends ScaleMatrix{
     private int[][] matrix;
     private int[][] scaledMatrix;
     private int scaleFactor;
-    //Replace doors and charachters with floor when upscaling
-
+    private static int doorVal = 4;
+    private static int floorVal = 0;
+    private static int charachterVal = 6;
 
     public NearestNeighbour(int[][] matrix, int scaleFactor){
         this.matrix = matrix;
@@ -26,9 +29,7 @@ public class NearestNeighbour extends ScaleMatrix{
         int newRows = matrix.length * scaleFactor;
         int newCols = matrix[0].length * scaleFactor;
         scaledMatrix = new int[newRows][newCols];
-        int doorVal = 4;
-        int floorVal = 0;
-        int charachterVal = 6;
+
         int[][] doorCoords = new int[newRows][newCols];
 
         for(int r = 0; r < newRows; r++)
@@ -36,24 +37,29 @@ public class NearestNeighbour extends ScaleMatrix{
             for(int c = 0; c < newCols; c++)
             {
                 if(matrix[r/scaleFactor][c/scaleFactor] == doorVal){
-                    doorCoords[r/scaleFactor][c/scaleFactor] = doorVal;
+                    doorCoords[r][c] = doorVal;
                     scaledMatrix[r][c] = floorVal;
-                } else if (matrix[r/scaleFactor][c/scaleFactor] == charachterVal) {
+                }else if(matrix[r/scaleFactor][c/scaleFactor] == charachterVal){
                     scaledMatrix[r][c] = floorVal;
                 } else{
                     scaledMatrix[r][c] = matrix[r/scaleFactor][c/scaleFactor];
-
                 }
             }
         }
 
-        /*for(int r = 0; r < newRows; r++) {
+        for(int r = 0; r < newRows; r++) {
             for (int c = 0; c < newCols; c++) {
-                if(doorCoords[r][c]==doorVal){
-                    scaledMatrix[r*scaleFactor][c*scaleFactor] = doorVal;
+                if(doorCoords[r][c] == doorVal && (r == 0 || c == 0 || r == scaledMatrix.length - 1 || c == scaledMatrix[r].length - 1)){
+                    try{
+                        if(doorCoords[r-1][c] != doorVal||doorCoords[r][c-1] != doorVal){
+                            scaledMatrix[r][c] = doorVal;
+                        }
+                    }catch (ArrayIndexOutOfBoundsException exception){
+                        System.out.println(exception + " OK");
+                    }
                 }
             }
-        }*/
+        }
 
         return scaledMatrix;
     }
@@ -81,7 +87,7 @@ public class NearestNeighbour extends ScaleMatrix{
                 int maxFreq = 0;
                 int mostFreqValue = 0;
                 for (Map.Entry<Integer, Integer> entry : freqMap.entrySet()) {
-                    if (entry.getValue() > maxFreq) {
+                    if (entry.getValue() > maxFreq||entry.getKey() == doorVal) {
                         maxFreq = entry.getValue();
                         mostFreqValue = entry.getKey();
                     }

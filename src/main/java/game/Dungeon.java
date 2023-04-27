@@ -60,7 +60,7 @@ public class Dungeon implements Listener {
 	private int saveCounter = 1;
 
 	public MutableNetwork<Room, RoomEdge> network; // TODO: Public for now
-
+	private static EventRouter router = EventRouter.getInstance();
 	ArrayList<Room> rooms;
 	Room initialRoom;
 	Point initialPos;

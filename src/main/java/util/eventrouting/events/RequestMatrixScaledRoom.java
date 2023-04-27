@@ -3,14 +3,14 @@ package util.eventrouting.events;
 import game.RoomScale;
 import util.eventrouting.PCGEvent;
 
-public class RequestMatrixGeneratedRoom extends PCGEvent {
+public class RequestMatrixScaledRoom extends PCGEvent {
     private int[][] matrix;
     private RoomScale roomScale;
     private boolean isEaScaled;
-    public RequestMatrixGeneratedRoom(int[][] matrix){
+    public RequestMatrixScaledRoom(int[][] matrix){
         this.matrix = matrix;
     }
-    public RequestMatrixGeneratedRoom(int[][] matrix, RoomScale roomScale, boolean isEaScaled){
+    public RequestMatrixScaledRoom(int[][] matrix, RoomScale roomScale, boolean isEaScaled){
         this.matrix = matrix;
         this.roomScale = roomScale;
         this.isEaScaled = isEaScaled;

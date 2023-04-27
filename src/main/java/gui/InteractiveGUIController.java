@@ -127,7 +127,7 @@ public class InteractiveGUIController implements Initializable, Listener {
 		router.registerListener(this, new RequestRoomView(null, 0, 0, null));
 		router.registerListener(this, new RequestScaleView(null));
 		router.registerListener(this, new RequestScaleRoom(null, 0, 0)); //SCALE ROOM
-		router.registerListener(this, new RequestMatrixGeneratedRoom(null));
+		router.registerListener(this, new RequestMatrixScaledRoom(null));
 		router.registerListener(this, new MapLoaded(null));
 		router.registerListener(this, new RequestWorldView());
 		router.registerListener(this, new RequestEmptyRoom(null, 0, 0, null));
@@ -329,15 +329,19 @@ public class InteractiveGUIController implements Initializable, Listener {
 			dungeonMap.addRoom(rNR.getWidth(), rNR.getHeight());
 			worldView.initWorldMap(dungeonMap);
 		}
-		else if (e instanceof RequestMatrixGeneratedRoom) {
-			RequestMatrixGeneratedRoom rMGR = (RequestMatrixGeneratedRoom)e;
-			Room rMGRoom = dungeonMap.addRoom(rMGR.getMatrix());
-			if(!rMGR.isEaScaled()){
-				rMGR.getRoomScale().setScaledRoom(rMGRoom);
-			}else{
-				rMGR.getRoomScale().setScaledEaRoom(rMGRoom);
+		else if (e instanceof RequestMatrixScaledRoom) {
+			RequestMatrixScaledRoom rMGR = (RequestMatrixScaledRoom)e;
+
+			if(rMGR.getRoomScale().getOrigRoom() != dungeonMap.getInitialRoom()){
+				Room rMGRoom = dungeonMap.addRoom(rMGR.getMatrix());
+				if(!rMGR.isEaScaled()) {
+					rMGR.getRoomScale().setScaledRoom(rMGRoom);
+				}
+				else{
+					rMGR.getRoomScale().setScaledEaRoom(rMGRoom);
+				}
+				worldView.initWorldMap(dungeonMap);
 			}
-			worldView.initWorldMap(dungeonMap);
 		}
 		else if (e instanceof RequestRoomView) {
 			
@@ -355,7 +359,7 @@ public class InteractiveGUIController implements Initializable, Listener {
 				}
 			}
 			if(ok){
-				initScaledRoomsView(((RequestScaleView) e).getRooms());
+				//initScaledRoomsView(((RequestScaleView) e).getRooms());
 			}
 		}
 		else if (e instanceof RequestSuggestionsView)
@@ -404,7 +408,7 @@ public class InteractiveGUIController implements Initializable, Listener {
 		 else if(e instanceof RequestScaleRoom){
 			 Room scaleRoom = (Room)e.getPayload();
 
-			 scaleOptionsView = new ScaleOptionsViewController(scaleRoom);
+			 scaleOptionsView = new ScaleOptionsViewController(scaleRoom, dungeonMap.getInitialRoom());
 		}
 		 //FOR NARRATIVE STUFF!
 		 else if(e instanceof RequestNarrativeView)

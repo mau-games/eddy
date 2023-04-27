@@ -1457,10 +1457,12 @@ public class MAPEliteAlgorithm extends Algorithm implements Listener {
 	    saveCounter++;
 	}
 
-	/*public int getIterationsToPublish() {
+	/*@Override
+	public int getIterationsToPublish() {
 		return iterationsToPublish;
 	}
 
+	@Override
 	public void setIterationsToPublish(int iterationsToPublish) {
 		this.iterationsToPublish = iterationsToPublish;
 	}*/

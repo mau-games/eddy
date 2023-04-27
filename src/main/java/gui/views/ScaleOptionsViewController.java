@@ -19,10 +19,9 @@ import javafx.stage.*;
 import javafx.scene.layout.*;
 import javafx.scene.control.*;
 
-import java.util.ArrayList;
-
-public class ScaleOptionsViewController implements Listener{
+public class ScaleOptionsViewController{
     private Room room;
+    private Room initRoom;
     private RoomScale scale;
     private static EventRouter router = EventRouter.getInstance();
     private Stage window = new Stage();
@@ -34,11 +33,13 @@ public class ScaleOptionsViewController implements Listener{
     private VBox topLayout;
     private Scene scene;
     private static int lowIterationVal = 50;
-    private static int normalIterationVal = 1000;
+    private static int normalIterationVal = 175;
+    private static int insanityIterationVal = 1000;
     private static int dimLimit = 3;
 
-    public ScaleOptionsViewController(Room room){
+    public ScaleOptionsViewController(Room room, Room initRoom){
         this.room = room;
+        this.initRoom = initRoom;
         displayUI();
     }
 
@@ -54,7 +55,7 @@ public class ScaleOptionsViewController implements Listener{
 
         // opptions do not show
         // make sure that the max map width is not creating problems when scaling
-        scalingCb.getItems().addAll("None","Fibonacci","1:2","1:3","1:4","2:1","3:1","4:1");
+        scalingCb.getItems().addAll("-","Fibonacci","1:2","1:3","1:4","2:1","3:1","4:1");
         scalingCb.setStyle("-fx-background-color: linear-gradient(#b9bbc9,#3d3d3d); -fx-padding: 5;\r\n" +
                 "    -fx-text-fill: linear-gradient (#b9bbc9,#afafaf); -fx-font-size: 16px; \r\n" +
                 "    -fx-border-style: none;\r\n" +
@@ -73,10 +74,10 @@ public class ScaleOptionsViewController implements Listener{
         listLb = new Label("Select the desirable properties to be used in EA");
         listLb.setStyle("-fx-text-fill: linear-gradient(#b9bbc9,#afafaf); -fx-font-size: 16px;");
 
-        propertyList = FXCollections.observableArrayList("NONE","LENIENCY","SIMILARITY","SYMMETRY","INNER-SIMILARITY","NUMBER_PATTERNS","NUMBER_MESO_PATTERN","LINEARITY");
+        propertyList = FXCollections.observableArrayList("-","Difficulty","Symmetry","Inner-similarity","Number of patterns","Number of meso-patterns","Linearity","All");
 
         propertiesCb1 = new ComboBox<>(propertyList);
-        propertiesCb1.setValue("None");
+        propertiesCb1.setValue("-");
         propertiesCb1.setStyle("-fx-background-color: linear-gradient(#b9bbc9,#3d3d3d); -fx-padding: 5;\r\n" +
                 "    -fx-text-fill: linear-gradient (#b9bbc9,#afafaf); -fx-font-size: 16px; \r\n" +
                 "    -fx-border-style: none;\r\n" +
@@ -84,7 +85,7 @@ public class ScaleOptionsViewController implements Listener{
                 "    -fx-border-insets: 0;");
 
         propertiesCb2 = new ComboBox<>(propertyList);
-        propertiesCb2.setValue("None");
+        propertiesCb2.setValue("-");
         propertiesCb2.setStyle("-fx-background-color: linear-gradient(#b9bbc9,#3d3d3d); -fx-padding: 5;\r\n" +
                 "    -fx-text-fill: linear-gradient (#b9bbc9,#afafaf); -fx-font-size: 16px; \r\n" +
                 "    -fx-border-style: none;\r\n" +
@@ -173,24 +174,24 @@ public class ScaleOptionsViewController implements Listener{
         preserveDimArr[1] = propertiesCb2.getValue();
 
         scale = new RoomScale(room, updownType, scalingType, scalefactor, preserveDimArr);
-        int[][] matrix = scale.calculateScaledMatrix();
+        scale.setInitRoom(initRoom);
+        int[][] matrix = scale.calculateScaledMatrix(room);
+        router.postEvent(new RequestMatrixScaledRoom(matrix, scale, false));
 
-        router.postEvent(new RequestMatrixGeneratedRoom(matrix, scale, false));
-        scale.createConnection(room, scale.getScaledRoom(), RoomScale.RoomType.Scaled);
+        if(scale.getOrigRoom() != scale.getInitRoom()){
+            scale.createConnection(initRoom, scale.getScaledRoom());
 
-        Platform.runLater(()->{
-            //Different iterations depending on nmbr of dimensions
-            if(scale.getMAPEDimensions().length > dimLimit){
-                router.postEvent(new StartGA_MAPE(scale.getScaledRoom(), scale.getMAPEDimensions(), lowIterationVal));
+            if(!scale.getPreservedDimValues().isEmpty()) {
+                Platform.runLater(() -> {
+                    // Used for generating two, three, or all dimensions, and it explores all of them
+                    if(scale.getPreservedDimValues().size() > dimLimit){
+                        router.postEvent(new StartGA_MAPE(scale.getScaledRoom(), scale.calculateAllMAPEDimensions(), lowIterationVal));
+                    }
+                    else{
+                        router.postEvent(new StartGA_MAPE(scale.getScaledRoom(), scale.calculateAllMAPEDimensions(), normalIterationVal));
+                    }
+                });
             }
-            else{
-                router.postEvent(new StartGA_MAPE(scale.getScaledRoom(), scale.getMAPEDimensions(), normalIterationVal));
-            }
-        });
-    }
-
-    @Override
-    public synchronized void ping(PCGEvent e){
-
+        }
     }
 }

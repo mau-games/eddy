@@ -24,7 +24,7 @@ public class RoomScale implements Listener{
     private Room origRoom;
     private Room scaledRoom;
     private Room scaledEaRoom;
-    private int[][] eaMatrix;
+    private Room initRoom;
     private static int granularity = 5;
     private static EventRouter router = EventRouter.getInstance();
 
@@ -38,19 +38,19 @@ public class RoomScale implements Listener{
         Upscale,
         Downscale
     }
-    public enum RoomType{
-        Original,
-        Scaled,
-        EaScaled
+    public enum ConnectionType{
+        UpAtFloor,
+        DownAtFloor,
+        DoorToDoor
     }
 
     private ScaleType scaleType;
     private SizeAdjustType sizeAdjustType;
     private double scaleFactor;
     private HashMap<DimensionTypes, Double> preserveDimValues;
+    private MAPEDimensionFXML[] mapeDimensionFXMLS;
 
     public RoomScale(Room origRoom, String sizeAdjustType, String strScaleType, double scaleFactor, String[] preserveDimArr){
-
         router.registerListener(this, new MAPElitesDone());
 
         this.origRoom = origRoom;
@@ -62,40 +62,39 @@ public class RoomScale implements Listener{
     }
 
     private void PreserveDimType(String[] preserveDimArr){
+
         origRoom.calculateAllDimensionalValues();
-        int counter = 0;
+
         for(int i = 0; i<preserveDimArr.length; i++){
             switch (preserveDimArr[i]){
-                case "LENIENCY":
+                case "Difficulty":
                     preserveDimValues.put(DimensionTypes.LENIENCY, origRoom.getDimensionValue(DimensionTypes.LENIENCY));
                     break;
-                case "INNER-SIMILARITY":
+                case "Inner-similarity":
                     preserveDimValues.put(DimensionTypes.INNER_SIMILARITY, origRoom.getDimensionValue(DimensionTypes.INNER_SIMILARITY));
                     break;
-                case "SYMMETRY":
+                case "Symmetry":
                     preserveDimValues.put(DimensionTypes.SYMMETRY, origRoom.getDimensionValue(DimensionTypes.SYMMETRY));
                     break;
-                case "SIMILARITY":
-                    break;
-                case "NUMBER_MESO_PATTERN":
+                case "Number of meso-patterns":
                     preserveDimValues.put(DimensionTypes.NUMBER_MESO_PATTERN, origRoom.getDimensionValue(DimensionTypes.NUMBER_MESO_PATTERN));
                     break;
-                case "NUMBER_PATTERNS":
+                case "Number of patterns":
                     preserveDimValues.put(DimensionTypes.NUMBER_PATTERNS, origRoom.getDimensionValue(DimensionTypes.NUMBER_PATTERNS));
                     break;
-                case "LINEARITY":
+                case "Linearity":
                     preserveDimValues.put(DimensionTypes.LINEARITY, origRoom.getDimensionValue(DimensionTypes.LINEARITY));
                     break;
+                case "All":
+                    setAllDimTypes();
+                    System.out.println("ALL DIMTYPES SET");
+                    return;
                 default:
-                    counter++;
-                    System.out.println("array-length: " + preserveDimArr.length + " counter: " + counter);
-                    if(preserveDimArr.length == counter){
-                        setAllDimTypes();
-                        System.out.println("ALL DIMTYPES SET");
-                    }
                     break;
             }
-            preserveDimValues.put(DimensionTypes.SIMILARITY, origRoom.getDimensionValue(DimensionTypes.SIMILARITY));
+        }
+        if(preserveDimValues.isEmpty()){
+            router.unregisterListener(this, new MAPElitesDone());
         }
     }
 
@@ -108,15 +107,15 @@ public class RoomScale implements Listener{
         preserveDimValues.put(DimensionTypes.LENIENCY, origRoom.getDimensionValue(DimensionTypes.LENIENCY));
     }
 
-    public int[][] calculateScaledMatrix(){
+    public int[][] calculateScaledMatrix(Room room){
         int[][] matrix;
         ScaleMatrix scaleMatrix = null;
         switch (scaleType){
             case NearestNeighbour:
-                scaleMatrix = new NearestNeighbour(origRoom.toMatrix(), (int)scaleFactor);
+                scaleMatrix = new NearestNeighbour(room.toMatrix(), (int)scaleFactor);
                 break;
             case Fibonacci:
-                scaleMatrix = new ScaleFibonacci(origRoom.toMatrix(), scaleFactor);
+                scaleMatrix = new ScaleFibonacci(room.toMatrix(), scaleFactor);
                 break;
             case NONE:
                 System.out.println("No scaletype");
@@ -148,37 +147,62 @@ public class RoomScale implements Listener{
     }
 
     public synchronized void ping(PCGEvent e){
-        if(e instanceof MAPElitesDone){
 
+        if(e instanceof MAPElitesDone){
             List<Room> generatedRooms = ((MAPElitesDone) e).GetRooms();
-            double topDimsDiff = Double.MAX_VALUE;
             Room currTopRoom = null;
+            double topDimsDiff = Double.MAX_VALUE;
+            int counter = 0;
 
             for (Room room : generatedRooms) {
                 if (room != null) {
                     double dimsDiff = 0.0;
-                    double simDiff = 0.0;
-                    for (DimensionTypes dimType : preserveDimValues.keySet()) {
-                        if(dimType == DimensionTypes.SIMILARITY){
-                            try{
-                                room.setSpeficidDimensionValue(GADimension.DimensionTypes.SIMILARITY, SimilarityGADimension.calculateValueIndependently(room, origRoom));
-                            }catch (ArrayIndexOutOfBoundsException exception){
-                                System.out.println(exception);
-                            }
-                            simDiff = room.getDimensionValue(DimensionTypes.SIMILARITY) -2;
+                    double simDiff;
+                    counter++;
+
+                    try{
+                        if(sizeAdjustType == SizeAdjustType.Upscale){
+                            room.setSpeficidDimensionValue(DimensionTypes.SIMILARITY, SimilarityGADimension.calculateValueIndependently(origRoom, room));
                         }
-                        else if(dimType == DimensionTypes.INNER_SIMILARITY){
-                            try{
-                                room.setSpeficidDimensionValue(DimensionTypes.INNER_SIMILARITY, CharacteristicSimilarityGADimension.calculateValueIndependently(room, origRoom));
-                            }catch (ArrayIndexOutOfBoundsException exception){
-                                System.out.println(exception);
-                            }
-                            simDiff = room.getDimensionValue(DimensionTypes.INNER_SIMILARITY) -2;
+                        else{
+                            room.setSpeficidDimensionValue(DimensionTypes.SIMILARITY, SimilarityGADimension.calculateValueIndependently(room, origRoom));
                         }
-                        double dimValue = room.getDimensionValue(dimType);
-                        double targetValue = preserveDimValues.get(dimType);
-                        dimsDiff += Math.abs(dimValue - targetValue) + simDiff;
+                        simDiff = -room.getDimensionValue(DimensionTypes.SIMILARITY);
+                        dimsDiff += simDiff;
+                        simDiff = 0.0;
                     }
+                    catch (ArrayIndexOutOfBoundsException exception){
+                        System.out.println(exception);
+                    }
+
+                    for (DimensionTypes dimType : preserveDimValues.keySet()) {
+                        if(dimType == DimensionTypes.INNER_SIMILARITY){
+                            try{
+                                if(sizeAdjustType == SizeAdjustType.Upscale){
+                                    room.setSpeficidDimensionValue(DimensionTypes.SIMILARITY, CharacteristicSimilarityGADimension.calculateValueIndependently(origRoom, room));
+                                }
+                                else{
+                                    room.setSpeficidDimensionValue(DimensionTypes.SIMILARITY, CharacteristicSimilarityGADimension.calculateValueIndependently(room, origRoom));
+                                }
+                                simDiff = -room.getDimensionValue(DimensionTypes.INNER_SIMILARITY);
+                                dimsDiff += simDiff;
+                                simDiff = 0.0;
+                            }
+                            catch (ArrayIndexOutOfBoundsException exception){
+                                System.out.println(exception);
+                            }
+                        }
+                        else{
+                            double dimValue = room.getDimensionValue(dimType);
+                            double targetValue = preserveDimValues.get(dimType);
+
+                            dimsDiff += Math.abs(dimValue - targetValue);
+                        }
+
+                        System.out.println("Room " + counter + " - " + dimType + ": " + room.getDimensionValue(dimType));
+                    }
+
+                    System.out.println("Room " + counter + " - Similarity: " + room.getDimensionValue(DimensionTypes.SIMILARITY) + '\n' + "Room " + counter + "- dimDiff: " + dimsDiff + '\n');
                     if (dimsDiff < topDimsDiff) {
                         topDimsDiff = dimsDiff;
                         currTopRoom = room;
@@ -190,29 +214,43 @@ public class RoomScale implements Listener{
                 System.out.println("ACTUAL DIMTYPE AND VALUE - " + dimType.toString() + ": " + preserveDimValues.get(dimType));
                 System.out.println("MOST SUITABLE VALUE FOR - " + dimType.toString() + ": " + currTopRoom.getDimensionValue(dimType) + '\n');
             }
+            System.out.println("TOP ROOM DIMDIFF: " + topDimsDiff + '\n' + "ACTUAL SIMILARITY: " + currTopRoom.getDimensionValue(DimensionTypes.SIMILARITY) + '\n');
 
-            setScaleEaMatrix(currTopRoom.toMatrix());
+            //To upscale after EA
+            //int[][] eaScaledMat = calculateScaledMatrix(currTopRoom);
+
+            //The EA-generated already upscaled matrix
+            int[][] eaScaledMat = currTopRoom.toMatrix();
+
             Platform.runLater(()->{
-                router.postEvent(new RequestMatrixGeneratedRoom(getScaledEaMatrix(), this, true));
-                createConnection(scaledRoom, scaledEaRoom, RoomType.EaScaled);
+                router.postEvent(new RequestMatrixScaledRoom(eaScaledMat, this, true));
+                createConnection(initRoom, scaledEaRoom);
                 router.postEvent(new Stop());
+
                 ArrayList<Room> rooms = new ArrayList<Room>();
                 rooms.add(scaledRoom);
                 rooms.add(scaledEaRoom);
-
                 router.postEvent(new RequestScaleView(rooms));
                 router.unregisterListener(this, new MAPElitesDone());
             });
         }
     }
 
-    public void createConnection(Room srcRoom, Room destRoom, RoomType roomType){
-        RoomType roomTypeSrc = RoomType.Original;
-        RoomType roomTypeDest = RoomType.Scaled;
+    //Bottom floor of a room to a door of another room
+    public void createConnection(Room srcRoom, Room destRoom){
+        Point srcPoint = calculateConnCoords(srcRoom.toMatrix(), ConnectionType.DownAtFloor);
+        Point destPoint = calculateConnCoords(destRoom.toMatrix(), ConnectionType.DoorToDoor);
+        router.postEvent(new RequestConnection(null, -1, srcRoom, destRoom, srcPoint, destPoint));
+    }
 
-        if(roomType != RoomType.Scaled){
-            roomTypeSrc = RoomType.Original;
-            roomTypeDest = RoomType.EaScaled;
+    //Upper-left corner of a room to bottom-right corner of another
+    public void createConnection(Room srcRoom, Room destRoom, ConnectionType roomType){
+        ConnectionType roomTypeSrc = ConnectionType.UpAtFloor;
+        ConnectionType roomTypeDest = ConnectionType.DownAtFloor;
+
+        if(roomType != ConnectionType.DownAtFloor){
+            roomTypeSrc = ConnectionType.UpAtFloor;
+            roomTypeDest = ConnectionType.DoorToDoor;
         }
         Point pointSrc = calculateConnCoords(srcRoom.toMatrix(), roomTypeSrc);
         Point pointDest = calculateConnCoords(destRoom.toMatrix(), roomTypeDest);
@@ -220,12 +258,12 @@ public class RoomScale implements Listener{
         router.postEvent(new RequestConnection(null, -1, srcRoom, destRoom, pointSrc, pointDest));
     }
 
-    private Point calculateConnCoords(int mat[][], RoomType roomType){
+    private Point calculateConnCoords(int mat[][], ConnectionType roomType){
         Point point = null;
 
         //Create point at the first suitable location
         switch(roomType) {
-            case Original:
+            case DownAtFloor:
                 for (int row = mat.length - 1; row >= 0; row--) {
                     for (int col = mat[row].length - 1; col >= 0; col--) {
                         if (mat[row][col] == 0 && (row == 0 || col == 0 || row == mat.length - 1 || col == mat[row].length - 1)){
@@ -238,7 +276,7 @@ public class RoomScale implements Listener{
                     }
                 }
                 break;
-            case Scaled:
+            case UpAtFloor:
                 for (int row = 0; row < mat.length; row++) {
                     for (int col = 0; col < mat[row].length; col++) {
                         if (mat[row][col] == 0 && (row == 0 || col == 0 || row == mat.length - 1 || col == mat[row].length - 1)) {
@@ -251,7 +289,7 @@ public class RoomScale implements Listener{
                     }
                 }
                 break;
-            case EaScaled:
+            case DoorToDoor:
                 for (int col = 0; col < mat[0].length; col++) {
                     for (int row = 0; row < mat.length; row++) {
                         if (mat[row][col] == 4) {
@@ -275,8 +313,8 @@ public class RoomScale implements Listener{
         return preserveDimValues;
     }
 
-    public MAPEDimensionFXML[] getMAPEDimensions(){
-        MAPEDimensionFXML[] mapeDimensionFXMLS = new MAPEDimensionFXML[preserveDimValues.size()];
+    public MAPEDimensionFXML[] calculateMAPEDimensions(){
+        mapeDimensionFXMLS = new MAPEDimensionFXML[preserveDimValues.size()];
         DimensionTypes[] dimensionTypes = preserveDimValues.keySet().toArray(new DimensionTypes[preserveDimValues.size()]);
         MAPEDimensionFXML mapeDimensionFXML = null;
         int counter = 0;
@@ -290,12 +328,37 @@ public class RoomScale implements Listener{
         return mapeDimensionFXMLS;
     }
 
-    public int[][] getScaledEaMatrix(){
-        return eaMatrix;
+    public MAPEDimensionFXML[] calculateAllMAPEDimensions(){
+        mapeDimensionFXMLS = new MAPEDimensionFXML[7];
+        mapeDimensionFXMLS[0] = new MAPEDimensionFXML(DimensionTypes.SYMMETRY, granularity);
+        mapeDimensionFXMLS[1] = new MAPEDimensionFXML(DimensionTypes.LENIENCY, granularity);
+        mapeDimensionFXMLS[2] = new MAPEDimensionFXML(DimensionTypes.LINEARITY, granularity);
+        mapeDimensionFXMLS[3] = new MAPEDimensionFXML(DimensionTypes.SIMILARITY, granularity);
+        mapeDimensionFXMLS[4] = new MAPEDimensionFXML(DimensionTypes.INNER_SIMILARITY, granularity);
+        mapeDimensionFXMLS[5] = new MAPEDimensionFXML(DimensionTypes.NUMBER_PATTERNS, granularity);
+        mapeDimensionFXMLS[6] = new MAPEDimensionFXML(DimensionTypes.NUMBER_MESO_PATTERN, granularity);
+
+        return mapeDimensionFXMLS;
     }
 
-    public void setScaleEaMatrix(int[][] eaMatrix){
-        this.eaMatrix = eaMatrix;
+    public MAPEDimensionFXML[] getMAPEDimensions(){
+        return mapeDimensionFXMLS;
+    }
+
+    public Room getOrigRoom(){
+        return origRoom;
+    }
+
+    public void setOrigRoom(Room origRoom){
+        this.origRoom = origRoom;
+    }
+
+    public Room getInitRoom(){
+        return initRoom;
+    }
+
+    public void setInitRoom(Room initRoom) {
+        this.initRoom = initRoom;
     }
 
     public Room getScaledRoom(){
