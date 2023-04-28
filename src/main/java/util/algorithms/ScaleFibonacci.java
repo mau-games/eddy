@@ -66,7 +66,7 @@ public class ScaleFibonacci extends ScaleMatrix{
         int newCols = (int)(matrix[0].length / scaleFactor);
         scaledMatrix = new int[newRows][newCols];
         int[][] doorCoords = new int[newRows][newCols];
-        boolean continuing = true;
+        boolean ok = true;
 
         for (int r = 0; r < newRows; r++) {
             for (int c = 0; c < newCols; c++) {
@@ -84,11 +84,13 @@ public class ScaleFibonacci extends ScaleMatrix{
                 int maxFreq = 0;
                 int mostFreqValue = 0;
                 for (Map.Entry<Integer, Integer> entry : freqMap.entrySet()) {
-                    if ((entry.getValue() > maxFreq|| entry.getKey() == doorVal) && continuing ) {
+                    if ((entry.getValue() > maxFreq || (entry.getKey() == doorVal && ok))) {
                         maxFreq = entry.getValue();
                         mostFreqValue = entry.getKey();
-                        if(entry.getKey() == doorVal)
-                            continuing = false;
+
+                        if(entry.getKey() == doorVal){
+                            ok = false;
+                        }
                     }
                 }
                 scaledMatrix[r][c] = mostFreqValue;
