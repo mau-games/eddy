@@ -41,7 +41,7 @@ public class Game implements Listener{
 	private static final int batchThreads = 8;
 	
 	public static int defaultWidth = 13;
-	public static int defaultHeight = 7;
+	public static int defaultHeight = 8;
 //	public static int defaultMaxDoors = 4;
 
 	public static final DataFormat SERIALIZED_MIME_TYPE = new DataFormat("application/x-java-serialized-object");

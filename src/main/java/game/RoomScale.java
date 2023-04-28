@@ -167,7 +167,7 @@ public class RoomScale implements Listener{
                         else{
                             room.setSpeficidDimensionValue(DimensionTypes.SIMILARITY, SimilarityGADimension.calculateValueIndependently(room, origRoom));
                         }
-                        simDiff = -room.getDimensionValue(DimensionTypes.SIMILARITY);
+                        simDiff = -0.5 * room.getDimensionValue(DimensionTypes.SIMILARITY);
                         dimsDiff += simDiff;
                         simDiff = 0.0;
                     }
@@ -184,7 +184,7 @@ public class RoomScale implements Listener{
                                 else{
                                     room.setSpeficidDimensionValue(DimensionTypes.SIMILARITY, CharacteristicSimilarityGADimension.calculateValueIndependently(room, origRoom));
                                 }
-                                simDiff = -room.getDimensionValue(DimensionTypes.INNER_SIMILARITY);
+                                simDiff = -0.5 * room.getDimensionValue(DimensionTypes.INNER_SIMILARITY);
                                 dimsDiff += simDiff;
                                 simDiff = 0.0;
                             }
