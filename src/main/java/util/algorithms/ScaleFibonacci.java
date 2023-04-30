@@ -64,9 +64,10 @@ public class ScaleFibonacci extends ScaleMatrix{
     public int[][] Downscale(){
         int newRows = (int)(matrix.length / scaleFactor);
         int newCols = (int)(matrix[0].length / scaleFactor);
+        int [][] doorCoords = new int[matrix.length][matrix[0].length];
+        int xDoor = 0;
+        int yDoor = 0;
         scaledMatrix = new int[newRows][newCols];
-        int[][] doorCoords = new int[newRows][newCols];
-        boolean ok = true;
 
         for (int r = 0; r < newRows; r++) {
             for (int c = 0; c < newCols; c++) {
@@ -74,6 +75,11 @@ public class ScaleFibonacci extends ScaleMatrix{
                 for (int x = (int)(r * scaleFactor); x < (r + 1) * scaleFactor; x++) {
                     for (int y = (int)(c * scaleFactor); y < (c + 1) * scaleFactor; y++) {
                         int value = matrix[x][y];
+                        if(matrix[x][y]== doorVal){
+                            doorCoords[(int)(x/scaleFactor)][(int)(y/scaleFactor)] = doorVal;
+                            xDoor = (int)(x/scaleFactor);
+                            yDoor = (int)(y/scaleFactor);
+                        }
                         if (freqMap.containsKey(value)) {
                             freqMap.put(value, freqMap.get(value) + 1);
                         } else {
@@ -84,18 +90,15 @@ public class ScaleFibonacci extends ScaleMatrix{
                 int maxFreq = 0;
                 int mostFreqValue = 0;
                 for (Map.Entry<Integer, Integer> entry : freqMap.entrySet()) {
-                    if ((entry.getValue() > maxFreq || (entry.getKey() == doorVal && ok))) {
+                    if (entry.getValue() > maxFreq) {
                         maxFreq = entry.getValue();
                         mostFreqValue = entry.getKey();
-
-                        if(entry.getKey() == doorVal){
-                            ok = false;
-                        }
                     }
                 }
                 scaledMatrix[r][c] = mostFreqValue;
             }
         }
+        scaledMatrix[xDoor][yDoor] = doorVal;
 
         return scaledMatrix;
     }

@@ -69,6 +69,9 @@ public class NearestNeighbour extends ScaleMatrix{
     public int[][] Downscale() {
         int newRows = matrix.length / scaleFactor;
         int newCols = matrix[0].length / scaleFactor;
+        int [][] doorCoords = new int[matrix.length][matrix[0].length];
+        int xDoor = 0;
+        int yDoor = 0;
         scaledMatrix = new int[newRows][newCols];
 
         for (int r = 0; r < newRows; r++) {
@@ -77,6 +80,11 @@ public class NearestNeighbour extends ScaleMatrix{
                 for (int x = r * scaleFactor; x < (r + 1) * scaleFactor; x++) {
                     for (int y = c * scaleFactor; y < (c + 1) * scaleFactor; y++) {
                         int value = matrix[x][y];
+                        if(matrix[x][y]== doorVal){
+                            doorCoords[x/scaleFactor][y/scaleFactor] = doorVal;
+                            xDoor = x/scaleFactor;
+                            yDoor = y/scaleFactor;
+                        }
                         if (freqMap.containsKey(value)) {
                             freqMap.put(value, freqMap.get(value) + 1);
                         } else {
@@ -87,7 +95,7 @@ public class NearestNeighbour extends ScaleMatrix{
                 int maxFreq = 0;
                 int mostFreqValue = 0;
                 for (Map.Entry<Integer, Integer> entry : freqMap.entrySet()) {
-                    if (entry.getValue() > maxFreq||entry.getKey() == doorVal) {
+                    if (entry.getValue() > maxFreq) {
                         maxFreq = entry.getValue();
                         mostFreqValue = entry.getKey();
                     }
@@ -95,6 +103,8 @@ public class NearestNeighbour extends ScaleMatrix{
                 scaledMatrix[r][c] = mostFreqValue;
             }
         }
+
+        scaledMatrix[xDoor][yDoor] = doorVal;
 
         return scaledMatrix;
     }
