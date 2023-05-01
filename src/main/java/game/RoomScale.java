@@ -210,11 +210,20 @@ public class RoomScale implements Listener{
                 }
             }
 
-            for (DimensionTypes dimType: preserveDimValues.keySet()) {
-                System.out.println("ACTUAL DIMTYPE AND VALUE - " + dimType.toString() + ": " + preserveDimValues.get(dimType));
-                System.out.println("MOST SUITABLE VALUE FOR - " + dimType.toString() + ": " + currTopRoom.getDimensionValue(dimType) + '\n');
+            if(sizeAdjustType == SizeAdjustType.Upscale){
+                scaledRoom.setSpeficidDimensionValue(DimensionTypes.SIMILARITY, CharacteristicSimilarityGADimension.calculateValueIndependently(origRoom, scaledRoom));
             }
-            System.out.println("TOP ROOM DIMDIFF: " + topDimsDiff + '\n' + "ACTUAL SIMILARITY: " + currTopRoom.getDimensionValue(DimensionTypes.SIMILARITY) + '\n');
+            else{
+                scaledRoom.setSpeficidDimensionValue(DimensionTypes.SIMILARITY, CharacteristicSimilarityGADimension.calculateValueIndependently(scaledRoom, origRoom));
+            }
+
+            for (DimensionTypes dimType: preserveDimValues.keySet()) {
+                System.out.println("VALUE FROM EVOLUTION ALGO - " + dimType.toString() + ": " + preserveDimValues.get(dimType));
+                System.out.println("ORIGINAL VALUE - " + dimType.toString() + ": " + currTopRoom.getDimensionValue(dimType));
+                System.out.println("SCALED VALUE - " + dimType.toString() + ": " + scaledRoom.getDimensionValue(dimType) + '\n');
+            }
+            System.out.println("TOP ROOM DIMDIFF: " + topDimsDiff + '\n' + "SIMILARITY BETWEEN ORIGINAL AND EA-SCALED: " + currTopRoom.getDimensionValue(DimensionTypes.SIMILARITY));
+            System.out.println("SIMILARITY BETWEEN ORIGINAL AND SCALED: " + scaledRoom.getDimensionValue(DimensionTypes.SIMILARITY) + '\n');
 
             //To upscale after EA
             //int[][] eaScaledMat = calculateScaledMatrix(currTopRoom);
