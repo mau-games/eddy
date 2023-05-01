@@ -185,10 +185,10 @@ public class ScaleOptionsViewController{
                 Platform.runLater(() -> {
                     // Used for generating two, three, or all dimensions, and it explores all of them
                     if(scale.getPreservedDimValues().size() > dimLimit){
-                        router.postEvent(new StartGA_MAPE(scale.getScaledRoom(), scale.calculateAllMAPEDimensions(), lowIterationVal));
+                        router.postEvent(new StartGA_MAPE(scale.getScaledRoom(), scale.calculateMAPEDimensions(), lowIterationVal));
                     }
                     else{
-                        router.postEvent(new StartGA_MAPE(scale.getScaledRoom(), scale.calculateAllMAPEDimensions(), normalIterationVal));
+                        router.postEvent(new StartGA_MAPE(scale.getScaledRoom(), scale.calculateMAPEDimensions(), normalIterationVal));
                     }
                 });
             }

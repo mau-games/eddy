@@ -159,6 +159,7 @@ public class RoomScale implements Listener{
                     double dimsDiff = 0.0;
                     double simDiff;
                     counter++;
+                    room.calculateAllDimensionalValues();
 
                     try{
                         if(sizeAdjustType == SizeAdjustType.Upscale){
@@ -179,10 +180,10 @@ public class RoomScale implements Listener{
                         if(dimType == DimensionTypes.INNER_SIMILARITY){
                             try{
                                 if(sizeAdjustType == SizeAdjustType.Upscale){
-                                    room.setSpeficidDimensionValue(DimensionTypes.SIMILARITY, CharacteristicSimilarityGADimension.calculateValueIndependently(origRoom, room));
+                                    room.setSpeficidDimensionValue(DimensionTypes.INNER_SIMILARITY, CharacteristicSimilarityGADimension.calculateValueIndependently(origRoom, room));
                                 }
                                 else{
-                                    room.setSpeficidDimensionValue(DimensionTypes.SIMILARITY, CharacteristicSimilarityGADimension.calculateValueIndependently(room, origRoom));
+                                    room.setSpeficidDimensionValue(DimensionTypes.INNER_SIMILARITY, CharacteristicSimilarityGADimension.calculateValueIndependently(room, origRoom));
                                 }
                                 simDiff = -0.5 * room.getDimensionValue(DimensionTypes.INNER_SIMILARITY);
                                 dimsDiff += simDiff;
@@ -209,6 +210,8 @@ public class RoomScale implements Listener{
                     }
                 }
             }
+
+            scaledRoom.calculateAllDimensionalValues();
 
             if(sizeAdjustType == SizeAdjustType.Upscale){
                 scaledRoom.setSpeficidDimensionValue(DimensionTypes.SIMILARITY, CharacteristicSimilarityGADimension.calculateValueIndependently(origRoom, scaledRoom));
