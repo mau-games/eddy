@@ -9,6 +9,7 @@ import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import util.Point;
 import util.eventrouting.EventRouter;
 import util.eventrouting.Listener;
 import util.eventrouting.PCGEvent;
@@ -33,8 +34,9 @@ public class ScaleOptionsViewController{
     private VBox topLayout;
     private Scene scene;
     private static int lowIterationVal = 50;
-    private static int normalIterationVal = 175;
-    private static int insanityIterationVal = 1000;
+    private static int normalIterationVal = 150;
+    private static int highIterationVal = 1000;
+    private static int insanityIterationVal = 2000;
     private static int dimLimit = 3;
 
     public ScaleOptionsViewController(Room room, Room initRoom){
@@ -179,17 +181,23 @@ public class ScaleOptionsViewController{
         router.postEvent(new RequestMatrixScaledRoom(matrix, scale, false));
 
         if(scale.getOrigRoom() != scale.getInitRoom()){
-            scale.createConnection(initRoom, scale.getScaledRoom());
+
+            System.out.println("Doors before: " + scale.getScaledRoom().getDoorCount());
+            System.out.println("Doors before (original room): " + room.getDoorCount());
+
+            //Two calls for the controlled experiment
+            scale.createConnection(initRoom, scale.getScaledRoom(), RoomScale.ConnectionType.DownAtFloor, RoomScale.ConnectionType.DoorToDoor);
+
+            System.out.println("Doors after: " + scale.getScaledRoom().getDoorCount());
+            System.out.println("Doors after (original room): " + room.getDoorCount());
+            scale.setNewDoors();
 
             if(!scale.getPreservedDimValues().isEmpty()) {
                 Platform.runLater(() -> {
-                    // Used for generating two, three, or all dimensions, and it explores all of them
-                    if(scale.getPreservedDimValues().size() > dimLimit){
-                        router.postEvent(new StartGA_MAPE(scale.getScaledRoom(), scale.calculateMAPEDimensions(), lowIterationVal));
-                    }
-                    else{
-                        router.postEvent(new StartGA_MAPE(scale.getScaledRoom(), scale.calculateMAPEDimensions(), normalIterationVal));
-                    }
+
+                    router.postEvent(new StartGA_MAPE(scale.getScaledRoom(), scale.calculateAllMAPEDimensions(), lowIterationVal));
+                    //router.postEvent(new StartGA_MAPE(scale.getScaledRoom(), scale.calculateAllMAPEDimensions(), normalIterationVal));
+                    //router.postEvent(new StartGA_MAPE(scale.getScaledRoom(), scale.calculateMAPEDimensions(), highIterationVal));
                 });
             }
         }

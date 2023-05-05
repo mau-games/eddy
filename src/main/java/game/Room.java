@@ -292,21 +292,38 @@ public class Room {
 		node = new finder.graph.Node<Room>(this);
 	}
 
-	public Room(Dungeon owner, GeneratorConfig config, int matrix[][], int scaleFactor)
+	public Room(Dungeon owner, GeneratorConfig config, int mat[][], int scaleFactor)
 	{
-		int rows = matrix.length;
-		int cols = matrix[0].length;
+		int rows = mat.length;
+		int cols = mat[0].length;
 		init(rows, cols);
 		this.owner = owner;
 		this.config = config;
-		this.matrix = matrix;
+		this.matrix = mat;
 		this.scaleFactor = scaleFactor;
 		localConfig = new RoomConfig(this, scaleFactor); //TODO: NEW ADDITION --> HAVE TO BE ADDED EVERYWHERE
+		doors.clear();
 
 		for (int j = 0; j < height; j++) {
 			for (int i = 0; i < width; i++) {
 
 				tileMap[j * width + i] = new Tile(i , j, TileTypes.toTileType(matrix[j][i]));
+				switch (TileTypes.toTileType(matrix[j][i])) {
+					case WALL:
+						wallCount++;
+						break;
+					case ENEMY:
+						enemies.add(new Point(i, j));
+						break;
+					case TREASURE:
+						treasures.add(new Point(i, j));
+						break;
+					case DOOR:
+						tileMap[j * width + i] = new Tile(i, j, TileTypes.FLOOR);
+						addDoor(new Point(i, j));
+					default:
+						break;
+				}
 			}
 		}
 

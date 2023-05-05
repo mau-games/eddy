@@ -252,7 +252,7 @@ public class Game implements Listener{
 			StartGA_MAPE MAPEinfo = (StartGA_MAPE)e;
 
 			RunMAPElites((Room)e.getPayload(), MAPEinfo.getDimensions(), MAPEinfo.getIterationsToPublish());
-			System.out.println("Game: " + MAPEinfo.getIterationsToPublish());
+			System.out.println("Iterations set: " + MAPEinfo.getIterationsToPublish());
 		}
 		else if(e instanceof RequestSuggestionsView){ 
 			readConfiguration();

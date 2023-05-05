@@ -336,6 +336,7 @@ public class InteractiveGUIController implements Initializable, Listener {
 				Room rMGRoom = dungeonMap.addRoom(rMGR.getMatrix());
 				if(!rMGR.isEaScaled()) {
 					rMGR.getRoomScale().setScaledRoom(rMGRoom);
+					rMGRoom.calculateAllDimensionalValues();
 				}
 				else{
 					rMGR.getRoomScale().setScaledEaRoom(rMGRoom);

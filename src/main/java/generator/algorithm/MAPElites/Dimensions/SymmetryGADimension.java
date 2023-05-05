@@ -23,7 +23,6 @@ public class SymmetryGADimension extends GADimension {
     	int totalWalls = individualRoom.getWallCount();
     	int[][] mapMatrix = individualRoom.toMatrix();
     	
-    	
     	// Vertical Symmetry Check
     	int middlePoint = rowCounter / 2;
     	int identicalVerticalSplit = 0;
