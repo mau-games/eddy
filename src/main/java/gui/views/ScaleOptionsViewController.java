@@ -183,20 +183,19 @@ public class ScaleOptionsViewController{
         if(scale.getOrigRoom() != scale.getInitRoom()){
 
             System.out.println("Doors before: " + scale.getScaledRoom().getDoorCount());
-            System.out.println("Doors before (original room): " + room.getDoorCount());
+            int nmbrOfDoors = scale.getScaledRoom().getDoorCount();
+            for (int i = 0; i<nmbrOfDoors; i++){
+                scale.createConnection(initRoom, scale.getScaledRoom(), RoomScale.ConnectionType.DownAtFloor, RoomScale.ConnectionType.DoorToDoor);
+            }
 
-            //Two calls for the controlled experiment
-            scale.createConnection(initRoom, scale.getScaledRoom(), RoomScale.ConnectionType.DownAtFloor, RoomScale.ConnectionType.DoorToDoor);
-
-            System.out.println("Doors after: " + scale.getScaledRoom().getDoorCount());
-            System.out.println("Doors after (original room): " + room.getDoorCount());
+            System.out.println("Doors after: " + scale.getScaledRoom().getDoorCount() + " Wallcount: " + scale.getScaledRoom().getWallCount() + " Enemycount: " + scale.getScaledRoom().getEnemyCount());
             scale.setNewDoors();
 
             if(!scale.getPreservedDimValues().isEmpty()) {
                 Platform.runLater(() -> {
 
-                    router.postEvent(new StartGA_MAPE(scale.getScaledRoom(), scale.calculateAllMAPEDimensions(), lowIterationVal));
-                    //router.postEvent(new StartGA_MAPE(scale.getScaledRoom(), scale.calculateAllMAPEDimensions(), normalIterationVal));
+                    //router.postEvent(new StartGA_MAPE(scale.getScaledRoom(), scale.calculateAllMAPEDimensions(), lowIterationVal));
+                    router.postEvent(new StartGA_MAPE(scale.getScaledRoom(), scale.calculateAllMAPEDimensions(), normalIterationVal));
                     //router.postEvent(new StartGA_MAPE(scale.getScaledRoom(), scale.calculateMAPEDimensions(), highIterationVal));
                 });
             }

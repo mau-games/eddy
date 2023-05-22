@@ -206,13 +206,6 @@ public class RoomScale implements Listener{
 
             calculateSimilarities(true, origRoom, scaledRoom);
 
-            if(sizeAdjustType == SizeAdjustType.Upscale){
-                scaledRoom.setSpeficidDimensionValue(DimensionTypes.SIMILARITY, CharacteristicSimilarityGADimension.calculateValueIndependently(origRoom, scaledRoom));
-            }
-            else{
-                scaledRoom.setSpeficidDimensionValue(DimensionTypes.SIMILARITY, CharacteristicSimilarityGADimension.calculateValueIndependently(scaledRoom, origRoom));
-            }
-
             for (DimensionTypes dimType: preserveDimValues.keySet()) {
                 System.out.println("ORIGINAL VALUE - " + dimType.toString() + ": " + preserveDimValues.get(dimType));
                 System.out.println("VALUE FROM EVOLUTION ALGO - " + dimType.toString() + ": " + currTopRoom.getDimensionValue(dimType));
@@ -223,10 +216,15 @@ public class RoomScale implements Listener{
             System.out.println("Valid rooms from EA: " + counter + '\n');
 
             int[][] eaScaledMat = currTopRoom.toMatrix();
-
+            int nmbrOfDoors = scaledRoom.getDoorCount();
+            
             Platform.runLater(()->{
                 router.postEvent(new RequestMatrixScaledRoom(eaScaledMat, this, true));
-                createConnection(initRoom, scaledEaRoom, ConnectionType.DownAtFloor, ConnectionType.DoorToDoor);
+
+                for (int i = 0; i<nmbrOfDoors; i++){
+                    createConnection(initRoom, scaledEaRoom, ConnectionType.DownAtFloor, ConnectionType.DoorToDoor);
+                }
+
                 router.postEvent(new Stop());
 
                 ArrayList<Room> rooms = new ArrayList<Room>();
